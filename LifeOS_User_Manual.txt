@@ -1,0 +1,46 @@
+# LifeOS - User Manual
+
+Welcome to **LifeOS**, your all-in-one personal operating system! This simple guide will help you understand how to use the app to manage your money, habits, health, and goals.
+
+---
+
+## 1. Getting Started
+* **Create an Account:** Open the app and click "Create Account". Enter your name, email, and password. 
+* **Cloud Sync:** Your data is automatically saved to the cloud. You can log in from your phone, tablet, or computer, and all your data will be there!
+
+## 2. The Dashboard (Home)
+When you log in, you will see your main Dashboard.
+* **Level & XP:** You earn XP (Experience Points) by completing habits and adding journal entries. Keep using the app to Level Up!
+* **Quick Stats:** See a quick summary of your total bank balance, today's spending, and your active habits.
+
+## 3. Finance & Money
+Tap **"Finance"** on the menu to manage your money.
+* **Bank Accounts:** Tap "+ Add Account" to add your bank accounts (e.g., Savings, Current) and set your current balance.
+* **Credit Cards:** Add your credit cards to track how much you owe. The app shows a color-coded bar (Green/Red) to warn you if you are using too much credit.
+* **Transactions:** Click "+ New Transaction" to record your Income (money coming in) or Expenses (money going out). You can categorize them (like Food, Shopping, Salary).
+* **Budgets:** Want to save money? Set a monthly budget limit for different categories. The app will show a progress bar and warn you if you go over budget!
+
+## 4. Habits & Goals
+Tap **"Habits"** to build better daily routines.
+* Add daily habits (like "Drink Water", "Exercise", or "Read").
+* Tap the checkbox next to a habit every day to complete it and earn XP.
+* Set long-term goals and mark them as complete when you achieve them.
+
+## 5. Health & Wellbeing
+Tap **"Health"** to track your physical fitness.
+* Keep a log of your weight, sleep hours, or medical history so you never lose track of your health data.
+
+## 6. Growth (Emotion Journal)
+Tap **"Growth"** to access your personal journal.
+* **Daily Check-in:** Choose your mood for the day on a scale of 1 to 10.
+* **Tags:** Select emotion tags (Happy, Stressed, Calm, etc.).
+* **Notes:** Write down your thoughts or what happened that day.
+* **Past Entries:** You can click the date picker at the top to write or edit entries for past dates!
+
+## 7. AI Assistant & Tools
+* **Ask AI:** Use the built-in AI chat to ask questions about finance, health, or get life advice.
+* **Calculator:** Use the built-in calculator for quick math without leaving the app.
+
+---
+**📱 Tip for Mobile Users:** 
+You can install LifeOS directly on your phone! Open the app URL in Google Chrome on your Android, tap the 3-dot menu, and select **"Add to Home Screen"**. It will install just like an app from the Play Store!

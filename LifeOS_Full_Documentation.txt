@@ -1,0 +1,62 @@
+LIFEOS - AI-POWERED LIFE OPERATING SYSTEM: DEVELOPMENT & DEPLOYMENT GUIDE
+(ஆரம்பம் முதல் Cloud வரை - முழுமையான கையேடு)
+===================================================================
+
+இந்த ஆவணம் "LifeOS" ஆப்பை நாம் எவ்வாறு உருவாக்கினோம், Vercel-ல் எப்படி Frontend-ஐ Live செய்தோம் மற்றும் Node.js+SQLite Backend-ஐ Render.com-ல் எப்படி இணைத்தோம் என்பதை விளக்குகிறது.
+
+-------------------------------------------------------------------
+பகுதி 1: ஆப் உருவாக்கம் (App Architecture)
+-------------------------------------------------------------------
+1. Frontend (UI): HTML5, CSS3, Vanilla JavaScript
+2. Backend (API): Node.js (Express.js)
+3. Database: SQLite (JSON Sync முறை)
+4. Frontend Hosting: Vercel
+5. Backend Hosting: Render.com
+
+-------------------------------------------------------------------
+பகுதி 2: Frontend-ஐ Vercel-ல் Live செய்தல்
+-------------------------------------------------------------------
+1. LifeOS Frontend கோடுகளை GitHub-ல் 'lifeos' என்ற Repository-யில் Push செய்தோம்.
+2. Vercel.com-ல் GitHub-ஐ இணைத்து 'lifeos' Repository-ஐ Import செய்தோம்.
+3. எவ்வித மாற்றமும் செய்யாமல் "Deploy" கொடுத்தோம்.
+4. நமக்கு `https://lifeos-psi-roan.vercel.app` என்ற Live URL கிடைத்தது.
+
+-------------------------------------------------------------------
+பகுதி 3: Backend (Node.js + SQLite) உருவாக்குதல்
+-------------------------------------------------------------------
+1. `lifeos-backend` என்ற புதிய போல்டரை உருவாக்கினோம்.
+2. அதனுள் `package.json` மற்றும் `server.js` (Express + SQLite) பைல்களை உருவாக்கினோம்.
+3. பயனரின் மொத்த Data-வும் `state_data` என்ற JSON வடிவில் SQLite-ல் சேமிக்கப்படும்படி அமைத்தோம்.
+4. Login, Register, மற்றும் Sync ஆகிய 3 API-களை உருவாக்கினோம்.
+
+-------------------------------------------------------------------
+பகுதி 4: Backend-ஐ Render.com-ல் இணையத்தில் ஏற்றுதல்
+-------------------------------------------------------------------
+1. Command Prompt-ல் `lifeos-backend` போல்டரில் `git init`, `git add .`, `git commit` செய்தோம்.
+2. GitHub-ல் `lifeos-backend` என்ற புதிய Repository உருவாக்கி Code-ஐ Push செய்தோம்.
+3. Render.com-ல் புதிய "Web Service" உருவாக்கி `lifeos-backend` Repository-ஐ இணைத்தோம்.
+4. Build Command ஆக `npm install`, Start Command ஆக `node server.js` கொடுத்தோம்.
+5. Environment Variables-ல் கீழ்க்கண்டவற்றைச் சேர்த்தோம்:
+   - npm_config_build_from_source = sqlite3
+   - JWT_SECRET = lifeos_super_secret_key
+6. Deploy வெற்றிகரமாக முடிந்து `https://lifeos-backend-r42c.onrender.com` என்ற Backend URL கிடைத்தது!
+
+-------------------------------------------------------------------
+பகுதி 5: Frontend மற்றும் Backend-ஐ இணைத்தல் (Cloud Sync)
+-------------------------------------------------------------------
+1. Frontend-ல் உள்ள `js/storage.js` பைலில் `API_URL` என்பதை Render URL ஆக மாற்றினோம்.
+2. `js/core.js` பைலில் உள்ள `handleLogin()` மற்றும் `handleRegister()` ஆகியவற்றை API மூலம் இயங்கும்படி மாற்றினோம்.
+3. `saveState()` நடக்கும் ஒவ்வொரு முறையும் Cloud-க்கு Sync ஆகும் வகையில் Fetch API-ஐச் சேர்த்தோம்.
+4. இறுதியாக `LifeOS` Frontend போல்டரில் `git push` செய்தோம்.
+5. Vercel தானாகவே புதிய கோடுகளை எடுத்து Deploy செய்துவிட்டது!
+
+-------------------------------------------------------------------
+பகுதி 6: PWA மூலம் மொபைல் ஆப்பாக பயன்படுத்துதல் (Play Store Alternative)
+-------------------------------------------------------------------
+1. Android மொபைலில் Chrome-ல் Vercel URL-ஐ திறக்க வேண்டும்.
+2. மெனுவில் சென்று "Add to Home screen" அல்லது "Install App" கொடுக்க வேண்டும்.
+3. இப்போது LifeOS மொபைலின் Home Screen-ல் ஒரு நேட்டிவ் ஆப் போல வந்துவிடும்.
+4. Cloud Backend இணைக்கப்பட்டுள்ளதால், கம்ப்யூட்டரிலும் மொபைலிலும் ஒரே Email மூலம் Login செய்து டேட்டாவை Sync செய்துகொள்ளலாம்!
+
+===================================================================
+வாழ்த்துகள்! நீங்கள் ஒரு முழுமையான Full Stack Cloud App-ஐ வெற்றிகரமாக உருவாக்கி முடித்துவிட்டீர்கள்! 🚀

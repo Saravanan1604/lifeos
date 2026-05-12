@@ -295,11 +295,15 @@ tbody tr:hover{background:rgba(255,255,255,0.03)}
 .fade-in{animation:fadeInUp .4s var(--ease) both}
 .loading-spin{animation:spin 1s linear infinite}
 
+/* Mobile menu button */
+.mobile-menu-btn{display:none;position:fixed;top:16px;left:16px;z-index:900;width:44px;height:44px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,0.1);color:var(--text);align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+
 /* Responsive */
 @media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
+  .sidebar{transform:translateX(-100%);z-index:999;position:fixed;top:0;left:0;height:100vh;background:var(--bg-card);border-right:1px solid rgba(255,255,255,0.05);box-shadow:0 0 50px rgba(0,0,0,0.5)}
   .sidebar.mobile-open{transform:translateX(0)}
-  .content{margin-left:0!important}
+  .mobile-menu-btn{display:flex}
+  .content{margin-left:0!important;padding-top:60px} /* padding to clear the menu button */
   .ai-float{left:24px}
   .page-container{padding:16px}
   .stat-grid{grid-template-columns:1fr 1fr}
