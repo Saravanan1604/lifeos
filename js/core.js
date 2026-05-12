@@ -266,9 +266,14 @@ function destroyCharts() {
   chartInstances = {};
 }
 
-function navigate(page) {
+function navigate(page, skipHistory = false) {
   currentPage = page;
   destroyCharts();
+  
+  if (!skipHistory) {
+    history.pushState({ page: page }, '', `#${page}`);
+  }
+
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
@@ -297,3 +302,13 @@ function navigate(page) {
     }
   }, 80);
 }
+
+// ===== HARDWARE BACK BUTTON (ANDROID PWA) =====
+window.addEventListener('popstate', (e) => {
+  if (e.state && e.state.page) {
+    navigate(e.state.page, true);
+  } else {
+    // default
+    navigate('dashboard', true);
+  }
+});
