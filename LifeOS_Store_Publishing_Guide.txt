@@ -1,0 +1,119 @@
+# LifeOS - Play Store & App Store Publishing Guide
+## (Android + iPhone இரண்டிலும் ஆப்பை வெளியிடுவதற்கான முழுமையான கையேடு)
+
+---
+
+## முன்னுரை: PWA → Native App ஆக மாற்றும் முறை
+
+நமது LifeOS ஏற்கனவே ஒரு PWA (Progressive Web App). இதை கீழ்க்கண்ட Tool மூலம் Android (.apk/.aab) மற்றும் iOS (.ipa) ஆக மாற்றலாம்.
+
+**Tool பெயர்:** PWABuilder (Microsoft-ன் Free Tool)
+**URL:** https://www.pwabuilder.com
+
+---
+
+## பகுதி 1: Android Play Store (Google)
+
+### படி 1: PWABuilder-ல் ஆப்பை தயாரிக்கவும்
+1. https://www.pwabuilder.com சென்று உங்கள் Vercel URL ஐ உள்ளிடவும்:
+   `https://lifeos-psi-roan.vercel.app`
+2. "Start" க்கிக் செய்யவும்.
+3. PWA Score பாருங்கள் (100/100 வர வேண்டும்).
+4. "Package for Stores" என்பதை க்கிக் செய்யவும்.
+5. "Android" tab தேர்வு செய்து "Generate Package" க்கிக் செய்யவும்.
+6. `.aab` file டவுன்லோட் செய்யவும். இதுதான் Play Store-க்கு வேண்டியது!
+
+### படி 2: Google Play Console Account உருவாக்கவும்
+1. https://play.google.com/console சென்று Google Account-ல் Login செய்யவும்.
+2. "Create Developer Account" க்கிக் செய்யவும்.
+3. **One-time Fee: $25 USD (≈ ₹2,100)** கட்டணம் செலுத்தவும் (Credit/Debit Card).
+4. Form-ல் உங்கள் விவரங்களை நிரப்பவும்.
+
+### படி 3: ஆப்பை Upload செய்யவும்
+1. Play Console-ல் "Create App" க்கிக் செய்யவும்.
+2. App Name: **LifeOS** என்று கொடுக்கவும்.
+3. Language: **English** தேர்வு செய்யவும்.
+4. App Type: **App**, Free: **Yes** தேர்வு செய்யவும்.
+5. இடதுபுற மெனுவில் "Production" → "Releases" → "Create new release" செல்லவும்.
+6. பதிவிறக்கிய `.aab` file-ஐ Upload செய்யவும்.
+
+### படி 4: Store Listing நிரப்பவும்
+- **App Name:** LifeOS - Life Operating System
+- **Short Description:** Manage your money, habits, health & goals in one smart app
+- **Full Description:** (கீழே கொடுக்கப்பட்டுள்ள Text-ஐ Copy செய்யவும்)
+  ```
+  LifeOS is your all-in-one personal life management system.
+  Track your finances, set budgets, build daily habits, 
+  log your journal entries, and manage your health — all in one 
+  beautiful, cloud-synced app.
+
+  Key Features:
+  ✅ Finance & Budget Tracking
+  ✅ Daily Habit Tracker with XP & Levels
+  ✅ Personal Journal with Mood Tracking
+  ✅ Cloud Sync across all your devices
+  ✅ Beautiful Dark Mode UI
+  ✅ Works Offline (PWA)
+  ```
+- **Category:** Productivity (or Health & Fitness)
+- **Content Rating:** Fill the questionnaire (All ages)
+- **Screenshots:** Take 5 screenshots from your phone and upload
+
+### படி 5: Review-க்கு Submit செய்யவும்
+- அனைத்தும் நிரப்பிய பின், "Submit for review" க்கிக் செய்யவும்.
+- Google Review: **3 to 7 working days** ஆகும்.
+- Approval கிடைத்தால், Play Store-ல் உங்கள் App Live ஆகிவிடும்!
+
+---
+
+## பகுதி 2: iPhone App Store (Apple) - முக்கியமான தகவல்கள்
+
+> ⚠️ **மிக முக்கியம்:** Apple App Store-ல் வெளியிட **Mac கம்ப்யூட்டர் (MacBook/iMac)** மற்றும் **Apple Developer Account** இரண்டும் கட்டாயம் தேவை.
+
+### செலவுகள்:
+| தேவை | கட்டணம் |
+|------|---------|
+| Apple Developer Account | $99 USD/year (≈ ₹8,300/ஆண்டு) |
+| Mac கம்ப்யூட்டர் | கட்டாயம் (Windows-ல் iOS Build செய்ய முடியாது) |
+
+### படி 1: Apple Developer Account
+1. https://developer.apple.com சென்று உங்கள் Apple ID-ல் Login செய்யவும்.
+2. "Enroll" க்கிக் செய்து $99 கட்டணம் செலுத்தவும்.
+3. 24-48 மணி நேரத்தில் Approval கிடைக்கும்.
+
+### படி 2: PWABuilder மூலம் iOS Package உருவாக்கவும்
+1. https://www.pwabuilder.com சென்று Vercel URL உள்ளிடவும்.
+2. "Package for Stores" → "iOS" tab தேர்வு செய்யவும்.
+3. `.zip` file டவுன்லோட் செய்யவும்.
+4. இதை Mac-ல் Xcode மூலம் திறந்து Archive செய்ய வேண்டும்.
+5. App Store Connect-ல் Upload செய்ய வேண்டும்.
+
+### படி 3: Alternative - Appetize (Test Only)
+Mac இல்லாதவர்களுக்கு Test செய்ய:
+https://appetize.io - உங்கள் PWA URL-ஐ அங்கே சேர்த்து iPhone Simulator-ல் பாரலாம்.
+
+---
+
+## சுருக்கம்
+
+| | Android (Play Store) | iPhone (App Store) |
+|---|---|---|
+| **Tool** | PWABuilder | PWABuilder + Xcode |
+| **கட்டணம்** | $25 (ஒரு முறை) | $99/ஆண்டு |
+| **கம்ப்யூட்டர்** | Windows OK | Mac கட்டாயம் |
+| **Approval** | 3-7 நாட்கள் | 1-3 நாட்கள் |
+| **சிரமம்** | எளிதானது | கஷ்டமானது |
+
+---
+
+## உடனே செய்யக்கூடியது (இன்றே!)
+
+Mac இல்லாமல் iPhone-லும் உங்கள் ஆப்பை Install செய்யலாம்:
+1. iPhone-ல் Safari-ல் `https://lifeos-psi-roan.vercel.app` திறக்கவும்.
+2. Share button → "Add to Home Screen" க்கிக் செய்யவும்.
+3. iPhone Home Screen-ல் Native App போல் தோன்றும்!
+4. இது App Store-ல்லாமலே iPhone-ல் வேலை செய்யும்!
+
+---
+
+*Play Store-க்கு $25 கட்டணம் செலுத்த தயாரா? அப்படி இருந்தால் உடனடியாக PWABuilder-ல் Package Download செய்ய உதவுகிறேன்!*
