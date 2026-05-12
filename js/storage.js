@@ -35,8 +35,24 @@ const DB = {
 };
 
 let STATE = DB.load();
+const API_URL = 'https://lifeos-backend-r42c.onrender.com/api'; // Live Render Backend
 
-function saveState() { DB.save(STATE); }
+function saveState() { 
+  DB.save(STATE); 
+  
+  // Cloud Sync (only runs if logged in)
+  const token = localStorage.getItem('lifeos_token');
+  if (token && STATE.user) {
+    fetch(`${API_URL}/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ state: STATE })
+    }).catch(err => console.log('Background sync failed:', err));
+  }
+}
 
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);

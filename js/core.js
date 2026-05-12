@@ -117,36 +117,79 @@ function switchAuthTab(tab) {
   document.getElementById('tab-register').classList.toggle('active', tab === 'register');
 }
 
-function handleLogin() {
+async function handleLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-password').value;
-  if (!email) { toast('Enter your email', 'error'); return; }
-  if (!pass) { toast('Enter your password', 'error'); return; }
-  if (!STATE.user) {
-    STATE.user = { name: email.split('@')[0], email, joinDate: new Date().toISOString() };
-    STATE.settings.name = STATE.user.name;
-    saveState();
+  if (!email || !pass) { toast('Enter email and password', 'error'); return; }
+
+  try {
+    const btn = document.querySelector('#login-form button');
+    btn.textContent = 'Logging in...';
+    
+    const res = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    
+    const data = await res.json();
+    btn.textContent = 'Sign In';
+
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    
+    // Save Token and State
+    localStorage.setItem('lifeos_token', data.token);
+    if (data.state && Object.keys(data.state).length > 0) {
+      STATE = { ...DB.defaults(), ...data.state };
+      DB.save(STATE); // Save cloud state locally
+    }
+    
+    toast('Logged in successfully!', 'success');
+    showApp();
+    renderCalcBody();
+  } catch (err) {
+    toast(err.message, 'error');
   }
-  showApp();
-  renderCalcBody();
 }
 
-function handleRegister() {
+async function handleRegister() {
   const name = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
   const pass = document.getElementById('reg-password').value;
   if (!name || !email || !pass) { toast('Fill all fields', 'error'); return; }
-  STATE.user = { name, email, joinDate: new Date().toISOString() };
-  STATE.settings.name = name;
-  saveState();
-  toast('Account created! Welcome to LifeOS 🚀', 'success');
-  showApp();
-  renderCalcBody();
+
+  try {
+    const btn = document.querySelector('#register-form button');
+    btn.textContent = 'Creating account...';
+
+    const res = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password: pass })
+    });
+
+    const data = await res.json();
+    btn.textContent = 'Create Account';
+
+    if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+    // Save Token and State
+    localStorage.setItem('lifeos_token', data.token);
+    STATE = { ...DB.defaults(), ...data.state };
+    DB.save(STATE);
+
+    toast('Account created!', 'success');
+    showApp();
+    renderCalcBody();
+  } catch (err) {
+    toast(err.message, 'error');
+  }
 }
 
 function handleLogout() {
-  STATE.user = null;
-  saveState();
+  localStorage.removeItem('lifeos_token');
+  STATE = DB.defaults();
+  DB.save(STATE);
   document.getElementById('main-app').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
 }
