@@ -205,11 +205,18 @@ function showApp() {
 // ===== SIDEBAR =====
 let sidebarCollapsed = false;
 function toggleSidebar() {
-  sidebarCollapsed = !sidebarCollapsed;
   const sb = document.getElementById('sidebar');
   const ct = document.getElementById('content');
-  sb.classList.toggle('collapsed', sidebarCollapsed);
-  ct.classList.toggle('expanded', sidebarCollapsed);
+  
+  if (window.innerWidth <= 768) {
+    // Mobile mode: just show/hide the sidebar fully
+    sb.classList.toggle('mobile-open');
+  } else {
+    // Desktop mode: toggle collapse (shrink width)
+    sidebarCollapsed = !sidebarCollapsed;
+    sb.classList.toggle('collapsed', sidebarCollapsed);
+    ct.classList.toggle('expanded', sidebarCollapsed);
+  }
 }
 
 function updateSidebar() {
@@ -265,6 +272,10 @@ function navigate(page) {
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    sidebarCollapsed = false;
+  }
   const container = document.getElementById('page-container');
   container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:200px;font-size:24px" class="loading-spin">⚡</div>';
   setTimeout(() => {
