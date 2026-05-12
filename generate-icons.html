@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head><title>LifeOS Icon Generator</title></head>
+<body style="font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#0a0a1a;color:white;gap:20px">
+  <h2>LifeOS Icon Generator</h2>
+  <p>Click the button below to download both icons as real PNG files.</p>
+  <button onclick="generateIcons()" style="padding:14px 28px;background:#00c9a7;border:none;border-radius:10px;color:white;font-size:16px;font-weight:700;cursor:pointer">
+    ⬇️ Download PNG Icons
+  </button>
+  <canvas id="c512" width="512" height="512" style="border-radius:24px;margin-top:20px"></canvas>
+  <p id="status" style="color:#00c9a7"></p>
+
+  <script>
+    function drawIcon(canvas) {
+      const ctx = canvas.getContext('2d');
+      const s = canvas.width;
+
+      // Background
+      const bg = ctx.createLinearGradient(0, 0, s, s);
+      bg.addColorStop(0, '#0d0d2b');
+      bg.addColorStop(1, '#0a1a2a');
+      ctx.fillStyle = bg;
+      ctx.roundRect(0, 0, s, s, s * 0.2);
+      ctx.fill();
+
+      // Glow
+      const glow = ctx.createRadialGradient(s/2, s/2, 0, s/2, s/2, s*0.5);
+      glow.addColorStop(0, 'rgba(0,201,167,0.25)');
+      glow.addColorStop(1, 'rgba(0,201,167,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(s/2, s/2, s*0.45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Lightning bolt
+      const grad = ctx.createLinearGradient(s*0.35, s*0.1, s*0.65, s*0.9);
+      grad.addColorStop(0, '#00f5d4');
+      grad.addColorStop(1, '#00c9a7');
+      ctx.fillStyle = grad;
+      ctx.shadowColor = '#00c9a7';
+      ctx.shadowBlur = s * 0.08;
+
+      ctx.beginPath();
+      ctx.moveTo(s * 0.58, s * 0.12);
+      ctx.lineTo(s * 0.35, s * 0.52);
+      ctx.lineTo(s * 0.50, s * 0.52);
+      ctx.lineTo(s * 0.42, s * 0.88);
+      ctx.lineTo(s * 0.65, s * 0.48);
+      ctx.lineTo(s * 0.50, s * 0.48);
+      ctx.lineTo(s * 0.58, s * 0.12);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function generateIcons() {
+      const sizes = [512, 192];
+      sizes.forEach((size, i) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        drawIcon(canvas);
+        
+        setTimeout(() => {
+          const link = document.createElement('a');
+          link.download = `icon-${size}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          document.getElementById('status').textContent = `✅ icon-${size}.png downloaded!`;
+        }, i * 800);
+      });
+
+      // Also render preview
+      const preview = document.getElementById('c512');
+      drawIcon(preview);
+    }
+
+    // Auto-draw preview
+    window.onload = () => {
+      const preview = document.getElementById('c512');
+      preview.width = 200;
+      preview.height = 200;
+      drawIcon(preview);
+    };
+  </script>
+</body>
+</html>
