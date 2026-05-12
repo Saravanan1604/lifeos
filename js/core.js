@@ -113,9 +113,55 @@ function closeModal() {
 function switchAuthTab(tab) {
   document.getElementById('login-form').style.display = tab === 'login' ? 'flex' : 'none';
   document.getElementById('register-form').style.display = tab === 'register' ? 'flex' : 'none';
+  const forgotForm = document.getElementById('forgot-form');
+  if (forgotForm) forgotForm.style.display = tab === 'forgot' ? 'flex' : 'none';
+
   document.getElementById('tab-login').classList.toggle('active', tab === 'login');
   document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  const forgotTab = document.getElementById('tab-forgot');
+  if (forgotTab) forgotTab.classList.toggle('active', tab === 'forgot');
 }
+
+async function handleForgotPassword() {
+  const name = document.getElementById('forgot-name').value.trim();
+  const email = document.getElementById('forgot-email').value.trim();
+  const newPassword = document.getElementById('forgot-password').value.trim();
+
+  if (!name || !email || !newPassword) { toast('Please enter name, email and new password', 'error'); return; }
+
+  try {
+    const btn = document.querySelector('#forgot-form button');
+    const oldText = btn.innerHTML;
+    btn.innerHTML = '<span>Resetting...</span>';
+    
+    const res = await fetch(`${API_URL}/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, newPassword })
+    });
+    const data = await res.json();
+    
+    btn.innerHTML = oldText;
+
+    if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+
+    toast(data.message, 'success');
+    
+    // Clear fields
+    document.getElementById('forgot-name').value = '';
+    document.getElementById('forgot-email').value = '';
+    document.getElementById('forgot-password').value = '';
+    
+    // Switch to login and prefill email
+    switchAuthTab('login');
+    document.getElementById('login-email').value = email;
+    document.getElementById('login-password').value = '';
+    
+  } catch (err) {
+    toast(err.message, 'error');
+  }
+}
+
 
 async function handleLogin() {
   const email = document.getElementById('login-email').value.trim();
