@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>LifeOS — AI-Powered Life Operating System</title>
+  <meta name="description" content="Your AI-powered personal operating system for Finance, Health, Goals, Habits, Career and Life." />
+
+  <!-- ── PWA / Install ── -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#00c9a7" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="LifeOS" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
+
+  <!-- ── Fonts & Charts ── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,800,900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- ── Styles ── -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/calc.css" />
+  <link rel="stylesheet" href="css/premium.css" />
+</head>
+<body>
+
+<!-- Particle Background -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- App Root -->
+<div id="app">
+
+  <!-- =================== AUTH SCREEN =================== -->
+  <div id="auth-screen" class="auth-screen">
+    <div class="auth-bg-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="auth-card glass-card">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h1 class="auth-title">LifeOS</h1>
+        <p class="auth-subtitle">Your AI-Powered Life Operating System</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')" id="tab-login">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')" id="tab-register">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="login-form" class="auth-form">
+        <div class="form-group"><label class="form-label">Email</label><input type="email" id="login-email" class="form-input" placeholder="you@example.com" /></div>
+        <div class="form-group"><label class="form-label">Password</label><input type="password" id="login-password" class="form-input" placeholder="••••••••" /></div>
+        <button class="btn-primary btn-full" onclick="handleLogin()"><span>Sign In</span> <span>→</span></button>
+        <p class="auth-demo-hint">Demo: any email + any password</p>
+      </div>
+
+      <!-- Register Form -->
+      <div id="register-form" class="auth-form" style="display:none">
+        <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="reg-name" class="form-input" placeholder="Your name" /></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" id="reg-email" class="form-input" placeholder="you@example.com" /></div>
+        <div class="form-group"><label class="form-label">Password</label><input type="password" id="reg-password" class="form-input" placeholder="••••••••" /></div>
+        <button class="btn-primary btn-full" onclick="handleRegister()"><span>Create Account</span> <span>→</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== MAIN APP =================== -->
+  <div id="main-app" style="display:none">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="sidebar-logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </span>
+          <span class="sidebar-logo-text">LifeOS</span>
+        </div>
+        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- User Info -->
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebar-avatar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="user-info">
+          <p class="user-name" id="sidebar-name">User</p>
+          <p class="user-level" id="sidebar-level">Level 1 · Beginner</p>
+        </div>
+      </div>
+
+      <!-- XP Bar -->
+      <div class="sidebar-xp">
+        <div class="xp-bar"><div class="xp-fill" id="sidebar-xp-fill" style="width:0%"></div></div>
+        <p class="xp-label" id="sidebar-xp-label">0 / 1000 XP</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-group">
+          <p class="nav-group-label">Overview</p>
+          <button class="nav-item active" onclick="navigate('dashboard')" data-page="dashboard">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+            <span class="nav-text">Dashboard</span>
+          </button>
+          <button class="nav-item" onclick="navigate('analytics')" data-page="analytics">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+            <span class="nav-text">Life Analytics</span>
+          </button>
+        </div>
+        <div class="nav-group">
+          <p class="nav-group-label">Finance</p>
+          <button class="nav-item" onclick="navigate('finance')" data-page="finance">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+            <span class="nav-text">Finance</span>
+          </button>
+          <button class="nav-item" onclick="navigate('investments')" data-page="investments">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="8" width="6" height="13" rx="1"/><rect x="16" y="13" width="6" height="8" rx="1"/></svg></span>
+            <span class="nav-text">All Assets</span>
+          </button>
+          <button class="nav-item" onclick="navigate('budget')" data-page="budget">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><line x1="12" y1="6" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="18"/></svg></span>
+            <span class="nav-text">Budget</span>
+          </button>
+        </div>
+        <div class="nav-group">
+          <p class="nav-group-label">Life</p>
+          <button class="nav-item" onclick="navigate('health')" data-page="health">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+            <span class="nav-text">Health Hub</span>
+          </button>
+          <button class="nav-item" onclick="navigate('habits')" data-page="habits">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></span>
+            <span class="nav-text">Habits</span>
+          </button>
+          <button class="nav-item" onclick="navigate('goals')" data-page="goals">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+            <span class="nav-text">Goals</span>
+          </button>
+          <button class="nav-item" onclick="navigate('journal')" data-page="journal">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+            <span class="nav-text">Journal</span>
+          </button>
+          <button class="nav-item" onclick="navigate('categories')" data-page="categories">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+            <span class="nav-text">Categories</span>
+          </button>
+        </div>
+        <div class="nav-group">
+          <p class="nav-group-label">Growth</p>
+          <button class="nav-item" onclick="navigate('achievements')" data-page="achievements">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>
+            <span class="nav-text">Achievements</span>
+          </button>
+          <button class="nav-item" onclick="navigate('ai-coach')" data-page="ai-coach">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg></span>
+            <span class="nav-text">AI Coach</span>
+          </button>
+        </div>
+        <div class="nav-group">
+          <button class="nav-item" onclick="navigate('settings')" data-page="settings">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+            <span class="nav-text">Settings</span>
+          </button>
+          <button class="nav-item" onclick="handleLogout()">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+            <span class="nav-text">Sign Out</span>
+          </button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="content" class="content">
+      <div id="page-container" class="page-container">
+        <!-- Pages rendered here by JS -->
+      </div>
+    </main>
+
+    <!-- Floating Action Dock -->
+    <div class="float-dock">
+      <button class="float-dock-btn float-calc" onclick="toggleCalculator()" title="Calculator">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="12" y1="10" x2="14" y2="10"/><line x1="16" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="14" y2="14"/><line x1="16" y1="14" x2="16" y2="18"/><line x1="8" y1="18" x2="10" y2="18"/><line x1="12" y1="18" x2="14" y2="18"/></svg>
+      </button>
+      <button class="float-dock-btn float-ai" onclick="navigate('ai-coach')" title="AI Coach">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
+        <div class="ai-float-pulse"></div>
+      </button>
+    </div>
+
+
+  </div><!-- /main-app -->
+</div><!-- /app -->
+
+<!-- =================== MODAL =================== -->
+<div id="modal-overlay" class="modal-overlay" style="display:none" onclick="closeModal()">
+  <div class="modal-box glass-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modal-title">Modal</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body" class="modal-body"></div>
+  </div>
+</div>
+
+<!-- =================== TOAST =================== -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Floating Calculator Window — outside app to avoid overflow clipping -->
+<div id="calc-window" class="calc-window glass-card">
+  <div class="calc-header">
+    <div class="calc-tabs">
+      <button class="calc-mode-btn active" data-mode="basic" onclick="switchCalcMode('basic')">Basic</button>
+      <button class="calc-mode-btn" data-mode="scientific" onclick="switchCalcMode('scientific')">Sci</button>
+      <button class="calc-mode-btn" data-mode="financial" onclick="switchCalcMode('financial')">Fin</button>
+    </div>
+    <button class="calc-close" onclick="toggleCalculator()">✕</button>
+  </div>
+  <div id="calc-display-wrap" class="calc-display-wrap">
+    <div id="calc-display" class="calc-display">0</div>
+  </div>
+  <div id="calc-body" class="calc-body"></div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/core.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/finance.js"></script>
+<script src="js/life.js"></script>
+<script src="js/growth.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/premium.js"></script>
+<script src="js/categories.js"></script>
+<script src="js/pages.js"></script>
+<script src="js/init.js"></script>
+
+<!-- ── PWA Service Worker ── -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(r => console.log('SW registered:', r.scope))
+        .catch(e => console.log('SW error:', e));
+    });
+  }
+
+  // Handle ?page= shortcut links from PWA shortcuts
+  (function(){
+    const p = new URLSearchParams(location.search).get('page');
+    if (p) window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => { if (typeof navigate === 'function') navigate(p); }, 300);
+    });
+  })();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,18 @@
+# LifeOS — Git ignore rules
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor folders
+.vscode/
+.idea/
+*.swp
+
+# Temp / build
+*.log
+*.tmp
+
+# Don't upload the icon generator (development helper only)
+create-icons.html

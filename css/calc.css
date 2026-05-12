@@ -1,0 +1,38 @@
+
+/* ===== FLOATING CALCULATOR WINDOW ===== */
+.calc-window{position:fixed;width:320px;max-height:calc(100vh - 80px);background:rgba(15,15,35,0.97);backdrop-filter:blur(24px);border:1px solid var(--glass-border);border-radius:20px;z-index:9999;display:none;flex-direction:column;opacity:0;transform:translateY(12px) scale(0.97);transition:opacity .25s var(--ease),transform .25s var(--ease);box-shadow:0 24px 80px rgba(0,0,0,0.65);overflow:hidden}
+
+.calc-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(0,0,0,0.2);border-bottom:1px solid var(--glass-border);user-select:none}
+.calc-header::before{content:'⠿';font-size:14px;color:rgba(255,255,255,0.25);margin-right:8px;letter-spacing:2px}
+.calc-tabs{display:flex;gap:4px;background:rgba(255,255,255,0.06);padding:3px;border-radius:8px}
+.calc-mode-btn{background:transparent;border:none;color:var(--text2);padding:6px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;transition:.2s}
+.calc-mode-btn.active{background:rgba(255,255,255,0.15);color:#fff}
+.calc-close{background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.calc-close:hover{background:rgba(239,68,68,0.2);color:var(--red)}
+
+.calc-display-wrap{padding:20px 16px;background:rgba(0,0,0,0.3);text-align:right}
+.calc-display{font-size:36px;font-weight:300;font-family:'JetBrains Mono',monospace;letter-spacing:-1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.calc-body{padding:16px;overflow-y:auto;flex:1}
+.calc-grid-basic{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.calc-grid-sci{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
+
+.calc-btn{background:rgba(255,255,255,0.08);border:1px solid var(--glass-border);color:var(--text);font-size:18px;font-family:'Inter',sans-serif;font-weight:500;height:48px;border-radius:12px;cursor:pointer;transition:.1s}
+.calc-btn:hover{background:rgba(255,255,255,0.15)}
+.calc-btn:active{transform:scale(0.95)}
+.calc-op{color:var(--amber);background:rgba(245,158,11,0.1);font-size:20px}
+.calc-eq{background:linear-gradient(135deg,var(--indigo),var(--purple));color:#fff;border:none}
+.calc-mem{font-size:13px;color:var(--blue);font-weight:700}
+.calc-sci{font-size:13px;background:rgba(59,130,246,0.1);color:var(--blue)}
+
+/* Finance Calc Tab */
+.fin-tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--glass-border)}
+.calc-fin-tab{background:rgba(255,255,255,0.06);border:1px solid transparent;color:var(--text2);padding:6px 12px;font-size:12px;font-weight:600;border-radius:20px;cursor:pointer;white-space:nowrap}
+.calc-fin-tab.active{background:rgba(16,185,129,0.15);color:var(--emerald);border-color:rgba(16,185,129,0.3)}
+.fin-row{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.fin-row label{font-size:12px;color:var(--text2)}
+.fin-input{padding:10px 12px}
+
+@media(max-width:768px){
+  .calc-window{width:calc(100vw - 32px);max-height:calc(100vh - 80px)}
+}
