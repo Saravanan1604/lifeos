@@ -123,11 +123,11 @@ function switchAuthTab(tab) {
 }
 
 async function handleForgotPassword() {
-  const name = document.getElementById('forgot-name').value.trim();
+  const mobile = document.getElementById('forgot-mobile').value.trim();
   const email = document.getElementById('forgot-email').value.trim();
   const newPassword = document.getElementById('forgot-password').value.trim();
 
-  if (!name || !email || !newPassword) { toast('Please enter name, email and new password', 'error'); return; }
+  if (!mobile || !email || !newPassword) { toast('Please enter mobile number, email and new password', 'error'); return; }
 
   try {
     const btn = document.querySelector('#forgot-form button');
@@ -137,7 +137,7 @@ async function handleForgotPassword() {
     const res = await fetch(`${API_URL}/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, newPassword })
+      body: JSON.stringify({ mobile, email, newPassword })
     });
     const data = await res.json();
     
@@ -148,7 +148,7 @@ async function handleForgotPassword() {
     toast(data.message, 'success');
     
     // Clear fields
-    document.getElementById('forgot-name').value = '';
+    document.getElementById('forgot-mobile').value = '';
     document.getElementById('forgot-email').value = '';
     document.getElementById('forgot-password').value = '';
     
@@ -201,8 +201,9 @@ async function handleLogin() {
 async function handleRegister() {
   const name = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
+  const mobile = document.getElementById('reg-mobile').value.trim();
   const pass = document.getElementById('reg-password').value;
-  if (!name || !email || !pass) { toast('Fill all fields', 'error'); return; }
+  if (!name || !email || !mobile || !pass) { toast('Fill all fields', 'error'); return; }
 
   try {
     const btn = document.querySelector('#register-form button');
@@ -211,7 +212,7 @@ async function handleRegister() {
     const res = await fetch(`${API_URL}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password: pass })
+      body: JSON.stringify({ name, email, mobile, password: pass })
     });
 
     const data = await res.json();
