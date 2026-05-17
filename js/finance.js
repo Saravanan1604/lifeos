@@ -34,7 +34,10 @@ function renderFinance() {
           <h1 class="page-title">💰 Finance</h1>
           <p class="page-subtitle">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
         </div>
-        <button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-secondary btn-sm" onclick="openSmsParser()" style="display:flex;align-items:center;gap:6px">📲 Scan SMS</button>
+          <button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>
+        </div>
       </div>
 
       <!-- Kaasu-style Hero Balance Card -->
@@ -85,6 +88,7 @@ function renderFinance() {
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div style="font-size:22px">${b.icon||'🏦'}</div>
                 <div style="display:flex;gap:6px">
+                  <button onclick="updateBankBalance(${i})" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
                   <button onclick="editBankAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
                   <button onclick="deleteBankAccount(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
                 </div>
@@ -202,9 +206,10 @@ function renderFinance() {
                 <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px">
+            <div style="display:flex;align-items:center;gap:8px">
               <span style="font-weight:700;font-size:14px;color:${tx.type==='income'?'#10b981':'#ef4444'}">${tx.type==='income'?'+':'-'}${fmt(tx.amount)}</span>
-              <button class="btn-icon btn-sm" onclick="deleteTx('${tx.id}')" style="font-size:13px;color:#ef4444;border-color:rgba(239,68,68,0.3)">✕</button>
+              <button class="btn-icon btn-sm" onclick="openEditTxModal('${tx.id}')" style="font-size:13px" title="Edit">✏️</button>
+              <button class="btn-icon btn-sm" onclick="deleteTx('${tx.id}')" style="font-size:13px;color:#ef4444;border-color:rgba(239,68,68,0.3)" title="Delete">✕</button>
             </div>
           </div>`).join('')}
       </div>
@@ -325,6 +330,73 @@ function deleteTx(id) {
   renderFinance();
 }
 
+function openEditTxModal(id) {
+  const tx = (STATE.transactions || []).find(t => t.id === id);
+  if (!tx) return;
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const catOptions = allCats.map(c =>
+    `<option value="${c.name}" ${c.name === tx.category ? 'selected' : ''}>${c.icon} ${c.name}</option>`
+  ).join('');
+
+  openModal('✏️ Edit Transaction', `
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select id="etx-type" class="form-input">
+        <option value="expense" ${tx.type === 'expense' ? 'selected' : ''}>❤️ Expense</option>
+        <option value="income"  ${tx.type === 'income'  ? 'selected' : ''}>💚 Income</option>
+      </select>
+    </div>
+    <div class="input-row">
+      <div class="form-group">
+        <label class="form-label">Amount (₹)</label>
+        <input type="number" id="etx-amount" class="form-input" value="${tx.amount}" step="0.01" min="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" id="etx-date" class="form-input" value="${tx.date}"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select id="etx-cat" class="form-input">${catOptions}</select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input type="text" id="etx-desc" class="form-input" value="${tx.description || ''}" placeholder="What was this for?"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveEditTx('${id}')">💾 Save Changes</button>
+    </div>`);
+}
+
+function saveEditTx(id) {
+  const tx = (STATE.transactions || []).find(t => t.id === id);
+  if (!tx) return;
+
+  const type   = document.getElementById('etx-type')?.value;
+  const amount = parseFloat(document.getElementById('etx-amount')?.value);
+  const date   = document.getElementById('etx-date')?.value || today();
+  const cat    = document.getElementById('etx-cat')?.value;
+  const desc   = document.getElementById('etx-desc')?.value.trim();
+
+  if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
+
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  tx.type        = type;
+  tx.amount      = amount;
+  tx.date        = date;
+  tx.category    = cat;
+  tx.icon        = allCats.find(c => c.name === cat)?.icon || tx.icon || '💳';
+  tx.description = desc;
+
+  saveState();
+  if (typeof autoSyncGoals === 'function') autoSyncGoals();
+  closeModal();
+  toast('Transaction updated ✅', 'success');
+  renderFinance();
+}
+
 // ===== BANK ACCOUNTS =====
 const BANK_PRESETS = [
   { label:'SBI',          icon:'🏛️', color:'#1a237e', color2:'#0d1757' },
@@ -364,8 +436,13 @@ function addBankAccount() {
         <input type="number" id="bank-balance" class="form-input" placeholder="0.00" min="0" step="0.01"/>
       </div>
     </div>
-    <div class="form-group"><label class="form-label">Last 4 digits of Account No. (optional)</label>
-      <input type="text" id="bank-last4" class="form-input" maxlength="4" placeholder="XXXX"/>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Balance As Of Date</label>
+        <input type="date" id="bank-bal-date" class="form-input" value="${today()}"/>
+      </div>
+      <div class="form-group"><label class="form-label">Last 4 digits of Account No. (optional)</label>
+        <input type="text" id="bank-last4" class="form-input" maxlength="4" placeholder="XXXX"/>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
@@ -403,8 +480,13 @@ function editBankAccount(i) {
         <input type="number" id="bank-balance" class="form-input" value="${b.balance||0}" min="0" step="0.01"/>
       </div>
     </div>
-    <div class="form-group"><label class="form-label">Last 4 digits</label>
-      <input type="text" id="bank-last4" class="form-input" maxlength="4" value="${b.lastFour||''}"/>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Balance As Of Date</label>
+        <input type="date" id="bank-bal-date" class="form-input" value="${today()}"/>
+      </div>
+      <div class="form-group"><label class="form-label">Last 4 digits</label>
+        <input type="text" id="bank-last4" class="form-input" maxlength="4" value="${b.lastFour||''}"/>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
@@ -421,6 +503,7 @@ function saveBankAccount(editIndex) {
   const balance  = parseFloat(document.getElementById('bank-balance')?.value) || 0;
   const type     = document.getElementById('bank-type')?.value || 'Savings';
   const lastFour = document.getElementById('bank-last4')?.value.trim().slice(-4) || '';
+  const balDate  = document.getElementById('bank-bal-date')?.value || today();
 
   const found = BANK_PRESETS.find(p => p.label === bankName);
   const icon  = found?.icon  || '🏦';
@@ -438,6 +521,14 @@ function saveBankAccount(editIndex) {
     STATE.bankAccounts.push(account);
     toast('Bank account added! 🏦', 'success');
   }
+  // Auto-log balance history snapshot with the user-supplied date
+  STATE.bankBalanceHistory = STATE.bankBalanceHistory || [];
+  STATE.bankBalanceHistory.push({
+    accountId: account.id,
+    balance,
+    date: balDate,
+    note: editIndex !== null && editIndex >= 0 ? 'Balance updated' : 'Account added'
+  });
   saveState();
   closeModal();
   renderFinance();
@@ -448,6 +539,280 @@ function deleteBankAccount(i) {
   saveState();
   toast('Bank account removed', 'info');
   renderFinance();
+}
+
+function updateBankBalance(i) {
+  const b = (STATE.bankAccounts||[])[i];
+  if (!b) return;
+  // Use the rich modal from bank-tracker (date shortcuts, chat history, etc.)
+  openQuickBalanceModal(b.id);
+}
+
+function saveBalanceUpdate(i) {
+  const newBal = parseFloat(document.getElementById('upd-balance')?.value);
+  const note   = document.getElementById('upd-note')?.value.trim() || 'Manual update';
+  const date   = document.getElementById('upd-date')?.value || today();
+  if (isNaN(newBal) || newBal < 0) { toast('Enter a valid balance', 'error'); return; }
+
+  const b = (STATE.bankAccounts||[])[i];
+  if (!b) return;
+  const oldBal = b.balance;
+  b.balance = newBal;
+
+  // Log history
+  STATE.bankBalanceHistory = STATE.bankBalanceHistory || [];
+  STATE.bankBalanceHistory.push({ accountId: b.id, balance: newBal, prevBalance: oldBal, date, note });
+
+  saveState();
+  closeModal();
+  toast(`${b.bankName} balance updated to ${fmt(newBal)} ✅`, 'success');
+  renderFinance();
+}
+
+// ===== SMS PARSER =====
+
+function openSmsParser() {
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const catOptions = allCats.map(c => `<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
+
+  openModal('📲 Scan Bank SMS', `
+    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.6">
+      Copy any bank debit/credit SMS from your phone and paste it below.<br>
+      Works with <strong>HDFC, SBI, ICICI, Axis, Kotak, UPI</strong> and most Indian banks.
+    </div>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Paste SMS text</label>
+      <textarea id="sms-raw" class="form-input" rows="4"
+        placeholder="e.g. Dear Customer, INR 500.00 debited from XX1234 on 15-05-26 to VPA swiggy@ibl. Avl Bal: INR 12,345.67"
+        oninput="smsAutoDetect()"
+        onpaste="setTimeout(smsAutoDetect, 80)"
+        style="font-size:12px;line-height:1.6;resize:vertical"></textarea>
+    </div>
+
+    <!-- Status indicator -->
+    <div id="sms-status" style="display:none;font-size:12px;font-weight:600;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
+
+    <!-- Parsed fields (hidden until parsed) -->
+    <div id="sms-fields" style="display:none">
+      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
+      <p style="font-size:11px;font-weight:700;color:#00c9a7;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">✅ Auto-detected — edit if needed</p>
+
+      <div class="form-group" style="margin-bottom:10px">
+        <label class="form-label">Type</label>
+        <select id="sms-type" class="form-input">
+          <option value="expense">❤️ Expense</option>
+          <option value="income">💚 Income</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="form-group">
+          <label class="form-label">Amount (₹)</label>
+          <input type="number" id="sms-amount" class="form-input" step="0.01" min="0" placeholder="0.00"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="sms-date" class="form-input"/>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label class="form-label">Category</label>
+        <select id="sms-cat" class="form-input">${catOptions}</select>
+      </div>
+      <div class="form-group" style="margin-bottom:6px">
+        <label class="form-label">Description</label>
+        <input type="text" id="sms-desc" class="form-input" placeholder="What was this for?"/>
+      </div>
+      <div id="sms-bal-hint" style="font-size:11px;color:var(--text3);margin-bottom:4px;display:none"></div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button id="sms-parse-btn" class="btn-primary" onclick="smsManualParse()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🔍 Parse</button>
+      <button id="sms-save-btn" class="btn-primary" onclick="saveParsedSms()" style="display:none;background:linear-gradient(135deg,#00c9a7,#0acf83)">💾 Save Transaction</button>
+    </div>`);
+}
+
+// Auto-detect on paste (fires 80ms after paste event)
+function smsAutoDetect() {
+  const sms = document.getElementById('sms-raw')?.value?.trim();
+  if (!sms || sms.length < 15) return;
+  const result = parseBankSms(sms);
+  if (result) fillSmsFields(result);
+  else showSmsStatus('Could not auto-detect. Click 🔍 Parse to try again.', 'warn');
+}
+
+function smsManualParse() {
+  const sms = document.getElementById('sms-raw')?.value?.trim();
+  if (!sms) { toast('Paste an SMS first', 'error'); return; }
+  const result = parseBankSms(sms);
+  if (result) {
+    fillSmsFields(result);
+  } else {
+    showSmsStatus('Could not read this SMS. Fill fields manually below.', 'warn');
+    // Show empty fields so user can still fill manually
+    document.getElementById('sms-fields').style.display = 'block';
+    document.getElementById('sms-date').value = today();
+    document.getElementById('sms-save-btn').style.display = '';
+    document.getElementById('sms-parse-btn').style.display = 'none';
+  }
+}
+
+function fillSmsFields(r) {
+  document.getElementById('sms-type').value   = r.type;
+  document.getElementById('sms-amount').value = r.amount;
+  document.getElementById('sms-date').value   = r.date;
+  document.getElementById('sms-desc').value   = r.description;
+
+  // Set category
+  const catSel = document.getElementById('sms-cat');
+  if (catSel) {
+    const opt = [...catSel.options].find(o => o.value === r.category);
+    if (opt) catSel.value = r.category;
+  }
+
+  // Show balance hint
+  if (r.balance !== null) {
+    const hint = document.getElementById('sms-bal-hint');
+    if (hint) { hint.textContent = `💰 Available balance after: ₹${r.balance.toLocaleString('en-IN', {minimumFractionDigits:2})}`; hint.style.display = ''; }
+  }
+
+  document.getElementById('sms-fields').style.display = 'block';
+  document.getElementById('sms-save-btn').style.display = '';
+  document.getElementById('sms-parse-btn').style.display = 'none';
+  showSmsStatus(`✅ Detected: ${r.type === 'income' ? 'Credit' : 'Debit'} of ₹${r.amount.toLocaleString('en-IN')} · ${r.category}`, 'ok');
+}
+
+function showSmsStatus(msg, type) {
+  const el = document.getElementById('sms-status');
+  if (!el) return;
+  el.style.display = '';
+  el.textContent   = msg;
+  el.style.background = type === 'ok' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)';
+  el.style.color      = type === 'ok' ? '#10b981'               : '#f59e0b';
+}
+
+function saveParsedSms() {
+  const type     = document.getElementById('sms-type')?.value;
+  const amount   = parseFloat(document.getElementById('sms-amount')?.value);
+  const date     = document.getElementById('sms-date')?.value || today();
+  const category = document.getElementById('sms-cat')?.value;
+  const desc     = document.getElementById('sms-desc')?.value.trim();
+
+  if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
+
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const icon    = allCats.find(c => c.name === category)?.icon || '💳';
+
+  STATE.transactions = STATE.transactions || [];
+  STATE.transactions.unshift({ id: genId(), type, amount, date, category, icon, description: desc, createdAt: new Date().toISOString() });
+  saveState();
+  if (typeof addXP === 'function') addXP(10, 'SMS transaction logged');
+  if (typeof autoSyncGoals === 'function') autoSyncGoals();
+  closeModal();
+  toast(`Saved from SMS! ${type === 'income' ? '+' : '-'}₹${amount.toLocaleString('en-IN')} · ${category} 🎉`, 'success');
+  renderFinance();
+}
+
+// ── Core SMS parsing engine ────────────────────────────────────────────────
+function parseBankSms(sms) {
+  const lo = sms.toLowerCase();
+
+  // Type
+  const isCredit = /\b(credited|credit|received|deposited|refund|cashback|salary|added|money received)\b/.test(lo);
+  const isDebit  = /\b(debited|debit|spent|paid|withdrawn|charged|payment of|sent|purchase)\b/.test(lo);
+  if (!isCredit && !isDebit) return null;
+  const type = isCredit ? 'income' : 'expense';
+
+  // Amount — try several patterns in priority order
+  let amount = null;
+  const amtRe = [
+    /(?:inr|rs\.?|₹)\s*([\d,]+(?:\.\d{1,2})?)/i,      // INR 1,234.56
+    /([\d,]+(?:\.\d{1,2})?)\s*\/-/,                     // Rs.500/-
+    /([\d,]+(?:\.\d{1,2})?)\s*(?:inr|rs\.?)/i,          // 1234 Rs
+    /(?:of|for|amount[:\s]+)(?:inr|rs\.?|₹)?\s*([\d,]+(?:\.\d{1,2})?)/i,
+  ];
+  for (const re of amtRe) {
+    const m = sms.match(re);
+    if (m) { amount = parseFloat(m[1].replace(/,/g, '')); if (amount > 0) break; }
+  }
+  if (!amount) return null;
+
+  // Date
+  let date = today();
+  const dateRe = [
+    {
+      re: /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/,
+      fn: ([,d,mo,y]) => {
+        const yr = y.length === 2 ? '20'+y : y;
+        return `${yr}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      }
+    },
+    {
+      re: /(\d{1,2})[\s\-]?(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[\s\-]?(\d{2,4})/i,
+      fn: ([,d,mo,y]) => {
+        const MONTHS = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+        const yr = y.length === 2 ? '20'+y : y;
+        return `${yr}-${MONTHS[mo.toLowerCase()]}-${d.padStart(2,'0')}`;
+      }
+    }
+  ];
+  for (const { re, fn } of dateRe) {
+    const m = sms.match(re);
+    if (m) { try { const d = fn(m); if (d) date = d; } catch {} break; }
+  }
+
+  // Merchant / description
+  let description = '';
+  const mercRe = [
+    /(?:to vpa|at |merchant[:\s]+|towards |for )\s*([A-Za-z0-9@._\- ]{3,40}?)(?=[,.\s](?:avl|bal|ref|utr|on\s|\d{2}[\/\-]|$))/i,
+    /info[:\s]+([A-Za-z0-9@._\- ]{3,40}?)(?:[,.\s]|$)/i,
+    /upi[- ]([A-Za-z0-9@._\- ]{3,40}?)(?=[,.\s]|$)/i,
+    /via ([A-Za-z0-9 ]{3,30}?)(?:\s+on\s|\s+ref|[,.]|$)/i,
+  ];
+  for (const re of mercRe) {
+    const m = sms.match(re);
+    if (m?.[1]?.trim().length > 2) {
+      description = m[1].trim().replace(/@\S+/g, '').replace(/\s+/g,' ').trim();
+      break;
+    }
+  }
+  if (!description) description = isCredit ? 'Credit received' : 'Debit transaction';
+
+  // Available balance
+  let balance = null;
+  const balM = sms.match(/(?:avl\.?|available|bal\.?|balance)[^₹\d]*([\d,]+(?:\.\d{1,2})?)/i);
+  if (balM) balance = parseFloat(balM[1].replace(/,/g,''));
+
+  const category = smsCategoryGuess(lo, description.toLowerCase(), type);
+  return { type, amount, date, description, category, balance };
+}
+
+function smsCategoryGuess(lo, desc, type) {
+  const t = lo + ' ' + desc;
+  if (type === 'income') {
+    if (/salary|payroll|paycheck/.test(t))   return 'Salary';
+    if (/freelance|invoice/.test(t))          return 'Freelance';
+    if (/refund|cashback|reversal/.test(t))   return 'Other';
+    if (/interest|dividend/.test(t))          return 'Investment';
+    return 'Business';
+  }
+  if (/swiggy|zomato|foodpanda|restaurant|eat|dunzo|blinkit|biryani|pizza|burger|cafe|coffee/.test(t)) return 'Food';
+  if (/petrol|fuel|hpcl|iocl|bpcl|hp pump/.test(t))   return 'Fuel';
+  if (/uber|ola|rapido|metro|irctc|train|bus|cab|flight|airline|makemytrip|goibibo/.test(t))           return 'Transport';
+  if (/amazon|flipkart|myntra|meesho|ajio|nykaa|shopping|mall/.test(t))                               return 'Shopping';
+  if (/bigbasket|dmart|jiomart|grocer|vegetable|zepto|milkbasket/.test(t))                            return 'Groceries';
+  if (/emi|home loan|car loan|personal loan/.test(t))                                                 return 'EMI';
+  if (/insurance|lic|term plan|health plan/.test(t))                                                  return 'Insurance';
+  if (/electricity|broadband|internet|jio|airtel|bsnl|vodafone|recharge|utility|wifi/.test(t))        return 'Bills';
+  if (/hospital|doctor|medicine|pharmacy|apollo|medplus|diagnostic/.test(t))                          return 'Health';
+  if (/netflix|hotstar|spotify|prime video|youtube premium|subscription|ott/.test(t))                 return 'Entertainment';
+  if (/school|college|course|udemy|fee|education/.test(t))                                            return 'Education';
+  if (/hotel|resort|airbnb|holiday|trip|tour/.test(t))                                               return 'Travel';
+  if (/rent|landlord|maintenance|society fee/.test(t))                                               return 'Rent';
+  if (/mutual fund|sip|zerodha|groww|stock|share|demat/.test(t))                                     return 'Investment';
+  if (/gift|present/.test(t))                                                                        return 'Gifts';
+  return 'Other';
 }
 
 // ===== INVESTMENTS PAGE =====
