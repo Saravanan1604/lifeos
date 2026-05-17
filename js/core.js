@@ -168,35 +168,62 @@ async function handleLogin() {
   const pass = document.getElementById('login-password').value;
   if (!email || !pass) { toast('Enter email and password', 'error'); return; }
 
+  const btn = document.querySelector('#login-form button');
+  const origText = btn.textContent;
+  btn.textContent = 'Signing in…';
+
   try {
-    const btn = document.querySelector('#login-form button');
-    btn.textContent = 'Logging in...';
-    
     const res = await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password: pass })
     });
-    
+
     const data = await res.json();
-    btn.textContent = 'Sign In';
+    btn.textContent = origText;
 
     if (!res.ok) throw new Error(data.error || 'Login failed');
-    
+
     // Save Token and State
     localStorage.setItem('lifeos_token', data.token);
     if (data.state && Object.keys(data.state).length > 0) {
       STATE = { ...DB.defaults(), ...data.state };
-      DB.save(STATE); // Save cloud state locally
+      DB.save(STATE);
     }
-    
+
     toast('Logged in successfully!', 'success');
     showApp();
     renderCalcBody();
+
   } catch (err) {
-    toast(err.message, 'error');
+    btn.textContent = origText;
+
+    // Network / fetch error = backend unreachable (Render sleeping etc.)
+    const isNetworkError = err instanceof TypeError || err.message === 'Failed to fetch' || err.message.includes('NetworkError');
+    if (isNetworkError) {
+      // Try loading locally saved data for this email
+      const raw = localStorage.getItem(DB.KEY);
+      if (raw) {
+        try {
+          const saved = JSON.parse(raw);
+          if (saved.user) {
+            STATE = { ...DB.defaults(), ...saved };
+            saveState();
+            toast('⚠️ Server unreachable — loaded your saved local data', 'warning');
+            showApp();
+            renderCalcBody();
+            return;
+          }
+        } catch {}
+      }
+      toast('❌ Server offline. Use "Continue with Saved Data" below.', 'error');
+      if (typeof showOfflineBannerIfApplicable === 'function') showOfflineBannerIfApplicable();
+    } else {
+      toast(err.message, 'error');
+    }
   }
 }
+
 
 async function handleRegister() {
   const name = document.getElementById('reg-name').value.trim();
@@ -336,6 +363,7 @@ function navigate(page, skipHistory = false) {
       case 'finance': renderFinance(); break;
       case 'investments': renderInvestments(); break;
       case 'budget': renderBudget(); break;
+      case 'bank-tracker': renderBankTracker(); break;
       case 'health': renderHealth(); break;
       case 'habits': renderHabits(); break;
       case 'goals': renderGoals(); break;

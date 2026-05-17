@@ -19,7 +19,9 @@ const DB = {
       jobApplications: [],
       emotionEntries: [],
       tasks: [],
-      chatHistory: []
+      chatHistory: [],
+      bankBalanceHistory: [],  // [{ accountId, balance, date, note }]
+      bankTransfers: []        // [{ id, fromId, toId, amount, date, note }]
     };
   },
   load() {
