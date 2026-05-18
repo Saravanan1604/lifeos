@@ -569,148 +569,185 @@ function saveBalanceUpdate(i) {
   renderFinance();
 }
 
-// ===== SMS PARSER =====
+// ===== SMS PARSER (multi-SMS) =====
+
+let _smsResults = []; // parsed results for current modal session
 
 function openSmsParser() {
-  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
-  const catOptions = allCats.map(c => `<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
-
+  _smsResults = [];
   openModal('📲 Scan Bank SMS', `
-    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.6">
-      Copy any bank debit/credit SMS from your phone and paste it below.<br>
-      Works with <strong>HDFC, SBI, ICICI, Axis, Kotak, UPI</strong> and most Indian banks.
+    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
+      Paste one or multiple bank SMS messages below.<br>
+      <strong>Separate multiple SMS with a blank line.</strong> Works with HDFC, SBI, ICICI, Axis, Kotak, UPI and most Indian banks.
     </div>
 
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Paste SMS text</label>
-      <textarea id="sms-raw" class="form-input" rows="4"
-        placeholder="e.g. Dear Customer, INR 500.00 debited from XX1234 on 15-05-26 to VPA swiggy@ibl. Avl Bal: INR 12,345.67"
-        oninput="smsAutoDetect()"
-        onpaste="setTimeout(smsAutoDetect, 80)"
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">Paste SMS messages</label>
+      <textarea id="sms-raw" class="form-input" rows="5"
+        placeholder="Paste one SMS — or paste many, separated by a blank line between each message..."
         style="font-size:12px;line-height:1.6;resize:vertical"></textarea>
     </div>
 
-    <!-- Status indicator -->
     <div id="sms-status" style="display:none;font-size:12px;font-weight:600;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
 
-    <!-- Parsed fields (hidden until parsed) -->
-    <div id="sms-fields" style="display:none">
-      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
-      <p style="font-size:11px;font-weight:700;color:#00c9a7;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">✅ Auto-detected — edit if needed</p>
-
-      <div class="form-group" style="margin-bottom:10px">
-        <label class="form-label">Type</label>
-        <select id="sms-type" class="form-input">
-          <option value="expense">❤️ Expense</option>
-          <option value="income">💚 Income</option>
-        </select>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div class="form-group">
-          <label class="form-label">Amount (₹)</label>
-          <input type="number" id="sms-amount" class="form-input" step="0.01" min="0" placeholder="0.00"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input type="date" id="sms-date" class="form-input"/>
-        </div>
-      </div>
-      <div class="form-group" style="margin-bottom:10px">
-        <label class="form-label">Category</label>
-        <select id="sms-cat" class="form-input">${catOptions}</select>
-      </div>
-      <div class="form-group" style="margin-bottom:6px">
-        <label class="form-label">Description</label>
-        <input type="text" id="sms-desc" class="form-input" placeholder="What was this for?"/>
-      </div>
-      <div id="sms-bal-hint" style="font-size:11px;color:var(--text3);margin-bottom:4px;display:none"></div>
+    <div class="modal-actions" style="margin-bottom:14px">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="parseAllSmsBlocks()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🔍 Parse All</button>
     </div>
 
-    <div class="modal-actions" style="margin-top:16px">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button id="sms-parse-btn" class="btn-primary" onclick="smsManualParse()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🔍 Parse</button>
-      <button id="sms-save-btn" class="btn-primary" onclick="saveParsedSms()" style="display:none;background:linear-gradient(135deg,#00c9a7,#0acf83)">💾 Save Transaction</button>
+    <!-- Results appear here after parsing -->
+    <div id="sms-results-wrap" style="display:none">
+      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
+      <p style="font-size:11px;font-weight:700;color:#00c9a7;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">✅ Detected transactions — edit if needed</p>
+      <div id="sms-results-list" style="max-height:45vh;overflow-y:auto;padding-right:2px"></div>
+      <div id="sms-summary" style="margin:12px 0;padding:10px 14px;border-radius:10px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);font-size:13px;font-weight:600"></div>
+      <button class="btn-primary" onclick="saveAllParsedSms()" style="width:100%;background:linear-gradient(135deg,#00c9a7,#0acf83);padding:12px">💾 Save All Transactions</button>
     </div>`);
 }
 
-// Auto-detect on paste (fires 80ms after paste event)
-function smsAutoDetect() {
-  const sms = document.getElementById('sms-raw')?.value?.trim();
-  if (!sms || sms.length < 15) return;
-  const result = parseBankSms(sms);
-  if (result) fillSmsFields(result);
-  else showSmsStatus('Could not auto-detect. Click 🔍 Parse to try again.', 'warn');
+function parseAllSmsBlocks() {
+  const raw = document.getElementById('sms-raw')?.value?.trim();
+  if (!raw) { toast('Paste at least one SMS first', 'error'); return; }
+
+  // Split by one or more blank lines
+  const blocks = raw.split(/\n[ \t]*\n+/).map(b => b.trim()).filter(b => b.length > 10);
+  if (!blocks.length) {
+    showSmsStatus('No SMS blocks found. Separate multiple SMS with a blank line between each.', 'warn');
+    return;
+  }
+
+  _smsResults = [];
+  let failed = 0;
+  blocks.forEach((block, i) => {
+    const parsed = parseBankSms(block);
+    if (parsed) _smsResults.push({ ...parsed, _idx: i });
+    else failed++;
+  });
+
+  if (!_smsResults.length) {
+    showSmsStatus(`Could not parse any of the ${blocks.length} SMS block(s). Make sure they are bank transaction messages.`, 'warn');
+    return;
+  }
+
+  renderSmsResults();
+
+  const total = _smsResults.length + failed;
+  if (failed > 0) showSmsStatus(`Parsed ${_smsResults.length} of ${total} messages. ${failed} could not be read.`, 'warn');
+  else showSmsStatus(`✅ Parsed ${_smsResults.length} message${_smsResults.length > 1 ? 's' : ''} successfully`, 'ok');
 }
 
-function smsManualParse() {
-  const sms = document.getElementById('sms-raw')?.value?.trim();
-  if (!sms) { toast('Paste an SMS first', 'error'); return; }
-  const result = parseBankSms(sms);
-  if (result) {
-    fillSmsFields(result);
-  } else {
-    showSmsStatus('Could not read this SMS. Fill fields manually below.', 'warn');
-    // Show empty fields so user can still fill manually
-    document.getElementById('sms-fields').style.display = 'block';
-    document.getElementById('sms-date').value = today();
-    document.getElementById('sms-save-btn').style.display = '';
-    document.getElementById('sms-parse-btn').style.display = 'none';
-  }
+function _makeSrCatOptions(selectedCat) {
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  return allCats.map(c => `<option value="${c.name}" ${c.name === selectedCat ? 'selected' : ''}>${c.icon} ${c.name}</option>`).join('');
 }
 
-function fillSmsFields(r) {
-  document.getElementById('sms-type').value   = r.type;
-  document.getElementById('sms-amount').value = r.amount;
-  document.getElementById('sms-date').value   = r.date;
-  document.getElementById('sms-desc').value   = r.description;
+function renderSmsResults() {
+  const list = document.getElementById('sms-results-list');
+  const wrap = document.getElementById('sms-results-wrap');
+  if (!list || !wrap) return;
 
-  // Set category
-  const catSel = document.getElementById('sms-cat');
-  if (catSel) {
-    const opt = [...catSel.options].find(o => o.value === r.category);
-    if (opt) catSel.value = r.category;
-  }
+  list.innerHTML = _smsResults.map((r, i) => `
+    <div id="sms-card-${i}" style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:10px;position:relative">
+      <button onclick="removeSmsResult(${i})" title="Remove" style="position:absolute;top:8px;right:10px;background:rgba(239,68,68,0.12);border:none;color:#ef4444;border-radius:6px;cursor:pointer;padding:2px 9px;font-size:13px;line-height:1.6">✕</button>
 
-  // Show balance hint
-  if (r.balance !== null) {
-    const hint = document.getElementById('sms-bal-hint');
-    if (hint) { hint.textContent = `💰 Available balance after: ₹${r.balance.toLocaleString('en-IN', {minimumFractionDigits:2})}`; hint.style.display = ''; }
-  }
+      <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-bottom:8px;padding-right:36px">
+        <select class="form-input" id="sr-type-${i}" onchange="updateSmsSummary()" style="font-size:12px;padding:4px 8px">
+          <option value="expense" ${r.type === 'expense' ? 'selected' : ''}>❤️ Expense</option>
+          <option value="income"  ${r.type === 'income'  ? 'selected' : ''}>💚 Income</option>
+        </select>
+        <input type="number" class="form-input" id="sr-amount-${i}" value="${r.amount}" step="0.01" min="0"
+          oninput="updateSmsSummary()" style="font-size:13px;font-weight:700;padding:4px 8px"/>
+        <input type="date" class="form-input" id="sr-date-${i}" value="${r.date}" style="font-size:12px;padding:4px 8px"/>
+      </div>
 
-  document.getElementById('sms-fields').style.display = 'block';
-  document.getElementById('sms-save-btn').style.display = '';
-  document.getElementById('sms-parse-btn').style.display = 'none';
-  showSmsStatus(`✅ Detected: ${r.type === 'income' ? 'Credit' : 'Debit'} of ₹${r.amount.toLocaleString('en-IN')} · ${r.category}`, 'ok');
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <select class="form-input" id="sr-cat-${i}" style="font-size:12px;padding:4px 8px">
+          ${_makeSrCatOptions(r.category)}
+        </select>
+        <input type="text" class="form-input" id="sr-desc-${i}" value="${r.description}" placeholder="Description" style="font-size:12px;padding:4px 8px"/>
+      </div>
+
+      ${r.balance !== null ? `<div style="font-size:11px;color:var(--text3);margin-top:6px">💰 Bal after: ₹${r.balance.toLocaleString('en-IN', {minimumFractionDigits:2})}</div>` : ''}
+    </div>
+  `).join('');
+
+  wrap.style.display = '';
+  updateSmsSummary();
+}
+
+function removeSmsResult(i) {
+  const card = document.getElementById(`sms-card-${i}`);
+  if (card) card.style.display = 'none';
+  updateSmsSummary();
+}
+
+function updateSmsSummary() {
+  let totalExpense = 0, totalIncome = 0, count = 0;
+  _smsResults.forEach((r, i) => {
+    const card = document.getElementById(`sms-card-${i}`);
+    if (!card || card.style.display === 'none') return;
+    const type   = document.getElementById(`sr-type-${i}`)?.value;
+    const amount = parseFloat(document.getElementById(`sr-amount-${i}`)?.value) || 0;
+    if (type === 'expense') totalExpense += amount;
+    else totalIncome += amount;
+    count++;
+  });
+
+  const el = document.getElementById('sms-summary');
+  if (!el) return;
+  if (!count) { el.innerHTML = '<span style="color:var(--text3)">No transactions selected</span>'; return; }
+
+  const parts = [];
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Total Expense: ₹${totalExpense.toLocaleString('en-IN', {minimumFractionDigits:2})}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Total Income: ₹${totalIncome.toLocaleString('en-IN', {minimumFractionDigits:2})}</span>`);
+  el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} transaction${count>1?'s':''}</span>`;
 }
 
 function showSmsStatus(msg, type) {
   const el = document.getElementById('sms-status');
   if (!el) return;
-  el.style.display = '';
-  el.textContent   = msg;
+  el.style.display    = '';
+  el.textContent      = msg;
   el.style.background = type === 'ok' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)';
   el.style.color      = type === 'ok' ? '#10b981'               : '#f59e0b';
 }
 
-function saveParsedSms() {
-  const type     = document.getElementById('sms-type')?.value;
-  const amount   = parseFloat(document.getElementById('sms-amount')?.value);
-  const date     = document.getElementById('sms-date')?.value || today();
-  const category = document.getElementById('sms-cat')?.value;
-  const desc     = document.getElementById('sms-desc')?.value.trim();
-
-  if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
-
+function saveAllParsedSms() {
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
-  const icon    = allCats.find(c => c.name === category)?.icon || '💳';
+  const toSave  = [];
+
+  _smsResults.forEach((r, i) => {
+    const card = document.getElementById(`sms-card-${i}`);
+    if (!card || card.style.display === 'none') return;
+
+    const type     = document.getElementById(`sr-type-${i}`)?.value;
+    const amount   = parseFloat(document.getElementById(`sr-amount-${i}`)?.value);
+    const date     = document.getElementById(`sr-date-${i}`)?.value || today();
+    const category = document.getElementById(`sr-cat-${i}`)?.value;
+    const desc     = document.getElementById(`sr-desc-${i}`)?.value?.trim() || '';
+
+    if (!amount || amount <= 0) return;
+    const icon = allCats.find(c => c.name === category)?.icon || '💳';
+    toSave.push({ id: genId(), type, amount, date, category, icon, description: desc, createdAt: new Date().toISOString() });
+  });
+
+  if (!toSave.length) { toast('No valid transactions to save', 'error'); return; }
 
   STATE.transactions = STATE.transactions || [];
-  STATE.transactions.unshift({ id: genId(), type, amount, date, category, icon, description: desc, createdAt: new Date().toISOString() });
+  // Prepend newest-first (reverse so the first SMS in the list ends up first in array)
+  [...toSave].reverse().forEach(tx => STATE.transactions.unshift(tx));
   saveState();
-  if (typeof addXP === 'function') addXP(10, 'SMS transaction logged');
+
+  if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} SMS transaction${toSave.length>1?'s':''} logged`);
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
+
   closeModal();
-  toast(`Saved from SMS! ${type === 'income' ? '+' : '-'}₹${amount.toLocaleString('en-IN')} · ${category} 🎉`, 'success');
+  const expTotal = toSave.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const incTotal = toSave.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  let summary = `${toSave.length} transaction${toSave.length>1?'s':''} saved!`;
+  if (expTotal > 0) summary += ` Expense: ₹${expTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
+  if (incTotal > 0) summary += ` Income: ₹${incTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
+  toast(summary + ' 🎉', 'success');
   renderFinance();
 }
 
