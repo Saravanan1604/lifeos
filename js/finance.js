@@ -2301,10 +2301,13 @@ async function handlePdfFileSelect(input) {
 
     if (prog) prog.style.display = 'none';
 
-    // First try CSV-style parsing (tabular bank statements)
-    _pdfResults = _parsePdfAsTable(fullText);
+    // Try PhonePe/GPay UPI-statement parser first (most specific)
+    _pdfResults = _parseUpiStatementPdf(fullText);
 
-    // Fall back to statement-text parser
+    // Then CSV-style tabular bank statements
+    if (!_pdfResults.length) _pdfResults = _parsePdfAsTable(fullText);
+
+    // Last resort: generic statement-text parser
     if (!_pdfResults.length) _pdfResults = _parseStatementText(fullText);
 
     if (!_pdfResults.length) {
@@ -2383,6 +2386,106 @@ function _parsePdfAsTable(text) {
     const key = `${r.amount}|${r.date}|${r.description}`;
     if (seen.has(key)) return false;
     seen.add(key);
+    return true;
+  });
+}
+
+// Parser specialised for PhonePe / Google Pay PDF statements where each
+// transaction has lines like:
+//   "May 18, 2026   Paid to Kannan catering services   DEBIT   ₹20"
+//   "01:22 pm       Transaction ID T2605..."
+//   "               UTR No. 620965608717"
+//   "               Paid by 652868XXXXXXXX07"
+function _parseUpiStatementPdf(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  const results = [];
+  const MONTHS = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12',
+    january:'01',february:'02',march:'03',april:'04',june:'06',july:'07',august:'08',september:'09',october:'10',november:'11',december:'12'};
+
+  function parseUpiDate(s) {
+    if (!s) return null;
+    // "May 18, 2026" / "May 18,2026" / "18 May 2026" / "May 18 2026"
+    let m = s.match(/([a-zA-Z]+)\s+(\d{1,2}),?\s+(\d{4})/);
+    if (m) { const mo = MONTHS[m[1].toLowerCase().slice(0,3)]; if (mo) return `${m[3]}-${mo}-${m[2].padStart(2,'0')}`; }
+    m = s.match(/(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})/);
+    if (m) { const mo = MONTHS[m[2].toLowerCase().slice(0,3)]; if (mo) return `${m[3]}-${mo}-${m[1].padStart(2,'0')}`; }
+    m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if (m) { const yr = m[3].length===2?'20'+m[3]:m[3]; return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+    return null;
+  }
+
+  // Match transaction-start markers. Captures: action, name, type, amount (last two optional inline)
+  const TX_RE = /(Paid to|Received from|Transfer to|Payment to|Mobile recharged|FASTag Recharge for)\s+(.+?)(?:\s+(DEBIT|CREDIT))?(?:\s*₹\s*([\d,]+(?:\.\d{1,2})?))?$/i;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const m = line.match(TX_RE);
+    if (!m) continue;
+
+    const action = m[1].toLowerCase();
+    let merchant = m[2].trim();
+    let type = /received|credited/.test(action) ? 'income' : 'expense';
+    let amount = null;
+
+    if (m[3]) type = m[3].toUpperCase() === 'CREDIT' ? 'income' : 'expense';
+    if (m[4]) amount = parseFloat(m[4].replace(/,/g,''));
+
+    // If type/amount missing, scan the surrounding window (±5 lines)
+    if (!amount || !m[3]) {
+      for (let j = Math.max(0, i - 2); j < Math.min(lines.length, i + 6); j++) {
+        if (j === i) continue;
+        const near = lines[j];
+        if (!amount) {
+          const a = near.match(/₹\s*([\d,]+(?:\.\d{1,2})?)/);
+          if (a) { const v = parseFloat(a[1].replace(/,/g,'')); if (v > 0) amount = v; }
+        }
+        if (!m[3]) {
+          if (/\bCREDIT\b/.test(near)) type = 'income';
+          else if (/\bDEBIT\b/.test(near)) type = 'expense';
+        }
+      }
+    }
+
+    if (!amount || amount <= 0) continue;
+
+    // Clean trailing DEBIT/CREDIT/₹amount stuck to the name
+    merchant = merchant
+      .replace(/\s+(DEBIT|CREDIT)\s*₹?\s*[\d,.]*\s*$/i, '')
+      .replace(/\s*₹\s*[\d,.]+\s*$/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!merchant) continue;
+
+    // Find date — check current line first, then walk backward ±8 lines
+    let date = parseUpiDate(line);
+    if (!date) {
+      for (let j = i - 1; j >= Math.max(0, i - 10); j--) {
+        date = parseUpiDate(lines[j]);
+        if (date) break;
+      }
+    }
+    if (!date) date = today();
+
+    const lo = merchant.toLowerCase();
+    const category = smsCategoryGuess(lo, lo, type);
+
+    // Use Transaction ID (if present in next few lines) as a stable dedupe key
+    let txId = null;
+    for (let j = i; j < Math.min(lines.length, i + 5); j++) {
+      const t = lines[j].match(/Transaction ID\s+(\S+)/i);
+      if (t) { txId = t[1]; break; }
+    }
+
+    results.push({ type, amount, date, description: merchant, category, _txId: txId });
+  }
+
+  // Dedupe by Transaction ID when available, otherwise by amount|date|description
+  const seen = new Set();
+  return results.filter(r => {
+    const key = r._txId || `${r.amount}|${r.date}|${r.description}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    delete r._txId;
     return true;
   });
 }
