@@ -38,6 +38,9 @@ function renderFinance() {
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn-secondary btn-sm" onclick="openSmsParser()" style="display:flex;align-items:center;gap:6px">📲 Scan SMS</button>
+          <button class="btn-secondary btn-sm" onclick="openCsvImport()" style="display:flex;align-items:center;gap:6px">📊 Import CSV</button>
+          <button class="btn-secondary btn-sm" onclick="openBulkEntry()" style="display:flex;align-items:center;gap:6px">📅 Bulk Entry</button>
+          <button class="btn-secondary btn-sm" onclick="openStatementPaste()" style="display:flex;align-items:center;gap:6px">📄 Paste Statement</button>
           <button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>
         </div>
       </div>
@@ -1608,4 +1611,606 @@ function saveCreditCard(editIndex) {
 function deleteCreditCard(i) {
   STATE.creditCards = (STATE.creditCards||[]).filter((_,idx)=>idx!==i);
   saveState(); toast('Card removed', 'info'); renderFinance();
+}
+
+// ===== CSV IMPORT =====
+let _csvResults = [];
+
+function openCsvImport() {
+  _csvResults = [];
+  openModal('📊 Import CSV', `
+    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
+      Upload a CSV exported from <strong>Google Pay</strong> or <strong>PhonePe</strong>.<br>
+      Auto-detects the format and maps all transactions.
+    </div>
+
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">Select CSV file</label>
+      <input type="file" id="csv-file-input" accept=".csv,text/csv" class="form-input"
+        onchange="handleCsvFileSelect(this)"
+        style="padding:10px;cursor:pointer"/>
+    </div>
+
+    <div id="csv-status" style="display:none;font-size:12px;font-weight:600;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
+
+    <div class="modal-actions" style="margin-bottom:14px">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+
+    <div id="csv-results-wrap" style="display:none">
+      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
+      <p style="font-size:11px;font-weight:700;color:#00c9a7;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Detected transactions — edit if needed</p>
+      <div id="csv-results-list" style="max-height:45vh;overflow-y:auto;padding-right:2px"></div>
+      <div id="csv-summary" style="margin:12px 0;padding:10px 14px;border-radius:10px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);font-size:13px;font-weight:600"></div>
+      <button class="btn-primary" onclick="saveAllCsvTx()" style="width:100%;background:linear-gradient(135deg,#00c9a7,#0acf83);padding:12px">💾 Save All Transactions</button>
+    </div>`);
+}
+
+function handleCsvFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      _csvResults = parseCsvText(e.target.result);
+      if (!_csvResults.length) {
+        _showImportStatus('csv', 'No valid transactions found in this CSV. Make sure it\'s a GPay or PhonePe export.', 'warn');
+        return;
+      }
+      renderCsvResults();
+      _showImportStatus('csv', `✅ Found ${_csvResults.length} transaction${_csvResults.length > 1 ? 's' : ''}`, 'ok');
+    } catch(err) {
+      _showImportStatus('csv', 'Could not parse CSV: ' + err.message, 'warn');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function parseCsvText(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return [];
+
+  // Normalize CSV line (handle quoted fields with commas inside)
+  function splitCsvLine(line) {
+    const result = [];
+    let cur = '', inQuote = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQuote = !inQuote; continue; }
+      if (ch === ',' && !inQuote) { result.push(cur.trim()); cur = ''; continue; }
+      cur += ch;
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  const headers = splitCsvLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ' ').trim());
+  const rows = lines.slice(1).map(l => splitCsvLine(l));
+
+  // Detect format
+  const fmt = _detectCsvFormat(headers);
+  const results = [];
+
+  rows.forEach(row => {
+    if (row.length < 2) return;
+    const cell = i => (row[i] || '').trim().replace(/^"|"$/g, '');
+
+    let type, amount, date, description;
+
+    if (fmt === 'gpay') {
+      // GPay: Transaction ID | Date | Description | Amount (INR) | Status
+      const [iDate, iDesc, iAmt] = [fmt === 'gpay' ? headers.indexOf('date') : -1,
+        headers.findIndex(h => h.includes('description') || h.includes('remarks')),
+        headers.findIndex(h => h.includes('amount'))];
+      const dateIdx = headers.indexOf('date') !== -1 ? headers.indexOf('date') : headers.findIndex(h => h.includes('date'));
+      const descIdx = headers.findIndex(h => h.includes('description') || h.includes('remarks'));
+      const amtIdx  = headers.findIndex(h => h.includes('amount'));
+      if (amtIdx === -1) return;
+
+      const rawAmt = parseFloat(cell(amtIdx).replace(/,/g, ''));
+      if (!rawAmt || isNaN(rawAmt)) return;
+      amount = Math.abs(rawAmt);
+      type = rawAmt < 0 ? 'expense' : 'income';
+      description = descIdx >= 0 ? cell(descIdx) : '';
+      date = dateIdx >= 0 ? _parseCsvDate(cell(dateIdx)) : today();
+
+    } else if (fmt === 'phonepe') {
+      // PhonePe: Transaction Date | Transaction ID | Remarks | Transaction Type | Amount (INR) | ...
+      const dateIdx = headers.findIndex(h => h.includes('date'));
+      const typeIdx = headers.findIndex(h => h.includes('type'));
+      const amtIdx  = headers.findIndex(h => h.includes('amount'));
+      const descIdx = headers.findIndex(h => h.includes('remarks') || h.includes('description'));
+      if (amtIdx === -1) return;
+
+      const rawAmt = parseFloat(cell(amtIdx).replace(/,/g, ''));
+      if (!rawAmt || isNaN(rawAmt)) return;
+      amount = Math.abs(rawAmt);
+      const txType = (cell(typeIdx) || '').toLowerCase();
+      type = (txType.includes('debit') || txType.includes('paid') || txType.includes('sent')) ? 'expense' : 'income';
+      description = descIdx >= 0 ? cell(descIdx) : '';
+      date = dateIdx >= 0 ? _parseCsvDate(cell(dateIdx)) : today();
+
+    } else {
+      // Generic: try to guess columns
+      const dateIdx = headers.findIndex(h => h.includes('date'));
+      const amtIdx  = headers.findIndex(h => h.includes('amount') || h.includes('debit') || h.includes('credit'));
+      const descIdx = headers.findIndex(h => h.includes('description') || h.includes('narration') || h.includes('remarks') || h.includes('particulars'));
+      const typeIdx = headers.findIndex(h => h.includes('type') || h.includes('transaction type'));
+
+      // Try debit/credit separate columns (bank statement style)
+      const debitIdx  = headers.findIndex(h => h === 'debit' || h === 'withdrawal' || h === 'dr');
+      const creditIdx = headers.findIndex(h => h === 'credit' || h === 'deposit' || h === 'cr');
+
+      if (debitIdx >= 0 || creditIdx >= 0) {
+        const debitAmt  = parseFloat((cell(debitIdx)  || '0').replace(/,/g,''));
+        const creditAmt = parseFloat((cell(creditIdx) || '0').replace(/,/g,''));
+        if (!debitAmt && !creditAmt) return;
+        if (debitAmt > 0)  { amount = debitAmt;  type = 'expense'; }
+        else               { amount = creditAmt; type = 'income';  }
+      } else if (amtIdx >= 0) {
+        const rawAmt = parseFloat(cell(amtIdx).replace(/,/g, ''));
+        if (!rawAmt || isNaN(rawAmt)) return;
+        amount = Math.abs(rawAmt);
+        const txType = typeIdx >= 0 ? (cell(typeIdx) || '').toLowerCase() : '';
+        type = (rawAmt < 0 || txType.includes('debit') || txType.includes('dr')) ? 'expense' : 'income';
+      } else return;
+
+      description = descIdx >= 0 ? cell(descIdx) : '';
+      date = dateIdx >= 0 ? _parseCsvDate(cell(dateIdx)) : today();
+    }
+
+    if (!amount || amount <= 0) return;
+    if (!description) description = type === 'income' ? 'Credit' : 'Debit';
+    const lo = description.toLowerCase();
+    const category = smsCategoryGuess(lo, lo, type);
+    results.push({ type, amount, date: date || today(), description, category });
+  });
+
+  return results;
+}
+
+function _detectCsvFormat(headers) {
+  const h = headers.join(' ');
+  if (h.includes('transaction id') && h.includes('amount') && (h.includes('description') || !h.includes('remarks'))) return 'gpay';
+  if (h.includes('transaction type') && h.includes('remarks')) return 'phonepe';
+  return 'generic';
+}
+
+function _parseCsvDate(raw) {
+  if (!raw) return today();
+  raw = raw.trim();
+  // DD/MM/YYYY or DD-MM-YYYY
+  let m = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (m) {
+    const yr = m[3].length === 2 ? '20' + m[3] : m[3];
+    return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  }
+  // YYYY-MM-DD (already correct)
+  m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return raw.slice(0, 10);
+  // "05 Jan 2025" or "Jan 05, 2025" or "05 January 2025"
+  const MONTHS = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12',
+    january:'01',february:'02',march:'03',april:'04',june:'06',july:'07',august:'08',september:'09',october:'10',november:'11',december:'12'};
+  m = raw.match(/(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})/);
+  if (m) { const mo = MONTHS[m[2].toLowerCase()]; if (mo) return `${m[3]}-${mo}-${m[1].padStart(2,'0')}`; }
+  m = raw.match(/([a-zA-Z]+)\s+(\d{1,2}),?\s+(\d{4})/);
+  if (m) { const mo = MONTHS[m[1].toLowerCase()]; if (mo) return `${m[3]}-${mo}-${m[2].padStart(2,'0')}`; }
+  // Try native parse as fallback
+  const d = new Date(raw);
+  if (!isNaN(d)) return d.toISOString().slice(0, 10);
+  return today();
+}
+
+function _showImportStatus(prefix, msg, type) {
+  const el = document.getElementById(`${prefix}-status`);
+  if (!el) return;
+  el.style.display    = '';
+  el.textContent      = msg;
+  el.style.background = type === 'ok' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)';
+  el.style.color      = type === 'ok' ? '#10b981'               : '#f59e0b';
+}
+
+function renderCsvResults() {
+  const list = document.getElementById('csv-results-list');
+  const wrap = document.getElementById('csv-results-wrap');
+  if (!list || !wrap) return;
+  list.innerHTML = _csvResults.map((r, i) => `
+    <div id="csv-card-${i}" style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:10px;position:relative">
+      <button onclick="removeCsvResult(${i})" title="Remove" style="position:absolute;top:8px;right:10px;background:rgba(239,68,68,0.12);border:none;color:#ef4444;border-radius:6px;cursor:pointer;padding:2px 9px;font-size:13px;line-height:1.6">✕</button>
+      <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-bottom:8px;padding-right:36px">
+        <select class="form-input" id="cv-type-${i}" onchange="updateCsvSummary()" style="font-size:12px;padding:4px 8px">
+          <option value="expense" ${r.type === 'expense' ? 'selected' : ''}>❤️ Expense</option>
+          <option value="income"  ${r.type === 'income'  ? 'selected' : ''}>💚 Income</option>
+        </select>
+        <input type="number" class="form-input" id="cv-amount-${i}" value="${r.amount}" step="0.01" min="0"
+          oninput="updateCsvSummary()" style="font-size:13px;font-weight:700;padding:4px 8px"/>
+        <input type="date" class="form-input" id="cv-date-${i}" value="${r.date}" style="font-size:12px;padding:4px 8px"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <select class="form-input" id="cv-cat-${i}" style="font-size:12px;padding:4px 8px">${_makeSrCatOptions(r.category)}</select>
+        <input type="text" class="form-input" id="cv-desc-${i}" value="${(r.description||'').replace(/"/g,'&quot;')}" placeholder="Description" style="font-size:12px;padding:4px 8px"/>
+      </div>
+    </div>`).join('');
+  wrap.style.display = '';
+  updateCsvSummary();
+}
+
+function removeCsvResult(i) {
+  const card = document.getElementById(`csv-card-${i}`);
+  if (card) card.style.display = 'none';
+  updateCsvSummary();
+}
+
+function updateCsvSummary() {
+  let totalExpense = 0, totalIncome = 0, count = 0;
+  _csvResults.forEach((_, i) => {
+    const card = document.getElementById(`csv-card-${i}`);
+    if (!card || card.style.display === 'none') return;
+    const type   = document.getElementById(`cv-type-${i}`)?.value;
+    const amount = parseFloat(document.getElementById(`cv-amount-${i}`)?.value) || 0;
+    if (type === 'expense') totalExpense += amount; else totalIncome += amount;
+    count++;
+  });
+  const el = document.getElementById('csv-summary');
+  if (!el) return;
+  if (!count) { el.innerHTML = '<span style="color:var(--text3)">No transactions selected</span>'; return; }
+  const parts = [];
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ₹${totalExpense.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ₹${totalIncome.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} transaction${count>1?'s':''}</span>`;
+}
+
+function saveAllCsvTx() {
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const toSave  = [];
+  _csvResults.forEach((_, i) => {
+    const card = document.getElementById(`csv-card-${i}`);
+    if (!card || card.style.display === 'none') return;
+    const type     = document.getElementById(`cv-type-${i}`)?.value;
+    const amount   = parseFloat(document.getElementById(`cv-amount-${i}`)?.value);
+    const date     = document.getElementById(`cv-date-${i}`)?.value || today();
+    const category = document.getElementById(`cv-cat-${i}`)?.value;
+    const desc     = document.getElementById(`cv-desc-${i}`)?.value?.trim() || '';
+    if (!amount || amount <= 0) return;
+    const icon = allCats.find(c => c.name === category)?.icon || '💳';
+    toSave.push({ id: genId(), type, amount, date, category, icon, description: desc, createdAt: new Date().toISOString() });
+  });
+  if (!toSave.length) { toast('No valid transactions to save', 'error'); return; }
+  STATE.transactions = STATE.transactions || [];
+  [...toSave].reverse().forEach(tx => STATE.transactions.unshift(tx));
+  saveState();
+  if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} CSV transaction${toSave.length>1?'s':''} imported`);
+  if (typeof autoSyncGoals === 'function') autoSyncGoals();
+  closeModal();
+  toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported from CSV! 🎉`, 'success');
+  refreshFinancePage();
+}
+
+// ===== BULK DATE ENTRY =====
+let _bulkRows = 0;
+
+function openBulkEntry() {
+  _bulkRows = 0;
+  openModal('📅 Bulk Date Entry', `
+    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
+      Pick a date, then add as many transactions as you need at once.
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Date for all entries</label>
+      <input type="date" id="bulk-date" class="form-input" value="${today()}" onchange="updateBulkRowDates()"/>
+    </div>
+    <div id="bulk-rows-wrap"></div>
+    <button class="btn-secondary" onclick="addBulkRow()" style="width:100%;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:6px">+ Add Row</button>
+    <div id="bulk-summary" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:10px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);font-size:13px;font-weight:600"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveBulkEntries()" style="background:linear-gradient(135deg,#00c9a7,#0acf83)">💾 Save All</button>
+    </div>`);
+  addBulkRow();
+  addBulkRow();
+}
+
+function addBulkRow() {
+  const i = _bulkRows++;
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const catOpts = allCats.map(c => `<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
+  const date = document.getElementById('bulk-date')?.value || today();
+  const wrap = document.getElementById('bulk-rows-wrap');
+  if (!wrap) return;
+  const div = document.createElement('div');
+  div.id = `bulk-row-${i}`;
+  div.style.cssText = 'background:var(--card-bg);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:10px;position:relative';
+  div.innerHTML = `
+    <button onclick="removeBulkRow(${i})" title="Remove" style="position:absolute;top:8px;right:10px;background:rgba(239,68,68,0.12);border:none;color:#ef4444;border-radius:6px;cursor:pointer;padding:2px 9px;font-size:13px;line-height:1.6">✕</button>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;margin-bottom:8px;padding-right:44px">
+      <select class="form-input" id="br-type-${i}" oninput="updateBulkSummary()" style="font-size:12px;padding:4px 8px">
+        <option value="expense">❤️ Expense</option>
+        <option value="income">💚 Income</option>
+      </select>
+      <input type="number" class="form-input" id="br-amount-${i}" placeholder="Amount ₹" min="0" step="0.01"
+        oninput="updateBulkSummary()" style="font-size:13px;font-weight:700;padding:4px 8px"/>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <select class="form-input" id="br-cat-${i}" style="font-size:12px;padding:4px 8px">${catOpts}</select>
+      <input type="text" class="form-input" id="br-desc-${i}" placeholder="Description" style="font-size:12px;padding:4px 8px"/>
+    </div>`;
+  wrap.appendChild(div);
+}
+
+function removeBulkRow(i) {
+  const row = document.getElementById(`bulk-row-${i}`);
+  if (row) row.style.display = 'none';
+  updateBulkSummary();
+}
+
+function updateBulkRowDates() {
+  // date is shared — nothing per-row to update, but keep hook for future use
+}
+
+function updateBulkSummary() {
+  let totalExpense = 0, totalIncome = 0, count = 0;
+  for (let i = 0; i < _bulkRows; i++) {
+    const row = document.getElementById(`bulk-row-${i}`);
+    if (!row || row.style.display === 'none') continue;
+    const type   = document.getElementById(`br-type-${i}`)?.value;
+    const amount = parseFloat(document.getElementById(`br-amount-${i}`)?.value) || 0;
+    if (!amount) continue;
+    if (type === 'expense') totalExpense += amount; else totalIncome += amount;
+    count++;
+  }
+  const el = document.getElementById('bulk-summary');
+  if (!el) return;
+  if (!count) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  const parts = [];
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ₹${totalExpense.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ₹${totalIncome.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} entr${count>1?'ies':'y'}</span>`;
+}
+
+function saveBulkEntries() {
+  const date = document.getElementById('bulk-date')?.value || today();
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const toSave  = [];
+  for (let i = 0; i < _bulkRows; i++) {
+    const row = document.getElementById(`bulk-row-${i}`);
+    if (!row || row.style.display === 'none') continue;
+    const type     = document.getElementById(`br-type-${i}`)?.value;
+    const amount   = parseFloat(document.getElementById(`br-amount-${i}`)?.value);
+    const category = document.getElementById(`br-cat-${i}`)?.value;
+    const desc     = document.getElementById(`br-desc-${i}`)?.value?.trim() || '';
+    if (!amount || amount <= 0) continue;
+    const icon = allCats.find(c => c.name === category)?.icon || '💳';
+    toSave.push({ id: genId(), type, amount, date, category, icon, description: desc, createdAt: new Date().toISOString() });
+  }
+  if (!toSave.length) { toast('Add at least one valid amount', 'error'); return; }
+  STATE.transactions = STATE.transactions || [];
+  [...toSave].reverse().forEach(tx => STATE.transactions.unshift(tx));
+  saveState();
+  if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} bulk transaction${toSave.length>1?'s':''} logged`);
+  if (typeof autoSyncGoals === 'function') autoSyncGoals();
+  closeModal();
+  toast(`${toSave.length} transaction${toSave.length>1?'s':''} saved! +${toSave.length * 10} XP 🎉`, 'success');
+  refreshFinancePage();
+}
+
+// ===== SMART STATEMENT PASTE (GPay / PhonePe) =====
+let _stmtResults = [];
+
+function openStatementPaste() {
+  _stmtResults = [];
+  openModal('📄 Paste Statement', `
+    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
+      Copy text from your <strong>GPay</strong> or <strong>PhonePe</strong> transaction history page and paste it below.<br>
+      Works with both app copy-paste and browser page text.
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">Paste transaction history</label>
+      <textarea id="stmt-raw" class="form-input" rows="6"
+        placeholder="Paste copied text from GPay or PhonePe transaction history..."
+        style="font-size:12px;line-height:1.6;resize:vertical"></textarea>
+    </div>
+    <div id="stmt-status" style="display:none;font-size:12px;font-weight:600;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
+    <div class="modal-actions" style="margin-bottom:14px">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="parseStatement()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🔍 Parse</button>
+    </div>
+    <div id="stmt-results-wrap" style="display:none">
+      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
+      <p style="font-size:11px;font-weight:700;color:#00c9a7;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Detected transactions — edit if needed</p>
+      <div id="stmt-results-list" style="max-height:45vh;overflow-y:auto;padding-right:2px"></div>
+      <div id="stmt-summary" style="margin:12px 0;padding:10px 14px;border-radius:10px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);font-size:13px;font-weight:600"></div>
+      <button class="btn-primary" onclick="saveAllStmtTx()" style="width:100%;background:linear-gradient(135deg,#00c9a7,#0acf83);padding:12px">💾 Save All Transactions</button>
+    </div>`);
+}
+
+function parseStatement() {
+  const raw = document.getElementById('stmt-raw')?.value?.trim();
+  if (!raw) { toast('Paste some text first', 'error'); return; }
+  _stmtResults = _parseStatementText(raw);
+  if (!_stmtResults.length) {
+    _showImportStatus('stmt', 'Could not detect any transactions. Make sure you pasted from GPay or PhonePe transaction history.', 'warn');
+    return;
+  }
+  renderStmtResults();
+  _showImportStatus('stmt', `✅ Found ${_stmtResults.length} transaction${_stmtResults.length > 1 ? 's' : ''}`, 'ok');
+}
+
+function _parseStatementText(text) {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+  const results = [];
+
+  // Strategy: scan line by line looking for ₹ amount lines, then look around for date/merchant/type
+  const MONTHS = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12',
+    january:'01',february:'02',march:'03',april:'04',june:'06',july:'07',august:'08',september:'09',october:'10',november:'11',december:'12'};
+
+  function parseLineDate(s) {
+    // "12 May 2025" or "May 12, 2025" or "12/05/2025" or "2025-05-12"
+    let m = s.match(/(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})/);
+    if (m) { const mo = MONTHS[m[2].toLowerCase()]; if (mo) return `${m[3]}-${mo}-${m[1].padStart(2,'0')}`; }
+    m = s.match(/([a-zA-Z]+)\s+(\d{1,2}),?\s+(\d{4})/);
+    if (m) { const mo = MONTHS[m[1].toLowerCase()]; if (mo) return `${m[3]}-${mo}-${m[2].padStart(2,'0')}`; }
+    m = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[0];
+    m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if (m) { const yr = m[3].length===2?'20'+m[3]:m[3]; return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+    return null;
+  }
+
+  function parseLineAmount(s) {
+    // ₹350 or ₹1,299.00 or Rs. 350 or INR 350
+    const m = s.match(/(?:₹|rs\.?\s*|inr\s*)([\d,]+(?:\.\d{1,2})?)/i);
+    if (m) return parseFloat(m[1].replace(/,/g,''));
+    // Bare number like "350.00" as own line
+    const m2 = s.match(/^([\d,]+(?:\.\d{1,2})?)$/);
+    if (m2) { const v = parseFloat(m2[1].replace(/,/g,'')); if (v > 0) return v; }
+    return null;
+  }
+
+  function detectType(s) {
+    const lo = s.toLowerCase();
+    if (/\b(paid|debit|debited|sent|spent|withdrawn|payment)\b/.test(lo)) return 'expense';
+    if (/\b(received|credit|credited|added|money received|refund|cashback)\b/.test(lo)) return 'income';
+    return null;
+  }
+
+  // Collect all (lineIdx, amount) pairs first
+  const amtLines = [];
+  lines.forEach((l, idx) => {
+    const amt = parseLineAmount(l);
+    if (amt && amt > 0) amtLines.push({ idx, amt });
+  });
+
+  // For each amount line, gather context (±5 lines) to find date, description, type
+  amtLines.forEach(({ idx, amt }) => {
+    const window = [];
+    for (let d = -4; d <= 4; d++) {
+      if (idx + d >= 0 && idx + d < lines.length && d !== 0) window.push({ d, line: lines[idx + d] });
+    }
+
+    // Find date in window (prefer lines before the amount)
+    let date = null;
+    for (const { line } of [...window].sort((a,b) => Math.abs(a.d) - Math.abs(b.d))) {
+      date = parseLineDate(line);
+      if (date) break;
+    }
+    if (!date) date = today();
+
+    // Find type signal
+    let type = null;
+    for (const { line } of window) {
+      const t = detectType(line);
+      if (t) { type = t; break; }
+    }
+    // Also check the amount line itself
+    if (!type) type = detectType(lines[idx]);
+
+    // Find description: prefer merchant-looking lines (not date/amount/type keywords) before or after
+    let description = '';
+    const skipRe = /₹|rs\.|inr|^[\d,]+(\.\d+)?$|paid|received|credit|debit|debited|credited|success|completed|utr|ref|transaction|pending/i;
+    const dateRe  = /\d{1,2}\s+[a-zA-Z]+\s+\d{4}|[a-zA-Z]+\s+\d{1,2},?\s+\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/;
+    for (const { d, line } of [...window].sort((a,b) => Math.abs(a.d)-Math.abs(b.d))) {
+      if (skipRe.test(line)) continue;
+      if (dateRe.test(line)) continue;
+      if (line.length < 3 || line.length > 80) continue;
+      description = line;
+      break;
+    }
+    if (!description) description = type === 'income' ? 'Received' : 'Payment';
+
+    // Default type from description if still null
+    if (!type) {
+      const lo = description.toLowerCase();
+      type = (lo.includes('paid') || lo.includes('sent') || lo.includes('to ')) ? 'expense' : 'income';
+    }
+
+    const lo = description.toLowerCase();
+    const category = smsCategoryGuess(lo, lo, type);
+    results.push({ type, amount: amt, date, description, category });
+  });
+
+  // Deduplicate by amount+date+description
+  const seen = new Set();
+  return results.filter(r => {
+    const key = `${r.amount}|${r.date}|${r.description}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function renderStmtResults() {
+  const list = document.getElementById('stmt-results-list');
+  const wrap = document.getElementById('stmt-results-wrap');
+  if (!list || !wrap) return;
+  list.innerHTML = _stmtResults.map((r, i) => `
+    <div id="st-card-${i}" style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:10px;position:relative">
+      <button onclick="removeStmtResult(${i})" title="Remove" style="position:absolute;top:8px;right:10px;background:rgba(239,68,68,0.12);border:none;color:#ef4444;border-radius:6px;cursor:pointer;padding:2px 9px;font-size:13px;line-height:1.6">✕</button>
+      <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-bottom:8px;padding-right:36px">
+        <select class="form-input" id="st-type-${i}" onchange="updateStmtSummary()" style="font-size:12px;padding:4px 8px">
+          <option value="expense" ${r.type === 'expense' ? 'selected' : ''}>❤️ Expense</option>
+          <option value="income"  ${r.type === 'income'  ? 'selected' : ''}>💚 Income</option>
+        </select>
+        <input type="number" class="form-input" id="st-amount-${i}" value="${r.amount}" step="0.01" min="0"
+          oninput="updateStmtSummary()" style="font-size:13px;font-weight:700;padding:4px 8px"/>
+        <input type="date" class="form-input" id="st-date-${i}" value="${r.date}" style="font-size:12px;padding:4px 8px"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <select class="form-input" id="st-cat-${i}" style="font-size:12px;padding:4px 8px">${_makeSrCatOptions(r.category)}</select>
+        <input type="text" class="form-input" id="st-desc-${i}" value="${(r.description||'').replace(/"/g,'&quot;')}" placeholder="Description" style="font-size:12px;padding:4px 8px"/>
+      </div>
+    </div>`).join('');
+  wrap.style.display = '';
+  updateStmtSummary();
+}
+
+function removeStmtResult(i) {
+  const card = document.getElementById(`st-card-${i}`);
+  if (card) card.style.display = 'none';
+  updateStmtSummary();
+}
+
+function updateStmtSummary() {
+  let totalExpense = 0, totalIncome = 0, count = 0;
+  _stmtResults.forEach((_, i) => {
+    const card = document.getElementById(`st-card-${i}`);
+    if (!card || card.style.display === 'none') return;
+    const type   = document.getElementById(`st-type-${i}`)?.value;
+    const amount = parseFloat(document.getElementById(`st-amount-${i}`)?.value) || 0;
+    if (type === 'expense') totalExpense += amount; else totalIncome += amount;
+    count++;
+  });
+  const el = document.getElementById('stmt-summary');
+  if (!el) return;
+  if (!count) { el.innerHTML = '<span style="color:var(--text3)">No transactions selected</span>'; return; }
+  const parts = [];
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ₹${totalExpense.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ₹${totalIncome.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} transaction${count>1?'s':''}</span>`;
+}
+
+function saveAllStmtTx() {
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const toSave  = [];
+  _stmtResults.forEach((_, i) => {
+    const card = document.getElementById(`st-card-${i}`);
+    if (!card || card.style.display === 'none') return;
+    const type     = document.getElementById(`st-type-${i}`)?.value;
+    const amount   = parseFloat(document.getElementById(`st-amount-${i}`)?.value);
+    const date     = document.getElementById(`st-date-${i}`)?.value || today();
+    const category = document.getElementById(`st-cat-${i}`)?.value;
+    const desc     = document.getElementById(`st-desc-${i}`)?.value?.trim() || '';
+    if (!amount || amount <= 0) return;
+    const icon = allCats.find(c => c.name === category)?.icon || '💳';
+    toSave.push({ id: genId(), type, amount, date, category, icon, description: desc, createdAt: new Date().toISOString() });
+  });
+  if (!toSave.length) { toast('No valid transactions to save', 'error'); return; }
+  STATE.transactions = STATE.transactions || [];
+  [...toSave].reverse().forEach(tx => STATE.transactions.unshift(tx));
+  saveState();
+  if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} statement transaction${toSave.length>1?'s':''} imported`);
+  if (typeof autoSyncGoals === 'function') autoSyncGoals();
+  closeModal();
+  toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported! 🎉`, 'success');
+  refreshFinancePage();
 }
