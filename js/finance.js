@@ -691,6 +691,12 @@ function openEditTxModal(id) {
       <label class="form-label">Description</label>
       <input type="text" id="etx-desc" class="form-input" value="${tx.description || ''}" placeholder="What was this for?"/>
     </div>
+    <div class="form-group" style="margin-top:-5px">
+      <label style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="etx-apply-all" checked style="accent-color:#00c9a7;width:14px;height:14px;" />
+        Auto-update all transactions with this description
+      </label>
+    </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveEditTx('${id}')">💾 Save Changes</button>
@@ -706,6 +712,7 @@ function saveEditTx(id) {
   const date   = document.getElementById('etx-date')?.value || today();
   const cat    = document.getElementById('etx-cat')?.value;
   const desc   = document.getElementById('etx-desc')?.value.trim();
+  const applyAll = document.getElementById('etx-apply-all')?.checked;
 
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
 
@@ -717,10 +724,23 @@ function saveEditTx(id) {
   tx.icon        = allCats.find(c => c.name === cat)?.icon || tx.icon || '💳';
   tx.description = desc;
 
+  let extraMsg = '';
+  if (applyAll && desc) {
+    let count = 0;
+    STATE.transactions.forEach(t => {
+      if (t.id !== id && t.description === desc && t.category !== cat) {
+        t.category = cat;
+        t.icon = tx.icon;
+        count++;
+      }
+    });
+    if (count > 0) extraMsg = ` & ${count} others updated`;
+  }
+
   saveState();
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
-  toast('Transaction updated ✅', 'success');
+  toast(`Transaction updated ✅${extraMsg}`, 'success');
   renderFinanceTxList(); // instant list refresh without full page re-render
 }
 
