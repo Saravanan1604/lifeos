@@ -816,132 +816,279 @@ function smsCategoryGuess(lo, desc, type) {
 }
 
 // ===== INVESTMENTS PAGE =====
-const INV_TYPES = [
-  { key: 'All',           icon: '🏦' },
+// ===== ALL ASSETS + LOANS =====
+
+const DEFAULT_ASSET_TYPES = [
   { key: 'Mutual Fund',   icon: '📈' },
   { key: 'Stocks',        icon: '📊' },
   { key: 'SIP',           icon: '🔄' },
   { key: 'Fixed Deposit', icon: '🏛️' },
   { key: 'Gold',          icon: '🥇' },
-  { key: 'Crypto',        icon: '₿' },
+  { key: 'Crypto',        icon: '₿'  },
   { key: 'Real Estate',   icon: '🏠' },
   { key: 'PPF / EPF',     icon: '🏢' },
   { key: 'Insurance',     icon: '🛡️' },
   { key: 'Other',         icon: '🗃️' },
 ];
 
+const DEFAULT_LOAN_TYPES = [
+  { key: 'Home Loan',      icon: '🏠' },
+  { key: 'Car Loan',       icon: '🚗' },
+  { key: 'Personal Loan',  icon: '👤' },
+  { key: 'Education Loan', icon: '🎓' },
+  { key: 'Gold Loan',      icon: '🥇' },
+  { key: 'Business Loan',  icon: '🏢' },
+  { key: 'Credit Card',    icon: '💳' },
+  { key: 'Other',          icon: '📋' },
+];
+
+function getAssetTypes() {
+  const custom = STATE.customAssetTypes || [];
+  return [...DEFAULT_ASSET_TYPES, ...custom];
+}
+function getLoanTypes() {
+  const custom = STATE.customLoanTypes || [];
+  return [...DEFAULT_LOAN_TYPES, ...custom];
+}
+function assetIcon(t) { return getAssetTypes().find(x => x.key === t)?.icon || '📊'; }
+function loanIcon(t)  { return getLoanTypes().find(x => x.key === t)?.icon  || '📋'; }
+
 let invFilter = 'All';
 
 function renderInvestments() {
   const investments = STATE.investments || [];
-  const totalInvested = investments.reduce((s, i) => s + i.amount, 0);
-  const totalCurrent  = investments.reduce((s, i) => s + (i.currentValue ?? i.amount), 0);
-  const totalPnL      = totalCurrent - totalInvested;
-  const totalROI      = totalInvested > 0 ? ((totalPnL / totalInvested) * 100).toFixed(2) : '0.00';
+  const loans       = STATE.loans || [];
 
-  const filtered = invFilter === 'All' ? investments : investments.filter(i => i.type === invFilter);
+  // ── Totals ───────────────────────────────────────────────────────────
+  const totalInvested  = investments.reduce((s, i) => s + (i.amount || 0), 0);
+  const totalCurrent   = investments.reduce((s, i) => s + (i.currentValue ?? i.amount ?? 0), 0);
+  const totalPnL       = totalCurrent - totalInvested;
+  const totalROI       = totalInvested > 0 ? ((totalPnL / totalInvested) * 100).toFixed(2) : '0.00';
+  const totalLoan      = loans.reduce((s, l) => s + (l.outstanding || 0), 0);
+  const netWorth       = totalCurrent - totalLoan;
 
-  const typeIcon = (t) => INV_TYPES.find(x => x.key === t)?.icon || '📊';
+  // filter tabs include 'All' + asset types
+  const allAssetTypes  = [{ key: 'All', icon: '🏦' }, ...getAssetTypes()];
+  const filtered       = invFilter === 'All' ? investments : investments.filter(i => i.type === invFilter);
 
+  // ── Row builder helpers ───────────────────────────────────────────────
+  function moveBtn(dir, fn, id, list) {
+    const idx = list.findIndex(x => x.id === id);
+    const disabled = dir === 'up' ? idx === 0 : idx === list.length - 1;
+    return `<button onclick="${fn}('${id}','${dir}')" style="background:none;border:none;color:${disabled?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.4)'};font-size:14px;cursor:${disabled?'default':'pointer'};padding:2px 4px;line-height:1;transition:.15s" ${disabled?'disabled':''}>${dir==='up'?'↑':'↓'}</button>`;
+  }
+
+  function invRow(inv, idx, list) {
+    const curr = inv.currentValue ?? inv.amount;
+    const pnl  = curr - inv.amount;
+    const roi  = inv.amount > 0 ? ((pnl / inv.amount) * 100).toFixed(2) : '0.00';
+    const pos  = pnl >= 0;
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+      <td style="padding:12px 16px;width:48px;text-align:center">
+        <div style="display:flex;flex-direction:column;gap:0">${moveBtn('up','moveInv',inv.id,list)}${moveBtn('down','moveInv',inv.id,list)}</div>
+      </td>
+      <td style="padding:12px 16px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:38px;height:38px;border-radius:10px;background:rgba(99,102,241,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${assetIcon(inv.type)}</div>
+          <div>
+            <p style="font-weight:700;font-size:13px">${inv.name}</p>
+            <p style="font-size:11px;color:var(--text3)">${inv.type}${inv.notes?' · '+inv.notes:''}</p>
+          </div>
+        </div>
+      </td>
+      <td style="padding:12px 16px;text-align:right;font-size:13px;color:var(--text2)">${fmt(inv.amount)}</td>
+      <td style="padding:12px 16px;text-align:right;font-size:13px;font-weight:600;color:#00c9a7">${fmt(curr)}</td>
+      <td style="padding:12px 16px;text-align:right;font-size:13px;font-weight:700;color:${pos?'#10b981':'#ef4444'}">${pos?'+':''}${fmt(pnl)}</td>
+      <td style="padding:12px 16px;text-align:right;font-size:13px;font-weight:700;color:${pos?'#10b981':'#ef4444'}">${pos?'+':''}${roi}%</td>
+      <td style="padding:12px 16px;text-align:center;white-space:nowrap">
+        <button class="btn-icon btn-sm" onclick="openEditInvModal('${inv.id}')" style="font-size:12px;margin-right:4px" title="Edit">✏️</button>
+        <button class="btn-icon btn-sm" onclick="deleteInv('${inv.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);font-size:12px" title="Delete">✕</button>
+      </td>
+    </tr>`;
+  }
+
+  function loanRow(loan, idx, list) {
+    const paid = (loan.principal || 0) - (loan.outstanding || 0);
+    const pct  = loan.principal > 0 ? Math.min(100, Math.round((paid / loan.principal) * 100)) : 0;
+    const monthlyInt = loan.outstanding > 0 && loan.interestRate > 0
+      ? Math.round(loan.outstanding * (loan.interestRate / 100) / 12) : 0;
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+      <td style="padding:12px 16px;width:48px;text-align:center">
+        <div style="display:flex;flex-direction:column;gap:0">${moveBtn('up','moveLoan',loan.id,list)}${moveBtn('down','moveLoan',loan.id,list)}</div>
+      </td>
+      <td style="padding:12px 16px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:38px;height:38px;border-radius:10px;background:rgba(239,68,68,0.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${loanIcon(loan.type)}</div>
+          <div>
+            <p style="font-weight:700;font-size:13px">${loan.name}</p>
+            <p style="font-size:11px;color:var(--text3)">${loan.type}${loan.lender?' · '+loan.lender:''}${loan.interestRate?' · '+loan.interestRate+'%':''}</p>
+          </div>
+        </div>
+      </td>
+      <td style="padding:12px 16px;text-align:right;font-size:13px;color:var(--text2)">${fmt(loan.principal||0)}</td>
+      <td style="padding:12px 16px;text-align:right;font-size:13px;font-weight:700;color:#ef4444">${fmt(loan.outstanding||0)}</td>
+      <td style="padding:12px 16px;text-align:right;font-size:13px;color:var(--text2)">${fmt(loan.emi||0)}<br><span style="font-size:10px;color:var(--text3)">EMI/mo</span></td>
+      <td style="padding:12px 16px">
+        <div style="min-width:80px">
+          <div style="height:4px;border-radius:3px;background:rgba(255,255,255,0.1);margin-bottom:3px">
+            <div style="height:4px;border-radius:3px;width:${pct}%;background:linear-gradient(90deg,#10b981,#00c9a7)"></div>
+          </div>
+          <span style="font-size:10px;color:var(--text3)">${pct}% paid</span>
+        </div>
+      </td>
+      <td style="padding:12px 16px;text-align:center;white-space:nowrap">
+        <button class="btn-icon btn-sm" onclick="openEditLoanModal('${loan.id}')" style="font-size:12px;margin-right:4px" title="Edit">✏️</button>
+        <button class="btn-icon btn-sm" onclick="deleteLoan('${loan.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);font-size:12px" title="Delete">✕</button>
+      </td>
+    </tr>`;
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────
   document.getElementById('page-container').innerHTML = `
-    <div class="fade-in">
-      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div><h1 class="page-title">📊 All Assets</h1><p class="page-subtitle">Track your portfolio &amp; all assets</p></div>
-        <button class="btn-primary btn-sm" onclick="openAddInvModal()">+ Add Asset</button>
-      </div>
+    <div class="fade-in" style="max-width:1000px;margin:0 auto">
 
-      <!-- Summary cards — Kaasu style colored -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px" class="inv-summary-grid">
-        <div style="padding:18px 20px;border-radius:18px;background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 8px 24px rgba(59,130,246,0.35)">
-          <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Total Invested 💰</p>
-          <p style="font-size:22px;font-weight:900;color:#fff">${fmt(totalInvested)}</p>
-        </div>
-        <div style="padding:18px 20px;border-radius:18px;background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 8px 24px rgba(16,185,129,0.35)">
-          <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Current Value 💹</p>
-          <p style="font-size:22px;font-weight:900;color:#fff">${fmt(totalCurrent)}</p>
-        </div>
-        <div style="padding:18px 20px;border-radius:18px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);box-shadow:0 8px 24px rgba(139,92,246,0.35)">
-          <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">P&amp;L 🚀</p>
-          <p style="font-size:22px;font-weight:900;color:#fff">${totalPnL >= 0 ? '+' : ''}${fmt(totalPnL)}</p>
-        </div>
-        <div style="padding:18px 20px;border-radius:18px;background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 8px 24px rgba(245,158,11,0.35)">
-          <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">ROI 🎯</p>
-          <p style="font-size:22px;font-weight:900;color:#fff">${totalROI >= 0 ? '+' : ''}${totalROI}%</p>
+      <!-- Header -->
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+        <div><h1 class="page-title">📊 All Assets</h1><p class="page-subtitle">Investments, loans & net worth</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-secondary btn-sm" onclick="openManageTypesModal('asset')">⚙️ Asset Types</button>
+          <button class="btn-secondary btn-sm" onclick="openManageTypesModal('loan')">⚙️ Loan Types</button>
+          <button class="btn-primary btn-sm" onclick="openAddLoanModal()" style="background:linear-gradient(135deg,#ef4444,#dc2626)">+ Add Loan</button>
+          <button class="btn-primary btn-sm" onclick="openAddInvModal()">+ Add Asset</button>
         </div>
       </div>
 
-      <!-- Filter tabs -->
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
-        ${INV_TYPES.map(t => `
-          <button onclick="invFilter='${t.key}';renderInvestments()" style="padding:6px 14px;border-radius:20px;border:1px solid ${invFilter===t.key?'rgba(0,201,167,0.5)':'rgba(255,255,255,0.12)'};background:${invFilter===t.key?'rgba(0,201,167,0.18)':'transparent'};color:${invFilter===t.key?'#00c9a7':'var(--text2)'};font-size:12px;font-weight:${invFilter===t.key?700:400};cursor:pointer;transition:.15s">
-            ${t.icon} ${t.key}
-          </button>`).join('')}
+      <!-- Net Worth Hero -->
+      <div style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#1a1a4e,#0d0d2e);border:1px solid rgba(99,102,241,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+        <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(99,102,241,0.08)"></div>
+        <div style="position:relative;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:20px;flex-wrap:wrap" class="nw-grid">
+          <div>
+            <p style="font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px">NET WORTH 🏆</p>
+            <p style="font-size:36px;font-weight:900;color:${netWorth>=0?'#00c9a7':'#ef4444'};letter-spacing:-1.5px">${fmt(netWorth)}</p>
+          </div>
+          <div>
+            <p style="font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px">ASSETS 💹</p>
+            <p style="font-size:24px;font-weight:900;color:#10b981">${fmt(totalCurrent)}</p>
+            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">Invested ${fmt(totalInvested)}</p>
+          </div>
+          <div>
+            <p style="font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px">LIABILITIES 💸</p>
+            <p style="font-size:24px;font-weight:900;color:#ef4444">${fmt(totalLoan)}</p>
+            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">${loans.length} active loan${loans.length!==1?'s':''}</p>
+          </div>
+          <div>
+            <p style="font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px">P&L 🚀</p>
+            <p style="font-size:24px;font-weight:900;color:${totalPnL>=0?'#10b981':'#ef4444'}">${totalPnL>=0?'+':''}${fmt(totalPnL)}</p>
+            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">ROI ${totalROI}%</p>
+          </div>
+        </div>
       </div>
 
-      <!-- Table -->
-      <div class="glass-card" style="overflow:hidden">
+      <!-- ── INVESTMENTS ─────────────────────────────────────────── -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+        <p style="font-size:16px;font-weight:800">💹 Investments & Assets</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${allAssetTypes.map(t => `
+            <button onclick="invFilter='${t.key}';renderInvestments()" style="padding:5px 12px;border-radius:16px;border:1px solid ${invFilter===t.key?'rgba(0,201,167,0.5)':'rgba(255,255,255,0.1)'};background:${invFilter===t.key?'rgba(0,201,167,0.15)':'transparent'};color:${invFilter===t.key?'#00c9a7':'var(--text2)'};font-size:11px;font-weight:${invFilter===t.key?700:400};cursor:pointer;transition:.15s">${t.icon} ${t.key}</button>`).join('')}
+        </div>
+      </div>
+
+      <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
         ${filtered.length === 0
-          ? `<div class="empty-state"><span class="empty-state-icon">📈</span><p>${investments.length === 0 ? 'No investments yet. Add your first!' : 'No investments in this category.'}</p></div>`
-          : `<div class="table-wrap" style="overflow-x:auto">
-            <table style="width:100%;border-collapse:collapse;min-width:680px">
+          ? `<div class="empty-state"><span class="empty-state-icon">📈</span><p>${investments.length===0?'No assets yet. Add your first!':'Nothing in this category.'}</p></div>`
+          : `<div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;min-width:700px">
               <thead>
                 <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
-                  <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Investment</th>
-                  <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Invested</th>
-                  <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Current Value</th>
-                  <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">P&amp;L</th>
-                  <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">ROI</th>
-                  <th style="padding:12px 16px;width:60px"></th>
+                  <th style="width:48px"></th>
+                  <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Asset</th>
+                  <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Invested</th>
+                  <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Current</th>
+                  <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">P&amp;L</th>
+                  <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">ROI</th>
+                  <th style="width:80px"></th>
                 </tr>
               </thead>
-              <tbody>
-                ${filtered.map(inv => {
-                  const curr = inv.currentValue ?? inv.amount;
-                  const pnl  = curr - inv.amount;
-                  const roi  = inv.amount > 0 ? ((pnl / inv.amount) * 100).toFixed(2) : '0.00';
-                  const pos  = pnl >= 0;
-                  return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
-                    <td style="padding:14px 16px">
-                      <div style="display:flex;align-items:center;gap:12px">
-                        <div style="width:40px;height:40px;border-radius:12px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${typeIcon(inv.type)}</div>
-                        <div>
-                          <p style="font-weight:700;font-size:14px;color:var(--text)">${inv.name}</p>
-                          <p style="font-size:11px;color:var(--text3)">${inv.type}${inv.notes ? ' · ' + inv.notes : ''}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td style="padding:14px 16px;text-align:right;font-size:13px;color:var(--text2)">${fmt(inv.amount)}</td>
-                    <td style="padding:14px 16px;text-align:right;font-size:13px;font-weight:600;color:#00c9a7">${fmt(curr)}</td>
-                    <td style="padding:14px 16px;text-align:right;font-size:13px;font-weight:700;color:${pos?'#10b981':'#ef4444'}">${pos?'+':''}${fmt(pnl)}</td>
-                    <td style="padding:14px 16px;text-align:right;font-size:13px;font-weight:700;color:${pos?'#10b981':'#ef4444'}">${pos?'+':''}${roi}%</td>
-                    <td style="padding:14px 16px;text-align:center">
-                      <button class="btn-icon btn-sm" onclick="deleteInv('${inv.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3)">✕</button>
-                    </td>
-                  </tr>`;
-                }).join('')}
-              </tbody>
+              <tbody>${filtered.map((inv,i) => invRow(inv,i,filtered)).join('')}</tbody>
             </table>
           </div>`}
       </div>
+
+      <!-- ── LOANS ───────────────────────────────────────────────── -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <p style="font-size:16px;font-weight:800">💸 Loans & Liabilities</p>
+        <span style="font-size:12px;color:var(--text3)">${loans.length} loan${loans.length!==1?'s':''} · Total outstanding ${fmt(totalLoan)}</span>
+      </div>
+
+      <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
+        ${loans.length === 0
+          ? `<div class="empty-state"><span class="empty-state-icon">🏦</span><p>No loans tracked. Add one to monitor your liabilities.</p></div>`
+          : `<div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;min-width:720px">
+              <thead>
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+                  <th style="width:48px"></th>
+                  <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Loan</th>
+                  <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Principal</th>
+                  <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Outstanding</th>
+                  <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">EMI</th>
+                  <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px">Progress</th>
+                  <th style="width:80px"></th>
+                </tr>
+              </thead>
+              <tbody>${loans.map((loan,i) => loanRow(loan,i,loans)).join('')}</tbody>
+            </table>
+          </div>`}
+      </div>
+
     </div>`;
+
+  // Responsive net worth grid
+  setTimeout(() => {
+    const g = document.querySelector('.nw-grid');
+    if (g && window.innerWidth < 600) g.style.gridTemplateColumns = '1fr 1fr';
+  }, 40);
+}
+
+// ── Move helpers ────────────────────────────────────────────────────────────
+function moveInv(id, dir) {
+  const arr = STATE.investments || [];
+  const i = arr.findIndex(x => x.id === id);
+  const j = dir === 'up' ? i - 1 : i + 1;
+  if (j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  STATE.investments = arr;
+  saveState(); renderInvestments();
+}
+function moveLoan(id, dir) {
+  const arr = STATE.loans || [];
+  const i = arr.findIndex(x => x.id === id);
+  const j = dir === 'up' ? i - 1 : i + 1;
+  if (j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  STATE.loans = arr;
+  saveState(); renderInvestments();
+}
+
+// ── Asset CRUD ───────────────────────────────────────────────────────────────
+function _invTypeOptions(sel) {
+  return getAssetTypes().map(t => `<option value="${t.key}" ${t.key===sel?'selected':''}>${t.icon} ${t.key}</option>`).join('');
 }
 
 function openAddInvModal() {
-  openModal('Add Investment', `
-    <div class="form-group"><label class="form-label">Investment Name</label><input type="text" id="inv-name" class="form-input" placeholder="e.g. Infosys PF, gold, Axis FD"/></div>
+  openModal('➕ Add Asset', `
+    <div class="form-group"><label class="form-label">Name</label><input type="text" id="inv-name" class="form-input" placeholder="e.g. Infosys shares, Axis FD, Gold 10g"/></div>
     <div class="form-group"><label class="form-label">Asset Type</label>
-      <select id="inv-type" class="form-input">
-        ${INV_TYPES.filter(t=>t.key!=='All').map(t=>`<option value="${t.key}">${t.icon} ${t.key}</option>`).join('')}
-      </select></div>
+      <select id="inv-type" class="form-input">${_invTypeOptions('')}</select></div>
     <div class="input-row">
       <div class="form-group"><label class="form-label">Invested Amount (₹)</label><input type="number" id="inv-amount" class="form-input" placeholder="0"/></div>
-      <div class="form-group"><label class="form-label">Current Value (₹)</label><input type="number" id="inv-current" class="form-input" placeholder="Leave blank = same"/></div>
+      <div class="form-group"><label class="form-label">Current Value (₹)</label><input type="number" id="inv-current" class="form-input" placeholder="Leave blank = invested amount"/></div>
     </div>
-    <div class="form-group"><label class="form-label">Notes (optional)</label><input type="text" id="inv-notes" class="form-input" placeholder="e.g. 13 pavun, for gold pledge, int"/></div>
+    <div class="form-group"><label class="form-label">Notes (optional)</label><input type="text" id="inv-notes" class="form-input" placeholder="e.g. 13 pavun, pledged, maturity date…"/></div>
     <div class="form-group"><label class="form-label">Start Date</label><input type="date" id="inv-date" class="form-input" value="${today()}"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="saveInv()">Save Investment</button>
+      <button class="btn-primary" onclick="saveInv()">Save Asset</button>
     </div>`);
 }
 
@@ -955,16 +1102,222 @@ function saveInv() {
   if (!name || !amount) { toast('Enter name and amount', 'error'); return; }
   STATE.investments = STATE.investments || [];
   STATE.investments.push({ id: genId(), name, type, amount, currentValue: current, notes, date: date || today() });
-  saveState();
-  addXP(25, 'Investment added');
-  closeModal();
-  toast('Investment tracked! +25 XP', 'success');
-  renderInvestments();
+  saveState(); addXP(25, 'Asset added'); closeModal();
+  toast('Asset tracked! +25 XP', 'success'); renderInvestments();
+}
+
+function openEditInvModal(id) {
+  const inv = (STATE.investments || []).find(i => i.id === id);
+  if (!inv) return;
+  openModal('✏️ Edit Asset', `
+    <div class="form-group"><label class="form-label">Name</label><input type="text" id="einv-name" class="form-input" value="${inv.name}"/></div>
+    <div class="form-group"><label class="form-label">Asset Type</label>
+      <select id="einv-type" class="form-input">${_invTypeOptions(inv.type)}</select></div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Invested Amount (₹)</label><input type="number" id="einv-amount" class="form-input" value="${inv.amount}"/></div>
+      <div class="form-group"><label class="form-label">Current Value (₹)</label><input type="number" id="einv-current" class="form-input" value="${inv.currentValue ?? inv.amount}"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><input type="text" id="einv-notes" class="form-input" value="${inv.notes||''}"/></div>
+    <div class="form-group"><label class="form-label">Date</label><input type="date" id="einv-date" class="form-input" value="${inv.date||today()}"/></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveEditInv('${id}')">💾 Save Changes</button>
+    </div>`);
+}
+
+function saveEditInv(id) {
+  const inv = (STATE.investments || []).find(i => i.id === id);
+  if (!inv) return;
+  const name = document.getElementById('einv-name').value.trim();
+  const amount = parseFloat(document.getElementById('einv-amount').value);
+  if (!name || !amount) { toast('Enter name and amount', 'error'); return; }
+  inv.name         = name;
+  inv.type         = document.getElementById('einv-type').value;
+  inv.amount       = amount;
+  inv.currentValue = parseFloat(document.getElementById('einv-current').value) || amount;
+  inv.notes        = document.getElementById('einv-notes').value.trim();
+  inv.date         = document.getElementById('einv-date').value || today();
+  saveState(); closeModal(); toast('Asset updated ✅', 'success'); renderInvestments();
 }
 
 function deleteInv(id) {
   STATE.investments = (STATE.investments || []).filter(i => i.id !== id);
-  saveState(); toast('Deleted', 'info'); renderInvestments();
+  saveState(); toast('Asset deleted', 'info'); renderInvestments();
+}
+
+// ── Loan CRUD ────────────────────────────────────────────────────────────────
+function _loanTypeOptions(sel) {
+  return getLoanTypes().map(t => `<option value="${t.key}" ${t.key===sel?'selected':''}>${t.icon} ${t.key}</option>`).join('');
+}
+
+function _loanFormHTML(l) {
+  // l = existing loan object for edit, or null for add
+  const v = (id, def='') => l ? (l[id] ?? def) : def;
+  return `
+    <div class="form-group"><label class="form-label">Loan Name</label>
+      <input type="text" id="ln-name" class="form-input" value="${v('name')}" placeholder="e.g. SBI Home Loan, HDFC Car Loan"/></div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Loan Type</label>
+        <select id="ln-type" class="form-input">${_loanTypeOptions(v('type'))}</select></div>
+      <div class="form-group"><label class="form-label">Lender</label>
+        <input type="text" id="ln-lender" class="form-input" value="${v('lender')}" placeholder="e.g. SBI, HDFC, Bajaj…"/></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Principal Amount (₹)</label>
+        <input type="number" id="ln-principal" class="form-input" value="${v('principal')}" placeholder="Original loan amount"/></div>
+      <div class="form-group"><label class="form-label">Outstanding (₹)</label>
+        <input type="number" id="ln-outstanding" class="form-input" value="${v('outstanding')}" placeholder="Remaining balance"/></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">EMI / Month (₹)</label>
+        <input type="number" id="ln-emi" class="form-input" value="${v('emi')}" placeholder="Monthly EMI"/></div>
+      <div class="form-group"><label class="form-label">Interest Rate (%)</label>
+        <input type="number" id="ln-rate" class="form-input" value="${v('interestRate')}" placeholder="e.g. 8.5" step="0.01"/></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">EMI Date (day of month)</label>
+        <input type="number" id="ln-emidate" class="form-input" value="${v('emiDate')}" placeholder="e.g. 5" min="1" max="31"/></div>
+      <div class="form-group"><label class="form-label">Tenure (months)</label>
+        <input type="number" id="ln-tenure" class="form-input" value="${v('tenure')}" placeholder="e.g. 240"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Start Date</label>
+      <input type="date" id="ln-date" class="form-input" value="${v('startDate', today())}"/></div>
+    <div class="form-group"><label class="form-label">Notes (optional)</label>
+      <input type="text" id="ln-notes" class="form-input" value="${v('notes')}" placeholder="e.g. property address, co-applicant…"/></div>`;
+}
+
+function _loanFormValues() {
+  return {
+    name:        document.getElementById('ln-name').value.trim(),
+    type:        document.getElementById('ln-type').value,
+    lender:      document.getElementById('ln-lender').value.trim(),
+    principal:   parseFloat(document.getElementById('ln-principal').value) || 0,
+    outstanding: parseFloat(document.getElementById('ln-outstanding').value) || 0,
+    emi:         parseFloat(document.getElementById('ln-emi').value) || 0,
+    interestRate:parseFloat(document.getElementById('ln-rate').value) || 0,
+    emiDate:     parseInt(document.getElementById('ln-emidate').value) || 0,
+    tenure:      parseInt(document.getElementById('ln-tenure').value) || 0,
+    startDate:   document.getElementById('ln-date').value || today(),
+    notes:       document.getElementById('ln-notes').value.trim(),
+  };
+}
+
+function openAddLoanModal() {
+  openModal('➕ Add Loan', `
+    ${_loanFormHTML(null)}
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveLoan()" style="background:linear-gradient(135deg,#ef4444,#dc2626)">Save Loan</button>
+    </div>`);
+}
+
+function saveLoan() {
+  const v = _loanFormValues();
+  if (!v.name) { toast('Enter a loan name', 'error'); return; }
+  if (!v.principal && !v.outstanding) { toast('Enter principal or outstanding amount', 'error'); return; }
+  if (!v.outstanding) v.outstanding = v.principal;
+  STATE.loans = STATE.loans || [];
+  STATE.loans.push({ id: genId(), ...v });
+  saveState(); closeModal(); toast('Loan added ✅', 'success'); renderInvestments();
+}
+
+function openEditLoanModal(id) {
+  const loan = (STATE.loans || []).find(l => l.id === id);
+  if (!loan) return;
+  openModal('✏️ Edit Loan', `
+    ${_loanFormHTML(loan)}
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveEditLoan('${id}')" style="background:linear-gradient(135deg,#ef4444,#dc2626)">💾 Save Changes</button>
+    </div>`);
+}
+
+function saveEditLoan(id) {
+  const loan = (STATE.loans || []).find(l => l.id === id);
+  if (!loan) return;
+  const v = _loanFormValues();
+  if (!v.name) { toast('Enter a loan name', 'error'); return; }
+  Object.assign(loan, v);
+  saveState(); closeModal(); toast('Loan updated ✅', 'success'); renderInvestments();
+}
+
+function deleteLoan(id) {
+  STATE.loans = (STATE.loans || []).filter(l => l.id !== id);
+  saveState(); toast('Loan deleted', 'info'); renderInvestments();
+}
+
+// ── Custom Type Manager ─────────────────────────────────────────────────────
+function openManageTypesModal(kind) {
+  const isAsset = kind === 'asset';
+  const stateKey = isAsset ? 'customAssetTypes' : 'customLoanTypes';
+  const customs  = STATE[stateKey] || [];
+  const defaults = isAsset ? DEFAULT_ASSET_TYPES : DEFAULT_LOAN_TYPES;
+  const title    = isAsset ? '⚙️ Asset Types' : '⚙️ Loan Types';
+
+  const renderList = () => {
+    const customs = STATE[stateKey] || [];
+    const el = document.getElementById('ctype-list');
+    if (!el) return;
+    el.innerHTML = customs.length === 0
+      ? `<p style="font-size:12px;color:var(--text3);text-align:center;padding:12px">No custom types yet</p>`
+      : customs.map((t, i) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,0.05);margin-bottom:6px">
+          <span style="font-size:14px">${t.icon} <span style="font-size:13px;font-weight:600;margin-left:6px">${t.key}</span></span>
+          <button onclick="removeCustomType('${kind}',${i})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:2px 6px">✕</button>
+        </div>`).join('');
+  };
+
+  openModal(title, `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Default types cannot be removed. Add your own below.</p>
+
+    <div style="margin-bottom:14px">
+      <p style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Built-in</p>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${defaults.map(t=>`<span style="padding:4px 10px;border-radius:16px;background:rgba(255,255,255,0.06);font-size:12px">${t.icon} ${t.key}</span>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <p style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Custom</p>
+      <div id="ctype-list"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:6px">
+      <input type="text" id="ctype-icon" class="form-input" placeholder="Emoji" style="width:70px;text-align:center;font-size:18px"/>
+      <input type="text" id="ctype-name" class="form-input" placeholder="Type name (e.g. NPS, Chit Fund…)" style="flex:1"/>
+      <button class="btn-primary btn-sm" onclick="addCustomType('${kind}')">+ Add</button>
+    </div>
+
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn-primary" onclick="closeModal()">Done</button>
+    </div>`);
+
+  renderList();
+  // expose renderList so addCustomType/removeCustomType can refresh the list
+  window._ctypeRenderList = renderList;
+  window._ctypeStateKey   = stateKey;
+}
+
+function addCustomType(kind) {
+  const icon = document.getElementById('ctype-icon')?.value.trim() || '📌';
+  const name = document.getElementById('ctype-name')?.value.trim();
+  if (!name) { toast('Enter a type name', 'error'); return; }
+  const stateKey = kind === 'asset' ? 'customAssetTypes' : 'customLoanTypes';
+  STATE[stateKey] = STATE[stateKey] || [];
+  if (STATE[stateKey].find(t => t.key === name)) { toast('Type already exists', 'warning'); return; }
+  STATE[stateKey].push({ key: name, icon });
+  saveState();
+  document.getElementById('ctype-icon').value = '';
+  document.getElementById('ctype-name').value = '';
+  if (window._ctypeRenderList) window._ctypeRenderList();
+  toast(`"${name}" added`, 'success');
+}
+
+function removeCustomType(kind, idx) {
+  const stateKey = kind === 'asset' ? 'customAssetTypes' : 'customLoanTypes';
+  STATE[stateKey] = (STATE[stateKey] || []).filter((_, i) => i !== idx);
+  saveState();
+  if (window._ctypeRenderList) window._ctypeRenderList();
 }
 
 
