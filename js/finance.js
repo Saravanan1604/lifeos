@@ -41,10 +41,10 @@ function renderFinance() {
           <p class="page-subtitle">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn-secondary btn-sm" onclick="openSmsParser()" style="display:flex;align-items:center;gap:6px">📲 Scan SMS</button>
           <button class="btn-secondary btn-sm" onclick="openCsvImport()" style="display:flex;align-items:center;gap:6px">📊 Import CSV</button>
           <button class="btn-secondary btn-sm" onclick="openBulkEntry()" style="display:flex;align-items:center;gap:6px">📅 Bulk Entry</button>
           <button class="btn-secondary btn-sm" onclick="openStatementPaste()" style="display:flex;align-items:center;gap:6px">📄 Paste Statement</button>
+          <button class="btn-secondary btn-sm" onclick="openSmsParser()" style="display:flex;align-items:center;gap:6px">📲 Scan SMS</button>
           <button class="btn-secondary btn-sm" onclick="openPdfImport()" style="display:flex;align-items:center;gap:6px">📑 Import PDF</button>
           <button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>
         </div>
@@ -244,15 +244,20 @@ function renderFinance() {
         </div>
 
         <!-- Bulk action bar (only visible when ≥1 row selected) -->
-        <div id="fin-bulk-bar" style="display:none;padding:10px 16px;border-bottom:1px solid var(--glass-border);background:rgba(239,68,68,0.08);align-items:center;gap:10px;flex-wrap:wrap">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)">
-            <input type="checkbox" id="fin-select-all" onchange="toggleSelectAllTx(this.checked)" style="cursor:pointer;width:16px;height:16px"/>
-            Select all visible
-          </label>
-          <span id="fin-bulk-count" style="font-size:12px;font-weight:700;color:#ef4444"></span>
-          <span style="flex:1"></span>
-          <button onclick="clearSelectedTx()" style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text2);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:12px">Cancel</button>
-          <button onclick="deleteSelectedTx()" style="background:#ef4444;border:none;color:white;border-radius:8px;padding:5px 14px;cursor:pointer;font-size:12px;font-weight:700">🗑️ Delete selected</button>
+        <div id="fin-bulk-bar" style="display:none;position:sticky;top:0;z-index:50;padding:10px 16px;background:linear-gradient(135deg,rgba(0,201,167,0.15),rgba(99,102,241,0.15));border-bottom:1px solid rgba(0,201,167,0.3);backdrop-filter:blur(12px);align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)">
+              <input type="checkbox" id="fin-select-all" onchange="toggleSelectAllTx(this.checked)" style="cursor:pointer;width:16px;height:16px;accent-color:#00c9a7"/>
+              Select all visible
+            </label>
+            <span id="fin-bulk-count" style="font-size:12px;font-weight:700;color:#00c9a7"></span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="openBulkCategoryChange()" style="padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer">🏷️ Change Category</button>
+            <button onclick="openBulkTypeChange()" style="padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer">🔄 Change Type</button>
+            <button onclick="deleteSelectedTx()" style="padding:6px 14px;border-radius:8px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-size:12px;font-weight:700;cursor:pointer">🗑️ Delete Selected</button>
+            <button onclick="clearSelectedTx()" style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text2);font-size:12px;cursor:pointer">✕ Clear</button>
+          </div>
         </div>
 
         <div id="fin-tx-list"></div>
@@ -418,23 +423,36 @@ function renderFinanceTxList() {
   if (countEl) countEl.textContent = `${txns.length} entr${txns.length === 1 ? 'y' : 'ies'}`;
 
   if (!txns.length) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💳</span><p>No transactions match these filters.</p></div>`;
+    container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💳</span><p>No transactions${_finMonth ? ' for this period' : ' yet'}. Add your first one!</p></div>`;
+    // remove bulk bar if empty
+    const bb = document.getElementById('fin-bulk-bar'); if (bb) bb.style.display = 'none';
     return;
   }
 
-  // Drop any selected IDs that no longer match the visible filters
-  const visibleIds = new Set(txns.map(t => t.id));
-  [..._finSelected].forEach(id => { if (!visibleIds.has(id)) _finSelected.delete(id); });
+  // Inject sticky bulk-action bar before the list container (once)
+  let bulkBar = document.getElementById('fin-bulk-bar');
+  if (!bulkBar) {
+    container.insertAdjacentHTML('beforebegin',
+      `<div id="fin-bulk-bar" style="display:none;position:sticky;top:0;z-index:50;padding:10px 16px;background:linear-gradient(135deg,rgba(0,201,167,0.18),rgba(99,102,241,0.18));border-bottom:1px solid rgba(0,201,167,0.3);backdrop-filter:blur(12px);align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><span id='bulk-count-label' style='font-size:13px;font-weight:700;color:#00c9a7'>0 selected</span><div style='display:flex;gap:8px;flex-wrap:wrap'><button onclick='openBulkCategoryChange()' style='padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer'>🏷️ Change Category</button><button onclick='openBulkTypeChange()' style='padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer'>🔄 Change Type</button><button onclick='deleteSelectedTx()' style='padding:6px 14px;border-radius:8px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-size:12px;font-weight:700;cursor:pointer'>🗑️ Delete Selected</button><button onclick='clearTxSelection()' style='padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--text2);font-size:12px;cursor:pointer'>✕ Clear</button></div></div>`);
+    bulkBar = document.getElementById('fin-bulk-bar');
+  } else {
+    bulkBar.style.display = 'none';
+  }
 
-  container.innerHTML = txns.map(tx => {
-    const checked = _finSelected.has(tx.id);
-    const rowBg = checked ? 'rgba(239,68,68,0.08)' : '';
-    return `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s;background:${rowBg}"
-         onmouseover="if(!this.dataset.sel)this.style.background='rgba(255,255,255,0.04)'" onmouseout="if(!this.dataset.sel)this.style.background=''"
-         data-sel="${checked ? '1' : ''}">
+  // Select-all header + rows
+  container.innerHTML =
+    `<div id="fin-select-all-row" style="display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(0,201,167,0.05);border-bottom:1px solid rgba(0,201,167,0.15)">
+       <input type="checkbox" id="chk-select-all" onchange="toggleSelectAll(this.checked)"
+         style="width:16px;height:16px;accent-color:#00c9a7;cursor:pointer"/>
+       <span style="font-size:12px;color:var(--text3);user-select:none">Select All &nbsp;<span id="sel-count-label"></span></span>
+     </div>` +
+    txns.map(tx => `
+    <div id="txrow-${tx.id}" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s"
+         onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="if(!document.getElementById('chk-${tx.id}')?.checked)this.style.background=''">
       <div style="display:flex;align-items:center;gap:12px">
-        <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSelectTx('${tx.id}', this.checked)" style="cursor:pointer;width:16px;height:16px;flex-shrink:0"/>
+        <input type="checkbox" id="chk-${tx.id}" data-txid="${tx.id}" class="fin-tx-chk"
+          onchange="onTxCheckChange()"
+          style="width:16px;height:16px;accent-color:#00c9a7;cursor:pointer;flex-shrink:0"/>
         <div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${tx.type === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'};font-size:18px">${tx.icon || '💳'}</div>
         <div>
           <p style="font-size:13px;font-weight:600">${tx.description || tx.category}</p>
@@ -446,67 +464,150 @@ function renderFinanceTxList() {
         <button class="btn-icon btn-sm" onclick="openEditTxModal('${tx.id}')" style="font-size:13px" title="Edit">✏️</button>
         <button class="btn-icon btn-sm" onclick="deleteTx('${tx.id}')" style="font-size:13px;color:#ef4444;border-color:rgba(239,68,68,0.3)" title="Delete">✕</button>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 
-  _updateBulkBar(txns);
+  _updateBulkBar();
 }
 
 // ===== BULK SELECT / DELETE =====
-function _updateBulkBar(visibleTxns) {
-  const bar = document.getElementById('fin-bulk-bar');
-  const count = document.getElementById('fin-bulk-count');
-  const selectAll = document.getElementById('fin-select-all');
-  if (!bar) return;
-
-  const n = _finSelected.size;
-  if (n > 0) {
-    bar.style.display = 'flex';
-    if (count) count.textContent = `${n} selected`;
-  } else {
-    bar.style.display = 'none';
-  }
-
-  // "select all" reflects whether every visible row is selected
-  if (selectAll && visibleTxns) {
-    const allSelected = visibleTxns.length > 0 && visibleTxns.every(t => _finSelected.has(t.id));
-    selectAll.checked = allSelected;
-    selectAll.indeterminate = !allSelected && visibleTxns.some(t => _finSelected.has(t.id));
-  }
+function _updateBulkBar() {
+  // Sync the sticky bar visibility based on how many checkboxes are ticked
+  const all  = document.querySelectorAll('.fin-tx-chk');
+  const chkd = document.querySelectorAll('.fin-tx-chk:checked');
+  const n    = chkd.length;
+  const bar  = document.getElementById('fin-bulk-bar');
+  if (bar) bar.style.display = n > 0 ? 'flex' : 'none';
 }
 
-function toggleSelectTx(id, checked) {
-  if (checked) _finSelected.add(id); else _finSelected.delete(id);
-  renderFinanceTxList();
+// ===== BULK SELECTION HELPERS =====
+function getSelectedTxIds() {
+  return [...document.querySelectorAll('.fin-tx-chk:checked')].map(c => c.dataset.txid);
 }
 
+function onTxCheckChange() {
+  const all  = document.querySelectorAll('.fin-tx-chk');
+  const chkd = document.querySelectorAll('.fin-tx-chk:checked');
+  const n    = chkd.length;
+  const bar  = document.getElementById('fin-bulk-bar');
+
+  // Static bar elements (id="fin-select-all", id="fin-bulk-count")
+  const saStatic  = document.getElementById('fin-select-all');
+  const cntStatic = document.getElementById('fin-bulk-count');
+  // Dynamic bar elements (id="chk-select-all", id="sel-count-label", id="bulk-count-label")
+  const saDyn  = document.getElementById('chk-select-all');
+  const lbl    = document.getElementById('sel-count-label');
+  const blbl   = document.getElementById('bulk-count-label');
+
+  if (bar) bar.style.display = n > 0 ? 'flex' : 'none';
+
+  // Update count labels
+  const countText = n > 0 ? `${n} selected` : '';
+  if (cntStatic) cntStatic.textContent = countText;
+  if (blbl)      blbl.textContent      = countText;
+  if (lbl)       lbl.textContent       = n > 0 ? `(${n} selected)` : '';
+
+  // Update select-all checkboxes
+  [saStatic, saDyn].forEach(el => {
+    if (!el) return;
+    el.indeterminate = n > 0 && n < all.length;
+    if (n === all.length && n > 0) el.checked = true;
+    if (n === 0) el.checked = false;
+  });
+
+  // Highlight selected rows
+  document.querySelectorAll('.fin-tx-chk').forEach(c => {
+    const row = document.getElementById('txrow-' + c.dataset.txid);
+    if (row) row.style.background = c.checked ? 'rgba(0,201,167,0.08)' : '';
+  });
+}
+
+function toggleSelectAll(checked) {
+  document.querySelectorAll('.fin-tx-chk').forEach(c => { c.checked = checked; });
+  onTxCheckChange();
+}
+
+// toggleSelectAllTx — called by the static bar's "Select all visible" checkbox
 function toggleSelectAllTx(checked) {
-  // Re-derive the currently visible set the same way renderFinanceTxList does
-  let txns = [...(STATE.transactions || [])];
-  if (_finMonth)              txns = txns.filter(t => (t.date || '').startsWith(_finMonth));
-  if (_finType !== 'all')     txns = txns.filter(t => t.type === _finType);
-  if (_finCategory !== 'all') txns = txns.filter(t => t.category === _finCategory);
-
-  if (checked) txns.forEach(t => _finSelected.add(t.id));
-  else         txns.forEach(t => _finSelected.delete(t.id));
-  renderFinanceTxList();
+  toggleSelectAll(checked);
 }
 
 function clearSelectedTx() {
-  _finSelected.clear();
+  clearTxSelection();
+}
+
+function toggleSelectAll(checked) {
+  document.querySelectorAll('.fin-tx-chk').forEach(c => { c.checked = checked; });
+  onTxCheckChange();
+}
+
+function clearTxSelection() {
+  toggleSelectAll(false);
+}
+
+function openBulkCategoryChange() {
+  const ids = getSelectedTxIds();
+  if (!ids.length) { toast('Select at least one transaction', 'error'); return; }
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const opts = allCats.map(c => `<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
+  openModal(`🏷️ Change Category (${ids.length} transactions)`,
+    `<div class="form-group"><label class="form-label">New Category</label>
+     <select id="bulk-cat" class="form-input">${opts}</select></div>
+     <div class="modal-actions">
+       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+       <button class="btn-primary" onclick="applyBulkCategory(${JSON.stringify(ids)})">✅ Apply to All</button>
+     </div>`);
+}
+
+function applyBulkCategory(ids) {
+  const cat = document.getElementById('bulk-cat')?.value;
+  if (!cat) return;
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const icon = allCats.find(c => c.name === cat)?.icon || '💳';
+  STATE.transactions = (STATE.transactions || []).map(t =>
+    ids.includes(t.id) ? { ...t, category: cat, icon } : t
+  );
+  saveState();
+  closeModal();
+  toast(`Category updated to "${cat}" for ${ids.length} transaction${ids.length > 1 ? 's' : ''} ✅`, 'success');
+  renderFinanceTxList();
+}
+
+function openBulkTypeChange() {
+  const ids = getSelectedTxIds();
+  if (!ids.length) { toast('Select at least one transaction', 'error'); return; }
+  openModal(`🔄 Change Type (${ids.length} transactions)`,
+    `<div class="form-group"><label class="form-label">New Type</label>
+     <select id="bulk-type" class="form-input">
+       <option value="expense">❤️ Expense</option>
+       <option value="income">💚 Income</option>
+     </select></div>
+     <div class="modal-actions">
+       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+       <button class="btn-primary" onclick="applyBulkType(${JSON.stringify(ids)})">✅ Apply to All</button>
+     </div>`);
+}
+
+function applyBulkType(ids) {
+  const type = document.getElementById('bulk-type')?.value;
+  if (!type) return;
+  STATE.transactions = (STATE.transactions || []).map(t =>
+    ids.includes(t.id) ? { ...t, type } : t
+  );
+  saveState();
+  closeModal();
+  toast(`Type changed to "${type}" for ${ids.length} transaction${ids.length > 1 ? 's' : ''} ✅`, 'success');
   renderFinanceTxList();
 }
 
 function deleteSelectedTx() {
-  const n = _finSelected.size;
-  if (!n) return;
-  if (!confirm(`Delete ${n} transaction${n > 1 ? 's' : ''}? This cannot be undone.`)) return;
-
-  STATE.transactions = (STATE.transactions || []).filter(t => !_finSelected.has(t.id));
-  _finSelected.clear();
+  const ids = getSelectedTxIds();
+  if (!ids.length) { toast('Select at least one transaction', 'error'); return; }
+  if (!confirm(`Delete ${ids.length} selected transaction${ids.length > 1 ? 's' : ''}?`)) return;
+  STATE.transactions = (STATE.transactions || []).filter(t => !ids.includes(t.id));
   saveState();
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
-  toast(`${n} transaction${n > 1 ? 's' : ''} deleted`, 'info');
+  toast(`${ids.length} transaction${ids.length > 1 ? 's' : ''} deleted`, 'info');
+  renderFinanceTxList();
   refreshFinancePage();
 }
 
