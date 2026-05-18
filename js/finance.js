@@ -1,5 +1,8 @@
 // ===== FINANCE PAGE =====
 let _finMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM" — current month by default
+let _finType     = 'all';        // 'all' | 'income' | 'expense'
+let _finCategory = 'all';        // 'all' | <category name>
+let _finSort     = 'date-desc';  // 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc' | 'alpha-asc' | 'alpha-desc'
 
 const CATEGORIES = [
   { name: 'Salary', icon: '💰' }, { name: 'Business', icon: '🏢' }, { name: 'Freelance', icon: '💻' },
@@ -209,6 +212,36 @@ function renderFinance() {
             <span id="fin-tx-count" style="font-size:11px;color:var(--text3)"></span>
           </div>
         </div>
+
+        <!-- Type / Category / Sort filters -->
+        <div style="padding:10px 16px;border-bottom:1px solid var(--glass-border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <select id="fin-type" onchange="_finType=this.value;renderFinanceTxList()"
+            style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer">
+            <option value="all">All types</option>
+            <option value="income">💚 Income only</option>
+            <option value="expense">❤️ Expense only</option>
+          </select>
+
+          <select id="fin-cat" onchange="_finCategory=this.value;renderFinanceTxList()"
+            style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer">
+            <option value="all">All categories</option>
+            ${_finCategoryOptions()}
+          </select>
+
+          <select id="fin-sort" onchange="_finSort=this.value;renderFinanceTxList()"
+            style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer">
+            <option value="date-desc">📅 Newest first</option>
+            <option value="date-asc">📅 Oldest first</option>
+            <option value="amount-desc">💰 Highest amount</option>
+            <option value="amount-asc">💰 Lowest amount</option>
+            <option value="alpha-asc">🔤 A → Z</option>
+            <option value="alpha-desc">🔤 Z → A</option>
+          </select>
+
+          <button onclick="_finType='all';_finCategory='all';_finSort='date-desc';renderFinance()"
+            style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700">Clear filters</button>
+        </div>
+
         <div id="fin-tx-list"></div>
       </div>
 
@@ -330,18 +363,49 @@ function shiftFinMonth(dir) {
   renderFinanceTxList();
 }
 
+// Build <option>s for the category dropdown from every category the user
+// has actually used, sorted alphabetically.
+function _finCategoryOptions() {
+  const cats = new Set();
+  (STATE.transactions || []).forEach(t => { if (t.category) cats.add(t.category); });
+  return [...cats].sort((a, b) => a.localeCompare(b))
+    .map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
 function renderFinanceTxList() {
   const container = document.getElementById('fin-tx-list');
   if (!container) return;
 
-  let txns = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
-  if (_finMonth) txns = txns.filter(t => (t.date || '').startsWith(_finMonth));
+  let txns = [...(STATE.transactions || [])];
+
+  // Month filter
+  if (_finMonth)              txns = txns.filter(t => (t.date || '').startsWith(_finMonth));
+  // Type filter (income / expense)
+  if (_finType !== 'all')     txns = txns.filter(t => t.type === _finType);
+  // Category filter
+  if (_finCategory !== 'all') txns = txns.filter(t => t.category === _finCategory);
+
+  // Sorting
+  const cmp = {
+    'date-desc':   (a, b) => new Date(b.date) - new Date(a.date),
+    'date-asc':    (a, b) => new Date(a.date) - new Date(b.date),
+    'amount-desc': (a, b) => (b.amount || 0) - (a.amount || 0),
+    'amount-asc':  (a, b) => (a.amount || 0) - (b.amount || 0),
+    'alpha-asc':   (a, b) => (a.description || a.category || '').localeCompare(b.description || b.category || ''),
+    'alpha-desc':  (a, b) => (b.description || b.category || '').localeCompare(a.description || a.category || ''),
+  }[_finSort] || ((a, b) => new Date(b.date) - new Date(a.date));
+  txns.sort(cmp);
+
+  // Restore dropdown values (after a full re-render the selects reset to their defaults)
+  const typeSel = document.getElementById('fin-type'); if (typeSel) typeSel.value = _finType;
+  const catSel  = document.getElementById('fin-cat');  if (catSel)  catSel.value  = _finCategory;
+  const sortSel = document.getElementById('fin-sort'); if (sortSel) sortSel.value = _finSort;
 
   const countEl = document.getElementById('fin-tx-count');
   if (countEl) countEl.textContent = `${txns.length} entr${txns.length === 1 ? 'y' : 'ies'}`;
 
   if (!txns.length) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💳</span><p>No transactions${_finMonth ? ' for this period' : ' yet'}. Add your first one!</p></div>`;
+    container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💳</span><p>No transactions match these filters.</p></div>`;
     return;
   }
 
