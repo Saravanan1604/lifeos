@@ -1,4 +1,6 @@
 // ===== FINANCE PAGE =====
+let _finMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM" — current month by default
+
 const CATEGORIES = [
   { name: 'Salary', icon: '💰' }, { name: 'Business', icon: '🏢' }, { name: 'Freelance', icon: '💻' },
   { name: 'Food', icon: '🍔' }, { name: 'Transport', icon: '🚗' }, { name: 'Shopping', icon: '🛍️' },
@@ -189,35 +191,28 @@ function renderFinance() {
         </div>
       </div>
 
-      <!-- Recent Transactions -->
+      <!-- Transactions with live month filter -->
       <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
-        <div style="padding:16px 20px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center">
-          <p class="section-title">Recent Transactions</p>
-          <span style="font-size:12px;color:var(--text3)">${txns.length} entries</span>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <p class="section-title" style="margin:0">💳 Transactions</p>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <button onclick="shiftFinMonth(-1)" style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:14px">◀</button>
+            <input type="month" id="fin-month" value="${_finMonth}"
+              oninput="applyFinanceFilter()"
+              style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer"/>
+            <button onclick="shiftFinMonth(1)" style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:14px">▶</button>
+            <button onclick="_finMonth='';document.getElementById('fin-month').value='';renderFinanceTxList()" style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);color:#6366f1;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:700">All</button>
+            <span id="fin-tx-count" style="font-size:11px;color:var(--text3)"></span>
+          </div>
         </div>
-        ${txns.length === 0
-          ? `<div class="empty-state"><span class="empty-state-icon">💳</span><p>No transactions yet. Add your first one!</p></div>`
-          : txns.slice(0, 10).map(tx => `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''">
-            <div style="display:flex;align-items:center;gap:12px">
-              <div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${tx.type==='income'?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)'};font-size:18px">${tx.icon || '💳'}</div>
-              <div>
-                <p style="font-size:13px;font-weight:600">${tx.description || tx.category}</p>
-                <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-weight:700;font-size:14px;color:${tx.type==='income'?'#10b981':'#ef4444'}">${tx.type==='income'?'+':'-'}${fmt(tx.amount)}</span>
-              <button class="btn-icon btn-sm" onclick="openEditTxModal('${tx.id}')" style="font-size:13px" title="Edit">✏️</button>
-              <button class="btn-icon btn-sm" onclick="deleteTx('${tx.id}')" style="font-size:13px;color:#ef4444;border-color:rgba(239,68,68,0.3)" title="Delete">✕</button>
-            </div>
-          </div>`).join('')}
+        <div id="fin-tx-list"></div>
       </div>
 
     </div>`;
 
   renderFinanceChart(txns);
   if (topCats.length > 0) renderFinancePieChart(topCats);
+  renderFinanceTxList();
 }
 
 function renderFinanceChart(txns) {
@@ -284,6 +279,56 @@ function renderFinancePieChart(topCats) {
 }
 
 
+// ===== TRANSACTION LIST — LIVE MONTH FILTER =====
+
+function applyFinanceFilter() {
+  _finMonth = document.getElementById('fin-month')?.value || '';
+  renderFinanceTxList();
+}
+
+function shiftFinMonth(dir) {
+  const cur = _finMonth || new Date().toISOString().slice(0, 7);
+  const [y, mo] = cur.split('-').map(Number);
+  const d = new Date(y, mo - 1 + dir, 1);
+  _finMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const inp = document.getElementById('fin-month');
+  if (inp) inp.value = _finMonth;
+  renderFinanceTxList();
+}
+
+function renderFinanceTxList() {
+  const container = document.getElementById('fin-tx-list');
+  if (!container) return;
+
+  let txns = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (_finMonth) txns = txns.filter(t => (t.date || '').startsWith(_finMonth));
+
+  const countEl = document.getElementById('fin-tx-count');
+  if (countEl) countEl.textContent = `${txns.length} entr${txns.length === 1 ? 'y' : 'ies'}`;
+
+  if (!txns.length) {
+    container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💳</span><p>No transactions${_finMonth ? ' for this period' : ' yet'}. Add your first one!</p></div>`;
+    return;
+  }
+
+  container.innerHTML = txns.map(tx => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s"
+         onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${tx.type === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'};font-size:18px">${tx.icon || '💳'}</div>
+        <div>
+          <p style="font-size:13px;font-weight:600">${tx.description || tx.category}</p>
+          <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-weight:700;font-size:14px;color:${tx.type === 'income' ? '#10b981' : '#ef4444'}">${tx.type === 'income' ? '+' : '-'}${fmt(tx.amount)}</span>
+        <button class="btn-icon btn-sm" onclick="openEditTxModal('${tx.id}')" style="font-size:13px" title="Edit">✏️</button>
+        <button class="btn-icon btn-sm" onclick="deleteTx('${tx.id}')" style="font-size:13px;color:#ef4444;border-color:rgba(239,68,68,0.3)" title="Delete">✕</button>
+      </div>
+    </div>`).join('');
+}
+
 function openAddTxModal() {
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
   const catOptions = allCats.map(c => `<option value="${c.name}" data-icon="${c.icon}">${c.icon} ${c.name}</option>`).join('');
@@ -327,7 +372,7 @@ function deleteTx(id) {
   saveState();
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   toast('Transaction deleted', 'info');
-  renderFinance();
+  renderFinanceTxList(); // instant remove from list
 }
 
 function openEditTxModal(id) {
@@ -394,7 +439,7 @@ function saveEditTx(id) {
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
   toast('Transaction updated ✅', 'success');
-  renderFinance();
+  renderFinanceTxList(); // instant list refresh without full page re-render
 }
 
 // ===== BANK ACCOUNTS =====
