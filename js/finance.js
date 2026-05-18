@@ -48,9 +48,9 @@ function renderFinance() {
         <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
         <div style="position:relative">
           <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,60,50,0.75);margin-bottom:6px">💰 Total Balance</p>
-          <p style="font-size:48px;font-weight:900;color:#001a14;letter-spacing:-2px;line-height:1">${fmt(savings)}</p>
+          <p id="fin-balance" style="font-size:48px;font-weight:900;color:#001a14;letter-spacing:-2px;line-height:1">${fmt(savings)}</p>
           <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap">
-            <span style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.4);color:${savingsOk?'#004d3a':'#7f0000'}">
+            <span id="fin-rate" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.4);color:${savingsOk?'#004d3a':'#7f0000'}">
               ${savingsOk?'📈':'📉'} ${savingsRate}% savings rate
             </span>
             <span style="font-size:12px;font-weight:600;color:rgba(0,50,40,0.8)">✨ ${userName}'s wallet</span>
@@ -58,15 +58,15 @@ function renderFinance() {
           <div style="display:flex;gap:32px;margin-top:20px;flex-wrap:wrap">
             <div>
               <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">💚 Income</p>
-              <p style="font-size:22px;font-weight:900;color:#003326">+${fmt(income)}</p>
+              <p id="fin-income" style="font-size:22px;font-weight:900;color:#003326">+${fmt(income)}</p>
             </div>
             <div>
               <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">❤️ Expenses</p>
-              <p style="font-size:22px;font-weight:900;color:#7f0000">-${fmt(expense)}</p>
+              <p id="fin-expense" style="font-size:22px;font-weight:900;color:#7f0000">-${fmt(expense)}</p>
             </div>
             <div>
               <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">💜 Savings</p>
-              <p style="font-size:22px;font-weight:900;color:${savingsOk?'#001a14':'#7f0000'}">${savingsOk?'+':''}${fmt(savings)}</p>
+              <p id="fin-savings" style="font-size:22px;font-weight:900;color:${savingsOk?'#001a14':'#7f0000'}">${savingsOk?'+':''}${fmt(savings)}</p>
             </div>
           </div>
         </div>
@@ -166,13 +166,13 @@ function renderFinance() {
 
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
         ${[
-          { label:'Transactions', value: txns.length, icon:'⚡', color:'rgba(99,102,241,0.15)', tc:'#6366f1' },
-          { label:'This Month',   value: txns.filter(t=>{const d=new Date(t.date),n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length, icon:'🎯', color:'rgba(16,185,129,0.15)', tc:'#10b981' },
-          { label:'Savings Rate', value: savingsRate+'%', icon:'📈', color:'rgba(139,92,246,0.15)', tc:'#8b5cf6' },
+          { id:'fin-stat-count', label:'Transactions', value: txns.length,           icon:'⚡', color:'rgba(99,102,241,0.15)', tc:'#6366f1' },
+          { id:'fin-stat-month', label:'This Month',   value: txns.filter(t=>{const d=new Date(t.date),n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length, icon:'🎯', color:'rgba(16,185,129,0.15)', tc:'#10b981' },
+          { id:'fin-stat-rate',  label:'Savings Rate', value: savingsRate+'%',        icon:'📈', color:'rgba(139,92,246,0.15)', tc:'#8b5cf6' },
         ].map(s=>`
           <div class="glass-card" style="padding:16px;text-align:center">
             <div style="display:inline-flex;padding:8px;border-radius:10px;background:${s.color};font-size:18px;margin-bottom:8px">${s.icon}</div>
-            <p style="font-size:20px;font-weight:800;color:${s.tc}">${s.value}</p>
+            <p id="${s.id}" style="font-size:20px;font-weight:800;color:${s.tc}">${s.value}</p>
             <p style="font-size:11px;color:var(--text3);margin-top:2px">${s.label}</p>
           </div>`).join('')}
       </div>
@@ -279,6 +279,36 @@ function renderFinancePieChart(topCats) {
 }
 
 
+// ===== PARTIAL REFRESH — update hero + stats + list without full page re-render =====
+function refreshFinancePage() {
+  // If Finance page isn't open, bail
+  if (!document.getElementById('fin-tx-list')) { renderFinance(); return; }
+
+  const txns      = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const income    = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const expense   = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const savings   = income - expense;
+  const savingsOk = savings >= 0;
+  const rate      = income > 0 ? ((savings / income) * 100).toFixed(1) : 0;
+  const now       = new Date();
+  const thisMonth = txns.filter(t => { const d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).length;
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('fin-balance',    fmt(savings));
+  set('fin-income',     '+' + fmt(income));
+  set('fin-expense',    '-' + fmt(expense));
+  set('fin-savings',    (savingsOk ? '+' : '') + fmt(savings));
+  set('fin-rate',       `${savingsOk ? '📈' : '📉'} ${rate}% savings rate`);
+  set('fin-stat-count', txns.length);
+  set('fin-stat-month', thisMonth);
+  set('fin-stat-rate',  rate + '%');
+
+  const savEl = document.getElementById('fin-savings');
+  if (savEl) savEl.style.color = savingsOk ? '#001a14' : '#7f0000';
+
+  renderFinanceTxList();
+}
+
 // ===== TRANSACTION LIST — LIVE MONTH FILTER =====
 
 function applyFinanceFilter() {
@@ -364,7 +394,7 @@ function saveTx() {
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
   toast('Transaction saved! +10 XP', 'success');
-  renderFinance();
+  refreshFinancePage();
 }
 
 function deleteTx(id) {
@@ -793,7 +823,7 @@ function saveAllParsedSms() {
   if (expTotal > 0) summary += ` Expense: ₹${expTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
   if (incTotal > 0) summary += ` Income: ₹${incTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
   toast(summary + ' 🎉', 'success');
-  renderFinance();
+  refreshFinancePage();
 }
 
 // ── Core SMS parsing engine ────────────────────────────────────────────────
