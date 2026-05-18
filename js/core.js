@@ -165,8 +165,11 @@ async function handleForgotPassword() {
 
 async function handleLogin() {
   const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-password').value;
+  const pass  = document.getElementById('login-password').value;
   if (!email || !pass) { toast('Enter email and password', 'error'); return; }
+
+  // Snapshot local data BEFORE any network call — never lose it
+  const localState = DB.load();
 
   const btn = document.querySelector('#login-form button');
   const origText = btn.textContent;
@@ -182,44 +185,66 @@ async function handleLogin() {
     const data = await res.json();
     btn.textContent = origText;
 
-    if (!res.ok) throw new Error(data.error || 'Login failed');
+    if (!res.ok) {
+      // Server returned an error (user not found, wrong password, etc.)
+      const msg = data.error || 'Login failed';
+      toast('❌ ' + msg, 'error');
 
-    // Save Token and State
-    localStorage.setItem('lifeos_token', data.token);
-    if (data.state && Object.keys(data.state).length > 0) {
-      STATE = { ...DB.defaults(), ...data.state };
-      DB.save(STATE);
+      // If account not found on server but local data exists → offer offline login
+      const notFound = /not found|not exist|no account|invalid|does not exist/i.test(msg);
+      if (notFound && localState && Object.keys(localState).length > 0) {
+        toast('💡 You have data saved on this device. Use "Continue with Saved Data" below.', 'info');
+        if (typeof showOfflineBannerIfApplicable === 'function') showOfflineBannerIfApplicable();
+      }
+      return;
     }
 
-    toast('Logged in successfully!', 'success');
+    // ── Successful login ──────────────────────────────────────────────
+    localStorage.setItem('lifeos_token', data.token);
+
+    // Merge cloud + local so neither overwrites the other
+    if (data.state && Object.keys(data.state).length > 0) {
+      const cloud = { ...DB.defaults(), ...data.state };
+      const KEYS  = [
+        'investments', 'loans', 'transactions', 'bankAccounts',
+        'bankBalanceHistory', 'bankTransfers', 'goals', 'habits',
+        'habitCompletions', 'healthEntries', 'tasks', 'budgets',
+        'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
+        'customAssetTypes', 'customLoanTypes'
+      ];
+      STATE = cloud;
+      KEYS.forEach(k => { STATE[k] = _mergeById(localState[k], cloud[k]); });
+      if (localState.settings) STATE.settings = { ...cloud.settings, ...localState.settings };
+    } else {
+      // Cloud has no data — keep all local data, just update user
+      STATE = { ...localState, user: data.user || localState.user };
+    }
+
+    if (data.user) STATE.user = data.user;
+    DB.save(STATE);
+
+    toast('✅ Logged in successfully!', 'success');
     showApp();
     renderCalcBody();
 
   } catch (err) {
     btn.textContent = origText;
 
-    // Network / fetch error = backend unreachable (Render sleeping etc.)
-    const isNetworkError = err instanceof TypeError || err.message === 'Failed to fetch' || err.message.includes('NetworkError');
-    if (isNetworkError) {
-      // Try loading locally saved data for this email
-      const raw = localStorage.getItem(DB.KEY);
-      if (raw) {
-        try {
-          const saved = JSON.parse(raw);
-          if (saved.user) {
-            STATE = { ...DB.defaults(), ...saved };
-            saveState();
-            toast('⚠️ Server unreachable — loaded your saved local data', 'warning');
-            showApp();
-            renderCalcBody();
-            return;
-          }
-        } catch {}
+    // Network / fetch error = backend unreachable (Render sleeping)
+    const isNetworkErr = err instanceof TypeError || /fetch|network/i.test(err.message);
+    if (isNetworkErr) {
+      // Backend is sleeping — use local data if available
+      if (localState && localState.user) {
+        STATE = localState;
+        toast('⚠️ Server unreachable — loaded your saved local data', 'warning');
+        showApp();
+        renderCalcBody();
+      } else {
+        toast('❌ Server offline. Use "Continue with Saved Data" below.', 'error');
+        if (typeof showOfflineBannerIfApplicable === 'function') showOfflineBannerIfApplicable();
       }
-      toast('❌ Server offline. Use "Continue with Saved Data" below.', 'error');
-      if (typeof showOfflineBannerIfApplicable === 'function') showOfflineBannerIfApplicable();
     } else {
-      toast(err.message, 'error');
+      toast('❌ ' + err.message, 'error');
     }
   }
 }
@@ -262,10 +287,13 @@ async function handleRegister() {
 
 function handleLogout() {
   localStorage.removeItem('lifeos_token');
-  STATE = DB.defaults();
+  // Clear only auth — keep all data so it survives logout/login cycles
+  STATE.user = null;
   DB.save(STATE);
+  if (_syncTimer) { clearInterval(_syncTimer); _syncTimer = null; }
   document.getElementById('main-app').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
+  if (typeof showOfflineBannerIfApplicable === 'function') showOfflineBannerIfApplicable();
 }
 
 function showApp() {
