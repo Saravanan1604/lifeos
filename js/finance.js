@@ -554,7 +554,7 @@ function openBulkCategoryChange() {
      <select id="bulk-cat" class="form-input">${opts}</select></div>
      <div class="modal-actions">
        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-       <button class="btn-primary" onclick="applyBulkCategory(${JSON.stringify(ids)})">✅ Apply to All</button>
+       <button class="btn-primary" onclick='applyBulkCategory(${JSON.stringify(ids)})'>✅ Apply to All</button>
      </div>`);
 }
 
@@ -583,7 +583,7 @@ function openBulkTypeChange() {
      </select></div>
      <div class="modal-actions">
        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-       <button class="btn-primary" onclick="applyBulkType(${JSON.stringify(ids)})">✅ Apply to All</button>
+       <button class="btn-primary" onclick='applyBulkType(${JSON.stringify(ids)})'>✅ Apply to All</button>
      </div>`);
 }
 
