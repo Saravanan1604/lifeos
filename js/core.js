@@ -274,6 +274,7 @@ function showApp() {
   updateSidebar();
   checkStreak();
   navigate('dashboard');
+  if (typeof startLiveSync === 'function') startLiveSync();
 }
 
 // ===== SIDEBAR =====

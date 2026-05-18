@@ -125,10 +125,12 @@
         <div class="user-avatar" id="sidebar-avatar">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
-        <div class="user-info">
+        <div class="user-info" style="flex:1;min-width:0">
           <p class="user-name" id="sidebar-name">User</p>
           <p class="user-level" id="sidebar-level">Level 1 · Beginner</p>
         </div>
+        <!-- Live sync indicator dot -->
+        <div id="sync-dot" title="Live — synced" onclick="pullFromCloud()" style="width:9px;height:9px;border-radius:50%;background:#64748b;flex-shrink:0;cursor:pointer;transition:background .3s;margin-left:6px" title="Sync status"></div>
       </div>
 
       <!-- XP Bar -->

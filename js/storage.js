@@ -41,28 +41,28 @@ const API_URL = 'https://lifeos-backend-r42c.onrender.com/api'; // Live Render B
 
 const stateHistory = []; // Keeps last 5 states for undo
 
-function saveState() { 
-  // Before saving, store current state for undo
+function saveState() {
+  // Store current state for undo
   const currentStr = JSON.stringify(STATE);
   const lastSavedStr = localStorage.getItem(DB.KEY);
   if (lastSavedStr && currentStr !== lastSavedStr) {
     stateHistory.push(lastSavedStr);
-    if (stateHistory.length > 5) stateHistory.shift(); // keep max 5
+    if (stateHistory.length > 5) stateHistory.shift();
   }
 
-  DB.save(STATE); 
-  
-  // Cloud Sync (only runs if logged in)
+  DB.save(STATE);
+
+  // Push to cloud immediately (only when logged in)
   const token = localStorage.getItem('lifeos_token');
-  if (token && STATE.user) {
+  if (token && STATE.user && !STATE.user.offline) {
+    setSyncDot('syncing');
     fetch(`${API_URL}/sync`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ state: STATE })
-    }).catch(err => console.log('Background sync failed:', err));
+    })
+      .then(r => { if (r.ok) setSyncDot('ok'); else setSyncDot('error'); })
+      .catch(() => setSyncDot('error'));
   }
 }
 
@@ -113,4 +113,119 @@ function getGreeting(name) {
   const h = new Date().getHours();
   const g = h < 12 ? '🌅 Good morning' : h < 17 ? '☀️ Good afternoon' : h < 20 ? '🌆 Good evening' : '🌙 Good night';
   return `${g}, ${name}!`;
+}
+
+// ===== LIVE SYNC ENGINE =====
+const LIVE_SYNC_KEYS = [
+  'investments', 'loans', 'transactions', 'bankAccounts',
+  'bankBalanceHistory', 'bankTransfers', 'goals', 'habits',
+  'habitCompletions', 'healthEntries', 'tasks', 'budgets',
+  'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
+  'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',
+  'unlockedAchievements'
+];
+
+let _syncTimer    = null;
+let _syncBusy     = false;
+let _lastCloudHash = '';
+
+// Sync dot indicator in sidebar
+function setSyncDot(status) {
+  const dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  const cfg = {
+    syncing: { bg: '#f59e0b', title: 'Syncing…',       anim: 'pulse 1s infinite' },
+    ok:      { bg: '#10b981', title: 'Live — synced',   anim: 'none' },
+    offline: { bg: '#64748b', title: 'Offline mode',    anim: 'none' },
+    error:   { bg: '#ef4444', title: 'Sync failed',     anim: 'none' },
+  };
+  const c = cfg[status] || cfg.ok;
+  dot.style.background = c.bg;
+  dot.style.animation  = c.anim;
+  dot.title = c.title;
+}
+
+// Merge two arrays by id — local items win on conflict
+function _mergeById(local, cloud) {
+  const l = Array.isArray(local) ? local : [];
+  const c = Array.isArray(cloud) ? cloud : [];
+  if (!c.length) return l;
+  if (!l.length) return c;
+  const seen = new Set(l.map(x => x.id).filter(Boolean));
+  return [...l, ...c.filter(x => x.id && !seen.has(x.id))];
+}
+
+// Pull latest state from cloud and merge into local STATE
+async function pullFromCloud() {
+  if (_syncBusy) return;
+  const token = localStorage.getItem('lifeos_token');
+  if (!token || !STATE.user || STATE.user.offline) { setSyncDot('offline'); return; }
+
+  _syncBusy = true;
+  try {
+    const res = await fetch(`${API_URL}/me`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+      cache: 'no-store'
+    });
+    if (!res.ok) { setSyncDot('error'); return; }
+
+    const data = await res.json();
+    if (!data.state || !Object.keys(data.state).length) { setSyncDot('ok'); return; }
+
+    // Skip if cloud hasn't changed since last pull
+    const hash = JSON.stringify(data.state).slice(0, 200);
+    if (hash === _lastCloudHash) { setSyncDot('ok'); return; }
+    _lastCloudHash = hash;
+
+    // Merge cloud into current STATE
+    let changed = false;
+    LIVE_SYNC_KEYS.forEach(k => {
+      const cloud = data.state[k];
+      if (Array.isArray(cloud)) {
+        const merged = _mergeById(STATE[k], cloud);
+        if (merged.length !== (STATE[k] || []).length) {
+          STATE[k] = merged;
+          changed = true;
+        }
+      } else if (cloud !== undefined && typeof cloud !== 'object') {
+        // Scalar: xp, level, streak — take higher value
+        if (cloud > (STATE[k] || 0)) { STATE[k] = cloud; changed = true; }
+      }
+    });
+
+    if (changed) {
+      DB.save(STATE);
+      // Re-render the current page silently
+      if (typeof currentPage !== 'undefined' && typeof navigate === 'function') {
+        navigate(currentPage, true);
+      }
+      if (typeof updateSidebar === 'function') updateSidebar();
+      toast('🔄 Updated from another device', 'info');
+    }
+    setSyncDot('ok');
+  } catch {
+    setSyncDot('error');
+  } finally {
+    _syncBusy = false;
+  }
+}
+
+// Start polling + visibility-based sync
+function startLiveSync() {
+  const token = localStorage.getItem('lifeos_token');
+  if (!token || !STATE.user || STATE.user.offline) { setSyncDot('offline'); return; }
+
+  setSyncDot('ok');
+
+  // Poll every 30 seconds
+  if (_syncTimer) clearInterval(_syncTimer);
+  _syncTimer = setInterval(pullFromCloud, 30000);
+
+  // Sync immediately when user returns to the tab/app
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) pullFromCloud();
+  });
+
+  // Sync when app regains network connection
+  window.addEventListener('online', pullFromCloud);
 }
