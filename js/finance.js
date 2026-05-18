@@ -216,26 +216,26 @@ function renderFinance() {
         <!-- Type / Category / Sort filters -->
         <div style="padding:10px 16px;border-bottom:1px solid var(--glass-border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <select id="fin-type" onchange="_finType=this.value;renderFinanceTxList()"
-            style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer">
-            <option value="all">All types</option>
-            <option value="income">💚 Income only</option>
-            <option value="expense">❤️ Expense only</option>
+            style="background:#1e293b;border:1px solid var(--glass-border);color:#f1f5f9;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;color-scheme:dark">
+            <option value="all"     style="background:#1e293b;color:#f1f5f9">All types</option>
+            <option value="income"  style="background:#1e293b;color:#f1f5f9">💚 Income only</option>
+            <option value="expense" style="background:#1e293b;color:#f1f5f9">❤️ Expense only</option>
           </select>
 
           <select id="fin-cat" onchange="_finCategory=this.value;renderFinanceTxList()"
-            style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer">
-            <option value="all">All categories</option>
+            style="background:#1e293b;border:1px solid var(--glass-border);color:#f1f5f9;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;color-scheme:dark">
+            <option value="all" style="background:#1e293b;color:#f1f5f9">All categories</option>
             ${_finCategoryOptions()}
           </select>
 
           <select id="fin-sort" onchange="_finSort=this.value;renderFinanceTxList()"
-            style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer">
-            <option value="date-desc">📅 Newest first</option>
-            <option value="date-asc">📅 Oldest first</option>
-            <option value="amount-desc">💰 Highest amount</option>
-            <option value="amount-asc">💰 Lowest amount</option>
-            <option value="alpha-asc">🔤 A → Z</option>
-            <option value="alpha-desc">🔤 Z → A</option>
+            style="background:#1e293b;border:1px solid var(--glass-border);color:#f1f5f9;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;color-scheme:dark">
+            <option value="date-desc"   style="background:#1e293b;color:#f1f5f9">📅 Newest first</option>
+            <option value="date-asc"    style="background:#1e293b;color:#f1f5f9">📅 Oldest first</option>
+            <option value="amount-desc" style="background:#1e293b;color:#f1f5f9">💰 Highest amount</option>
+            <option value="amount-asc"  style="background:#1e293b;color:#f1f5f9">💰 Lowest amount</option>
+            <option value="alpha-asc"   style="background:#1e293b;color:#f1f5f9">🔤 A → Z</option>
+            <option value="alpha-desc"  style="background:#1e293b;color:#f1f5f9">🔤 Z → A</option>
           </select>
 
           <button onclick="_finType='all';_finCategory='all';_finSort='date-desc';renderFinance()"
@@ -369,7 +369,7 @@ function _finCategoryOptions() {
   const cats = new Set();
   (STATE.transactions || []).forEach(t => { if (t.category) cats.add(t.category); });
   return [...cats].sort((a, b) => a.localeCompare(b))
-    .map(c => `<option value="${c}">${c}</option>`).join('');
+    .map(c => `<option value="${c}" style="background:#1e293b;color:#f1f5f9">${c}</option>`).join('');
 }
 
 function renderFinanceTxList() {
