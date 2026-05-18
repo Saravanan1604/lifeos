@@ -56,13 +56,17 @@ function saveState() {
   const token = localStorage.getItem('lifeos_token');
   if (token && STATE.user && !STATE.user.offline) {
     setSyncDot('syncing');
+    const payload = JSON.stringify({ state: STATE });
     fetch(`${API_URL}/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ state: STATE })
+      body: payload
     })
-      .then(r => { if (r.ok) setSyncDot('ok'); else setSyncDot('error'); })
-      .catch(() => setSyncDot('error'));
+      .then(r => {
+        if (r.ok) { setSyncDot('ok'); _pendingSave = null; }
+        else       { setSyncDot('error'); _pendingSave = payload; }
+      })
+      .catch(() => { setSyncDot('error'); _pendingSave = payload; });
   }
 }
 
@@ -125,9 +129,10 @@ const LIVE_SYNC_KEYS = [
   'unlockedAchievements'
 ];
 
-let _syncTimer    = null;
-let _syncBusy     = false;
+let _syncTimer     = null;
+let _syncBusy      = false;
 let _lastCloudHash = '';
+let _pendingSave   = null; // queued when cloud push fails (Render sleeping)
 
 // Sync dot indicator in sidebar
 function setSyncDot(status) {
@@ -172,8 +177,12 @@ async function pullFromCloud() {
     const data = await res.json();
     if (!data.state || !Object.keys(data.state).length) { setSyncDot('ok'); return; }
 
-    // Skip if cloud hasn't changed since last pull
-    const hash = JSON.stringify(data.state).slice(0, 200);
+    // Hash based on array lengths + scalar values — reliable even when transactions grow
+    const hashObj = {};
+    LIVE_SYNC_KEYS.forEach(k => {
+      hashObj[k] = Array.isArray(data.state[k]) ? data.state[k].length : (data.state[k] ?? null);
+    });
+    const hash = JSON.stringify(hashObj);
     if (hash === _lastCloudHash) { setSyncDot('ok'); return; }
     _lastCloudHash = hash;
 
@@ -188,14 +197,12 @@ async function pullFromCloud() {
           changed = true;
         }
       } else if (cloud !== undefined && typeof cloud !== 'object') {
-        // Scalar: xp, level, streak — take higher value
         if (cloud > (STATE[k] || 0)) { STATE[k] = cloud; changed = true; }
       }
     });
 
     if (changed) {
       DB.save(STATE);
-      // Re-render the current page silently
       if (typeof currentPage !== 'undefined' && typeof navigate === 'function') {
         navigate(currentPage, true);
       }
@@ -203,6 +210,18 @@ async function pullFromCloud() {
       toast('🔄 Updated from another device', 'info');
     }
     setSyncDot('ok');
+
+    // Retry any save that failed while Render was sleeping
+    if (_pendingSave) {
+      const tok = localStorage.getItem('lifeos_token');
+      if (tok) {
+        fetch(`${API_URL}/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+          body: _pendingSave
+        }).then(r => { if (r.ok) { _pendingSave = null; setSyncDot('ok'); } }).catch(() => {});
+      }
+    }
   } catch {
     setSyncDot('error');
   } finally {
@@ -216,6 +235,9 @@ function startLiveSync() {
   if (!token || !STATE.user || STATE.user.offline) { setSyncDot('offline'); return; }
 
   setSyncDot('ok');
+
+  // Pull immediately so laptop/desktop sees mobile changes right on open
+  pullFromCloud();
 
   // Poll every 30 seconds
   if (_syncTimer) clearInterval(_syncTimer);
