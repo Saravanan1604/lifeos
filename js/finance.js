@@ -2281,21 +2281,42 @@ async function handlePdfFileSelect(input) {
       if (progBar) progBar.style.width = `${(p / totalPages) * 100}%`;
       const page = await pdf.getPage(p);
       const content = await page.getTextContent();
-      // Join items preserving rough line breaks (items on same y → space, different y → newline)
-      let lastY = null;
-      const pageLines = [];
-      let curLine = '';
-      content.items.forEach(item => {
-        const y = item.transform ? Math.round(item.transform[5]) : null;
-        if (lastY !== null && y !== null && Math.abs(y - lastY) > 2) {
-          if (curLine.trim()) pageLines.push(curLine.trim());
-          curLine = item.str;
+
+      // Font-height aware line grouping: collect all items with (x, y, height),
+      // sort top→bottom then left→right, then group items whose y is within
+      // half a line-height of the running row baseline.
+      const items = content.items.map(it => ({
+        str: (it.str || '').replace(/\s+/g, ' '),
+        x: it.transform ? it.transform[4] : 0,
+        y: it.transform ? it.transform[5] : 0,
+        h: it.height || 10
+      })).filter(it => it.str.trim() || it.str === ' ');
+
+      items.sort((a, b) => (b.y - a.y) || (a.x - b.x));
+
+      const rows = [];
+      let curRow = [];
+      let curY = null;
+      let curH = 10;
+      items.forEach(it => {
+        const tol = Math.max(2, (it.h || curH) * 0.5);
+        if (curY === null || Math.abs(curY - it.y) <= tol) {
+          curRow.push(it);
+          curY = curY === null ? it.y : (curY * curRow.length + it.y) / (curRow.length + 1);
+          curH = it.h || curH;
         } else {
-          curLine += (curLine ? ' ' : '') + item.str;
+          if (curRow.length) rows.push(curRow);
+          curRow = [it];
+          curY = it.y;
+          curH = it.h || 10;
         }
-        lastY = y;
       });
-      if (curLine.trim()) pageLines.push(curLine.trim());
+      if (curRow.length) rows.push(curRow);
+
+      const pageLines = rows.map(row =>
+        row.sort((a, b) => a.x - b.x).map(i => i.str).join(' ').replace(/\s+/g, ' ').trim()
+      ).filter(l => l);
+
       fullText += pageLines.join('\n') + '\n';
     }
 
@@ -2311,7 +2332,16 @@ async function handlePdfFileSelect(input) {
     if (!_pdfResults.length) _pdfResults = _parseStatementText(fullText);
 
     if (!_pdfResults.length) {
-      _showImportStatus('pdf', 'No transactions found. This PDF may be scanned/image-based (not supported) or in an unsupported format.', 'warn');
+      // Expose first 400 chars of extracted text + total length so the user can
+      // share what the PDF actually contained when the parser fails.
+      const snippet = (fullText || '').replace(/\s+/g, ' ').slice(0, 400);
+      const len = (fullText || '').length;
+      console.log('[PDF Import] Extracted text length:', len);
+      console.log('[PDF Import] First 2000 chars:\n', (fullText || '').slice(0, 2000));
+      _showImportStatus('pdf',
+        `No transactions found in ${len.toLocaleString()} chars of extracted text. ` +
+        `This PDF may be scanned/image-based, password-protected, or use a layout we don't handle yet. ` +
+        `Open the browser console (F12) — the first 2000 chars were logged so you can share them.`, 'warn');
       return;
     }
 
@@ -2414,8 +2444,9 @@ function _parseUpiStatementPdf(text) {
     return null;
   }
 
-  // Match transaction-start markers. Captures: action, name, type, amount (last two optional inline)
-  const TX_RE = /(Paid to|Received from|Transfer to|Payment to|Mobile recharged|FASTag Recharge for)\s+(.+?)(?:\s+(DEBIT|CREDIT))?(?:\s*₹\s*([\d,]+(?:\.\d{1,2})?))?$/i;
+  // Match transaction-start markers. Captures: action, name, type, amount (last two optional inline).
+  // Covers older "Paid to / Received from" and newer "Sent to / Money received from" wording.
+  const TX_RE = /(Paid to|Sent to|Money sent to|Received from|Money received from|Transfer to|Payment to|Mobile recharged|FASTag Recharge for)\s+(.+?)(?:\s+(DEBIT|CREDIT))?(?:\s*(?:₹|Rs\.?|INR)\s*([\d,]+(?:\.\d{1,2})?))?\s*$/i;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -2436,7 +2467,7 @@ function _parseUpiStatementPdf(text) {
         if (j === i) continue;
         const near = lines[j];
         if (!amount) {
-          const a = near.match(/₹\s*([\d,]+(?:\.\d{1,2})?)/);
+          const a = near.match(/(?:₹|Rs\.?|INR)\s*([\d,]+(?:\.\d{1,2})?)/i);
           if (a) { const v = parseFloat(a[1].replace(/,/g,'')); if (v > 0) amount = v; }
         }
         if (!m[3]) {
