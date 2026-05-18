@@ -41,6 +41,7 @@ function renderFinance() {
           <button class="btn-secondary btn-sm" onclick="openCsvImport()" style="display:flex;align-items:center;gap:6px">📊 Import CSV</button>
           <button class="btn-secondary btn-sm" onclick="openBulkEntry()" style="display:flex;align-items:center;gap:6px">📅 Bulk Entry</button>
           <button class="btn-secondary btn-sm" onclick="openStatementPaste()" style="display:flex;align-items:center;gap:6px">📄 Paste Statement</button>
+          <button class="btn-secondary btn-sm" onclick="openPdfImport()" style="display:flex;align-items:center;gap:6px">📑 Import PDF</button>
           <button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>
         </div>
       </div>
@@ -2212,5 +2213,252 @@ function saveAllStmtTx() {
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported! 🎉`, 'success');
+  refreshFinancePage();
+}
+
+// ===== PDF IMPORT =====
+let _pdfResults = [];
+
+function openPdfImport() {
+  _pdfResults = [];
+  openModal('📑 Import PDF Statement', `
+    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
+      Upload a PDF bank statement from <strong>GPay, PhonePe, SBI, HDFC, ICICI, Axis</strong> or any bank.<br>
+      Text is extracted from the PDF and auto-parsed for transactions.
+    </div>
+
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">Select PDF file</label>
+      <input type="file" id="pdf-file-input" accept=".pdf,application/pdf" class="form-input"
+        onchange="handlePdfFileSelect(this)"
+        style="padding:10px;cursor:pointer"/>
+    </div>
+
+    <div id="pdf-status" style="display:none;font-size:12px;font-weight:600;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
+    <div id="pdf-progress" style="display:none;margin-bottom:12px">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px" id="pdf-progress-label">Extracting text…</div>
+      <div style="background:var(--glass-border);border-radius:4px;height:6px;overflow:hidden">
+        <div id="pdf-progress-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6);height:100%;width:0%;transition:width 0.3s"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="margin-bottom:14px">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+
+    <div id="pdf-results-wrap" style="display:none">
+      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
+      <p style="font-size:11px;font-weight:700;color:#00c9a7;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Detected transactions — edit if needed</p>
+      <div id="pdf-results-list" style="max-height:45vh;overflow-y:auto;padding-right:2px"></div>
+      <div id="pdf-summary" style="margin:12px 0;padding:10px 14px;border-radius:10px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);font-size:13px;font-weight:600"></div>
+      <button class="btn-primary" onclick="saveAllPdfTx()" style="width:100%;background:linear-gradient(135deg,#00c9a7,#0acf83);padding:12px">💾 Save All Transactions</button>
+    </div>`);
+}
+
+async function handlePdfFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  if (typeof pdfjsLib === 'undefined') {
+    _showImportStatus('pdf', 'PDF library not loaded yet — please wait a moment and try again.', 'warn');
+    return;
+  }
+
+  // Show progress
+  const prog = document.getElementById('pdf-progress');
+  const progBar = document.getElementById('pdf-progress-bar');
+  const progLabel = document.getElementById('pdf-progress-label');
+  if (prog) prog.style.display = '';
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const totalPages = pdf.numPages;
+    let fullText = '';
+
+    for (let p = 1; p <= totalPages; p++) {
+      if (progLabel) progLabel.textContent = `Reading page ${p} of ${totalPages}…`;
+      if (progBar) progBar.style.width = `${(p / totalPages) * 100}%`;
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      // Join items preserving rough line breaks (items on same y → space, different y → newline)
+      let lastY = null;
+      const pageLines = [];
+      let curLine = '';
+      content.items.forEach(item => {
+        const y = item.transform ? Math.round(item.transform[5]) : null;
+        if (lastY !== null && y !== null && Math.abs(y - lastY) > 2) {
+          if (curLine.trim()) pageLines.push(curLine.trim());
+          curLine = item.str;
+        } else {
+          curLine += (curLine ? ' ' : '') + item.str;
+        }
+        lastY = y;
+      });
+      if (curLine.trim()) pageLines.push(curLine.trim());
+      fullText += pageLines.join('\n') + '\n';
+    }
+
+    if (prog) prog.style.display = 'none';
+
+    // First try CSV-style parsing (tabular bank statements)
+    _pdfResults = _parsePdfAsTable(fullText);
+
+    // Fall back to statement-text parser
+    if (!_pdfResults.length) _pdfResults = _parseStatementText(fullText);
+
+    if (!_pdfResults.length) {
+      _showImportStatus('pdf', 'No transactions found. This PDF may be scanned/image-based (not supported) or in an unsupported format.', 'warn');
+      return;
+    }
+
+    renderPdfResults();
+    _showImportStatus('pdf', `✅ Found ${_pdfResults.length} transaction${_pdfResults.length > 1 ? 's' : ''} across ${totalPages} page${totalPages > 1 ? 's' : ''}`, 'ok');
+
+  } catch (err) {
+    if (prog) prog.style.display = 'none';
+    _showImportStatus('pdf', 'Could not read PDF: ' + (err.message || err), 'warn');
+  }
+}
+
+function _parsePdfAsTable(text) {
+  // Many bank statement PDFs have tabular rows like:
+  // "05/01/2025  UPI-Swiggy  350.00  Cr  12,500.00"
+  // or "05 Jan 2025  NEFT to John  1000.00  Dr  11,500.00"
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  const results = [];
+
+  const MONTHS = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+
+  function tryParseDate(s) {
+    let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (m) { const yr = m[3].length===2?'20'+m[3]:m[3]; return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+    m = s.match(/^(\d{1,2})[\s\-]([a-zA-Z]{3,})[\s\-](\d{2,4})$/);
+    if (m) { const mo = MONTHS[m[2].toLowerCase().slice(0,3)]; if (mo) { const yr = m[3].length===2?'20'+m[3]:m[3]; return `${yr}-${mo}-${m[1].padStart(2,'0')}`; } }
+    m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return s;
+    return null;
+  }
+
+  lines.forEach(line => {
+    // Must contain a number that looks like a rupee amount
+    if (!/[\d,]+\.\d{2}/.test(line)) return;
+
+    // Try to find a date token at the start of the line
+    const tokens = line.split(/\s{2,}|\t/); // split on 2+ spaces or tab (column separator)
+    if (tokens.length < 3) return;
+
+    const date = tryParseDate(tokens[0].trim());
+    if (!date) return;
+
+    // Last token with decimal = balance, second-last or earlier = amount
+    const numTokens = tokens.map(t => ({ t, v: parseFloat(t.replace(/,/g,'')) }))
+                            .filter(x => !isNaN(x.v) && x.v > 0 && /\d+\.\d{2}/.test(x.t));
+    if (numTokens.length < 1) return;
+
+    // Description = middle tokens (skip date, skip trailing numbers)
+    const descTokens = tokens.slice(1, tokens.length - numTokens.length);
+    const description = descTokens.join(' ').replace(/\s+/g, ' ').trim();
+    if (!description || description.length < 2) return;
+
+    // Type: look for Dr/Cr marker
+    const lineLo = line.toLowerCase();
+    let type = null;
+    if (/\bdr\b|debit|withdrawal|paid/.test(lineLo)) type = 'expense';
+    else if (/\bcr\b|credit|deposit|received/.test(lineLo)) type = 'income';
+    if (!type) type = smsCategoryGuess(lineLo, description.toLowerCase(), null) === 'Salary' ? 'income' : 'expense';
+
+    // Amount = first numeric token after description (not balance)
+    const amount = numTokens[0].v;
+    if (!amount || amount <= 0) return;
+
+    const lo = description.toLowerCase();
+    const category = smsCategoryGuess(lo, lo, type);
+    results.push({ type, amount, date, description, category });
+  });
+
+  // Deduplicate
+  const seen = new Set();
+  return results.filter(r => {
+    const key = `${r.amount}|${r.date}|${r.description}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function renderPdfResults() {
+  const list = document.getElementById('pdf-results-list');
+  const wrap = document.getElementById('pdf-results-wrap');
+  if (!list || !wrap) return;
+  list.innerHTML = _pdfResults.map((r, i) => `
+    <div id="pdf-card-${i}" style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:10px;position:relative">
+      <button onclick="removePdfResult(${i})" title="Remove" style="position:absolute;top:8px;right:10px;background:rgba(239,68,68,0.12);border:none;color:#ef4444;border-radius:6px;cursor:pointer;padding:2px 9px;font-size:13px;line-height:1.6">✕</button>
+      <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-bottom:8px;padding-right:36px">
+        <select class="form-input" id="pf-type-${i}" onchange="updatePdfSummary()" style="font-size:12px;padding:4px 8px">
+          <option value="expense" ${r.type==='expense'?'selected':''}>❤️ Expense</option>
+          <option value="income"  ${r.type==='income' ?'selected':''}>💚 Income</option>
+        </select>
+        <input type="number" class="form-input" id="pf-amount-${i}" value="${r.amount}" step="0.01" min="0"
+          oninput="updatePdfSummary()" style="font-size:13px;font-weight:700;padding:4px 8px"/>
+        <input type="date" class="form-input" id="pf-date-${i}" value="${r.date}" style="font-size:12px;padding:4px 8px"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <select class="form-input" id="pf-cat-${i}" style="font-size:12px;padding:4px 8px">${_makeSrCatOptions(r.category)}</select>
+        <input type="text" class="form-input" id="pf-desc-${i}" value="${(r.description||'').replace(/"/g,'&quot;')}" placeholder="Description" style="font-size:12px;padding:4px 8px"/>
+      </div>
+    </div>`).join('');
+  wrap.style.display = '';
+  updatePdfSummary();
+}
+
+function removePdfResult(i) {
+  const card = document.getElementById(`pdf-card-${i}`);
+  if (card) card.style.display = 'none';
+  updatePdfSummary();
+}
+
+function updatePdfSummary() {
+  let totalExpense = 0, totalIncome = 0, count = 0;
+  _pdfResults.forEach((_, i) => {
+    const card = document.getElementById(`pdf-card-${i}`);
+    if (!card || card.style.display === 'none') return;
+    const type   = document.getElementById(`pf-type-${i}`)?.value;
+    const amount = parseFloat(document.getElementById(`pf-amount-${i}`)?.value) || 0;
+    if (type === 'expense') totalExpense += amount; else totalIncome += amount;
+    count++;
+  });
+  const el = document.getElementById('pdf-summary');
+  if (!el) return;
+  if (!count) { el.innerHTML = '<span style="color:var(--text3)">No transactions selected</span>'; return; }
+  const parts = [];
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ₹${totalExpense.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ₹${totalIncome.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} transaction${count>1?'s':''}</span>`;
+}
+
+function saveAllPdfTx() {
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const toSave  = [];
+  _pdfResults.forEach((_, i) => {
+    const card = document.getElementById(`pdf-card-${i}`);
+    if (!card || card.style.display === 'none') return;
+    const type     = document.getElementById(`pf-type-${i}`)?.value;
+    const amount   = parseFloat(document.getElementById(`pf-amount-${i}`)?.value);
+    const date     = document.getElementById(`pf-date-${i}`)?.value || today();
+    const category = document.getElementById(`pf-cat-${i}`)?.value;
+    const desc     = document.getElementById(`pf-desc-${i}`)?.value?.trim() || '';
+    if (!amount || amount <= 0) return;
+    const icon = allCats.find(c => c.name === category)?.icon || '💳';
+    toSave.push({ id: genId(), type, amount, date, category, icon, description: desc, createdAt: new Date().toISOString() });
+  });
+  if (!toSave.length) { toast('No valid transactions to save', 'error'); return; }
+  STATE.transactions = STATE.transactions || [];
+  [...toSave].reverse().forEach(tx => STATE.transactions.unshift(tx));
+  saveState();
+  if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} PDF transaction${toSave.length>1?'s':''} imported`);
+  if (typeof autoSyncGoals === 'function') autoSyncGoals();
+  closeModal();
+  toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported from PDF! 🎉`, 'success');
   refreshFinancePage();
 }
