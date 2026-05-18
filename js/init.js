@@ -45,11 +45,11 @@ function showOfflineBannerIfApplicable() {
   if (!raw) return;
   try {
     const saved = JSON.parse(raw);
-    const hasTxns = (saved.transactions || []).length > 0;
-    const hasBanks = (saved.bankAccounts || []).length > 0;
-    const hasHabits = (saved.habits || []).length > 0;
-    const hasGoals = (saved.goals || []).length > 0;
-    if (hasTxns || hasBanks || hasHabits || hasGoals) {
+    const hasData = [
+      'transactions', 'bankAccounts', 'habits', 'goals',
+      'investments', 'loans', 'bankBalanceHistory', 'budgets'
+    ].some(k => (saved[k] || []).length > 0);
+    if (hasData) {
       const banner = document.getElementById('offline-banner');
       if (banner) banner.style.display = 'block';
     }
@@ -74,8 +74,22 @@ function loadLocalData() {
   renderCalcBody();
 }
 
+// Merge two arrays by id — keeps all unique items from both sides
+function mergeById(local, cloud) {
+  const localArr = Array.isArray(local) ? local : [];
+  const cloudArr = Array.isArray(cloud) ? cloud : [];
+  if (!cloudArr.length) return localArr;
+  if (!localArr.length) return cloudArr;
+  const seen = new Set(localArr.map(x => x.id).filter(Boolean));
+  // Start with local (device wins), then append any cloud items not already present
+  return [...localArr, ...cloudArr.filter(x => x.id && !seen.has(x.id))];
+}
+
 // Try to restore session from cloud using existing token
 async function tryAutoRestore(token) {
+  // Always load local data first — it is the source of truth
+  const localState = DB.load();
+
   try {
     const res = await fetch(`${API_URL}/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -83,19 +97,38 @@ async function tryAutoRestore(token) {
     if (res.ok) {
       const data = await res.json();
       if (data.state && Object.keys(data.state).length > 0) {
-        STATE = { ...DB.defaults(), ...data.state };
+        // Base: cloud state merged over defaults
+        const cloud = { ...DB.defaults(), ...data.state };
+
+        // For every array field, merge local + cloud so neither wipes the other
+        const ARRAY_KEYS = [
+          'investments', 'loans', 'transactions', 'bankAccounts',
+          'bankBalanceHistory', 'bankTransfers', 'goals', 'habits',
+          'habitCompletions', 'healthEntries', 'tasks', 'budgets',
+          'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
+          'customAssetTypes', 'customLoanTypes'
+        ];
+        STATE = cloud;
+        ARRAY_KEYS.forEach(k => {
+          STATE[k] = mergeById(localState[k], cloud[k]);
+        });
+
+        // Prefer local settings (theme, currency, name) if they exist
+        if (localState.settings) STATE.settings = { ...cloud.settings, ...localState.settings };
+
         DB.save(STATE);
+      } else {
+        // Cloud returned empty — keep local data entirely
+        STATE = localState;
       }
-      if (!STATE.user && data.user) {
-        STATE.user = data.user;
-        saveState();
-      }
+      if (!STATE.user && data.user) { STATE.user = data.user; saveState(); }
       showApp();
       renderCalcBody();
       return;
     }
   } catch {}
-  // Backend unreachable — fall through to auth screen
+  // Backend unreachable — keep local data, fall through to auth screen
+  STATE = localState;
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('main-app').style.display = 'none';
   showOfflineBannerIfApplicable();
