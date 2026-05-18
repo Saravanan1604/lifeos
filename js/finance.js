@@ -801,10 +801,14 @@ function parseBankSms(sms) {
   const lo = sms.toLowerCase();
 
   // Type
-  const isCredit = /\b(credited|credit|received|deposited|refund|cashback|salary|added|money received)\b/.test(lo);
+  // "credit card" is a card type, not a credit transaction — strip it before checking
+  const loNoCc   = lo.replace(/credit\s+card/g, 'cc');
+  const isCredit = /\b(credited|received|deposited|refund|cashback|salary|added|money received)\b/.test(loNoCc) ||
+                   /\bcredit\b/.test(loNoCc);
   const isDebit  = /\b(debited|debit|spent|paid|withdrawn|charged|payment of|sent|purchase)\b/.test(lo);
   if (!isCredit && !isDebit) return null;
-  const type = isCredit ? 'income' : 'expense';
+  // Debit always wins when both signals are present ("Credit Card XX debited")
+  const type = isDebit ? 'expense' : 'income';
 
   // Amount — try several patterns in priority order
   let amount = null;
@@ -859,7 +863,7 @@ function parseBankSms(sms) {
       break;
     }
   }
-  if (!description) description = isCredit ? 'Credit received' : 'Debit transaction';
+  if (!description) description = type === 'income' ? 'Credit received' : 'Debit transaction';
 
   // Available balance
   let balance = null;
