@@ -279,9 +279,33 @@ function exportCSV() {
   toast(`✅ ${txns.length} transactions exported as CSV!`, 'success');
 }
 
-function confirmReset() {
-  if (confirm('Delete ALL LifeOS data? This cannot be undone.')) {
-    localStorage.removeItem(DB.KEY); STATE = DB.load(); handleLogout();
-    toast('Data reset. Fresh start! 🌱', 'info');
+async function confirmReset() {
+  if (!confirm('Delete ALL LifeOS data? This cannot be undone.')) return;
+
+  const token = localStorage.getItem('lifeos_token');
+  const wasLoggedIn = token && STATE.user && !STATE.user.offline;
+
+  // Build a truly empty state so the cloud copy is wiped too.
+  // Preserve the user object so the sync endpoint still recognises the owner.
+  const emptyState = { user: STATE.user || null };
+
+  if (wasLoggedIn) {
+    try {
+      setSyncDot && setSyncDot('syncing');
+      await fetch(`${API_URL}/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ state: emptyState })
+      });
+      setSyncDot && setSyncDot('ok');
+    } catch (e) {
+      // If the cloud wipe fails, warn the user — otherwise login will restore everything.
+      if (!confirm('Could not reach the cloud to wipe your synced data. Reset local data anyway? (Next login may restore data from the cloud.)')) return;
+    }
   }
+
+  localStorage.removeItem(DB.KEY);
+  STATE = DB.load();
+  handleLogout();
+  toast('Data reset. Fresh start! 🌱', 'info');
 }
