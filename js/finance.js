@@ -3,6 +3,7 @@ let _finMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM" — current m
 let _finType     = 'all';        // 'all' | 'income' | 'expense'
 let _finCategory = 'all';        // 'all' | <category name>
 let _finSort     = 'date-desc';  // 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc' | 'alpha-asc' | 'alpha-desc'
+let _finSelected = new Set();    // Selected transaction IDs (for bulk delete)
 
 const CATEGORIES = [
   { name: 'Salary', icon: '💰' }, { name: 'Business', icon: '🏢' }, { name: 'Freelance', icon: '💻' },
@@ -242,6 +243,18 @@ function renderFinance() {
             style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700">Clear filters</button>
         </div>
 
+        <!-- Bulk action bar (only visible when ≥1 row selected) -->
+        <div id="fin-bulk-bar" style="display:none;padding:10px 16px;border-bottom:1px solid var(--glass-border);background:rgba(239,68,68,0.08);align-items:center;gap:10px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)">
+            <input type="checkbox" id="fin-select-all" onchange="toggleSelectAllTx(this.checked)" style="cursor:pointer;width:16px;height:16px"/>
+            Select all visible
+          </label>
+          <span id="fin-bulk-count" style="font-size:12px;font-weight:700;color:#ef4444"></span>
+          <span style="flex:1"></span>
+          <button onclick="clearSelectedTx()" style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text2);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:12px">Cancel</button>
+          <button onclick="deleteSelectedTx()" style="background:#ef4444;border:none;color:white;border-radius:8px;padding:5px 14px;cursor:pointer;font-size:12px;font-weight:700">🗑️ Delete selected</button>
+        </div>
+
         <div id="fin-tx-list"></div>
       </div>
 
@@ -409,10 +422,19 @@ function renderFinanceTxList() {
     return;
   }
 
-  container.innerHTML = txns.map(tx => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s"
-         onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''">
+  // Drop any selected IDs that no longer match the visible filters
+  const visibleIds = new Set(txns.map(t => t.id));
+  [..._finSelected].forEach(id => { if (!visibleIds.has(id)) _finSelected.delete(id); });
+
+  container.innerHTML = txns.map(tx => {
+    const checked = _finSelected.has(tx.id);
+    const rowBg = checked ? 'rgba(239,68,68,0.08)' : '';
+    return `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s;background:${rowBg}"
+         onmouseover="if(!this.dataset.sel)this.style.background='rgba(255,255,255,0.04)'" onmouseout="if(!this.dataset.sel)this.style.background=''"
+         data-sel="${checked ? '1' : ''}">
       <div style="display:flex;align-items:center;gap:12px">
+        <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSelectTx('${tx.id}', this.checked)" style="cursor:pointer;width:16px;height:16px;flex-shrink:0"/>
         <div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${tx.type === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'};font-size:18px">${tx.icon || '💳'}</div>
         <div>
           <p style="font-size:13px;font-weight:600">${tx.description || tx.category}</p>
@@ -424,7 +446,68 @@ function renderFinanceTxList() {
         <button class="btn-icon btn-sm" onclick="openEditTxModal('${tx.id}')" style="font-size:13px" title="Edit">✏️</button>
         <button class="btn-icon btn-sm" onclick="deleteTx('${tx.id}')" style="font-size:13px;color:#ef4444;border-color:rgba(239,68,68,0.3)" title="Delete">✕</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+
+  _updateBulkBar(txns);
+}
+
+// ===== BULK SELECT / DELETE =====
+function _updateBulkBar(visibleTxns) {
+  const bar = document.getElementById('fin-bulk-bar');
+  const count = document.getElementById('fin-bulk-count');
+  const selectAll = document.getElementById('fin-select-all');
+  if (!bar) return;
+
+  const n = _finSelected.size;
+  if (n > 0) {
+    bar.style.display = 'flex';
+    if (count) count.textContent = `${n} selected`;
+  } else {
+    bar.style.display = 'none';
+  }
+
+  // "select all" reflects whether every visible row is selected
+  if (selectAll && visibleTxns) {
+    const allSelected = visibleTxns.length > 0 && visibleTxns.every(t => _finSelected.has(t.id));
+    selectAll.checked = allSelected;
+    selectAll.indeterminate = !allSelected && visibleTxns.some(t => _finSelected.has(t.id));
+  }
+}
+
+function toggleSelectTx(id, checked) {
+  if (checked) _finSelected.add(id); else _finSelected.delete(id);
+  renderFinanceTxList();
+}
+
+function toggleSelectAllTx(checked) {
+  // Re-derive the currently visible set the same way renderFinanceTxList does
+  let txns = [...(STATE.transactions || [])];
+  if (_finMonth)              txns = txns.filter(t => (t.date || '').startsWith(_finMonth));
+  if (_finType !== 'all')     txns = txns.filter(t => t.type === _finType);
+  if (_finCategory !== 'all') txns = txns.filter(t => t.category === _finCategory);
+
+  if (checked) txns.forEach(t => _finSelected.add(t.id));
+  else         txns.forEach(t => _finSelected.delete(t.id));
+  renderFinanceTxList();
+}
+
+function clearSelectedTx() {
+  _finSelected.clear();
+  renderFinanceTxList();
+}
+
+function deleteSelectedTx() {
+  const n = _finSelected.size;
+  if (!n) return;
+  if (!confirm(`Delete ${n} transaction${n > 1 ? 's' : ''}? This cannot be undone.`)) return;
+
+  STATE.transactions = (STATE.transactions || []).filter(t => !_finSelected.has(t.id));
+  _finSelected.clear();
+  saveState();
+  if (typeof autoSyncGoals === 'function') autoSyncGoals();
+  toast(`${n} transaction${n > 1 ? 's' : ''} deleted`, 'info');
+  refreshFinancePage();
 }
 
 function openAddTxModal() {
