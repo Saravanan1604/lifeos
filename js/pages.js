@@ -1,117 +1,299 @@
 // ===== ANALYTICS PAGE =====
-let _analyticsPeriod = 'all';
+let _analyticsPeriod = 'month';
 
 function setAnalyticsPeriod(p) {
   _analyticsPeriod = p;
   renderAnalytics();
 }
 
+function _getPeriodHistory(periodType) {
+  const all = STATE.transactions || [];
+  const now = new Date();
+  if (periodType === 'all') {
+    const inc = all.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+    const exp = all.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    return [{ label:'All Time', income:inc, expense:exp, savings:inc-exp }];
+  }
+  const pts = [];
+  if (periodType === 'day') {
+    for (let i=6;i>=0;i--) {
+      const d=new Date(now); d.setDate(d.getDate()-i);
+      const ds=d.toISOString().slice(0,10);
+      const t=all.filter(x=>x.date===ds);
+      const inc=t.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
+      const exp=t.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0);
+      pts.push({label:d.toLocaleString('default',{weekday:'short',month:'numeric',day:'numeric'}),income:inc,expense:exp,savings:inc-exp});
+    }
+  } else if (periodType === 'week') {
+    for (let i=5;i>=0;i--) {
+      const end=new Date(now); end.setDate(end.getDate()-i*7);
+      const start=new Date(end); start.setDate(start.getDate()-6);
+      const s0=start.toISOString().slice(0,10), e0=end.toISOString().slice(0,10);
+      const t=all.filter(x=>x.date>=s0&&x.date<=e0);
+      const inc=t.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
+      const exp=t.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0);
+      pts.push({label:start.toLocaleString('default',{month:'short',day:'numeric'}),income:inc,expense:exp,savings:inc-exp});
+    }
+  } else if (periodType === 'month') {
+    for (let i=5;i>=0;i--) {
+      const d=new Date(now); d.setDate(1); d.setMonth(d.getMonth()-i);
+      const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      const t=all.filter(x=>(x.date||'').startsWith(key));
+      const inc=t.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
+      const exp=t.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0);
+      pts.push({label:d.toLocaleString('default',{month:'short',year:'2-digit'}),income:inc,expense:exp,savings:inc-exp});
+    }
+  } else if (periodType === 'year') {
+    const yr=now.getFullYear();
+    for (let y=yr-4;y<=yr;y++) {
+      const t=all.filter(x=>(x.date||'').startsWith(String(y)));
+      const inc=t.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
+      const exp=t.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0);
+      pts.push({label:String(y),income:inc,expense:exp,savings:inc-exp});
+    }
+  }
+  return pts;
+}
+
 function renderAnalytics() {
-  const scores = calcLifeScore();
   const txnsAll = STATE.transactions || [];
-  const txns = filterTxByPeriod(txnsAll, _analyticsPeriod);
-  const income = txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const expense = txns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const txns    = filterTxByPeriod(txnsAll, _analyticsPeriod);
+  const expTxns = txns.filter(t=>t.type==='expense');
+  const income  = txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense = expTxns.reduce((s,t)=>s+t.amount,0);
+  const savings = income - expense;
+  const savRate = income>0?(savings/income*100).toFixed(1):0;
+
   const catMap = {};
-  txns.filter(t=>t.type==='expense').forEach(t=>{catMap[t.category]=(catMap[t.category]||0)+t.amount;});
-  const topCats = Object.entries(catMap).sort(([,a],[,b])=>b-a).slice(0,6);
-  const health = STATE.healthEntries || [];
-  const last14 = health.slice(-14);
+  expTxns.forEach(t=>{catMap[t.category]=(catMap[t.category]||0)+t.amount;});
+  const topCats = Object.entries(catMap).sort(([,a],[,b])=>b-a).slice(0,7);
+
+  const budgets = STATE.budgets || [];
+  const totalBudget = budgets.reduce((s,b)=>s+(typeof getBudgetLimit==='function'?getBudgetLimit(b,_analyticsPeriod):0),0);
+  const budgetUsedPct = totalBudget>0 ? Math.min(999,(expense/totalBudget*100)).toFixed(0) : null;
+
+  const history = _getPeriodHistory(_analyticsPeriod);
+  const periodTitle = {day:'Daily — last 7 days',week:'Weekly — last 6 weeks',month:'Monthly — last 6 months',year:'Yearly — last 5 years',all:'All Time'}[_analyticsPeriod]||'';
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
-        <div><h1 class="page-title">Life Analytics</h1><p class="page-subtitle">Deep insights across all life dimensions</p></div>
-        ${periodTabsHtml(_analyticsPeriod, 'setAnalyticsPeriod')}
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px" class="analytics-grid">
-        <div class="glass-card" style="padding:20px">
-          <p class="section-title" style="margin-bottom:16px">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Life Score Breakdown
-          </p>
-          <div style="display:flex;flex-direction:column;gap:14px">
-            ${[
-              {label:'Wealth',      icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>', val:scores.wealthScore,    color:'#6366f1', page:'finance' },
-              {label:'Health',      icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',                                                                                                                             val:scores.healthScore,    color:'#10b981', page:'health' },
-              {label:'Productivity',icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',                                                                                                     val:scores.prodScore,      color:'#f59e0b', page:'habits' },
-              {label:'Emotional',   icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>', val:scores.emotionalScore, color:'#3b82f6', page:'journal' },
-            ].map(s=>`
-              <div onclick="navigate('${s.page}')" style="cursor:pointer;padding:6px 8px;border-radius:10px;transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.08)'" onmouseout="this.style.background=''">
-                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
-                  <span style="display:flex;align-items:center;gap:5px">${s.icon}${s.label}</span>
-                  <span style="font-weight:700;color:${s.color}">${s.val}/100 ↗</span>
-                </div>
-                <div class="progress-bar"><div class="progress-fill" style="width:${s.val}%;background:${s.color}"></div></div>
-              </div>`).join('')}
-          </div>
-          <div onclick="navigate('analytics')" style="margin-top:16px;text-align:center;padding:16px;background:rgba(251,191,36,0.1);border-radius:12px;border:1px solid rgba(251,191,36,0.2);cursor:pointer">
-            <p style="font-size:36px;font-weight:900;color:#fbbf24">${scores.overall}</p>
-            <p style="font-size:13px;color:rgba(241,245,249,0.6)">Overall Life Score</p>
-          </div>
+        <div>
+          <h1 class="page-title">📊 Cross Analytics</h1>
+          <p class="page-subtitle">Overlay view — Income · Expense · Savings · Budget · Category</p>
         </div>
-        <div class="glass-card" style="padding:20px">
-          <p class="section-title" style="margin-bottom:16px">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Spending by Category
-          </p>
-          ${topCats.length===0
-            ?`<div class="empty-state"><span class="empty-state-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><p>Add transactions to see spending analysis.</p></div>`
-            :`<div class="chart-container" style="height:180px"><canvas id="cat-chart"></canvas></div>
-              <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
-                ${topCats.map(([cat,amt])=>`
-                  <div onclick="navigate('finance')" style="display:flex;justify-content:space-between;font-size:12px;cursor:pointer;padding:3px 4px;border-radius:6px;transition:.1s" onmouseover="this.style.background='rgba(0,201,167,0.06)'" onmouseout="this.style.background=''">
-                    <span>${cat}</span><span style="font-weight:600">${fmt(amt)}</span>
-                  </div>`).join('')}
-              </div>`}
+        ${periodTabsHtml(_analyticsPeriod,'setAnalyticsPeriod')}
+      </div>
+
+      <!-- KPI Strip -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px" class="cross-kpi-grid">
+        <div class="glass-card" style="padding:16px;border-top:3px solid #10b981">
+          <p style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:700">💰 Income</p>
+          <p style="font-size:22px;font-weight:900;margin:6px 0;color:#10b981">${fmt(income)}</p>
+          <p style="font-size:11px;color:var(--text3)">${periodLabel(_analyticsPeriod)}</p>
+        </div>
+        <div class="glass-card" style="padding:16px;border-top:3px solid #ef4444">
+          <p style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:700">💳 Expense</p>
+          <p style="font-size:22px;font-weight:900;margin:6px 0;color:#ef4444">${fmt(expense)}</p>
+          <p style="font-size:11px;color:var(--text3)">${income>0?(expense/income*100).toFixed(1):0}% of income</p>
+        </div>
+        <div class="glass-card" style="padding:16px;border-top:3px solid #00c9a7">
+          <p style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:700">🏦 Savings</p>
+          <p style="font-size:22px;font-weight:900;margin:6px 0;color:${savings>=0?'#00c9a7':'#ef4444'}">${savings<0?'-':''}${fmt(Math.abs(savings))}</p>
+          <p style="font-size:11px;color:var(--text3)">${savRate}% rate ${parseFloat(savRate)>=20?'✅':'⚠️'}</p>
+        </div>
+        <div class="glass-card" style="padding:16px;border-top:3px solid ${budgetUsedPct>100?'#ef4444':budgetUsedPct>80?'#f59e0b':'#6366f1'}">
+          <p style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:700">🎯 Budget Used</p>
+          <p style="font-size:22px;font-weight:900;margin:6px 0;color:${budgetUsedPct>100?'#ef4444':budgetUsedPct>80?'#f59e0b':'#6366f1'}">${budgetUsedPct!==null?budgetUsedPct+'%':'—'}</p>
+          <p style="font-size:11px;color:var(--text3)">${totalBudget>0?fmt(expense)+' / '+fmt(totalBudget):'Set budgets to unlock'}</p>
         </div>
       </div>
+
+      <!-- Master Overlay: Bars (Income/Expense) + Line (Savings) -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <p class="section-title" style="margin-bottom:16px">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Income vs Expenses (Monthly)
-        </p>
-        <div class="chart-container"><canvas id="analytics-finance-chart"></canvas></div>
+        <div class="section-header" style="margin-bottom:14px">
+          <p class="section-title">📈 Income · Expense · Savings — ${periodTitle}</p>
+          <div style="display:flex;gap:14px;font-size:11px;color:var(--text3)">
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#10b981;margin-right:4px"></span>Income</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ef4444;margin-right:4px"></span>Expense</span>
+            <span><span style="display:inline-block;width:14px;height:2px;background:#00c9a7;margin-right:4px;border-radius:2px;vertical-align:middle"></span>Savings (line)</span>
+          </div>
+        </div>
+        <div style="height:240px;position:relative"><canvas id="cross-main-chart"></canvas></div>
       </div>
-      ${last14.length>1?`<div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <p class="section-title" style="margin-bottom:16px">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Health Trends (14 days)
-        </p>
-        <div class="chart-container"><canvas id="analytics-health-chart"></canvas></div>
+
+      <!-- Category vs Budget  +  Donut allocation -->
+      <div style="display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:20px" class="cross-mid-row">
+        <div class="glass-card" style="padding:20px">
+          <div class="section-header" style="margin-bottom:12px">
+            <p class="section-title">🔍 Category — Actual vs Budget</p>
+            <span style="font-size:10px;color:var(--text3)">🟥 over budget · 🟦 within budget · 🟡 budget limit</span>
+          </div>
+          <div style="height:${Math.max(160,topCats.length*38)}px;position:relative">
+            ${topCats.length?'<canvas id="cross-cat-chart"></canvas>':'<p style="font-size:12px;color:var(--text3);text-align:center;padding-top:40px">No expenses this period</p>'}
+          </div>
+        </div>
+        <div class="glass-card" style="padding:20px">
+          <div class="section-header" style="margin-bottom:12px">
+            <p class="section-title">🥧 Spend Split</p>
+          </div>
+          <div style="height:160px;position:relative"><canvas id="cross-alloc-chart"></canvas></div>
+          ${income>0?`<div style="margin-top:12px;display:flex;flex-direction:column;gap:5px;font-size:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block"></span>Expense</span>
+              <span style="font-weight:700">${fmt(expense)} <span style="color:var(--text3);font-weight:400">${income>0?(expense/income*100).toFixed(1):0}%</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#00c9a7;display:inline-block"></span>Savings</span>
+              <span style="font-weight:700">${fmt(Math.max(0,savings))} <span style="color:var(--text3);font-weight:400">${savRate}%</span></span>
+            </div>
+          </div>`:'<p style="font-size:12px;color:var(--text3);text-align:center;margin-top:16px">Add income to see split</p>'}
+        </div>
+      </div>
+
+      <!-- Period Breakdown Table -->
+      ${history.length>1?`<div class="glass-card" style="overflow-x:auto">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--glass-border)">
+          <p class="section-title">📋 Period-by-Period Comparison</p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:rgba(0,0,0,0.06)">
+              <th style="text-align:left;padding:9px 16px;color:var(--text3);font-weight:600">Period</th>
+              <th style="text-align:right;padding:9px 14px;color:#10b981;font-weight:600">Income</th>
+              <th style="text-align:right;padding:9px 14px;color:#ef4444;font-weight:600">Expense</th>
+              <th style="text-align:right;padding:9px 14px;color:#00c9a7;font-weight:600">Savings</th>
+              <th style="text-align:right;padding:9px 14px;color:#6366f1;font-weight:600">Rate</th>
+              <th style="text-align:right;padding:9px 14px;color:var(--text3);font-weight:600">vs Prev</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${history.map((h,i)=>{
+              const rate = h.income>0?(h.savings/h.income*100).toFixed(1):0;
+              const prev = history[i-1];
+              const delta = prev ? h.savings - prev.savings : null;
+              const isNow = i===history.length-1;
+              return `<tr style="border-top:1px solid var(--glass-border);background:${isNow?'rgba(0,201,167,0.04)':''}">
+                <td style="padding:9px 16px;font-weight:${isNow?700:400};color:${isNow?'var(--teal)':'var(--text)'}">${h.label}${isNow?' ◀ Now':''}</td>
+                <td style="padding:9px 14px;text-align:right;color:#10b981">${fmt(h.income)}</td>
+                <td style="padding:9px 14px;text-align:right;color:#ef4444">${fmt(h.expense)}</td>
+                <td style="padding:9px 14px;text-align:right;color:${h.savings>=0?'#00c9a7':'#ef4444'};font-weight:600">${h.savings>=0?'+':''}${fmt(h.savings)}</td>
+                <td style="padding:9px 14px;text-align:right;color:${parseFloat(rate)>=20?'#10b981':'#94a3b8'}">${rate}%</td>
+                <td style="padding:9px 14px;text-align:right;color:${delta===null?'#94a3b8':delta>=0?'#10b981':'#ef4444'}">${delta===null?'—':delta>=0?'↑ '+fmt(delta):'↓ '+fmt(Math.abs(delta))}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
       </div>`:''}
-      <div class="stat-grid">
-        <div class="stat-card bg-indigo" onclick="navigate('finance')" style="cursor:pointer">
-          <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
-          <div class="stat-card-value">${txns.length}</div><div class="stat-card-label">${periodLabel(_analyticsPeriod)} Txns</div>
-        </div>
-        <div class="stat-card bg-emerald" onclick="navigate('goals')" style="cursor:pointer">
-          <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
-          <div class="stat-card-value">${(STATE.goals||[]).filter(g=>g.current>=g.target).length}</div><div class="stat-card-label">Goals Completed</div>
-        </div>
-        <div class="stat-card bg-amber" onclick="navigate('habits')" style="cursor:pointer">
-          <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></span>
-          <div class="stat-card-value">${STATE.streak||0}</div><div class="stat-card-label">Day Streak</div>
-        </div>
-        <div class="stat-card bg-gold" onclick="navigate('achievements')" style="cursor:pointer">
-          <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>
-          <div class="stat-card-value">${(STATE.unlockedAchievements||[]).length}/${ACHIEVEMENTS_DEF.length}</div><div class="stat-card-label">Achievements</div>
-        </div>
-      </div>
     </div>`;
 
-  if (window.innerWidth < 700) { const el = document.querySelector('.analytics-grid'); if (el) el.style.gridTemplateColumns = '1fr'; }
-  if (topCats.length > 0) renderCatChart(topCats);
-  renderAnalyticsFinanceChart(txns);
-  if (last14.length > 1) renderAnalyticsHealthChart(last14);
+  if (window.innerWidth < 700) {
+    const kpi = document.querySelector('.cross-kpi-grid');
+    if (kpi) kpi.style.gridTemplateColumns = 'repeat(2,1fr)';
+    const mid = document.querySelector('.cross-mid-row');
+    if (mid) mid.style.gridTemplateColumns = '1fr';
+  }
+
+  setTimeout(() => {
+    renderCrossMainChart(history);
+    if (topCats.length) renderCrossCatChart(topCats, budgets, _analyticsPeriod);
+    renderCrossAllocChart(income, expense, savings);
+  }, 60);
 }
 
-function renderCatChart(cats) {
-  const canvas = document.getElementById('cat-chart');
+function renderCrossMainChart(history) {
+  const canvas = document.getElementById('cross-main-chart');
   if (!canvas) return;
-  const colors = ['#6366f1','#10b981','#f59e0b','#ef4444','#ec4899','#3b82f6'];
-  chartInstances['cat'] = new Chart(canvas, {
-    type: 'doughnut',
-    data: { labels: cats.map(([c])=>c), datasets: [{ data: cats.map(([,v])=>v), backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12 } } } }
+  const isLight = document.body.classList.contains('light');
+  const gridC = isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.05)';
+  const tickC = '#64748b';
+  chartInstances['cross-main'] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: history.map(h=>h.label),
+      datasets: [
+        { type:'bar',  label:'Income',  data:history.map(h=>h.income),
+          backgroundColor:'rgba(16,185,129,0.65)', borderColor:'#10b981', borderWidth:1.5, borderRadius:4, order:2 },
+        { type:'bar',  label:'Expense', data:history.map(h=>h.expense),
+          backgroundColor:'rgba(239,68,68,0.65)',  borderColor:'#ef4444', borderWidth:1.5, borderRadius:4, order:2 },
+        { type:'line', label:'Savings', data:history.map(h=>h.savings),
+          borderColor:'#00c9a7', backgroundColor:'rgba(0,201,167,0.08)',
+          borderWidth:2.5, tension:0.4, fill:true,
+          pointRadius:4, pointBackgroundColor:'#00c9a7', pointBorderColor:'#fff', pointBorderWidth:1.5, order:1 },
+      ],
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ callbacks:{ label:ctx=>`  ${ctx.dataset.label}: ₹${(ctx.raw||0).toLocaleString('en-IN')}` } },
+      },
+      scales:{
+        x:{ grid:{color:gridC}, ticks:{color:tickC,font:{size:11}} },
+        y:{ grid:{color:gridC}, ticks:{color:tickC,font:{size:10},callback:v=>'₹'+fmt(v)} },
+      },
+    },
   });
 }
+
+function renderCrossCatChart(topCats, budgets, period) {
+  const canvas = document.getElementById('cross-cat-chart');
+  if (!canvas) return;
+  const isLight = document.body.classList.contains('light');
+  const gridC = isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.05)';
+  const tickC = '#64748b';
+  const names   = topCats.map(([c])=>c);
+  const actuals = topCats.map(([,v])=>v);
+  const limits  = names.map(n=>{ const b=budgets.find(x=>x.category===n); return b&&typeof getBudgetLimit==='function'?getBudgetLimit(b,period):0; });
+  const fillCols   = actuals.map((a,i)=>limits[i]>0&&a>limits[i]?'rgba(239,68,68,0.7)':'rgba(99,102,241,0.7)');
+  const borderCols = actuals.map((a,i)=>limits[i]>0&&a>limits[i]?'#ef4444':'#6366f1');
+  chartInstances['cross-cat'] = new Chart(canvas, {
+    type:'bar',
+    data:{
+      labels:names,
+      datasets:[
+        { label:'Actual Spend', data:actuals, backgroundColor:fillCols, borderColor:borderCols, borderWidth:1.5, borderRadius:3 },
+        { label:'Budget Limit', data:limits,  backgroundColor:'rgba(245,158,11,0.18)', borderColor:'rgba(245,158,11,0.7)', borderWidth:1.5, borderDash:[4,3], borderRadius:3 },
+      ],
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ labels:{color:tickC,font:{size:11},boxWidth:12} },
+        tooltip:{ callbacks:{ label:ctx=>`  ${ctx.dataset.label}: ₹${(ctx.raw||0).toLocaleString('en-IN')}` } },
+      },
+      scales:{
+        x:{ grid:{color:gridC}, ticks:{color:tickC,font:{size:10},callback:v=>'₹'+fmt(v)} },
+        y:{ grid:{color:gridC}, ticks:{color:tickC,font:{size:11}} },
+      },
+    },
+  });
+}
+
+function renderCrossAllocChart(income, expense, savings) {
+  const canvas = document.getElementById('cross-alloc-chart');
+  if (!canvas) return;
+  if (!income) {
+    const ctx=canvas.getContext('2d'); ctx.fillStyle='#64748b'; ctx.font='12px sans-serif';
+    ctx.textAlign='center'; ctx.fillText('No income data',canvas.width/2,canvas.height/2); return;
+  }
+  chartInstances['cross-alloc'] = new Chart(canvas, {
+    type:'doughnut',
+    data:{
+      labels:['Expense','Savings'],
+      datasets:[{ data:[expense, Math.max(0,savings)],
+        backgroundColor:['rgba(239,68,68,0.75)','rgba(0,201,167,0.75)'],
+        borderColor:['#ef4444','#00c9a7'], borderWidth:2, hoverOffset:5 }],
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>`₹${(ctx.raw||0).toLocaleString('en-IN')}`}} },
+    },
+  });
+}
+
 
 function renderAnalyticsFinanceChart(txns) {
   const canvas = document.getElementById('analytics-finance-chart');
