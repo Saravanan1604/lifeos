@@ -240,15 +240,112 @@ function renderDashboard() {
           : recent.map(tx => `
             <div onclick="navigate('finance')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.04)'" onmouseout="this.style.background=''">
               <div style="display:flex;align-items:center;gap:12px">
-                <div style="width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${tx.type==='income'?'rgba(0,201,167,0.15)':'rgba(239,68,68,0.15)'};font-size:18px;flex-shrink:0">${tx.icon || (tx.type==='income'?'💚':'❤️')}</div>
+                <div style="width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${tx.type==='income'?'rgba(0,201,167,0.15)':'rgba(239,68,68,0.15)'};font-size:18px;flex-shrink:0">${tx.icon||(tx.type==='income'?'💚':'❤️')}</div>
                 <div>
-                  <p style="font-size:13px;font-weight:600">${tx.description || tx.category}</p>
-                  <p style="font-size:11px;color:rgba(241,245,249,0.5)">${tx.category} · ${fmtDate(tx.date)}</p>
+                  <p style="font-size:13px;font-weight:600">${tx.description||tx.category}</p>
+                  <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>
                 </div>
               </div>
               <span style="font-weight:700;font-size:14px;color:${tx.type==='income'?'#00c9a7':'#ef4444'}">${tx.type==='income'?'+':'-'}${fmt(tx.amount)}</span>
             </div>`).join('')}
       </div>
+
+      <!-- ═══ ANALYTICS SECTION ═══ -->
+      <div style="margin-top:8px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
+          <span style="font-size:16px">📊</span>
+          <h2 style="font-size:16px;font-weight:800;color:var(--text)">Life Analytics</h2>
+          <span style="font-size:11px;color:var(--text3);margin-left:4px">— all insights in one place</span>
+        </div>
+
+        <!-- 50/30/20 + Category breakdown row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" class="analytics-row-1">
+
+          <!-- 50/30/20 Card -->
+          <div class="glass-card" style="padding:20px">
+            <p class="section-title" style="margin-bottom:14px">📐 50/30/20 Rule — ${new Date().toLocaleString('default',{month:'long'})}</p>
+            ${(()=>{
+              const NEEDS=['Rent','EMI','Utilities','Bills','Insurance','Groceries','Health','Fuel','Transport'];
+              const WANTS=['Entertainment','Shopping','Travel','Gifts','Food','Education'];
+              const inc=txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+              let needs=0,wants=0;
+              txns.filter(t=>t.type==='expense').forEach(t=>{if(NEEDS.includes(t.category))needs+=t.amount;else if(WANTS.includes(t.category))wants+=t.amount;});
+              const totalExp=txns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+              const sav=inc-totalExp;
+              const np=inc>0?(needs/inc*100).toFixed(1):0,wp=inc>0?(wants/inc*100).toFixed(1):0,sp=inc>0?(sav/inc*100).toFixed(1):0;
+              if(!inc) return `<p style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0">Add income transactions to see analysis</p>`;
+              const bar=(p,target,col)=>`<div style="height:7px;border-radius:4px;background:var(--glass-border);margin-top:4px"><div style="height:7px;border-radius:4px;width:${Math.min(100,Math.abs(p))}%;background:${parseFloat(p)>(target+0.1)?'#ef4444':col};transition:.4s"></div></div>`;
+              return [
+                {l:'Needs',p:np,t:50,c:'#6366f1',a:fmt(needs)},
+                {l:'Wants',p:wp,t:30,c:'#f59e0b',a:fmt(wants)},
+                {l:'Savings',p:sp,t:20,c:'#10b981',a:fmt(sav)},
+              ].map(r=>`<div style="margin-bottom:12px">
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
+                  <span style="color:var(--text2)">${r.l} <span style="color:var(--text3)">(target ${r.t}%)</span></span>
+                  <span style="font-weight:700;color:${parseFloat(r.p)>(r.l==='Savings'?r.t-1:r.t)?'#ef4444':'#10b981'}">${r.p}% · ${r.a}</span>
+                </div>${bar(r.p,r.t,r.c)}
+              </div>`).join('');
+            })()}
+          </div>
+
+          <!-- Category Table -->
+          <div class="glass-card" style="padding:20px">
+            <p class="section-title" style="margin-bottom:14px">🔍 Spending by Category</p>
+            ${(()=>{
+              const catMap={};
+              txns.filter(t=>t.type==='expense').forEach(t=>{catMap[t.category]=(catMap[t.category]||0)+t.amount;});
+              const cats=Object.entries(catMap).sort(([,a],[,b])=>b-a).slice(0,6);
+              const inc=txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+              if(!cats.length) return `<p style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0">No expense data for this period</p>`;
+              return `<div style="display:flex;flex-direction:column;gap:7px">${cats.map(([cat,amt],i)=>{
+                const pct=inc>0?(amt/inc*100).toFixed(1):0;
+                const colors=['#6366f1','#10b981','#f59e0b','#ef4444','#ec4899','#3b82f6'];
+                return `<div style="display:flex;align-items:center;gap:10px">
+                  <span style="font-size:11px;color:var(--text3);width:14px;text-align:right">${i+1}</span>
+                  <div style="flex:1">
+                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+                      <span style="color:var(--text2)">${cat}</span>
+                      <span style="font-weight:700">${fmt(amt)} <span style="color:var(--text3);font-weight:400">${pct}%</span></span>
+                    </div>
+                    <div style="height:4px;border-radius:3px;background:var(--glass-border)"><div style="height:4px;border-radius:3px;width:${Math.min(100,pct)}%;background:${colors[i]};transition:.4s"></div></div>
+                  </div>
+                </div>`;
+              }).join('')}</div>`;
+            })()}
+          </div>
+        </div>
+
+        <!-- Health Trends -->
+        ${(()=>{
+          const last14=(STATE.healthEntries||[]).slice(-14);
+          if(last14.length<2) return `<div class="glass-card" style="padding:20px;margin-bottom:20px;text-align:center"><p class="section-title" style="margin-bottom:8px">🏥 Health Trends</p><p style="font-size:12px;color:var(--text3)">Log health data for 2+ days to see trends</p></div>`;
+          return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
+            <p class="section-title" style="margin-bottom:16px">🏥 Health Trends (${last14.length} days)</p>
+            <div style="height:180px;position:relative"><canvas id="dash-health-chart"></canvas></div>
+          </div>`;
+        })()}
+
+        <!-- Analytics Stats -->
+        <div class="stat-grid" style="margin-bottom:20px">
+          <div class="stat-card bg-indigo" onclick="navigate('finance')" style="cursor:pointer">
+            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+            <div class="stat-card-value">${txns.length}</div><div class="stat-card-label">${periodLabel(_dashPeriod)} Txns</div>
+          </div>
+          <div class="stat-card bg-emerald" onclick="navigate('goals')" style="cursor:pointer">
+            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+            <div class="stat-card-value">${(STATE.goals||[]).filter(g=>g.current>=g.target).length}</div><div class="stat-card-label">Goals Done</div>
+          </div>
+          <div class="stat-card bg-amber" onclick="navigate('habits')" style="cursor:pointer">
+            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></span>
+            <div class="stat-card-value">${STATE.streak||0}</div><div class="stat-card-label">Day Streak</div>
+          </div>
+          <div class="stat-card bg-gold" onclick="navigate('achievements')" style="cursor:pointer">
+            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>
+            <div class="stat-card-value">${(STATE.unlockedAchievements||[]).length}/${ACHIEVEMENTS_DEF.length}</div><div class="stat-card-label">Achievements</div>
+          </div>
+        </div>
+      </div>
+
     </div>`;
 
   if (window.innerWidth < 700) {
@@ -263,6 +360,12 @@ function renderDashboard() {
     renderNetWorthChart(txnsAll);
     renderDashIncomeChart(txns);
     renderDashPieChart(txns);
+    const last14 = (STATE.healthEntries||[]).slice(-14);
+    if (last14.length >= 2) renderAnalyticsHealthChart(last14);
+    if (window.innerWidth < 700) {
+      const r1 = document.querySelector('.analytics-row-1');
+      if (r1) r1.style.gridTemplateColumns = '1fr';
+    }
   }, 50);
 }
 

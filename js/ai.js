@@ -136,6 +136,10 @@ function _catBreakdown(monthOffset=0) {
   }));
 }
 
+function _now() {
+  return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
 function _buildComparisonWidget() {
   const curr = _monthData(0), prev = _monthData(-1);
   const rows = [
@@ -175,61 +179,99 @@ function _build503020Widget() {
   </div>`).join('');
 }
 
+function _renderMsg(m) {
+  const isAI = m.role === 'ai';
+  const time = m.time ? `<span class="chat-ts">${m.time}</span>` : '';
+  const content = _md(m.content);
+  if (isAI) return `
+    <div class="chat-row ai-row">
+      <div class="chat-avatar ai-avatar">🤖</div>
+      <div class="chat-bubble-wrap">
+        <div class="chat-meta">AI Coach ${time}</div>
+        <div class="chat-msg ai">${content}</div>
+      </div>
+    </div>`;
+  return `
+    <div class="chat-row user-row">
+      <div class="chat-bubble-wrap user-wrap">
+        <div class="chat-meta user-meta">You ${time}</div>
+        <div class="chat-msg user">${content}</div>
+      </div>
+      <div class="chat-avatar user-avatar">👤</div>
+    </div>`;
+}
+
+function _md(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`(.+?)`/g,'<code class="chat-code">$1</code>')
+    .replace(/━+/g, s=>`<span class="chat-rule">${s}</span>`)
+    .replace(/─+/g, s=>`<span class="chat-rule">${s}</span>`)
+    .replace(/\n/g,'<br>');
+}
+
 // ===== AI COACH =====
 function renderAICoach() {
   const history = STATE.chatHistory || [];
-  const curr = _monthData(0), prev = _monthData(-1);
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
-      <div class="page-header"><h1 class="page-title">🧠 AI Data Coach</h1><p class="page-subtitle">Data-driven insights & financial rule analysis</p></div>
-      <div style="display:grid;grid-template-columns:1fr 300px;gap:20px" class="ai-layout">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <h1 class="page-title">🧠 AI Data Coach</h1>
+          <p class="page-subtitle">Data-driven financial analysis · Thinks like a data engineer</p>
+        </div>
+        <button onclick="clearChat()" class="btn-secondary btn-sm" style="font-size:11px">🗑 Clear Chat</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 290px;gap:20px" class="ai-layout">
 
-        <!-- Chat -->
-        <div class="glass-card" style="overflow:hidden;display:flex;flex-direction:column;min-height:520px">
-          <div style="padding:14px 20px;border-bottom:1px solid var(--glass-border)">
-            <p class="section-title">💬 Data Engineer Chat</p>
-            <p style="font-size:12px;color:var(--text3);margin-top:2px">Ask for comparisons, rule checks, category deep-dives & investment advice</p>
+        <!-- Chat Terminal -->
+        <div style="display:flex;flex-direction:column;gap:0;border-radius:16px;overflow:hidden;border:1px solid var(--glass-border);background:var(--glass)">
+          <!-- Terminal header bar -->
+          <div style="padding:10px 16px;background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(139,92,246,0.1));border-bottom:1px solid var(--glass-border);display:flex;align-items:center;gap:10px">
+            <div style="display:flex;gap:5px">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>
+            </div>
+            <span style="font-size:11px;color:var(--text3);font-family:monospace">lifeos://ai-coach ~ data-engine v2</span>
+            <span style="margin-left:auto;font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)">● LIVE</span>
           </div>
-          <div class="chat-messages" id="chat-messages">
+
+          <!-- Messages -->
+          <div class="chat-messages" id="chat-messages" style="padding:20px;gap:16px;min-height:420px">
             ${history.length===0
-              ? `<div class="chat-msg ai" style="white-space:pre-line">👋 Hi! I'm your AI Data Coach — I think like a data engineer.
-
-I can run:
-📊 Month-over-month comparisons
-📐 50/30/20 budget rule check
-🛡️ Emergency fund analysis
-🔍 Category spend breakdown
-📈 Investment allocation advice
-🎯 Goal & habit tracking
-
-What would you like to analyse?</div>`
-              : history.map(m=>`<div class="chat-msg ${m.role}" style="white-space:pre-line">${m.content}</div>`).join('')}
+              ? _renderMsg({role:'ai', content:`👋 Hi! I'm your **AI Data Coach** — I think like a data engineer.\n\nI can run:\n📊 Month-over-month comparisons\n📐 50/30/20 budget rule check\n🛡️ Emergency fund analysis\n🔍 Category spend breakdown\n📈 Investment allocation advice\n🎯 Goal & habit tracking\n\nWhat would you like to **analyse**?`, time: _now()})
+              : history.map(m=>_renderMsg(m)).join('')}
           </div>
-          <div class="chat-input-row">
-            <input type="text" id="chat-input" class="chat-input" placeholder="e.g. Compare this vs last month..." onkeydown="if(event.key==='Enter')sendAIMessage()"/>
-            <button class="btn-primary btn-sm" onclick="sendAIMessage()">Send →</button>
+
+          <!-- Input -->
+          <div style="padding:12px 16px;border-top:1px solid var(--glass-border);display:flex;gap:8px;align-items:center;background:var(--glass)">
+            <span style="font-size:12px;color:var(--indigo);font-family:monospace;font-weight:700;flex-shrink:0">&gt;_</span>
+            <input type="text" id="chat-input" class="chat-input" placeholder="Ask: compare this vs last month, 50/30/20 check, emergency fund..." onkeydown="if(event.key==='Enter')sendAIMessage()" style="flex:1;background:transparent;border:none;outline:none;font-family:monospace;font-size:13px"/>
+            <button class="btn-primary btn-sm" onclick="sendAIMessage()" style="flex-shrink:0">Run ↵</button>
           </div>
         </div>
 
-        <!-- Right Sidebar -->
+        <!-- Right Panel -->
         <div style="display:flex;flex-direction:column;gap:12px">
 
           <!-- MoM Snapshot -->
           <div class="glass-card" style="padding:16px">
-            <p class="section-title" style="margin-bottom:10px">📊 Month Comparison</p>
+            <p class="section-title" style="margin-bottom:10px;font-size:12px">📊 This vs Last Month</p>
             ${_buildComparisonWidget()}
           </div>
 
           <!-- 50/30/20 Live -->
           <div class="glass-card" style="padding:16px">
-            <p class="section-title" style="margin-bottom:10px">📐 50/30/20 Rule</p>
+            <p class="section-title" style="margin-bottom:10px;font-size:12px">📐 50/30/20 Live</p>
             ${_build503020Widget()}
           </div>
 
-          <!-- Quick Prompts -->
-          <div class="glass-card" style="padding:16px">
-            <p class="section-title" style="margin-bottom:10px">⚡ Quick Analysis</p>
-            <div style="display:flex;flex-direction:column;gap:6px">
+          <!-- Quick Queries -->
+          <div class="glass-card" style="padding:14px">
+            <p class="section-title" style="margin-bottom:8px;font-size:12px">⚡ Quick Queries</p>
+            <div style="display:flex;flex-direction:column;gap:5px">
               ${[
                 ['📊','Compare this vs last month'],
                 ['📐','Run 50/30/20 rule check'],
@@ -239,18 +281,23 @@ What would you like to analyse?</div>`
                 ['💰','Full financial health report'],
                 ['🎯','How are my goals going?'],
                 ['🔥','Check my habit streaks'],
-              ].map(([icon,p])=>`<button class="btn-secondary btn-sm" onclick="quickPrompt('${p}')" style="text-align:left;justify-content:flex-start;gap:6px;font-size:11px">${icon} ${p}</button>`).join('')}
+              ].map(([icon,p])=>`<button onclick="quickPrompt('${p}')" style="text-align:left;display:flex;align-items:center;gap:7px;padding:6px 8px;border:1px solid var(--glass-border);border-radius:7px;background:transparent;color:var(--text2);font-size:11px;cursor:pointer;transition:.15s;font-family:monospace" onmouseover="this.style.background='rgba(99,102,241,0.1)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--text2)'">${icon} ${p}</button>`).join('')}
             </div>
           </div>
 
-          <!-- Daily Tip -->
-          <div class="glass-card" style="padding:16px">
-            <p class="section-title" style="margin-bottom:8px">🌟 Rule of the Day</p>
-            <p style="font-size:12px;color:var(--text2);line-height:1.6">${getDailyTip()}</p>
+          <!-- Rule of the Day -->
+          <div class="glass-card" style="padding:14px;border-left:3px solid var(--indigo)">
+            <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">RULE OF THE DAY</p>
+            <p style="font-size:12px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
           </div>
         </div>
       </div>
     </div>`;
+
+  if (window.innerWidth < 700) {
+    const el = document.querySelector('.ai-layout');
+    if (el) el.style.gridTemplateColumns = '1fr';
+  }
 
   if (window.innerWidth < 700) {
     const el = document.querySelector('.ai-layout');
@@ -522,23 +569,44 @@ function sendAIMessage() {
   const msg = input?.value?.trim();
   if (!msg) return;
   input.value = '';
+  const t = _now();
   STATE.chatHistory = STATE.chatHistory || [];
-  STATE.chatHistory.push({ role: 'user', content: msg });
-  const response = getAIResponse(msg);
-  STATE.chatHistory.push({ role: 'ai', content: response });
-  if (STATE.chatHistory.length > 40) STATE.chatHistory = STATE.chatHistory.slice(-40);
-  saveState();
+  STATE.chatHistory.push({ role: 'user', content: msg, time: t });
+
   const chatEl = document.getElementById('chat-messages');
   if (chatEl) {
-    chatEl.innerHTML += `<div class="chat-msg user">${msg}</div>`;
-    chatEl.innerHTML += `<div class="chat-msg ai" style="white-space:pre-line">${response}</div>`;
+    chatEl.innerHTML += _renderMsg({ role: 'user', content: msg, time: t });
+    chatEl.innerHTML += `<div class="chat-row ai-row" id="chat-thinking">
+      <div class="chat-avatar ai-avatar">🤖</div>
+      <div class="chat-bubble-wrap">
+        <div class="chat-meta">AI Coach</div>
+        <div class="chat-msg ai chat-thinking-bubble"><span class="chat-dot"></span><span class="chat-dot"></span><span class="chat-dot"></span></div>
+      </div>
+    </div>`;
     scrollChat();
   }
+
+  setTimeout(() => {
+    const response = getAIResponse(msg);
+    const rt = _now();
+    STATE.chatHistory.push({ role: 'ai', content: response, time: rt });
+    if (STATE.chatHistory.length > 40) STATE.chatHistory = STATE.chatHistory.slice(-40);
+    saveState();
+    const thinking = document.getElementById('chat-thinking');
+    if (thinking) thinking.outerHTML = _renderMsg({ role: 'ai', content: response, time: rt });
+    scrollChat();
+  }, 400);
 }
 
 function quickPrompt(prompt) {
   const input = document.getElementById('chat-input');
   if (input) { input.value = prompt; sendAIMessage(); }
+}
+
+function clearChat() {
+  STATE.chatHistory = [];
+  saveState();
+  renderAICoach();
 }
 
 function scrollChat() {

@@ -399,7 +399,7 @@ function navigate(page, skipHistory = false) {
       case 'journal': renderJournal(); break;
       case 'achievements': renderAchievements(); break;
       case 'ai-coach': renderAICoach(); break;
-      case 'analytics': renderAnalytics(); break;
+      case 'analytics': renderDashboard(); break;
       case 'categories': renderCategories(); break;
       case 'settings': renderSettings(); break;
       default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
