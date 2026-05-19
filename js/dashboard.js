@@ -299,17 +299,24 @@ function renderDashboard() {
               const sav=inc-totalExp;
               const np=inc>0?(needs/inc*100).toFixed(1):0,wp=inc>0?(wants/inc*100).toFixed(1):0,sp=inc>0?(sav/inc*100).toFixed(1):0;
               if(!inc) return `<p style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0">Add income transactions to see analysis</p>`;
-              const bar=(p,target,col)=>`<div style="height:7px;border-radius:4px;background:var(--glass-border);margin-top:4px"><div style="height:7px;border-radius:4px;width:${Math.min(100,Math.abs(p))}%;background:${parseFloat(p)>(target+0.1)?'#ef4444':col};transition:.4s"></div></div>`;
-              return [
-                {l:'Needs',p:np,t:50,c:'#6366f1',a:fmt(needs)},
-                {l:'Wants',p:wp,t:30,c:'#f59e0b',a:fmt(wants)},
-                {l:'Savings',p:sp,t:20,c:'#10b981',a:fmt(sav)},
-              ].map(r=>`<div style="margin-bottom:12px">
-                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
-                  <span style="color:var(--text2)">${r.l} <span style="color:var(--text3)">(target ${r.t}%)</span></span>
-                  <span style="font-weight:700;color:${parseFloat(r.p)>(r.l==='Savings'?r.t-1:r.t)?'#ef4444':'#10b981'}">${r.p}% · ${r.a}</span>
-                </div>${bar(r.p,r.t,r.c)}
-              </div>`).join('');
+              const BMAX=120;
+              const rules=[{l:'Needs',p:np,t:50,c:'#6366f1',a:fmt(needs)},{l:'Wants',p:wp,t:30,c:'#f59e0b',a:fmt(wants)},{l:'Savings',p:sp,t:20,c:'#10b981',a:fmt(sav)}];
+              return `<div style="display:flex;align-items:flex-end;height:${BMAX+72}px;padding-top:16px;position:relative">
+                ${rules.map(r=>{
+                  const pN=parseFloat(r.p);const isSav=r.l==='Savings';const over=isSav?pN<r.t:pN>r.t;
+                  const barCol=over?'#ef4444':r.c;const h=Math.max(0,Math.min(pN,100))/100*BMAX;const tH=r.t/100*BMAX;
+                  return `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+                    <p style="font-size:13px;font-weight:800;color:${over?'#ef4444':r.c};margin-bottom:5px;line-height:1">${pN<0?pN.toFixed(1)+'%':r.p+'%'}</p>
+                    <div style="position:relative;width:60%;height:${BMAX}px;display:flex;align-items:flex-end">
+                      <div style="position:absolute;bottom:${tH}px;left:-8px;right:-8px;border-top:1.5px dashed rgba(255,255,255,0.22)"><span style="position:absolute;right:0;top:-9px;font-size:8px;color:rgba(255,255,255,0.32);font-weight:700">${r.t}%</span></div>
+                      <div style="width:100%;height:${Math.max(3,h)}px;background:linear-gradient(180deg,${barCol}dd,${barCol}66);border-radius:7px 7px 0 0;transition:.5s;box-shadow:0 0 12px ${barCol}44"></div>
+                    </div>
+                    <div style="height:1px;width:60%;background:rgba(255,255,255,0.14)"></div>
+                    <p style="font-size:11px;font-weight:700;color:var(--text2);margin-top:7px">${r.l}</p>
+                    <p style="font-size:10px;color:var(--text3);margin-top:2px">${r.a}</p>
+                  </div>`;
+                }).join('')}
+              </div>`;
             })()}
           </div>
 
@@ -322,20 +329,24 @@ function renderDashboard() {
               const cats=Object.entries(catMap).sort(([,a],[,b])=>b-a).slice(0,6);
               const inc=txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
               if(!cats.length) return `<p style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0">No expense data for this period</p>`;
-              return `<div style="display:flex;flex-direction:column;gap:7px">${cats.map(([cat,amt],i)=>{
-                const pct=inc>0?(amt/inc*100).toFixed(1):0;
-                const colors=['#6366f1','#10b981','#f59e0b','#ef4444','#ec4899','#3b82f6'];
-                return `<div style="display:flex;align-items:center;gap:10px">
-                  <span style="font-size:11px;color:var(--text3);width:14px;text-align:right">${i+1}</span>
-                  <div style="flex:1">
-                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
-                      <span style="color:var(--text2)">${cat}</span>
-                      <span style="font-weight:700">${fmt(amt)} <span style="color:var(--text3);font-weight:400">${pct}%</span></span>
+              const colors=['#6366f1','#10b981','#f59e0b','#ef4444','#ec4899','#3b82f6'];
+              const maxA=cats[0]?.[1]||1;const BMAX=120;
+              return `<div style="display:flex;align-items:flex-end;height:${BMAX+60}px;padding-top:10px">
+                ${cats.map(([cat,amt],i)=>{
+                  const pct=inc>0?(amt/inc*100).toFixed(1):0;
+                  const h=(amt/maxA)*BMAX;
+                  const sc=cat.length>7?cat.slice(0,6)+'…':cat;
+                  return `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+                    <p style="font-size:10px;font-weight:700;color:${colors[i]};margin-bottom:4px;line-height:1">${pct}%</p>
+                    <div style="width:64%;height:${BMAX}px;display:flex;align-items:flex-end">
+                      <div style="width:100%;height:${Math.max(3,h)}px;background:linear-gradient(180deg,${colors[i]}dd,${colors[i]}55);border-radius:5px 5px 0 0;transition:.5s;box-shadow:0 0 10px ${colors[i]}33"></div>
                     </div>
-                    <div style="height:4px;border-radius:3px;background:var(--glass-border)"><div style="height:4px;border-radius:3px;width:${Math.min(100,pct)}%;background:${colors[i]};transition:.4s"></div></div>
-                  </div>
-                </div>`;
-              }).join('')}</div>`;
+                    <div style="height:1px;width:64%;background:rgba(255,255,255,0.14)"></div>
+                    <p style="font-size:10px;color:var(--text2);font-weight:600;margin-top:6px;text-align:center">${sc}</p>
+                    <p style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">${fmt(amt)}</p>
+                  </div>`;
+                }).join('')}
+              </div>`;
             })()}
           </div>
         </div>
