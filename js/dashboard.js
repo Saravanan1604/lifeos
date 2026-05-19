@@ -538,26 +538,52 @@ function renderDashIncomeChart(txns) {
     if (t.type === 'income') monthMap[key].income += t.amount;
     else monthMap[key].expense += t.amount;
   });
-  const sorted = Object.entries(monthMap).sort(([a],[b]) => a.localeCompare(b)).slice(-6);
-  const labels = sorted.map(([,v]) => v.label);
+  const sorted = Object.entries(monthMap).sort(([a],[b]) => a.localeCompare(b)).slice(-8);
+  const labels  = sorted.map(([,v]) => v.label);
   const incData = sorted.map(([,v]) => v.income);
   const expData = sorted.map(([,v]) => v.expense);
-  if (!labels.length) { labels.push('Now'); incData.push(0); expData.push(0); }
-  const isLight = document.body.classList.contains('light');
+  const savData = sorted.map(([,v]) => v.income - v.expense);
+  if (!labels.length) { labels.push('Now'); incData.push(0); expData.push(0); savData.push(0); }
+
+  const isLight  = document.body.classList.contains('light');
   const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+  const c = canvas.getContext('2d');
+
+  const mkGrad = (top, bot) => {
+    const g = c.createLinearGradient(0, 0, 0, canvas.offsetHeight || 200);
+    g.addColorStop(0, top); g.addColorStop(1, bot); return g;
+  };
+
   chartInstances['dash-income'] = new Chart(canvas, {
-    type: 'bar',
+    type: 'line',
     data: { labels, datasets: [
-      { label: 'Income',  data: incData, backgroundColor: 'rgba(16,185,129,0.75)', borderRadius: 6, borderSkipped: false },
-      { label: 'Expense', data: expData, backgroundColor: 'rgba(239,68,68,0.75)',  borderRadius: 6, borderSkipped: false }
+      { label:'Income',  data:incData, borderColor:'#10b981', borderWidth:2.5,
+        backgroundColor: mkGrad('rgba(16,185,129,0.35)','rgba(16,185,129,0.0)'),
+        fill:true, tension:0.42, pointBackgroundColor:'#10b981', pointRadius:4, pointHoverRadius:7, order:2 },
+      { label:'Expense', data:expData, borderColor:'#ef4444', borderWidth:2.5,
+        backgroundColor: mkGrad('rgba(239,68,68,0.3)','rgba(239,68,68,0.0)'),
+        fill:true, tension:0.42, pointBackgroundColor:'#ef4444', pointRadius:4, pointHoverRadius:7, order:3 },
+      { label:'Savings', data:savData, borderColor:'rgba(99,102,241,0.9)', borderWidth:2,
+        backgroundColor:'transparent', fill:false, tension:0.42,
+        pointBackgroundColor:'#6366f1', pointRadius:3, pointHoverRadius:6,
+        borderDash:[5,3], order:1 }
     ]},
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Inter', size: 11 }, padding: 10 } },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ₹${ctx.parsed.y.toLocaleString('en-IN')}` } } },
-      scales: {
-        x: { ticks: { color: '#64748b', font: { size: 11 } }, grid: { color: gridColor } },
-        y: { ticks: { color: '#64748b', font: { size: 11 }, callback: v => `₹${v>=100000?(v/100000).toFixed(1)+'L':v>=1000?(v/1000).toFixed(0)+'k':v}` }, grid: { color: gridColor } }
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ labels:{ color:'#94a3b8', font:{family:'Inter',size:11}, padding:12, usePointStyle:true, pointStyleWidth:8 } },
+        tooltip:{
+          backgroundColor:'rgba(13,17,35,0.92)', titleColor:'#94a3b8', bodyColor:'#fff',
+          padding:12, borderColor:'rgba(0,201,167,0.3)', borderWidth:1,
+          callbacks:{ label: ctx => ` ${ctx.dataset.label}: ₹${ctx.parsed.y.toLocaleString('en-IN')}` }
+        }
+      },
+      scales:{
+        x:{ ticks:{color:'#64748b',font:{size:11}}, grid:{color:gridColor} },
+        y:{ ticks:{color:'#64748b',font:{size:11},
+              callback: v => `₹${Math.abs(v)>=100000?(v/100000).toFixed(1)+'L':Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v}`
+            }, grid:{color:gridColor} }
       }
     }
   });
