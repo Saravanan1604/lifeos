@@ -1692,23 +1692,31 @@ function removeCustomType(kind, idx) {
 
 
 // ===== BUDGET PAGE =====
+let _budgetPeriod = 'month';
+function setBudgetPeriod(p) { _budgetPeriod = p; renderBudget(); }
+
 function renderBudget() {
   const budgets = STATE.budgets || [];
   const txns = STATE.transactions || [];
-  const now = new Date();
-  const monthTxns = txns.filter(t => { const d = new Date(t.date); return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear() && t.type==='expense'; });
+  const filteredTxns = filterTxByPeriod(txns, _budgetPeriod).filter(t => t.type === 'expense');
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div><h1 class="page-title">🎯 Budget Planner</h1><p class="page-subtitle">Monthly budget vs actual spending</p></div>
-        <button class="btn-primary btn-sm" onclick="openAddBudgetModal()">+ Add Budget</button>
+        <div>
+          <h1 class="page-title">🎯 Budget Planner</h1>
+          <p class="page-subtitle">${periodLabel(_budgetPeriod)} spending vs budget limits</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          ${periodTabsHtml(_budgetPeriod, 'setBudgetPeriod')}
+          <button class="btn-primary btn-sm" onclick="openAddBudgetModal()">+ Add Budget</button>
+        </div>
       </div>
       ${budgets.length === 0
         ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon">🎯</span><p>Set budgets for your expense categories to track spending.</p></div></div>`
         : `<div style="display:flex;flex-direction:column;gap:12px">
           ${budgets.map((b,bi) => {
-            const spent = monthTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
+            const spent = filteredTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
             const pct = Math.min(100, b.limit > 0 ? (spent/b.limit)*100 : 0);
             const over = spent > b.limit;
             const cat = CATEGORIES.find(c => c.name === b.category);
@@ -1740,7 +1748,7 @@ function openAddBudgetModal() {
   const catOptions = CATEGORIES.filter(c => !['Salary','Business','Freelance'].includes(c.name)).map(c => `<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
   openModal('Set Budget', `
     <div class="form-group"><label class="form-label">Category</label><select id="b-cat" class="form-input">${catOptions}</select></div>
-    <div class="form-group"><label class="form-label">Monthly Limit (₹)</label><input type="number" id="b-limit" class="form-input" placeholder="e.g. 5000"/></div>
+    <div class="form-group"><label class="form-label">Budget Limit (₹)</label><input type="number" id="b-limit" class="form-input" placeholder="e.g. 5000"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveBudget()">Save Budget</button>
