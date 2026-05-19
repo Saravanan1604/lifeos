@@ -78,6 +78,110 @@ function generateInsights() {
   return insights.slice(0, 4);
 }
 
+// ── Sparkline SVG (no canvas needed) ──
+function _sparklineSvg(data, w=80, h=26, color='#10b981') {
+  if (!data || data.length < 2) return `<svg width="${w}" height="${h}"></svg>`;
+  const max = Math.max(...data); const min = Math.min(...data);
+  const range = max - min || 1;
+  const pts = data.map((v,i) => {
+    const x = ((i/(data.length-1))*w).toFixed(1);
+    const y = (h - 3 - (((v-min)/range)*(h-6))).toFixed(1);
+    return `${x},${y}`;
+  }).join(' ');
+  const lx = w; const ly = (h - 3 - (((data[data.length-1]-min)/range)*(h-6))).toFixed(1);
+  return `<svg width="${w}" height="${h}" style="overflow:visible;flex-shrink:0"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/><circle cx="${lx}" cy="${ly}" r="2.8" fill="${color}"/></svg>`;
+}
+
+// ── Insight Bar ──
+function _buildInsightBar() {
+  if (typeof _monthData !== 'function') return '';
+  const curr = _monthData(0), prev = _monthData(-1);
+  if (!curr.income && !curr.expense) return '';
+  const savRate = curr.income > 0 ? (curr.savings/curr.income*100) : -999;
+  const mn = off => { const d=new Date(); d.setMonth(d.getMonth()+off); return d.toLocaleString('default',{month:'long'}); };
+  let type='info', text='', ctaPage='analytics';
+
+  if (curr.income>0 && curr.expense > curr.income*1.5) {
+    type='critical';
+    text=`🚨 Spent ${fmt(curr.expense)} vs ${fmt(curr.income)} income in ${mn(0)} — ${((curr.expense/curr.income-1)*100).toFixed(0)}% over. Immediate review needed.`;
+  } else if (savRate < 0 && curr.income > 0) {
+    type='critical';
+    text=`🔴 Savings rate is ${savRate.toFixed(1)}% — you're spending ${fmt(Math.abs(curr.savings))} more than you earn in ${mn(0)}.`;
+  } else if (typeof _503020==='function') {
+    const r=_503020();
+    if (parseFloat(r.needsPct) > 60) {
+      type='warning';
+      text=`⚠️ Needs are ${r.needsPct}% of income (target 50%) in ${mn(0)} — cut fixed costs by ${fmt(Math.round(r.needs-r.targetNeeds))} to rebalance.`;
+      ctaPage='budget';
+    } else if (prev && curr.expense > prev.expense*1.2) {
+      type='warning';
+      text=`📈 Expenses up ${((curr.expense/prev.expense-1)*100).toFixed(0)}% vs ${mn(-1)} (${fmt(curr.expense-prev.expense)} more). Tap to see what changed.`;
+    } else if (savRate >= 20) {
+      type='success';
+      text=`✅ Saving ${savRate.toFixed(1)}% in ${mn(0)}${prev&&curr.savings>prev.savings?` — up ${fmt(Math.round(curr.savings-prev.savings))} vs ${mn(-1)}`:''}. On track.`;
+    } else {
+      type='info';
+      text=`💡 Save ${fmt(Math.max(0,Math.round(curr.income*0.2-curr.savings)))} more in ${mn(0)} to hit 20% savings rate.`;
+    }
+  } else if (savRate >= 20) {
+    type='success'; text=`✅ Saving ${savRate.toFixed(1)}% in ${mn(0)}. Keep it up.`;
+  } else {
+    type='info'; text=`💡 Saving ${Math.max(0,savRate).toFixed(1)}% in ${mn(0)}. Target is 20%.`;
+  }
+
+  const C={critical:{bg:'rgba(239,68,68,0.1)',border:'#ef4444',tc:'#fca5a5'},warning:{bg:'rgba(245,158,11,0.09)',border:'#f59e0b',tc:'#fcd34d'},success:{bg:'rgba(16,185,129,0.09)',border:'#10b981',tc:'#6ee7b7'},info:{bg:'rgba(99,102,241,0.09)',border:'#6366f1',tc:'#a5b4fc'}}[type];
+  return `<div id="insight-bar" style="display:flex;align-items:center;gap:12px;padding:11px 16px;background:${C.bg};border:1px solid ${C.border}50;border-left:3px solid ${C.border};border-radius:12px;margin-bottom:18px">
+    <p style="font-size:13px;color:${C.tc};font-weight:500;line-height:1.5;flex:1;margin:0">${text} <span onclick="navigate('${ctaPage}')" style="text-decoration:underline;cursor:pointer;font-weight:700">View details →</span></p>
+    <button onclick="document.getElementById('insight-bar').style.display='none'" style="background:none;border:none;color:${C.tc};font-size:16px;cursor:pointer;opacity:0.6;padding:2px 4px;flex-shrink:0">✕</button>
+  </div>`;
+}
+
+// ── Rich KPI cards with sparklines + delta + alarm ──
+function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) {
+  const curr = typeof _monthData==='function' ? _monthData(0) : null;
+  const prev = typeof _monthData==='function' ? _monthData(-1) : null;
+  const spark = key => Array.from({length:6},(_,i)=>{ const m=typeof _monthData==='function'?_monthData(i-5):null; return m?(key==='inc'?m.income:key==='exp'?m.expense:m.savings):0; });
+  const delta = (c,p) => { if(!p) return null; const pct=((c-p)/Math.abs(p||1)*100); return {v:pct.toFixed(1),pos:pct>=0}; };
+
+  const savRate = totalIncome>0?(netWorth/totalIncome*100):0;
+  const incD = curr&&prev?delta(curr.income,prev.income):null;
+  const expD = curr&&prev?delta(curr.expense,prev.expense):null;
+  const savD = curr&&prev?delta(curr.savings,prev.savings):null;
+
+  const card = ({label,value,sub,subColor,sparkData,sparkColor,page,accent,alarm,warn}) => `
+    <div onclick="navigate('${page}')" style="cursor:pointer;padding:18px 16px;border-radius:14px;background:var(--glass);border:1px solid ${alarm?'rgba(239,68,68,0.45)':warn?'rgba(245,158,11,0.35)':'var(--glass-border)'};${alarm?'box-shadow:0 0 18px rgba(239,68,68,0.12);':''}transition:.2s" onmouseover="this.style.background='${accent}0d'" onmouseout="this.style.background='var(--glass)'">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <p style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin:0">${alarm?'🚨 ':warn?'⚠️ ':''}${label}</p>
+        ${sparkData?_sparklineSvg(sparkData,72,22,sparkColor):''}
+      </div>
+      <p style="font-size:24px;font-weight:900;color:${accent};line-height:1;margin:0 0 5px">${value}</p>
+      <p style="font-size:11px;color:${subColor};font-weight:600;margin:0">${sub}</p>
+      ${alarm?'<p style="font-size:10px;color:#ef4444;font-weight:700;margin-top:4px;letter-spacing:.5px">ACTION NEEDED</p>':''}
+    </div>`;
+
+  return [
+    card({label:'Income', value:fmt(totalIncome),
+      sub: incD?`${incD.pos?'↑':'↓'} ${Math.abs(incD.v)}% vs last month`:`${periodLabel(_dashPeriod)}`,
+      subColor: incD?(incD.pos?'#10b981':'#ef4444'):'var(--text3)',
+      sparkData:spark('inc'), sparkColor:'#10b981', page:'finance', accent:'#10b981', alarm:false, warn:false}),
+    card({label:'Expenses', value:fmt(totalExpense),
+      sub: expD?`${expD.pos?'↑':'↓'} ${Math.abs(expD.v)}% vs last month`:`${periodLabel(_dashPeriod)}`,
+      subColor: expD?(expD.pos?'#ef4444':'#10b981'):'var(--text3)',
+      sparkData:spark('exp'), sparkColor:'#ef4444', page:'finance', accent:'#ef4444',
+      alarm: expD&&parseFloat(expD.v)>25, warn: expD&&parseFloat(expD.v)>10&&parseFloat(expD.v)<=25}),
+    card({label:'Net Savings', value:`${netWorth<0?'-':''}${fmt(Math.abs(netWorth))}`,
+      sub: savD?`${savD.pos?'↑':'↓'} ${Math.abs(savD.v)}% vs last month`:`${savRate.toFixed(1)}% of income`,
+      subColor: savRate<0?'#ef4444':savRate<10?'#f59e0b':'#10b981',
+      sparkData:spark('sav'), sparkColor:savRate<0?'#ef4444':'#00c9a7', page:'analytics',
+      accent:savRate<0?'#ef4444':savRate<10?'#f59e0b':'#00c9a7',
+      alarm:savRate<0, warn:savRate>=0&&savRate<10}),
+    card({label:'Habits Today', value:habits.length>0?`${doneToday}/${habits.length}`:'—',
+      sub:habits.length>0?`${Math.round(doneToday/habits.length*100)}% done today`:'Add habits to track',
+      subColor:habits.length>0&&doneToday===habits.length?'#10b981':'var(--text3)',
+      sparkData:null, sparkColor:'#f59e0b', page:'habits', accent:'#f59e0b', alarm:false, warn:false}),
+  ].join('');
+}
+
 // ===== DASHBOARD =====
 function renderDashboard() {
   const scores = calcLifeScore();
@@ -109,6 +213,8 @@ function renderDashboard() {
         </div>
       </div>
 
+      ${_buildInsightBar()}
+
       <!-- Hero Card — teal gradient -->
       <div class="hero-card" style="margin-bottom:20px;cursor:pointer;background:linear-gradient(135deg,#00b09b 0%,#0acf83 50%,#00c9a7 100%)" onclick="navigate('finance')">
         <div class="hero-orb" style="background:rgba(255,255,255,0.15)"></div>
@@ -130,28 +236,9 @@ function renderDashboard() {
         </div>
       </div>
 
-      <!-- Quick Stats — unique metrics (income/expense already in hero card) -->
-      <div class="stat-grid" style="margin-bottom:20px">
-        <div class="stat-card bg-teal" onclick="navigate('finance')" style="cursor:pointer">
-          <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>
-          <div class="stat-card-value">${totalIncome > 0 ? Math.round((netWorth/totalIncome)*100) : 0}%</div>
-          <div class="stat-card-label">Savings Rate ↗</div>
-        </div>
-        <div class="stat-card bg-indigo" onclick="navigate('investments')" style="cursor:pointer">
-          <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="8" width="6" height="13" rx="1"/><rect x="16" y="13" width="6" height="8" rx="1"/></svg></span>
-          <div class="stat-card-value">${STATE.investments?.length || 0}</div>
-          <div class="stat-card-label">All Assets ↗</div>
-        </div>
-        <div class="stat-card bg-emerald" onclick="navigate('goals')" style="cursor:pointer">
-          <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
-          <div class="stat-card-value">${STATE.goals?.length || 0}</div>
-          <div class="stat-card-label">Active Goals ↗</div>
-        </div>
-        <div class="stat-card bg-amber" onclick="navigate('habits')" style="cursor:pointer">
-          <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></span>
-          <div class="stat-card-value">${habits.length > 0 ? Math.round(doneToday/habits.length*100) : 0}%</div>
-          <div class="stat-card-label">Habits Today ↗</div>
-        </div>
+      <!-- KPI Cards with sparklines + delta + alarm states -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px" class="kpi-grid">
+        ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
       </div>
 
       <!-- Life Score -->
@@ -343,6 +430,8 @@ function renderDashboard() {
     if (twoCol) twoCol.style.gridTemplateColumns = '1fr';
     const qa = document.querySelector('.qa-grid');
     if (qa) qa.style.gridTemplateColumns = 'repeat(2,1fr)';
+    const kpi = document.querySelector('.kpi-grid');
+    if (kpi) kpi.style.gridTemplateColumns = 'repeat(2,1fr)';
   }
 
   // Render net worth chart after DOM is ready
