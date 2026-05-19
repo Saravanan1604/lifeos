@@ -41,13 +41,18 @@ function renderFinance() {
           <h1 class="page-title">💰 Finance</h1>
           <p class="page-subtitle">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            ${periodTabsHtml(_finPeriod, 'setFinPeriod')}
+            <button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="btn-secondary btn-sm" onclick="openCsvImport()" style="display:flex;align-items:center;gap:6px">📊 Import CSV</button>
           <button class="btn-secondary btn-sm" onclick="openBulkEntry()" style="display:flex;align-items:center;gap:6px">📅 Bulk Entry</button>
           <button class="btn-secondary btn-sm" onclick="openStatementPaste()" style="display:flex;align-items:center;gap:6px">📄 Paste Statement</button>
           <button class="btn-secondary btn-sm" onclick="openSmsParser()" style="display:flex;align-items:center;gap:6px">📲 Scan SMS</button>
           <button class="btn-secondary btn-sm" onclick="openPdfImport()" style="display:flex;align-items:center;gap:6px">📑 Import PDF</button>
-          <button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>
+          </div>
         </div>
       </div>
 
