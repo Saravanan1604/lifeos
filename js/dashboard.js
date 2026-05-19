@@ -243,25 +243,29 @@ function renderDashboard() {
 
       <!-- Life Score -->
       <div style="margin-bottom:20px">
-        <div class="glass-card" style="padding:20px;cursor:pointer" onclick="navigate('analytics')">
-          <div class="section-header">
+        <div class="glass-card" style="padding:20px">
+          <div class="section-header" style="margin-bottom:14px">
             <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Life Score</p>
-            <span style="font-size:26px;font-weight:900;color:var(--teal)">${scores.overall}<span style="font-size:13px;font-weight:400;color:var(--text3)">/100</span></span>
+            <span style="font-size:26px;font-weight:900;color:var(--teal)" onclick="navigate('analytics')" style="cursor:pointer">${scores.overall}<span style="font-size:13px;font-weight:400;color:var(--text3)">/100</span></span>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:15px">
-            ${[
-              { label:'Wealth',      icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>', val:scores.wealthScore,   page:'finance' },
-              { label:'Health',      icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',  val:scores.healthScore,   page:'health' },
-              { label:'Productivity',icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', val:scores.prodScore,     page:'habits' },
-              { label:'Emotional',   icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>', val:scores.emotionalScore,page:'journal' },
-            ].map(s => `
-              <div onclick="event.stopPropagation();navigate('${s.page}')" style="cursor:pointer;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
-                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px">
-                  <span style="display:flex;align-items:center;gap:5px">${s.icon}${s.label}</span>
-                  <span style="font-weight:700;color:${scoreBarColor(s.val)}">${s.val}% ↗</span>
-                </div>
-                <div class="progress-bar"><div class="progress-fill" style="width:${s.val}%;background:${scoreBarColor(s.val)}"></div></div>
-              </div>`).join('')}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center" class="life-score-grid">
+            <div style="height:230px;position:relative"><canvas id="dash-radar-chart"></canvas></div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              ${[
+                {label:'Wealth',    val:scores.wealthScore,   page:'finance',  c:'#10b981'},
+                {label:'Health',    val:scores.healthScore,   page:'health',   c:'#3b82f6'},
+                {label:'Productivity',val:scores.prodScore,   page:'habits',   c:'#f59e0b'},
+                {label:'Career',    val:scores.careerScore,   page:'goals',    c:'#8b5cf6'},
+                {label:'Emotional', val:scores.emotionalScore,page:'journal',  c:'#ec4899'},
+              ].map(s=>`
+                <div onclick="navigate('${s.page}')" style="cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                  <span style="font-size:11px;color:var(--text3);width:72px;flex-shrink:0">${s.label}</span>
+                  <div style="flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,0.07)">
+                    <div style="height:5px;border-radius:4px;width:${s.val}%;background:${s.c};transition:.5s;box-shadow:0 0 6px ${s.c}66"></div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;color:${scoreBarColor(s.val)};width:34px;text-align:right">${s.val}</span>
+                </div>`).join('')}
+            </div>
           </div>
         </div>
       </div>
@@ -288,66 +292,33 @@ function renderDashboard() {
 
           <!-- 50/30/20 Card -->
           <div class="glass-card" style="padding:20px">
-            <p class="section-title" style="margin-bottom:14px">📐 50/30/20 Rule — ${new Date().toLocaleString('default',{month:'long'})}</p>
-            ${(()=>{
-              const NEEDS=['Rent','EMI','Utilities','Bills','Insurance','Groceries','Health','Fuel','Transport'];
-              const WANTS=['Entertainment','Shopping','Travel','Gifts','Food','Education'];
-              const inc=txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-              let needs=0,wants=0;
-              txns.filter(t=>t.type==='expense').forEach(t=>{if(NEEDS.includes(t.category))needs+=t.amount;else if(WANTS.includes(t.category))wants+=t.amount;});
-              const totalExp=txns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-              const sav=inc-totalExp;
-              const np=inc>0?(needs/inc*100).toFixed(1):0,wp=inc>0?(wants/inc*100).toFixed(1):0,sp=inc>0?(sav/inc*100).toFixed(1):0;
-              if(!inc) return `<p style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0">Add income transactions to see analysis</p>`;
-              const BMAX=120;
-              const rules=[{l:'Needs',p:np,t:50,c:'#6366f1',a:fmt(needs)},{l:'Wants',p:wp,t:30,c:'#f59e0b',a:fmt(wants)},{l:'Savings',p:sp,t:20,c:'#10b981',a:fmt(sav)}];
-              return `<div style="display:flex;align-items:flex-end;height:${BMAX+72}px;padding-top:16px;position:relative">
-                ${rules.map(r=>{
-                  const pN=parseFloat(r.p);const isSav=r.l==='Savings';const over=isSav?pN<r.t:pN>r.t;
-                  const barCol=over?'#ef4444':r.c;const h=Math.max(0,Math.min(pN,100))/100*BMAX;const tH=r.t/100*BMAX;
-                  return `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
-                    <p style="font-size:13px;font-weight:800;color:${over?'#ef4444':r.c};margin-bottom:5px;line-height:1">${pN<0?pN.toFixed(1)+'%':r.p+'%'}</p>
-                    <div style="position:relative;width:60%;height:${BMAX}px;display:flex;align-items:flex-end">
-                      <div style="position:absolute;bottom:${tH}px;left:-8px;right:-8px;border-top:1.5px dashed rgba(255,255,255,0.22)"><span style="position:absolute;right:0;top:-9px;font-size:8px;color:rgba(255,255,255,0.32);font-weight:700">${r.t}%</span></div>
-                      <div style="width:100%;height:${Math.max(3,h)}px;background:linear-gradient(180deg,${barCol}dd,${barCol}66);border-radius:7px 7px 0 0;transition:.5s;box-shadow:0 0 12px ${barCol}44"></div>
-                    </div>
-                    <div style="height:1px;width:60%;background:rgba(255,255,255,0.14)"></div>
-                    <p style="font-size:11px;font-weight:700;color:var(--text2);margin-top:7px">${r.l}</p>
-                    <p style="font-size:10px;color:var(--text3);margin-top:2px">${r.a}</p>
-                  </div>`;
-                }).join('')}
-              </div>`;
-            })()}
+            <p class="section-title" style="margin-bottom:10px">📐 50/30/20 — ${new Date().toLocaleString('default',{month:'long'})}</p>
+            <div style="height:175px;position:relative"><canvas id="dash-5030-chart"></canvas></div>
+            <div style="display:flex;gap:6px;margin-top:10px">
+              ${(()=>{
+                const NEEDS=['Rent','EMI','Utilities','Bills','Insurance','Groceries','Health','Fuel','Transport'];
+                const WANTS=['Entertainment','Shopping','Travel','Gifts','Food','Education'];
+                const inc=txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+                let needs=0,wants=0;
+                txns.filter(t=>t.type==='expense').forEach(t=>{if(NEEDS.includes(t.category))needs+=t.amount;else if(WANTS.includes(t.category))wants+=t.amount;});
+                const totalExp=txns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+                const sav=inc-totalExp;
+                const np=inc>0?(needs/inc*100).toFixed(1):0,wp=inc>0?(wants/inc*100).toFixed(1):0,sp=inc>0?(sav/inc*100).toFixed(1):0;
+                if(!inc) return '<p style="font-size:11px;color:var(--text3)">Add income to see</p>';
+                return [{l:'Needs',p:np,t:50,c:'#6366f1'},{l:'Wants',p:wp,t:30,c:'#f59e0b'},{l:'Savings',p:sp,t:20,c:'#10b981'}]
+                  .map(r=>`<div style="flex:1;text-align:center;padding:7px 4px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)">
+                    <p style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px">${r.l}</p>
+                    <p style="font-size:15px;font-weight:900;color:${parseFloat(r.p)>(r.l==='Savings'?r.t-1:r.t)?'#ef4444':r.c};margin-top:2px">${r.p}%</p>
+                    <p style="font-size:9px;color:var(--text3);margin-top:1px">target ${r.t}%</p>
+                  </div>`).join('');
+              })()}
+            </div>
           </div>
 
-          <!-- Category Table -->
+          <!-- Category Polar Chart -->
           <div class="glass-card" style="padding:20px">
-            <p class="section-title" style="margin-bottom:14px">🔍 Spending by Category</p>
-            ${(()=>{
-              const catMap={};
-              txns.filter(t=>t.type==='expense').forEach(t=>{catMap[t.category]=(catMap[t.category]||0)+t.amount;});
-              const cats=Object.entries(catMap).sort(([,a],[,b])=>b-a).slice(0,6);
-              const inc=txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-              if(!cats.length) return `<p style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0">No expense data for this period</p>`;
-              const colors=['#6366f1','#10b981','#f59e0b','#ef4444','#ec4899','#3b82f6'];
-              const maxA=cats[0]?.[1]||1;const BMAX=120;
-              return `<div style="display:flex;align-items:flex-end;height:${BMAX+60}px;padding-top:10px">
-                ${cats.map(([cat,amt],i)=>{
-                  const pct=inc>0?(amt/inc*100).toFixed(1):0;
-                  const h=(amt/maxA)*BMAX;
-                  const sc=cat.length>7?cat.slice(0,6)+'…':cat;
-                  return `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
-                    <p style="font-size:10px;font-weight:700;color:${colors[i]};margin-bottom:4px;line-height:1">${pct}%</p>
-                    <div style="width:64%;height:${BMAX}px;display:flex;align-items:flex-end">
-                      <div style="width:100%;height:${Math.max(3,h)}px;background:linear-gradient(180deg,${colors[i]}dd,${colors[i]}55);border-radius:5px 5px 0 0;transition:.5s;box-shadow:0 0 10px ${colors[i]}33"></div>
-                    </div>
-                    <div style="height:1px;width:64%;background:rgba(255,255,255,0.14)"></div>
-                    <p style="font-size:10px;color:var(--text2);font-weight:600;margin-top:6px;text-align:center">${sc}</p>
-                    <p style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">${fmt(amt)}</p>
-                  </div>`;
-                }).join('')}
-              </div>`;
-            })()}
+            <p class="section-title" style="margin-bottom:10px">🔍 Spending by Category</p>
+            <div style="height:225px;position:relative"><canvas id="dash-polar-chart"></canvas></div>
           </div>
         </div>
 
@@ -450,9 +421,14 @@ function renderDashboard() {
     renderNetWorthChart(txnsAll);
     renderDashIncomeChart(txns);
     renderDashPieChart(txns);
+    render5030Chart(txns);
+    renderPolarCatChart(txns);
+    renderLifeScoreRadar(scores);
     if (window.innerWidth < 700) {
       const r1 = document.querySelector('.analytics-row-1');
       if (r1) r1.style.gridTemplateColumns = '1fr';
+      const lsg = document.querySelector('.life-score-grid');
+      if (lsg) lsg.style.gridTemplateColumns = '1fr';
     }
   }, 50);
 }
@@ -610,6 +586,116 @@ function renderDashPieChart(txns) {
         legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Inter', size: 10 }, padding: 8, boxWidth: 8 } },
         tooltip: { callbacks: { label: ctx => ` ₹${ctx.parsed.toLocaleString('en-IN')}` } }
       }
+    }
+  });
+}
+
+// ── Doughnut: 50/30/20 Rule ──
+function render5030Chart(txns) {
+  const canvas = document.getElementById('dash-5030-chart');
+  if (!canvas) return;
+  const NEEDS=['Rent','EMI','Utilities','Bills','Insurance','Groceries','Health','Fuel','Transport'];
+  const WANTS=['Entertainment','Shopping','Travel','Gifts','Food','Education'];
+  const inc=txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  if (!inc) return;
+  let needs=0, wants=0;
+  txns.filter(t=>t.type==='expense').forEach(t=>{if(NEEDS.includes(t.category))needs+=t.amount;else if(WANTS.includes(t.category))wants+=t.amount;});
+  const totalExp=txns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const sav=Math.max(0,inc-totalExp);
+  const np=needs/inc*100, wp=wants/inc*100, sp=sav/inc*100;
+  const savRate=((inc-totalExp)/inc*100);
+  const isLight=document.body.classList.contains('light');
+  chartInstances['dash-5030']=new Chart(canvas,{
+    type:'doughnut',
+    data:{
+      labels:['Needs','Wants','Savings'],
+      datasets:[{
+        data:[np,wp,Math.max(0,sp)],
+        backgroundColor:['rgba(99,102,241,0.88)','rgba(245,158,11,0.88)','rgba(16,185,129,0.88)'],
+        borderWidth:3,
+        borderColor:isLight?'#fff':'rgba(13,17,35,0.9)',
+        hoverOffset:12,hoverBorderWidth:0
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'66%',
+      plugins:{
+        legend:{position:'right',labels:{color:isLight?'#475569':'#94a3b8',font:{size:11,family:'Inter'},padding:14,boxWidth:10,usePointStyle:true,pointStyleWidth:8}},
+        tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.toFixed(1)}%  (${ctx.label})`}}
+      }
+    },
+    plugins:[{id:'donutCenter',beforeDraw(chart){
+      const{ctx,chartArea:{left,right,top,bottom}}=chart;
+      const cx=(left+right)/2, cy=(top+bottom)/2;
+      ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';
+      const sr=savRate.toFixed(0);
+      ctx.fillStyle=parseFloat(sr)<0?'#ef4444':parseFloat(sr)<10?'#f59e0b':'#10b981';
+      ctx.font='bold 20px Inter'; ctx.fillText(sr+'%',cx,cy-8);
+      ctx.fillStyle='#64748b'; ctx.font='10px Inter'; ctx.fillText('saved',cx,cy+10);
+      ctx.restore();
+    }}]
+  });
+}
+
+// ── Polar Area: Spending by Category ──
+function renderPolarCatChart(txns) {
+  const canvas = document.getElementById('dash-polar-chart');
+  if (!canvas) return;
+  const catMap={};
+  txns.filter(t=>t.type==='expense').forEach(t=>{catMap[t.category]=(catMap[t.category]||0)+t.amount;});
+  const cats=Object.entries(catMap).sort(([,a],[,b])=>b-a).slice(0,6);
+  if (!cats.length) { canvas.parentElement.innerHTML='<p style="font-size:12px;color:#64748b;text-align:center;padding:40px 0">No expense data</p>'; return; }
+  const COLORS=['rgba(99,102,241,0.82)','rgba(16,185,129,0.82)','rgba(245,158,11,0.82)','rgba(239,68,68,0.82)','rgba(236,72,153,0.82)','rgba(59,130,246,0.82)'];
+  const isLight=document.body.classList.contains('light');
+  chartInstances['dash-polar']=new Chart(canvas,{
+    type:'polarArea',
+    data:{
+      labels:cats.map(([n])=>n),
+      datasets:[{data:cats.map(([,v])=>v),backgroundColor:COLORS,borderWidth:0,borderColor:'transparent'}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'right',labels:{color:isLight?'#475569':'#94a3b8',font:{size:10,family:'Inter'},padding:10,boxWidth:8,usePointStyle:true}},
+        tooltip:{callbacks:{label:ctx=>' ₹'+Math.round(ctx.parsed.r).toLocaleString('en-IN')}}
+      },
+      scales:{r:{ticks:{display:false},grid:{color:isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.07)'},pointLabels:{display:false}}}
+    }
+  });
+}
+
+// ── Radar: Life Score ──
+function renderLifeScoreRadar(scores) {
+  const canvas = document.getElementById('dash-radar-chart');
+  if (!canvas) return;
+  const isLight=document.body.classList.contains('light');
+  const gridC=isLight?'rgba(0,0,0,0.08)':'rgba(255,255,255,0.08)';
+  chartInstances['dash-radar']=new Chart(canvas,{
+    type:'radar',
+    data:{
+      labels:['Wealth','Health','Productivity','Career','Emotional'],
+      datasets:[{
+        data:[scores.wealthScore,scores.healthScore,scores.prodScore,scores.careerScore,scores.emotionalScore],
+        backgroundColor:'rgba(0,201,167,0.12)',
+        borderColor:'rgba(0,201,167,0.85)',
+        borderWidth:2.2,
+        pointBackgroundColor:'#00c9a7',
+        pointBorderColor:'rgba(0,201,167,0.5)',
+        pointBorderWidth:2,
+        pointRadius:5,
+        pointHoverRadius:7
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw}/100`}}},
+      scales:{r:{
+        min:0,max:100,
+        ticks:{stepSize:25,display:false,backdropColor:'transparent'},
+        grid:{color:gridC},
+        angleLines:{color:gridC},
+        pointLabels:{color:isLight?'#475569':'#94a3b8',font:{size:11,family:'Inter',weight:'700'}}
+      }}
     }
   });
 }
