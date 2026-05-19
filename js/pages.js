@@ -1,7 +1,15 @@
 // ===== ANALYTICS PAGE =====
+let _analyticsPeriod = 'all';
+
+function setAnalyticsPeriod(p) {
+  _analyticsPeriod = p;
+  renderAnalytics();
+}
+
 function renderAnalytics() {
   const scores = calcLifeScore();
-  const txns = STATE.transactions || [];
+  const txnsAll = STATE.transactions || [];
+  const txns = filterTxByPeriod(txnsAll, _analyticsPeriod);
   const income = txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const expense = txns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const catMap = {};
@@ -12,7 +20,10 @@ function renderAnalytics() {
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
-      <div class="page-header"><h1 class="page-title">Life Analytics</h1><p class="page-subtitle">Deep insights across all life dimensions</p></div>
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+        <div><h1 class="page-title">Life Analytics</h1><p class="page-subtitle">Deep insights across all life dimensions</p></div>
+        ${periodTabsHtml(_analyticsPeriod, 'setAnalyticsPeriod')}
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px" class="analytics-grid">
         <div class="glass-card" style="padding:20px">
           <p class="section-title" style="margin-bottom:16px">
@@ -68,7 +79,7 @@ function renderAnalytics() {
       <div class="stat-grid">
         <div class="stat-card bg-indigo" onclick="navigate('finance')" style="cursor:pointer">
           <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
-          <div class="stat-card-value">${txns.length}</div><div class="stat-card-label">Transactions</div>
+          <div class="stat-card-value">${txns.length}</div><div class="stat-card-label">${periodLabel(_analyticsPeriod)} Txns</div>
         </div>
         <div class="stat-card bg-emerald" onclick="navigate('goals')" style="cursor:pointer">
           <span class="stat-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
@@ -113,6 +124,7 @@ function renderAnalyticsFinanceChart(txns) {
     if (!monthMap[key]) monthMap[key] = {label,income:0,expense:0};
     if (t.type==='income') monthMap[key].income+=t.amount; else monthMap[key].expense+=t.amount;
   });
+  const gridCol = document.body.classList.contains('light') ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
   const sorted = Object.entries(monthMap).sort(([a],[b])=>a.localeCompare(b)).slice(-12);
   chartInstances['afinance'] = new Chart(canvas, {
     type: 'line',
@@ -120,13 +132,14 @@ function renderAnalyticsFinanceChart(txns) {
       { label:'Income', data:sorted.map(([,v])=>v.income), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', tension:0.4, fill:true },
       { label:'Expense', data:sorted.map(([,v])=>v.expense), borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.08)', tension:0.4, fill:true }
     ]},
-    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#94a3b8'}}}, scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#64748b',callback:v=>`₹${(v/1000).toFixed(0)}k`},grid:{color:'rgba(255,255,255,0.05)'}}} }
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#94a3b8'}}}, scales:{x:{ticks:{color:'#64748b'},grid:{color:gridCol}},y:{ticks:{color:'#64748b',callback:v=>`₹${(v/1000).toFixed(0)}k`},grid:{color:gridCol}}} }
   });
 }
 
 function renderAnalyticsHealthChart(data) {
   const canvas = document.getElementById('analytics-health-chart');
   if (!canvas) return;
+  const gridCol = document.body.classList.contains('light') ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
   chartInstances['ahealth'] = new Chart(canvas, {
     type:'line',
     data:{ labels:data.map(e=>fmtDate(e.date).split(' ').slice(0,2).join(' ')), datasets:[
@@ -134,7 +147,7 @@ function renderAnalyticsHealthChart(data) {
       {label:'Mood (/10)',   data:data.map(e=>e.mood||0),  borderColor:'#ec4899', backgroundColor:'rgba(236,72,153,0.12)', tension:0.4, fill:true, borderWidth:2.5, pointRadius:3},
       {label:'Water (glasses)', data:data.map(e=>e.water||0), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.12)', tension:0.4, fill:true, borderWidth:2.5, pointRadius:3}
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'#64748b'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#64748b'},grid:{color:gridCol}},y:{ticks:{color:'#64748b'},grid:{color:gridCol}}}}
   });
 }
 

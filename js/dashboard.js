@@ -1,3 +1,10 @@
+let _dashPeriod = 'month';
+
+function setDashPeriod(p) {
+  _dashPeriod = p;
+  renderDashboard();
+}
+
 // ===== LIFE SCORE =====
 function calcLifeScore() {
   const txns = STATE.transactions || [];
@@ -75,7 +82,8 @@ function generateInsights() {
 function renderDashboard() {
   const scores = calcLifeScore();
   const insights = generateInsights();
-  const txns = STATE.transactions || [];
+  const txnsAll = STATE.transactions || [];
+  const txns = filterTxByPeriod(txnsAll, _dashPeriod);
   const recent = [...txns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const totalIncome = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
@@ -95,6 +103,7 @@ function renderDashboard() {
           <p style="font-size:12px;color:rgba(241,245,249,0.4);margin-top:2px">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          ${periodTabsHtml(_dashPeriod, 'setDashPeriod')}
           <button class="btn-primary btn-sm" onclick="navigate('finance')" style="background:linear-gradient(135deg,#00b09b,#0acf83)">+ Add Transaction</button>
           <span onclick="navigate('habits')" class="streak-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M12 2c0 0-5 5-5 10a5 5 0 0 0 10 0c0-5-5-10-5-10z"/></svg>${STATE.streak || 0} Day Streak</span>
         </div>
@@ -251,7 +260,7 @@ function renderDashboard() {
 
   // Render net worth chart after DOM is ready
   setTimeout(() => {
-    renderNetWorthChart(txns);
+    renderNetWorthChart(txnsAll);
     renderDashIncomeChart(txns);
     renderDashPieChart(txns);
   }, 50);

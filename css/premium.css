@@ -358,3 +358,33 @@ body.light .glass-card {
 
 /* Theme toggle icon style */
 .theme-toggle svg { stroke: currentColor; }
+
+/* ==============================================================
+   INLINE STYLE OVERRIDES FOR LIGHT MODE VISIBILITY
+   ============================================================== */
+/* Fix whitish text colors used in inline styles */
+body.light [style*="color:rgba(241,245,249"],
+body.light [style*="color: rgba(241,245,249"],
+body.light [style*="color:rgba(255,255,255"] {
+  color: var(--text3) !important;
+}
+
+/* Fix light transparent backgrounds */
+body.light [style*="background:rgba(255,255,255,0.0"],
+body.light [style*="background: rgba(255,255,255,0.0"] {
+  background: rgba(0,0,0,0.03) !important;
+}
+body.light [style*="background:rgba(255,255,255,0.1"],
+body.light [style*="background: rgba(255,255,255,0.1"] {
+  background: rgba(0,0,0,0.06) !important;
+}
+
+/* Fix light transparent borders */
+body.light [style*="border-bottom:1px solid rgba(255,255,255"],
+body.light [style*="border-bottom: 1px solid rgba(255,255,255"] {
+  border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+body.light [style*="border:1px solid rgba(255,255,255"],
+body.light [style*="border: 1px solid rgba(255,255,255"] {
+  border-color: rgba(0,0,0,0.1) !important;
+}

@@ -14,6 +14,9 @@
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6889705040574527" crossorigin="anonymous"></script>
+  
+  <!-- AMP AdSense -->
+  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
   <!-- ── PWA / Install ── -->
   <link rel="manifest" href="/manifest.json" />
@@ -226,6 +229,33 @@
 
     <!-- Main Content -->
     <main id="content" class="content">
+      <!-- Google AdSense Ad Unit -->
+      <div class="ad-container" style="margin-bottom: 20px; text-align: center; min-height: 90px; width: 100%;">
+        
+        <!-- Standard AdSense -->
+        <!-- addf -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-6889705040574527"
+             data-ad-slot="1230387422"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+
+        <!-- AMP AdSense -->
+        <amp-ad width="100vw" height="320"
+             type="adsense"
+             data-ad-client="ca-pub-6889705040574527"
+             data-ad-slot="1230387422"
+             data-auto-format="rspv"
+             data-full-width="">
+          <div overflow=""></div>
+        </amp-ad>
+
+      </div>
+
       <div id="page-container" class="page-container">
         <!-- Pages rendered here by JS -->
       </div>

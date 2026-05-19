@@ -1,5 +1,5 @@
 // ===== FINANCE PAGE =====
-let _finMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM" — current month by default
+let _finPeriod = 'month'; // 'day' | 'week' | 'month' | 'year' | 'all'
 let _finType     = 'all';        // 'all' | 'income' | 'expense'
 let _finCategory = 'all';        // 'all' | <category name>
 let _finSort     = 'date-desc';  // 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc' | 'alpha-asc' | 'alpha-desc'
@@ -16,7 +16,8 @@ const CATEGORIES = [
 ];
 
 function renderFinance() {
-  const txns = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const txnsAll = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const txns    = filterTxByPeriod(txnsAll, _finPeriod);
   const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const expense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const savings = income - expense;
@@ -174,9 +175,9 @@ function renderFinance() {
 
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
         ${[
-          { id:'fin-stat-count', label:'Transactions', value: txns.length,           icon:'⚡', color:'rgba(99,102,241,0.15)', tc:'#6366f1' },
-          { id:'fin-stat-month', label:'This Month',   value: txns.filter(t=>{const d=new Date(t.date),n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length, icon:'🎯', color:'rgba(16,185,129,0.15)', tc:'#10b981' },
-          { id:'fin-stat-rate',  label:'Savings Rate', value: savingsRate+'%',        icon:'📈', color:'rgba(139,92,246,0.15)', tc:'#8b5cf6' },
+          { id:'fin-stat-count', label:'Total Txns',   value: txnsAll.length,  icon:'⚡', color:'rgba(99,102,241,0.15)', tc:'#6366f1' },
+          { id:'fin-stat-month', label:periodLabel(_finPeriod), value: txns.length, icon:'🎯', color:'rgba(16,185,129,0.15)', tc:'#10b981' },
+          { id:'fin-stat-rate',  label:'Savings Rate', value: savingsRate+'%', icon:'📈', color:'rgba(139,92,246,0.15)', tc:'#8b5cf6' },
         ].map(s=>`
           <div class="glass-card" style="padding:16px;text-align:center">
             <div style="display:inline-flex;padding:8px;border-radius:10px;background:${s.color};font-size:18px;margin-bottom:8px">${s.icon}</div>
@@ -199,17 +200,12 @@ function renderFinance() {
         </div>
       </div>
 
-      <!-- Transactions with live month filter -->
+      <!-- Transactions with period filter -->
       <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
         <div style="padding:12px 16px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
           <p class="section-title" style="margin:0">💳 Transactions</p>
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <button onclick="shiftFinMonth(-1)" style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:14px">◀</button>
-            <input type="month" id="fin-month" value="${_finMonth}"
-              oninput="applyFinanceFilter()"
-              style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer"/>
-            <button onclick="shiftFinMonth(1)" style="background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text1);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:14px">▶</button>
-            <button onclick="_finMonth='';document.getElementById('fin-month').value='';renderFinanceTxList()" style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);color:#6366f1;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:700">All</button>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            ${periodTabsHtml(_finPeriod, 'setFinPeriod')}
             <span id="fin-tx-count" style="font-size:11px;color:var(--text3)"></span>
           </div>
         </div>
@@ -265,7 +261,7 @@ function renderFinance() {
 
     </div>`;
 
-  renderFinanceChart(txns);
+  renderFinanceChart(txnsAll);
   if (topCats.length > 0) renderFinancePieChart(topCats);
   renderFinanceTxList();
 }
@@ -336,17 +332,15 @@ function renderFinancePieChart(topCats) {
 
 // ===== PARTIAL REFRESH — update hero + stats + list without full page re-render =====
 function refreshFinancePage() {
-  // If Finance page isn't open, bail
   if (!document.getElementById('fin-tx-list')) { renderFinance(); return; }
 
-  const txns      = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
-  const income    = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const expense   = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-  const savings   = income - expense;
+  const txnsAll = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const txns    = filterTxByPeriod(txnsAll, _finPeriod);
+  const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const expense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const savings = income - expense;
   const savingsOk = savings >= 0;
-  const rate      = income > 0 ? ((savings / income) * 100).toFixed(1) : 0;
-  const now       = new Date();
-  const thisMonth = txns.filter(t => { const d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).length;
+  const rate    = income > 0 ? ((savings / income) * 100).toFixed(1) : 0;
 
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   set('fin-balance',    fmt(savings));
@@ -354,8 +348,8 @@ function refreshFinancePage() {
   set('fin-expense',    '-' + fmt(expense));
   set('fin-savings',    (savingsOk ? '+' : '') + fmt(savings));
   set('fin-rate',       `${savingsOk ? '📈' : '📉'} ${rate}% savings rate`);
-  set('fin-stat-count', txns.length);
-  set('fin-stat-month', thisMonth);
+  set('fin-stat-count', txnsAll.length);
+  set('fin-stat-month', txns.length);
   set('fin-stat-rate',  rate + '%');
 
   const savEl = document.getElementById('fin-savings');
@@ -364,21 +358,12 @@ function refreshFinancePage() {
   renderFinanceTxList();
 }
 
-// ===== TRANSACTION LIST — LIVE MONTH FILTER =====
+// ===== TRANSACTION LIST — PERIOD FILTER =====
 
-function applyFinanceFilter() {
-  _finMonth = document.getElementById('fin-month')?.value || '';
-  renderFinanceTxList();
-}
-
-function shiftFinMonth(dir) {
-  const cur = _finMonth || new Date().toISOString().slice(0, 7);
-  const [y, mo] = cur.split('-').map(Number);
-  const d = new Date(y, mo - 1 + dir, 1);
-  _finMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-  const inp = document.getElementById('fin-month');
-  if (inp) inp.value = _finMonth;
-  renderFinanceTxList();
+function setFinPeriod(p) {
+  _finPeriod = p;
+  document.querySelectorAll('.period-tabs .period-tab').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === p));
+  refreshFinancePage();
 }
 
 // Build <option>s for the category dropdown from every category the user
@@ -394,10 +379,7 @@ function renderFinanceTxList() {
   const container = document.getElementById('fin-tx-list');
   if (!container) return;
 
-  let txns = [...(STATE.transactions || [])];
-
-  // Month filter
-  if (_finMonth)              txns = txns.filter(t => (t.date || '').startsWith(_finMonth));
+  let txns = filterTxByPeriod([...(STATE.transactions || [])], _finPeriod);
   // Type filter (income / expense)
   if (_finType !== 'all')     txns = txns.filter(t => t.type === _finType);
   // Category filter
@@ -423,7 +405,7 @@ function renderFinanceTxList() {
   if (countEl) countEl.textContent = `${txns.length} entr${txns.length === 1 ? 'y' : 'ies'}`;
 
   if (!txns.length) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💳</span><p>No transactions${_finMonth ? ' for this period' : ' yet'}. Add your first one!</p></div>`;
+    container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💳</span><p>No transactions${_finPeriod !== 'all' ? ' for ' + periodLabel(_finPeriod) : ' yet'}. Add your first one!</p></div>`;
     // remove bulk bar if empty
     const bb = document.getElementById('fin-bulk-bar'); if (bb) bb.style.display = 'none';
     return;

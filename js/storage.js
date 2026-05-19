@@ -113,6 +113,24 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function filterTxByPeriod(txns, period) {
+  const now = new Date(), d0 = now.toISOString().slice(0, 10);
+  if (period === 'day')   return txns.filter(t => t.date === d0);
+  if (period === 'week')  { const w = new Date(now); w.setDate(now.getDate() - 6); return txns.filter(t => t.date >= w.toISOString().slice(0, 10) && t.date <= d0); }
+  if (period === 'month') return txns.filter(t => (t.date || '').startsWith(now.toISOString().slice(0, 7)));
+  if (period === 'year')  return txns.filter(t => (t.date || '').startsWith(String(now.getFullYear())));
+  return txns;
+}
+
+function periodTabsHtml(active, fn) {
+  const labels = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
+  return `<div class="period-tabs">${Object.keys(labels).map(p => `<button class="period-tab${active === p ? ' active' : ''}" onclick="${fn}('${p}')">${labels[p]}</button>`).join('')}</div>`;
+}
+
+function periodLabel(period) {
+  return { day: 'Today', week: 'This Week', month: 'This Month', year: 'This Year', all: 'All Time' }[period] || 'All Time';
+}
+
 function getGreeting(name) {
   const h = new Date().getHours();
   const g = h < 12 ? '🌅 Good morning' : h < 17 ? '☀️ Good afternoon' : h < 20 ? '🌆 Good evening' : '🌙 Good night';
