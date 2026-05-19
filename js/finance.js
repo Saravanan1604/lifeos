@@ -1695,6 +1695,27 @@ function removeCustomType(kind, idx) {
 let _budgetPeriod = 'month';
 function setBudgetPeriod(p) { _budgetPeriod = p; renderBudget(); }
 
+// Convert stored budget to the limit for a given view period
+function getBudgetLimit(b, viewPeriod) {
+  const period = b.period || 'month';
+  const amount = b.amount != null ? b.amount : (b.limit || 0);
+  const daily = period === 'day' ? amount : period === 'month' ? amount / 30 : amount / 365;
+  if (viewPeriod === 'day')   return Math.round(daily);
+  if (viewPeriod === 'week')  return Math.round(daily * 7);
+  if (viewPeriod === 'month') return Math.round(daily * 30);
+  if (viewPeriod === 'year')  return Math.round(daily * 365);
+  return Math.round(daily * 365); // 'all' → yearly equivalent
+}
+
+function selectBudgetPeriod(p) {
+  const el = document.getElementById('b-period');
+  if (el) el.value = p;
+  ['day','month','year'].forEach(x => {
+    const btn = document.getElementById('bp-' + x);
+    if (btn) btn.classList.toggle('active', x === p);
+  });
+}
+
 function renderBudget() {
   const budgets = STATE.budgets || [];
   const txns = STATE.transactions || [];
@@ -1709,28 +1730,43 @@ function renderBudget() {
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           ${periodTabsHtml(_budgetPeriod, 'setBudgetPeriod')}
-          <button class="btn-primary btn-sm" onclick="openAddBudgetModal()">+ Add Budget</button>
+          <button class="btn-primary btn-sm" onclick="openAddBudgetModal(-1)">+ Add Budget</button>
         </div>
       </div>
       ${budgets.length === 0
         ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon">🎯</span><p>Set budgets for your expense categories to track spending.</p></div></div>`
         : `<div style="display:flex;flex-direction:column;gap:12px">
-          ${budgets.map((b,bi) => {
-            const spent = filteredTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
-            const pct = Math.min(100, b.limit > 0 ? (spent/b.limit)*100 : 0);
-            const over = spent > b.limit;
-            const cat = CATEGORIES.find(c => c.name === b.category);
+          ${budgets.map((b, bi) => {
+            const limit  = getBudgetLimit(b, _budgetPeriod);
+            const spent  = filteredTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
+            const pct    = Math.min(100, limit > 0 ? (spent / limit) * 100 : 0);
+            const over   = spent > limit;
+            const cat    = CATEGORIES.find(c => c.name === b.category);
+            const bPeriod = b.period || 'month';
+            const bAmount = b.amount != null ? b.amount : (b.limit || 0);
+            const bDaily  = bPeriod === 'day' ? bAmount : bPeriod === 'month' ? bAmount / 30 : bAmount / 365;
+            const breakdown = `${fmt(Math.round(bDaily))}/day · ${fmt(Math.round(bDaily*30))}/mo · ${fmt(Math.round(bDaily*365))}/yr`;
             return `<div class="glass-card" style="padding:18px">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                <div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px">${cat?.icon||'📦'}</span><span style="font-weight:600">${b.category}</span></div>
                 <div style="display:flex;align-items:center;gap:10px">
-                  <span style="font-size:13px;color:${over?'#ef4444':'#10b981'};font-weight:700">${fmt(spent)} / ${fmt(b.limit)}</span>
+                  <span style="font-size:22px">${cat?.icon||'📦'}</span>
+                  <div>
+                    <div style="font-weight:600;font-size:14px">${b.category}</div>
+                    <div style="font-size:11px;color:var(--text3)">Set: ₹${fmt(bAmount)}/${bPeriod}</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:13px;color:${over?'#ef4444':'#10b981'};font-weight:700">${fmt(spent)} / ${fmt(limit)}</span>
                   ${over ? '<span class="tag tag-red" style="font-size:11px">Over!</span>' : ''}
-                  <button onclick="deleteBudget(${bi})" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:8px;padding:3px 8px;cursor:pointer;font-size:12px">✕</button>
+                  <button onclick="openAddBudgetModal(${bi})" style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#6366f1;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px">✏️</button>
+                  <button onclick="deleteBudget(${bi})" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px">✕</button>
                 </div>
               </div>
               <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${over?'#ef4444':pct>80?'#f59e0b':'#10b981'}"></div></div>
-              <p style="font-size:11px;color:var(--text3);margin-top:6px">${over ? `₹${(spent-b.limit).toLocaleString('en-IN')} over budget` : `₹${(b.limit-spent).toLocaleString('en-IN')} remaining · ${pct.toFixed(0)}% used`}</p>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+                <p style="font-size:11px;color:var(--text3)">${over ? `₹${(spent-limit).toLocaleString('en-IN')} over budget` : `₹${(limit-spent).toLocaleString('en-IN')} remaining · ${pct.toFixed(0)}% used`}</p>
+                <p style="font-size:10px;color:var(--text3);opacity:0.7">₹${breakdown}</p>
+              </div>
             </div>`;
           }).join('')}
         </div>`}
@@ -1744,26 +1780,55 @@ function deleteBudget(index) {
   renderBudget();
 }
 
-function openAddBudgetModal() {
-  const catOptions = CATEGORIES.filter(c => !['Salary','Business','Freelance'].includes(c.name)).map(c => `<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
-  openModal('Set Budget', `
-    <div class="form-group"><label class="form-label">Category</label><select id="b-cat" class="form-input">${catOptions}</select></div>
-    <div class="form-group"><label class="form-label">Budget Limit (₹)</label><input type="number" id="b-limit" class="form-input" placeholder="e.g. 5000"/></div>
+function openAddBudgetModal(editIndex) {
+  const isEdit  = editIndex >= 0;
+  const b       = isEdit ? (STATE.budgets||[])[editIndex] : null;
+  const ePeriod = b ? (b.period || 'month') : 'month';
+  const eAmount = b ? (b.amount != null ? b.amount : (b.limit || '')) : '';
+  const catOptions = CATEGORIES
+    .filter(c => !['Salary','Business','Freelance'].includes(c.name))
+    .map(c => `<option value="${c.name}"${b?.category===c.name?' selected':''}>${c.icon} ${c.name}</option>`)
+    .join('');
+
+  openModal(isEdit ? `Edit Budget — ${b.category}` : 'Set Budget', `
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select id="b-cat" class="form-input"${isEdit?' disabled':''}>${catOptions}</select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Budget Period</label>
+      <div class="period-tabs" style="width:100%">
+        <button class="period-tab${ePeriod==='day'?' active':''}" id="bp-day"   onclick="selectBudgetPeriod('day')">Day</button>
+        <button class="period-tab${ePeriod==='month'?' active':''}" id="bp-month" onclick="selectBudgetPeriod('month')">Month</button>
+        <button class="period-tab${ePeriod==='year'?' active':''}" id="bp-year"  onclick="selectBudgetPeriod('year')">Year</button>
+      </div>
+      <input type="hidden" id="b-period" value="${ePeriod}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Budget Limit (₹)</label>
+      <input type="number" id="b-limit" class="form-input" placeholder="e.g. 5000" value="${eAmount}"/>
+      <p style="font-size:11px;color:var(--text3);margin-top:6px">Auto-splits to daily / monthly / yearly when viewing other periods.</p>
+    </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="saveBudget()">Save Budget</button>
+      <button class="btn-primary" onclick="saveBudget(${isEdit ? editIndex : -1})">${isEdit ? 'Update' : 'Save Budget'}</button>
     </div>`);
 }
 
-function saveBudget() {
+function saveBudget(editIndex) {
   const category = document.getElementById('b-cat').value;
-  const limit = parseFloat(document.getElementById('b-limit').value);
-  if (!limit || limit <= 0) { toast('Enter a valid limit', 'error'); return; }
+  const amount   = parseFloat(document.getElementById('b-limit').value);
+  const period   = document.getElementById('b-period').value || 'month';
+  if (!amount || amount <= 0) { toast('Enter a valid limit', 'error'); return; }
   STATE.budgets = STATE.budgets || [];
-  const existing = STATE.budgets.findIndex(b => b.category === category);
-  if (existing >= 0) STATE.budgets[existing].limit = limit;
-  else STATE.budgets.push({ id: genId(), category, limit });
-  saveState(); closeModal(); toast('Budget set!', 'success'); renderBudget();
+  if (editIndex >= 0) {
+    STATE.budgets[editIndex] = { ...STATE.budgets[editIndex], amount, period };
+  } else {
+    const existing = STATE.budgets.findIndex(b => b.category === category);
+    if (existing >= 0) STATE.budgets[existing] = { ...STATE.budgets[existing], amount, period };
+    else STATE.budgets.push({ id: genId(), category, amount, period });
+  }
+  saveState(); closeModal(); toast(editIndex >= 0 ? 'Budget updated!' : 'Budget set!', 'success'); renderBudget();
 }
 
 // ===== CREDIT CARDS =====
