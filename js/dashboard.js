@@ -185,7 +185,6 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
 // ===== DASHBOARD =====
 function renderDashboard() {
   const scores = calcLifeScore();
-  const insights = generateInsights();
   const txnsAll = STATE.transactions || [];
   const txns = filterTxByPeriod(txnsAll, _dashPeriod);
   const recent = [...txns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
@@ -419,7 +418,7 @@ function renderDashboard() {
   // Render net worth chart after DOM is ready
   setTimeout(() => {
     renderNetWorthChart(txnsAll);
-    renderDashIncomeChart(txns);
+    renderDashIncomeChart(txnsAll);
     renderDashPieChart(txns);
     render5030Chart(txns);
     renderPolarCatChart(txns);
@@ -529,21 +528,59 @@ function renderNetWorthChart(txns) {
 function renderDashIncomeChart(txns) {
   const canvas = document.getElementById('dash-income-chart');
   if (!canvas) return;
-  const monthMap = {};
-  txns.forEach(t => {
-    const d = new Date(t.date);
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
-    if (!monthMap[key]) monthMap[key] = { label, income: 0, expense: 0 };
-    if (t.type === 'income') monthMap[key].income += t.amount;
-    else monthMap[key].expense += t.amount;
-  });
-  const sorted = Object.entries(monthMap).sort(([a],[b]) => a.localeCompare(b)).slice(-8);
-  const labels  = sorted.map(([,v]) => v.label);
-  const incData = sorted.map(([,v]) => v.income);
-  const expData = sorted.map(([,v]) => v.expense);
-  const savData = sorted.map(([,v]) => v.income - v.expense);
-  if (!labels.length) { labels.push('Now'); incData.push(0); expData.push(0); savData.push(0); }
+
+  // Build buckets based on active period
+  const now = new Date();
+  const buckets = {};
+  let orderedKeys = [];
+
+  if (_dashPeriod === 'day' || _dashPeriod === 'week') {
+    // Daily buckets — last 7 days
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      const label = d.toLocaleString('default', { weekday: 'short', day: 'numeric' });
+      buckets[key] = { label, income: 0, expense: 0 };
+      orderedKeys.push(key);
+    }
+    txns.forEach(t => {
+      if (buckets[t.date]) {
+        if (t.type === 'income') buckets[t.date].income += t.amount;
+        else buckets[t.date].expense += t.amount;
+      }
+    });
+  } else if (_dashPeriod === 'month') {
+    // Weekly buckets — weeks in current month
+    const yr = now.getFullYear(), mo = now.getMonth();
+    for (let w = 1; w <= 5; w++) { buckets[`W${w}`] = { label: `Week ${w}`, income: 0, expense: 0 }; orderedKeys.push(`W${w}`); }
+    txns.forEach(t => {
+      const d = new Date(t.date);
+      if (d.getFullYear() === yr && d.getMonth() === mo) {
+        const key = `W${Math.min(5, Math.ceil(d.getDate() / 7))}`;
+        if (t.type === 'income') buckets[key].income += t.amount;
+        else buckets[key].expense += t.amount;
+      }
+    });
+    // drop empty trailing weeks
+    while (orderedKeys.length > 1 && !buckets[orderedKeys[orderedKeys.length-1]].income && !buckets[orderedKeys[orderedKeys.length-1]].expense) orderedKeys.pop();
+  } else {
+    // year / all — monthly buckets, last 12
+    txns.forEach(t => {
+      const d = new Date(t.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      if (!buckets[key]) buckets[key] = { label: d.toLocaleString('default', { month: 'short', year: '2-digit' }), income: 0, expense: 0 };
+      if (t.type === 'income') buckets[key].income += t.amount;
+      else buckets[key].expense += t.amount;
+    });
+    orderedKeys = Object.keys(buckets).sort().slice(-12);
+  }
+
+  const entries = orderedKeys.map(k => buckets[k] || { label: k, income: 0, expense: 0 });
+  const labels  = entries.map(v => v.label);
+  const incData = entries.map(v => v.income);
+  const expData = entries.map(v => v.expense);
+  const savData = entries.map(v => v.income - v.expense);
+  if (!labels.length) { labels.push('—'); incData.push(0); expData.push(0); savData.push(0); }
 
   const isLight  = document.body.classList.contains('light');
   const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
