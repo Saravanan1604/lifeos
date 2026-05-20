@@ -114,11 +114,27 @@ function today() {
 }
 
 function filterTxByPeriod(txns, period) {
-  const now = new Date(), d0 = now.toISOString().slice(0, 10);
-  if (period === 'day')   return txns.filter(t => t.date === d0);
-  if (period === 'week')  { const w = new Date(now); w.setDate(now.getDate() - 6); return txns.filter(t => t.date >= w.toISOString().slice(0, 10) && t.date <= d0); }
-  if (period === 'month') return txns.filter(t => (t.date || '').startsWith(now.toISOString().slice(0, 7)));
-  if (period === 'year')  return txns.filter(t => (t.date || '').startsWith(String(now.getFullYear())));
+  return filterTxByAnchor(txns, period, null);
+}
+
+// anchor: 'YYYY-MM-DD' string or null (= today)
+function filterTxByAnchor(txns, period, anchor) {
+  const base = anchor ? new Date(anchor + 'T00:00:00') : new Date();
+  const d0   = base.toISOString().slice(0, 10);
+  if (period === 'day') return txns.filter(t => t.date === d0);
+  if (period === 'week') {
+    // Mon→Sun week that contains the anchor date
+    const dow = (base.getDay() + 6) % 7; // 0=Mon
+    const mon = new Date(base); mon.setDate(base.getDate() - dow);
+    const sun = new Date(mon);  sun.setDate(mon.getDate() + 6);
+    const s = mon.toISOString().slice(0, 10), e = sun.toISOString().slice(0, 10);
+    return txns.filter(t => t.date >= s && t.date <= e);
+  }
+  if (period === 'month') {
+    const ym = `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}`;
+    return txns.filter(t => (t.date||'').startsWith(ym));
+  }
+  if (period === 'year') return txns.filter(t => (t.date||'').startsWith(String(base.getFullYear())));
   return txns;
 }
 

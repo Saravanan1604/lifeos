@@ -1,8 +1,57 @@
 let _dashPeriod = 'month';
+let _dashAnchorDate = null; // null = today; 'YYYY-MM-DD' = specific anchor
 
 function setDashPeriod(p) {
   _dashPeriod = p;
+  _dashAnchorDate = null; // reset anchor when changing period tab
   renderDashboard();
+}
+
+function setDashAnchor(val) {
+  _dashAnchorDate = val || null;
+  renderDashboard();
+}
+
+function resetDashAnchor() {
+  _dashAnchorDate = null;
+  renderDashboard();
+}
+
+// Returns the display label for the current anchor+period combo
+function dashAnchorLabel() {
+  if (!_dashAnchorDate) return null;
+  const d = new Date(_dashAnchorDate + 'T00:00:00');
+  if (_dashPeriod === 'day')   return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  if (_dashPeriod === 'week') {
+    const dow = (d.getDay()+6)%7;
+    const mon = new Date(d); mon.setDate(d.getDate()-dow);
+    const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+    return mon.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+' – '+sun.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  }
+  if (_dashPeriod === 'month') return d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  if (_dashPeriod === 'year')  return String(d.getFullYear());
+  return null;
+}
+
+// Picker input type per period
+function _pickerType() {
+  return { day:'date', week:'date', month:'month', year:'number' }[_dashPeriod] || 'date';
+}
+
+// Convert anchor date → value for the picker input
+function _pickerValue() {
+  const d = _dashAnchorDate || today();
+  if (_dashPeriod === 'month') return d.slice(0,7);
+  if (_dashPeriod === 'year')  return d.slice(0,4);
+  return d;
+}
+
+// Convert picker input value → YYYY-MM-DD anchor
+function _pickerToAnchor(val) {
+  if (!val) return null;
+  if (_dashPeriod === 'month') return val + '-01';
+  if (_dashPeriod === 'year')  return val + '-01-01';
+  return val; // date already YYYY-MM-DD
 }
 
 // ===== LIFE SCORE =====
@@ -186,12 +235,11 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
 function renderDashboard() {
   const scores = calcLifeScore();
   const txnsAll = STATE.transactions || [];
-  const txns = filterTxByPeriod(txnsAll, _dashPeriod);
+  const txns = filterTxByAnchor(txnsAll, _dashPeriod, _dashAnchorDate);
   const recent = [...txns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
-  // For day/week views, income (salary) is a monthly figure so fall back to
-  // the full current month. For month/year/all, respect the selected period.
+  // For day/week views income (salary) is monthly — fall back to the anchor's month.
   const _incPeriod = (_dashPeriod === 'day' || _dashPeriod === 'week') ? 'month' : _dashPeriod;
-  const incomeTxns = _incPeriod === _dashPeriod ? txns : filterTxByPeriod(txnsAll, _incPeriod);
+  const incomeTxns = _incPeriod === _dashPeriod ? txns : filterTxByAnchor(txnsAll, _incPeriod, _dashAnchorDate);
   const totalIncome = incomeTxns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const netWorth = totalIncome - totalExpense;
@@ -211,6 +259,28 @@ function renderDashboard() {
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           ${periodTabsHtml(_dashPeriod, 'setDashPeriod')}
+
+          <!-- Calendar picker -->
+          <div style="position:relative;display:inline-flex;align-items:center">
+            <button class="btn-icon btn-sm" title="Pick a specific ${_dashPeriod}"
+              style="font-size:15px;padding:5px 9px;${_dashAnchorDate?'background:rgba(99,102,241,0.25);border-color:rgba(99,102,241,0.5);':''}"
+              onclick="document.getElementById('_dashPicker').showPicker?document.getElementById('_dashPicker').showPicker():document.getElementById('_dashPicker').focus()">
+              📅
+            </button>
+            <input id="_dashPicker"
+              type="${_pickerType()}"
+              value="${_pickerValue()}"
+              ${_dashPeriod==='year'?`min="2000" max="${new Date().getFullYear()+1}"`:''}
+              style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
+              onchange="setDashAnchor(_pickerToAnchor(this.value))">
+          </div>
+
+          ${_dashAnchorDate ? `
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);font-size:11px;font-weight:600;color:#a5b4fc">
+            📍 ${dashAnchorLabel()}
+            <button onclick="resetDashAnchor()" style="background:none;border:none;cursor:pointer;color:#a5b4fc;font-size:13px;line-height:1;padding:0 2px" title="Back to today">✕</button>
+          </span>` : ''}
+
           <button class="btn-primary btn-sm" onclick="navigate('finance')" style="background:linear-gradient(135deg,#00b09b,#0acf83)">+ Add Transaction</button>
           <span onclick="navigate('habits')" class="streak-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M12 2c0 0-5 5-5 10a5 5 0 0 0 10 0c0-5-5-10-5-10z"/></svg>${STATE.streak || 0} Day Streak</span>
         </div>
@@ -533,15 +603,17 @@ function renderDashIncomeChart(txns) {
   const canvas = document.getElementById('dash-income-chart');
   if (!canvas) return;
 
-  // Build buckets based on active period
-  const now = new Date();
+  // Build buckets based on active period + anchor date
+  const base = _dashAnchorDate ? new Date(_dashAnchorDate + 'T00:00:00') : new Date();
   const buckets = {};
   let orderedKeys = [];
 
   if (_dashPeriod === 'day' || _dashPeriod === 'week') {
-    // Daily buckets — last 7 days
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
+    // Daily buckets — 7 days of the anchor's week (Mon→Sun)
+    const dow = (base.getDay() + 6) % 7;
+    const mon = new Date(base); mon.setDate(base.getDate() - dow);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(mon); d.setDate(mon.getDate() + i);
       const key = d.toISOString().slice(0, 10);
       const label = d.toLocaleString('default', { weekday: 'short', day: 'numeric' });
       buckets[key] = { label, income: 0, expense: 0 };
@@ -554,8 +626,8 @@ function renderDashIncomeChart(txns) {
       }
     });
   } else if (_dashPeriod === 'month') {
-    // Weekly buckets — weeks in current month
-    const yr = now.getFullYear(), mo = now.getMonth();
+    // Weekly buckets — weeks in the anchor's month
+    const yr = base.getFullYear(), mo = base.getMonth();
     for (let w = 1; w <= 5; w++) { buckets[`W${w}`] = { label: `Week ${w}`, income: 0, expense: 0 }; orderedKeys.push(`W${w}`); }
     txns.forEach(t => {
       const d = new Date(t.date);
@@ -568,7 +640,7 @@ function renderDashIncomeChart(txns) {
     // drop empty trailing weeks
     while (orderedKeys.length > 1 && !buckets[orderedKeys[orderedKeys.length-1]].income && !buckets[orderedKeys[orderedKeys.length-1]].expense) orderedKeys.pop();
   } else {
-    // year / all — monthly buckets, last 12
+    // year / all — monthly buckets (up to 12 months in anchor's year)
     txns.forEach(t => {
       const d = new Date(t.date);
       const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
