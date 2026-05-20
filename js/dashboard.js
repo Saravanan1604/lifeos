@@ -161,7 +161,7 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
 
   return [
     card({label:'Income', value:fmt(totalIncome),
-      sub: incD?`${incD.pos?'↑':'↓'} ${Math.abs(incD.v)}% vs last month`:'This Month',
+      sub: incD?`${incD.pos?'↑':'↓'} ${Math.abs(incD.v)}% vs last month`:periodLabel(_incPeriod),
       subColor: incD?(incD.pos?'#10b981':'#ef4444'):'var(--text3)',
       sparkData:spark('inc'), sparkColor:'#10b981', page:'finance', accent:'#10b981', alarm:false, warn:false}),
     card({label:'Expenses', value:fmt(totalExpense),
@@ -188,10 +188,11 @@ function renderDashboard() {
   const txnsAll = STATE.transactions || [];
   const txns = filterTxByPeriod(txnsAll, _dashPeriod);
   const recent = [...txns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
-  // Income (salary) is a monthly figure — always use the full current month,
-  // regardless of the period tab selected (day/week/month/year).
-  const monthTxns = filterTxByPeriod(txnsAll, 'month');
-  const totalIncome = monthTxns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  // For day/week views, income (salary) is a monthly figure so fall back to
+  // the full current month. For month/year/all, respect the selected period.
+  const _incPeriod = (_dashPeriod === 'day' || _dashPeriod === 'week') ? 'month' : _dashPeriod;
+  const incomeTxns = _incPeriod === _dashPeriod ? txns : filterTxByPeriod(txnsAll, _incPeriod);
+  const totalIncome = incomeTxns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const netWorth = totalIncome - totalExpense;
   const habits = STATE.habits || [];
