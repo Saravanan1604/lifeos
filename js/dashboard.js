@@ -282,7 +282,7 @@ function renderDashboard() {
           <div class="section-header" style="margin-bottom:14px">
             <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>Spending</p>
           </div>
-          <div style="height:200px;position:relative"><canvas id="dash-pie-chart"></canvas></div>
+          <div id="dash-pie-chart" style="display:flex;flex-direction:column;gap:8px;padding-top:4px"></div>
         </div>
       </div>
 
@@ -627,30 +627,42 @@ function renderDashIncomeChart(txns) {
 }
 
 function renderDashPieChart(txns) {
-  const canvas = document.getElementById('dash-pie-chart');
-  if (!canvas) return;
+  const el = document.getElementById('dash-pie-chart');
+  if (!el) return;
   const catMap = {};
   txns.filter(t => t.type === 'expense').forEach(t => {
     catMap[t.category] = (catMap[t.category] || 0) + t.amount;
   });
-  const topCats = Object.entries(catMap).sort(([,a],[,b]) => b - a).slice(0, 6);
-  if (!topCats.length) return;
-  const COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899'];
-  chartInstances['dash-pie'] = new Chart(canvas, {
-    type: 'doughnut',
-    data: {
-      labels: topCats.map(([name]) => name),
-      datasets: [{ data: topCats.map(([,v]) => v), backgroundColor: COLORS, borderWidth: 2, borderColor: 'rgba(15,15,35,0.5)', hoverOffset: 6 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      cutout: '60%',
-      plugins: {
-        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Inter', size: 10 }, padding: 8, boxWidth: 8 } },
-        tooltip: { callbacks: { label: ctx => ` ₹${ctx.parsed.toLocaleString('en-IN')}` } }
-      }
-    }
-  });
+  const topCats = Object.entries(catMap).sort(([,a],[,b]) => b - a).slice(0, 5);
+  if (!topCats.length) { el.innerHTML = '<p style="font-size:12px;color:#64748b;text-align:center;padding:40px 0">No expense data</p>'; return; }
+  const total = topCats.reduce((s,[,v]) => s + v, 0);
+  const PALETTES = [
+    { bg:'rgba(59,130,246,0.15)',  bar:'linear-gradient(90deg,#3b82f6,#6366f1)', dot:'#3b82f6' },
+    { bg:'rgba(16,185,129,0.15)', bar:'linear-gradient(90deg,#10b981,#34d399)', dot:'#10b981' },
+    { bg:'rgba(245,158,11,0.15)', bar:'linear-gradient(90deg,#f59e0b,#fbbf24)', dot:'#f59e0b' },
+    { bg:'rgba(239,68,68,0.15)',  bar:'linear-gradient(90deg,#ef4444,#f87171)', dot:'#ef4444' },
+    { bg:'rgba(139,92,246,0.15)', bar:'linear-gradient(90deg,#8b5cf6,#a78bfa)', dot:'#8b5cf6' },
+  ];
+  const CAT_ICONS = { Food:'🍔', Shopping:'🛍️', Transport:'🚗', Fuel:'⛽', Rent:'🏠', Bills:'💡', Health:'💊', Entertainment:'🎬', Travel:'✈️', Other:'📦', Education:'📚', Groceries:'🛒', Insurance:'🛡️', Utilities:'🔌', EMI:'🏦', Gifts:'🎁' };
+  el.innerHTML = topCats.map(([name, val], i) => {
+    const p = PALETTES[i % PALETTES.length];
+    const pct = (val / total * 100).toFixed(1);
+    const icon = CAT_ICONS[name] || '💳';
+    const fmt = val >= 100000 ? `₹${(val/100000).toFixed(1)}L` : val >= 1000 ? `₹${(val/1000).toFixed(1)}k` : `₹${val}`;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:${p.bg};transition:all 0.2s" onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform='translateX(0)'">
+      <span style="font-size:16px;flex-shrink:0">${icon}</span>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+          <span style="font-size:11px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
+          <span style="font-size:11px;font-weight:700;color:${p.dot};margin-left:6px;flex-shrink:0">${fmt}</span>
+        </div>
+        <div style="height:5px;border-radius:99px;background:rgba(255,255,255,0.07);overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${p.bar};border-radius:99px;transition:width 0.6s ease"></div>
+        </div>
+      </div>
+      <span style="font-size:10px;color:#64748b;flex-shrink:0;min-width:34px;text-align:right">${pct}%</span>
+    </div>`;
+  }).join('');
 }
 
 // ── Doughnut: 50/30/20 Rule ──
