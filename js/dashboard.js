@@ -705,40 +705,142 @@ function renderDashIncomeChart(txns) {
 function renderDashPieChart(txns) {
   const el = document.getElementById('dash-pie-chart');
   if (!el) return;
+  el.style.cssText = 'padding:0;display:block';
+
   const catMap = {};
   txns.filter(t => t.type === 'expense').forEach(t => {
     catMap[t.category] = (catMap[t.category] || 0) + t.amount;
   });
   const topCats = Object.entries(catMap).sort(([,a],[,b]) => b - a).slice(0, 5);
-  if (!topCats.length) { el.innerHTML = '<p style="font-size:12px;color:#64748b;text-align:center;padding:40px 0">No expense data</p>'; return; }
+  if (!topCats.length) {
+    el.innerHTML = '<p style="font-size:12px;color:#64748b;text-align:center;padding:40px 0">No expense data</p>';
+    return;
+  }
+
   const total = topCats.reduce((s,[,v]) => s + v, 0);
-  const PALETTES = [
-    { bg:'rgba(59,130,246,0.15)',  bar:'linear-gradient(90deg,#3b82f6,#6366f1)', dot:'#3b82f6' },
-    { bg:'rgba(16,185,129,0.15)', bar:'linear-gradient(90deg,#10b981,#34d399)', dot:'#10b981' },
-    { bg:'rgba(245,158,11,0.15)', bar:'linear-gradient(90deg,#f59e0b,#fbbf24)', dot:'#f59e0b' },
-    { bg:'rgba(239,68,68,0.15)',  bar:'linear-gradient(90deg,#ef4444,#f87171)', dot:'#ef4444' },
-    { bg:'rgba(139,92,246,0.15)', bar:'linear-gradient(90deg,#8b5cf6,#a78bfa)', dot:'#8b5cf6' },
-  ];
-  const CAT_ICONS = { Food:'🍔', Shopping:'🛍️', Transport:'🚗', Fuel:'⛽', Rent:'🏠', Bills:'💡', Health:'💊', Entertainment:'🎬', Travel:'✈️', Other:'📦', Education:'📚', Groceries:'🛒', Insurance:'🛡️', Utilities:'🔌', EMI:'🏦', Gifts:'🎁' };
-  el.innerHTML = topCats.map(([name, val], i) => {
-    const p = PALETTES[i % PALETTES.length];
-    const pct = (val / total * 100).toFixed(1);
-    const icon = CAT_ICONS[name] || '💳';
-    const fmt = val >= 100000 ? `₹${(val/100000).toFixed(1)}L` : val >= 1000 ? `₹${(val/1000).toFixed(1)}k` : `₹${val}`;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;background:${p.bg};transition:all 0.2s" onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform='translateX(0)'">
-      <span style="font-size:16px;flex-shrink:0">${icon}</span>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-          <span style="font-size:11px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
-          <span style="font-size:11px;font-weight:700;color:${p.dot};margin-left:6px;flex-shrink:0">${fmt}</span>
-        </div>
-        <div style="height:5px;border-radius:99px;background:rgba(255,255,255,0.07);overflow:hidden">
-          <div style="height:100%;width:${pct}%;background:${p.bar};border-radius:99px;transition:width 0.6s ease"></div>
-        </div>
-      </div>
-      <span style="font-size:10px;color:#64748b;flex-shrink:0;min-width:34px;text-align:right">${pct}%</span>
-    </div>`;
+  const COLORS = ['#3b82f6','#f59e0b','#10b981','#ec4899','#8b5cf6'];
+  const GLOWS  = ['#3b82f680','#f59e0b80','#10b98180','#ec489980','#8b5cf680'];
+  const CAT_ICONS = {Food:'🍔',Shopping:'🛍️',Transport:'🚗',Fuel:'⛽',Rent:'🏠',Bills:'💡',Health:'💊',Entertainment:'🎬',Travel:'✈️',Other:'📦',Education:'📚',Groceries:'🛒',Insurance:'🛡️',Utilities:'🔌',EMI:'🏦',Gifts:'🎁'};
+  const fmt = v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : v >= 1000 ? `₹${(v/1000).toFixed(1)}k` : `₹${v}`;
+
+  // ── SVG dimensions ──
+  const cx = 115, cy = 115;
+  const R  = 74;   // arc center radius
+  const sw = 30;   // ring stroke width
+  const circ = 2 * Math.PI * R;
+  const GAP_DEG = 6;
+  const gapLen  = (GAP_DEG / 360) * circ;
+
+  // ── Convert display angle (0=top, CW) → SVG radians ──
+  const toRad = deg => (deg - 90) * Math.PI / 180;
+
+  // ── Build segments ──
+  let cumDeg = 0;
+  const segs = topCats.map(([name, val], i) => {
+    const pct     = val / total;
+    const sweepDeg = pct * 360;
+    const segLen  = Math.max(1, (sweepDeg / 360) * circ - gapLen);
+    const midDeg  = cumDeg + sweepDeg / 2;
+    const startDeg = cumDeg;
+    cumDeg += sweepDeg;
+    return { name, val, pct, sweepDeg, segLen, startDeg, midDeg,
+             color: COLORS[i % COLORS.length], glow: GLOWS[i % GLOWS.length],
+             icon: CAT_ICONS[name] || '💳', fmt: fmt(val) };
+  });
+
+  // dashoffset = circ/4 puts dash start at 12-o'clock;
+  // then rotate(startDeg) spins each segment into place.
+  const dashOff = (circ / 4).toFixed(2);
+
+  // ── Arc strokes ──
+  const arcs = segs.map(s => `
+    <circle cx="${cx}" cy="${cy}" r="${R}"
+      fill="none" stroke="${s.color}" stroke-width="${sw}"
+      stroke-linecap="round"
+      stroke-dasharray="${s.segLen.toFixed(2)} ${circ.toFixed(2)}"
+      stroke-dashoffset="${dashOff}"
+      transform="rotate(${s.startDeg.toFixed(2)},${cx},${cy})"
+      style="filter:drop-shadow(0 3px 10px ${s.glow})"/>
+  `).join('');
+
+  // ── Icons at arc midpoints (on the ring) ──
+  const icons = segs.map(s => {
+    const r = toRad(s.midDeg);
+    const x = (cx + R * Math.cos(r)).toFixed(1);
+    const y = (cy + R * Math.sin(r)).toFixed(1);
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="13" style="pointer-events:none">${s.icon}</text>`;
   }).join('');
+
+  // ── Percentage labels outside the ring ──
+  const pctLabels = segs.map(s => {
+    const r   = toRad(s.midDeg);
+    const outR = R + sw / 2 + 17;
+    const x = (cx + outR * Math.cos(r)).toFixed(1);
+    const y = (cy + outR * Math.sin(r)).toFixed(1);
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle"
+      font-size="9.5" font-weight="800" fill="${s.color}" font-family="Inter,sans-serif"
+      style="filter:drop-shadow(0 1px 3px #000a)">${(s.pct * 100).toFixed(0)}%</text>`;
+  }).join('');
+
+  // ── Connector lines + outer labels ──
+  const connectors = segs.map((s, i) => {
+    const r    = toRad(s.midDeg);
+    const cos  = Math.cos(r), sin = Math.sin(r);
+    const lx1  = cx + (R + sw / 2 + 2) * cos,  ly1 = cy + (R + sw / 2 + 2) * sin;
+    const lx2  = cx + (R + sw / 2 + 28) * cos, ly2 = cy + (R + sw / 2 + 28) * sin;
+    // text anchor: left/right depending on side
+    const anchor = cos > 0.1 ? 'start' : cos < -0.1 ? 'end' : 'middle';
+    const tx = lx2 + (cos > 0.1 ? 4 : cos < -0.1 ? -4 : 0);
+    return `
+      <line x1="${lx1.toFixed(1)}" y1="${ly1.toFixed(1)}" x2="${lx2.toFixed(1)}" y2="${ly2.toFixed(1)}"
+        stroke="${s.color}" stroke-width="1.2" stroke-opacity="0.55" stroke-dasharray="2 2"/>
+      <text x="${tx.toFixed(1)}" y="${(ly2 - 5).toFixed(1)}" text-anchor="${anchor}"
+        font-size="8.5" font-weight="700" fill="${s.color}" font-family="Inter,sans-serif"
+        style="filter:drop-shadow(0 1px 2px #000)">${s.name}</text>
+      <text x="${tx.toFixed(1)}" y="${(ly2 + 5).toFixed(1)}" text-anchor="${anchor}"
+        font-size="8" fill="#64748b" font-family="Inter,sans-serif">${s.fmt}</text>`;
+  }).join('');
+
+  const totalFmt = fmt(total);
+  const innerR   = (R - sw / 2 - 4).toFixed(0);
+
+  el.innerHTML = `
+    <svg width="100%" viewBox="0 0 230 230" style="display:block;overflow:visible;max-height:220px">
+      <defs>
+        <radialGradient id="dpie-bg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(30,32,60,0.98)"/>
+          <stop offset="100%" stop-color="rgba(10,12,30,0.98)"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Track ring -->
+      <circle cx="${cx}" cy="${cy}" r="${R}" fill="none"
+        stroke="rgba(255,255,255,0.04)" stroke-width="${sw}"/>
+
+      <!-- Colored arc segments -->
+      ${arcs}
+
+      <!-- Inner dark fill -->
+      <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="url(#dpie-bg)"
+        stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+      <!-- Center: total label -->
+      <text x="${cx}" y="${cy - 11}" text-anchor="middle"
+        font-size="8.5" fill="#64748b" font-family="Inter,sans-serif" letter-spacing="1">SPENT</text>
+      <text x="${cx}" y="${cy + 7}" text-anchor="middle"
+        font-size="16" font-weight="900" fill="#f1f5f9" font-family="Inter,sans-serif">${totalFmt}</text>
+      <text x="${cx}" y="${cy + 19}" text-anchor="middle"
+        font-size="7.5" fill="#475569" font-family="Inter,sans-serif">this period</text>
+
+      <!-- Icons on arc midpoints -->
+      ${icons}
+
+      <!-- % labels outside ring -->
+      ${pctLabels}
+
+      <!-- Connector lines + name/amount labels -->
+      ${connectors}
+    </svg>`;
 }
 
 // ── Doughnut: 50/30/20 Rule ──
