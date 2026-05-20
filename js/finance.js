@@ -149,6 +149,7 @@ function renderFinance() {
                   <div style="font-size:14px;font-weight:800;color:#fff;margin-top:2px">${c.bankName}</div>
                 </div>
                 <div style="display:flex;gap:6px">
+                  <button onclick="openUpdateCCModal('${c.id}')" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Pay</button>
                   <button onclick="editCreditCard(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
                   <button onclick="deleteCreditCard(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
                 </div>
@@ -2087,6 +2088,74 @@ function saveCreditCard(editIndex) {
 function deleteCreditCard(i) {
   STATE.creditCards = (STATE.creditCards||[]).filter((_,idx)=>idx!==i);
   saveState(); toast('Card removed', 'info'); renderFinance();
+}
+
+// ── Quick update outstanding (like bank ↑ Bal) ───────────────────────────
+function openUpdateCCModal(cardId) {
+  const card = (STATE.creditCards||[]).find(c => c.id === cardId);
+  if (!card) return;
+  const todayStr = today();
+  const yday  = (() => { const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); })();
+  const y2day = (() => { const d=new Date(); d.setDate(d.getDate()-2); return d.toISOString().slice(0,10); })();
+  openModal(`💳 Update ${card.bankName} Card`, `
+    <div style="padding:10px 14px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);margin-bottom:14px;font-size:12px;color:var(--text2)">
+      Current outstanding: <strong style="color:#ef4444">${fmt(card.outstanding||0)}</strong> &nbsp;·&nbsp; Limit: <strong>${fmt(card.limit||0)}</strong>
+    </div>
+    <div class="form-group">
+      <label class="form-label">New Outstanding Balance (₹)</label>
+      <input type="number" id="cc-upd-outstanding" class="form-input" placeholder="Enter current outstanding" step="0.01" min="0" autofocus value="${card.outstanding||0}"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <button type="button" id="cc-btn-today" onclick="setCcDate('${todayStr}','today')" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.15);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer">Today</button>
+        <button type="button" id="cc-btn-yday"  onclick="setCcDate('${yday}','yday')"   style="padding:6px 14px;border-radius:8px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.06);color:var(--text2);font-size:12px;cursor:pointer">Yesterday</button>
+        <button type="button" id="cc-btn-y2day" onclick="setCcDate('${y2day}','y2day')" style="padding:6px 14px;border-radius:8px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.06);color:var(--text2);font-size:12px;cursor:pointer">2 days ago</button>
+        <button type="button" onclick="document.getElementById('cc-upd-date').showPicker?document.getElementById('cc-upd-date').showPicker():document.getElementById('cc-upd-date').focus()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.06);color:var(--text2);font-size:12px;cursor:pointer">📅 Pick</button>
+      </div>
+      <input type="date" id="cc-upd-date" class="form-input" value="${todayStr}"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note (optional)</label>
+      <input type="text" id="cc-upd-note" class="form-input" placeholder="e.g. After payment, new purchase…"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveCCUpdate('${cardId}')" style="background:linear-gradient(135deg,#ef4444,#b91c1c)">💾 Save</button>
+    </div>`);
+}
+
+function setCcDate(dateStr, key) {
+  document.getElementById('cc-upd-date').value = dateStr;
+  ['today','yday','y2day'].forEach(k => {
+    const btn = document.getElementById(`cc-btn-${k}`);
+    if (!btn) return;
+    const active = k === key;
+    btn.style.background  = active ? 'rgba(239,68,68,0.15)'  : 'rgba(255,255,255,0.06)';
+    btn.style.borderColor = active ? 'rgba(239,68,68,0.5)'   : 'var(--glass-border)';
+    btn.style.color       = active ? '#ef4444'               : 'var(--text2)';
+    btn.style.fontWeight  = active ? '600'                   : '400';
+  });
+}
+
+function saveCCUpdate(cardId) {
+  const card = (STATE.creditCards||[]).find(c => c.id === cardId);
+  if (!card) return;
+  const newOut  = parseFloat(document.getElementById('cc-upd-outstanding')?.value);
+  const date    = document.getElementById('cc-upd-date')?.value || today();
+  const note    = document.getElementById('cc-upd-note')?.value.trim() || 'Balance update';
+  if (isNaN(newOut) || newOut < 0) { toast('Enter a valid amount', 'error'); return; }
+  const oldOut = card.outstanding || 0;
+  card.outstanding = newOut;
+  STATE.creditCardHistory = STATE.creditCardHistory || [];
+  STATE.creditCardHistory.push({
+    id: genId(), cardId,
+    outstanding: newOut, prevOutstanding: oldOut,
+    date, note, createdAt: new Date().toISOString()
+  });
+  saveState(); closeModal();
+  toast(`${card.bankName} → outstanding ${fmt(newOut)} saved ✅`, 'success');
+  renderFinance();
 }
 
 // ===== CSV IMPORT =====

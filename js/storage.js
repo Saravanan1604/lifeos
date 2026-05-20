@@ -21,7 +21,9 @@ const DB = {
       tasks: [],
       chatHistory: [],
       bankBalanceHistory: [],  // [{ accountId, balance, date, note }]
-      bankTransfers: []        // [{ id, fromId, toId, amount, date, note }]
+      bankTransfers: [],       // [{ id, fromId, toId, amount, date, note }]
+      creditCards: [],
+      creditCardHistory: []    // [{ id, cardId, outstanding, prevOutstanding, date, note, createdAt }]
     };
   },
   load() {
@@ -156,7 +158,7 @@ function getGreeting(name) {
 // ===== LIVE SYNC ENGINE =====
 const LIVE_SYNC_KEYS = [
   'investments', 'loans', 'transactions', 'bankAccounts',
-  'bankBalanceHistory', 'bankTransfers', 'goals', 'habits',
+  'bankBalanceHistory', 'bankTransfers', 'creditCards', 'creditCardHistory', 'goals', 'habits',
   'habitCompletions', 'healthEntries', 'tasks', 'budgets',
   'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
   'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',

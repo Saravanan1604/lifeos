@@ -1,5 +1,7 @@
 // ===== BANK TRACKER PAGE =====
 let bankTrackerAccount = null; // currently selected account id
+let bankTrackerTab     = 'banks'; // 'banks' | 'cards'
+let bankTrackerCard    = null;    // currently selected credit card id
 
 function formatRelativeDate(dateStr) {
   const now = new Date(); now.setHours(0,0,0,0);
@@ -16,6 +18,8 @@ function formatRelativeDate(dateStr) {
 }
 
 function renderBankTracker() {
+  if (bankTrackerTab === 'cards') { renderCCTracker(); return; }
+
   const accounts  = STATE.bankAccounts || [];
   const history   = STATE.bankBalanceHistory || [];
   const transfers = STATE.bankTransfers || [];
@@ -138,6 +142,12 @@ function renderBankTracker() {
           ${accounts.length >= 2 ? `<button class="btn-primary btn-sm" onclick="openTransferModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706)">⇄ Transfer</button>` : ''}
           <button class="btn-primary btn-sm" onclick="openQuickBalanceModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#00c9a7,#0acf83)">+ Log Balance</button>
         </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
+        <button onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">🏦 Banks</button>
+        <button onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">💳 Credit Cards</button>
       </div>
 
       ${!accounts.length ? `
@@ -537,5 +547,323 @@ function deleteTransfer(id) {
   STATE.bankTransfers = (STATE.bankTransfers || []).filter(t => t.id !== id);
   saveState();
   toast('Transfer removed', 'info');
+  renderBankTracker();
+}
+
+// ===== CREDIT CARD TRACKER =====
+function renderCCTracker() {
+  const cards   = STATE.creditCards || [];
+  const history = STATE.creditCardHistory || [];
+  const selId   = bankTrackerCard;
+  const getCardById = id => cards.find(c => c.id === id);
+
+  const totalOutstanding = cards.reduce((s,c)=>s+(c.outstanding||0),0);
+  const totalLimit       = cards.reduce((s,c)=>s+(c.limit||0),0);
+  const overallUtil      = totalLimit > 0 ? Math.round((totalOutstanding/totalLimit)*100) : 0;
+  const utilColor        = overallUtil > 80 ? '#ef4444' : overallUtil > 50 ? '#f59e0b' : '#10b981';
+
+  // ── 30-day chart data for selected card ──
+  const last30days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    last30days.push(d.toISOString().slice(0, 10));
+  }
+  function getOutstandingOnDate(cardId, dateStr) {
+    const snaps = history
+      .filter(h => h.cardId === cardId && h.date <= dateStr)
+      .sort((a, b) => a.date.localeCompare(b.date));
+    return snaps.length ? snaps[snaps.length-1].outstanding : null;
+  }
+  const chartCards = selId ? cards.filter(c=>c.id===selId) : cards;
+  const chartLabels = last30days.map(d => new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short'}));
+  const chartData   = last30days.map(d => {
+    let total = 0, hasData = false;
+    chartCards.forEach(c => {
+      const firstSnap = history.filter(h=>h.cardId===c.id).sort((a,b)=>a.date.localeCompare(b.date))[0];
+      if (!firstSnap || d < firstSnap.date) return;
+      const val = getOutstandingOnDate(c.id, d);
+      if (val !== null) { total += val; hasData = true; }
+    });
+    return hasData ? total : null;
+  });
+
+  // ── Chat history ──
+  const filteredHistory = [...history]
+    .filter(h => !selId || h.cardId === selId)
+    .sort((a,b) => a.date.localeCompare(b.date) || (a.createdAt||'').localeCompare(b.createdAt||''));
+
+  const grouped = {};
+  filteredHistory.forEach(h => {
+    if (!grouped[h.date]) grouped[h.date] = [];
+    grouped[h.date].push(h);
+  });
+  const sortedDates = Object.keys(grouped).sort();
+
+  let chatHTML = '';
+  if (!sortedDates.length) {
+    chatHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;text-align:center">
+        <div style="font-size:48px">💳</div>
+        <p style="font-weight:700;font-size:16px">No payment history yet</p>
+        <p style="color:var(--text3);font-size:13px">Tap "↑ Pay" on any credit card to start tracking.<br>Log payments, purchases, and statements!</p>
+      </div>`;
+  } else {
+    sortedDates.forEach(date => {
+      chatHTML += `
+        <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
+          <span style="font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap;padding:4px 12px;background:rgba(255,255,255,0.05);border-radius:20px">${formatRelativeDate(date)} &nbsp;·&nbsp; ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
+        </div>`;
+      grouped[date].forEach((h, idx) => {
+        const card  = getCardById(h.cardId);
+        const delta = (h.prevOutstanding !== undefined && h.prevOutstanding !== null) ? h.outstanding - h.prevOutstanding : null;
+        const up    = delta !== null && delta > 0;  // outstanding went up = more debt
+        const same  = delta === 0;
+        const dc    = same ? '#94a3b8' : up ? '#ef4444' : '#10b981';
+        const di    = same ? '→' : up ? '↑ More debt' : '↓ Paid off';
+        const pct   = card ? Math.min(100, Math.round((h.outstanding/(card.limit||1))*100)) : 0;
+        const uc    = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#10b981';
+        chatHTML += `
+          <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:12px;padding:0 4px">
+            <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${card?`linear-gradient(135deg,${card.color||'#1e293b'},${card.color2||'#0f172a'})`:'rgba(239,68,68,0.2)'};font-size:17px;flex-shrink:0">💳</div>
+            <div style="max-width:78%">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:3px;font-weight:600;padding-left:2px">${!selId?(card?.bankName||'Card')+' · ':''}💳 Outstanding Update</div>
+              <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:4px 16px 16px 16px;padding:12px 16px">
+                <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-0.5px">${fmt(h.outstanding)}</div>
+                ${delta !== null ? `
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap">
+                    <span style="font-size:12px;font-weight:700;color:${dc}">${di}: ${same?'No change':(up?'+':'')+fmt(Math.abs(delta))}</span>
+                    ${h.prevOutstanding !== undefined ? `<span style="font-size:10px;color:var(--text3)">from ${fmt(h.prevOutstanding)}</span>` : ''}
+                  </div>` : ''}
+                ${card ? `
+                  <div style="margin-top:8px">
+                    <div style="height:4px;border-radius:4px;background:rgba(255,255,255,0.1)"><div style="height:4px;border-radius:4px;width:${pct}%;background:${uc}"></div></div>
+                    <span style="font-size:10px;color:var(--text3);margin-top:3px;display:block">${pct}% of ${fmt(card.limit||0)} limit</span>
+                  </div>` : ''}
+                ${h.note && h.note !== 'Balance update' ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.07)">${h.note}</div>` : ''}
+                <div style="display:flex;justify-content:flex-end;margin-top:6px">
+                  <button onclick="deleteCCHistoryEntry('${h.id||''}','${date}',${idx})" style="background:none;border:none;color:rgba(239,68,68,0.35);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;transition:.2s" onmouseover="this.style.color='#ef4444';this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.color='rgba(239,68,68,0.35)';this.style.background='none'">✕ delete</button>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      });
+    });
+  }
+
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in" style="max-width:960px;margin:0 auto">
+
+      <!-- Header -->
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+        <div>
+          <h1 class="page-title">🏦 Bank Tracker</h1>
+          <p class="page-subtitle">Credit card outstanding history</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-secondary btn-sm" onclick="navigate('finance')">← Finance</button>
+          ${selId ? `<button class="btn-primary btn-sm" onclick="openUpdateCCModal('${selId}')" style="background:linear-gradient(135deg,#ef4444,#b91c1c)">↑ Update Outstanding</button>` : ''}
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
+        <button onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">🏦 Banks</button>
+        <button onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid #ef4444;color:#ef4444;transition:.2s">💳 Credit Cards</button>
+      </div>
+
+      ${!cards.length ? `
+        <div class="glass-card" style="padding:60px;text-align:center">
+          <div style="font-size:60px;margin-bottom:16px">💳</div>
+          <p style="font-size:18px;font-weight:700;margin-bottom:8px">No Credit Cards Yet</p>
+          <p style="color:var(--text3);margin-bottom:20px">Add credit cards in Finance to start tracking</p>
+          <button class="btn-primary" onclick="navigate('finance')">+ Add Credit Card</button>
+        </div>` : `
+
+      <!-- Summary Hero -->
+      <div style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#2d0a0a,#1a0505,#2d0a0a);border:1px solid rgba(239,68,68,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+        <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(239,68,68,0.07)"></div>
+        <div style="position:relative">
+          <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(239,68,68,0.7);margin-bottom:6px">💳 Total Outstanding</p>
+          <p style="font-size:52px;font-weight:900;color:#ef4444;letter-spacing:-2px;line-height:1">${fmt(totalOutstanding)}</p>
+          <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <span style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(239,68,68,0.15);color:${utilColor}">${overallUtil}% utilised</span>
+            <span style="font-size:12px;color:rgba(255,255,255,0.5)">Total Limit: ${fmt(totalLimit)}</span>
+          </div>
+          <!-- Card selector pills -->
+          <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px">
+            <div onclick="bankTrackerCard=null;renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${!selId?'rgba(239,68,68,0.2)':'rgba(255,255,255,0.06)'};border:1px solid ${!selId?'rgba(239,68,68,0.5)':'rgba(255,255,255,0.08)'};cursor:pointer;min-width:70px;text-align:center">
+              <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${!selId?'#ef4444':'rgba(255,255,255,0.45)'}">ALL</p>
+              <p style="font-size:14px;font-weight:800;color:${!selId?'#ef4444':'rgba(255,255,255,0.65)'};margin-top:2px">${cards.length} cards</p>
+            </div>
+            ${cards.map(c => {
+              const isActive = selId === c.id;
+              const lastSnap = [...history].filter(h=>h.cardId===c.id).sort((x,y)=>y.date.localeCompare(x.date))[0];
+              const lastDate = lastSnap ? formatRelativeDate(lastSnap.date) : 'No entries';
+              const pct = Math.min(100, Math.round(((c.outstanding||0)/(c.limit||1))*100));
+              const uc  = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#10b981';
+              return `
+              <div onclick="bankTrackerCard='${c.id}';renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${isActive?'rgba(239,68,68,0.15)':'rgba(255,255,255,0.06)'};border:1px solid ${isActive?'rgba(239,68,68,0.4)':'rgba(255,255,255,0.08)'};cursor:pointer;min-width:130px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  <span style="font-size:16px">💳</span>
+                  <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${c.bankName}</p>
+                </div>
+                <p style="font-size:16px;font-weight:900;color:#ef4444">${fmt(c.outstanding||0)}</p>
+                <div style="height:3px;border-radius:3px;background:rgba(255,255,255,0.1);margin-top:5px"><div style="height:3px;border-radius:3px;width:${pct}%;background:${uc}"></div></div>
+                <p style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px">${pct}% · Updated ${lastDate}</p>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart + Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px" id="cc-main-grid">
+        <!-- Trend Chart -->
+        <div class="glass-card" style="padding:20px">
+          <p class="section-title" style="font-size:13px;margin-bottom:12px">📈 30-Day Outstanding Trend
+            <span style="font-size:10px;font-weight:500;color:var(--text3);margin-left:6px">${selId?(getCardById(selId)?.bankName||'Card'):'All Cards'}</span>
+          </p>
+          ${!history.filter(h=>!selId||h.cardId===selId).length
+            ? `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:160px;gap:8px"><div style="font-size:32px">📊</div><p style="color:var(--text3);font-size:12px;text-align:center">Log outstanding to see the trend</p></div>`
+            : `<div style="height:180px;position:relative"><canvas id="cc-trend-chart"></canvas></div>`}
+        </div>
+
+        <!-- Stats + Cards overview -->
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            ${[
+              { label:'Cards',      value:cards.length,                                              icon:'💳', tc:'#ef4444' },
+              { label:'Entries',    value:history.filter(h=>!selId||h.cardId===selId).length,        icon:'📸', tc:'#f59e0b' },
+              { label:'Total Limit',value:fmt(totalLimit),                                           icon:'🔝', tc:'#8b5cf6' },
+              { label:'Available',  value:fmt(Math.max(0,totalLimit-totalOutstanding)),              icon:'✅', tc:'#10b981' },
+            ].map(s=>`
+              <div class="glass-card" style="padding:14px;text-align:center">
+                <div style="font-size:16px;margin-bottom:6px">${s.icon}</div>
+                <p style="font-size:${s.value.toString().length>6?'14':'18'}px;font-weight:800;color:${s.tc}">${s.value}</p>
+                <p style="font-size:10px;color:var(--text3);margin-top:2px">${s.label}</p>
+              </div>`).join('')}
+          </div>
+          <!-- Quick update per card -->
+          <div class="glass-card" style="padding:14px;flex:1">
+            <p style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase">Quick Update</p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              ${cards.map(c=>`
+                <button onclick="openUpdateCCModal('${c.id}')" style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;transition:.2s" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">💳 ${c.bankName}</button>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat-style History -->
+      <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.25)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(239,68,68,0.2);font-size:18px">💳</div>
+            <div>
+              <p style="font-size:14px;font-weight:700">${selId?(getCardById(selId)?.bankName||'Card'):'All Cards'} — Outstanding Log</p>
+              <p style="font-size:11px;color:var(--text3)">${filteredHistory.length} entries · newest at bottom</p>
+            </div>
+          </div>
+          ${selId ? `<button class="btn-primary btn-sm" onclick="openUpdateCCModal('${selId}')" style="background:linear-gradient(135deg,#ef4444,#b91c1c)">+ Log</button>` : ''}
+        </div>
+        <div id="cc-chat" style="padding:16px 16px 8px;max-height:520px;overflow-y:auto;scroll-behavior:smooth">
+          ${chatHTML}
+        </div>
+        <div style="padding:10px 14px;border-top:1px solid var(--glass-border);background:rgba(0,0,0,0.2);display:flex;gap:10px;align-items:center">
+          <div onclick="${selId?`openUpdateCCModal('${selId}')`:'openUpdateCCModal((STATE.creditCards||[])[0]?.id)'}" style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:10px;font-size:13px;color:var(--text3);cursor:pointer;transition:.2s">
+            Update outstanding for ${selId?(getCardById(selId)?.bankName||'selected card'):'any card'}…
+          </div>
+          <button class="btn-primary" onclick="${selId?`openUpdateCCModal('${selId}')`:'openUpdateCCModal((STATE.creditCards||[])[0]?.id)'}" style="background:linear-gradient(135deg,#ef4444,#b91c1c);padding:10px 18px;border-radius:10px;white-space:nowrap">+ Log</button>
+        </div>
+      </div>
+
+      `}
+    </div>`;
+
+  // Scroll chat to bottom
+  setTimeout(() => {
+    const chat = document.getElementById('cc-chat');
+    if (chat && sortedDates.length) chat.scrollTop = chat.scrollHeight;
+  }, 80);
+
+  // Responsive grid
+  setTimeout(() => {
+    const grid = document.getElementById('cc-main-grid');
+    if (grid && window.innerWidth < 640) grid.style.gridTemplateColumns = '1fr';
+  }, 50);
+
+  // Trend chart
+  if (history.filter(h => !selId || h.cardId === selId).length) {
+    setTimeout(() => renderCCTrendChart(chartLabels, chartData), 60);
+  }
+}
+
+function renderCCTrendChart(labels, data) {
+  const canvas = document.getElementById('cc-trend-chart');
+  if (!canvas) return;
+  const isLight   = document.body.classList.contains('light');
+  const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+
+  chartInstances['cc-trend'] = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Outstanding',
+        data,
+        borderColor: '#ef4444',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#ef4444',
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        tension: 0.4,
+        fill: true,
+        spanGaps: false,
+        backgroundColor: ctx => {
+          const { ctx: c, chartArea } = ctx.chart;
+          if (!chartArea) return 'rgba(239,68,68,0.2)';
+          const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          g.addColorStop(0, 'rgba(239,68,68,0.25)');
+          g.addColorStop(1, 'rgba(239,68,68,0)');
+          return g;
+        }
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.95)', titleColor: '#94a3b8',
+          bodyColor: '#fff', padding: 12,
+          borderColor: 'rgba(239,68,68,0.3)', borderWidth: 1,
+          callbacks: { label: ctx => ` ₹${ctx.parsed.y.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}` }
+        }
+      },
+      scales: {
+        x: { ticks: { color:'#64748b', font:{size:10}, maxRotation:45 }, grid: { color:gridColor } },
+        y: {
+          ticks: {
+            color:'#64748b', font:{size:11},
+            callback: v => `₹${Math.abs(v)>=100000?(v/100000).toFixed(1)+'L':Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v}`
+          },
+          grid: { color:gridColor }
+        }
+      }
+    }
+  });
+}
+
+function deleteCCHistoryEntry(id, date, idx) {
+  const history = STATE.creditCardHistory || [];
+  let target = history.find(h => h.id === id);
+  if (!target) target = history.filter(h => h.date === date)[idx];
+  if (!target) return;
+  STATE.creditCardHistory = history.filter(h => h !== target);
+  saveState();
+  toast('Entry removed', 'info');
   renderBankTracker();
 }
