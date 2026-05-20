@@ -1386,7 +1386,17 @@ function renderInvestments() {
 
       <!-- ── INVESTMENTS ─────────────────────────────────────────── -->
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
-        <p style="font-size:16px;font-weight:800">💹 Investments & Assets</p>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <p style="font-size:16px;font-weight:800">💹 Investments & Assets</p>
+          <button id="refresh-prices-btn" onclick="fetchLivePrices()"
+            style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;
+              border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.12);
+              color:#10b981;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s"
+            onmouseover="this.style.background='rgba(16,185,129,0.22)'"
+            onmouseout="this.style.background='rgba(16,185,129,0.12)'">
+            🔄 Refresh Live Prices
+          </button>
+        </div>
         <div style="display:flex;flex-wrap:wrap;gap:6px">
           ${allAssetTypes.map(t => `
             <button onclick="invFilter='${t.key}';renderInvestments()" style="padding:5px 12px;border-radius:16px;border:1px solid ${invFilter===t.key?'rgba(0,201,167,0.5)':'rgba(255,255,255,0.1)'};background:${invFilter===t.key?'rgba(0,201,167,0.15)':'transparent'};color:${invFilter===t.key?'#00c9a7':'var(--text2)'};font-size:11px;font-weight:${invFilter===t.key?700:400};cursor:pointer;transition:.15s">${t.icon} ${t.key}</button>`).join('')}
