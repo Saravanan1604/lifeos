@@ -1258,16 +1258,36 @@ function renderInvestments() {
     const pnl  = curr - inv.amount;
     const roi  = inv.amount > 0 ? ((pnl / inv.amount) * 100).toFixed(2) : '0.00';
     const pos  = pnl >= 0;
-    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+
+    // Live price badge
+    const hasTicker = inv.ticker && inv.qty > 0;
+    const lastUp    = inv.lastUpdated ? _timeSince(inv.lastUpdated) : null;
+    const liveTag   = hasTicker
+      ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:4px;
+            font-size:9px;font-weight:700;letter-spacing:.3px;margin-left:5px;
+            background:${lastUp?'rgba(16,185,129,0.12)':'rgba(100,116,139,0.1)'};
+            border:1px solid ${lastUp?'rgba(16,185,129,0.3)':'rgba(100,116,139,0.2)'};
+            color:${lastUp?'#10b981':'#64748b'}">
+          ${lastUp ? '🟢' : '⚪'} ${inv.ticker}
+        </span>` : '';
+    const liveSub = hasTicker
+      ? `${inv.qty} units${inv.livePrice?' · ₹'+inv.livePrice.toLocaleString('en-IN',{maximumFractionDigits:2})+'/unit':''}${lastUp?' · Updated '+lastUp:'  · Not fetched yet'}`
+      : '';
+
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s"
+        onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
       <td style="padding:12px 16px;width:48px;text-align:center">
         <div style="display:flex;flex-direction:column;gap:0">${moveBtn('up','moveInv',inv.id,list)}${moveBtn('down','moveInv',inv.id,list)}</div>
       </td>
       <td style="padding:12px 16px">
         <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:38px;height:38px;border-radius:10px;background:rgba(99,102,241,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${assetIcon(inv.type)}</div>
+          <div style="width:38px;height:38px;border-radius:10px;background:rgba(99,102,241,0.15);
+              display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${assetIcon(inv.type)}</div>
           <div>
-            <p style="font-weight:700;font-size:13px">${inv.name}</p>
-            <p style="font-size:11px;color:var(--text3)">${inv.type}${inv.notes?' · '+inv.notes:''}</p>
+            <p style="font-weight:700;font-size:13px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+              ${inv.name}${liveTag}
+            </p>
+            <p style="font-size:11px;color:var(--text3)">${inv.type}${liveSub ? ' · '+liveSub : (inv.notes?' · '+inv.notes:'')}${!liveSub&&inv.notes?' · '+inv.notes:''}</p>
           </div>
         </div>
       </td>
@@ -1325,7 +1345,12 @@ function renderInvestments() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div><h1 class="page-title">📊 All Assets</h1><p class="page-subtitle">Investments, loans & net worth</p></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button id="refresh-prices-btn" class="btn-secondary btn-sm" onclick="fetchLivePrices()"
+            title="Fetch live prices for Stocks & Crypto with ticker symbols"
+            style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#10b981;font-weight:700">
+            🔄 Live Prices
+          </button>
           <button class="btn-secondary btn-sm" onclick="openManageTypesModal('asset')">⚙️ Asset Types</button>
           <button class="btn-secondary btn-sm" onclick="openManageTypesModal('loan')">⚙️ Loan Types</button>
           <button class="btn-primary btn-sm" onclick="openAddLoanModal()" style="background:linear-gradient(135deg,#ef4444,#dc2626)">+ Add Loan</button>
@@ -1450,17 +1475,62 @@ function _invTypeOptions(sel) {
   return getAssetTypes().map(t => `<option value="${t.key}" ${t.key===sel?'selected':''}>${t.icon} ${t.key}</option>`).join('');
 }
 
+// Show/hide ticker fields when asset type changes
+function toggleTickerFields(prefix) {
+  const type = document.getElementById(`${prefix}-type`)?.value || '';
+  const needsTicker = type === 'Stocks' || type === 'Crypto';
+  const el = document.getElementById(`${prefix}-ticker-fields`);
+  if (el) el.style.display = needsTicker ? 'block' : 'none';
+}
+
+function _tickerFieldsHtml(prefix, ticker = '', qty = '') {
+  return `
+    <div id="${prefix}-ticker-fields" style="display:none">
+      <div class="input-row">
+        <div class="form-group">
+          <label class="form-label">Ticker Symbol
+            <a href="https://finance.yahoo.com/lookup" target="_blank"
+              style="font-size:10px;color:var(--teal);margin-left:6px;text-decoration:none">lookup ↗</a>
+          </label>
+          <input type="text" id="${prefix}-ticker" class="form-input"
+            value="${ticker}" placeholder="RELIANCE.NS · INFY.BO · BTC-INR"
+            style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Qty (shares / units)</label>
+          <input type="number" id="${prefix}-qty" class="form-input"
+            value="${qty}" placeholder="10" min="0" step="any"/>
+        </div>
+      </div>
+      <div style="background:rgba(0,201,167,0.07);border:1px solid rgba(0,201,167,0.2);
+          border-radius:8px;padding:8px 12px;margin-bottom:4px">
+        <p style="font-size:11px;color:#00c9a7;margin:0">
+          💡 NSE → <b>SYMBOL.NS</b> &nbsp;|&nbsp; BSE → <b>SYMBOL.BO</b> &nbsp;|&nbsp; Crypto → <b>BTC-INR</b> &nbsp;|&nbsp;
+          After saving, hit <b>🔄 Live Prices</b> on the page to auto-fetch.
+        </p>
+      </div>
+    </div>`;
+}
+
 function openAddInvModal() {
   openModal('➕ Add Asset', `
-    <div class="form-group"><label class="form-label">Name</label><input type="text" id="inv-name" class="form-input" placeholder="e.g. Infosys shares, Axis FD, Gold 10g"/></div>
+    <div class="form-group"><label class="form-label">Name</label>
+      <input type="text" id="inv-name" class="form-input" placeholder="e.g. Infosys shares, Axis FD, Gold 10g"/></div>
     <div class="form-group"><label class="form-label">Asset Type</label>
-      <select id="inv-type" class="form-input">${_invTypeOptions('')}</select></div>
+      <select id="inv-type" class="form-input" onchange="toggleTickerFields('inv')">${_invTypeOptions('')}</select></div>
+
+    ${_tickerFieldsHtml('inv')}
+
     <div class="input-row">
-      <div class="form-group"><label class="form-label">Invested Amount (₹)</label><input type="number" id="inv-amount" class="form-input" placeholder="0"/></div>
-      <div class="form-group"><label class="form-label">Current Value (₹)</label><input type="number" id="inv-current" class="form-input" placeholder="Leave blank = invested amount"/></div>
+      <div class="form-group"><label class="form-label">Invested Amount (₹)</label>
+        <input type="number" id="inv-amount" class="form-input" placeholder="0"/></div>
+      <div class="form-group"><label class="form-label">Current Value (₹)</label>
+        <input type="number" id="inv-current" class="form-input" placeholder="auto from ticker or enter manually"/></div>
     </div>
-    <div class="form-group"><label class="form-label">Notes (optional)</label><input type="text" id="inv-notes" class="form-input" placeholder="e.g. 13 pavun, pledged, maturity date…"/></div>
-    <div class="form-group"><label class="form-label">Start Date</label><input type="date" id="inv-date" class="form-input" value="${today()}"/></div>
+    <div class="form-group"><label class="form-label">Notes (optional)</label>
+      <input type="text" id="inv-notes" class="form-input" placeholder="e.g. pledged, maturity date…"/></div>
+    <div class="form-group"><label class="form-label">Start Date</label>
+      <input type="date" id="inv-date" class="form-input" value="${today()}"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveInv()">Save Asset</button>
@@ -1474,9 +1544,13 @@ function saveInv() {
   const current = parseFloat(document.getElementById('inv-current').value) || amount;
   const notes   = document.getElementById('inv-notes').value.trim();
   const date    = document.getElementById('inv-date').value;
+  const ticker  = (document.getElementById('inv-ticker')?.value || '').trim().toUpperCase();
+  const qty     = parseFloat(document.getElementById('inv-qty')?.value) || 0;
   if (!name || !amount) { toast('Enter name and amount', 'error'); return; }
   STATE.investments = STATE.investments || [];
-  STATE.investments.push({ id: genId(), name, type, amount, currentValue: current, notes, date: date || today() });
+  const inv = { id: genId(), name, type, amount, currentValue: current, notes, date: date || today() };
+  if (ticker) { inv.ticker = ticker; inv.qty = qty; }
+  STATE.investments.push(inv);
   saveState(); addXP(25, 'Asset added'); closeModal();
   toast('Asset tracked! +25 XP', 'success'); renderInvestments();
 }
@@ -1484,35 +1558,98 @@ function saveInv() {
 function openEditInvModal(id) {
   const inv = (STATE.investments || []).find(i => i.id === id);
   if (!inv) return;
+  const hasTicker = inv.type === 'Stocks' || inv.type === 'Crypto';
   openModal('✏️ Edit Asset', `
-    <div class="form-group"><label class="form-label">Name</label><input type="text" id="einv-name" class="form-input" value="${inv.name}"/></div>
+    <div class="form-group"><label class="form-label">Name</label>
+      <input type="text" id="einv-name" class="form-input" value="${inv.name}"/></div>
     <div class="form-group"><label class="form-label">Asset Type</label>
-      <select id="einv-type" class="form-input">${_invTypeOptions(inv.type)}</select></div>
+      <select id="einv-type" class="form-input" onchange="toggleTickerFields('einv')">${_invTypeOptions(inv.type)}</select></div>
+
+    ${_tickerFieldsHtml('einv', inv.ticker || '', inv.qty || '')}
+
     <div class="input-row">
-      <div class="form-group"><label class="form-label">Invested Amount (₹)</label><input type="number" id="einv-amount" class="form-input" value="${inv.amount}"/></div>
-      <div class="form-group"><label class="form-label">Current Value (₹)</label><input type="number" id="einv-current" class="form-input" value="${inv.currentValue ?? inv.amount}"/></div>
+      <div class="form-group"><label class="form-label">Invested Amount (₹)</label>
+        <input type="number" id="einv-amount" class="form-input" value="${inv.amount}"/></div>
+      <div class="form-group"><label class="form-label">Current Value (₹)</label>
+        <input type="number" id="einv-current" class="form-input" value="${inv.currentValue ?? inv.amount}"/></div>
     </div>
-    <div class="form-group"><label class="form-label">Notes</label><input type="text" id="einv-notes" class="form-input" value="${inv.notes||''}"/></div>
-    <div class="form-group"><label class="form-label">Date</label><input type="date" id="einv-date" class="form-input" value="${inv.date||today()}"/></div>
+    <div class="form-group"><label class="form-label">Notes</label>
+      <input type="text" id="einv-notes" class="form-input" value="${inv.notes||''}"/></div>
+    <div class="form-group"><label class="form-label">Date</label>
+      <input type="date" id="einv-date" class="form-input" value="${inv.date||today()}"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveEditInv('${id}')">💾 Save Changes</button>
     </div>`);
+  // Show ticker fields if needed
+  if (hasTicker) setTimeout(() => toggleTickerFields('einv'), 30);
 }
 
 function saveEditInv(id) {
   const inv = (STATE.investments || []).find(i => i.id === id);
   if (!inv) return;
-  const name = document.getElementById('einv-name').value.trim();
+  const name   = document.getElementById('einv-name').value.trim();
   const amount = parseFloat(document.getElementById('einv-amount').value);
   if (!name || !amount) { toast('Enter name and amount', 'error'); return; }
+  const ticker = (document.getElementById('einv-ticker')?.value || '').trim().toUpperCase();
+  const qty    = parseFloat(document.getElementById('einv-qty')?.value) || 0;
   inv.name         = name;
   inv.type         = document.getElementById('einv-type').value;
   inv.amount       = amount;
   inv.currentValue = parseFloat(document.getElementById('einv-current').value) || amount;
   inv.notes        = document.getElementById('einv-notes').value.trim();
   inv.date         = document.getElementById('einv-date').value || today();
+  if (ticker) { inv.ticker = ticker; inv.qty = qty; }
+  else { delete inv.ticker; delete inv.qty; }
   saveState(); closeModal(); toast('Asset updated ✅', 'success'); renderInvestments();
+}
+
+// ── Live Price Fetch ──────────────────────────────────────────────────────────
+function _timeSince(iso) {
+  const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+
+async function _fetchTickerPrice(ticker) {
+  const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 10000);
+  try {
+    const res = await fetch(proxyUrl, { signal: ctrl.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+    if (!price) throw new Error('No price');
+    return price;
+  } finally { clearTimeout(timer); }
+}
+
+async function fetchLivePrices() {
+  const tickerInvs = (STATE.investments || []).filter(i => i.ticker && i.qty > 0);
+  if (!tickerInvs.length) {
+    toast('Add Ticker + Qty to your Stocks/Crypto first, then refresh.', 'info'); return;
+  }
+  const btn = document.getElementById('refresh-prices-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Fetching…'; }
+  let ok = 0, fail = 0;
+  for (const inv of tickerInvs) {
+    try {
+      const price = await _fetchTickerPrice(inv.ticker);
+      inv.livePrice    = price;
+      inv.currentValue = Math.round(price * inv.qty * 100) / 100;
+      inv.lastUpdated  = new Date().toISOString();
+      ok++;
+    } catch (e) { console.warn(`[LivePrice] ${inv.ticker}:`, e.message); fail++; }
+  }
+  saveState();
+  if (ok)   toast(`✅ ${ok} holding${ok>1?'s':''} updated with live prices!`, 'success');
+  if (fail) toast(`⚠️ ${fail} ticker${fail>1?'s':''} failed — check symbols (e.g. RELIANCE.NS, BTC-INR)`, 'warning');
+  renderInvestments();
 }
 
 function deleteInv(id) {
