@@ -719,128 +719,116 @@ function renderDashPieChart(txns) {
 
   const total = topCats.reduce((s,[,v]) => s + v, 0);
   const COLORS = ['#3b82f6','#f59e0b','#10b981','#ec4899','#8b5cf6'];
-  const GLOWS  = ['#3b82f680','#f59e0b80','#10b98180','#ec489980','#8b5cf680'];
   const CAT_ICONS = {Food:'🍔',Shopping:'🛍️',Transport:'🚗',Fuel:'⛽',Rent:'🏠',Bills:'💡',Health:'💊',Entertainment:'🎬',Travel:'✈️',Other:'📦',Education:'📚',Groceries:'🛒',Insurance:'🛡️',Utilities:'🔌',EMI:'🏦',Gifts:'🎁'};
   const fmt = v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : v >= 1000 ? `₹${(v/1000).toFixed(1)}k` : `₹${v}`;
 
-  // ── SVG dimensions ──
-  const cx = 115, cy = 115;
-  const R  = 74;   // arc center radius
-  const sw = 30;   // ring stroke width
-  const circ = 2 * Math.PI * R;
-  const GAP_DEG = 6;
-  const gapLen  = (GAP_DEG / 360) * circ;
-
-  // ── Convert display angle (0=top, CW) → SVG radians ──
+  // ── geometry ──
+  const cx = 110, cy = 110, R = 78, sw = 34;
+  const circ  = 2 * Math.PI * R;
+  const gapLen = (5 / 360) * circ;           // 5° gap between segments
+  const dashOff = (circ / 4).toFixed(2);     // shift start to 12-o'clock
   const toRad = deg => (deg - 90) * Math.PI / 180;
 
-  // ── Build segments ──
-  let cumDeg = 0;
+  // ── build segments ──
+  let cum = 0;
   const segs = topCats.map(([name, val], i) => {
-    const pct     = val / total;
-    const sweepDeg = pct * 360;
-    const segLen  = Math.max(1, (sweepDeg / 360) * circ - gapLen);
-    const midDeg  = cumDeg + sweepDeg / 2;
-    const startDeg = cumDeg;
-    cumDeg += sweepDeg;
-    return { name, val, pct, sweepDeg, segLen, startDeg, midDeg,
-             color: COLORS[i % COLORS.length], glow: GLOWS[i % GLOWS.length],
-             icon: CAT_ICONS[name] || '💳', fmt: fmt(val) };
+    const pct = val / total;
+    const sweep = pct * 360;
+    const mid = cum + sweep / 2;
+    const seg = { name, val, pct, sweep, segLen: Math.max(2, pct * circ - gapLen),
+                  start: cum, mid, color: COLORS[i % COLORS.length],
+                  icon: CAT_ICONS[name] || '💳', fmt: fmt(val) };
+    cum += sweep;
+    return seg;
   });
 
-  // dashoffset = circ/4 puts dash start at 12-o'clock;
-  // then rotate(startDeg) spins each segment into place.
-  const dashOff = (circ / 4).toFixed(2);
-
-  // ── Arc strokes ──
+  // ── arcs ──
   const arcs = segs.map(s => `
-    <circle cx="${cx}" cy="${cy}" r="${R}"
-      fill="none" stroke="${s.color}" stroke-width="${sw}"
-      stroke-linecap="round"
-      stroke-dasharray="${s.segLen.toFixed(2)} ${circ.toFixed(2)}"
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none"
+      stroke="${s.color}" stroke-width="${sw}" stroke-linecap="round"
+      stroke-dasharray="${s.segLen.toFixed(1)} ${circ.toFixed(1)}"
       stroke-dashoffset="${dashOff}"
-      transform="rotate(${s.startDeg.toFixed(2)},${cx},${cy})"
-      style="filter:drop-shadow(0 3px 10px ${s.glow})"/>
-  `).join('');
+      transform="rotate(${s.start.toFixed(1)},${cx},${cy})"
+      style="filter:drop-shadow(0 4px 12px ${s.color}70)"/>`).join('');
 
-  // ── Icons at arc midpoints (on the ring) ──
+  // ── emoji icons — sit ON the arc at its midpoint ──
   const icons = segs.map(s => {
-    const r = toRad(s.midDeg);
-    const x = (cx + R * Math.cos(r)).toFixed(1);
-    const y = (cy + R * Math.sin(r)).toFixed(1);
-    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="13" style="pointer-events:none">${s.icon}</text>`;
+    const r = toRad(s.mid);
+    return `<text x="${(cx + R * Math.cos(r)).toFixed(1)}" y="${(cy + R * Math.sin(r)).toFixed(1)}"
+      text-anchor="middle" dominant-baseline="middle" font-size="15">${s.icon}</text>`;
   }).join('');
 
-  // ── Percentage labels outside the ring ──
-  const pctLabels = segs.map(s => {
-    const r   = toRad(s.midDeg);
-    const outR = R + sw / 2 + 17;
-    const x = (cx + outR * Math.cos(r)).toFixed(1);
-    const y = (cy + outR * Math.sin(r)).toFixed(1);
-    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle"
-      font-size="9.5" font-weight="800" fill="${s.color}" font-family="Inter,sans-serif"
-      style="filter:drop-shadow(0 1px 3px #000a)">${(s.pct * 100).toFixed(0)}%</text>`;
-  }).join('');
-
-  // ── Connector lines + outer labels ──
-  const connectors = segs.map((s, i) => {
-    const r    = toRad(s.midDeg);
-    const cos  = Math.cos(r), sin = Math.sin(r);
-    const lx1  = cx + (R + sw / 2 + 2) * cos,  ly1 = cy + (R + sw / 2 + 2) * sin;
-    const lx2  = cx + (R + sw / 2 + 28) * cos, ly2 = cy + (R + sw / 2 + 28) * sin;
-    // text anchor: left/right depending on side
-    const anchor = cos > 0.1 ? 'start' : cos < -0.1 ? 'end' : 'middle';
-    const tx = lx2 + (cos > 0.1 ? 4 : cos < -0.1 ? -4 : 0);
+  // ── % badge — just outside the arc, at midpoint ──
+  const badges = segs.map(s => {
+    const r    = toRad(s.mid);
+    const outR = R + sw / 2 + 14;
+    const bx = (cx + outR * Math.cos(r)).toFixed(1);
+    const by = (cy + outR * Math.sin(r)).toFixed(1);
     return `
-      <line x1="${lx1.toFixed(1)}" y1="${ly1.toFixed(1)}" x2="${lx2.toFixed(1)}" y2="${ly2.toFixed(1)}"
-        stroke="${s.color}" stroke-width="1.2" stroke-opacity="0.55" stroke-dasharray="2 2"/>
-      <text x="${tx.toFixed(1)}" y="${(ly2 - 5).toFixed(1)}" text-anchor="${anchor}"
-        font-size="8.5" font-weight="700" fill="${s.color}" font-family="Inter,sans-serif"
-        style="filter:drop-shadow(0 1px 2px #000)">${s.name}</text>
-      <text x="${tx.toFixed(1)}" y="${(ly2 + 5).toFixed(1)}" text-anchor="${anchor}"
-        font-size="8" fill="#64748b" font-family="Inter,sans-serif">${s.fmt}</text>`;
+      <rect x="${(+bx - 13).toFixed(1)}" y="${(+by - 8).toFixed(1)}"
+        width="26" height="16" rx="8"
+        fill="${s.color}22" stroke="${s.color}66" stroke-width="1"/>
+      <text x="${bx}" y="${by}" text-anchor="middle" dominant-baseline="middle"
+        font-size="9" font-weight="800" fill="${s.color}" font-family="Inter,sans-serif"
+        >${(s.pct * 100).toFixed(0)}%</text>`;
   }).join('');
 
   const totalFmt = fmt(total);
-  const innerR   = (R - sw / 2 - 4).toFixed(0);
+  const innerR   = R - sw / 2 - 5;
+
+  // ── compact legend rows below chart ──
+  const legend = segs.map(s => `
+    <div style="display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:8px;
+        background:${s.color}12;border:1px solid ${s.color}25;
+        transition:background .15s" onmouseover="this.style.background='${s.color}22'"
+        onmouseout="this.style.background='${s.color}12'">
+      <span style="font-size:14px;line-height:1">${s.icon}</span>
+      <span style="flex:1;font-size:10.5px;font-weight:600;color:#cbd5e1;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</span>
+      <span style="font-size:10px;font-weight:700;color:${s.color}">${s.fmt}</span>
+      <span style="font-size:9px;color:#475569;min-width:26px;text-align:right">${(s.pct*100).toFixed(0)}%</span>
+    </div>`).join('');
 
   el.innerHTML = `
-    <svg width="100%" viewBox="0 0 230 230" style="display:block;overflow:visible;max-height:220px">
+    <svg width="100%" viewBox="0 0 220 220"
+        style="display:block;margin:0 auto;overflow:visible;max-height:210px">
       <defs>
-        <radialGradient id="dpie-bg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="rgba(30,32,60,0.98)"/>
-          <stop offset="100%" stop-color="rgba(10,12,30,0.98)"/>
+        <radialGradient id="dpie-c" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="rgba(25,28,58,1)"/>
+          <stop offset="100%" stop-color="rgba(8,10,28,1)"/>
         </radialGradient>
       </defs>
 
-      <!-- Track ring -->
+      <!-- ghost track -->
       <circle cx="${cx}" cy="${cy}" r="${R}" fill="none"
-        stroke="rgba(255,255,255,0.04)" stroke-width="${sw}"/>
+        stroke="rgba(255,255,255,0.035)" stroke-width="${sw}"/>
 
-      <!-- Colored arc segments -->
+      <!-- segments -->
       ${arcs}
 
-      <!-- Inner dark fill -->
-      <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="url(#dpie-bg)"
-        stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+      <!-- inner fill -->
+      <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="url(#dpie-c)"
+        stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
 
-      <!-- Center: total label -->
-      <text x="${cx}" y="${cy - 11}" text-anchor="middle"
-        font-size="8.5" fill="#64748b" font-family="Inter,sans-serif" letter-spacing="1">SPENT</text>
-      <text x="${cx}" y="${cy + 7}" text-anchor="middle"
-        font-size="16" font-weight="900" fill="#f1f5f9" font-family="Inter,sans-serif">${totalFmt}</text>
-      <text x="${cx}" y="${cy + 19}" text-anchor="middle"
-        font-size="7.5" fill="#475569" font-family="Inter,sans-serif">this period</text>
+      <!-- center text -->
+      <text x="${cx}" y="${cy-12}" text-anchor="middle"
+        font-size="8" fill="#475569" letter-spacing="1.5" font-family="Inter,sans-serif">SPENT</text>
+      <text x="${cx}" y="${cy+7}" text-anchor="middle"
+        font-size="17" font-weight="900" fill="#f1f5f9" font-family="Inter,sans-serif">${totalFmt}</text>
+      <text x="${cx}" y="${cy+20}" text-anchor="middle"
+        font-size="7.5" fill="#334155" font-family="Inter,sans-serif">this period</text>
 
-      <!-- Icons on arc midpoints -->
+      <!-- icons on arc -->
       ${icons}
 
-      <!-- % labels outside ring -->
-      ${pctLabels}
+      <!-- % pill badges -->
+      ${badges}
+    </svg>
 
-      <!-- Connector lines + name/amount labels -->
-      ${connectors}
-    </svg>`;
+    <!-- legend -->
+    <div style="display:flex;flex-direction:column;gap:4px;padding:2px 4px 4px">
+      ${legend}
+    </div>`;
 }
 
 // ── Doughnut: 50/30/20 Rule ──
