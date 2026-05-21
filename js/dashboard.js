@@ -678,33 +678,51 @@ function renderDashboard() {
         ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
       </div>
 
-      <!-- Finance Charts Row (Income vs Expense + Spending by Category) -->
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px" class="dash-charts-row">
-        <div class="glass-card" style="padding:20px">
-          <div class="section-header" style="margin-bottom:14px">
-            <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Income vs Expenses</p>
-            <button class="btn-icon btn-sm" onclick="navigate('finance')" style="color:var(--teal);border-color:rgba(0,201,167,0.3)">View All →</button>
+      <!-- ── Combined Financial Chart ──────────────────────────────── -->
+      <div class="glass-card" style="padding:22px;margin-bottom:20px">
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:18px">
+          <div>
+            <p class="section-title" style="margin-bottom:2px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00c9a7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Financial Overview
+            </p>
+            <p style="font-size:11px;color:var(--text3);margin-top:2px">Income · Expense · Savings · Net Worth — last 12 months</p>
           </div>
-          <div style="height:200px;position:relative"><canvas id="dash-income-chart"></canvas></div>
+          <button class="btn-icon btn-sm" onclick="navigate('finance')" style="color:var(--teal);border-color:rgba(0,201,167,0.3)">View All →</button>
         </div>
-        <div class="glass-card" style="padding:20px">
-          <div class="section-header" style="margin-bottom:14px">
-            <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>Spending</p>
-          </div>
-          <div id="dash-pie-chart" style="display:flex;flex-direction:column;gap:8px;padding-top:4px"></div>
+
+        <!-- 4 KPI chips -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px" class="fin-kpi-chips">
+          ${(()=>{
+            const mo = txnsAll.filter(t=>{ const d=new Date(t.date); return d.getFullYear()===new Date().getFullYear()&&d.getMonth()===new Date().getMonth(); });
+            const mInc = mo.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+            const mExp = mo.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+            const mSav = mInc - mExp;
+            return [
+              {label:'This Month Income', val:fmt(mInc), c:'#10b981', bg:'rgba(16,185,129,0.1)', bc:'rgba(16,185,129,0.25)'},
+              {label:'This Month Expense',val:fmt(mExp), c:'#ef4444', bg:'rgba(239,68,68,0.1)',  bc:'rgba(239,68,68,0.25)'},
+              {label:'Net Savings',       val:fmt(mSav), c:mSav>=0?'#6366f1':'#ef4444', bg:'rgba(99,102,241,0.1)', bc:'rgba(99,102,241,0.25)'},
+              {label:'Net Worth',         val:fmt(netWorth), c:netWorth>=0?'#00c9a7':'#ef4444', bg:'rgba(0,201,167,0.1)', bc:'rgba(0,201,167,0.25)'},
+            ].map(k=>`
+              <div style="padding:12px 14px;border-radius:12px;background:${k.bg};border:1px solid ${k.bc}">
+                <p style="font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:${k.c};opacity:.8;margin-bottom:5px">${k.label}</p>
+                <p style="font-size:16px;font-weight:900;color:${k.c}">${k.val}</p>
+              </div>`).join('');
+          })()}
+        </div>
+
+        <!-- Chart canvas -->
+        <div style="height:260px;position:relative">
+          <canvas id="dash-combined-chart"></canvas>
         </div>
       </div>
 
-
-      <!-- Net Worth Graph -->
-      <div class="glass-card" style="padding:22px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:16px">
-          <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00c9a7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Net Worth Over Time</p>
-          <span style="font-size:13px;font-weight:700;color:${netWorth >= 0 ? '#00c9a7' : '#ef4444'}">${netWorth >= 0 ? '+' : ''}${fmt(netWorth)}</span>
+      <!-- Spending breakdown -->
+      <div class="glass-card" style="padding:20px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:14px">
+          <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>Spending by Category</p>
         </div>
-        <div style="height:200px;position:relative">
-          <canvas id="networth-chart"></canvas>
-        </div>
+        <div id="dash-pie-chart" style="display:flex;flex-direction:column;gap:8px;padding-top:4px"></div>
       </div>
 
       <!-- Accounts · Cards · Goals · Budget -->
@@ -822,214 +840,145 @@ function renderDashboard() {
     document.querySelectorAll('.dash-agb-grid, .dash-agb-grid2').forEach(g => g.style.gridTemplateColumns = '1fr');
   }
 
-  // Render net worth chart after DOM is ready
+  // Render charts after DOM is ready
   setTimeout(() => {
-    renderNetWorthChart(txnsAll);
-    renderDashIncomeChart(txnsAll);
+    renderDashCombinedChart(txnsAll);
     renderDashPieChart(txns);
     renderLifeScoreRadar(scores);
     renderDashBankChart();
     renderDashBudgetChart();
     if (window.innerWidth < 700) {
-      const r1 = document.querySelector('.analytics-row-1');
-      if (r1) r1.style.gridTemplateColumns = '1fr';
+      const chips = document.querySelector('.fin-kpi-chips');
+      if (chips) chips.style.gridTemplateColumns = '1fr 1fr';
       const lsg = document.querySelector('.life-score-grid');
       if (lsg) lsg.style.gridTemplateColumns = '1fr';
     }
   }, 50);
 }
 
-function renderNetWorthChart(txns) {
-  const canvas = document.getElementById('networth-chart');
-  if (!canvas) return;
+// ── Combined: Income / Expense / Savings / Net Worth ──
+function renderDashCombinedChart(txns) {
+  const canvas = document.getElementById('dash-combined-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
 
-  // Build monthly cumulative net worth
+  // Monthly buckets — last 12 months
   const monthMap = {};
-  const sorted = [...txns].sort((a, b) => a.date.localeCompare(b.date));
-  sorted.forEach(t => {
+  [...txns].sort((a,b) => a.date.localeCompare(b.date)).forEach(t => {
     const d = new Date(t.date);
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
     const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
-    if (!monthMap[key]) monthMap[key] = { label, net: 0 };
-    monthMap[key].net += t.type === 'income' ? t.amount : -t.amount;
+    if (!monthMap[key]) monthMap[key] = { label, income: 0, expense: 0 };
+    if (t.type === 'income') monthMap[key].income += t.amount;
+    else monthMap[key].expense += t.amount;
   });
 
-  // Accumulate running total
-  let running = 0;
   const entries = Object.entries(monthMap).sort(([a],[b]) => a.localeCompare(b)).slice(-12);
-  const labels = entries.map(([, v]) => v.label);
-  const data   = entries.map(([, v]) => { running += v.net; return Math.round(running); });
+  if (!entries.length) entries.push(['now', { label: 'Now', income: 0, expense: 0 }]);
 
-  // If no data, show flat zero
-  if (labels.length === 0) { labels.push('Now'); data.push(0); }
+  const labels  = entries.map(([,v]) => v.label);
+  const incData = entries.map(([,v]) => Math.round(v.income));
+  const expData = entries.map(([,v]) => Math.round(v.expense));
+  const savData = entries.map(([,v]) => Math.round(v.income - v.expense));
+  let run = 0;
+  const nwData = entries.map(([,v]) => { run += (v.income - v.expense); return Math.round(run); });
 
   const isLight = document.body.classList.contains('light');
-  const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
-  const tickColor = isLight ? '#64748b' : '#64748b';
-  const lastVal = data[data.length - 1] || 0;
-  const lineColor = lastVal >= 0 ? '#00c9a7' : '#ef4444';
-  const fillColorTop = lastVal >= 0 ? 'rgba(0,201,167,0.25)' : 'rgba(239,68,68,0.2)';
-  const fillColorBot = lastVal >= 0 ? 'rgba(0,201,167,0.0)' : 'rgba(239,68,68,0.0)';
+  const gridC  = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+  const tickC  = '#64748b';
+  const fmtY   = v => `₹${Math.abs(v)>=100000?(v/100000).toFixed(1)+'L':Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v}`;
 
-  chartInstances['networth'] = new Chart(canvas, {
+  if (chartInstances['dash-combined']) { chartInstances['dash-combined'].destroy(); delete chartInstances['dash-combined']; }
+
+  const ctx = canvas.getContext('2d');
+  const mkGrad = (top, bot) => {
+    const g = ctx.createLinearGradient(0, 0, 0, canvas.offsetHeight || 260);
+    g.addColorStop(0, top); g.addColorStop(1, bot); return g;
+  };
+
+  chartInstances['dash-combined'] = new Chart(canvas, {
     type: 'line',
     data: {
       labels,
-      datasets: [{
-        label: 'Net Worth',
-        data,
-        borderColor: lineColor,
-        borderWidth: 2.5,
-        pointBackgroundColor: lineColor,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        tension: 0.4,
-        fill: true,
-        backgroundColor: (ctx) => {
-          const chart = ctx.chart;
-          const { ctx: c, chartArea } = chart;
-          if (!chartArea) return fillColorTop;
-          const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-          gradient.addColorStop(0, fillColorTop);
-          gradient.addColorStop(1, fillColorBot);
-          return gradient;
+      datasets: [
+        // Net Worth — teal gradient fill — RIGHT axis
+        {
+          label: 'Net Worth', data: nwData,
+          borderColor: '#00c9a7', borderWidth: 2.8,
+          backgroundColor: (c) => {
+            const { ctx: cx, chartArea } = c.chart;
+            if (!chartArea) return 'rgba(0,201,167,0.18)';
+            const g = cx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            g.addColorStop(0, nwData[nwData.length-1]>=0?'rgba(0,201,167,0.28)':'rgba(239,68,68,0.22)');
+            g.addColorStop(1, 'rgba(0,201,167,0.0)');
+            return g;
+          },
+          fill: true, tension: 0.4,
+          pointBackgroundColor: '#00c9a7', pointRadius: 4, pointHoverRadius: 7,
+          yAxisID: 'yNW', order: 0
+        },
+        // Income — green line
+        {
+          label: 'Income', data: incData,
+          borderColor: '#10b981', borderWidth: 2.2,
+          backgroundColor: mkGrad('rgba(16,185,129,0.22)', 'rgba(16,185,129,0.0)'),
+          fill: true, tension: 0.42,
+          pointBackgroundColor: '#10b981', pointRadius: 3, pointHoverRadius: 6,
+          yAxisID: 'y', order: 2
+        },
+        // Expense — red line
+        {
+          label: 'Expense', data: expData,
+          borderColor: '#ef4444', borderWidth: 2.2,
+          backgroundColor: mkGrad('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.0)'),
+          fill: true, tension: 0.42,
+          pointBackgroundColor: '#ef4444', pointRadius: 3, pointHoverRadius: 6,
+          yAxisID: 'y', order: 3
+        },
+        // Savings — indigo dashed
+        {
+          label: 'Savings', data: savData,
+          borderColor: 'rgba(99,102,241,0.9)', borderWidth: 2,
+          backgroundColor: 'transparent', fill: false, tension: 0.42,
+          pointBackgroundColor: '#6366f1', pointRadius: 3, pointHoverRadius: 6,
+          borderDash: [5, 3], yAxisID: 'y', order: 1
         }
-      }]
+      ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { display: false },
+        legend: {
+          labels: {
+            color: '#94a3b8', font: { family: 'Inter', size: 11 },
+            padding: 16, usePointStyle: true, pointStyleWidth: 8
+          }
+        },
         tooltip: {
-          backgroundColor: 'rgba(15,23,42,0.92)',
-          titleColor: '#94a3b8',
-          bodyColor: '#fff',
-          padding: 12,
-          borderColor: 'rgba(0,201,167,0.3)',
-          borderWidth: 1,
+          backgroundColor: 'rgba(10,14,30,0.95)',
+          titleColor: '#94a3b8', bodyColor: '#e2e8f0',
+          padding: 14, borderColor: 'rgba(0,201,167,0.3)', borderWidth: 1,
+          cornerRadius: 10,
           callbacks: {
-            label: ctx => ` Net Worth: ${ctx.parsed.y >= 0 ? '+' : ''}₹${ctx.parsed.y.toLocaleString('en-IN')}`
+            label: ctx => {
+              const v = ctx.parsed.y;
+              return ` ${ctx.dataset.label}: ${v>=0?'+':''}₹${Math.abs(v).toLocaleString('en-IN')}`;
+            }
           }
         }
       },
       scales: {
-        x: {
-          ticks: { color: tickColor, font: { size: 11 } },
-          grid: { color: gridColor }
-        },
+        x: { ticks: { color: tickC, font: { size: 11, family: 'Inter' } }, grid: { color: gridC } },
         y: {
-          ticks: {
-            color: tickColor,
-            font: { size: 11 },
-            callback: v => `₹${Math.abs(v) >= 100000 ? (v/100000).toFixed(1)+'L' : Math.abs(v) >= 1000 ? (v/1000).toFixed(0)+'k' : v}`
-          },
-          grid: { color: gridColor }
+          position: 'left',
+          ticks: { color: tickC, font: { size: 11 }, callback: fmtY },
+          grid: { color: gridC }
+        },
+        yNW: {
+          position: 'right',
+          ticks: { color: '#00c9a7', font: { size: 11 }, callback: fmtY },
+          grid: { drawOnChartArea: false }
         }
-      }
-    }
-  });
-}
-
-function renderDashIncomeChart(txns) {
-  const canvas = document.getElementById('dash-income-chart');
-  if (!canvas) return;
-
-  // Build buckets based on active period + anchor date
-  const base = _dashAnchorDate ? new Date(_dashAnchorDate + 'T00:00:00') : new Date();
-  const buckets = {};
-  let orderedKeys = [];
-
-  if (_dashPeriod === 'day' || _dashPeriod === 'week') {
-    // Daily buckets — 7 days of the anchor's week (Mon→Sun)
-    const dow = (base.getDay() + 6) % 7;
-    const mon = new Date(base); mon.setDate(base.getDate() - dow);
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(mon); d.setDate(mon.getDate() + i);
-      const key = d.toISOString().slice(0, 10);
-      const label = d.toLocaleString('default', { weekday: 'short', day: 'numeric' });
-      buckets[key] = { label, income: 0, expense: 0 };
-      orderedKeys.push(key);
-    }
-    txns.forEach(t => {
-      if (buckets[t.date]) {
-        if (t.type === 'income') buckets[t.date].income += t.amount;
-        else buckets[t.date].expense += t.amount;
-      }
-    });
-  } else if (_dashPeriod === 'month') {
-    // Weekly buckets — weeks in the anchor's month
-    const yr = base.getFullYear(), mo = base.getMonth();
-    for (let w = 1; w <= 5; w++) { buckets[`W${w}`] = { label: `Week ${w}`, income: 0, expense: 0 }; orderedKeys.push(`W${w}`); }
-    txns.forEach(t => {
-      const d = new Date(t.date);
-      if (d.getFullYear() === yr && d.getMonth() === mo) {
-        const key = `W${Math.min(5, Math.ceil(d.getDate() / 7))}`;
-        if (t.type === 'income') buckets[key].income += t.amount;
-        else buckets[key].expense += t.amount;
-      }
-    });
-    // drop empty trailing weeks
-    while (orderedKeys.length > 1 && !buckets[orderedKeys[orderedKeys.length-1]].income && !buckets[orderedKeys[orderedKeys.length-1]].expense) orderedKeys.pop();
-  } else {
-    // year / all — monthly buckets (up to 12 months in anchor's year)
-    txns.forEach(t => {
-      const d = new Date(t.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-      if (!buckets[key]) buckets[key] = { label: d.toLocaleString('default', { month: 'short', year: '2-digit' }), income: 0, expense: 0 };
-      if (t.type === 'income') buckets[key].income += t.amount;
-      else buckets[key].expense += t.amount;
-    });
-    orderedKeys = Object.keys(buckets).sort().slice(-12);
-  }
-
-  const entries = orderedKeys.map(k => buckets[k] || { label: k, income: 0, expense: 0 });
-  const labels  = entries.map(v => v.label);
-  const incData = entries.map(v => v.income);
-  const expData = entries.map(v => v.expense);
-  const savData = entries.map(v => v.income - v.expense);
-  if (!labels.length) { labels.push('—'); incData.push(0); expData.push(0); savData.push(0); }
-
-  const isLight  = document.body.classList.contains('light');
-  const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
-  const c = canvas.getContext('2d');
-
-  const mkGrad = (top, bot) => {
-    const g = c.createLinearGradient(0, 0, 0, canvas.offsetHeight || 200);
-    g.addColorStop(0, top); g.addColorStop(1, bot); return g;
-  };
-
-  chartInstances['dash-income'] = new Chart(canvas, {
-    type: 'line',
-    data: { labels, datasets: [
-      { label:'Income',  data:incData, borderColor:'#10b981', borderWidth:2.5,
-        backgroundColor: mkGrad('rgba(16,185,129,0.35)','rgba(16,185,129,0.0)'),
-        fill:true, tension:0.42, pointBackgroundColor:'#10b981', pointRadius:4, pointHoverRadius:7, order:2 },
-      { label:'Expense', data:expData, borderColor:'#ef4444', borderWidth:2.5,
-        backgroundColor: mkGrad('rgba(239,68,68,0.3)','rgba(239,68,68,0.0)'),
-        fill:true, tension:0.42, pointBackgroundColor:'#ef4444', pointRadius:4, pointHoverRadius:7, order:3 },
-      { label:'Savings', data:savData, borderColor:'rgba(99,102,241,0.9)', borderWidth:2,
-        backgroundColor:'transparent', fill:false, tension:0.42,
-        pointBackgroundColor:'#6366f1', pointRadius:3, pointHoverRadius:6,
-        borderDash:[5,3], order:1 }
-    ]},
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      interaction:{ mode:'index', intersect:false },
-      plugins:{
-        legend:{ labels:{ color:'#94a3b8', font:{family:'Inter',size:11}, padding:12, usePointStyle:true, pointStyleWidth:8 } },
-        tooltip:{
-          backgroundColor:'rgba(13,17,35,0.92)', titleColor:'#94a3b8', bodyColor:'#fff',
-          padding:12, borderColor:'rgba(0,201,167,0.3)', borderWidth:1,
-          callbacks:{ label: ctx => ` ${ctx.dataset.label}: ₹${ctx.parsed.y.toLocaleString('en-IN')}` }
-        }
-      },
-      scales:{
-        x:{ ticks:{color:'#64748b',font:{size:11}}, grid:{color:gridColor} },
-        y:{ ticks:{color:'#64748b',font:{size:11},
-              callback: v => `₹${Math.abs(v)>=100000?(v/100000).toFixed(1)+'L':Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v}`
-            }, grid:{color:gridColor} }
       }
     }
   });
