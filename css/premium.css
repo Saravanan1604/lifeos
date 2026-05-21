@@ -178,6 +178,8 @@ body.light .page-subtitle { color: rgba(15,23,42,0.55); }
 
 /* Page transition */
 .page-container > div { animation: fadeInUp .35s var(--ease) both; }
+/* Soft refresh (same-page re-render): no flash, no re-animation */
+.page-container.no-anim > div { animation: none !important; }
 
 /* Gradient border cards */
 .card-glow {

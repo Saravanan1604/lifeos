@@ -1705,7 +1705,7 @@ async function fetchLivePrices() {
   saveState();
   if (ok)   toast(`✅ ${ok} holding${ok>1?'s':''} updated with live prices!`, 'success');
   if (fail) toast(`⚠️ ${fail} ticker${fail>1?'s':''} failed — check symbols (e.g. RELIANCE.NS, BTC-INR)`, 'warning');
-  renderInvestments();
+  if (typeof softRefresh === 'function') softRefresh(); else renderInvestments();
 }
 
 function deleteInv(id) {

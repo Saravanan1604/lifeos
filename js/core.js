@@ -369,10 +369,34 @@ function destroyCharts() {
   chartInstances = {};
 }
 
+function _renderPage(page) {
+  const container = document.getElementById('page-container');
+  switch (page) {
+    case 'dashboard': renderDashboard(); break;
+    case 'finance': renderFinance(); break;
+    case 'investments': renderInvestments(); break;
+    case 'budget': renderBudget(); break;
+    case 'bank-tracker': renderBankTracker(); break;
+    case 'health': renderHealth(); break;
+    case 'habits': renderHabits(); break;
+    case 'goals': renderGoals(); break;
+    case 'journal': renderJournal(); break;
+    case 'achievements': renderAchievements(); break;
+    case 'ai-coach': renderAICoach(); break;
+    case 'analytics': renderAnalytics(); break;
+    case 'categories': renderCategories(); break;
+    case 'settings': renderSettings(); break;
+    default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
+  }
+}
+
 function navigate(page, skipHistory = false) {
+  // Re-rendering the page you're already on (live-sync poll, price refresh,
+  // post-action update) is a soft refresh — no spinner flash, keep scroll.
+  const softRefresh = (page === currentPage) && skipHistory;
   currentPage = page;
   destroyCharts();
-  
+
   if (!skipHistory) {
     history.pushState({ page: page }, '', `#${page}`);
   }
@@ -384,27 +408,29 @@ function navigate(page, skipHistory = false) {
     document.getElementById('sidebar').classList.remove('mobile-open');
     sidebarCollapsed = false;
   }
+
   const container = document.getElementById('page-container');
+
+  if (softRefresh) {
+    const y = window.scrollY;
+    container.classList.add('no-anim');        // suppress fadeInUp replay
+    _renderPage(page);
+    requestAnimationFrame(() => {
+      window.scrollTo(0, y);                    // restore scroll position
+      requestAnimationFrame(() => container.classList.remove('no-anim'));
+    });
+    return;
+  }
+
+  // Genuine navigation to a different page → show transition spinner
+  container.classList.remove('no-anim');
   container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:200px;font-size:24px" class="loading-spin">⚡</div>';
-  setTimeout(() => {
-    switch (page) {
-      case 'dashboard': renderDashboard(); break;
-      case 'finance': renderFinance(); break;
-      case 'investments': renderInvestments(); break;
-      case 'budget': renderBudget(); break;
-      case 'bank-tracker': renderBankTracker(); break;
-      case 'health': renderHealth(); break;
-      case 'habits': renderHabits(); break;
-      case 'goals': renderGoals(); break;
-      case 'journal': renderJournal(); break;
-      case 'achievements': renderAchievements(); break;
-      case 'ai-coach': renderAICoach(); break;
-      case 'analytics': renderAnalytics(); break;
-      case 'categories': renderCategories(); break;
-      case 'settings': renderSettings(); break;
-      default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
-    }
-  }, 80);
+  setTimeout(() => _renderPage(page), 80);
+}
+
+// Re-render the current page in place without a full-screen flash.
+function softRefresh() {
+  navigate(currentPage, true);
 }
 
 // ===== HARDWARE BACK BUTTON (ANDROID PWA) =====
