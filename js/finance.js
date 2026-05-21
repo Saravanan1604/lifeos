@@ -1552,6 +1552,30 @@ function loanIcon(t)  { return getLoanTypes().find(x => x.key === t)?.icon  || '
 
 let invFilter = 'All';
 const ASSET_CAT_COLORS = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6','#00c9a7','#ef4444','#f97316','#14b8a6','#a855f7','#eab308'];
+const LIAB_CAT_COLORS  = ['#ef4444','#f97316','#f59e0b','#ec4899','#dc2626','#ea580c','#e11d48','#b91c1c','#c2410c','#be123c','#9f1239','#7f1d1d'];
+
+function renderLiabCategoryChart(entries) {
+  const canvas = document.getElementById('liab-category-chart');
+  if (!canvas || !entries.length || typeof Chart === 'undefined') return;
+  chartInstances['liab-category'] = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: entries.map(([t]) => t),
+      datasets: [{
+        data: entries.map(([,v]) => v),
+        backgroundColor: entries.map((_, i) => LIAB_CAT_COLORS[i % LIAB_CAT_COLORS.length]),
+        borderColor: 'rgba(10,10,30,0.5)', borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ₹${ctx.parsed.toLocaleString('en-IN',{maximumFractionDigits:0})}` } }
+      }
+    }
+  });
+}
 
 function renderAssetCategoryChart(entries) {
   const canvas = document.getElementById('inv-category-chart');
@@ -1763,6 +1787,38 @@ function renderInvestments() {
         </div>
       </div>`}
 
+      <!-- ── LIABILITY ALLOCATION CHART ────────────────────────────── -->
+      ${loans.length === 0 ? '' : (() => {
+        const liabByType = {};
+        loans.forEach(l => {
+          liabByType[l.type] = (liabByType[l.type] || 0) + (l.outstanding || 0);
+        });
+        const liabEntries = Object.entries(liabByType).sort(([,a],[,b]) => b - a);
+        return `
+      <div class="glass-card" style="padding:20px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:14px">
+          <p class="section-title">💸 Liabilities by Category</p>
+          <span style="font-size:12px;color:var(--text3)">${fmt(totalLoan)} total</span>
+        </div>
+        <div style="display:grid;grid-template-columns:210px 1fr;gap:24px;align-items:center" class="liab-cat-grid">
+          <div style="height:200px;position:relative"><canvas id="liab-category-chart"></canvas></div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            ${liabEntries.map(([type,val],idx) => {
+              const pct = totalLoan > 0 ? (val/totalLoan*100).toFixed(1) : 0;
+              const color = LIAB_CAT_COLORS[idx % LIAB_CAT_COLORS.length];
+              return `<div style="display:flex;align-items:center;gap:10px">
+                <span style="width:12px;height:12px;border-radius:3px;background:${color};flex-shrink:0"></span>
+                <span style="font-size:15px">${loanIcon(type)}</span>
+                <span style="font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${type}</span>
+                <span style="font-size:13px;font-weight:700;color:#ef4444">${fmt(val)}</span>
+                <span style="font-size:11px;color:var(--text3);width:46px;text-align:right">${pct}%</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>`;
+      })()}
+
       <!-- ── INVESTMENTS ─────────────────────────────────────────── -->
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -1832,13 +1888,19 @@ function renderInvestments() {
 
     </div>`;
 
-  // Responsive net worth grid + category chart
+  // Responsive net worth grid + category charts
+  const liabByType2 = {};
+  loans.forEach(l => { liabByType2[l.type] = (liabByType2[l.type] || 0) + (l.outstanding || 0); });
+  const liabEntries2 = Object.entries(liabByType2).sort(([,a],[,b]) => b - a);
   setTimeout(() => {
     const g = document.querySelector('.nw-grid');
     if (g && window.innerWidth < 600) g.style.gridTemplateColumns = '1fr 1fr';
     const ac = document.querySelector('.asset-cat-grid');
     if (ac && window.innerWidth < 640) ac.style.gridTemplateColumns = '1fr';
+    const lc = document.querySelector('.liab-cat-grid');
+    if (lc && window.innerWidth < 640) lc.style.gridTemplateColumns = '1fr';
     renderAssetCategoryChart(catEntries);
+    renderLiabCategoryChart(liabEntries2);
   }, 40);
 }
 
