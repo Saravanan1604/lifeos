@@ -180,6 +180,38 @@ function renderFinance() {
           </div>`}
       </div>
 
+      <!-- Cash Accounts -->
+      <div class="glass-card" style="padding:20px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:16px">
+          <p class="section-title">💵 Cash Accounts
+            <span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${(STATE.cashAccounts||[]).length} wallets</span>
+          </p>
+          <button class="btn-primary btn-sm" onclick="addCashAccount()">+ Add Cash</button>
+        </div>
+        ${(STATE.cashAccounts||[]).length === 0
+          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon">💵</span><p>No cash wallets yet. Track your physical cash!</p></div>`
+          : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px">
+            ${(STATE.cashAccounts||[]).map((ca,i) => `
+            <div style="position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3)">
+              <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
+              <div style="display:flex;justify-content:space-between;align-items:start;position:relative">
+                <div style="font-size:22px">💵</div>
+                <div style="display:flex;gap:4px">
+                  <button onclick="updateCashBalance(${i})" style="background:rgba(251,191,36,0.3);border:none;color:#fbbf24;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
+                  <button onclick="editCashAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
+                  <button onclick="deleteCashAccount(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
+                </div>
+              </div>
+              <p style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin:10px 0 4px">${ca.name}</p>
+              <p style="font-size:24px;font-weight:900;color:#fff">₹${fmt(ca.balance||0)}</p>
+            </div>`).join('')}
+          </div>
+          <div style="padding:12px 16px;border-radius:12px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:13px;font-weight:600;color:#f59e0b">💵 Total Cash</span>
+            <span style="font-size:20px;font-weight:900;color:#f59e0b">${fmt((STATE.cashAccounts||[]).reduce((s,ca)=>s+(ca.balance||0),0))}</span>
+          </div>`}
+      </div>
+
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
         ${[
           { id:'fin-stat-count', label:'Total Txns',   value: txnsAll.length,  icon:'⚡', color:'rgba(99,102,241,0.15)', tc:'#6366f1' },
@@ -445,7 +477,7 @@ function renderFinanceTxList() {
         <div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${tx.type === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'};font-size:18px">${tx.icon || '💳'}</div>
         <div>
           <p style="font-size:13px;font-weight:600">${tx.description || tx.category}</p>
-          <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>
+          <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}${tx.source ? ' · <span style="color:#f59e0b">' + _sourceLabel(tx.source) + '</span>' : ''}</p>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
@@ -603,6 +635,7 @@ function deleteSelectedTx() {
 function openAddTxModal() {
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
   const catOptions = allCats.map(c => `<option value="${c.name}" data-icon="${c.icon}">${c.icon} ${c.name}</option>`).join('');
+  const srcOptions = _buildAccountSourceOptions('');
 
   openModal('Add Transaction', `
     <div class="form-group"><label class="form-label">Type</label>
@@ -612,6 +645,8 @@ function openAddTxModal() {
       <div class="form-group"><label class="form-label">Date</label><input type="date" id="tx-date" class="form-input" value="${today()}"/></div>
     </div>
     <div class="form-group"><label class="form-label">Category</label><select id="tx-cat" class="form-input">${catOptions}</select></div>
+    <div class="form-group"><label class="form-label">💳 Account / Paid From</label>
+      <select id="tx-source" class="form-input">${srcOptions}</select></div>
     <div class="form-group"><label class="form-label">Description</label><input type="text" id="tx-desc" class="form-input" placeholder="What was this for?"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
@@ -619,17 +654,45 @@ function openAddTxModal() {
     </div>`);
 }
 
+let _pendingTx = null; // holds values while duplicate-confirmation modal is open
+
 function saveTx() {
   const type = document.getElementById('tx-type').value;
   const amount = parseFloat(document.getElementById('tx-amount').value);
-  const date = document.getElementById('tx-date').value;
+  const date = document.getElementById('tx-date').value || today();
   const catEl = document.getElementById('tx-cat');
   const category = catEl.value;
   const icon = CATEGORIES.find(c => c.name === category)?.icon || '💳';
   const description = document.getElementById('tx-desc').value.trim();
+  const source = document.getElementById('tx-source')?.value || '';
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
+  const dupe = _findDuplicate(amount, date, description, null);
+  if (dupe) {
+    _pendingTx = { type, amount, date, category, icon, description, source };
+    openModal('⚠️ Possible Duplicate', `
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px">A similar transaction already exists:</p>
+      <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px">
+        <strong>${dupe.description || dupe.category}</strong><br/>
+        <span style="color:var(--text3)">${dupe.category} · ${fmtDate(dupe.date)}</span><br/>
+        <span style="color:#ef4444;font-weight:700">${dupe.type === 'income' ? '+' : '-'}${fmt(dupe.amount)}</span>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:16px">Is this a double entry or a new transaction?</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal()">Cancel (don't save)</button>
+        <button class="btn-primary" onclick="confirmSaveTx()">Save Anyway</button>
+      </div>`);
+    return;
+  }
+  _commitTx({ type, amount, date, category, icon, description, source });
+}
+
+function confirmSaveTx() {
+  if (_pendingTx) { _commitTx(_pendingTx); _pendingTx = null; }
+}
+
+function _commitTx(tx) {
   STATE.transactions = STATE.transactions || [];
-  STATE.transactions.unshift({ id: genId(), type, amount, date: date || today(), category, icon, description, createdAt: new Date().toISOString() });
+  STATE.transactions.unshift({ id: genId(), ...tx, createdAt: new Date().toISOString() });
   saveState();
   addXP(10, 'Transaction logged');
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
@@ -654,6 +717,7 @@ function openEditTxModal(id) {
     `<option value="${c.name}" ${c.name === tx.category ? 'selected' : ''}>${c.icon} ${c.name}</option>`
   ).join('');
 
+  const srcOptions = _buildAccountSourceOptions(tx.source || '');
   openModal('✏️ Edit Transaction', `
     <div class="form-group">
       <label class="form-label">Type</label>
@@ -675,6 +739,10 @@ function openEditTxModal(id) {
     <div class="form-group">
       <label class="form-label">Category</label>
       <select id="etx-cat" class="form-input">${catOptions}</select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">💳 Account / Paid From</label>
+      <select id="etx-source" class="form-input">${srcOptions}</select>
     </div>
     <div class="form-group">
       <label class="form-label">Description</label>
@@ -701,6 +769,7 @@ function saveEditTx(id) {
   const date   = document.getElementById('etx-date')?.value || today();
   const cat    = document.getElementById('etx-cat')?.value;
   const desc   = document.getElementById('etx-desc')?.value.trim();
+  const source = document.getElementById('etx-source')?.value || tx.source || '';
   const applyAll = document.getElementById('etx-apply-all')?.checked;
 
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
@@ -712,6 +781,7 @@ function saveEditTx(id) {
   tx.category    = cat;
   tx.icon        = allCats.find(c => c.name === cat)?.icon || tx.icon || '💳';
   tx.description = desc;
+  tx.source      = source;
 
   let extraMsg = '';
   if (applyAll && desc) {
@@ -731,6 +801,164 @@ function saveEditTx(id) {
   closeModal();
   toast(`Transaction updated ✅${extraMsg}`, 'success');
   renderFinanceTxList(); // instant list refresh without full page re-render
+}
+
+// ===== DOUBLE-ENTRY / DUPLICATE DETECTION =====
+
+function _findDuplicate(amount, date, description, excludeId) {
+  const txns = STATE.transactions || [];
+  const targetDate = new Date(date);
+  return txns.find(t => {
+    if (excludeId && t.id === excludeId) return false;
+    if (t.amount !== amount) return false;
+    const d = new Date(t.date);
+    const dayDiff = Math.abs((targetDate - d) / 86400000);
+    if (dayDiff > 1) return false;
+    if (description && t.description && t.description.toLowerCase() === description.toLowerCase()) return true;
+    if (!description || !t.description) return dayDiff === 0; // same day + same amount = suspect
+    return false;
+  }) || null;
+}
+
+// ===== ACCOUNT SOURCE HELPERS =====
+
+function _buildAccountSourceOptions(selected) {
+  const opts = [`<option value="">-- No Account --</option>`];
+  (STATE.cashAccounts || []).forEach(ca => {
+    const val = `cash:${ca.id}`;
+    opts.push(`<option value="${val}" ${selected === val ? 'selected' : ''}>💵 ${ca.name} (Cash)</option>`);
+  });
+  (STATE.bankAccounts || []).forEach(b => {
+    const val = `bank:${b.id}`;
+    opts.push(`<option value="${val}" ${selected === val ? 'selected' : ''}>🏦 ${b.bankName}${b.lastFour ? ' ····' + b.lastFour : ''}</option>`);
+  });
+  (STATE.creditCards || []).forEach(c => {
+    const val = `card:${c.id}`;
+    opts.push(`<option value="${val}" ${selected === val ? 'selected' : ''}>💳 ${c.bankName}${c.lastFour ? ' ····' + c.lastFour : ''}</option>`);
+  });
+  return opts.join('');
+}
+
+function _sourceLabel(source) {
+  if (!source) return '';
+  const [type, id] = source.split(':');
+  if (type === 'cash') {
+    const ca = (STATE.cashAccounts || []).find(c => c.id === id);
+    return ca ? `💵 ${ca.name}` : '💵 Cash';
+  }
+  if (type === 'bank') {
+    const b = (STATE.bankAccounts || []).find(a => a.id === id);
+    return b ? `🏦 ${b.bankName}` : '🏦 Bank';
+  }
+  if (type === 'card') {
+    const c = (STATE.creditCards || []).find(cc => cc.id === id);
+    return c ? `💳 ${c.bankName}` : '💳 Card';
+  }
+  return source;
+}
+
+// ===== CASH ACCOUNTS =====
+
+function addCashAccount() {
+  openModal('💵 Add Cash Wallet', `
+    <div class="form-group"><label class="form-label">Wallet Name</label>
+      <input type="text" id="cash-name" class="form-input" placeholder="e.g. Wallet, Petty Cash, Savings Jar"/>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Current Balance (₹)</label>
+        <input type="number" id="cash-balance" class="form-input" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+      <div class="form-group"><label class="form-label">Balance As Of Date</label>
+        <input type="date" id="cash-bal-date" class="form-input" value="${today()}"/>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveCashAccount(null)">💾 Save Wallet</button>
+    </div>`);
+}
+
+function editCashAccount(i) {
+  const ca = (STATE.cashAccounts || [])[i];
+  if (!ca) return;
+  openModal('✏️ Edit Cash Wallet', `
+    <div class="form-group"><label class="form-label">Wallet Name</label>
+      <input type="text" id="cash-name" class="form-input" value="${ca.name}"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveCashAccount(${i})">💾 Save Changes</button>
+    </div>`);
+}
+
+function saveCashAccount(editIndex) {
+  const name = document.getElementById('cash-name')?.value.trim();
+  if (!name) { toast('Enter a wallet name', 'error'); return; }
+  STATE.cashAccounts = STATE.cashAccounts || [];
+  STATE.cashBalanceHistory = STATE.cashBalanceHistory || [];
+  if (editIndex !== null && editIndex >= 0) {
+    STATE.cashAccounts[editIndex].name = name;
+    toast('Cash wallet updated ✅', 'success');
+  } else {
+    const balance = parseFloat(document.getElementById('cash-balance')?.value) || 0;
+    const balDate = document.getElementById('cash-bal-date')?.value || today();
+    const id = genId();
+    STATE.cashAccounts.push({ id, name, balance });
+    STATE.cashBalanceHistory.push({ accountId: id, balance, date: balDate, note: 'Wallet created' });
+    toast('Cash wallet added! 💵', 'success');
+  }
+  saveState();
+  closeModal();
+  renderFinance();
+}
+
+function deleteCashAccount(i) {
+  const ca = (STATE.cashAccounts || [])[i];
+  if (!ca) return;
+  if (!confirm(`Delete "${ca.name}" cash wallet?`)) return;
+  STATE.cashAccounts = (STATE.cashAccounts || []).filter((_, idx) => idx !== i);
+  saveState();
+  toast('Cash wallet removed', 'info');
+  renderFinance();
+}
+
+function updateCashBalance(i) {
+  const ca = (STATE.cashAccounts || [])[i];
+  if (!ca) return;
+  openModal(`💵 Update ${ca.name} Balance`, `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Current: <strong>${fmt(ca.balance || 0)}</strong></p>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">New Balance (₹)</label>
+        <input type="number" id="cash-upd-bal" class="form-input" value="${ca.balance || 0}" step="0.01" min="0"/>
+      </div>
+      <div class="form-group"><label class="form-label">Date</label>
+        <input type="date" id="cash-upd-date" class="form-input" value="${today()}"/>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Note (optional)</label>
+      <input type="text" id="cash-upd-note" class="form-input" placeholder="e.g. Counted cash"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveCashBalanceUpdate(${i})">💾 Update</button>
+    </div>`);
+}
+
+function saveCashBalanceUpdate(i) {
+  const ca = (STATE.cashAccounts || [])[i];
+  if (!ca) return;
+  const newBal = parseFloat(document.getElementById('cash-upd-bal')?.value);
+  const date   = document.getElementById('cash-upd-date')?.value || today();
+  const note   = document.getElementById('cash-upd-note')?.value.trim() || 'Manual update';
+  if (isNaN(newBal) || newBal < 0) { toast('Enter a valid balance', 'error'); return; }
+  const oldBal = ca.balance;
+  ca.balance = newBal;
+  STATE.cashBalanceHistory = STATE.cashBalanceHistory || [];
+  STATE.cashBalanceHistory.push({ accountId: ca.id, balance: newBal, prevBalance: oldBal, date, note });
+  saveState();
+  closeModal();
+  toast(`${ca.name} updated to ${fmt(newBal)} ✅`, 'success');
+  renderFinance();
 }
 
 // ===== BANK ACCOUNTS =====
