@@ -23,7 +23,8 @@ const DB = {
       bankBalanceHistory: [],  // [{ accountId, balance, date, note }]
       bankTransfers: [],       // [{ id, fromId, toId, amount, date, note }]
       creditCards: [],
-      creditCardHistory: []    // [{ id, cardId, outstanding, prevOutstanding, date, note, createdAt }]
+      creditCardHistory: [],   // [{ id, cardId, outstanding, prevOutstanding, date, note, createdAt }]
+      deletedIds: []           // tombstones: [{ id, at }] — lets deletions sync across devices
     };
   },
   load() {
@@ -44,9 +45,35 @@ const API_URL = 'https://lifeos-backend-mangodb.onrender.com/api'; // MongoDB ba
 const stateHistory = []; // Keeps last 5 states for undo
 
 function saveState() {
-  // Store current state for undo
-  const currentStr = JSON.stringify(STATE);
   const lastSavedStr = localStorage.getItem(DB.KEY);
+
+  // Auto-tombstone: any id that was present last save but is gone now was deleted.
+  // This lets deletions propagate across devices (the union-merge can't otherwise
+  // represent a removal, so the item would resurrect on the next pull).
+  if (lastSavedStr) {
+    try {
+      const prev = JSON.parse(lastSavedStr);
+      STATE.deletedIds = STATE.deletedIds || [];
+      const tombId = new Set(STATE.deletedIds.map(d => d.id));
+      const now = Date.now();
+      LIVE_SYNC_KEYS.forEach(k => {
+        if (!Array.isArray(prev[k]) || !Array.isArray(STATE[k])) return;
+        const curIds = new Set(STATE[k].map(x => x && x.id).filter(Boolean));
+        prev[k].forEach(item => {
+          if (item && item.id && !curIds.has(item.id) && !tombId.has(item.id)) {
+            STATE.deletedIds.push({ id: item.id, at: now });
+            tombId.add(item.id);
+          }
+        });
+      });
+      // Prune tombstones older than 60 days (longer than any realistic offline gap)
+      const cutoff = now - 60 * 24 * 60 * 60 * 1000;
+      STATE.deletedIds = STATE.deletedIds.filter(d => d.at >= cutoff);
+    } catch {}
+  }
+
+  // Store current state for undo (after tombstone bookkeeping)
+  const currentStr = JSON.stringify(STATE);
   if (lastSavedStr && currentStr !== lastSavedStr) {
     stateHistory.push(lastSavedStr);
     if (stateHistory.length > 5) stateHistory.shift();
@@ -162,7 +189,7 @@ const LIVE_SYNC_KEYS = [
   'habitCompletions', 'healthEntries', 'tasks', 'budgets',
   'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
   'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',
-  'unlockedAchievements'
+  'unlockedAchievements', 'deletedIds'
 ];
 
 let _syncTimer     = null;
@@ -186,10 +213,13 @@ function setSyncDot(status) {
   dot.title = c.title;
 }
 
-// Merge two arrays by id — local items win on conflict
-function _mergeById(local, cloud) {
-  const l = Array.isArray(local) ? local : [];
-  const c = Array.isArray(cloud) ? cloud : [];
+// Merge two arrays by id — local items win on conflict.
+// deletedSet (Set of tombstoned ids) is excluded from BOTH sides so a
+// deletion on any device sticks instead of resurrecting on the next pull.
+function _mergeById(local, cloud, deletedSet) {
+  const del = deletedSet || new Set();
+  const l = (Array.isArray(local) ? local : []).filter(x => !(x && x.id && del.has(x.id)));
+  const c = (Array.isArray(cloud) ? cloud : []).filter(x => !(x && x.id && del.has(x.id)));
   if (!c.length) return l;
   if (!l.length) return c;
   const seen = new Set(l.map(x => x.id).filter(Boolean));
@@ -222,12 +252,21 @@ async function pullFromCloud() {
     if (hash === _lastCloudHash) { setSyncDot('ok'); return; }
     _lastCloudHash = hash;
 
+    // Union tombstones (local + cloud), keeping the newest timestamp per id.
+    const delMap = {};
+    [...(STATE.deletedIds || []), ...(data.state.deletedIds || [])].forEach(d => {
+      if (d && d.id) delMap[d.id] = Math.max(delMap[d.id] || 0, d.at || 0);
+    });
+    STATE.deletedIds = Object.entries(delMap).map(([id, at]) => ({ id, at }));
+    const deletedSet = new Set(Object.keys(delMap));
+
     // Merge cloud into current STATE
     let changed = false;
     LIVE_SYNC_KEYS.forEach(k => {
+      if (k === 'deletedIds') return; // handled above via delMap union
       const cloud = data.state[k];
       if (Array.isArray(cloud)) {
-        const merged = _mergeById(STATE[k], cloud);
+        const merged = _mergeById(STATE[k], cloud, deletedSet);
         if (merged.length !== (STATE[k] || []).length) {
           STATE[k] = merged;
           changed = true;
