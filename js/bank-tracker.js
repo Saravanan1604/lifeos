@@ -33,6 +33,10 @@ function reconcileCurrentBalances() {
     const v = _latestSnapValue(STATE.bankBalanceHistory, 'accountId', a.id, 'balance');
     if (v !== null && a.balance !== v) { a.balance = v; changed = true; }
   });
+  (STATE.cashAccounts || []).forEach(a => {
+    const v = _latestSnapValue(STATE.cashBalanceHistory, 'accountId', a.id, 'balance');
+    if (v !== null && a.balance !== v) { a.balance = v; changed = true; }
+  });
   if (changed && typeof saveState === 'function') saveState();
 }
 

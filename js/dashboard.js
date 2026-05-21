@@ -237,11 +237,13 @@ const DASH_PALETTE = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6
 function _buildAccountsGoalsBudget() {
   const banks   = STATE.bankAccounts || [];
   const cards   = STATE.creditCards  || [];
+  const cash    = STATE.cashAccounts || [];
   const goals   = STATE.goals        || [];
   const budgets = STATE.budgets      || [];
   const totalBank  = banks.reduce((s,b)=>s+(b.balance||0),0);
   const totalOut   = cards.reduce((s,c)=>s+(c.outstanding||0),0);
   const totalLimit = cards.reduce((s,c)=>s+(c.limit||0),0);
+  const totalCash  = cash.reduce((s,c)=>s+(c.balance||0),0);
   const overallUtil = totalLimit>0?Math.round(totalOut/totalLimit*100):0;
 
   const empty = (txt) => `<p style="font-size:12px;color:var(--text3);padding:18px 0;text-align:center">${txt}</p>`;
@@ -328,16 +330,48 @@ function _buildAccountsGoalsBudget() {
       }).join(''))}
     </div>`;
 
+  // 💵 Cash wallets card
+  const cashCard = `
+    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="bankTrackerTab='cash';navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(245,158,11,0.4)'" onmouseout="this.style.borderColor=''">
+      <div class="section-header" style="margin-bottom:12px">
+        <p class="section-title">💵 Cash Wallets</p>
+        <span style="font-size:14px;font-weight:800;color:#f59e0b">${fmt(totalCash)}</span>
+      </div>
+      ${cash.length===0 ? empty('No cash wallets yet') : wrap(cash.map(c=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="font-weight:600">💵 ${c.name}</span>
+          <span style="color:#f59e0b;font-weight:700">${fmt(c.balance||0)}</span>
+        </div>`).join(''))}
+    </div>`;
+
+  // Net worth breakdown strip
+  const hasAccts = banks.length + cash.length + cards.length > 0;
+  const netWorthStrip = hasAccts ? `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;border-radius:12px;background:rgba(0,201,167,0.07);border:1px solid rgba(0,201,167,0.15);margin-bottom:16px;font-size:12px;align-items:center">
+      <span style="font-weight:700;color:var(--text3);font-size:11px;letter-spacing:1px;text-transform:uppercase">Net Worth</span>
+      <span style="color:#00c9a7;font-weight:700">🏦 ${fmt(totalBank)}</span>
+      <span style="color:var(--text3)">+</span>
+      <span style="color:#f59e0b;font-weight:700">💵 ${fmt(totalCash)}</span>
+      <span style="color:var(--text3)">−</span>
+      <span style="color:#ef4444;font-weight:700">💳 ${fmt(totalOut)}</span>
+      <span style="color:var(--text3)">=</span>
+      <span style="font-weight:900;font-size:14px;color:${totalBank+totalCash-totalOut>=0?'#00c9a7':'#ef4444'}">${fmt(totalBank+totalCash-totalOut)}</span>
+    </div>` : '';
+
   return `
     <div style="display:flex;align-items:center;gap:10px;margin:8px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
       <span style="font-size:16px">💼</span>
       <h2 style="font-size:16px;font-weight:800;color:var(--text)">Accounts, Cards, Goals &amp; Budget</h2>
     </div>
+    ${netWorthStrip}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="dash-agb-grid">
       ${banksCard}${budgetCard}
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" class="dash-agb-grid2">
-      ${cardsCard}${goalsCard}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="dash-agb-grid2">
+      ${cardsCard}${cashCard}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" class="dash-agb-grid3">
+      ${goalsCard}
     </div>`;
 }
 
@@ -414,7 +448,14 @@ function renderDashboard() {
   const incomeTxns = _incPeriod === _dashPeriod ? txns : filterTxByAnchor(txnsAll, _incPeriod, _dashAnchorDate);
   const totalIncome = incomeTxns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-  const netWorth = totalIncome - totalExpense;
+  const _banks = STATE.bankAccounts || [];
+  const _cash  = STATE.cashAccounts || [];
+  const _cards = STATE.creditCards  || [];
+  const _bankTotal = _banks.reduce((s,b)=>s+(b.balance||0),0);
+  const _cashTotal = _cash.reduce((s,c)=>s+(c.balance||0),0);
+  const _cardOut   = _cards.reduce((s,c)=>s+(c.outstanding||0),0);
+  const _hasAccts  = _banks.length + _cash.length + _cards.length > 0;
+  const netWorth   = _hasAccts ? _bankTotal + _cashTotal - _cardOut : totalIncome - totalExpense;
   const habits = STATE.habits || [];
   const comps = STATE.habitCompletions || [];
   const doneToday = comps.filter(c => c.date === today()).length;

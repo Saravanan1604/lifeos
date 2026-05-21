@@ -26,6 +26,13 @@ function renderFinance() {
   const savingsOk = savings >= 0;
   const userName = (STATE.user?.name || STATE.user?.email || 'Your').split(' ')[0];
 
+  // Real-time net worth from actual account balances
+  const _bankTotal = (STATE.bankAccounts  || []).reduce((s, b) => s + (b.balance     || 0), 0);
+  const _cashTotal = (STATE.cashAccounts  || []).reduce((s, c) => s + (c.balance     || 0), 0);
+  const _cardTotal = (STATE.creditCards   || []).reduce((s, c) => s + (c.outstanding || 0), 0);
+  const _hasAccounts = (STATE.bankAccounts||[]).length + (STATE.cashAccounts||[]).length + (STATE.creditCards||[]).length > 0;
+  const _netWorth  = _hasAccounts ? _bankTotal + _cashTotal - _cardTotal : savings;
+
   // Build category spending map for "Spending by Category"
   const catMap = {};
   txns.filter(t => t.type === 'expense').forEach(t => {
@@ -62,12 +69,13 @@ function renderFinance() {
         <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.15)"></div>
         <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
         <div style="position:relative">
-          <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,60,50,0.75);margin-bottom:6px">💰 Total Balance</p>
-          <p id="fin-balance" style="font-size:48px;font-weight:900;color:#001a14;letter-spacing:-2px;line-height:1">${fmt(savings)}</p>
+          <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,60,50,0.75);margin-bottom:6px">💰 Net Worth ${_hasAccounts ? '<span style="font-size:9px;opacity:0.6;font-weight:600">(Bank + Cash − Cards)</span>' : ''}</p>
+          <p id="fin-balance" style="font-size:48px;font-weight:900;color:#001a14;letter-spacing:-2px;line-height:1">${fmt(_netWorth)}</p>
           <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap">
             <span id="fin-rate" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.4);color:${savingsOk?'#004d3a':'#7f0000'}">
               ${savingsOk?'📈':'📉'} ${savingsRate}% savings rate
             </span>
+            ${_hasAccounts ? `<span style="font-size:11px;font-weight:600;color:rgba(0,50,40,0.7)">🏦 ${fmt(_bankTotal)} &nbsp;💵 ${fmt(_cashTotal)} &nbsp;💳 -${fmt(_cardTotal)}</span>` : ''}
             <span style="font-size:12px;font-weight:600;color:rgba(0,50,40,0.8)">✨ ${userName}'s wallet</span>
           </div>
           <div style="display:flex;gap:32px;margin-top:20px;flex-wrap:wrap">
@@ -381,8 +389,14 @@ function refreshFinancePage() {
   const savingsOk = savings >= 0;
   const rate    = income > 0 ? ((savings / income) * 100).toFixed(1) : 0;
 
+  const bankTotal = (STATE.bankAccounts  || []).reduce((s, b) => s + (b.balance     || 0), 0);
+  const cashTotal = (STATE.cashAccounts  || []).reduce((s, c) => s + (c.balance     || 0), 0);
+  const cardTotal = (STATE.creditCards   || []).reduce((s, c) => s + (c.outstanding || 0), 0);
+  const hasAccounts = (STATE.bankAccounts||[]).length + (STATE.cashAccounts||[]).length + (STATE.creditCards||[]).length > 0;
+  const netWorth  = hasAccounts ? bankTotal + cashTotal - cardTotal : savings;
+
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('fin-balance',    fmt(savings));
+  set('fin-balance',    fmt(netWorth));
   set('fin-income',     '+' + fmt(income));
   set('fin-expense',    '-' + fmt(expense));
   set('fin-savings',    (savingsOk ? '+' : '') + fmt(savings));
@@ -692,7 +706,9 @@ function confirmSaveTx() {
 
 function _commitTx(tx) {
   STATE.transactions = STATE.transactions || [];
-  STATE.transactions.unshift({ id: genId(), ...tx, createdAt: new Date().toISOString() });
+  const newTx = { id: genId(), ...tx, createdAt: new Date().toISOString() };
+  STATE.transactions.unshift(newTx);
+  _applyTxToAccount(newTx);
   saveState();
   addXP(10, 'Transaction logged');
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
@@ -702,11 +718,13 @@ function _commitTx(tx) {
 }
 
 function deleteTx(id) {
+  const tx = (STATE.transactions || []).find(t => t.id === id);
+  if (tx) _reverseTxFromAccount(tx);
   STATE.transactions = (STATE.transactions || []).filter(t => t.id !== id);
   saveState();
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   toast('Transaction deleted', 'info');
-  renderFinanceTxList(); // instant remove from list
+  renderFinanceTxList();
 }
 
 function openEditTxModal(id) {
@@ -774,6 +792,8 @@ function saveEditTx(id) {
 
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
 
+  _reverseTxFromAccount(tx); // undo old balance effect before changing fields
+
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
   tx.type        = type;
   tx.amount      = amount;
@@ -782,6 +802,8 @@ function saveEditTx(id) {
   tx.icon        = allCats.find(c => c.name === cat)?.icon || tx.icon || '💳';
   tx.description = desc;
   tx.source      = source;
+
+  _applyTxToAccount(tx); // apply new balance effect
 
   let extraMsg = '';
   if (applyAll && desc) {
@@ -801,6 +823,76 @@ function saveEditTx(id) {
   closeModal();
   toast(`Transaction updated ✅${extraMsg}`, 'success');
   renderFinanceTxList(); // instant list refresh without full page re-render
+}
+
+// ===== REAL-TIME ACCOUNT BALANCE SYNC =====
+// When a transaction with a `source` is saved, the linked account balance is
+// updated immediately and a history entry is logged so it can be reversed on edit/delete.
+
+function _applyTxToAccount(tx) {
+  if (!tx.source || !tx.id) return;
+  const [type, id] = tx.source.split(':');
+  const note = `${tx.type === 'income' ? '💚 Income' : '❤️ Expense'}: ${tx.description || tx.category} (₹${tx.amount})`;
+  const date = tx.date || today();
+
+  if (type === 'bank') {
+    const acc = (STATE.bankAccounts || []).find(a => a.id === id);
+    if (!acc) return;
+    const delta = tx.type === 'income' ? tx.amount : -tx.amount;
+    const prev = acc.balance || 0;
+    acc.balance = Math.max(0, prev + delta);
+    STATE.bankBalanceHistory = STATE.bankBalanceHistory || [];
+    STATE.bankBalanceHistory.push({ id: genId(), accountId: id, balance: acc.balance, prevBalance: prev, date, note, txId: tx.id, createdAt: new Date().toISOString() });
+
+  } else if (type === 'card') {
+    const card = (STATE.creditCards || []).find(c => c.id === id);
+    if (!card) return;
+    // expense = more debt (outstanding ↑), income/refund = less debt (outstanding ↓)
+    const delta = tx.type === 'expense' ? tx.amount : -tx.amount;
+    const prev = card.outstanding || 0;
+    card.outstanding = Math.max(0, prev + delta);
+    STATE.creditCardHistory = STATE.creditCardHistory || [];
+    STATE.creditCardHistory.push({ id: genId(), cardId: id, outstanding: card.outstanding, prevOutstanding: prev, date, note, txId: tx.id, createdAt: new Date().toISOString() });
+
+  } else if (type === 'cash') {
+    const acc = (STATE.cashAccounts || []).find(a => a.id === id);
+    if (!acc) return;
+    const delta = tx.type === 'income' ? tx.amount : -tx.amount;
+    const prev = acc.balance || 0;
+    acc.balance = Math.max(0, prev + delta);
+    STATE.cashBalanceHistory = STATE.cashBalanceHistory || [];
+    STATE.cashBalanceHistory.push({ id: genId(), accountId: id, balance: acc.balance, prevBalance: prev, date, note, txId: tx.id, createdAt: new Date().toISOString() });
+  }
+}
+
+function _reverseTxFromAccount(tx) {
+  if (!tx.source || !tx.id) return;
+  const [type, id] = tx.source.split(':');
+
+  if (type === 'bank') {
+    const hist = STATE.bankBalanceHistory || [];
+    const entry = hist.find(h => h.txId === tx.id);
+    if (!entry) return;
+    const acc = (STATE.bankAccounts || []).find(a => a.id === id);
+    if (acc) acc.balance = entry.prevBalance;
+    STATE.bankBalanceHistory = hist.filter(h => h !== entry);
+
+  } else if (type === 'card') {
+    const hist = STATE.creditCardHistory || [];
+    const entry = hist.find(h => h.txId === tx.id);
+    if (!entry) return;
+    const card = (STATE.creditCards || []).find(c => c.id === id);
+    if (card) card.outstanding = entry.prevOutstanding;
+    STATE.creditCardHistory = hist.filter(h => h !== entry);
+
+  } else if (type === 'cash') {
+    const hist = STATE.cashBalanceHistory || [];
+    const entry = hist.find(h => h.txId === tx.id);
+    if (!entry) return;
+    const acc = (STATE.cashAccounts || []).find(a => a.id === id);
+    if (acc) acc.balance = entry.prevBalance;
+    STATE.cashBalanceHistory = hist.filter(h => h !== entry);
+  }
 }
 
 // ===== DOUBLE-ENTRY / DUPLICATE DETECTION =====
