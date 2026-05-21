@@ -1,8 +1,9 @@
 // ===== BANK TRACKER PAGE =====
 let bankTrackerAccount = null; // currently selected account id
-let bankTrackerTab     = 'banks'; // 'banks' | 'cards'
+let bankTrackerTab     = 'banks'; // 'banks' | 'cards' | 'cash'
 let bankTrackerCard    = null;    // currently selected credit card id
-let trendPeriod        = '30d';   // '30d' | '1y' — shared by bank & card trend charts
+let bankTrackerCash    = null;    // currently selected cash account id
+let trendPeriod        = '30d';   // '30d' | '1y' — shared by bank, card & cash trend charts
 
 function setTrendPeriod(p) { trendPeriod = p; renderBankTracker(); }
 
@@ -106,6 +107,7 @@ function formatRelativeDate(dateStr) {
 function renderBankTracker() {
   reconcileCurrentBalances();
   if (bankTrackerTab === 'cards') { renderCCTracker(); return; }
+  if (bankTrackerTab === 'cash')  { renderCashTracker(); return; }
 
   const accounts  = STATE.bankAccounts || [];
   const history   = STATE.bankBalanceHistory || [];
@@ -211,6 +213,7 @@ function renderBankTracker() {
       <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
         <button onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">🏦 Banks</button>
         <button onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">💳 Credit Cards</button>
+        <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">💵 Cash</button>
       </div>
 
       ${!accounts.length ? `
@@ -718,6 +721,7 @@ function renderCCTracker() {
       <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
         <button onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">🏦 Banks</button>
         <button onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid #ef4444;color:#ef4444;transition:.2s">💳 Credit Cards</button>
+        <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">💵 Cash</button>
       </div>
 
       ${!cards.length ? `
@@ -913,6 +917,369 @@ function deleteCCHistoryEntry(id, date, idx) {
   if (!target) target = history.filter(h => h.date === date)[idx];
   if (!target) return;
   STATE.creditCardHistory = history.filter(h => h !== target);
+  saveState();
+  toast('Entry removed', 'info');
+  renderBankTracker();
+}
+
+// ===== CASH TRACKER =====
+
+function renderCashTracker() {
+  const accounts = STATE.cashAccounts || [];
+  const history  = STATE.cashBalanceHistory || [];
+  const selId    = bankTrackerCash;
+  const getById  = id => accounts.find(a => a.id === id);
+
+  const totalBalance = accounts.reduce((s, a) => s + (a.balance || 0), 0);
+
+  const chartAccounts = selId ? accounts.filter(a => a.id === selId) : accounts;
+  const { labels: chartLabels, data: chartData } =
+    buildTrendSeries(trendPeriod, chartAccounts, history, 'accountId', 'balance');
+
+  const filteredHistory = [...history]
+    .filter(h => !selId || h.accountId === selId)
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.createdAt||'').localeCompare(b.createdAt||''));
+
+  const grouped = {};
+  filteredHistory.forEach(h => {
+    if (!grouped[h.date]) grouped[h.date] = [];
+    grouped[h.date].push(h);
+  });
+  const sortedDates = Object.keys(grouped).sort();
+
+  let chatHTML = '';
+  if (!sortedDates.length) {
+    chatHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;text-align:center">
+        <div style="font-size:48px">💵</div>
+        <p style="font-weight:700;font-size:16px">No cash balance history yet</p>
+        <p style="color:var(--text3);font-size:13px">Tap "+ Log Cash" to start tracking your physical cash.</p>
+        <button class="btn-primary btn-sm" onclick="openQuickCashModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#f59e0b,#d97706)">+ Log Cash</button>
+      </div>`;
+  } else {
+    sortedDates.forEach(date => {
+      chatHTML += `
+        <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
+          <span style="font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap;padding:4px 12px;background:rgba(255,255,255,0.05);border-radius:20px">${formatRelativeDate(date)} &nbsp;·&nbsp; ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
+        </div>`;
+      grouped[date].forEach((h, idx) => {
+        const acc   = getById(h.accountId);
+        const delta = (h.prevBalance !== undefined && h.prevBalance !== null) ? h.balance - h.prevBalance : null;
+        const up    = delta !== null && delta > 0;
+        const same  = delta === 0;
+        const dc    = same ? '#94a3b8' : up ? '#10b981' : '#ef4444';
+        const di    = same ? '→' : up ? '↑' : '↓';
+        const entryId = h.id || `${date}-${idx}`;
+        chatHTML += `
+          <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:12px;padding:0 4px">
+            <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#78350f,#92400e);font-size:17px;flex-shrink:0">💵</div>
+            <div style="max-width:78%">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:3px;font-weight:600;padding-left:2px">${!selId?(acc?.name||'Cash')+' · ':''}💵 Cash Balance Update</div>
+              <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:4px 16px 16px 16px;padding:12px 16px">
+                <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-0.5px">${fmt(h.balance)}</div>
+                ${delta !== null ? `
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap">
+                    <span style="font-size:12px;font-weight:700;color:${dc}">${di} ${same?'No change':(up?'+':'')+fmt(Math.abs(delta))}</span>
+                    ${h.prevBalance !== undefined ? `<span style="font-size:10px;color:var(--text3)">from ${fmt(h.prevBalance)}</span>` : ''}
+                  </div>` : ''}
+                ${h.note && h.note !== 'Manual update' && h.note !== 'Wallet created' ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.07)">${h.note}</div>` : ''}
+                <div style="display:flex;justify-content:flex-end;margin-top:6px">
+                  <button onclick="deleteCashHistoryEntry('${entryId}','${date}',${idx})" style="background:none;border:none;color:rgba(239,68,68,0.35);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;transition:.2s" onmouseover="this.style.color='#ef4444';this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.color='rgba(239,68,68,0.35)';this.style.background='none'">✕ delete</button>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      });
+    });
+  }
+
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in" style="max-width:960px;margin:0 auto">
+
+      <!-- Header -->
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+        <div>
+          <h1 class="page-title">🏦 Bank Tracker</h1>
+          <p class="page-subtitle">Cash wallet balance history</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-secondary btn-sm" onclick="navigate('finance')">← Finance</button>
+          <button class="btn-primary btn-sm" onclick="openQuickCashModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#f59e0b,#d97706)">+ Log Cash</button>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
+        <button onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">🏦 Banks</button>
+        <button onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">💳 Credit Cards</button>
+        <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid #f59e0b;color:#f59e0b;transition:.2s">💵 Cash</button>
+      </div>
+
+      ${!accounts.length ? `
+        <div class="glass-card" style="padding:60px;text-align:center">
+          <div style="font-size:60px;margin-bottom:16px">💵</div>
+          <p style="font-size:18px;font-weight:700;margin-bottom:8px">No Cash Wallets Yet</p>
+          <p style="color:var(--text3);margin-bottom:20px">Add cash wallets in Finance to start tracking</p>
+          <button class="btn-primary" onclick="navigate('finance')">+ Add Cash Wallet</button>
+        </div>` : `
+
+      <!-- Total Cash Hero + Wallet Selector -->
+      <div style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#2d1a00,#1a0e00,#2d1a00);border:1px solid rgba(245,158,11,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+        <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(245,158,11,0.07)"></div>
+        <div style="position:relative">
+          <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(245,158,11,0.7);margin-bottom:6px">💵 Total Cash</p>
+          <p style="font-size:52px;font-weight:900;color:#f59e0b;letter-spacing:-2px;line-height:1">${fmt(totalBalance)}</p>
+          <!-- Wallet selector pills -->
+          <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px">
+            <div onclick="bankTrackerCash=null;renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${!selId?'rgba(245,158,11,0.25)':'rgba(255,255,255,0.06)'};border:1px solid ${!selId?'rgba(245,158,11,0.6)':'rgba(255,255,255,0.1)'};cursor:pointer;transition:.2s;text-align:center;min-width:70px">
+              <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${!selId?'#f59e0b':'rgba(255,255,255,0.45)'}">ALL</p>
+              <p style="font-size:14px;font-weight:800;color:${!selId?'#f59e0b':'rgba(255,255,255,0.65)'};margin-top:2px">${accounts.length} wallets</p>
+            </div>
+            ${accounts.map(a => {
+              const isActive = selId === a.id;
+              const lastSnap = [...history].filter(h=>h.accountId===a.id).sort((x,y)=>y.date.localeCompare(x.date))[0];
+              const lastDate = lastSnap ? formatRelativeDate(lastSnap.date) : 'No entries';
+              return `
+              <div onclick="bankTrackerCash='${a.id}';renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${isActive?'rgba(245,158,11,0.2)':'rgba(255,255,255,0.06)'};border:1px solid ${isActive?'rgba(245,158,11,0.5)':'rgba(255,255,255,0.08)'};cursor:pointer;transition:.2s;min-width:120px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  <span style="font-size:16px">💵</span>
+                  <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${a.name}</p>
+                </div>
+                <p style="font-size:18px;font-weight:900;color:#fff">${fmt(a.balance||0)}</p>
+                <p style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px">Updated ${lastDate}</p>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart + Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px" id="cash-main-grid">
+        <!-- Trend Chart -->
+        <div class="glass-card" style="padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <p class="section-title" style="font-size:13px;margin:0">📈 ${trendPeriod==='1y'?'1-Year':'30-Day'} Trend
+              <span style="font-size:10px;font-weight:500;color:var(--text3);margin-left:6px">${selId?(getById(selId)?.name||'Wallet'):'All Wallets'}</span>
+            </p>
+            ${_trendToggleHtml('#f59e0b')}
+          </div>
+          ${!history.filter(h=>!selId||h.accountId===selId).length
+            ? `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:160px;gap:8px"><div style="font-size:32px">📊</div><p style="color:var(--text3);font-size:12px;text-align:center">Log a balance to see the trend</p></div>`
+            : `<div style="height:180px;position:relative"><canvas id="cash-trend-chart"></canvas></div>`}
+        </div>
+
+        <!-- Stats + Quick Log -->
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            ${[
+              { label:'Wallets',  value:accounts.length,                                           icon:'💵', tc:'#f59e0b' },
+              { label:'Entries',  value:history.filter(h=>!selId||h.accountId===selId).length,    icon:'📸', tc:'#00c9a7' },
+              { label:'Days',     value:sortedDates.length,                                        icon:'📅', tc:'#ec4899' },
+              { label:'On Hand',  value:fmt(selId?(getById(selId)?.balance||0):totalBalance),     icon:'🪙', tc:'#10b981' },
+            ].map(s=>`
+              <div class="glass-card" style="padding:14px;text-align:center">
+                <div style="font-size:16px;margin-bottom:6px">${s.icon}</div>
+                <p style="font-size:${s.value.toString().length>6?'13':'18'}px;font-weight:800;color:${s.tc}">${s.value}</p>
+                <p style="font-size:10px;color:var(--text3);margin-top:2px">${s.label}</p>
+              </div>`).join('')}
+          </div>
+          <!-- Quick log per wallet -->
+          <div class="glass-card" style="padding:14px;flex:1">
+            <p style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase">Quick Log</p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              ${accounts.map(a=>`
+                <button onclick="openQuickCashModal('${a.id}')" style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:#f59e0b;font-size:12px;font-weight:600;cursor:pointer;transition:.2s" onmouseover="this.style.background='rgba(245,158,11,0.18)'" onmouseout="this.style.background='rgba(245,158,11,0.08)'">💵 ${a.name}</button>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat-style Cash Balance History -->
+      <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.25)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#78350f,#92400e);font-size:18px">💵</div>
+            <div>
+              <p style="font-size:14px;font-weight:700">${selId?(getById(selId)?.name||'Wallet'):'All Wallets'} — Cash Log</p>
+              <p style="font-size:11px;color:var(--text3)">${filteredHistory.length} entries · newest at bottom</p>
+            </div>
+          </div>
+          <button class="btn-primary btn-sm" onclick="openQuickCashModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#f59e0b,#d97706)">+ Log</button>
+        </div>
+        <div id="cash-chat" style="padding:16px 16px 8px;max-height:520px;overflow-y:auto;scroll-behavior:smooth">
+          ${chatHTML}
+        </div>
+        <div style="padding:10px 14px;border-top:1px solid var(--glass-border);background:rgba(0,0,0,0.2);display:flex;gap:10px;align-items:center">
+          <div onclick="openQuickCashModal(${selId?`'${selId}'`:''})" style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:10px;font-size:13px;color:var(--text3);cursor:pointer;transition:.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+            Log cash for ${selId?(getById(selId)?.name||'wallet'):'any wallet'}…
+          </div>
+          <button class="btn-primary" onclick="openQuickCashModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#f59e0b,#d97706);padding:10px 18px;border-radius:10px;white-space:nowrap">+ Log</button>
+        </div>
+      </div>
+
+      `}
+    </div>`;
+
+  setTimeout(() => {
+    const chat = document.getElementById('cash-chat');
+    if (chat && sortedDates.length) chat.scrollTop = chat.scrollHeight;
+  }, 80);
+  setTimeout(() => {
+    const grid = document.getElementById('cash-main-grid');
+    if (grid && window.innerWidth < 640) grid.style.gridTemplateColumns = '1fr';
+  }, 50);
+  if (history.filter(h => !selId || h.accountId === selId).length) {
+    setTimeout(() => renderCashTrendChart(chartLabels, chartData), 60);
+  }
+}
+
+function renderCashTrendChart(labels, data) {
+  const canvas = document.getElementById('cash-trend-chart');
+  if (!canvas) return;
+  const isLight   = document.body.classList.contains('light');
+  const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+  chartInstances['cash-trend'] = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Cash Balance',
+        data,
+        borderColor: '#f59e0b',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#f59e0b',
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        tension: 0.4,
+        fill: true,
+        spanGaps: false,
+        backgroundColor: ctx => {
+          const { ctx: c, chartArea } = ctx.chart;
+          if (!chartArea) return 'rgba(245,158,11,0.2)';
+          const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          g.addColorStop(0, 'rgba(245,158,11,0.25)');
+          g.addColorStop(1, 'rgba(245,158,11,0)');
+          return g;
+        }
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.95)', titleColor: '#94a3b8',
+          bodyColor: '#fff', padding: 12,
+          borderColor: 'rgba(245,158,11,0.3)', borderWidth: 1,
+          callbacks: { label: ctx => ` ₹${ctx.parsed.y.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}` }
+        }
+      },
+      scales: {
+        x: { ticks: { color:'#64748b', font:{size:10}, maxRotation:45 }, grid: { color:gridColor } },
+        y: {
+          ticks: {
+            color:'#64748b', font:{size:11},
+            callback: v => `₹${Math.abs(v)>=100000?(v/100000).toFixed(1)+'L':Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v}`
+          },
+          grid: { color:gridColor }
+        }
+      }
+    }
+  });
+}
+
+function openQuickCashModal(preSelectedId) {
+  const accounts = STATE.cashAccounts || [];
+  if (!accounts.length) { toast('Add a cash wallet first in Finance', 'error'); return; }
+
+  const opts = accounts.map(a =>
+    `<option value="${a.id}" ${preSelectedId === a.id ? 'selected' : ''}>💵 ${a.name} — ${fmt(a.balance||0)}</option>`
+  ).join('');
+
+  const todayStr = today();
+  const yday  = (() => { const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); })();
+  const y2day = (() => { const d=new Date(); d.setDate(d.getDate()-2); return d.toISOString().slice(0,10); })();
+
+  openModal('💵 Log Cash Balance', `
+    <div class="form-group">
+      <label class="form-label">Wallet</label>
+      <select id="qc-account" class="form-input">${opts}</select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cash on Hand (₹)</label>
+      <input type="number" id="qc-balance" class="form-input" placeholder="Enter current cash amount" step="0.01" min="0" autofocus/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <button type="button" onclick="setQcDate('${todayStr}','today')" id="qc-btn-today" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(245,158,11,0.5);background:rgba(245,158,11,0.15);color:#f59e0b;font-size:12px;font-weight:600;cursor:pointer">Today</button>
+        <button type="button" onclick="setQcDate('${yday}','yday')"  id="qc-btn-yday"  style="padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer">Yesterday</button>
+        <button type="button" onclick="setQcDate('${y2day}','y2day')" id="qc-btn-y2day" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer">2 Days Ago</button>
+      </div>
+      <input type="date" id="qc-date" class="form-input" value="${todayStr}"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note (optional)</label>
+      <input type="text" id="qc-note" class="form-input" placeholder="e.g. Counted wallet, Received cash"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveQuickCashLog()" style="background:linear-gradient(135deg,#f59e0b,#d97706)">💾 Save</button>
+    </div>`);
+}
+
+function setQcDate(dateStr, btnKey) {
+  const input = document.getElementById('qc-date');
+  if (input) input.value = dateStr;
+  ['today','yday','y2day'].forEach(k => {
+    const b = document.getElementById(`qc-btn-${k}`);
+    if (b) {
+      b.style.borderColor = k === btnKey ? 'rgba(245,158,11,0.5)' : 'rgba(255,255,255,0.15)';
+      b.style.background  = k === btnKey ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.05)';
+      b.style.color       = k === btnKey ? '#f59e0b' : 'var(--text2)';
+    }
+  });
+}
+
+function saveQuickCashLog() {
+  const accountId = document.getElementById('qc-account')?.value;
+  const balance   = parseFloat(document.getElementById('qc-balance')?.value);
+  const date      = document.getElementById('qc-date')?.value || today();
+  const note      = document.getElementById('qc-note')?.value.trim() || 'Manual update';
+
+  if (!accountId) { toast('Select a wallet', 'error'); return; }
+  if (isNaN(balance) || balance < 0) { toast('Enter a valid amount', 'error'); return; }
+
+  const acc = (STATE.cashAccounts || []).find(a => a.id === accountId);
+  if (!acc) return;
+  const prevBalance = acc.balance;
+  acc.balance = balance;
+
+  STATE.cashBalanceHistory = STATE.cashBalanceHistory || [];
+  STATE.cashBalanceHistory.push({
+    id: genId(),
+    accountId,
+    balance,
+    prevBalance,
+    date,
+    note,
+    createdAt: new Date().toISOString()
+  });
+  saveState();
+  closeModal();
+  toast(`${acc.name} logged at ${fmt(balance)} ✅`, 'success');
+  renderBankTracker();
+}
+
+function deleteCashHistoryEntry(id, date, idx) {
+  const history = STATE.cashBalanceHistory || [];
+  let target = history.find(h => h.id === id);
+  if (!target) target = history.filter(h => h.date === date)[idx];
+  if (!target) return;
+  STATE.cashBalanceHistory = history.filter(h => h !== target);
   saveState();
   toast('Entry removed', 'info');
   renderBankTracker();
