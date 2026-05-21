@@ -1489,9 +1489,20 @@ function _invTypeOptions(sel) {
 // Show/hide ticker fields when asset type changes
 function toggleTickerFields(prefix) {
   const type = document.getElementById(`${prefix}-type`)?.value || '';
-  const needsTicker = type === 'Stocks' || type === 'Crypto';
+  const needsTicker = type === 'Stocks' || type === 'Crypto' || type === 'Gold';
   const el = document.getElementById(`${prefix}-ticker-fields`);
   if (el) el.style.display = needsTicker ? 'block' : 'none';
+
+  // Gold-specific guidance (physical gold priced per gram)
+  const isGold   = type === 'Gold';
+  const tk        = document.getElementById(`${prefix}-ticker`);
+  const qtyLabel  = document.getElementById(`${prefix}-qty-label`);
+  const goldHint  = document.getElementById(`${prefix}-gold-hint`);
+  const stdHint   = document.getElementById(`${prefix}-std-hint`);
+  if (tk)       tk.placeholder      = isGold ? 'GOLD24K · GOLD22K · GOLDBEES.NS' : 'RELIANCE.NS · INFY.BO · BTC-INR';
+  if (qtyLabel) qtyLabel.textContent = isGold ? 'Qty (grams / ETF units)' : 'Qty (shares / units)';
+  if (goldHint) goldHint.style.display = isGold ? 'block' : 'none';
+  if (stdHint)  stdHint.style.display  = isGold ? 'none'  : 'block';
 }
 
 function _tickerFieldsHtml(prefix, ticker = '', qty = '') {
@@ -1508,16 +1519,23 @@ function _tickerFieldsHtml(prefix, ticker = '', qty = '') {
             style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/>
         </div>
         <div class="form-group">
-          <label class="form-label">Qty (shares / units)</label>
+          <label class="form-label" id="${prefix}-qty-label">Qty (shares / units)</label>
           <input type="number" id="${prefix}-qty" class="form-input"
             value="${qty}" placeholder="10" min="0" step="any"/>
         </div>
       </div>
-      <div style="background:rgba(0,201,167,0.07);border:1px solid rgba(0,201,167,0.2);
+      <div id="${prefix}-std-hint" style="background:rgba(0,201,167,0.07);border:1px solid rgba(0,201,167,0.2);
           border-radius:8px;padding:8px 12px;margin-bottom:4px">
         <p style="font-size:11px;color:#00c9a7;margin:0">
           💡 NSE → <b>SYMBOL.NS</b> &nbsp;|&nbsp; BSE → <b>SYMBOL.BO</b> &nbsp;|&nbsp; Crypto → <b>BTC-INR</b> &nbsp;|&nbsp;
           After saving, hit <b>🔄 Live Prices</b> on the page to auto-fetch.
+        </p>
+      </div>
+      <div id="${prefix}-gold-hint" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);
+          border-radius:8px;padding:8px 12px;margin-bottom:4px">
+        <p style="font-size:11px;color:#f59e0b;margin:0;line-height:1.7">
+          🥇 Physical gold → ticker <b>GOLD24K</b> or <b>GOLD22K</b>, Qty = <b>grams</b> (fetches live ₹/gram).<br>
+          Gold ETF → <b>GOLDBEES.NS</b>, Qty = units held. Then hit <b>🔄 Live Prices</b>.
         </p>
       </div>
     </div>`;
@@ -1569,7 +1587,7 @@ function saveInv() {
 function openEditInvModal(id) {
   const inv = (STATE.investments || []).find(i => i.id === id);
   if (!inv) return;
-  const hasTicker = inv.type === 'Stocks' || inv.type === 'Crypto';
+  const hasTicker = inv.type === 'Stocks' || inv.type === 'Crypto' || inv.type === 'Gold';
   openModal('✏️ Edit Asset', `
     <div class="form-group"><label class="form-label">Name</label>
       <input type="text" id="einv-name" class="form-input" value="${inv.name}"/></div>
@@ -1625,7 +1643,7 @@ function _timeSince(iso) {
   return `${Math.floor(h/24)}d ago`;
 }
 
-async function _fetchTickerPrice(ticker) {
+async function _fetchYahooPrice(ticker) {
   const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
   const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
   const ctrl = new AbortController();
@@ -1640,10 +1658,37 @@ async function _fetchTickerPrice(ticker) {
   } finally { clearTimeout(timer); }
 }
 
+const GRAMS_PER_TROY_OZ = 31.1035;
+
+// Live gold price in INR per gram (24K / 999 purity).
+// Tries XAUINR (gold/INR per ounce) directly, falls back to gold-USD × USD-INR.
+async function _fetchGoldPerGramInr() {
+  try {
+    const perOz = await _fetchYahooPrice('XAUINR=X');
+    if (perOz > 0) return perOz / GRAMS_PER_TROY_OZ;
+  } catch (e) { /* fall through to computed rate */ }
+  const usdPerOz = await _fetchYahooPrice('GC=F');   // gold futures, USD/oz
+  const usdInr   = await _fetchYahooPrice('INR=X');  // USD → INR
+  return (usdPerOz * usdInr) / GRAMS_PER_TROY_OZ;
+}
+
+async function _fetchTickerPrice(ticker) {
+  const t = (ticker || '').toUpperCase();
+  // Physical gold pseudo-tickers — return INR per gram
+  if (t === 'GOLD' || t === 'GOLD24K' || t === 'GOLD999') {
+    return Math.round((await _fetchGoldPerGramInr()) * 100) / 100;
+  }
+  if (t === 'GOLD22K' || t === 'GOLD916') {
+    return Math.round((await _fetchGoldPerGramInr()) * 0.9167 * 100) / 100;
+  }
+  // Everything else → standard Yahoo symbol (stocks, crypto, ETFs incl. GOLDBEES.NS)
+  return _fetchYahooPrice(ticker);
+}
+
 async function fetchLivePrices() {
   const tickerInvs = (STATE.investments || []).filter(i => i.ticker && i.qty > 0);
   if (!tickerInvs.length) {
-    toast('Add Ticker + Qty to your Stocks/Crypto first, then refresh.', 'info'); return;
+    toast('Add Ticker + Qty to your Stocks / Crypto / Gold first, then refresh.', 'info'); return;
   }
   const btn = document.getElementById('refresh-prices-btn');
   if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Fetching…'; }
