@@ -678,35 +678,6 @@ function renderDashboard() {
         ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
       </div>
 
-      <!-- Life Score -->
-      <div style="margin-bottom:20px">
-        <div class="glass-card" style="padding:20px">
-          <div class="section-header" style="margin-bottom:14px">
-            <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Life Score</p>
-            <span style="font-size:26px;font-weight:900;color:var(--teal)" onclick="navigate('analytics')" style="cursor:pointer">${scores.overall}<span style="font-size:13px;font-weight:400;color:var(--text3)">/100</span></span>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center" class="life-score-grid">
-            <div style="height:230px;position:relative"><canvas id="dash-radar-chart"></canvas></div>
-            <div style="display:flex;flex-direction:column;gap:9px">
-              ${[
-                {label:'Wealth',    val:scores.wealthScore,   page:'finance',  c:'#10b981'},
-                {label:'Health',    val:scores.healthScore,   page:'health',   c:'#3b82f6'},
-                {label:'Productivity',val:scores.prodScore,   page:'habits',   c:'#f59e0b'},
-                {label:'Career',    val:scores.careerScore,   page:'goals',    c:'#8b5cf6'},
-                {label:'Emotional', val:scores.emotionalScore,page:'journal',  c:'#ec4899'},
-              ].map(s=>`
-                <div onclick="navigate('${s.page}')" style="cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-                  <span style="font-size:11px;color:var(--text3);width:72px;flex-shrink:0">${s.label}</span>
-                  <div style="flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,0.07)">
-                    <div style="height:5px;border-radius:4px;width:${s.val}%;background:${s.c};transition:.5s;box-shadow:0 0 6px ${s.c}66"></div>
-                  </div>
-                  <span style="font-size:12px;font-weight:700;color:${scoreBarColor(s.val)};width:34px;text-align:right">${s.val}</span>
-                </div>`).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Finance Charts Row (Income vs Expense + Spending by Category) -->
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px" class="dash-charts-row">
         <div class="glass-card" style="padding:20px">
@@ -807,6 +778,35 @@ function renderDashboard() {
           <div class="stat-card bg-gold" onclick="navigate('achievements')" style="cursor:pointer">
             <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>
             <div class="stat-card-value">${(STATE.unlockedAchievements||[]).length}/${ACHIEVEMENTS_DEF.length}</div><div class="stat-card-label">Achievements</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Life Score -->
+      <div style="margin-top:20px">
+        <div class="glass-card" style="padding:20px">
+          <div class="section-header" style="margin-bottom:14px">
+            <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Life Score</p>
+            <span style="font-size:26px;font-weight:900;color:var(--teal);cursor:pointer" onclick="navigate('analytics')">${scores.overall}<span style="font-size:13px;font-weight:400;color:var(--text3)">/100</span></span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center" class="life-score-grid">
+            <div style="height:230px;position:relative"><canvas id="dash-radar-chart"></canvas></div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              ${[
+                {label:'Wealth',      val:scores.wealthScore,    page:'finance', c:'#10b981'},
+                {label:'Health',      val:scores.healthScore,    page:'health',  c:'#3b82f6'},
+                {label:'Productivity',val:scores.prodScore,      page:'habits',  c:'#f59e0b'},
+                {label:'Career',      val:scores.careerScore,    page:'goals',   c:'#8b5cf6'},
+                {label:'Emotional',   val:scores.emotionalScore, page:'journal', c:'#ec4899'},
+              ].map(s=>`
+                <div onclick="navigate('${s.page}')" style="cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                  <span style="font-size:11px;color:var(--text3);width:72px;flex-shrink:0">${s.label}</span>
+                  <div style="flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,0.07)">
+                    <div style="height:5px;border-radius:4px;width:${s.val}%;background:${s.c};transition:.5s;box-shadow:0 0 6px ${s.c}66"></div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;color:${scoreBarColor(s.val)};width:34px;text-align:right">${s.val}</span>
+                </div>`).join('')}
+            </div>
           </div>
         </div>
       </div>
