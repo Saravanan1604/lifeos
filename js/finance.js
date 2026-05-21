@@ -2366,6 +2366,18 @@ function renderBudget() {
   const txns = STATE.transactions || [];
   const filteredTxns = filterTxByPeriod(txns, _budgetPeriod).filter(t => t.type === 'expense');
 
+  // Compute per-budget totals
+  const budgetRows = budgets.map((b, bi) => {
+    const limit = getBudgetLimit(b, _budgetPeriod);
+    const spent = filteredTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
+    return { b, bi, limit, spent };
+  });
+  const totalLimit = budgetRows.reduce((s, r) => s + r.limit, 0);
+  const totalSpent = budgetRows.reduce((s, r) => s + r.spent, 0);
+  const totalRemaining = totalLimit - totalSpent;
+  const totalPct = totalLimit > 0 ? Math.min(100, (totalSpent / totalLimit) * 100) : 0;
+  const BUDGET_COLORS = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6','#00c9a7','#ef4444','#f97316','#14b8a6','#a855f7','#eab308'];
+
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
@@ -2378,12 +2390,78 @@ function renderBudget() {
           <button class="btn-primary btn-sm" onclick="openAddBudgetModal(-1)">+ Add Budget</button>
         </div>
       </div>
-      ${budgets.length === 0
-        ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon">🎯</span><p>Set budgets for your expense categories to track spending.</p></div></div>`
-        : `<div style="display:flex;flex-direction:column;gap:12px">
-          ${budgets.map((b, bi) => {
-            const limit  = getBudgetLimit(b, _budgetPeriod);
-            const spent  = filteredTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
+
+      ${budgets.length === 0 ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon">🎯</span><p>Set budgets for your expense categories to track spending.</p></div></div>` : `
+
+      <!-- ── BUDGET SUMMARY + CHART ─────────────────────────────────── -->
+      <div class="glass-card" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:18px">
+          <p class="section-title">📊 Total Budget Overview</p>
+          <span style="font-size:12px;color:var(--text3)">${periodLabel(_budgetPeriod)}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:center" class="budget-overview-grid">
+
+          <!-- Doughnut -->
+          <div style="position:relative;height:190px">
+            <canvas id="budget-donut-chart"></canvas>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+              <span style="font-size:13px;font-weight:900;color:var(--text1)">${fmt(totalLimit)}</span>
+              <span style="font-size:10px;color:var(--text3);margin-top:2px">total budget</span>
+            </div>
+          </div>
+
+          <!-- Right side: stat chips + per-category legend -->
+          <div>
+            <!-- 3 stat chips -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+              <div style="padding:12px;border-radius:12px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);text-align:center">
+                <p style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#6366f1;margin-bottom:4px">Total Budget</p>
+                <p style="font-size:17px;font-weight:900;color:#6366f1">${fmt(totalLimit)}</p>
+              </div>
+              <div style="padding:12px;border-radius:12px;background:rgba(${totalSpent>totalLimit?'239,68,68':'16,185,129'},0.1);border:1px solid rgba(${totalSpent>totalLimit?'239,68,68':'16,185,129'},0.2);text-align:center">
+                <p style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:${totalSpent>totalLimit?'#ef4444':'#10b981'};margin-bottom:4px">Total Spent</p>
+                <p style="font-size:17px;font-weight:900;color:${totalSpent>totalLimit?'#ef4444':'#10b981'}">${fmt(totalSpent)}</p>
+              </div>
+              <div style="padding:12px;border-radius:12px;background:rgba(${totalRemaining<0?'239,68,68':'245,158,11'},0.1);border:1px solid rgba(${totalRemaining<0?'239,68,68':'245,158,11'},0.2);text-align:center">
+                <p style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:${totalRemaining<0?'#ef4444':'#f59e0b'};margin-bottom:4px">${totalRemaining<0?'Over Budget':'Remaining'}</p>
+                <p style="font-size:17px;font-weight:900;color:${totalRemaining<0?'#ef4444':'#f59e0b'}">${fmt(Math.abs(totalRemaining))}</p>
+              </div>
+            </div>
+
+            <!-- Overall progress bar -->
+            <div style="margin-bottom:14px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+                <span style="font-size:11px;color:var(--text3)">Overall usage</span>
+                <span style="font-size:11px;font-weight:700;color:${totalPct>=100?'#ef4444':totalPct>80?'#f59e0b':'#10b981'}">${totalPct.toFixed(1)}%</span>
+              </div>
+              <div style="height:8px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden">
+                <div style="height:100%;border-radius:4px;width:${totalPct}%;background:${totalPct>=100?'#ef4444':totalPct>80?'#f59e0b':'#10b981'};transition:width .4s"></div>
+              </div>
+            </div>
+
+            <!-- Per-category legend rows -->
+            <div style="display:flex;flex-direction:column;gap:7px">
+              ${budgetRows.map(({b, limit, spent}, idx) => {
+                const cat = CATEGORIES.find(c => c.name === b.category);
+                const pct = limit > 0 ? Math.min(100, (spent/limit)*100) : 0;
+                const color = BUDGET_COLORS[idx % BUDGET_COLORS.length];
+                const over = spent > limit;
+                return `<div style="display:flex;align-items:center;gap:8px">
+                  <span style="width:10px;height:10px;border-radius:2px;background:${color};flex-shrink:0"></span>
+                  <span style="font-size:13px">${cat?.icon||'📦'}</span>
+                  <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.category}</span>
+                  <span style="font-size:11px;color:${over?'#ef4444':'var(--text3)'};font-weight:${over?700:400}">${fmt(spent)}<span style="color:var(--text3);font-weight:400"> / ${fmt(limit)}</span></span>
+                  <span style="font-size:10px;width:36px;text-align:right;color:${over?'#ef4444':pct>80?'#f59e0b':'#10b981'};font-weight:700">${pct.toFixed(0)}%</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CATEGORY CARDS ──────────────────────────────────────────── -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${budgetRows.map(({b, bi, limit, spent}) => {
             const pct    = Math.min(100, limit > 0 ? (spent / limit) * 100 : 0);
             const over   = spent > limit;
             const cat    = CATEGORIES.find(c => c.name === b.category);
@@ -2413,9 +2491,42 @@ function renderBudget() {
                 <p style="font-size:10px;color:var(--text3);opacity:0.7">₹${breakdown}</p>
               </div>
             </div>`;
-          }).join('')}
-        </div>`}
+        }).join('')}
+      </div>
+      `}
     </div>`;
+
+  // Render doughnut chart after DOM is ready
+  if (budgets.length > 0) {
+    setTimeout(() => {
+      const bg = document.querySelector('.budget-overview-grid');
+      if (bg && window.innerWidth < 640) bg.style.gridTemplateColumns = '1fr';
+      const canvas = document.getElementById('budget-donut-chart');
+      if (!canvas || typeof Chart === 'undefined') return;
+      if (chartInstances['budget-donut']) { chartInstances['budget-donut'].destroy(); delete chartInstances['budget-donut']; }
+      const isLight = document.body.classList.contains('light');
+      chartInstances['budget-donut'] = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: budgetRows.map(r => r.b.category),
+          datasets: [{
+            data: budgetRows.map(r => r.limit),
+            backgroundColor: budgetRows.map((_, i) => BUDGET_COLORS[i % BUDGET_COLORS.length]),
+            borderColor: 'rgba(10,10,30,0.5)',
+            borderWidth: 2,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '62%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.parsed)} (${totalLimit>0?(ctx.parsed/totalLimit*100).toFixed(1):0}%)` } }
+          }
+        }
+      });
+    }, 40);
+  }
 }
 
 function deleteBudget(index) {
