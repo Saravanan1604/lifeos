@@ -724,40 +724,6 @@ function renderDashboard() {
         </div>
       </div>
 
-      <!-- 50/30/20 + Category breakdown row -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" class="analytics-row-1">
-
-          <!-- 50/30/20 Card -->
-          <div class="glass-card" style="padding:20px">
-            <p class="section-title" style="margin-bottom:10px">📐 50/30/20 — ${new Date().toLocaleString('default',{month:'long'})}</p>
-            <div style="height:175px;position:relative"><canvas id="dash-5030-chart"></canvas></div>
-            <div style="display:flex;gap:6px;margin-top:10px">
-              ${(()=>{
-                const NEEDS=['Rent','EMI','Utilities','Bills','Insurance','Groceries','Health','Fuel','Transport'];
-                const WANTS=['Entertainment','Shopping','Travel','Gifts','Food','Education'];
-                const inc=txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-                let needs=0,wants=0;
-                txns.filter(t=>t.type==='expense').forEach(t=>{if(NEEDS.includes(t.category))needs+=t.amount;else if(WANTS.includes(t.category))wants+=t.amount;});
-                const totalExp=txns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-                const sav=inc-totalExp;
-                const np=inc>0?(needs/inc*100).toFixed(1):0,wp=inc>0?(wants/inc*100).toFixed(1):0,sp=inc>0?(sav/inc*100).toFixed(1):0;
-                if(!inc) return '<p style="font-size:11px;color:var(--text3)">Add income to see</p>';
-                return [{l:'Needs',p:np,t:50,c:'#6366f1'},{l:'Wants',p:wp,t:30,c:'#f59e0b'},{l:'Savings',p:sp,t:20,c:'#10b981'}]
-                  .map(r=>`<div style="flex:1;text-align:center;padding:7px 4px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)">
-                    <p style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px">${r.l}</p>
-                    <p style="font-size:15px;font-weight:900;color:${parseFloat(r.p)>(r.l==='Savings'?r.t-1:r.t)?'#ef4444':r.c};margin-top:2px">${r.p}%</p>
-                    <p style="font-size:9px;color:var(--text3);margin-top:1px">target ${r.t}%</p>
-                  </div>`).join('');
-              })()}
-            </div>
-          </div>
-
-          <!-- Category Polar Chart -->
-          <div class="glass-card" style="padding:20px">
-            <p class="section-title" style="margin-bottom:10px">🔍 Spending by Category</p>
-            <div style="height:225px;position:relative"><canvas id="dash-polar-chart"></canvas></div>
-          </div>
-        </div>
 
       <!-- Quick Access -->
       <div class="section" style="margin-bottom:20px">
@@ -862,8 +828,6 @@ function renderDashboard() {
     renderNetWorthChart(txnsAll);
     renderDashIncomeChart(txnsAll);
     renderDashPieChart(txns);
-    render5030Chart(txns);
-    renderPolarCatChart(txns);
     renderLifeScoreRadar(scores);
     renderDashBankChart();
     renderDashBudgetChart();
@@ -1201,79 +1165,6 @@ function renderDashPieChart(txns) {
     </div>`;
 }
 
-// ── Doughnut: 50/30/20 Rule ──
-function render5030Chart(txns) {
-  const canvas = document.getElementById('dash-5030-chart');
-  if (!canvas) return;
-  const NEEDS=['Rent','EMI','Utilities','Bills','Insurance','Groceries','Health','Fuel','Transport'];
-  const WANTS=['Entertainment','Shopping','Travel','Gifts','Food','Education'];
-  const inc=txns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  if (!inc) return;
-  let needs=0, wants=0;
-  txns.filter(t=>t.type==='expense').forEach(t=>{if(NEEDS.includes(t.category))needs+=t.amount;else if(WANTS.includes(t.category))wants+=t.amount;});
-  const totalExp=txns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const sav=Math.max(0,inc-totalExp);
-  const np=needs/inc*100, wp=wants/inc*100, sp=sav/inc*100;
-  const savRate=((inc-totalExp)/inc*100);
-  const isLight=document.body.classList.contains('light');
-  chartInstances['dash-5030']=new Chart(canvas,{
-    type:'doughnut',
-    data:{
-      labels:['Needs','Wants','Savings'],
-      datasets:[{
-        data:[np,wp,Math.max(0,sp)],
-        backgroundColor:['rgba(99,102,241,0.88)','rgba(245,158,11,0.88)','rgba(16,185,129,0.88)'],
-        borderWidth:3,
-        borderColor:isLight?'#fff':'rgba(13,17,35,0.9)',
-        hoverOffset:12,hoverBorderWidth:0
-      }]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,cutout:'66%',
-      plugins:{
-        legend:{position:'right',labels:{color:isLight?'#475569':'#94a3b8',font:{size:11,family:'Inter'},padding:14,boxWidth:10,usePointStyle:true,pointStyleWidth:8}},
-        tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.toFixed(1)}%  (${ctx.label})`}}
-      }
-    },
-    plugins:[{id:'donutCenter',beforeDraw(chart){
-      const{ctx,chartArea:{left,right,top,bottom}}=chart;
-      const cx=(left+right)/2, cy=(top+bottom)/2;
-      ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';
-      const sr=savRate.toFixed(0);
-      ctx.fillStyle=parseFloat(sr)<0?'#ef4444':parseFloat(sr)<10?'#f59e0b':'#10b981';
-      ctx.font='bold 20px Inter'; ctx.fillText(sr+'%',cx,cy-8);
-      ctx.fillStyle='#64748b'; ctx.font='10px Inter'; ctx.fillText('saved',cx,cy+10);
-      ctx.restore();
-    }}]
-  });
-}
-
-// ── Polar Area: Spending by Category ──
-function renderPolarCatChart(txns) {
-  const canvas = document.getElementById('dash-polar-chart');
-  if (!canvas) return;
-  const catMap={};
-  txns.filter(t=>t.type==='expense').forEach(t=>{catMap[t.category]=(catMap[t.category]||0)+t.amount;});
-  const cats=Object.entries(catMap).sort(([,a],[,b])=>b-a).slice(0,6);
-  if (!cats.length) { canvas.parentElement.innerHTML='<p style="font-size:12px;color:#64748b;text-align:center;padding:40px 0">No expense data</p>'; return; }
-  const COLORS=['rgba(99,102,241,0.82)','rgba(16,185,129,0.82)','rgba(245,158,11,0.82)','rgba(239,68,68,0.82)','rgba(236,72,153,0.82)','rgba(59,130,246,0.82)'];
-  const isLight=document.body.classList.contains('light');
-  chartInstances['dash-polar']=new Chart(canvas,{
-    type:'polarArea',
-    data:{
-      labels:cats.map(([n])=>n),
-      datasets:[{data:cats.map(([,v])=>v),backgroundColor:COLORS,borderWidth:0,borderColor:'transparent'}]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{position:'right',labels:{color:isLight?'#475569':'#94a3b8',font:{size:10,family:'Inter'},padding:10,boxWidth:8,usePointStyle:true}},
-        tooltip:{callbacks:{label:ctx=>' ₹'+Math.round(ctx.parsed.r).toLocaleString('en-IN')}}
-      },
-      scales:{r:{ticks:{display:false},grid:{color:isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.07)'},pointLabels:{display:false}}}
-    }
-  });
-}
 
 // ── Radar: Life Score ──
 function renderLifeScoreRadar(scores) {
