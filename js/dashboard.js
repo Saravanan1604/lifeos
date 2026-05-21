@@ -977,32 +977,79 @@ function renderDashPieChart(txns) {
   });
   const topCats = Object.entries(catMap).sort(([,a],[,b]) => b - a).slice(0, 6);
   if (!topCats.length) {
-    el.innerHTML = '<p style="font-size:11px;color:#64748b;padding:16px 0">No expense data yet</p>';
+    el.innerHTML = '<p style="font-size:11px;color:#64748b;text-align:center;padding:30px 0">No expense data yet</p>';
     return;
   }
 
   const total = topCats.reduce((s,[,v]) => s + v, 0);
-  const COLORS = ['#6366f1','#f59e0b','#10b981','#ec4899','#8b5cf6','#3b82f6'];
+  const COLORS = ['#f59e0b','#ec4899','#10b981','#6366f1','#8b5cf6','#3b82f6'];
   const CAT_ICONS = {Food:'🍔',Shopping:'🛍️',Transport:'🚗',Fuel:'⛽',Rent:'🏠',Bills:'💡',Health:'💊',Entertainment:'🎬',Travel:'✈️',Other:'📦',Education:'📚',Groceries:'🛒',Insurance:'🛡️',Utilities:'🔌',EMI:'🏦',Gifts:'🎁',Business:'💼'};
   const fmtV = v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : v >= 1000 ? `₹${(v/1000).toFixed(1)}k` : `₹${v}`;
+  const totalFmt = fmtV(total);
 
-  el.innerHTML = topCats.map(([name, val], i) => {
-    const pct = total > 0 ? (val / total * 100).toFixed(0) : 0;
-    const color = COLORS[i % COLORS.length];
-    const icon = CAT_ICONS[name] || '💳';
-    return `
-      <div style="display:flex;flex-direction:column;gap:3px">
-        <div style="display:flex;align-items:center;gap:6px">
+  // Inject canvas + legend
+  el.innerHTML = `
+    <div style="position:relative;height:160px;margin-bottom:12px">
+      <canvas id="dash-spending-donut"></canvas>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+        <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#64748b">TOTAL</span>
+        <span style="font-size:15px;font-weight:900;color:#f1f5f9;margin-top:2px">${totalFmt}</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      ${topCats.map(([name, val], i) => {
+        const pct = (val / total * 100).toFixed(0);
+        const color = COLORS[i % COLORS.length];
+        const icon = CAT_ICONS[name] || '💳';
+        return `<div style="display:flex;align-items:center;gap:6px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span>
           <span style="font-size:12px">${icon}</span>
-          <span style="font-size:11px;font-weight:600;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
+          <span style="font-size:11px;font-weight:500;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
           <span style="font-size:11px;font-weight:700;color:${color}">${fmtV(val)}</span>
-          <span style="font-size:10px;color:var(--text3);width:28px;text-align:right">${pct}%</span>
-        </div>
-        <div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden">
-          <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;transition:width .4s"></div>
-        </div>
-      </div>`;
-  }).join('');
+          <span style="font-size:10px;color:var(--text3);width:26px;text-align:right">${pct}%</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // Render Chart.js doughnut
+  setTimeout(() => {
+    const canvas = document.getElementById('dash-spending-donut');
+    if (!canvas || typeof Chart === 'undefined') return;
+    if (chartInstances['dash-spending']) { chartInstances['dash-spending'].destroy(); delete chartInstances['dash-spending']; }
+    chartInstances['dash-spending'] = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: topCats.map(([n]) => n),
+        datasets: [{
+          data: topCats.map(([,v]) => v),
+          backgroundColor: COLORS.slice(0, topCats.length),
+          borderColor: 'rgba(10,10,30,0.6)',
+          borderWidth: 3,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(10,14,30,0.95)',
+            titleColor: '#94a3b8',
+            bodyColor: '#e2e8f0',
+            padding: 10,
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            cornerRadius: 8,
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${fmtV(ctx.parsed)} (${(ctx.parsed/total*100).toFixed(1)}%)`
+            }
+          }
+        }
+      }
+    });
+  }, 10);
 }
 
 
