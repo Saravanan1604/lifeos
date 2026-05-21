@@ -902,10 +902,10 @@ function renderDashCombinedChart(txns) {
         // Income — green line
         {
           label: 'Income', data: incData,
-          borderColor: '#10b981', borderWidth: 2.2,
-          backgroundColor: mkGrad('rgba(16,185,129,0.22)', 'rgba(16,185,129,0.0)'),
+          borderColor: '#eab308', borderWidth: 2.2,
+          backgroundColor: mkGrad('rgba(234,179,8,0.22)', 'rgba(234,179,8,0.0)'),
           fill: true, tension: 0.42,
-          pointBackgroundColor: '#10b981', pointRadius: 3, pointHoverRadius: 6,
+          pointBackgroundColor: '#eab308', pointRadius: 3, pointHoverRadius: 6,
           yAxisID: 'y', order: 2
         },
         // Expense — red line
