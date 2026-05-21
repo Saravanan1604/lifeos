@@ -1762,62 +1762,64 @@ function renderInvestments() {
         </div>
       </div>
 
-      <!-- ── ASSET ALLOCATION CHART ──────────────────────────────── -->
-      ${investments.length === 0 ? '' : `
-      <div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:14px">
-          <p class="section-title">🗂️ Asset Allocation by Category</p>
-          <span style="font-size:12px;color:var(--text3)">${fmt(totalCurrent)} total</span>
-        </div>
-        <div style="display:grid;grid-template-columns:210px 1fr;gap:24px;align-items:center" class="asset-cat-grid">
-          <div style="height:200px;position:relative"><canvas id="inv-category-chart"></canvas></div>
-          <div style="display:flex;flex-direction:column;gap:9px">
-            ${catEntries.map(([type,val],idx) => {
-              const pct = totalCurrent > 0 ? (val/totalCurrent*100).toFixed(1) : 0;
-              const color = ASSET_CAT_COLORS[idx % ASSET_CAT_COLORS.length];
-              return `<div onclick="invFilter='${type}';renderInvestments()" style="display:flex;align-items:center;gap:10px;cursor:pointer" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
-                <span style="width:12px;height:12px;border-radius:3px;background:${color};flex-shrink:0"></span>
-                <span style="font-size:15px">${assetIcon(type)}</span>
-                <span style="font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${type}</span>
-                <span style="font-size:13px;font-weight:700;color:#00c9a7">${fmt(val)}</span>
-                <span style="font-size:11px;color:var(--text3);width:46px;text-align:right">${pct}%</span>
-              </div>`;
-            }).join('')}
-          </div>
-        </div>
-      </div>`}
+      <!-- ── ASSET + LIABILITY CHARTS (side by side) ───────────────── -->
+      ${(investments.length === 0 && loans.length === 0) ? '' : `
+      <div style="display:grid;grid-template-columns:${investments.length && loans.length ? '1fr 1fr' : '1fr'};gap:16px;margin-bottom:20px" class="alloc-charts-row">
 
-      <!-- ── LIABILITY ALLOCATION CHART ────────────────────────────── -->
-      ${loans.length === 0 ? '' : (() => {
-        const liabByType = {};
-        loans.forEach(l => {
-          liabByType[l.type] = (liabByType[l.type] || 0) + (l.outstanding || 0);
-        });
-        const liabEntries = Object.entries(liabByType).sort(([,a],[,b]) => b - a);
-        return `
-      <div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:14px">
-          <p class="section-title">💸 Liabilities by Category</p>
-          <span style="font-size:12px;color:var(--text3)">${fmt(totalLoan)} total</span>
-        </div>
-        <div style="display:grid;grid-template-columns:210px 1fr;gap:24px;align-items:center" class="liab-cat-grid">
-          <div style="height:200px;position:relative"><canvas id="liab-category-chart"></canvas></div>
-          <div style="display:flex;flex-direction:column;gap:9px">
-            ${liabEntries.map(([type,val],idx) => {
-              const pct = totalLoan > 0 ? (val/totalLoan*100).toFixed(1) : 0;
-              const color = LIAB_CAT_COLORS[idx % LIAB_CAT_COLORS.length];
-              return `<div style="display:flex;align-items:center;gap:10px">
-                <span style="width:12px;height:12px;border-radius:3px;background:${color};flex-shrink:0"></span>
-                <span style="font-size:15px">${loanIcon(type)}</span>
-                <span style="font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${type}</span>
-                <span style="font-size:13px;font-weight:700;color:#ef4444">${fmt(val)}</span>
-                <span style="font-size:11px;color:var(--text3);width:46px;text-align:right">${pct}%</span>
-              </div>`;
-            }).join('')}
+        ${investments.length === 0 ? '' : `
+        <div class="glass-card" style="padding:20px">
+          <div class="section-header" style="margin-bottom:14px">
+            <p class="section-title">🗂️ Asset Allocation by Category</p>
+            <span style="font-size:12px;color:var(--text3)">${fmt(totalCurrent)} total</span>
           </div>
-        </div>
-      </div>`;
-      })()}
+          <div style="display:grid;grid-template-columns:160px 1fr;gap:20px;align-items:center" class="asset-cat-grid">
+            <div style="height:180px;position:relative"><canvas id="inv-category-chart"></canvas></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              ${catEntries.map(([type,val],idx) => {
+                const pct = totalCurrent > 0 ? (val/totalCurrent*100).toFixed(1) : 0;
+                const color = ASSET_CAT_COLORS[idx % ASSET_CAT_COLORS.length];
+                return `<div onclick="invFilter='${type}';renderInvestments()" style="display:flex;align-items:center;gap:8px;cursor:pointer" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
+                  <span style="width:10px;height:10px;border-radius:2px;background:${color};flex-shrink:0"></span>
+                  <span style="font-size:13px">${assetIcon(type)}</span>
+                  <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${type}</span>
+                  <span style="font-size:12px;font-weight:700;color:#00c9a7">${fmt(val)}</span>
+                  <span style="font-size:10px;color:var(--text3);width:40px;text-align:right">${pct}%</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>`}
+
+        ${loans.length === 0 ? '' : (() => {
+          const liabByType = {};
+          loans.forEach(l => { liabByType[l.type] = (liabByType[l.type] || 0) + (l.outstanding || 0); });
+          const liabEntries = Object.entries(liabByType).sort(([,a],[,b]) => b - a);
+          return `
+        <div class="glass-card" style="padding:20px">
+          <div class="section-header" style="margin-bottom:14px">
+            <p class="section-title">💸 Liabilities by Category</p>
+            <span style="font-size:12px;color:var(--text3)">${fmt(totalLoan)} total</span>
+          </div>
+          <div style="display:grid;grid-template-columns:160px 1fr;gap:20px;align-items:center" class="liab-cat-grid">
+            <div style="height:180px;position:relative"><canvas id="liab-category-chart"></canvas></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              ${liabEntries.map(([type,val],idx) => {
+                const pct = totalLoan > 0 ? (val/totalLoan*100).toFixed(1) : 0;
+                const color = LIAB_CAT_COLORS[idx % LIAB_CAT_COLORS.length];
+                return `<div style="display:flex;align-items:center;gap:8px">
+                  <span style="width:10px;height:10px;border-radius:2px;background:${color};flex-shrink:0"></span>
+                  <span style="font-size:13px">${loanIcon(type)}</span>
+                  <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${type}</span>
+                  <span style="font-size:12px;font-weight:700;color:#ef4444">${fmt(val)}</span>
+                  <span style="font-size:10px;color:var(--text3);width:40px;text-align:right">${pct}%</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>`;
+        })()}
+
+      </div>`}
 
       <!-- ── INVESTMENTS ─────────────────────────────────────────── -->
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
@@ -1895,10 +1897,12 @@ function renderInvestments() {
   setTimeout(() => {
     const g = document.querySelector('.nw-grid');
     if (g && window.innerWidth < 600) g.style.gridTemplateColumns = '1fr 1fr';
+    const row = document.querySelector('.alloc-charts-row');
+    if (row && window.innerWidth < 700) row.style.gridTemplateColumns = '1fr';
     const ac = document.querySelector('.asset-cat-grid');
-    if (ac && window.innerWidth < 640) ac.style.gridTemplateColumns = '1fr';
+    if (ac && window.innerWidth < 480) ac.style.gridTemplateColumns = '1fr';
     const lc = document.querySelector('.liab-cat-grid');
-    if (lc && window.innerWidth < 640) lc.style.gridTemplateColumns = '1fr';
+    if (lc && window.innerWidth < 480) lc.style.gridTemplateColumns = '1fr';
     renderAssetCategoryChart(catEntries);
     renderLiabCategoryChart(liabEntries2);
   }, 40);
