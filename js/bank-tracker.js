@@ -6,6 +6,35 @@ let trendPeriod        = '30d';   // '30d' | '1y' — shared by bank & card tren
 
 function setTrendPeriod(p) { trendPeriod = p; renderBankTracker(); }
 
+// The current balance / outstanding shown for an account/card must always be
+// the value from its most recent DATED snapshot (newest date, then newest
+// createdAt) — not whatever a stray edit or import last wrote. This self-heals
+// any stored field that drifted out of sync with the history log.
+function _latestSnapValue(history, idField, id, valField) {
+  let latest = null;
+  (history || []).forEach(h => {
+    if (h[idField] !== id) return;
+    if (!latest || h.date > latest.date ||
+        (h.date === latest.date && (h.createdAt || '') > (latest.createdAt || ''))) {
+      latest = h;
+    }
+  });
+  return latest ? latest[valField] : null;
+}
+
+function reconcileCurrentBalances() {
+  let changed = false;
+  (STATE.creditCards || []).forEach(c => {
+    const v = _latestSnapValue(STATE.creditCardHistory, 'cardId', c.id, 'outstanding');
+    if (v !== null && c.outstanding !== v) { c.outstanding = v; changed = true; }
+  });
+  (STATE.bankAccounts || []).forEach(a => {
+    const v = _latestSnapValue(STATE.bankBalanceHistory, 'accountId', a.id, 'balance');
+    if (v !== null && a.balance !== v) { a.balance = v; changed = true; }
+  });
+  if (changed && typeof saveState === 'function') saveState();
+}
+
 // Build a balance/outstanding trend series.
 //   items   : the accounts/cards to total (already filtered to selected or all)
 //   history : bankBalanceHistory or creditCardHistory
@@ -75,6 +104,7 @@ function formatRelativeDate(dateStr) {
 }
 
 function renderBankTracker() {
+  reconcileCurrentBalances();
   if (bankTrackerTab === 'cards') { renderCCTracker(); return; }
 
   const accounts  = STATE.bankAccounts || [];

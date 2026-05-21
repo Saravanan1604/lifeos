@@ -16,6 +16,7 @@ const CATEGORIES = [
 ];
 
 function renderFinance() {
+  if (typeof reconcileCurrentBalances === 'function') reconcileCurrentBalances();
   const txnsAll = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
   const txns    = filterTxByPeriod(txnsAll, _finPeriod);
   const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
@@ -2120,11 +2121,31 @@ function saveCreditCard(editIndex) {
   STATE.creditCards = STATE.creditCards || [];
 
   if (editIndex !== null && editIndex >= 0) {
-    card.id = STATE.creditCards[editIndex].id;
+    const old = STATE.creditCards[editIndex];
+    card.id = old.id;
     STATE.creditCards[editIndex] = card;
+    // If outstanding was changed in the edit form, log a snapshot so it
+    // remains the latest entry (otherwise reconcile would revert it).
+    if ((old.outstanding || 0) !== outstanding) {
+      STATE.creditCardHistory = STATE.creditCardHistory || [];
+      STATE.creditCardHistory.push({
+        id: genId(), cardId: card.id,
+        outstanding, prevOutstanding: old.outstanding || 0,
+        date: today(), note: 'Edited via card', createdAt: new Date().toISOString()
+      });
+    }
     toast('Card updated! ✅', 'success');
   } else {
     STATE.creditCards.push(card);
+    // Seed an initial snapshot so the tracker has a baseline
+    if (outstanding > 0) {
+      STATE.creditCardHistory = STATE.creditCardHistory || [];
+      STATE.creditCardHistory.push({
+        id: genId(), cardId: card.id,
+        outstanding, prevOutstanding: outstanding,
+        date: today(), note: 'Card added', createdAt: new Date().toISOString()
+      });
+    }
     toast('Credit card added! 💳', 'success');
   }
   saveState(); closeModal(); renderFinance();
