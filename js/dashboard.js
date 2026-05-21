@@ -344,34 +344,185 @@ function _buildAccountsGoalsBudget() {
         </div>`).join(''))}
     </div>`;
 
-  // Net worth breakdown strip
   const hasAccts = banks.length + cash.length + cards.length > 0;
-  const netWorthStrip = hasAccts ? `
-    <div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;border-radius:12px;background:rgba(0,201,167,0.07);border:1px solid rgba(0,201,167,0.15);margin-bottom:16px;font-size:12px;align-items:center">
-      <span style="font-weight:700;color:var(--text3);font-size:11px;letter-spacing:1px;text-transform:uppercase">Net Worth</span>
-      <span style="color:#00c9a7;font-weight:700">🏦 ${fmt(totalBank)}</span>
-      <span style="color:var(--text3)">+</span>
-      <span style="color:#f59e0b;font-weight:700">💵 ${fmt(totalCash)}</span>
-      <span style="color:var(--text3)">−</span>
-      <span style="color:#ef4444;font-weight:700">💳 ${fmt(totalOut)}</span>
-      <span style="color:var(--text3)">=</span>
-      <span style="font-weight:900;font-size:14px;color:${totalBank+totalCash-totalOut>=0?'#00c9a7':'#ef4444'}">${fmt(totalBank+totalCash-totalOut)}</span>
-    </div>` : '';
+  const netW = totalBank + totalCash - totalOut;
+
+  // helper: unified hover card wrapper
+  const cardWrap = (accent, onclick, inner) =>
+    `<div onclick="${onclick}" style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:20px;padding:20px;cursor:pointer;transition:all .2s"
+      onmouseover="this.style.borderColor='${accent}55';this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 36px ${accent}1a'"
+      onmouseout="this.style.borderColor='';this.style.transform='';this.style.boxShadow=''">${inner}</div>`;
+
+  // card header: icon badge + label + big value + "tap →"
+  const cardHead = (icon, label, value, vc, sub) =>
+    `<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+       <div style="display:flex;align-items:center;gap:10px">
+         <div style="width:38px;height:38px;border-radius:11px;background:${vc}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${icon}</div>
+         <div>
+           <p style="font-size:12px;font-weight:700;color:var(--text2)">${label}</p>
+           <p style="font-size:10px;color:var(--text3);margin-top:1px">${sub}</p>
+         </div>
+       </div>
+       <div style="text-align:right">
+         <p style="font-size:17px;font-weight:900;color:${vc};letter-spacing:-0.5px">${value}</p>
+         <p style="font-size:10px;color:var(--text3);margin-top:1px">tap to open ↗</p>
+       </div>
+     </div>`;
+
+  // ── NET WORTH VISUAL CARD ──────────────────────────────────────────
+  const nwBar = hasAccts ? (() => {
+    const total = (totalBank + totalCash + totalOut) || 1;
+    const bPct  = Math.max(1, Math.round((totalBank / total) * 100));
+    const cPct  = Math.max(1, Math.round((totalCash / total) * 100));
+    const dPct  = Math.max(1, Math.round((totalOut  / total) * 100));
+    return `
+    <div onclick="navigate('finance')" style="background:linear-gradient(135deg,rgba(0,201,167,0.07),rgba(99,102,241,0.05));border:1px solid rgba(0,201,167,0.18);border-radius:20px;padding:18px 20px;margin-bottom:14px;cursor:pointer;transition:all .2s"
+      onmouseover="this.style.borderColor='rgba(0,201,167,0.4)';this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='rgba(0,201,167,0.18)';this.style.transform=''">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,201,167,0.15);display:flex;align-items:center;justify-content:center;font-size:17px">💼</div>
+          <div>
+            <p style="font-size:12px;font-weight:700;color:var(--text2)">Financial Net Worth</p>
+            <p style="font-size:10px;color:var(--text3)">Bank + Cash − Debt · tap to view Finance ↗</p>
+          </div>
+        </div>
+        <span style="font-size:26px;font-weight:900;color:${netW>=0?'#00c9a7':'#ef4444'};letter-spacing:-1px">${netW>=0?'+':''}${fmt(netW)}</span>
+      </div>
+      <div style="display:flex;height:10px;border-radius:10px;overflow:hidden;gap:3px;margin-bottom:12px">
+        ${bPct>0?`<div style="flex:${bPct};background:linear-gradient(90deg,#00c9a7,#0acf83);border-radius:10px;box-shadow:0 0 8px rgba(0,201,167,0.5)"></div>`:''}
+        ${cPct>0?`<div style="flex:${cPct};background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:10px;box-shadow:0 0 8px rgba(245,158,11,0.5)"></div>`:''}
+        ${dPct>0?`<div style="flex:${dPct};background:linear-gradient(90deg,#ef4444,#f87171);border-radius:10px;opacity:.75"></div>`:''}
+      </div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:9px;height:9px;border-radius:50%;background:#00c9a7;flex-shrink:0;box-shadow:0 0 5px rgba(0,201,167,0.7)"></span>
+          <span style="font-size:11px;color:var(--text3)">Banks</span>
+          <span style="font-size:12px;font-weight:700;color:#00c9a7">${fmt(totalBank)}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:9px;height:9px;border-radius:50%;background:#f59e0b;flex-shrink:0;box-shadow:0 0 5px rgba(245,158,11,0.7)"></span>
+          <span style="font-size:11px;color:var(--text3)">Cash</span>
+          <span style="font-size:12px;font-weight:700;color:#f59e0b">${fmt(totalCash)}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:9px;height:9px;border-radius:50%;background:#ef4444;flex-shrink:0;box-shadow:0 0 5px rgba(239,68,68,0.6)"></span>
+          <span style="font-size:11px;color:var(--text3)">Debt</span>
+          <span style="font-size:12px;font-weight:700;color:#ef4444">−${fmt(totalOut)}</span>
+        </div>
+      </div>
+    </div>`;
+  })() : '';
+
+  // ── BANK card ─────────────────────────────────────────────────────
+  const posBanks2 = banks.filter(b=>(b.balance||0)>0);
+  const bankBody  = posBanks2.length===0
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">🏦</span><p style="font-size:11px;color:var(--text3)">No bank accounts yet</p></div>`
+    : `<div style="display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center">
+         <div style="position:relative;height:120px">
+           <canvas id="dash-bank-chart"></canvas>
+           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+             <span style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700">Total</span>
+             <span style="font-size:12px;font-weight:900;color:#fff">${fmt(totalBank)}</span>
+           </div>
+         </div>
+         <div style="display:flex;flex-direction:column;gap:7px;max-height:120px;overflow-y:auto">
+           ${posBanks2.map((b,i)=>`
+           <div style="display:flex;align-items:center;gap:7px">
+             <span style="width:7px;height:7px;border-radius:50%;background:${DASH_PALETTE[i%DASH_PALETTE.length]};flex-shrink:0;box-shadow:0 0 5px ${DASH_PALETTE[i%DASH_PALETTE.length]}99"></span>
+             <span style="font-size:11px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.bankName}</span>
+             <span style="font-size:11px;font-weight:700;color:var(--text)">${fmt(b.balance||0)}</span>
+           </div>`).join('')}
+         </div>
+       </div>`;
+  const newBanksCard = cardWrap('#00c9a7',"navigate('bank-tracker')",
+    cardHead('🏦','Bank Balances',fmt(totalBank),'#00c9a7',`${banks.length} account${banks.length!==1?'s':''}`) + bankBody);
+
+  // ── CASH card ─────────────────────────────────────────────────────
+  const cashBody = cash.length===0
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">💵</span><p style="font-size:11px;color:var(--text3)">No cash wallets yet</p></div>`
+    : `<div style="display:flex;flex-direction:column;gap:9px;max-height:130px;overflow-y:auto">
+        ${cash.map(c=>{
+          const pct=totalCash>0?Math.round(((c.balance||0)/totalCash)*100):0;
+          return `<div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+              <span style="font-weight:600">💵 ${c.name}</span>
+              <span style="color:#f59e0b;font-weight:700">${fmt(c.balance||0)}</span>
+            </div>
+            <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.07)"><div style="height:6px;border-radius:6px;width:${pct}%;background:linear-gradient(90deg,#f59e0b,#fbbf24);box-shadow:0 0 7px rgba(245,158,11,0.5);transition:.5s"></div></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  const newCashCard = cardWrap('#f59e0b',"bankTrackerTab='cash';navigate('bank-tracker')",
+    cardHead('💵','Cash Wallets',fmt(totalCash),'#f59e0b',`${cash.length} wallet${cash.length!==1?'s':''}`) + cashBody);
+
+  // ── CARDS card ────────────────────────────────────────────────────
+  const utilC = overallUtil>80?'#ef4444':overallUtil>50?'#f59e0b':'#10b981';
+  const cardsBody = cards.length===0
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">💳</span><p style="font-size:11px;color:var(--text3)">No credit cards yet</p></div>`
+    : `<div style="display:flex;flex-direction:column;gap:9px;max-height:130px;overflow-y:auto">
+        ${cards.map(c=>{
+          const used=c.outstanding||0,lim=c.limit||1,pct=Math.min(100,Math.round(used/lim*100));
+          const uc=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
+          const grad=pct>80?'linear-gradient(90deg,#f59e0b,#ef4444)':pct>50?'linear-gradient(90deg,#10b981,#f59e0b)':'linear-gradient(90deg,#00c9a7,#10b981)';
+          return `<div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+              <span style="font-weight:600">💳 ${c.bankName}</span>
+              <span style="color:var(--text3)">${fmt(used)}/${fmt(c.limit||0)} <b style="color:${uc}"> · ${pct}%</b></span>
+            </div>
+            <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.07)"><div style="height:6px;border-radius:6px;width:${pct}%;background:${grad};box-shadow:0 0 7px ${uc}66;transition:.5s"></div></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  const newCardsCard = cardWrap('#ef4444',"bankTrackerTab='cards';navigate('bank-tracker')",
+    cardHead('💳','Credit Cards',fmt(totalOut),'#ef4444',`${overallUtil}% of ${fmt(totalLimit)} limit`) + cardsBody);
+
+  // ── BUDGET card ───────────────────────────────────────────────────
+  const mon = new Date().toLocaleString('default',{month:'long'});
+  const budgetBody = budgets.length===0
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">📊</span><p style="font-size:11px;color:var(--text3)">No budgets set yet</p></div>`
+    : `<div style="height:${Math.max(160,Math.min(8,budgets.length)*34)}px;position:relative"><canvas id="dash-budget-chart"></canvas></div>`;
+  const newBudgetCard = cardWrap('#f59e0b',"navigate('budget')",
+    cardHead('📊','Budget',mon,'#f59e0b','spent vs limit this month') + budgetBody);
+
+  // ── GOALS card ────────────────────────────────────────────────────
+  const goalsDone2 = goals.filter(g=>g.current>=g.target).length;
+  const goalsBody  = goals.length===0
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">🎯</span><p style="font-size:11px;color:var(--text3)">No goals yet</p></div>`
+    : `<div style="display:flex;flex-direction:column;gap:9px;max-height:200px;overflow-y:auto">
+        ${goals.slice(0,6).map(g=>{
+          const pct=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;
+          const done=g.current>=g.target;
+          const grad=done?'linear-gradient(90deg,#10b981,#00c9a7)':'linear-gradient(90deg,#8b5cf6,#6366f1,#3b82f6)';
+          const glow=done?'rgba(16,185,129,0.5)':'rgba(139,92,246,0.4)';
+          return `<div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+              <span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px">${g.emoji||'🎯'} ${g.name}</span>
+              <span style="color:${done?'#10b981':'#a5b4fc'};font-weight:700;flex-shrink:0;margin-left:6px">${pct}%</span>
+            </div>
+            <div style="height:7px;border-radius:6px;background:rgba(255,255,255,0.07)"><div style="height:7px;border-radius:6px;width:${pct}%;background:${grad};box-shadow:0 0 8px ${glow};transition:.5s"></div></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  const newGoalsCard = cardWrap('#8b5cf6',"navigate('goals')",
+    cardHead('🎯','Goals',`${goalsDone2}/${goals.length}`,'#8b5cf6',`${goals.length-goalsDone2} in progress`) + goalsBody);
 
   return `
-    <div style="display:flex;align-items:center;gap:10px;margin:8px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
-      <span style="font-size:16px">💼</span>
-      <h2 style="font-size:16px;font-weight:800;color:var(--text)">Accounts, Cards, Goals &amp; Budget</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--glass-border);flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">💼</span>
+        <h2 style="font-size:15px;font-weight:800;color:var(--text)">Financial Overview</h2>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="navigate('bank-tracker')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.25);color:#00c9a7;cursor:pointer;font-weight:700;transition:.2s" onmouseover="this.style.background='rgba(0,201,167,0.2)'" onmouseout="this.style.background='rgba(0,201,167,0.1)'">Bank Tracker ↗</button>
+        <button onclick="navigate('finance')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#818cf8;cursor:pointer;font-weight:700;transition:.2s" onmouseover="this.style.background='rgba(99,102,241,0.2)'" onmouseout="this.style.background='rgba(99,102,241,0.1)'">Finance ↗</button>
+      </div>
     </div>
-    ${netWorthStrip}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="dash-agb-grid">
-      ${banksCard}${budgetCard}
+    ${nwBar}
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px" class="dash-acct-grid">
+      ${newBanksCard}${newCashCard}${newCardsCard}
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="dash-agb-grid2">
-      ${cardsCard}${cashCard}
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" class="dash-agb-grid3">
-      ${goalsCard}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px" class="dash-bg-grid">
+      ${newBudgetCard}${newGoalsCard}
     </div>`;
 }
 
