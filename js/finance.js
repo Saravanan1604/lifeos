@@ -1231,6 +1231,30 @@ function assetIcon(t) { return getAssetTypes().find(x => x.key === t)?.icon || '
 function loanIcon(t)  { return getLoanTypes().find(x => x.key === t)?.icon  || '📋'; }
 
 let invFilter = 'All';
+const ASSET_CAT_COLORS = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6','#00c9a7','#ef4444','#f97316','#14b8a6','#a855f7','#eab308'];
+
+function renderAssetCategoryChart(entries) {
+  const canvas = document.getElementById('inv-category-chart');
+  if (!canvas || !entries.length || typeof Chart === 'undefined') return;
+  chartInstances['inv-category'] = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: entries.map(([t]) => t),
+      datasets: [{
+        data: entries.map(([,v]) => v),
+        backgroundColor: entries.map((_, i) => ASSET_CAT_COLORS[i % ASSET_CAT_COLORS.length]),
+        borderColor: 'rgba(10,10,30,0.5)', borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ₹${ctx.parsed.toLocaleString('en-IN',{maximumFractionDigits:0})}` } }
+      }
+    }
+  });
+}
 
 function renderInvestments() {
   const investments = STATE.investments || [];
@@ -1247,6 +1271,14 @@ function renderInvestments() {
   // filter tabs include 'All' + asset types
   const allAssetTypes  = [{ key: 'All', icon: '🏦' }, ...getAssetTypes()];
   const filtered       = invFilter === 'All' ? investments : investments.filter(i => i.type === invFilter);
+
+  // ── Category allocation (current value grouped by asset type) ──────────
+  const catByType = {};
+  investments.forEach(i => {
+    const v = i.currentValue ?? i.amount ?? 0;
+    catByType[i.type] = (catByType[i.type] || 0) + v;
+  });
+  const catEntries = Object.entries(catByType).sort(([,a],[,b]) => b - a);
 
   // ── Row builder helpers ───────────────────────────────────────────────
   function moveBtn(dir, fn, id, list) {
@@ -1386,6 +1418,31 @@ function renderInvestments() {
         </div>
       </div>
 
+      <!-- ── ASSET ALLOCATION CHART ──────────────────────────────── -->
+      ${investments.length === 0 ? '' : `
+      <div class="glass-card" style="padding:20px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:14px">
+          <p class="section-title">🗂️ Asset Allocation by Category</p>
+          <span style="font-size:12px;color:var(--text3)">${fmt(totalCurrent)} total</span>
+        </div>
+        <div style="display:grid;grid-template-columns:210px 1fr;gap:24px;align-items:center" class="asset-cat-grid">
+          <div style="height:200px;position:relative"><canvas id="inv-category-chart"></canvas></div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            ${catEntries.map(([type,val],idx) => {
+              const pct = totalCurrent > 0 ? (val/totalCurrent*100).toFixed(1) : 0;
+              const color = ASSET_CAT_COLORS[idx % ASSET_CAT_COLORS.length];
+              return `<div onclick="invFilter='${type}';renderInvestments()" style="display:flex;align-items:center;gap:10px;cursor:pointer" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
+                <span style="width:12px;height:12px;border-radius:3px;background:${color};flex-shrink:0"></span>
+                <span style="font-size:15px">${assetIcon(type)}</span>
+                <span style="font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${type}</span>
+                <span style="font-size:13px;font-weight:700;color:#00c9a7">${fmt(val)}</span>
+                <span style="font-size:11px;color:var(--text3);width:46px;text-align:right">${pct}%</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>`}
+
       <!-- ── INVESTMENTS ─────────────────────────────────────────── -->
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -1455,10 +1512,13 @@ function renderInvestments() {
 
     </div>`;
 
-  // Responsive net worth grid
+  // Responsive net worth grid + category chart
   setTimeout(() => {
     const g = document.querySelector('.nw-grid');
     if (g && window.innerWidth < 600) g.style.gridTemplateColumns = '1fr 1fr';
+    const ac = document.querySelector('.asset-cat-grid');
+    if (ac && window.innerWidth < 640) ac.style.gridTemplateColumns = '1fr';
+    renderAssetCategoryChart(catEntries);
   }, 40);
 }
 

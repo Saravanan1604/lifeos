@@ -231,6 +231,107 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
   ].join('');
 }
 
+// Bank balances · credit cards · goals · budget — overview cards
+function _buildAccountsGoalsBudget() {
+  const banks   = STATE.bankAccounts || [];
+  const cards   = STATE.creditCards  || [];
+  const goals   = STATE.goals        || [];
+  const budgets = STATE.budgets      || [];
+  const totalBank  = banks.reduce((s,b)=>s+(b.balance||0),0);
+  const totalOut   = cards.reduce((s,c)=>s+(c.outstanding||0),0);
+  const totalLimit = cards.reduce((s,c)=>s+(c.limit||0),0);
+
+  // This-month expense per category (for budget bars)
+  const monthExp = filterTxByPeriod(STATE.transactions||[], 'month').filter(t=>t.type==='expense');
+  const spentByCat = {};
+  monthExp.forEach(t => { const k=(t.category||'').toLowerCase().trim(); spentByCat[k]=(spentByCat[k]||0)+t.amount; });
+
+  const bar = (pct,color) => `<div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.1)"><div style="height:5px;border-radius:3px;width:${pct}%;background:${color};transition:.4s"></div></div>`;
+  const wrap = (inner) => `<div style="display:flex;flex-direction:column;gap:10px;max-height:230px;overflow-y:auto;padding-right:2px">${inner}</div>`;
+  const empty = (txt) => `<p style="font-size:12px;color:var(--text3);padding:8px 0">${txt}</p>`;
+
+  // 🏦 Banks
+  const banksCard = `
+    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(0,201,167,0.35)'" onmouseout="this.style.borderColor=''">
+      <div class="section-header" style="margin-bottom:12px">
+        <p class="section-title">🏦 Bank Balances</p>
+        <span style="font-size:14px;font-weight:800;color:var(--teal)">${fmt(totalBank)}</span>
+      </div>
+      ${banks.length===0 ? empty('No bank accounts yet') : wrap(banks.map(b=>`
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});font-size:14px;flex-shrink:0">${b.icon||'🏦'}</div>
+          <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.bankName}</span>
+          <span style="font-size:13px;font-weight:700">${fmt(b.balance||0)}</span>
+        </div>`).join(''))}
+    </div>`;
+
+  // 💳 Credit cards
+  const cardsCard = `
+    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="bankTrackerTab='cards';navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(239,68,68,0.35)'" onmouseout="this.style.borderColor=''">
+      <div class="section-header" style="margin-bottom:12px">
+        <p class="section-title">💳 Credit Cards</p>
+        <span style="font-size:12px;font-weight:700;color:#ef4444">${fmt(totalOut)} / ${fmt(totalLimit)}</span>
+      </div>
+      ${cards.length===0 ? empty('No credit cards yet') : wrap(cards.map(c=>{
+        const used=c.outstanding||0, lim=c.limit||1, pct=Math.min(100,Math.round(used/lim*100));
+        const uc=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
+        return `<div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="font-weight:600">💳 ${c.bankName}</span>
+            <span style="color:var(--text3)">${fmt(used)} / ${fmt(c.limit||0)} · ${pct}%</span>
+          </div>${bar(pct,uc)}</div>`;
+      }).join(''))}
+    </div>`;
+
+  // 🎯 Goals
+  const goalsDone = goals.filter(g=>g.current>=g.target).length;
+  const goalsCard = `
+    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('goals')" onmouseover="this.style.borderColor='rgba(139,92,246,0.35)'" onmouseout="this.style.borderColor=''">
+      <div class="section-header" style="margin-bottom:12px">
+        <p class="section-title">🎯 Goals</p>
+        <span style="font-size:12px;color:var(--text3)">${goalsDone}/${goals.length} done</span>
+      </div>
+      ${goals.length===0 ? empty('No goals yet') : wrap(goals.slice(0,6).map(g=>{
+        const pct=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;
+        const done=g.current>=g.target;
+        return `<div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${g.emoji||'🎯'} ${g.name}</span>
+            <span style="color:${done?'#10b981':'var(--text3)'};font-weight:700">${pct}%</span>
+          </div>${bar(pct,done?'#10b981':'linear-gradient(90deg,#8b5cf6,#6366f1)')}</div>`;
+      }).join(''))}
+    </div>`;
+
+  // 📊 Budget
+  const budgetCard = `
+    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('budget')" onmouseover="this.style.borderColor='rgba(245,158,11,0.35)'" onmouseout="this.style.borderColor=''">
+      <div class="section-header" style="margin-bottom:12px">
+        <p class="section-title">📊 Budget — ${new Date().toLocaleString('default',{month:'short'})}</p>
+      </div>
+      ${budgets.length===0 ? empty('No budgets set') : wrap(budgets.slice(0,6).map(b=>{
+        const lim=b.amount!=null?b.amount:(b.limit||0);
+        const spent=spentByCat[(b.category||'').toLowerCase().trim()]||0;
+        const pct=lim>0?Math.min(100,Math.round(spent/lim*100)):0;
+        const over=spent>lim;
+        const bc=over?'#ef4444':pct>80?'#f59e0b':'#10b981';
+        return `<div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="font-weight:600">${b.category}</span>
+            <span style="color:${over?'#ef4444':'var(--text3)'}">${fmt(spent)} / ${fmt(lim)}</span>
+          </div>${bar(pct,bc)}</div>`;
+      }).join(''))}
+    </div>`;
+
+  return `
+    <div style="display:flex;align-items:center;gap:10px;margin:8px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
+      <span style="font-size:16px">💼</span>
+      <h2 style="font-size:16px;font-weight:800;color:var(--text)">Accounts, Cards, Goals &amp; Budget</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" class="dash-agb-grid">
+      ${banksCard}${cardsCard}${goalsCard}${budgetCard}
+    </div>`;
+}
+
 // ===== DASHBOARD =====
 function renderDashboard() {
   const scores = calcLifeScore();
@@ -428,6 +529,9 @@ function renderDashboard() {
         </div>
       </div>
 
+      <!-- Accounts · Cards · Goals · Budget -->
+      ${_buildAccountsGoalsBudget()}
+
       <!-- Recent Transactions -->
       <div class="glass-card" style="overflow:hidden">
         <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center">
@@ -487,6 +591,8 @@ function renderDashboard() {
     if (qa) qa.style.gridTemplateColumns = 'repeat(2,1fr)';
     const kpi = document.querySelector('.kpi-grid');
     if (kpi) kpi.style.gridTemplateColumns = 'repeat(2,1fr)';
+    const agb = document.querySelector('.dash-agb-grid');
+    if (agb) agb.style.gridTemplateColumns = '1fr';
   }
 
   // Render net worth chart after DOM is ready
