@@ -231,7 +231,9 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
   ].join('');
 }
 
-// Bank balances · credit cards · goals · budget — overview cards
+// Bank balances · credit cards · goals · budget — colorful chart overview
+const DASH_PALETTE = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6','#00c9a7','#ef4444','#f97316','#14b8a6'];
+
 function _buildAccountsGoalsBudget() {
   const banks   = STATE.bankAccounts || [];
   const cards   = STATE.creditCards  || [];
@@ -240,53 +242,73 @@ function _buildAccountsGoalsBudget() {
   const totalBank  = banks.reduce((s,b)=>s+(b.balance||0),0);
   const totalOut   = cards.reduce((s,c)=>s+(c.outstanding||0),0);
   const totalLimit = cards.reduce((s,c)=>s+(c.limit||0),0);
+  const overallUtil = totalLimit>0?Math.round(totalOut/totalLimit*100):0;
 
-  // This-month expense per category (for budget bars)
-  const monthExp = filterTxByPeriod(STATE.transactions||[], 'month').filter(t=>t.type==='expense');
-  const spentByCat = {};
-  monthExp.forEach(t => { const k=(t.category||'').toLowerCase().trim(); spentByCat[k]=(spentByCat[k]||0)+t.amount; });
+  const empty = (txt) => `<p style="font-size:12px;color:var(--text3);padding:18px 0;text-align:center">${txt}</p>`;
+  const wrap  = (inner) => `<div style="display:flex;flex-direction:column;gap:12px;max-height:230px;overflow-y:auto;padding-right:2px">${inner}</div>`;
 
-  const bar = (pct,color) => `<div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.1)"><div style="height:5px;border-radius:3px;width:${pct}%;background:${color};transition:.4s"></div></div>`;
-  const wrap = (inner) => `<div style="display:flex;flex-direction:column;gap:10px;max-height:230px;overflow-y:auto;padding-right:2px">${inner}</div>`;
-  const empty = (txt) => `<p style="font-size:12px;color:var(--text3);padding:8px 0">${txt}</p>`;
-
-  // 🏦 Banks
+  // 🏦 Bank balances → doughnut + colored legend
+  const posBanks = banks.filter(b=>(b.balance||0)>0);
+  const bankLegend = posBanks.map((b,i)=>`
+    <div style="display:flex;align-items:center;gap:7px;font-size:11px">
+      <span style="width:10px;height:10px;border-radius:3px;background:${DASH_PALETTE[i%DASH_PALETTE.length]};flex-shrink:0;box-shadow:0 0 6px ${DASH_PALETTE[i%DASH_PALETTE.length]}88"></span>
+      <span style="color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.bankName}</span>
+      <span style="color:var(--text);margin-left:auto;font-weight:700">${fmt(b.balance||0)}</span>
+    </div>`).join('');
   const banksCard = `
-    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(0,201,167,0.35)'" onmouseout="this.style.borderColor=''">
+    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(0,201,167,0.4)'" onmouseout="this.style.borderColor=''">
       <div class="section-header" style="margin-bottom:12px">
         <p class="section-title">🏦 Bank Balances</p>
         <span style="font-size:14px;font-weight:800;color:var(--teal)">${fmt(totalBank)}</span>
       </div>
-      ${banks.length===0 ? empty('No bank accounts yet') : wrap(banks.map(b=>`
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});font-size:14px;flex-shrink:0">${b.icon||'🏦'}</div>
-          <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.bankName}</span>
-          <span style="font-size:13px;font-weight:700">${fmt(b.balance||0)}</span>
-        </div>`).join(''))}
+      ${posBanks.length===0 ? empty('No bank balances yet') : `
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:16px;align-items:center">
+        <div style="position:relative;height:140px">
+          <canvas id="dash-bank-chart"></canvas>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+            <span style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700">Total</span>
+            <span style="font-size:13px;font-weight:900;color:#fff">${fmt(totalBank)}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;max-height:150px;overflow-y:auto">${bankLegend}</div>
+      </div>`}
     </div>`;
 
-  // 💳 Credit cards
+  // 📊 Budget → grouped bar chart (spent vs limit)
+  const budgetCard = `
+    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('budget')" onmouseover="this.style.borderColor='rgba(245,158,11,0.4)'" onmouseout="this.style.borderColor=''">
+      <div class="section-header" style="margin-bottom:12px">
+        <p class="section-title">📊 Budget — ${new Date().toLocaleString('default',{month:'short'})}</p>
+        <span style="font-size:11px;color:var(--text3)">spent vs limit</span>
+      </div>
+      ${budgets.length===0 ? empty('No budgets set') : `<div style="height:${Math.max(170, Math.min(8,budgets.length)*36)}px;position:relative"><canvas id="dash-budget-chart"></canvas></div>`}
+    </div>`;
+
+  // 💳 Credit cards → vivid gradient utilisation bars
   const cardsCard = `
-    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="bankTrackerTab='cards';navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(239,68,68,0.35)'" onmouseout="this.style.borderColor=''">
+    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="bankTrackerTab='cards';navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(239,68,68,0.4)'" onmouseout="this.style.borderColor=''">
       <div class="section-header" style="margin-bottom:12px">
         <p class="section-title">💳 Credit Cards</p>
-        <span style="font-size:12px;font-weight:700;color:#ef4444">${fmt(totalOut)} / ${fmt(totalLimit)}</span>
+        <span style="font-size:12px;font-weight:700;color:#ef4444">${fmt(totalOut)} / ${fmt(totalLimit)} · ${overallUtil}%</span>
       </div>
       ${cards.length===0 ? empty('No credit cards yet') : wrap(cards.map(c=>{
         const used=c.outstanding||0, lim=c.limit||1, pct=Math.min(100,Math.round(used/lim*100));
         const uc=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
+        const grad=pct>80?'linear-gradient(90deg,#f59e0b,#ef4444)':pct>50?'linear-gradient(90deg,#10b981,#f59e0b)':'linear-gradient(90deg,#00c9a7,#10b981)';
         return `<div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
             <span style="font-weight:600">💳 ${c.bankName}</span>
-            <span style="color:var(--text3)">${fmt(used)} / ${fmt(c.limit||0)} · ${pct}%</span>
-          </div>${bar(pct,uc)}</div>`;
+            <span style="color:var(--text3)">${fmt(used)} / ${fmt(c.limit||0)} · <b style="color:${uc}">${pct}%</b></span>
+          </div>
+          <div style="height:9px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden"><div style="height:9px;border-radius:6px;width:${pct}%;background:${grad};box-shadow:0 0 10px ${uc}77;transition:.5s"></div></div>
+        </div>`;
       }).join(''))}
     </div>`;
 
-  // 🎯 Goals
+  // 🎯 Goals → gradient progress bars
   const goalsDone = goals.filter(g=>g.current>=g.target).length;
   const goalsCard = `
-    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('goals')" onmouseover="this.style.borderColor='rgba(139,92,246,0.35)'" onmouseout="this.style.borderColor=''">
+    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('goals')" onmouseover="this.style.borderColor='rgba(139,92,246,0.4)'" onmouseout="this.style.borderColor=''">
       <div class="section-header" style="margin-bottom:12px">
         <p class="section-title">🎯 Goals</p>
         <span style="font-size:12px;color:var(--text3)">${goalsDone}/${goals.length} done</span>
@@ -294,31 +316,15 @@ function _buildAccountsGoalsBudget() {
       ${goals.length===0 ? empty('No goals yet') : wrap(goals.slice(0,6).map(g=>{
         const pct=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;
         const done=g.current>=g.target;
+        const grad=done?'linear-gradient(90deg,#10b981,#00c9a7)':'linear-gradient(90deg,#8b5cf6,#6366f1,#3b82f6)';
+        const glow=done?'#10b98177':'#8b5cf677';
         return `<div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
-            <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${g.emoji||'🎯'} ${g.name}</span>
-            <span style="color:${done?'#10b981':'var(--text3)'};font-weight:700">${pct}%</span>
-          </div>${bar(pct,done?'#10b981':'linear-gradient(90deg,#8b5cf6,#6366f1)')}</div>`;
-      }).join(''))}
-    </div>`;
-
-  // 📊 Budget
-  const budgetCard = `
-    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('budget')" onmouseover="this.style.borderColor='rgba(245,158,11,0.35)'" onmouseout="this.style.borderColor=''">
-      <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title">📊 Budget — ${new Date().toLocaleString('default',{month:'short'})}</p>
-      </div>
-      ${budgets.length===0 ? empty('No budgets set') : wrap(budgets.slice(0,6).map(b=>{
-        const lim=b.amount!=null?b.amount:(b.limit||0);
-        const spent=spentByCat[(b.category||'').toLowerCase().trim()]||0;
-        const pct=lim>0?Math.min(100,Math.round(spent/lim*100)):0;
-        const over=spent>lim;
-        const bc=over?'#ef4444':pct>80?'#f59e0b':'#10b981';
-        return `<div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
-            <span style="font-weight:600">${b.category}</span>
-            <span style="color:${over?'#ef4444':'var(--text3)'}">${fmt(spent)} / ${fmt(lim)}</span>
-          </div>${bar(pct,bc)}</div>`;
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+            <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px">${g.emoji||'🎯'} ${g.name}</span>
+            <span style="color:${done?'#10b981':'#a5b4fc'};font-weight:700">${pct}%</span>
+          </div>
+          <div style="height:9px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden"><div style="height:9px;border-radius:6px;width:${pct}%;background:${grad};box-shadow:0 0 10px ${glow};transition:.5s"></div></div>
+        </div>`;
       }).join(''))}
     </div>`;
 
@@ -327,9 +333,74 @@ function _buildAccountsGoalsBudget() {
       <span style="font-size:16px">💼</span>
       <h2 style="font-size:16px;font-weight:800;color:var(--text)">Accounts, Cards, Goals &amp; Budget</h2>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" class="dash-agb-grid">
-      ${banksCard}${cardsCard}${goalsCard}${budgetCard}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="dash-agb-grid">
+      ${banksCard}${budgetCard}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" class="dash-agb-grid2">
+      ${cardsCard}${goalsCard}
     </div>`;
+}
+
+// Doughnut of bank balances per bank
+function renderDashBankChart() {
+  const canvas = document.getElementById('dash-bank-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const banks = (STATE.bankAccounts||[]).filter(b => (b.balance||0) > 0);
+  if (!banks.length) return;
+  chartInstances['dash-bank'] = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: banks.map(b=>b.bankName),
+      datasets: [{
+        data: banks.map(b=>b.balance||0),
+        backgroundColor: banks.map((_,i)=>DASH_PALETTE[i%DASH_PALETTE.length]),
+        borderColor: 'rgba(10,10,30,0.6)', borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '64%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ₹${ctx.parsed.toLocaleString('en-IN',{maximumFractionDigits:0})}` } }
+      }
+    }
+  });
+}
+
+// Grouped horizontal bar: spent vs limit per budget category (this month)
+function renderDashBudgetChart() {
+  const canvas = document.getElementById('dash-budget-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const budgets = (STATE.budgets||[]).slice(0,8);
+  if (!budgets.length) return;
+  const monthExp = filterTxByPeriod(STATE.transactions||[], 'month').filter(t=>t.type==='expense');
+  const spentByCat = {};
+  monthExp.forEach(t => { const k=(t.category||'').toLowerCase().trim(); spentByCat[k]=(spentByCat[k]||0)+t.amount; });
+  const limits = budgets.map(b => b.amount!=null?b.amount:(b.limit||0));
+  const spents = budgets.map(b => spentByCat[(b.category||'').toLowerCase().trim()]||0);
+  chartInstances['dash-budget'] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: budgets.map(b=>b.category),
+      datasets: [
+        { label:'Spent', data:spents, borderRadius:5, barPercentage:0.8, categoryPercentage:0.7,
+          backgroundColor: spents.map((s,i)=> s>limits[i]?'#ef4444' : s>limits[i]*0.8?'#f59e0b':'#10b981') },
+        { label:'Limit', data:limits, borderRadius:5, barPercentage:0.8, categoryPercentage:0.7,
+          backgroundColor:'rgba(255,255,255,0.14)' }
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display:true, position:'top', labels:{ color:'#94a3b8', font:{size:10}, boxWidth:10, padding:8 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ₹${ctx.parsed.x.toLocaleString('en-IN',{maximumFractionDigits:0})}` } }
+      },
+      scales: {
+        x: { ticks:{ color:'#64748b', font:{size:10}, callback:v=>'₹'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v) }, grid:{ color:'rgba(255,255,255,0.05)' } },
+        y: { ticks:{ color:'#cbd5e1', font:{size:11,weight:'600'} }, grid:{ display:false } }
+      }
+    }
+  });
 }
 
 // ===== DASHBOARD =====
@@ -591,8 +662,7 @@ function renderDashboard() {
     if (qa) qa.style.gridTemplateColumns = 'repeat(2,1fr)';
     const kpi = document.querySelector('.kpi-grid');
     if (kpi) kpi.style.gridTemplateColumns = 'repeat(2,1fr)';
-    const agb = document.querySelector('.dash-agb-grid');
-    if (agb) agb.style.gridTemplateColumns = '1fr';
+    document.querySelectorAll('.dash-agb-grid, .dash-agb-grid2').forEach(g => g.style.gridTemplateColumns = '1fr');
   }
 
   // Render net worth chart after DOM is ready
@@ -603,6 +673,8 @@ function renderDashboard() {
     render5030Chart(txns);
     renderPolarCatChart(txns);
     renderLifeScoreRadar(scores);
+    renderDashBankChart();
+    renderDashBudgetChart();
     if (window.innerWidth < 700) {
       const r1 = document.querySelector('.analytics-row-1');
       if (r1) r1.style.gridTemplateColumns = '1fr';
