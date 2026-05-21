@@ -678,51 +678,34 @@ function renderDashboard() {
         ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
       </div>
 
-      <!-- ── Combined Financial Chart ──────────────────────────────── -->
+      <!-- ── Financial Overview + Spending side-by-side ─────────────── -->
       <div class="glass-card" style="padding:22px;margin-bottom:20px">
-        <!-- Header -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:18px">
+        <!-- Header row -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <div>
             <p class="section-title" style="margin-bottom:2px">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00c9a7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Financial Overview
             </p>
-            <p style="font-size:11px;color:var(--text3);margin-top:2px">Income · Expense · Savings · Net Worth — last 12 months</p>
+            <p style="font-size:11px;color:var(--text3);margin-top:2px">Last 12 months · Income · Expense · Savings · Net Worth</p>
           </div>
           <button class="btn-icon btn-sm" onclick="navigate('finance')" style="color:var(--teal);border-color:rgba(0,201,167,0.3)">View All →</button>
         </div>
 
-        <!-- 4 KPI chips -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px" class="fin-kpi-chips">
-          ${(()=>{
-            const mo = txnsAll.filter(t=>{ const d=new Date(t.date); return d.getFullYear()===new Date().getFullYear()&&d.getMonth()===new Date().getMonth(); });
-            const mInc = mo.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-            const mExp = mo.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-            const mSav = mInc - mExp;
-            return [
-              {label:'This Month Income', val:fmt(mInc), c:'#10b981', bg:'rgba(16,185,129,0.1)', bc:'rgba(16,185,129,0.25)'},
-              {label:'This Month Expense',val:fmt(mExp), c:'#ef4444', bg:'rgba(239,68,68,0.1)',  bc:'rgba(239,68,68,0.25)'},
-              {label:'Net Savings',       val:fmt(mSav), c:mSav>=0?'#6366f1':'#ef4444', bg:'rgba(99,102,241,0.1)', bc:'rgba(99,102,241,0.25)'},
-              {label:'Net Worth',         val:fmt(netWorth), c:netWorth>=0?'#00c9a7':'#ef4444', bg:'rgba(0,201,167,0.1)', bc:'rgba(0,201,167,0.25)'},
-            ].map(k=>`
-              <div style="padding:12px 14px;border-radius:12px;background:${k.bg};border:1px solid ${k.bc}">
-                <p style="font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:${k.c};opacity:.8;margin-bottom:5px">${k.label}</p>
-                <p style="font-size:16px;font-weight:900;color:${k.c}">${k.val}</p>
-              </div>`).join('');
-          })()}
-        </div>
+        <!-- Two-column: chart | spending list -->
+        <div style="display:grid;grid-template-columns:1fr 220px;gap:20px;align-items:start" class="fin-overview-grid">
 
-        <!-- Chart canvas -->
-        <div style="height:260px;position:relative">
-          <canvas id="dash-combined-chart"></canvas>
-        </div>
-      </div>
+          <!-- Chart -->
+          <div style="height:240px;position:relative">
+            <canvas id="dash-combined-chart"></canvas>
+          </div>
 
-      <!-- Spending breakdown -->
-      <div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:14px">
-          <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>Spending by Category</p>
+          <!-- Spending by Category — compact list -->
+          <div>
+            <p style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Top Spending</p>
+            <div id="dash-pie-chart" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+
         </div>
-        <div id="dash-pie-chart" style="display:flex;flex-direction:column;gap:8px;padding-top:4px"></div>
       </div>
 
       <!-- Accounts · Cards · Goals · Budget -->
@@ -848,8 +831,8 @@ function renderDashboard() {
     renderDashBankChart();
     renderDashBudgetChart();
     if (window.innerWidth < 700) {
-      const chips = document.querySelector('.fin-kpi-chips');
-      if (chips) chips.style.gridTemplateColumns = '1fr 1fr';
+      const fog = document.querySelector('.fin-overview-grid');
+      if (fog) fog.style.gridTemplateColumns = '1fr';
       const lsg = document.querySelector('.life-score-grid');
       if (lsg) lsg.style.gridTemplateColumns = '1fr';
     }
@@ -987,130 +970,39 @@ function renderDashCombinedChart(txns) {
 function renderDashPieChart(txns) {
   const el = document.getElementById('dash-pie-chart');
   if (!el) return;
-  el.style.cssText = 'padding:0;display:block';
 
   const catMap = {};
   txns.filter(t => t.type === 'expense').forEach(t => {
     catMap[t.category] = (catMap[t.category] || 0) + t.amount;
   });
-  const topCats = Object.entries(catMap).sort(([,a],[,b]) => b - a).slice(0, 5);
+  const topCats = Object.entries(catMap).sort(([,a],[,b]) => b - a).slice(0, 6);
   if (!topCats.length) {
-    el.innerHTML = '<p style="font-size:12px;color:#64748b;text-align:center;padding:40px 0">No expense data</p>';
+    el.innerHTML = '<p style="font-size:11px;color:#64748b;padding:16px 0">No expense data yet</p>';
     return;
   }
 
   const total = topCats.reduce((s,[,v]) => s + v, 0);
-  const COLORS = ['#3b82f6','#f59e0b','#10b981','#ec4899','#8b5cf6'];
-  const CAT_ICONS = {Food:'🍔',Shopping:'🛍️',Transport:'🚗',Fuel:'⛽',Rent:'🏠',Bills:'💡',Health:'💊',Entertainment:'🎬',Travel:'✈️',Other:'📦',Education:'📚',Groceries:'🛒',Insurance:'🛡️',Utilities:'🔌',EMI:'🏦',Gifts:'🎁'};
-  const fmt = v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : v >= 1000 ? `₹${(v/1000).toFixed(1)}k` : `₹${v}`;
+  const COLORS = ['#6366f1','#f59e0b','#10b981','#ec4899','#8b5cf6','#3b82f6'];
+  const CAT_ICONS = {Food:'🍔',Shopping:'🛍️',Transport:'🚗',Fuel:'⛽',Rent:'🏠',Bills:'💡',Health:'💊',Entertainment:'🎬',Travel:'✈️',Other:'📦',Education:'📚',Groceries:'🛒',Insurance:'🛡️',Utilities:'🔌',EMI:'🏦',Gifts:'🎁',Business:'💼'};
+  const fmtV = v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : v >= 1000 ? `₹${(v/1000).toFixed(1)}k` : `₹${v}`;
 
-  // ── geometry ──
-  const cx = 110, cy = 110, R = 78, sw = 34;
-  const circ  = 2 * Math.PI * R;
-  const gapLen = (5 / 360) * circ;           // 5° gap between segments
-  const dashOff = (circ / 4).toFixed(2);     // shift start to 12-o'clock
-  const toRad = deg => (deg - 90) * Math.PI / 180;
-
-  // ── build segments ──
-  let cum = 0;
-  const segs = topCats.map(([name, val], i) => {
-    const pct = val / total;
-    const sweep = pct * 360;
-    const mid = cum + sweep / 2;
-    const seg = { name, val, pct, sweep, segLen: Math.max(2, pct * circ - gapLen),
-                  start: cum, mid, color: COLORS[i % COLORS.length],
-                  icon: CAT_ICONS[name] || '💳', fmt: fmt(val) };
-    cum += sweep;
-    return seg;
-  });
-
-  // ── arcs ──
-  const arcs = segs.map(s => `
-    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none"
-      stroke="${s.color}" stroke-width="${sw}" stroke-linecap="round"
-      stroke-dasharray="${s.segLen.toFixed(1)} ${circ.toFixed(1)}"
-      stroke-dashoffset="${dashOff}"
-      transform="rotate(${s.start.toFixed(1)},${cx},${cy})"
-      style="filter:drop-shadow(0 4px 12px ${s.color}70)"/>`).join('');
-
-  // ── emoji icons — sit ON the arc at its midpoint ──
-  const icons = segs.map(s => {
-    const r = toRad(s.mid);
-    return `<text x="${(cx + R * Math.cos(r)).toFixed(1)}" y="${(cy + R * Math.sin(r)).toFixed(1)}"
-      text-anchor="middle" dominant-baseline="middle" font-size="15">${s.icon}</text>`;
-  }).join('');
-
-  // ── % badge — just outside the arc, at midpoint ──
-  const badges = segs.map(s => {
-    const r    = toRad(s.mid);
-    const outR = R + sw / 2 + 14;
-    const bx = (cx + outR * Math.cos(r)).toFixed(1);
-    const by = (cy + outR * Math.sin(r)).toFixed(1);
+  el.innerHTML = topCats.map(([name, val], i) => {
+    const pct = total > 0 ? (val / total * 100).toFixed(0) : 0;
+    const color = COLORS[i % COLORS.length];
+    const icon = CAT_ICONS[name] || '💳';
     return `
-      <rect x="${(+bx - 13).toFixed(1)}" y="${(+by - 8).toFixed(1)}"
-        width="26" height="16" rx="8"
-        fill="${s.color}22" stroke="${s.color}66" stroke-width="1"/>
-      <text x="${bx}" y="${by}" text-anchor="middle" dominant-baseline="middle"
-        font-size="9" font-weight="800" fill="${s.color}" font-family="Inter,sans-serif"
-        >${(s.pct * 100).toFixed(0)}%</text>`;
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:12px">${icon}</span>
+          <span style="font-size:11px;font-weight:600;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
+          <span style="font-size:11px;font-weight:700;color:${color}">${fmtV(val)}</span>
+          <span style="font-size:10px;color:var(--text3);width:28px;text-align:right">${pct}%</span>
+        </div>
+        <div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;transition:width .4s"></div>
+        </div>
+      </div>`;
   }).join('');
-
-  const totalFmt = fmt(total);
-  const innerR   = R - sw / 2 - 5;
-
-  // ── compact legend rows below chart ──
-  const legend = segs.map(s => `
-    <div style="display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:8px;
-        background:${s.color}12;border:1px solid ${s.color}25;
-        transition:background .15s" onmouseover="this.style.background='${s.color}22'"
-        onmouseout="this.style.background='${s.color}12'">
-      <span style="font-size:14px;line-height:1">${s.icon}</span>
-      <span style="flex:1;font-size:10.5px;font-weight:600;color:#cbd5e1;
-        white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</span>
-      <span style="font-size:10px;font-weight:700;color:${s.color}">${s.fmt}</span>
-      <span style="font-size:9px;color:#475569;min-width:26px;text-align:right">${(s.pct*100).toFixed(0)}%</span>
-    </div>`).join('');
-
-  el.innerHTML = `
-    <svg width="100%" viewBox="0 0 220 220"
-        style="display:block;margin:0 auto;overflow:visible;max-height:210px">
-      <defs>
-        <radialGradient id="dpie-c" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stop-color="rgba(25,28,58,1)"/>
-          <stop offset="100%" stop-color="rgba(8,10,28,1)"/>
-        </radialGradient>
-      </defs>
-
-      <!-- ghost track -->
-      <circle cx="${cx}" cy="${cy}" r="${R}" fill="none"
-        stroke="rgba(255,255,255,0.035)" stroke-width="${sw}"/>
-
-      <!-- segments -->
-      ${arcs}
-
-      <!-- inner fill -->
-      <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="url(#dpie-c)"
-        stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
-
-      <!-- center text -->
-      <text x="${cx}" y="${cy-12}" text-anchor="middle"
-        font-size="8" fill="#475569" letter-spacing="1.5" font-family="Inter,sans-serif">SPENT</text>
-      <text x="${cx}" y="${cy+7}" text-anchor="middle"
-        font-size="17" font-weight="900" fill="#f1f5f9" font-family="Inter,sans-serif">${totalFmt}</text>
-      <text x="${cx}" y="${cy+20}" text-anchor="middle"
-        font-size="7.5" fill="#334155" font-family="Inter,sans-serif">this period</text>
-
-      <!-- icons on arc -->
-      ${icons}
-
-      <!-- % pill badges -->
-      ${badges}
-    </svg>
-
-    <!-- legend -->
-    <div style="display:flex;flex-direction:column;gap:4px;padding:2px 4px 4px">
-      ${legend}
-    </div>`;
 }
 
 
