@@ -599,141 +599,6 @@ function deleteSelectedTx() {
   refreshFinancePage();
 }
 
-// ===== AUTO BALANCE UPDATE AFTER IMPORT =====
-function openAutoBalanceModal(toSave, source) {
-  const accounts = STATE.bankAccounts || [];
-  if (!accounts.length || !toSave.length) return;
-
-  const incTotal  = toSave.filter(t => t.type === 'income').reduce((s,t)=>s+t.amount,0);
-  const expTotal  = toSave.filter(t => t.type === 'expense').reduce((s,t)=>s+t.amount,0);
-  const netChange = incTotal - expTotal;
-  const latestDate = [...toSave.map(t=>t.date)].filter(Boolean).sort().reverse()[0] || today();
-
-  const netColor = netChange >= 0 ? '#10b981' : '#ef4444';
-  const netSign  = netChange >= 0 ? '+' : '';
-
-  const opts = accounts.map(a =>
-    `<option value="${a.id}" data-balance="${a.balance||0}">${a.icon||'🏦'} ${a.bankName} — ${fmt(a.balance||0)}</option>`
-  ).join('');
-
-  setTimeout(() => {
-    openModal('🏦 Auto-Update Bank Balance', `
-      <div style="padding:12px 16px;border-radius:12px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);margin-bottom:16px">
-        <p style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">📊 ${source} — ${toSave.length} transactions</p>
-        <div style="display:flex;gap:16px;flex-wrap:wrap">
-          ${incTotal > 0 ? `<span style="font-size:13px;font-weight:700;color:#10b981">💚 +${fmt(incTotal)} income</span>` : ''}
-          ${expTotal > 0 ? `<span style="font-size:13px;font-weight:700;color:#ef4444">❤️ −${fmt(expTotal)} expense</span>` : ''}
-          <span style="font-size:13px;font-weight:800;color:${netColor}">Net: ${netSign}${fmt(Math.abs(netChange))}</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Which bank account?</label>
-        <select id="ab-account" class="form-input" onchange="updateAutoBalPreview(${netChange})">${opts}</select>
-      </div>
-
-      <div id="ab-preview" style="padding:14px 16px;border-radius:12px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);margin-bottom:12px"></div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px">
-        <div class="form-group" style="margin-bottom:0">
-          <label class="form-label">Update method</label>
-          <select id="ab-method" class="form-input" onchange="updateAutoBalPreview(${netChange})">
-            <option value="net">Apply net change</option>
-            <option value="manual">Set closing balance</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom:0" id="ab-manual-wrap" style="display:none">
-          <label class="form-label">Closing Balance (₹)</label>
-          <input type="number" id="ab-manual-val" class="form-input" placeholder="From bank statement" step="0.01" min="0" oninput="updateAutoBalPreview(${netChange})"/>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input type="date" id="ab-date" class="form-input" value="${latestDate}"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Note</label>
-          <input type="text" id="ab-note" class="form-input" value="Auto from ${source}"/>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-secondary" onclick="closeModal()">Skip</button>
-        <button class="btn-primary" onclick="confirmAutoBalance(${netChange})" style="background:linear-gradient(135deg,#00c9a7,#0acf83)">✅ Update Balance</button>
-      </div>`);
-    updateAutoBalPreview(netChange);
-  }, 300);
-}
-
-function updateAutoBalPreview(netChange) {
-  const accountId   = document.getElementById('ab-account')?.value;
-  const method      = document.getElementById('ab-method')?.value || 'net';
-  const manualWrap  = document.getElementById('ab-manual-wrap');
-  const manualInput = document.getElementById('ab-manual-val');
-
-  if (manualWrap) manualWrap.style.display = method === 'manual' ? '' : 'none';
-
-  const account = (STATE.bankAccounts||[]).find(a => a.id === accountId);
-  const preview = document.getElementById('ab-preview');
-  if (!account || !preview) return;
-
-  const currentBal = account.balance || 0;
-  const manualVal  = parseFloat(manualInput?.value) || 0;
-  const newBal     = method === 'manual' ? manualVal : currentBal + netChange;
-  const delta      = newBal - currentBal;
-  const dc         = delta >= 0 ? '#10b981' : '#ef4444';
-  const ds         = delta >= 0 ? '+' : '';
-
-  preview.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-      <div>
-        <p style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Current</p>
-        <p style="font-size:18px;font-weight:800;color:#fff">${fmt(currentBal)}</p>
-      </div>
-      <div style="font-size:22px;color:var(--text3)">→</div>
-      <div>
-        <p style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">New Balance</p>
-        <p style="font-size:24px;font-weight:900;color:#00c9a7">${fmt(newBal)}</p>
-      </div>
-      <span style="font-size:13px;font-weight:700;color:${dc};padding:5px 12px;border-radius:20px;background:${delta>=0?'rgba(16,185,129,0.12)':'rgba(239,68,68,0.12)'}">${ds}${fmt(Math.abs(delta))}</span>
-    </div>`;
-}
-
-function confirmAutoBalance(netChange) {
-  const accountId = document.getElementById('ab-account')?.value;
-  const method    = document.getElementById('ab-method')?.value || 'net';
-  const date      = document.getElementById('ab-date')?.value || today();
-  const note      = document.getElementById('ab-note')?.value?.trim() || 'Auto-updated from import';
-
-  const account = (STATE.bankAccounts||[]).find(a => a.id === accountId);
-  if (!account) return;
-
-  const oldBal = account.balance || 0;
-  let newBal;
-  if (method === 'manual') {
-    const mv = parseFloat(document.getElementById('ab-manual-val')?.value);
-    if (isNaN(mv) || mv < 0) { toast('Enter a valid closing balance', 'error'); return; }
-    newBal = mv;
-  } else {
-    newBal = oldBal + netChange;
-  }
-
-  account.balance = newBal;
-  STATE.bankBalanceHistory = STATE.bankBalanceHistory || [];
-  STATE.bankBalanceHistory.push({
-    id: genId(), accountId,
-    balance: newBal, prevBalance: oldBal,
-    date, note, createdAt: new Date().toISOString()
-  });
-
-  saveState();
-  closeModal();
-  toast(`${account.bankName} → ${fmt(newBal)} updated ✅`, 'success');
-  refreshFinancePage();
-}
-
 function openAddTxModal() {
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
   const catOptions = allCats.map(c => `<option value="${c.name}" data-icon="${c.icon}">${c.icon} ${c.name}</option>`).join('');
@@ -1218,7 +1083,6 @@ function saveAllParsedSms() {
   if (expTotal > 0) summary += ` Expense: ₹${expTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
   if (incTotal > 0) summary += ` Income: ₹${incTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
   toast(summary + ' 🎉', 'success');
-  openAutoBalanceModal(toSave, 'SMS Import');
   refreshFinancePage();
 }
 
@@ -2564,7 +2428,6 @@ function saveAllCsvTx() {
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported from CSV! 🎉`, 'success');
-  openAutoBalanceModal(toSave, 'CSV Import');
   refreshFinancePage();
 }
 
@@ -2673,7 +2536,6 @@ function saveBulkEntries() {
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} saved! +${toSave.length * 10} XP 🎉`, 'success');
-  openAutoBalanceModal(toSave, 'Bulk Entry');
   refreshFinancePage();
 }
 
@@ -2895,7 +2757,6 @@ function saveAllStmtTx() {
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported! 🎉`, 'success');
-  openAutoBalanceModal(toSave, 'Statement Import');
   refreshFinancePage();
 }
 
@@ -3277,6 +3138,5 @@ function saveAllPdfTx() {
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported from PDF! 🎉`, 'success');
-  openAutoBalanceModal(toSave, 'PDF Import');
   refreshFinancePage();
 }

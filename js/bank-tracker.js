@@ -139,6 +139,7 @@ function renderBankTracker() {
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn-secondary btn-sm" onclick="navigate('finance')">← Finance</button>
+          <button class="btn-secondary btn-sm" onclick="openBalanceImport('bank')">📥 Import PDF/Excel</button>
           ${accounts.length >= 2 ? `<button class="btn-primary btn-sm" onclick="openTransferModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706)">⇄ Transfer</button>` : ''}
           <button class="btn-primary btn-sm" onclick="openQuickBalanceModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#00c9a7,#0acf83)">+ Log Balance</button>
         </div>
@@ -663,6 +664,7 @@ function renderCCTracker() {
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn-secondary btn-sm" onclick="navigate('finance')">← Finance</button>
+          <button class="btn-secondary btn-sm" onclick="openBalanceImport('card')">📥 Import PDF/Excel</button>
           ${selId ? `<button class="btn-primary btn-sm" onclick="openUpdateCCModal('${selId}')" style="background:linear-gradient(135deg,#ef4444,#b91c1c)">↑ Update Outstanding</button>` : ''}
         </div>
       </div>
@@ -865,5 +867,284 @@ function deleteCCHistoryEntry(id, date, idx) {
   STATE.creditCardHistory = history.filter(h => h !== target);
   saveState();
   toast('Entry removed', 'info');
+  renderBankTracker();
+}
+
+// ===== BALANCE / OUTSTANDING IMPORT (PDF + Excel) =====
+// Dedicated balance-snapshot import. Each row is a (date, balance) pair —
+// NOT income/expense transactions. Updates bankBalanceHistory (banks) or
+// creditCardHistory (cards) for the chosen account/card, respecting date.
+let _balImport = { mode: 'bank', targetId: null, results: [] };
+
+function openBalanceImport(mode) {
+  const isBank = mode === 'bank';
+  const items  = isBank ? (STATE.bankAccounts || []) : (STATE.creditCards || []);
+  if (!items.length) {
+    toast(isBank ? 'Add a bank account first' : 'Add a credit card first', 'error');
+    return;
+  }
+  _balImport = { mode, targetId: items[0].id, results: [] };
+
+  const opts = items.map(it =>
+    `<option value="${it.id}">${isBank ? (it.icon||'🏦') : '💳'} ${it.bankName} — ${isBank ? fmt(it.balance||0) : 'out '+fmt(it.outstanding||0)}</option>`
+  ).join('');
+
+  const targetLabel = isBank ? 'Bank Account' : 'Credit Card';
+  const valLabel    = isBank ? 'balance' : 'outstanding';
+  const accent      = isBank ? '#00c9a7' : '#ef4444';
+  const accent2     = isBank ? '#0acf83' : '#b91c1c';
+
+  openModal(`📥 Import ${isBank ? 'Balance' : 'Statement'} (PDF / Excel)`, `
+    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
+      Upload a <strong>PDF</strong> or <strong>Excel / CSV</strong> file with <strong>dates and ${valLabel} amounts</strong>.<br>
+      Each row sets the ${targetLabel.toLowerCase()}'s ${valLabel} for that date — income/expense are not mixed in.
+    </div>
+    <div class="form-group">
+      <label class="form-label">Which ${targetLabel}?</label>
+      <select id="bi-target" class="form-input" onchange="_balImport.targetId=this.value">${opts}</select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Select file (.pdf, .xlsx, .xls, .csv)</label>
+      <input type="file" id="bi-file" accept=".pdf,.xlsx,.xls,.csv,application/pdf" class="form-input"
+        onchange="handleBalanceFile(this)" style="padding:10px;cursor:pointer"/>
+    </div>
+    <div id="bi-status" style="display:none;font-size:12px;font-weight:600;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
+    <div class="modal-actions" style="margin-bottom:14px">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+    <div id="bi-results-wrap" style="display:none">
+      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
+      <p style="font-size:11px;font-weight:700;color:${accent};letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Detected entries — edit if needed</p>
+      <div id="bi-results-list" style="max-height:40vh;overflow-y:auto;padding-right:2px"></div>
+      <button class="btn-primary" onclick="saveBalanceImport()" style="width:100%;background:linear-gradient(135deg,${accent},${accent2});padding:12px;margin-top:12px">💾 Save All Entries</button>
+    </div>`);
+}
+
+function _biStatus(msg, type) {
+  const el = document.getElementById('bi-status');
+  if (!el) return;
+  el.style.display    = '';
+  el.textContent      = msg;
+  el.style.background  = type === 'ok' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)';
+  el.style.color       = type === 'ok' ? '#10b981'              : '#f59e0b';
+}
+
+async function handleBalanceFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const name = file.name.toLowerCase();
+  _biStatus('Reading file…', 'ok');
+  try {
+    let rows = [];
+    if (name.endsWith('.pdf')) {
+      rows = await _parseBalancePdf(file);
+    } else if (/\.(xlsx|xls|csv)$/.test(name)) {
+      rows = await _parseBalanceExcel(file);
+    } else {
+      _biStatus('Unsupported file type — use PDF, Excel or CSV', 'warn');
+      return;
+    }
+    if (!rows.length) {
+      _biStatus('No date + amount pairs found. Check the file has a date column and a balance/outstanding column.', 'warn');
+      return;
+    }
+    _balImport.results = rows;
+    renderBalanceImportResults();
+    _biStatus(`✅ Found ${rows.length} entr${rows.length>1?'ies':'y'}`, 'ok');
+  } catch (e) {
+    _biStatus('Could not read file: ' + (e.message || e), 'warn');
+  }
+}
+
+// ── Parsers ─────────────────────────────────────────────────────────────
+function _biNum(v) {
+  if (v === null || v === undefined || v === '') return null;
+  const n = parseFloat(String(v).replace(/[₹,\s]/g, ''));
+  return isNaN(n) ? null : n;
+}
+
+function _biNormDate(v) {
+  if (!v) return null;
+  if (v instanceof Date && !isNaN(v)) return v.toISOString().slice(0, 10);
+  const s = String(v).trim();
+  const MONTHS = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  // Indian style DD/MM/YYYY
+  m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+  if (m) { const yr = m[3].length===2?'20'+m[3]:m[3]; return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+  m = s.match(/^(\d{1,2})[\s\-]([a-zA-Z]{3,})[\s\-,]*(\d{2,4})$/);
+  if (m) { const mo = MONTHS[m[2].toLowerCase().slice(0,3)]; if (mo) { const yr=m[3].length===2?'20'+m[3]:m[3]; return `${yr}-${mo}-${m[1].padStart(2,'0')}`; } }
+  m = s.match(/^([a-zA-Z]{3,})[\s\-]+(\d{1,2}),?[\s\-]+(\d{2,4})$/);
+  if (m) { const mo = MONTHS[m[1].toLowerCase().slice(0,3)]; if (mo) { const yr=m[3].length===2?'20'+m[3]:m[3]; return `${yr}-${mo}-${m[2].padStart(2,'0')}`; } }
+  return null;
+}
+
+async function _parseBalanceExcel(file) {
+  if (typeof XLSX === 'undefined') throw new Error('Excel library not loaded yet — wait a moment and retry');
+  const buf   = await file.arrayBuffer();
+  const wb    = XLSX.read(buf, { type: 'array', cellDates: true });
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const aoa   = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+  return _extractBalancePairs(aoa);
+}
+
+function _extractBalancePairs(aoa) {
+  if (!aoa || !aoa.length) return [];
+  let headerIdx = -1, dateCol = -1, valCol = -1, noteCol = -1;
+  for (let i = 0; i < Math.min(aoa.length, 10); i++) {
+    const row = (aoa[i] || []).map(c => String(c).toLowerCase().trim());
+    const di = row.findIndex(c => c.includes('date'));
+    const vi = row.findIndex(c => /balance|outstanding|amount|closing|due/.test(c));
+    if (di >= 0 && vi >= 0) {
+      headerIdx = i; dateCol = di; valCol = vi;
+      noteCol = row.findIndex(c => /note|desc|remark|narration|particular/.test(c));
+      break;
+    }
+  }
+  const out = [];
+  if (headerIdx >= 0) {
+    for (let i = headerIdx + 1; i < aoa.length; i++) {
+      const row  = aoa[i] || [];
+      const date = _biNormDate(row[dateCol]);
+      const val  = _biNum(row[valCol]);
+      if (date && val !== null) out.push({ date, value: val, note: noteCol>=0 ? String(row[noteCol]||'').trim() : '' });
+    }
+  } else {
+    // No recognizable header — assume first column is date, first numeric column is the value
+    (aoa || []).forEach(row => {
+      if (!row || !row.length) return;
+      const date = _biNormDate(row[0]);
+      if (!date) return;
+      for (let j = 1; j < row.length; j++) {
+        const val = _biNum(row[j]);
+        if (val !== null) { out.push({ date, value: val, note: '' }); break; }
+      }
+    });
+  }
+  return out;
+}
+
+async function _parseBalancePdf(file) {
+  if (typeof pdfjsLib === 'undefined') throw new Error('PDF library not loaded yet — wait a moment and retry');
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const lines = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page    = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    const items = content.items.map(it => ({
+      str: (it.str || '').replace(/\s+/g, ' '),
+      x: it.transform ? it.transform[4] : 0,
+      y: it.transform ? it.transform[5] : 0,
+      h: it.height || 10
+    })).filter(it => it.str.trim());
+    items.sort((a, b) => (b.y - a.y) || (a.x - b.x));
+    let rows = [], cur = [], cy = null, ch = 10;
+    items.forEach(it => {
+      const tol = Math.max(2, (it.h || ch) * 0.5);
+      if (cy === null || Math.abs(cy - it.y) <= tol) {
+        cur.push(it); cy = cy === null ? it.y : (cy * cur.length + it.y) / (cur.length + 1); ch = it.h || ch;
+      } else { if (cur.length) rows.push(cur); cur = [it]; cy = it.y; ch = it.h || 10; }
+    });
+    if (cur.length) rows.push(cur);
+    rows.forEach(r => lines.push(r.sort((a, b) => a.x - b.x).map(i => i.str).join(' ').replace(/\s+/g, ' ').trim()));
+  }
+  return _extractBalanceFromLines(lines);
+}
+
+function _extractBalanceFromLines(lines) {
+  const out = [];
+  const dateRe = /(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}[\s\-][a-zA-Z]{3,}[\s\-,]*\d{2,4})/;
+  lines.forEach(line => {
+    const dm = line.match(dateRe);
+    if (!dm) return;
+    const date = _biNormDate(dm[1]);
+    if (!date) return;
+    const nums = line.match(/[\d,]+\.\d{2}/g);
+    if (!nums || !nums.length) return;
+    const val = _biNum(nums[nums.length - 1]); // rightmost figure = running balance
+    if (val === null) return;
+    const note = line.replace(dateRe, '').replace(/[\d,]+\.\d{2}/g, '').replace(/\b(cr|dr)\b/gi, '').replace(/\s+/g, ' ').trim().slice(0, 40);
+    out.push({ date, value: val, note });
+  });
+  return out;
+}
+
+// ── Preview + save ──────────────────────────────────────────────────────
+function renderBalanceImportResults() {
+  const list = document.getElementById('bi-results-list');
+  const wrap = document.getElementById('bi-results-wrap');
+  if (!list || !wrap) return;
+  list.innerHTML = _balImport.results.map((r, i) => `
+    <div id="bi-row-${i}" style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:10px;padding:10px;margin-bottom:8px;position:relative">
+      <button onclick="removeBalanceRow(${i})" title="Remove" style="position:absolute;top:6px;right:8px;background:rgba(239,68,68,0.12);border:none;color:#ef4444;border-radius:6px;cursor:pointer;padding:2px 8px;font-size:12px">✕</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-right:30px">
+        <input type="date" class="form-input" id="bi-date-${i}" value="${r.date}" style="font-size:12px;padding:4px 8px"/>
+        <input type="number" class="form-input" id="bi-val-${i}" value="${r.value}" step="0.01" min="0" style="font-size:13px;font-weight:700;padding:4px 8px"/>
+      </div>
+      <input type="text" class="form-input" id="bi-note-${i}" value="${(r.note||'').replace(/"/g,'&quot;')}" placeholder="Note (optional)" style="font-size:12px;padding:4px 8px;margin-top:6px"/>
+    </div>`).join('');
+  wrap.style.display = '';
+}
+
+function removeBalanceRow(i) {
+  const row = document.getElementById(`bi-row-${i}`);
+  if (row) row.style.display = 'none';
+}
+
+function saveBalanceImport() {
+  const isBank   = _balImport.mode === 'bank';
+  const targetId = _balImport.targetId;
+  const toSave   = [];
+  _balImport.results.forEach((r, i) => {
+    const row = document.getElementById(`bi-row-${i}`);
+    if (!row || row.style.display === 'none') return;
+    const date = document.getElementById(`bi-date-${i}`)?.value;
+    const val  = parseFloat(document.getElementById(`bi-val-${i}`)?.value);
+    const note = document.getElementById(`bi-note-${i}`)?.value?.trim() || 'Imported';
+    if (!date || isNaN(val) || val < 0) return;
+    toSave.push({ date, val, note });
+  });
+  if (!toSave.length) { toast('No valid entries to save', 'error'); return; }
+  toSave.sort((a, b) => a.date.localeCompare(b.date)); // chronological so prev chains correctly
+
+  if (isBank) {
+    const acc = (STATE.bankAccounts||[]).find(a => a.id === targetId);
+    if (!acc) { toast('Account not found', 'error'); return; }
+    STATE.bankBalanceHistory = STATE.bankBalanceHistory || [];
+    toSave.forEach(e => {
+      const prev = [...STATE.bankBalanceHistory]
+        .filter(h => h.accountId === targetId && h.date <= e.date)
+        .sort((x, y) => y.date.localeCompare(x.date))[0];
+      STATE.bankBalanceHistory.push({
+        id: genId(), accountId: targetId,
+        balance: e.val, prevBalance: prev ? prev.balance : e.val,
+        date: e.date, note: e.note, createdAt: new Date().toISOString()
+      });
+    });
+    acc.balance = toSave[toSave.length - 1].val; // latest imported date = current balance
+  } else {
+    const card = (STATE.creditCards||[]).find(c => c.id === targetId);
+    if (!card) { toast('Card not found', 'error'); return; }
+    STATE.creditCardHistory = STATE.creditCardHistory || [];
+    toSave.forEach(e => {
+      const prev = [...STATE.creditCardHistory]
+        .filter(h => h.cardId === targetId && h.date <= e.date)
+        .sort((x, y) => y.date.localeCompare(x.date))[0];
+      STATE.creditCardHistory.push({
+        id: genId(), cardId: targetId,
+        outstanding: e.val, prevOutstanding: prev ? prev.outstanding : e.val,
+        date: e.date, note: e.note, createdAt: new Date().toISOString()
+      });
+    });
+    card.outstanding = toSave[toSave.length - 1].val;
+  }
+
+  saveState();
+  closeModal();
+  toast(`${toSave.length} ${isBank ? 'balance' : 'outstanding'} entr${toSave.length>1?'ies':'y'} imported ✅`, 'success');
+  if (isBank) { bankTrackerTab = 'banks'; bankTrackerAccount = targetId; }
+  else        { bankTrackerTab = 'cards'; bankTrackerCard = targetId; }
   renderBankTracker();
 }
