@@ -2,6 +2,63 @@
 let bankTrackerAccount = null; // currently selected account id
 let bankTrackerTab     = 'banks'; // 'banks' | 'cards'
 let bankTrackerCard    = null;    // currently selected credit card id
+let trendPeriod        = '30d';   // '30d' | '1y' — shared by bank & card trend charts
+
+function setTrendPeriod(p) { trendPeriod = p; renderBankTracker(); }
+
+// Build a balance/outstanding trend series.
+//   items   : the accounts/cards to total (already filtered to selected or all)
+//   history : bankBalanceHistory or creditCardHistory
+//   idField : 'accountId' | 'cardId'
+//   valField: 'balance' | 'outstanding'
+// For each bucket the value is the CLOSING figure on that day — the most
+// recent snapshot on or before the day (carry-forward), so a month shows the
+// balance on its LAST day, not merely the last entry that was logged.
+function buildTrendSeries(period, items, history, idField, valField) {
+  const valOnDate = (id, dateStr) => {
+    const snaps = history.filter(h => h[idField] === id && h.date <= dateStr)
+                         .sort((a, b) => a.date.localeCompare(b.date));
+    return snaps.length ? snaps[snaps.length - 1][valField] : null;
+  };
+  const firstDateOf = (id) => {
+    const snaps = history.filter(h => h[idField] === id).sort((a, b) => a.date.localeCompare(b.date));
+    return snaps.length ? snaps[0].date : null;
+  };
+
+  const buckets = [];
+  if (period === '1y') {
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const m    = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const last = new Date(m.getFullYear(), m.getMonth() + 1, 0); // last calendar day of that month
+      buckets.push({ label: m.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }), date: last.toISOString().slice(0, 10) });
+    }
+  } else {
+    for (let i = 29; i >= 0; i--) {
+      const d  = new Date(); d.setDate(d.getDate() - i);
+      const ds = d.toISOString().slice(0, 10);
+      buckets.push({ label: new Date(ds).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }), date: ds });
+    }
+  }
+
+  const labels = buckets.map(b => b.label);
+  const data = buckets.map(b => {
+    let total = 0, has = false;
+    items.forEach(it => {
+      const first = firstDateOf(it.id);
+      if (!first || b.date < first) return;
+      const v = valOnDate(it.id, b.date);
+      if (v !== null) { total += v; has = true; }
+    });
+    return has ? total : null;
+  });
+  return { labels, data };
+}
+
+function _trendToggleHtml(accent) {
+  const mk = (p, txt) => `<button onclick="setTrendPeriod('${p}')" style="padding:4px 12px;border-radius:14px;border:1px solid ${trendPeriod===p?accent:'rgba(255,255,255,0.12)'};background:${trendPeriod===p?accent+'22':'transparent'};color:${trendPeriod===p?accent:'var(--text3)'};font-size:11px;font-weight:700;cursor:pointer;transition:.15s">${txt}</button>`;
+  return `<div style="display:flex;gap:6px">${mk('30d','30 Days')}${mk('1y','1 Year')}</div>`;
+}
 
 function formatRelativeDate(dateStr) {
   const now = new Date(); now.setHours(0,0,0,0);
@@ -28,35 +85,10 @@ function renderBankTracker() {
   const getAccountById = id => accounts.find(a => a.id === id);
   const selId = bankTrackerAccount;
 
-  // ── 30-day chart data ──────────────────────────────────────────────
-  const last30days = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    last30days.push(d.toISOString().slice(0, 10));
-  }
+  // ── Trend chart data (30 days or 1 year, closing balance per bucket) ──
   const chartAccounts = selId ? accounts.filter(a => a.id === selId) : accounts;
-
-  function getBalanceOnDate(accountId, dateStr) {
-    const snaps = history
-      .filter(h => h.accountId === accountId && h.date <= dateStr)
-      .sort((a, b) => a.date.localeCompare(b.date));
-    return snaps.length ? snaps[snaps.length - 1].balance : null;
-  }
-  function getFirstSnapDate(accountId) {
-    const snaps = history.filter(h => h.accountId === accountId).sort((a,b)=>a.date.localeCompare(b.date));
-    return snaps.length ? snaps[0].date : null;
-  }
-  const chartLabels = last30days.map(d => new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short'}));
-  const chartData   = last30days.map(d => {
-    let total = 0, hasData = false;
-    chartAccounts.forEach(a => {
-      const firstDate = getFirstSnapDate(a.id);
-      if (!firstDate || d < firstDate) return;
-      const bal = getBalanceOnDate(a.id, d);
-      if (bal !== null) { total += bal; hasData = true; }
-    });
-    return hasData ? total : null;
-  });
+  const { labels: chartLabels, data: chartData } =
+    buildTrendSeries(trendPeriod, chartAccounts, history, 'accountId', 'balance');
 
   // ── Chat history grouped by date ───────────────────────────────────
   const filteredHistory = [...history]
@@ -195,9 +227,12 @@ function renderBankTracker() {
 
         <!-- Trend Chart -->
         <div class="glass-card" style="padding:20px">
-          <p class="section-title" style="font-size:13px;margin-bottom:12px">📈 30-Day Trend
-            <span style="font-size:10px;font-weight:500;color:var(--text3);margin-left:6px">${selId?(getAccountById(selId)?.bankName||'Account'):'All Accounts'}</span>
-          </p>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <p class="section-title" style="font-size:13px;margin:0">📈 ${trendPeriod==='1y'?'1-Year':'30-Day'} Trend
+              <span style="font-size:10px;font-weight:500;color:var(--text3);margin-left:6px">${selId?(getAccountById(selId)?.bankName||'Account'):'All Accounts'}</span>
+            </p>
+            ${_trendToggleHtml('#00c9a7')}
+          </div>
           ${!history.filter(h=>!selId||h.accountId===selId).length
             ? `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:160px;gap:8px"><div style="font-size:32px">📊</div><p style="color:var(--text3);font-size:12px;text-align:center">Log a balance to see the trend</p></div>`
             : `<div style="height:180px;position:relative"><canvas id="bank-trend-chart"></canvas></div>`}
@@ -563,30 +598,10 @@ function renderCCTracker() {
   const overallUtil      = totalLimit > 0 ? Math.round((totalOutstanding/totalLimit)*100) : 0;
   const utilColor        = overallUtil > 80 ? '#ef4444' : overallUtil > 50 ? '#f59e0b' : '#10b981';
 
-  // ── 30-day chart data for selected card ──
-  const last30days = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    last30days.push(d.toISOString().slice(0, 10));
-  }
-  function getOutstandingOnDate(cardId, dateStr) {
-    const snaps = history
-      .filter(h => h.cardId === cardId && h.date <= dateStr)
-      .sort((a, b) => a.date.localeCompare(b.date));
-    return snaps.length ? snaps[snaps.length-1].outstanding : null;
-  }
+  // ── Trend chart data (30 days or 1 year, closing outstanding per bucket) ──
   const chartCards = selId ? cards.filter(c=>c.id===selId) : cards;
-  const chartLabels = last30days.map(d => new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short'}));
-  const chartData   = last30days.map(d => {
-    let total = 0, hasData = false;
-    chartCards.forEach(c => {
-      const firstSnap = history.filter(h=>h.cardId===c.id).sort((a,b)=>a.date.localeCompare(b.date))[0];
-      if (!firstSnap || d < firstSnap.date) return;
-      const val = getOutstandingOnDate(c.id, d);
-      if (val !== null) { total += val; hasData = true; }
-    });
-    return hasData ? total : null;
-  });
+  const { labels: chartLabels, data: chartData } =
+    buildTrendSeries(trendPeriod, chartCards, history, 'cardId', 'outstanding');
 
   // ── Chat history ──
   const filteredHistory = [...history]
@@ -724,9 +739,12 @@ function renderCCTracker() {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px" id="cc-main-grid">
         <!-- Trend Chart -->
         <div class="glass-card" style="padding:20px">
-          <p class="section-title" style="font-size:13px;margin-bottom:12px">📈 30-Day Outstanding Trend
-            <span style="font-size:10px;font-weight:500;color:var(--text3);margin-left:6px">${selId?(getCardById(selId)?.bankName||'Card'):'All Cards'}</span>
-          </p>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <p class="section-title" style="font-size:13px;margin:0">📈 ${trendPeriod==='1y'?'1-Year':'30-Day'} Outstanding
+              <span style="font-size:10px;font-weight:500;color:var(--text3);margin-left:6px">${selId?(getCardById(selId)?.bankName||'Card'):'All Cards'}</span>
+            </p>
+            ${_trendToggleHtml('#ef4444')}
+          </div>
           ${!history.filter(h=>!selId||h.cardId===selId).length
             ? `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:160px;gap:8px"><div style="font-size:32px">📊</div><p style="color:var(--text3);font-size:12px;text-align:center">Log outstanding to see the trend</p></div>`
             : `<div style="height:180px;position:relative"><canvas id="cc-trend-chart"></canvas></div>`}
