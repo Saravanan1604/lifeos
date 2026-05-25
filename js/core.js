@@ -285,6 +285,46 @@ async function handleRegister() {
   }
 }
 
+async function handleGoogleSignIn(response) {
+  const localState = DB.load();
+  try {
+    const res = await fetch(`${API_URL}/google-auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Google sign-in failed');
+
+    localStorage.setItem('lifeos_token', data.token);
+
+    if (data.state && Object.keys(data.state).length > 0) {
+      const cloud = { ...DB.defaults(), ...data.state };
+      const KEYS = [
+        'investments', 'loans', 'transactions', 'bankAccounts',
+        'bankBalanceHistory', 'bankTransfers', 'goals', 'habits',
+        'habitCompletions', 'healthEntries', 'tasks', 'budgets',
+        'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
+        'customAssetTypes', 'customLoanTypes'
+      ];
+      STATE = cloud;
+      KEYS.forEach(k => { STATE[k] = mergeById(localState[k], cloud[k]); });
+      if (localState.settings) STATE.settings = { ...cloud.settings, ...localState.settings };
+    } else {
+      STATE = { ...localState, user: data.user || localState.user };
+    }
+
+    if (data.user) STATE.user = data.user;
+    DB.save(STATE);
+
+    toast('✅ Signed in with Google!', 'success');
+    showApp();
+    renderCalcBody();
+  } catch (err) {
+    toast('❌ ' + err.message, 'error');
+  }
+}
+
 function handleLogout() {
   localStorage.removeItem('lifeos_token');
   // Clear only auth — keep all data so it survives logout/login cycles
