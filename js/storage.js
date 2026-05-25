@@ -40,7 +40,7 @@ const DB = {
 };
 
 let STATE = DB.load();
-const API_URL = 'https://lifeos-backend-r42c.onrender.com/api';
+const API_URL = 'https://lifeos-backend-mangodb.onrender.com/api';
 
 const stateHistory = []; // Keeps last 5 states for undo
 
