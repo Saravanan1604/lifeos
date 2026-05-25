@@ -151,7 +151,7 @@ function renderFinance() {
               const utilColor = pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
               return `
             <div style="padding:18px;border-radius:16px;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});position:relative;overflow:hidden">
-              <div style="position:absolute;top:-25px;right:-25px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.07)"></div>
+              <div style="position:absolute;top:-25px;right:-25px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none"></div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div>
                   <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${c.network||'VISA'}</div>
