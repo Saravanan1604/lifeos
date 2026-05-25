@@ -293,7 +293,10 @@ async function handleGoogleSignIn(response) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ credential: response.credential })
     });
-    const data = await res.json();
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch { throw new Error('Server is starting up — please try again in 30 seconds.'); }
     if (!res.ok) throw new Error(data.error || 'Google sign-in failed');
 
     localStorage.setItem('lifeos_token', data.token);
