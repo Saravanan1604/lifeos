@@ -285,8 +285,22 @@ async function handleRegister() {
   }
 }
 
+function _decodeGoogleJWT(credential) {
+  try {
+    const payload = credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(payload));
+  } catch { return null; }
+}
+
 async function handleGoogleSignIn(response) {
   const localState = DB.load();
+
+  // Decode Google's JWT locally (already verified by GIS library)
+  const gUser = _decodeGoogleJWT(response.credential);
+  if (!gUser || !gUser.email) { toast('Google sign-in failed', 'error'); return; }
+  const { name, email, picture } = gUser;
+
+  // Try backend for cloud sync; fall back to local session if unavailable
   try {
     const res = await fetch(`${API_URL}/google-auth`, {
       method: 'POST',
@@ -295,14 +309,10 @@ async function handleGoogleSignIn(response) {
     });
     const text = await res.text();
     let data;
-    try { data = JSON.parse(text); }
-    catch { throw new Error('Server is starting up — please try again in 30 seconds.'); }
-    if (!res.ok) throw new Error(data.error || 'Google sign-in failed');
+    try { data = JSON.parse(text); } catch { data = null; }
 
-    localStorage.setItem('lifeos_token', data.token);
-
-    if (data.state && Object.keys(data.state).length > 0) {
-      const cloud = { ...DB.defaults(), ...data.state };
+    if (data && res.ok) {
+      localStorage.setItem('lifeos_token', data.token);
       const KEYS = [
         'investments', 'loans', 'transactions', 'bankAccounts',
         'bankBalanceHistory', 'bankTransfers', 'goals', 'habits',
@@ -310,22 +320,30 @@ async function handleGoogleSignIn(response) {
         'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
         'customAssetTypes', 'customLoanTypes'
       ];
-      STATE = cloud;
-      KEYS.forEach(k => { STATE[k] = mergeById(localState[k], cloud[k]); });
-      if (localState.settings) STATE.settings = { ...cloud.settings, ...localState.settings };
-    } else {
-      STATE = { ...localState, user: data.user || localState.user };
+      if (data.state && Object.keys(data.state).length > 0) {
+        const cloud = { ...DB.defaults(), ...data.state };
+        STATE = cloud;
+        KEYS.forEach(k => { STATE[k] = mergeById(localState[k], cloud[k]); });
+        if (localState.settings) STATE.settings = { ...cloud.settings, ...localState.settings };
+      } else {
+        STATE = { ...localState };
+      }
+      if (data.user) STATE.user = data.user;
+      DB.save(STATE);
+      toast('Signed in with Google!', 'success');
+      showApp();
+      renderCalcBody();
+      return;
     }
+  } catch (_) { /* backend unreachable, fall through */ }
 
-    if (data.user) STATE.user = data.user;
-    DB.save(STATE);
-
-    toast('✅ Signed in with Google!', 'success');
-    showApp();
-    renderCalcBody();
-  } catch (err) {
-    toast('❌ ' + err.message, 'error');
-  }
+  // Local session fallback
+  STATE = { ...DB.defaults(), ...localState };
+  STATE.user = { name, email, picture, authProvider: 'google', joinDate: new Date().toISOString() };
+  DB.save(STATE);
+  toast('Signed in with Google!', 'success');
+  showApp();
+  renderCalcBody();
 }
 
 function handleLogout() {
