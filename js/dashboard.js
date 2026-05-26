@@ -617,6 +617,8 @@ function renderDashboard() {
   const doneToday = comps.filter(c => c.date === today()).length;
   const scoreBarColor = s => s >= 70 ? '#10b981' : s >= 40 ? '#f59e0b' : '#ef4444';
 
+  const _isNewUser = txnsAll.length === 0 && !_banks.length && !_cash.length && !_cards.length;
+
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <!-- Header -->
@@ -656,6 +658,36 @@ function renderDashboard() {
       </div>
 
       ${_buildInsightBar()}
+
+      <!-- ── New User Welcome ─────────────────────────────────────── -->
+      ${_isNewUser ? `
+      <div class="glass-card" style="padding:24px;margin-bottom:20px;border:1px solid rgba(0,201,167,0.25);background:linear-gradient(135deg,rgba(0,201,167,0.07),rgba(99,102,241,0.07))">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+          <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#00c9a7,#6366f1);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">⚡</div>
+          <div>
+            <p style="font-size:18px;font-weight:900;color:var(--text1);margin-bottom:2px">Welcome to LifeOS! 👋</p>
+            <p style="font-size:12px;color:var(--text3)">Set up your finances in minutes — tap a card below to get started.</p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px" class="welcome-grid">
+          ${[
+            {icon:'💰', title:'Add Income',    sub:'Log your first income',     page:'finance',      c:'#10b981', bg:'rgba(16,185,129,0.1)',  bc:'rgba(16,185,129,0.25)'},
+            {icon:'💸', title:'Add Expense',   sub:'Track your spending',       page:'finance',      c:'#ef4444', bg:'rgba(239,68,68,0.1)',   bc:'rgba(239,68,68,0.25)'},
+            {icon:'🏦', title:'Link Bank',     sub:'Add a bank account',        page:'bank-tracker', c:'#3b82f6', bg:'rgba(59,130,246,0.1)',  bc:'rgba(59,130,246,0.25)'},
+            {icon:'🎯', title:'Set Budget',    sub:'Plan your monthly spend',   page:'budget',       c:'#f59e0b', bg:'rgba(245,158,11,0.1)',  bc:'rgba(245,158,11,0.25)'},
+            {icon:'📈', title:'Add Asset',     sub:'Track investments & wealth',page:'investments',  c:'#8b5cf6', bg:'rgba(139,92,246,0.1)',  bc:'rgba(139,92,246,0.25)'},
+            {icon:'✅', title:'Add Habit',     sub:'Build daily routines',      page:'habits',       c:'#00c9a7', bg:'rgba(0,201,167,0.1)',   bc:'rgba(0,201,167,0.25)'},
+          ].map(a=>`
+            <div onclick="navigate('${a.page}')" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:${a.bg};border:1px solid ${a.bc};cursor:pointer;transition:.2s"
+              onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+              <span style="font-size:22px">${a.icon}</span>
+              <div>
+                <p style="font-size:13px;font-weight:700;color:${a.c}">${a.title}</p>
+                <p style="font-size:10px;color:var(--text3)">${a.sub}</p>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>` : ''}
 
       <!-- Hero Card — teal gradient -->
       <div class="hero-card" style="margin-bottom:20px;cursor:pointer;background:linear-gradient(135deg,#00b09b 0%,#0acf83 50%,#00c9a7 100%)" onclick="navigate('finance')">
@@ -840,6 +872,8 @@ function renderDashboard() {
       if (fog) fog.style.gridTemplateColumns = '1fr';
       const lsg = document.querySelector('.life-score-grid');
       if (lsg) lsg.style.gridTemplateColumns = '1fr';
+      const wg = document.querySelector('.welcome-grid');
+      if (wg) wg.style.gridTemplateColumns = '1fr';
     }
   }, 50);
 }
@@ -860,8 +894,15 @@ function renderDashCombinedChart(txns) {
     else monthMap[key].expense += t.amount;
   });
 
+  // Always show last 6 months as x-axis baseline even with no data
+  const now2 = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d2 = new Date(now2.getFullYear(), now2.getMonth() - i, 1);
+    const k2 = `${d2.getFullYear()}-${String(d2.getMonth()+1).padStart(2,'0')}`;
+    const lbl2 = d2.toLocaleString('default', { month: 'short', year: '2-digit' });
+    if (!monthMap[k2]) monthMap[k2] = { label: lbl2, income: 0, expense: 0 };
+  }
   const entries = Object.entries(monthMap).sort(([a],[b]) => a.localeCompare(b)).slice(-12);
-  if (!entries.length) entries.push(['now', { label: 'Now', income: 0, expense: 0 }]);
 
   const labels  = entries.map(([,v]) => v.label);
   const incData = entries.map(([,v]) => Math.round(v.income));
@@ -984,7 +1025,13 @@ function renderDashPieChart(txns) {
   });
   const topCats = Object.entries(catMap).sort(([,a],[,b]) => b - a).slice(0, 6);
   if (!topCats.length) {
-    el.innerHTML = '<p style="font-size:11px;color:#64748b;text-align:center;padding:30px 0">No expense data yet</p>';
+    el.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 10px;text-align:center">
+        <div style="width:64px;height:64px;border-radius:50%;border:3px dashed rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px">📊</div>
+        <p style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px">No spending yet</p>
+        <p style="font-size:11px;color:var(--text3);margin-bottom:14px">Add expenses to see your category breakdown</p>
+        <button onclick="navigate('finance')" style="padding:7px 16px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);color:#6366f1;font-size:11px;font-weight:700;cursor:pointer">+ Add Expense</button>
+      </div>`;
     return;
   }
 
