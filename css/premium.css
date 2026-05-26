@@ -371,6 +371,21 @@ body.light [style*="color:rgba(255,255,255"] {
   color: var(--text3) !important;
 }
 
+/* Dark account cards (bank / credit / cash) — restore white text on dark gradients.
+   These rules have higher specificity so they win over the broad override above. */
+body.light .fin-dark-card        { color: #fff !important; }
+body.light .fin-dark-card *      { color: rgba(255,255,255,0.9) !important; }
+body.light .fin-dark-card [style*="color:#fff"]           { color: #fff !important; }
+body.light .fin-dark-card [style*="color:rgba(255,255,255"] { color: rgba(255,255,255,0.65) !important; }
+body.light .fin-dark-card [style*="color:#fca5a5"]        { color: #fca5a5 !important; }
+body.light .fin-dark-card [style*="color:#00ffd5"]        { color: #00ffd5 !important; }
+body.light .fin-dark-card [style*="color:#ef4444"],
+body.light .fin-dark-card [style*="color:#fca5a5"]        { color: #fca5a5 !important; }
+/* Keep button backgrounds visible on dark cards */
+body.light .fin-dark-card [style*="background:rgba(255,255,255"] {
+  background: rgba(255,255,255,0.18) !important;
+}
+
 /* Fix light transparent backgrounds */
 body.light [style*="background:rgba(255,255,255,0.0"],
 body.light [style*="background: rgba(255,255,255,0.0"] {
