@@ -367,8 +367,10 @@ body.light .glass-card {
 /* Fix whitish text colors used in inline styles — use text2 (70%) not text3 for readability */
 body.light [style*="color:rgba(241,245,249"],
 body.light [style*="color: rgba(241,245,249"],
-body.light [style*="color:rgba(255,255,255"] {
-  color: var(--text2) !important;
+body.light [style*="color:rgba(255,255,255"],
+body.light [style*="color:#fff"],
+body.light [style*="color: #fff"] {
+  color: var(--text) !important;
 }
 
 /* Dark account cards (bank / credit / cash) — restore white text on dark gradients.

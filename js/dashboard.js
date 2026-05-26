@@ -976,6 +976,7 @@ function renderDashCombinedChart(txns) {
 function renderDashPieChart(txns) {
   const el = document.getElementById('dash-pie-chart');
   if (!el) return;
+  const isLight = document.body.classList.contains('light');
 
   const catMap = {};
   txns.filter(t => t.type === 'expense').forEach(t => {
@@ -999,7 +1000,7 @@ function renderDashPieChart(txns) {
       <canvas id="dash-spending-donut"></canvas>
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
         <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#64748b">TOTAL</span>
-        <span style="font-size:15px;font-weight:900;color:#f1f5f9;margin-top:2px">${totalFmt}</span>
+        <span style="font-size:15px;font-weight:900;color:${isLight?'#1a1f2e':'#f1f5f9'};margin-top:2px">${totalFmt}</span>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:5px">
@@ -1029,7 +1030,7 @@ function renderDashPieChart(txns) {
         datasets: [{
           data: topCats.map(([,v]) => v),
           backgroundColor: COLORS.slice(0, topCats.length),
-          borderColor: 'rgba(10,10,30,0.6)',
+          borderColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(10,10,30,0.6)',
           borderWidth: 3,
           hoverOffset: 6
         }]
@@ -1041,11 +1042,11 @@ function renderDashPieChart(txns) {
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: 'rgba(10,14,30,0.95)',
-            titleColor: '#94a3b8',
-            bodyColor: '#e2e8f0',
+            backgroundColor: isLight ? 'rgba(255,255,255,0.97)' : 'rgba(10,14,30,0.95)',
+            titleColor: isLight ? '#475569' : '#94a3b8',
+            bodyColor: isLight ? '#1a1f2e' : '#e2e8f0',
             padding: 10,
-            borderColor: 'rgba(255,255,255,0.1)',
+            borderColor: isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.1)',
             borderWidth: 1,
             cornerRadius: 8,
             callbacks: {

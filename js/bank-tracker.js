@@ -116,6 +116,7 @@ function renderBankTracker() {
   const accounts  = STATE.bankAccounts || [];
   const history   = STATE.bankBalanceHistory || [];
   const transfers = STATE.bankTransfers || [];
+  const isLight   = document.body.classList.contains('light');
 
   const totalBalance = accounts.reduce((s, a) => s + (a.balance || 0), 0);
   const getAccountById = id => accounts.find(a => a.id === id);
@@ -153,9 +154,9 @@ function renderBankTracker() {
       // Date separator
       chatHTML += `
         <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
-          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
-          <span style="font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap;padding:4px 12px;background:rgba(255,255,255,0.05);border-radius:20px">${formatRelativeDate(date)} &nbsp;·&nbsp; ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span>
-          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
+          <div style="flex:1;height:1px;background:${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}"></div>
+          <span style="font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap;padding:4px 12px;background:${isLight?'rgba(0,0,0,0.05)':'rgba(255,255,255,0.05)'};border-radius:20px">${formatRelativeDate(date)} &nbsp;·&nbsp; ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span>
+          <div style="flex:1;height:1px;background:${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}"></div>
         </div>`;
 
       grouped[date].forEach((h, idx) => {
@@ -168,8 +169,8 @@ function renderBankTracker() {
         const isIn   = (h.note||'').includes('Transfer in ←');
         const isOut  = (h.note||'').includes('Transfer out →');
         const isTx   = isIn || isOut;
-        const bubbleBg     = isTx ? 'rgba(245,158,11,0.1)'  : 'rgba(0,201,167,0.08)';
-        const bubbleBorder = isTx ? 'rgba(245,158,11,0.3)'  : 'rgba(0,201,167,0.25)';
+        const bubbleBg     = isTx ? (isLight ? 'rgba(245,158,11,0.18)' : 'rgba(245,158,11,0.1)')  : (isLight ? 'rgba(0,201,167,0.14)' : 'rgba(0,201,167,0.08)');
+        const bubbleBorder = isTx ? (isLight ? 'rgba(245,158,11,0.5)'  : 'rgba(245,158,11,0.3)')  : (isLight ? 'rgba(0,201,167,0.45)' : 'rgba(0,201,167,0.25)');
         const entryId = h.id || `${date}-${idx}`;
 
         chatHTML += `
@@ -178,13 +179,13 @@ function renderBankTracker() {
             <div style="max-width:78%">
               <div style="font-size:10px;color:var(--text3);margin-bottom:3px;font-weight:600;padding-left:2px">${!selId?(acc?.bankName||'Bank')+' · ':''}${isTx?(isIn?'💸 Transfer In':'💸 Transfer Out'):'💰 Balance Update'}</div>
               <div style="background:${bubbleBg};border:1px solid ${bubbleBorder};border-radius:4px 16px 16px 16px;padding:12px 16px">
-                <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-0.5px">${fmt(h.balance)}</div>
+                <div style="font-size:24px;font-weight:900;color:${isLight?'#065f46':'#fff'};letter-spacing:-0.5px">${fmt(h.balance)}</div>
                 ${delta !== null ? `
                   <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap">
                     <span style="font-size:12px;font-weight:700;color:${dc}">${di} ${same?'No change':(up?'+':'')+fmt(Math.abs(delta))}</span>
                     ${h.prevBalance !== undefined ? `<span style="font-size:10px;color:var(--text3)">from ${fmt(h.prevBalance)}</span>` : ''}
                   </div>` : ''}
-                ${h.note && h.note !== 'Manual update' ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.07)">${h.note}</div>` : ''}
+                ${h.note && h.note !== 'Manual update' ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:7px;border-top:1px solid ${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}">${h.note}</div>` : ''}
                 <div style="display:flex;justify-content:flex-end;margin-top:6px">
                   <button onclick="deleteBankHistoryEntry('${entryId}','${date}',${idx})" style="background:none;border:none;color:rgba(239,68,68,0.35);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;transition:.2s" onmouseover="this.style.color='#ef4444';this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.color='rgba(239,68,68,0.35)';this.style.background='none'">✕ delete</button>
                 </div>
@@ -628,6 +629,7 @@ function renderCCTracker() {
   const cards   = STATE.creditCards || [];
   const history = STATE.creditCardHistory || [];
   const selId   = bankTrackerCard;
+  const isLight = document.body.classList.contains('light');
   const getCardById = id => cards.find(c => c.id === id);
 
   const totalOutstanding = cards.reduce((s,c)=>s+(c.outstanding||0),0);
@@ -664,9 +666,9 @@ function renderCCTracker() {
     sortedDates.forEach(date => {
       chatHTML += `
         <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
-          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
-          <span style="font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap;padding:4px 12px;background:rgba(255,255,255,0.05);border-radius:20px">${formatRelativeDate(date)} &nbsp;·&nbsp; ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span>
-          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
+          <div style="flex:1;height:1px;background:${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}"></div>
+          <span style="font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap;padding:4px 12px;background:${isLight?'rgba(0,0,0,0.05)':'rgba(255,255,255,0.05)'};border-radius:20px">${formatRelativeDate(date)} &nbsp;·&nbsp; ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span>
+          <div style="flex:1;height:1px;background:${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}"></div>
         </div>`;
       grouped[date].forEach((h, idx) => {
         const card  = getCardById(h.cardId);
@@ -682,8 +684,8 @@ function renderCCTracker() {
             <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${card?`linear-gradient(135deg,${card.color||'#1e293b'},${card.color2||'#0f172a'})`:'rgba(239,68,68,0.2)'};font-size:17px;flex-shrink:0">💳</div>
             <div style="max-width:78%">
               <div style="font-size:10px;color:var(--text3);margin-bottom:3px;font-weight:600;padding-left:2px">${!selId?(card?.bankName||'Card')+' · ':''}💳 Outstanding Update</div>
-              <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:4px 16px 16px 16px;padding:12px 16px">
-                <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-0.5px">${fmt(h.outstanding)}</div>
+              <div style="background:${isLight?'rgba(239,68,68,0.12)':'rgba(239,68,68,0.08)'};border:1px solid ${isLight?'rgba(239,68,68,0.4)':'rgba(239,68,68,0.25)'};border-radius:4px 16px 16px 16px;padding:12px 16px">
+                <div style="font-size:24px;font-weight:900;color:${isLight?'#b91c1c':'#fff'};letter-spacing:-0.5px">${fmt(h.outstanding)}</div>
                 ${delta !== null ? `
                   <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap">
                     <span style="font-size:12px;font-weight:700;color:${dc}">${di}: ${same?'No change':(up?'+':'')+fmt(Math.abs(delta))}</span>
@@ -691,10 +693,10 @@ function renderCCTracker() {
                   </div>` : ''}
                 ${card ? `
                   <div style="margin-top:8px">
-                    <div style="height:4px;border-radius:4px;background:rgba(255,255,255,0.1)"><div style="height:4px;border-radius:4px;width:${pct}%;background:${uc}"></div></div>
+                    <div style="height:4px;border-radius:4px;background:${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.1)'}"><div style="height:4px;border-radius:4px;width:${pct}%;background:${uc}"></div></div>
                     <span style="font-size:10px;color:var(--text3);margin-top:3px;display:block">${pct}% of ${fmt(card.limit||0)} limit</span>
                   </div>` : ''}
-                ${h.note && h.note !== 'Balance update' ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.07)">${h.note}</div>` : ''}
+                ${h.note && h.note !== 'Balance update' ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:7px;border-top:1px solid ${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}">${h.note}</div>` : ''}
                 <div style="display:flex;justify-content:flex-end;margin-top:6px">
                   <button onclick="deleteCCHistoryEntry('${h.id||''}','${date}',${idx})" style="background:none;border:none;color:rgba(239,68,68,0.35);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;transition:.2s" onmouseover="this.style.color='#ef4444';this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.color='rgba(239,68,68,0.35)';this.style.background='none'">✕ delete</button>
                 </div>
@@ -932,6 +934,7 @@ function renderCashTracker() {
   const accounts = STATE.cashAccounts || [];
   const history  = STATE.cashBalanceHistory || [];
   const selId    = bankTrackerCash;
+  const isLight  = document.body.classList.contains('light');
   const getById  = id => accounts.find(a => a.id === id);
 
   const totalBalance = accounts.reduce((s, a) => s + (a.balance || 0), 0);
@@ -964,9 +967,9 @@ function renderCashTracker() {
     sortedDates.forEach(date => {
       chatHTML += `
         <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
-          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
-          <span style="font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap;padding:4px 12px;background:rgba(255,255,255,0.05);border-radius:20px">${formatRelativeDate(date)} &nbsp;·&nbsp; ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span>
-          <div style="flex:1;height:1px;background:rgba(255,255,255,0.07)"></div>
+          <div style="flex:1;height:1px;background:${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}"></div>
+          <span style="font-size:11px;font-weight:700;color:var(--text3);white-space:nowrap;padding:4px 12px;background:${isLight?'rgba(0,0,0,0.05)':'rgba(255,255,255,0.05)'};border-radius:20px">${formatRelativeDate(date)} &nbsp;·&nbsp; ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span>
+          <div style="flex:1;height:1px;background:${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}"></div>
         </div>`;
       grouped[date].forEach((h, idx) => {
         const acc   = getById(h.accountId);
@@ -981,14 +984,14 @@ function renderCashTracker() {
             <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#78350f,#92400e);font-size:17px;flex-shrink:0">💵</div>
             <div style="max-width:78%">
               <div style="font-size:10px;color:var(--text3);margin-bottom:3px;font-weight:600;padding-left:2px">${!selId?(acc?.name||'Cash')+' · ':''}💵 Cash Balance Update</div>
-              <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:4px 16px 16px 16px;padding:12px 16px">
-                <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-0.5px">${fmt(h.balance)}</div>
+              <div style="background:${isLight?'rgba(245,158,11,0.15)':'rgba(245,158,11,0.08)'};border:1px solid ${isLight?'rgba(245,158,11,0.45)':'rgba(245,158,11,0.25)'};border-radius:4px 16px 16px 16px;padding:12px 16px">
+                <div style="font-size:24px;font-weight:900;color:${isLight?'#92400e':'#fff'};letter-spacing:-0.5px">${fmt(h.balance)}</div>
                 ${delta !== null ? `
                   <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap">
                     <span style="font-size:12px;font-weight:700;color:${dc}">${di} ${same?'No change':(up?'+':'')+fmt(Math.abs(delta))}</span>
                     ${h.prevBalance !== undefined ? `<span style="font-size:10px;color:var(--text3)">from ${fmt(h.prevBalance)}</span>` : ''}
                   </div>` : ''}
-                ${h.note && h.note !== 'Manual update' && h.note !== 'Wallet created' ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.07)">${h.note}</div>` : ''}
+                ${h.note && h.note !== 'Manual update' && h.note !== 'Wallet created' ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:7px;border-top:1px solid ${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}">${h.note}</div>` : ''}
                 <div style="display:flex;justify-content:flex-end;margin-top:6px">
                   <button onclick="deleteCashHistoryEntry('${entryId}','${date}',${idx})" style="background:none;border:none;color:rgba(239,68,68,0.35);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;transition:.2s" onmouseover="this.style.color='#ef4444';this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.color='rgba(239,68,68,0.35)';this.style.background='none'">✕ delete</button>
                 </div>
