@@ -447,6 +447,7 @@ function _renderPage(page) {
     case 'analytics': renderAnalytics(); break;
     case 'categories': renderCategories(); break;
     case 'settings': renderSettings(); break;
+    case 'help': renderHelp(); break;
     default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
   }
 }
