@@ -563,6 +563,11 @@ function renderDashBudgetChart() {
   monthExp.forEach(t => { const k=(t.category||'').toLowerCase().trim(); spentByCat[k]=(spentByCat[k]||0)+t.amount; });
   const limits = budgets.map(b => b.amount!=null?b.amount:(b.limit||0));
   const spents = budgets.map(b => spentByCat[(b.category||'').toLowerCase().trim()]||0);
+  const isLight = document.body.classList.contains('light');
+  const labelC  = isLight ? '#374151' : '#cbd5e1';
+  const xTickC  = isLight ? '#6b7280' : '#64748b';
+  const gridC   = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+  const limitBg = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.14)';
   chartInstances['dash-budget'] = new Chart(canvas, {
     type: 'bar',
     data: {
@@ -571,18 +576,18 @@ function renderDashBudgetChart() {
         { label:'Spent', data:spents, borderRadius:5, barPercentage:0.8, categoryPercentage:0.7,
           backgroundColor: spents.map((s,i)=> s>limits[i]?'#ef4444' : s>limits[i]*0.8?'#f59e0b':'#10b981') },
         { label:'Limit', data:limits, borderRadius:5, barPercentage:0.8, categoryPercentage:0.7,
-          backgroundColor:'rgba(255,255,255,0.14)' }
+          backgroundColor: limitBg }
       ]
     },
     options: {
       indexAxis: 'y', responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { display:true, position:'top', labels:{ color:'#94a3b8', font:{size:10}, boxWidth:10, padding:8 } },
+        legend: { display:true, position:'top', labels:{ color: labelC, font:{size:10}, boxWidth:10, padding:8 } },
         tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ₹${ctx.parsed.x.toLocaleString('en-IN',{maximumFractionDigits:0})}` } }
       },
       scales: {
-        x: { ticks:{ color:'#64748b', font:{size:10}, callback:v=>'₹'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v) }, grid:{ color:'rgba(255,255,255,0.05)' } },
-        y: { ticks:{ color:'#cbd5e1', font:{size:11,weight:'600'} }, grid:{ display:false } }
+        x: { ticks:{ color: xTickC, font:{size:10}, callback:v=>'₹'+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v) }, grid:{ color: gridC } },
+        y: { ticks:{ color: labelC, font:{size:11,weight:'600'} }, grid:{ display:false } }
       }
     }
   });
@@ -867,7 +872,7 @@ function renderDashCombinedChart(txns) {
 
   const isLight = document.body.classList.contains('light');
   const gridC  = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
-  const tickC  = '#64748b';
+  const tickC  = isLight ? '#374151' : '#64748b';
   const fmtY   = v => `₹${Math.abs(v)>=100000?(v/100000).toFixed(1)+'L':Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v}`;
 
   if (chartInstances['dash-combined']) { chartInstances['dash-combined'].destroy(); delete chartInstances['dash-combined']; }
@@ -933,13 +938,14 @@ function renderDashCombinedChart(txns) {
       plugins: {
         legend: {
           labels: {
-            color: '#94a3b8', font: { family: 'Inter', size: 11 },
+            color: isLight ? '#374151' : '#94a3b8', font: { family: 'Inter', size: 11 },
             padding: 16, usePointStyle: true, pointStyleWidth: 8
           }
         },
         tooltip: {
-          backgroundColor: 'rgba(10,14,30,0.95)',
-          titleColor: '#94a3b8', bodyColor: '#e2e8f0',
+          backgroundColor: isLight ? 'rgba(255,255,255,0.97)' : 'rgba(10,14,30,0.95)',
+          titleColor: isLight ? '#1a1f2e' : '#94a3b8', bodyColor: isLight ? '#374151' : '#e2e8f0',
+          borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(0,201,167,0.3)',
           padding: 14, borderColor: 'rgba(0,201,167,0.3)', borderWidth: 1,
           cornerRadius: 10,
           callbacks: {

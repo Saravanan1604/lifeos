@@ -206,7 +206,7 @@ function renderCrossMainChart(history) {
   if (!canvas) return;
   const isLight = document.body.classList.contains('light');
   const gridC = isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.05)';
-  const tickC = '#64748b';
+  const tickC = isLight ? '#374151' : '#64748b';
   chartInstances['cross-main'] = new Chart(canvas, {
     type: 'bar',
     data: {
@@ -242,7 +242,7 @@ function renderCrossCatChart(topCats, budgets, period) {
   if (!canvas) return;
   const isLight = document.body.classList.contains('light');
   const gridC = isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.05)';
-  const tickC = '#64748b';
+  const tickC = isLight ? '#374151' : '#64748b';
   const names   = topCats.map(([c])=>c);
   const actuals = topCats.map(([,v])=>v);
   const limits  = names.map(n=>{ const b=budgets.find(x=>x.category===n); return b&&typeof getBudgetLimit==='function'?getBudgetLimit(b,period):0; });
@@ -314,7 +314,7 @@ function renderAnalyticsFinanceChart(txns) {
       { label:'Income', data:sorted.map(([,v])=>v.income), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', tension:0.4, fill:true },
       { label:'Expense', data:sorted.map(([,v])=>v.expense), borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.08)', tension:0.4, fill:true }
     ]},
-    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#94a3b8'}}}, scales:{x:{ticks:{color:'#64748b'},grid:{color:gridCol}},y:{ticks:{color:'#64748b',callback:v=>`₹${(v/1000).toFixed(0)}k`},grid:{color:gridCol}}} }
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color: isLight?'#374151':'#94a3b8'}}}, scales:{x:{ticks:{color: isLight?'#374151':'#64748b'},grid:{color:gridCol}},y:{ticks:{color: isLight?'#374151':'#64748b',callback:v=>`₹${(v/1000).toFixed(0)}k`},grid:{color:gridCol}}} }
   });
 }
 
