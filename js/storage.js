@@ -213,17 +213,22 @@ function setSyncDot(status) {
   dot.title = c.title;
 }
 
-// Merge two arrays by id — local items win on conflict.
-// deletedSet (Set of tombstoned ids) is excluded from BOTH sides so a
-// deletion on any device sticks instead of resurrecting on the next pull.
+// Merge two arrays by id.
+// Strategy: cloud wins for items that exist in cloud (so edits from any device propagate).
+//           items that are ONLY local (not yet pushed) are preserved.
+// deletedSet (Set of tombstoned ids) is excluded from BOTH sides.
 function _mergeById(local, cloud, deletedSet) {
   const del = deletedSet || new Set();
   const l = (Array.isArray(local) ? local : []).filter(x => !(x && x.id && del.has(x.id)));
   const c = (Array.isArray(cloud) ? cloud : []).filter(x => !(x && x.id && del.has(x.id)));
   if (!c.length) return l;
   if (!l.length) return c;
-  const seen = new Set(l.map(x => x.id).filter(Boolean));
-  return [...l, ...c.filter(x => x.id && !seen.has(x.id))];
+
+  const cloudMap = new Map(c.filter(x => x.id).map(x => [x.id, x]));
+  // Keep local-only items (created offline, not yet pushed to cloud)
+  const localOnly = l.filter(x => x.id && !cloudMap.has(x.id));
+  // Cloud is authoritative for everything it knows about — edits propagate across devices
+  return [...c, ...localOnly];
 }
 
 // Pull latest state from cloud and merge into local STATE
@@ -243,10 +248,17 @@ async function pullFromCloud() {
     const data = await res.json();
     if (!data.state || !Object.keys(data.state).length) { setSyncDot('ok'); return; }
 
-    // Hash based on array lengths + scalar values — reliable even when transactions grow
+    // Hash based on content checksum — detects edits to existing items, not just length changes
     const hashObj = {};
     LIVE_SYNC_KEYS.forEach(k => {
-      hashObj[k] = Array.isArray(data.state[k]) ? data.state[k].length : (data.state[k] ?? null);
+      if (Array.isArray(data.state[k])) {
+        // Checksum: length + sum of each item's serialized size (catches edits without full JSON cost)
+        const arr = data.state[k];
+        const checksum = arr.reduce((s, x) => s + JSON.stringify(x).length, arr.length);
+        hashObj[k] = checksum;
+      } else {
+        hashObj[k] = data.state[k] ?? null;
+      }
     });
     const hash = JSON.stringify(hashObj);
     if (hash === _lastCloudHash) { setSyncDot('ok'); return; }
@@ -267,7 +279,8 @@ async function pullFromCloud() {
       const cloud = data.state[k];
       if (Array.isArray(cloud)) {
         const merged = _mergeById(STATE[k], cloud, deletedSet);
-        if (merged.length !== (STATE[k] || []).length) {
+        // Compare content (not just length) so edits to existing items are detected
+        if (JSON.stringify(merged) !== JSON.stringify(STATE[k] || [])) {
           STATE[k] = merged;
           changed = true;
         }
@@ -323,6 +336,21 @@ function startLiveSync() {
     if (!document.hidden) pullFromCloud();
   });
 
-  // Sync when app regains network connection
-  window.addEventListener('online', pullFromCloud);
+  // Sync when app regains network connection — push pending local changes first, then pull
+  window.addEventListener('online', async () => {
+    if (_pendingSave) {
+      const tok = localStorage.getItem('lifeos_token');
+      if (tok) {
+        try {
+          const r = await fetch(`${API_URL}/sync`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+            body: _pendingSave
+          });
+          if (r.ok) { _pendingSave = null; setSyncDot('ok'); }
+        } catch {}
+      }
+    }
+    pullFromCloud();
+  });
 }
