@@ -187,6 +187,8 @@ function _buildInsightBar() {
 
 // ── Rich KPI cards with sparklines + delta + alarm ──
 function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) {
+  // _incPeriod: for day/week views income is shown at month level
+  const _incPeriod = (_dashPeriod === 'day' || _dashPeriod === 'week') ? 'month' : _dashPeriod;
   const curr = typeof _monthData==='function' ? _monthData(0) : null;
   const prev = typeof _monthData==='function' ? _monthData(-1) : null;
   const spark = key => Array.from({length:6},(_,i)=>{ const m=typeof _monthData==='function'?_monthData(i-5):null; return m?(key==='inc'?m.income:key==='exp'?m.expense:m.savings):0; });
@@ -619,7 +621,7 @@ function renderDashboard() {
 
   const _isNewUser = txnsAll.length === 0 && !_banks.length && !_cash.length && !_cards.length;
 
-  document.getElementById('page-container').innerHTML = `
+  try { document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">
@@ -793,7 +795,7 @@ function renderDashboard() {
           </div>
           <div class="stat-card bg-gold" onclick="navigate('achievements')" style="cursor:pointer">
             <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>
-            <div class="stat-card-value">${(STATE.unlockedAchievements||[]).length}/${ACHIEVEMENTS_DEF.length}</div><div class="stat-card-label">Achievements</div>
+            <div class="stat-card-value">${(STATE.unlockedAchievements||[]).length}/${(typeof ACHIEVEMENTS_DEF !== 'undefined' ? ACHIEVEMENTS_DEF.length : '?')}</div><div class="stat-card-label">Achievements</div>
           </div>
         </div>
       </div>
@@ -848,7 +850,24 @@ function renderDashboard() {
         </div>
       </div>
 
-    </div>`;
+    </div>`; } catch(e) {
+    console.error('renderDashboard error:', e);
+    document.getElementById('page-container').innerHTML = `
+      <div class="fade-in" style="padding:24px">
+        <h1 class="page-title">Dashboard</h1>
+        <div class="glass-card" style="padding:32px;text-align:center;margin-top:20px">
+          <div style="font-size:40px;margin-bottom:12px">⚡</div>
+          <p style="font-size:16px;font-weight:700;color:var(--text)">Welcome to LifeOS!</p>
+          <p style="font-size:13px;color:var(--text3);margin:10px 0 20px">Get started by adding your first transaction or linking a bank account.</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button onclick="navigate('finance')" class="btn-primary">+ Add Transaction</button>
+            <button onclick="navigate('bank-tracker')" class="btn-secondary">Link Bank</button>
+            <button onclick="navigate('budget')" class="btn-secondary">Set Budget</button>
+          </div>
+          <p style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:20px">Error: ${e.message || 'Unknown'}</p>
+        </div>
+      </div>`;
+  }
 
   if (window.innerWidth < 700) {
     const twoCol = document.querySelector('.dash-two-col');
@@ -1110,7 +1129,8 @@ function renderDashPieChart(txns) {
 // ── Radar: Life Score ──
 function renderLifeScoreRadar(scores) {
   const canvas = document.getElementById('dash-radar-chart');
-  if (!canvas) return;
+  if (!canvas || typeof Chart === 'undefined') return;
+  if (chartInstances['dash-radar']) { chartInstances['dash-radar'].destroy(); delete chartInstances['dash-radar']; }
   const isLight=document.body.classList.contains('light');
   const gridC=isLight?'rgba(0,0,0,0.08)':'rgba(255,255,255,0.08)';
   chartInstances['dash-radar']=new Chart(canvas,{
