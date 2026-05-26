@@ -1737,7 +1737,7 @@ function renderInvestments() {
       </div>
 
       <!-- Net Worth Hero -->
-      <div style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#1a1a4e,#0d0d2e);border:1px solid rgba(99,102,241,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+      <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#1a1a4e,#0d0d2e);border:1px solid rgba(99,102,241,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
         <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(99,102,241,0.08)"></div>
         <div style="position:relative;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:20px;flex-wrap:wrap" class="nw-grid">
           <div>

@@ -229,7 +229,7 @@ function renderBankTracker() {
         </div>` : `
 
       <!-- Total Balance Hero + Bank Selector -->
-      <div style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#1a1a4e,#0d0d2e,#1a1a4e);border:1px solid rgba(0,201,167,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+      <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#1a1a4e,#0d0d2e,#1a1a4e);border:1px solid rgba(0,201,167,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
         <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(0,201,167,0.07)"></div>
         <div style="position:relative">
           <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,201,167,0.7);margin-bottom:6px">🏦 Total Bank Balance</p>
@@ -737,7 +737,7 @@ function renderCCTracker() {
         </div>` : `
 
       <!-- Summary Hero -->
-      <div style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#2d0a0a,#1a0505,#2d0a0a);border:1px solid rgba(239,68,68,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+      <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#2d0a0a,#1a0505,#2d0a0a);border:1px solid rgba(239,68,68,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
         <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(239,68,68,0.07)"></div>
         <div style="position:relative">
           <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(239,68,68,0.7);margin-bottom:6px">💳 Total Outstanding</p>
@@ -1030,7 +1030,7 @@ function renderCashTracker() {
         </div>` : `
 
       <!-- Total Cash Hero + Wallet Selector -->
-      <div style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#2d1a00,#1a0e00,#2d1a00);border:1px solid rgba(245,158,11,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+      <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#2d1a00,#1a0e00,#2d1a00);border:1px solid rgba(245,158,11,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
         <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(245,158,11,0.07)"></div>
         <div style="position:relative">
           <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(245,158,11,0.7);margin-bottom:6px">💵 Total Cash</p>

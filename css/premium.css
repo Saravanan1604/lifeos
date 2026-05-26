@@ -381,9 +381,17 @@ body.light .fin-dark-card [style*="color:#fca5a5"]        { color: #fca5a5 !impo
 body.light .fin-dark-card [style*="color:#00ffd5"]        { color: #00ffd5 !important; }
 body.light .fin-dark-card [style*="color:#ef4444"],
 body.light .fin-dark-card [style*="color:#fca5a5"]        { color: #fca5a5 !important; }
-/* Keep button backgrounds visible on dark cards */
+/* Keep button/pill backgrounds and borders visible on dark cards */
 body.light .fin-dark-card [style*="background:rgba(255,255,255"] {
   background: rgba(255,255,255,0.18) !important;
+}
+body.light .fin-dark-card [style*="border:1px solid rgba(255,255,255"],
+body.light .fin-dark-card [style*="border: 1px solid rgba(255,255,255"] {
+  border-color: rgba(255,255,255,0.25) !important;
+}
+body.light .fin-dark-card [style*="border-bottom:1px solid rgba(255,255,255"],
+body.light .fin-dark-card [style*="border-bottom: 1px solid rgba(255,255,255"] {
+  border-bottom-color: rgba(255,255,255,0.12) !important;
 }
 
 /* Fix light transparent backgrounds */
