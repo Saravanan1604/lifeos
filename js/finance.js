@@ -211,7 +211,7 @@ function renderFinance() {
                 </div>
               </div>
               <p style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin:10px 0 4px">${ca.name}</p>
-              <p style="font-size:24px;font-weight:900;color:#fff">₹${fmt(ca.balance||0)}</p>
+              <p style="font-size:24px;font-weight:900;color:#fff">${fmt(ca.balance||0)}</p>
             </div>`).join('')}
           </div>
           <div style="padding:12px 16px;border-radius:12px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);display:flex;justify-content:space-between;align-items:center">
@@ -2475,7 +2475,7 @@ function renderBudget() {
                   <span style="font-size:22px">${cat?.icon||'📦'}</span>
                   <div>
                     <div style="font-weight:600;font-size:14px">${b.category}</div>
-                    <div style="font-size:11px;color:var(--text3)">Set: ₹${fmt(bAmount)}/${bPeriod}</div>
+                    <div style="font-size:11px;color:var(--text3)">Set: ${fmt(bAmount)}/${bPeriod}</div>
                   </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px">
