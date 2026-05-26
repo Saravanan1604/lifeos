@@ -295,7 +295,7 @@ async function pullFromCloud() {
         navigate(currentPage, true);
       }
       if (typeof updateSidebar === 'function') updateSidebar();
-      toast('🔄 Updated from another device', 'info');
+      // Silently refresh — dot flashes green; no toast spam on 3-second polls
     }
     setSyncDot('ok');
 
@@ -327,9 +327,9 @@ function startLiveSync() {
   // Pull immediately so laptop/desktop sees mobile changes right on open
   pullFromCloud();
 
-  // Poll every 30 seconds
+  // Poll every 3 seconds for near-real-time cross-device sync
   if (_syncTimer) clearInterval(_syncTimer);
-  _syncTimer = setInterval(pullFromCloud, 30000);
+  _syncTimer = setInterval(pullFromCloud, 3000);
 
   // Sync immediately when user returns to the tab/app
   document.addEventListener('visibilitychange', () => {
