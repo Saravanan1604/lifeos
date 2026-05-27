@@ -1579,6 +1579,179 @@ function buildSpendingPulseHTML() {
 
 
 // ═══════════════════════════════════════════════════════════
+// 22. DRAGGABLE + COLLAPSIBLE FLOATING DOCK
+// ═══════════════════════════════════════════════════════════
+const DOCK_POS_KEY = 'lifeos_dock_pos';
+const DOCK_COLLAPSED_KEY = 'lifeos_dock_collapsed';
+
+function initDraggableDock() {
+  const dock   = document.getElementById('float-dock');
+  const handle = document.getElementById('dock-handle');
+  if (!dock || !handle) return;
+
+  // ── Restore saved position ──
+  const saved = _loadDockPos();
+  if (saved) {
+    dock.style.right  = 'auto';
+    dock.style.bottom = 'auto';
+    dock.style.left   = saved.x + 'px';
+    dock.style.top    = saved.y + 'px';
+  }
+
+  // ── Restore collapsed state ──
+  if (localStorage.getItem(DOCK_COLLAPSED_KEY) === '1') {
+    _applyDockCollapse(true, false);
+  }
+
+  // ── Mouse drag ──
+  let dragging = false, startX, startY, origX, origY;
+
+  handle.addEventListener('mousedown', e => {
+    if (e.target.closest('.dock-toggle-btn')) return; // don't drag when clicking toggle
+    e.preventDefault();
+    dragging = true;
+    dock.classList.add('dragging');
+
+    const rect = dock.getBoundingClientRect();
+    origX = rect.left; origY = rect.top;
+    startX = e.clientX; startY = e.clientY;
+
+    // Switch from right/bottom to left/top for free drag
+    dock.style.right  = 'auto';
+    dock.style.bottom = 'auto';
+    dock.style.left   = origX + 'px';
+    dock.style.top    = origY + 'px';
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const newX = Math.max(0, Math.min(window.innerWidth  - dock.offsetWidth,  origX + dx));
+    const newY = Math.max(0, Math.min(window.innerHeight - dock.offsetHeight, origY + dy));
+    dock.style.left = newX + 'px';
+    dock.style.top  = newY + 'px';
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (!dragging) return;
+    dragging = false;
+    dock.classList.remove('dragging');
+    _snapDockToEdge(dock);
+  });
+
+  // ── Touch drag (mobile) ──
+  let touchId = null;
+  handle.addEventListener('touchstart', e => {
+    if (e.target.closest('.dock-toggle-btn')) return;
+    const t = e.changedTouches[0];
+    touchId = t.identifier;
+    dragging = true;
+    dock.classList.add('dragging');
+
+    const rect = dock.getBoundingClientRect();
+    origX = rect.left; origY = rect.top;
+    startX = t.clientX; startY = t.clientY;
+
+    dock.style.right  = 'auto';
+    dock.style.bottom = 'auto';
+    dock.style.left   = origX + 'px';
+    dock.style.top    = origY + 'px';
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const t = [...e.changedTouches].find(t => t.identifier === touchId);
+    if (!t) return;
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    const newX = Math.max(0, Math.min(window.innerWidth  - dock.offsetWidth,  origX + dx));
+    const newY = Math.max(0, Math.min(window.innerHeight - dock.offsetHeight, origY + dy));
+    dock.style.left = newX + 'px';
+    dock.style.top  = newY + 'px';
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    if (!dragging) return;
+    const t = [...e.changedTouches].find(t => t.identifier === touchId);
+    if (!t) return;
+    dragging = false; touchId = null;
+    dock.classList.remove('dragging');
+    _snapDockToEdge(dock);
+  });
+}
+
+// Snap to nearest vertical edge with a small margin
+function _snapDockToEdge(dock) {
+  const margin  = 16;
+  const x       = parseInt(dock.style.left);
+  const midX    = window.innerWidth / 2;
+  const snapX   = x < midX
+    ? margin
+    : window.innerWidth - dock.offsetWidth - margin;
+
+  dock.style.transition = 'left .25s cubic-bezier(0.34,1.56,0.64,1), top .25s cubic-bezier(0.34,1.56,0.64,1)';
+  dock.style.left = snapX + 'px';
+  setTimeout(() => { dock.style.transition = ''; }, 300);
+
+  // Save position
+  _saveDockPos(snapX, parseInt(dock.style.top));
+}
+
+function _saveDockPos(x, y) {
+  try { localStorage.setItem(DOCK_POS_KEY, JSON.stringify({ x, y })); } catch(e) {}
+}
+function _loadDockPos() {
+  try { return JSON.parse(localStorage.getItem(DOCK_POS_KEY)); } catch(e) { return null; }
+}
+
+// ── Collapse / Expand ──
+let _dockCollapsed = false;
+
+function toggleDockCollapse(e) {
+  if (e) e.stopPropagation();
+  _dockCollapsed = !_dockCollapsed;
+  _applyDockCollapse(_dockCollapsed, true);
+}
+
+function _applyDockCollapse(collapsed, save) {
+  _dockCollapsed = collapsed;
+  const dock    = document.getElementById('float-dock');
+  const btn     = document.getElementById('dock-collapse-btn');
+  const buttons = dock?.querySelectorAll('.dock-btn');
+  if (!dock) return;
+
+  if (collapsed) {
+    buttons?.forEach(b => {
+      b.style.width   = '0';
+      b.style.height  = '0';
+      b.style.opacity = '0';
+      b.style.overflow = 'hidden';
+      b.style.margin  = '0';
+      b.style.padding = '0';
+      b.style.pointerEvents = 'none';
+    });
+    if (btn) { btn.textContent = '▸'; btn.title = 'Show dock'; }
+  } else {
+    buttons?.forEach(b => {
+      b.style.width   = '';
+      b.style.height  = '';
+      b.style.opacity = '';
+      b.style.overflow = '';
+      b.style.margin  = '';
+      b.style.padding = '';
+      b.style.pointerEvents = '';
+    });
+    if (btn) { btn.textContent = '▾'; btn.title = 'Hide dock'; }
+  }
+
+  if (save) {
+    try { localStorage.setItem(DOCK_COLLAPSED_KEY, collapsed ? '1' : '0'); } catch(e) {}
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
 // INIT — called on app start
 // ═══════════════════════════════════════════════════════════
 function initPremiumFeatures() {
@@ -1588,4 +1761,6 @@ function initPremiumFeatures() {
   setTimeout(_updateNotifBadge, 800);
   // Refresh badge every 5 minutes
   setInterval(_updateNotifBadge, 300000);
+  // Init draggable dock after DOM is ready
+  setTimeout(initDraggableDock, 300);
 }

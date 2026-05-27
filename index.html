@@ -303,16 +303,21 @@
       </div>
     </main>
 
-    <!-- Floating Action Dock -->
-    <div class="float-dock">
+    <!-- Floating Action Dock — draggable + collapsible -->
+    <div class="float-dock" id="float-dock">
+      <!-- Drag handle + collapse toggle row -->
+      <div id="dock-handle" style="display:flex;align-items:center;gap:4px;cursor:grab;padding:2px 4px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);transition:.15s" title="Drag to move" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+        <span style="font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:-1px;pointer-events:none">⠿⠿</span>
+        <button class="dock-toggle-btn" id="dock-collapse-btn" onclick="toggleDockCollapse(event)" title="Hide/Show dock">▾</button>
+      </div>
       <!-- Quick-Add FAB button — topmost in dock -->
-      <button id="fab-main" class="float-dock-btn" onclick="toggleFab()" title="Quick Add (Q)" style="background:linear-gradient(135deg,#00c9a7,#6366f1);box-shadow:0 8px 30px rgba(0,201,167,0.55);font-size:22px;font-weight:700;position:relative;z-index:2">
+      <button id="fab-main" class="float-dock-btn dock-btn" onclick="toggleFab()" title="Quick Add (Q)" style="background:linear-gradient(135deg,#00c9a7,#6366f1);box-shadow:0 8px 30px rgba(0,201,167,0.55);font-size:22px;font-weight:700;position:relative;z-index:2">
         <span id="fab-icon" style="transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);display:inline-block;line-height:1">＋</span>
       </button>
-      <button class="float-dock-btn float-calc" onclick="toggleCalculator()" title="Calculator">
+      <button class="float-dock-btn dock-btn float-calc" onclick="toggleCalculator()" title="Calculator">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="12" y1="10" x2="14" y2="10"/><line x1="16" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="14" y2="14"/><line x1="16" y1="14" x2="16" y2="18"/><line x1="8" y1="18" x2="10" y2="18"/><line x1="12" y1="18" x2="14" y2="18"/></svg>
       </button>
-      <button class="float-dock-btn float-ai" onclick="navigate('ai-coach')" title="AI Coach">
+      <button class="float-dock-btn dock-btn float-ai" onclick="navigate('ai-coach')" title="AI Coach">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
         <div class="ai-float-pulse"></div>
       </button>
