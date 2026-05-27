@@ -430,26 +430,102 @@ function destroyCharts() {
   chartInstances = {};
 }
 
+// ── Per-page Quick Action chips (injected after each page renders) ──
+const _QUICK_ACTIONS = {
+  finance: [
+    {icon:'💰', label:'Add Income',    color:'#10b981', bg:'rgba(16,185,129,0.12)',  bc:'rgba(16,185,129,0.3)',  fn:"openAddTxModal('income')"},
+    {icon:'💸', label:'Add Expense',   color:'#ef4444', bg:'rgba(239,68,68,0.12)',   bc:'rgba(239,68,68,0.3)',   fn:"openAddTxModal('expense')"},
+  ],
+  'bank-tracker': [
+    {icon:'🏦', label:'Log Balance',   color:'#00c9a7', bg:'rgba(0,201,167,0.12)',   bc:'rgba(0,201,167,0.3)',   fn:"openQuickBalanceModal()"},
+    {icon:'💵', label:'Log Cash',      color:'#f59e0b', bg:'rgba(245,158,11,0.12)',  bc:'rgba(245,158,11,0.3)',  fn:"openQuickCashModal()"},
+    {icon:'💳', label:'Update Card',   color:'#ef4444', bg:'rgba(239,68,68,0.12)',   bc:'rgba(239,68,68,0.3)',   fn:"typeof openUpdateCCModal==='function'&&openUpdateCCModal((STATE.creditCards||[])[0]?.id)"},
+    {icon:'➕', label:'Add Account',   color:'#3b82f6', bg:'rgba(59,130,246,0.12)',  bc:'rgba(59,130,246,0.3)',  fn:"navigate('finance')"},
+  ],
+  budget: [
+    {icon:'📊', label:'Add Budget',    color:'#f59e0b', bg:'rgba(245,158,11,0.12)',  bc:'rgba(245,158,11,0.3)',  fn:"openAddBudgetModal()"},
+    {icon:'💰', label:'Add Income',    color:'#10b981', bg:'rgba(16,185,129,0.12)',  bc:'rgba(16,185,129,0.3)',  fn:"openAddTxModal('income')"},
+    {icon:'💸', label:'Add Expense',   color:'#ef4444', bg:'rgba(239,68,68,0.12)',   bc:'rgba(239,68,68,0.3)',   fn:"openAddTxModal('expense')"},
+  ],
+  investments: [
+    {icon:'📈', label:'Add Asset',     color:'#8b5cf6', bg:'rgba(139,92,246,0.12)', bc:'rgba(139,92,246,0.3)', fn:"openAddInvModal()"},
+    {icon:'🏦', label:'Add Liability', color:'#ef4444', bg:'rgba(239,68,68,0.12)',  bc:'rgba(239,68,68,0.3)',  fn:"openAddLoanModal()"},
+  ],
+  habits: [
+    {icon:'✅', label:'Add Habit',     color:'#00c9a7', bg:'rgba(0,201,167,0.12)',   bc:'rgba(0,201,167,0.3)',  fn:"openAddHabitModal()"},
+    {icon:'🔥', label:'View Streak',   color:'#f59e0b', bg:'rgba(245,158,11,0.12)',  bc:'rgba(245,158,11,0.3)',  fn:"navigate('analytics')"},
+  ],
+  goals: [
+    {icon:'🎯', label:'Add Goal',      color:'#8b5cf6', bg:'rgba(139,92,246,0.12)', bc:'rgba(139,92,246,0.3)', fn:"openAddGoalModal()"},
+    {icon:'💰', label:'Add Income',    color:'#10b981', bg:'rgba(16,185,129,0.12)', bc:'rgba(16,185,129,0.3)', fn:"openAddTxModal('income')"},
+  ],
+  health: [
+    {icon:'❤️', label:'Log Today',     color:'#3b82f6', bg:'rgba(59,130,246,0.12)',  bc:'rgba(59,130,246,0.3)',  fn:"document.getElementById('h-sleep')?.focus()"},
+    {icon:'😊', label:'Log Mood',      color:'#ec4899', bg:'rgba(236,72,153,0.12)',  bc:'rgba(236,72,153,0.3)',  fn:"document.getElementById('mood-grid')?.scrollIntoView({behavior:'smooth',block:'center'})"},
+    {icon:'💧', label:'Log Water',     color:'#06b6d4', bg:'rgba(6,182,212,0.12)',   bc:'rgba(6,182,212,0.3)',   fn:"document.getElementById('h-water')?.focus()"},
+  ],
+  journal: [
+    {icon:'📝', label:"Today's Entry", color:'#6366f1', bg:'rgba(99,102,241,0.12)',  bc:'rgba(99,102,241,0.3)',  fn:"document.getElementById('journal-mood-grid')?.scrollIntoView({behavior:'smooth',block:'center'})"},
+    {icon:'😊', label:'Rate Mood',     color:'#ec4899', bg:'rgba(236,72,153,0.12)',  bc:'rgba(236,72,153,0.3)',  fn:"document.getElementById('jmood-5')?.scrollIntoView({behavior:'smooth',block:'center'})"},
+  ],
+  analytics: [
+    {icon:'💰', label:'Add Income',    color:'#10b981', bg:'rgba(16,185,129,0.12)', bc:'rgba(16,185,129,0.3)', fn:"navigate('finance');setTimeout(()=>openAddTxModal('income'),100)"},
+    {icon:'💸', label:'Add Expense',   color:'#ef4444', bg:'rgba(239,68,68,0.12)',  bc:'rgba(239,68,68,0.3)',  fn:"navigate('finance');setTimeout(()=>openAddTxModal('expense'),100)"},
+    {icon:'🎯', label:'Set Budget',    color:'#f59e0b', bg:'rgba(245,158,11,0.12)', bc:'rgba(245,158,11,0.3)', fn:"navigate('budget')"},
+  ],
+  categories: [
+    {icon:'➕', label:'Add Category',  color:'#6366f1', bg:'rgba(99,102,241,0.12)', bc:'rgba(99,102,241,0.3)', fn:"openAddCategoryModal()"},
+  ],
+  achievements: [],
+  'ai-coach': [],
+  settings: [],
+  help: [],
+};
+
+function _appendQuickActions(page) {
+  if (page === 'dashboard') return; // dashboard has its own built-in Quick Actions card
+  const actions = _QUICK_ACTIONS[page];
+  if (!actions || !actions.length) return;
+  const container = document.getElementById('page-container');
+  if (!container) return;
+
+  const html = `<div id="page-quick-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+    ${actions.map(a => `<button onclick="${a.fn}"
+      style="display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:24px;background:${a.bg};border:1px solid ${a.bc};color:${a.color};font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0;line-height:1"
+      onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 18px ${a.bc}'"
+      onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <span style="font-size:15px">${a.icon}</span>${a.label}
+    </button>`).join('')}
+  </div>`;
+
+  const fadeIn = container.querySelector('.fade-in');
+  if (!fadeIn) return;
+  const header = fadeIn.querySelector('.page-header');
+  if (header) header.insertAdjacentHTML('afterend', html);
+  else fadeIn.insertAdjacentHTML('afterbegin', html);
+}
+
 function _renderPage(page) {
   const container = document.getElementById('page-container');
   switch (page) {
-    case 'dashboard': renderDashboard(); break;
-    case 'finance': renderFinance(); break;
-    case 'investments': renderInvestments(); break;
-    case 'budget': renderBudget(); break;
-    case 'bank-tracker': renderBankTracker(); break;
-    case 'health': renderHealth(); break;
-    case 'habits': renderHabits(); break;
-    case 'goals': renderGoals(); break;
-    case 'journal': renderJournal(); break;
-    case 'achievements': renderAchievements(); break;
-    case 'ai-coach': renderAICoach(); break;
-    case 'analytics': renderAnalytics(); break;
-    case 'categories': renderCategories(); break;
-    case 'settings': renderSettings(); break;
-    case 'help': renderHelp(); break;
+    case 'dashboard':    renderDashboard();    break;
+    case 'finance':      renderFinance();       break;
+    case 'investments':  renderInvestments();   break;
+    case 'budget':       renderBudget();        break;
+    case 'bank-tracker': renderBankTracker();   break;
+    case 'health':       renderHealth();        break;
+    case 'habits':       renderHabits();        break;
+    case 'goals':        renderGoals();         break;
+    case 'journal':      renderJournal();       break;
+    case 'achievements': renderAchievements();  break;
+    case 'ai-coach':     renderAICoach();       break;
+    case 'analytics':    renderAnalytics();     break;
+    case 'categories':   renderCategories();    break;
+    case 'settings':     renderSettings();      break;
+    case 'help':         renderHelp();          break;
     default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
   }
+  _appendQuickActions(page);
 }
 
 function navigate(page, skipHistory = false) {

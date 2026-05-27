@@ -620,8 +620,6 @@ function renderDashboard() {
   const doneToday = comps.filter(c => c.date === today()).length;
   const scoreBarColor = s => s >= 70 ? '#10b981' : s >= 40 ? '#f59e0b' : '#ef4444';
 
-  const _isNewUser = txnsAll.length === 0 && !_banks.length && !_cash.length && !_cards.length;
-
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <!-- Header -->
@@ -662,35 +660,37 @@ function renderDashboard() {
 
       ${_buildInsightBar()}
 
-      <!-- ── New User Welcome ─────────────────────────────────────── -->
-      ${_isNewUser ? `
-      <div class="glass-card" style="padding:24px;margin-bottom:20px;border:1px solid rgba(0,201,167,0.25);background:linear-gradient(135deg,rgba(0,201,167,0.07),rgba(99,102,241,0.07))">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-          <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#00c9a7,#6366f1);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">⚡</div>
+      <!-- ── Quick Actions (always visible) ───────────────────────── -->
+      <div class="glass-card" style="padding:20px;margin-bottom:20px;border:1px solid rgba(0,201,167,0.2);background:linear-gradient(135deg,rgba(0,201,167,0.06),rgba(99,102,241,0.06))">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#00c9a7,#6366f1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⚡</div>
           <div>
-            <p style="font-size:18px;font-weight:900;color:var(--text1);margin-bottom:2px">Welcome to LifeOS! 👋</p>
-            <p style="font-size:12px;color:var(--text3)">Set up your finances in minutes — tap a card below to get started.</p>
+            <p style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:1px">Quick Actions</p>
+            <p style="font-size:11px;color:var(--text3)">Jump to any section instantly</p>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px" class="welcome-grid">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" class="welcome-grid">
           ${[
-            {icon:'💰', title:'Add Income',    sub:'Log your first income',     page:'finance',      c:'#10b981', bg:'rgba(16,185,129,0.1)',  bc:'rgba(16,185,129,0.25)'},
-            {icon:'💸', title:'Add Expense',   sub:'Track your spending',       page:'finance',      c:'#ef4444', bg:'rgba(239,68,68,0.1)',   bc:'rgba(239,68,68,0.25)'},
-            {icon:'🏦', title:'Link Bank',     sub:'Add a bank account',        page:'bank-tracker', c:'#3b82f6', bg:'rgba(59,130,246,0.1)',  bc:'rgba(59,130,246,0.25)'},
-            {icon:'🎯', title:'Set Budget',    sub:'Plan your monthly spend',   page:'budget',       c:'#f59e0b', bg:'rgba(245,158,11,0.1)',  bc:'rgba(245,158,11,0.25)'},
-            {icon:'📈', title:'Add Asset',     sub:'Track investments & wealth',page:'investments',  c:'#8b5cf6', bg:'rgba(139,92,246,0.1)',  bc:'rgba(139,92,246,0.25)'},
-            {icon:'✅', title:'Add Habit',     sub:'Build daily routines',      page:'habits',       c:'#00c9a7', bg:'rgba(0,201,167,0.1)',   bc:'rgba(0,201,167,0.25)'},
+            {icon:'💰', title:'Add Income',    sub:'Log income & salary',        fn:"openAddTxModal('income')",  c:'#10b981', bg:'rgba(16,185,129,0.1)',  bc:'rgba(16,185,129,0.25)'},
+            {icon:'💸', title:'Add Expense',   sub:'Track your spending',        fn:"openAddTxModal('expense')", c:'#ef4444', bg:'rgba(239,68,68,0.1)',   bc:'rgba(239,68,68,0.25)'},
+            {icon:'🏦', title:'Link Bank',     sub:'Add a bank account',         fn:"navigate('bank-tracker')",  c:'#3b82f6', bg:'rgba(59,130,246,0.1)',  bc:'rgba(59,130,246,0.25)'},
+            {icon:'🎯', title:'Set Budget',    sub:'Plan monthly spend',         fn:"navigate('budget')",        c:'#f59e0b', bg:'rgba(245,158,11,0.1)',  bc:'rgba(245,158,11,0.25)'},
+            {icon:'📈', title:'Add Asset',     sub:'Track investments & wealth', fn:"navigate('investments')",   c:'#8b5cf6', bg:'rgba(139,92,246,0.1)',  bc:'rgba(139,92,246,0.25)'},
+            {icon:'✅', title:'Add Habit',     sub:'Build daily routines',       fn:"openAddHabitModal()",       c:'#00c9a7', bg:'rgba(0,201,167,0.1)',   bc:'rgba(0,201,167,0.25)'},
+            {icon:'🎯', title:'Add Goal',      sub:'Set a savings goal',         fn:"openAddGoalModal()",        c:'#a78bfa', bg:'rgba(167,139,250,0.1)', bc:'rgba(167,139,250,0.25)'},
+            {icon:'❤️', title:'Log Health',    sub:'Track sleep, mood & steps',  fn:"navigate('health')",        c:'#f472b6', bg:'rgba(244,114,182,0.1)', bc:'rgba(244,114,182,0.25)'},
+            {icon:'📝', title:'Write Journal', sub:'Record your emotions',       fn:"navigate('journal')",       c:'#60a5fa', bg:'rgba(96,165,250,0.1)',  bc:'rgba(96,165,250,0.25)'},
           ].map(a=>`
-            <div onclick="navigate('${a.page}')" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:${a.bg};border:1px solid ${a.bc};cursor:pointer;transition:.2s"
-              onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-              <span style="font-size:22px">${a.icon}</span>
-              <div>
-                <p style="font-size:13px;font-weight:700;color:${a.c}">${a.title}</p>
-                <p style="font-size:10px;color:var(--text3)">${a.sub}</p>
+            <div onclick="${a.fn}" style="display:flex;align-items:center;gap:9px;padding:11px 12px;border-radius:12px;background:${a.bg};border:1px solid ${a.bc};cursor:pointer;transition:.2s"
+              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 14px ${a.bc}'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+              <span style="font-size:20px;flex-shrink:0">${a.icon}</span>
+              <div style="min-width:0">
+                <p style="font-size:12px;font-weight:700;color:${a.c};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title}</p>
+                <p style="font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.sub}</p>
               </div>
             </div>`).join('')}
         </div>
-      </div>` : ''}
+      </div>
 
       <!-- Hero Card — teal gradient -->
       <div class="hero-card" style="margin-bottom:20px;cursor:pointer;background:linear-gradient(135deg,#00b09b 0%,#0acf83 50%,#00c9a7 100%)" onclick="navigate('finance')">
@@ -876,7 +876,7 @@ function renderDashboard() {
       const lsg = document.querySelector('.life-score-grid');
       if (lsg) lsg.style.gridTemplateColumns = '1fr';
       const wg = document.querySelector('.welcome-grid');
-      if (wg) wg.style.gridTemplateColumns = '1fr';
+      if (wg) wg.style.gridTemplateColumns = 'repeat(2,1fr)';
     }
   }, 50);
 

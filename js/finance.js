@@ -646,14 +646,18 @@ function deleteSelectedTx() {
   refreshFinancePage();
 }
 
-function openAddTxModal() {
+function openAddTxModal(defaultType) {
+  const _defType = defaultType || 'expense';
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
   const catOptions = allCats.map(c => `<option value="${c.name}" data-icon="${c.icon}">${c.icon} ${c.name}</option>`).join('');
   const srcOptions = _buildAccountSourceOptions('');
 
   openModal('Add Transaction', `
     <div class="form-group"><label class="form-label">Type</label>
-      <select id="tx-type" class="form-input"><option value="expense">❤️ Expense</option><option value="income">💚 Income</option></select></div>
+      <select id="tx-type" class="form-input">
+        <option value="expense" ${_defType==='expense'?'selected':''}>❤️ Expense</option>
+        <option value="income" ${_defType==='income'?'selected':''}>💚 Income</option>
+      </select></div>
     <div class="input-row">
       <div class="form-group"><label class="form-label">Amount (₹)</label><input type="number" id="tx-amount" class="form-input" placeholder="0.00" min="0" step="0.01"/></div>
       <div class="form-group"><label class="form-label">Date</label><input type="date" id="tx-date" class="form-input" value="${today()}"/></div>
