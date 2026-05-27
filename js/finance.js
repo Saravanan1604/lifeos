@@ -78,20 +78,23 @@ function renderFinance() {
             ${_hasAccounts ? `<span style="font-size:11px;font-weight:600;color:rgba(0,50,40,0.7)">🏦 ${fmt(_bankTotal)} &nbsp;💵 ${fmt(_cashTotal)} &nbsp;💳 -${fmt(_cardTotal)}</span>` : ''}
             <span style="font-size:12px;font-weight:600;color:rgba(0,50,40,0.8)">✨ ${userName}'s wallet</span>
           </div>
-          <div style="display:flex;gap:32px;margin-top:20px;flex-wrap:wrap">
+          ${(()=>{
+            const chips = typeof buildPeriodComparisonChips === 'function' ? buildPeriodComparisonChips(_finPeriod) : {incomeChip:'',expenseChip:''};
+            return `<div style="display:flex;gap:32px;margin-top:20px;flex-wrap:wrap">
             <div>
               <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">💚 Income</p>
-              <p id="fin-income" style="font-size:22px;font-weight:900;color:#003326">+${fmt(income)}</p>
+              <p id="fin-income" style="font-size:22px;font-weight:900;color:#003326">+${fmt(income)}${chips.incomeChip}</p>
             </div>
             <div>
               <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">❤️ Expenses</p>
-              <p id="fin-expense" style="font-size:22px;font-weight:900;color:#7f0000">-${fmt(expense)}</p>
+              <p id="fin-expense" style="font-size:22px;font-weight:900;color:#7f0000">-${fmt(expense)}${chips.expenseChip}</p>
             </div>
             <div>
               <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">💜 Savings</p>
               <p id="fin-savings" style="font-size:22px;font-weight:900;color:${savingsOk?'#001a14':'#7f0000'}">${savingsOk?'+':''}${fmt(savings)}</p>
             </div>
-          </div>
+          </div>`;
+          })()}
         </div>
       </div>
 
@@ -257,8 +260,14 @@ function renderFinance() {
           </div>
         </div>
 
-        <!-- Type / Category / Sort filters -->
+        <!-- Search + Type / Category / Sort filters -->
         <div style="padding:10px 16px;border-bottom:1px solid var(--glass-border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <!-- Text Search -->
+          <div id="fin-search-wrap">
+            <span class="search-icon">🔍</span>
+            <input id="fin-search-input" type="text" placeholder="Search transactions…" value="${_finSearch||''}"
+              oninput="setFinSearch(this.value)" onkeydown="if(event.key==='Escape'){clearFinSearch();this.blur()}" autocomplete="off"/>
+          </div>
           <select id="fin-type" onchange="_finType=this.value;renderFinanceTxList()"
             style="background:#1e293b;border:1px solid var(--glass-border);color:#f1f5f9;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;color-scheme:dark">
             <option value="all"     style="background:#1e293b;color:#f1f5f9">All types</option>
@@ -437,6 +446,8 @@ function renderFinanceTxList() {
   if (_finType !== 'all')     txns = txns.filter(t => t.type === _finType);
   // Category filter
   if (_finCategory !== 'all') txns = txns.filter(t => t.category === _finCategory);
+  // Text search filter
+  if (typeof _applyFinTextSearch === 'function') txns = _applyFinTextSearch(txns);
 
   // Sorting
   const cmp = {

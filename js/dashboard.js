@@ -660,6 +660,8 @@ function renderDashboard() {
 
       ${_buildInsightBar()}
 
+      ${typeof buildSpendingPulseHTML === 'function' ? buildSpendingPulseHTML() : ''}
+
       <!-- ── Quick Actions (always visible) ───────────────────────── -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px;border:1px solid rgba(0,201,167,0.2);background:linear-gradient(135deg,rgba(0,201,167,0.06),rgba(99,102,241,0.06))">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">

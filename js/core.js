@@ -364,6 +364,7 @@ function showApp() {
   checkStreak();
   navigate('dashboard');
   if (typeof startLiveSync === 'function') startLiveSync();
+  if (typeof initPremiumFeatures === 'function') initPremiumFeatures();
 }
 
 // ===== SIDEBAR =====
@@ -533,6 +534,7 @@ function navigate(page, skipHistory = false) {
   // post-action update) is a soft refresh — no spinner flash, keep scroll.
   const softRefresh = (page === currentPage) && skipHistory;
   currentPage = page;
+  STATE._currentPage = page;  // expose to features.js keyboard shortcuts
   destroyCharts();
 
   if (!skipHistory) {
