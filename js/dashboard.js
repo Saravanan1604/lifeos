@@ -597,6 +597,7 @@ function renderDashBudgetChart() {
 
 // ===== DASHBOARD =====
 function renderDashboard() {
+  try {
   const scores = calcLifeScore();
   const txnsAll = STATE.transactions || [];
   const txns = filterTxByAnchor(txnsAll, _dashPeriod, _dashAnchorDate);
@@ -621,7 +622,7 @@ function renderDashboard() {
 
   const _isNewUser = txnsAll.length === 0 && !_banks.length && !_cash.length && !_cards.length;
 
-  try { document.getElementById('page-container').innerHTML = `
+  document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">
@@ -850,24 +851,7 @@ function renderDashboard() {
         </div>
       </div>
 
-    </div>`; } catch(e) {
-    console.error('renderDashboard error:', e);
-    document.getElementById('page-container').innerHTML = `
-      <div class="fade-in" style="padding:24px">
-        <h1 class="page-title">Dashboard</h1>
-        <div class="glass-card" style="padding:32px;text-align:center;margin-top:20px">
-          <div style="font-size:40px;margin-bottom:12px">⚡</div>
-          <p style="font-size:16px;font-weight:700;color:var(--text)">Welcome to LifeOS!</p>
-          <p style="font-size:13px;color:var(--text3);margin:10px 0 20px">Get started by adding your first transaction or linking a bank account.</p>
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-            <button onclick="navigate('finance')" class="btn-primary">+ Add Transaction</button>
-            <button onclick="navigate('bank-tracker')" class="btn-secondary">Link Bank</button>
-            <button onclick="navigate('budget')" class="btn-secondary">Set Budget</button>
-          </div>
-          <p style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:20px">Error: ${e.message || 'Unknown'}</p>
-        </div>
-      </div>`;
-  }
+    </div>`;
 
   if (window.innerWidth < 700) {
     const twoCol = document.querySelector('.dash-two-col');
@@ -895,6 +879,26 @@ function renderDashboard() {
       if (wg) wg.style.gridTemplateColumns = '1fr';
     }
   }, 50);
+
+  } catch(err) {
+    console.error('[LifeOS] renderDashboard crashed:', err);
+    const _pc = document.getElementById('page-container');
+    if (_pc) _pc.innerHTML = `
+      <div class="fade-in" style="padding:24px">
+        <h1 class="page-title">Dashboard</h1>
+        <div class="glass-card" style="padding:32px;text-align:center;margin-top:20px">
+          <div style="font-size:40px;margin-bottom:12px">⚡</div>
+          <p style="font-size:16px;font-weight:700;color:var(--text)">Welcome to LifeOS!</p>
+          <p style="font-size:13px;color:var(--text3);margin:10px 0 20px">Get started — tap a button below to begin.</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+            <button onclick="navigate('finance')" class="btn-primary">+ Add Transaction</button>
+            <button onclick="navigate('bank-tracker')" class="btn-secondary">Link Bank</button>
+            <button onclick="navigate('budget')" class="btn-secondary">Set Budget</button>
+          </div>
+          <p style="font-size:10px;color:rgba(255,255,255,0.2);font-family:monospace">${err && err.message ? err.message : String(err)}</p>
+        </div>
+      </div>`;
+  }
 }
 
 // ── Combined: Income / Expense / Savings / Net Worth ──
