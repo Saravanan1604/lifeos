@@ -522,6 +522,7 @@ function _renderPage(page) {
     case 'achievements': renderAchievements();  break;
     case 'ai-coach':     renderAICoach();       break;
     case 'analytics':    renderAnalytics();     break;
+    case 'compare':      renderCompare();       break;
     case 'categories':   renderCategories();    break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;

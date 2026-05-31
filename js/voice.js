@@ -37,6 +37,13 @@ const I18N = {
   'Growth':          { ta: 'வளர்ச்சி',        hi: 'विकास' },
   'Achievements':    { ta: 'சாதனைகள்',        hi: 'उपलब्धियाँ' },
   'Analytics':       { ta: 'பகுப்பாய்வு',     hi: 'विश्लेषण' },
+  'Compare':         { ta: 'ஒப்பீடு',         hi: 'तुलना' },
+  'Side-by-side: Day · Week · Month · Year': { ta: 'அருகருகே: நாள் · வாரம் · மாதம் · வருடம்', hi: 'साथ-साथ: दिन · सप्ताह · महीना · वर्ष' },
+  'Day vs Day':     { ta: 'நாள் vs நாள்',    hi: 'दिन बनाम दिन' },
+  'Week vs Week':   { ta: 'வாரம் vs வாரம்',  hi: 'सप्ताह बनाम सप्ताह' },
+  'Month vs Month': { ta: 'மாதம் vs மாதம்',  hi: 'महीना बनाम महीना' },
+  'Year vs Year':   { ta: 'வருடம் vs வருடம்', hi: 'वर्ष बनाम वर्ष' },
+  'Change':         { ta: 'மாற்றம்',          hi: 'बदलाव' },
   'AI Coach':        { ta: 'AI பயிற்சியாளர்', hi: 'AI कोच' },
   'Settings':        { ta: 'அமைப்புகள்',      hi: 'सेटिंग्स' },
   'Help & Support':  { ta: 'உதவி & ஆதரவு',   hi: 'सहायता और समर्थन' },
@@ -344,6 +351,7 @@ const VOICE_COMMANDS = [
   { keys: ['category', 'categories', 'வகை', 'श्रेणी'], run: () => navigate('categories'), say: 'Categories' },
   { keys: ['achievement', 'சாதனை', 'उपलब्धि'], run: () => navigate('achievements'), say: 'Achievements' },
   { keys: ['analytic', 'report', 'பகுப்பாய்வு', 'அறிக்கை', 'विश्लेषण', 'रिपोर्ट'], run: () => navigate('analytics'), say: 'Analytics' },
+  { keys: ['compare', 'comparison', 'ஒப்பீடு', 'तुलना'], run: () => navigate('compare'), say: 'Compare' },
   { keys: ['coach', 'assistant', 'பயிற்சி', 'कोच', 'सहायक'], run: () => navigate('ai-coach'), say: 'AI Coach' },
   { keys: ['setting', 'அமைப்பு', 'सेटिंग'], run: () => navigate('settings'), say: 'Settings' },
   { keys: ['help', 'support', 'உதவி', 'सहायता', 'मदद'], run: () => navigate('help'), say: 'Help' },
@@ -379,14 +387,37 @@ const VOICE_COMMANDS = [
 let _recognition = null;
 let _listening = false;
 
+// Pick the best installed voice for a BCP-47 lang (e.g. "ta-IN"), with fallback
+// to the base language ("ta"), then any voice. Returns null if none.
+function _pickVoice(lang) {
+  const voices = window.speechSynthesis.getVoices() || [];
+  if (!voices.length) return null;
+  const base = lang.split('-')[0];
+  return voices.find(v => v.lang === lang)
+      || voices.find(v => v.lang && v.lang.toLowerCase().startsWith(base))
+      || null;
+}
+
 function _speak(text) {
   try {
-    if (!('speechSynthesis' in window)) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = VOICE_LANGS[getLang()].tts;
-    u.rate = 1.0;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
+    if (!('speechSynthesis' in window) || !text) return;
+    const lang = VOICE_LANGS[getLang()].tts;
+    const utter = () => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      const v = _pickVoice(lang);
+      if (v) u.voice = v;            // use installed Tamil/Hindi voice if present
+      u.rate = 0.98;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    };
+    // Voices load async on first use in some browsers — wait for them once.
+    if (!window.speechSynthesis.getVoices().length) {
+      window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.onvoiceschanged = null; utter(); };
+      setTimeout(utter, 250);        // fallback if the event never fires
+    } else {
+      utter();
+    }
   } catch {}
 }
 

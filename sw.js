@@ -1,5 +1,5 @@
-// LifeOS Service Worker — v2.0
-const CACHE = 'lifeos-v2';
+// LifeOS Service Worker — v3.0
+const CACHE = 'lifeos-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -21,6 +21,7 @@ const ASSETS = [
   '/js/ai.js',
   '/js/premium.js',
   '/js/voice.js',
+  '/js/compare.js',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
