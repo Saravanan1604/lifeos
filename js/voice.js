@@ -399,10 +399,106 @@ function _setMicState(active) {
   }
 }
 
-// Parse a recognized phrase and run the first matching command.
+// ---- Natural-language transaction entry --------------------
+// Converts native-script numerals (Devanagari/Tamil) to ASCII digits.
+function _normalizeDigits(s) {
+  return s.replace(/[०-९]/g, d => '०१२३४५६७८९'.indexOf(d))
+          .replace(/[௦-௯]/g, d => '௦௧௨௩௪௫௬௭௮௯'.indexOf(d));
+}
+
+// Small English number-word parser (handles "ten", "twenty five", "hundred", "thousand").
+const _NUM_WORDS = { zero:0, one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9,
+  ten:10, eleven:11, twelve:12, thirteen:13, fourteen:14, fifteen:15, sixteen:16, seventeen:17,
+  eighteen:18, nineteen:19, twenty:20, thirty:30, forty:40, fifty:50, sixty:60, seventy:70,
+  eighty:80, ninety:90, hundred:100, thousand:1000, lakh:100000, lakhs:100000 };
+function _wordsToNumber(text) {
+  const words = text.split(/[\s-]+/).filter(w => w in _NUM_WORDS);
+  if (!words.length) return null;
+  let total = 0, current = 0;
+  for (const w of words) {
+    const v = _NUM_WORDS[w];
+    if (v === 100 || v === 1000 || v === 100000) {
+      current = (current || 1) * v;
+      if (v >= 1000) { total += current; current = 0; }
+    } else current += v;
+  }
+  return total + current || null;
+}
+
+function _extractAmount(text) {
+  const norm = _normalizeDigits(text);
+  const m = norm.match(/(\d[\d,]*(?:\.\d+)?)/);    // digits first (e.g. "10", "1,500.50")
+  if (m) return parseFloat(m[1].replace(/,/g, ''));
+  return _wordsToNumber(text);                      // fall back to number words
+}
+
+// Detect "add a transaction" intent and build a tx object, or return null.
+function parseTransactionCommand(text) {
+  // Money intent words across the 3 languages
+  const intent = /(transaction|expense|income|spend|spent|paid|pay|add|log|record|சேர்|செலவ|வருமான|பதி|खर्च|आय|जोड़|जमा|दर्ज|खरीद)/i;
+  // Things that are NOT transactions even if they contain "add"
+  const notTx = /(budget|goal|habit|பட்ஜெட்|இலக்கு|பழக்கம்|बजट|लक्ष्य|आदत)/i;
+  if (!intent.test(text) || notTx.test(text)) return null;
+
+  const amount = _extractAmount(text);
+  if (!amount || amount <= 0) return null;          // no amount → not a transaction entry
+
+  // Type: income vs expense (default expense)
+  const isIncome = /(income|salary|earned|credit|received|வருமான|சம்பள|आय|कमाई|वेतन|जमा|मिला)/i.test(text);
+  const type = isIncome ? 'income' : 'expense';
+
+  // Category: match against real CATEGORIES (English name or its translation)
+  const cats = (typeof CATEGORIES !== 'undefined') ? CATEGORIES : [];
+  let matched = null;
+  for (const c of cats) {
+    const names = [c.name.toLowerCase()];
+    const tr = I18N[c.name];
+    if (tr) { if (tr.ta) names.push(tr.ta.toLowerCase()); if (tr.hi) names.push(tr.hi.toLowerCase()); }
+    if (names.some(n => text.includes(n))) { matched = c; break; }
+  }
+  // Sensible defaults if no category spoken
+  if (!matched) matched = cats.find(c => c.name === (isIncome ? 'Salary' : 'Other')) || { name: 'Other', icon: '📦' };
+
+  // Date: today (default) / yesterday
+  let date = (typeof today === 'function') ? today() : new Date().toISOString().slice(0, 10);
+  if (/(yesterday|நேற்று|कल|बीता)/i.test(text)) {
+    const d = new Date(); d.setDate(d.getDate() - 1);
+    date = d.toISOString().slice(0, 10);
+  }
+
+  // Description: text after "for" / "on" (English), cleaned of date words,
+  // the category name, and trailing punctuation. Blank if it adds nothing.
+  let description = '';
+  const dm = text.match(/\b(?:for|on)\s+(.+)$/i);
+  if (dm) {
+    description = dm[1]
+      .replace(/(today|yesterday|நேற்று|இன்று|कल|आज)/gi, '')
+      .replace(new RegExp('\\b' + matched.name + '\\b', 'gi'), '')
+      .replace(/[.\s]+$/, '').trim();
+  }
+
+  return { type, amount, date, category: matched.name, icon: matched.icon || '💳', description, source: '' };
+}
+
+// Parse a recognized phrase: try transaction entry first, then commands.
 function handleVoiceTranscript(raw) {
   const text = (raw || '').toLowerCase().trim();
   if (!text) return;
+
+  // 1) Natural-language transaction ("add 10 rupees today in food")
+  const tx = parseTransactionCommand(text);
+  if (tx && typeof _commitTx === 'function') {
+    _commitTx(tx);
+    const sym = (STATE.settings && STATE.settings.currency) || '₹';
+    const verb = tx.type === 'income' ? 'Income' : 'Expense';
+    const msg = `${tx.icon} ${verb} ${sym}${tx.amount} · ${tx.category}`;
+    if (typeof toast === 'function') toast(`🎙️ ${msg}`, 'success');
+    _speak(`Added ${tx.type} ${tx.amount} ${tx.category}`);
+    if (typeof currentPage !== 'undefined' && currentPage === 'finance' && typeof navigate === 'function') navigate('finance', true);
+    return;
+  }
+
+  // 2) Keyword commands (navigation, actions, language)
   for (const cmd of VOICE_COMMANDS) {
     if (cmd.keys.some(k => text.includes(k.toLowerCase()))) {
       cmd.run();
