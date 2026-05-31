@@ -432,12 +432,191 @@ function _extractAmount(text) {
   return _wordsToNumber(text);                      // fall back to number words
 }
 
+// Strip numbers, currency + command/connector words to recover a free-text name.
+function _stripToName(text, extraWords) {
+  let s = _normalizeDigits(text).replace(/[\d,]+(?:\.\d+)?/g, ' ');
+  const base = ['add','create','new','set','make','change','update','edit','remove','delete',
+    'rupees','rupee','rs','to','as','of','in','for','my','the','a','an','goal','target',
+    'asset','investment','loan','debt','budget','balance','bank','please',
+    'சேர்','இலக்கு','சொத்து','கடன்','பட்ஜெட்','இருப்பு','மாற்று','நீக்கு',
+    'जोड़ो','जोड़','बनाओ','सेट','बदलो','हटाओ','लक्ष्य','संपत्ति','कर्ज','बजट','बैलेंस'];
+  base.concat(extraWords || []).forEach(w => { s = s.replace(new RegExp('\\b' + w + '\\b', 'gi'), ' '); });
+  return s.replace(/[₹$€£]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// Match a spoken phrase to a real CATEGORIES entry (EN/TA/HI). Returns the cat or null.
+function _matchCategory(text) {
+  const cats = (typeof CATEGORIES !== 'undefined') ? CATEGORIES : [];
+  for (const c of cats) {
+    const names = [c.name.toLowerCase()];
+    const tr = I18N[c.name];
+    if (tr) { if (tr.ta) names.push(tr.ta.toLowerCase()); if (tr.hi) names.push(tr.hi.toLowerCase()); }
+    if (names.some(n => text.includes(n))) return c;
+  }
+  return null;
+}
+
+// Find a named entity (goal/asset/loan) the user referred to, tolerating
+// partial names: "remove goal car" matches a goal named "Buy car".
+function _findEntity(list, text) {
+  if (!list || !list.length) return null;
+  let hit = list.find(x => x.name && text.includes(x.name.toLowerCase()));
+  if (hit) return hit;
+  const cand = _stripToName(text);
+  if (!cand) return null;
+  const candWords = cand.split(/\s+/).filter(w => w.length > 1);
+  return list.find(x => {
+    const nm = (x.name || '').toLowerCase();
+    if (!nm) return false;
+    if (nm.includes(cand) || cand.includes(nm)) return true;
+    return candWords.some(w => nm.includes(w));
+  }) || null;
+}
+
+function _isAdd(text)    { return /(add|create|new|set|make|log|சேர்|புதிய|जोड़|बनाओ|नया|सेट)/i.test(text); }
+function _isRemove(text) { return /(remove|delete|cancel|நீக்கு|हटा|रद्द)/i.test(text); }
+function _isEdit(text)   { return /(edit|update|change|modify|மாற்று|புதுப்|बदल|अपडेट|संशोधित)/i.test(text); }
+
+// ---- Hands-free CRUD handlers. Each returns a feedback string on success, else null.
+
+// "change my bank balance in sbi as 10 rs"  /  "set sbi balance to 50000"
+function _voiceBankBalance(text) {
+  if (!/(balance|இருப்பு|बैलेंस)/i.test(text)) return null;
+  const amount = _extractAmount(text);
+  if (amount == null || amount < 0) return null;
+  const banks = STATE.bankAccounts || [], cash = STATE.cashAccounts || [];
+  let acct = banks.find(b => b.bankName && text.includes(b.bankName.toLowerCase()));
+  if (!acct) acct = cash.find(c => c.name && text.includes(c.name.toLowerCase()));
+  if (!acct) return null;                       // couldn't tell which account
+  const old = acct.balance || 0;
+  acct.balance = amount;
+  STATE.bankBalanceHistory = STATE.bankBalanceHistory || [];
+  STATE.bankBalanceHistory.push({ accountId: acct.id, balance: amount, prevBalance: old, date: (typeof today === 'function' ? today() : new Date().toISOString().slice(0,10)), note: 'Voice update' });
+  saveState();
+  const sym = (STATE.settings && STATE.settings.currency) || '₹';
+  return `🏦 ${acct.bankName || acct.name} → ${sym}${amount}`;
+}
+
+// "set budget for food 5000"  /  "change food budget to 8000"
+function _voiceBudget(text) {
+  if (!/(budget|பட்ஜெட்|बजट)/i.test(text)) return null;
+  const amount = _extractAmount(text);
+  if (!amount || amount <= 0) return null;
+  const cat = _matchCategory(text);
+  if (!cat) return null;                          // need a category to budget
+  STATE.budgets = STATE.budgets || [];
+  const i = STATE.budgets.findIndex(b => b.category === cat.name);
+  if (i >= 0) STATE.budgets[i] = { ...STATE.budgets[i], amount, period: 'month' };
+  else STATE.budgets.push({ id: genId(), category: cat.name, amount, period: 'month' });
+  saveState();
+  const sym = (STATE.settings && STATE.settings.currency) || '₹';
+  return `📊 ${cat.name} budget → ${sym}${amount}/mo`;
+}
+
+// "add goal buy car 500000"  /  "remove goal car"
+function _voiceGoal(text) {
+  if (!/(goal|target|இலக்கு|लक्ष्य)/i.test(text)) return null;
+  if (_isRemove(text)) {
+    const g = _findEntity(STATE.goals || [], text);
+    if (!g) return null;
+    STATE.goals = STATE.goals.filter(x => x.id !== g.id);
+    saveState();
+    return `🗑️ Goal removed: ${g.name}`;
+  }
+  // add / set
+  const amount = _extractAmount(text) || 100;
+  let name = _stripToName(text) || 'Goal';
+  name = name.charAt(0).toUpperCase() + name.slice(1);
+  STATE.goals = STATE.goals || [];
+  STATE.goals.push({ id: genId(), name, type: 'savings', target: amount, current: 0, emoji: '🎯', deadline: '', description: '', autoSync: false, createdAt: new Date().toISOString() });
+  saveState();
+  if (typeof addXP === 'function') addXP(30, 'Goal created');
+  const sym = (STATE.settings && STATE.settings.currency) || '₹';
+  return `🎯 Goal added: ${name} (${sym}${amount})`;
+}
+
+// "add asset gold 100000"  /  "edit asset gold to 120000"  /  "remove asset gold"
+function _voiceAsset(text) {
+  if (!/(asset|investment|சொத்து|முதலீடு|संपत्ति|निवेश)/i.test(text)) return null;
+  const list = STATE.investments || [];
+  if (_isRemove(text)) {
+    const inv = _findEntity(list, text);
+    if (!inv) return null;
+    STATE.investments = list.filter(x => x.id !== inv.id);
+    saveState();
+    return `🗑️ Asset removed: ${inv.name}`;
+  }
+  if (_isEdit(text)) {
+    const inv = _findEntity(list, text);
+    const amount = _extractAmount(text);
+    if (!inv || amount == null) return null;
+    inv.currentValue = amount;
+    saveState();
+    const sym = (STATE.settings && STATE.settings.currency) || '₹';
+    return `✏️ ${inv.name} value → ${sym}${amount}`;
+  }
+  // add
+  const amount = _extractAmount(text);
+  if (!amount || amount <= 0) return null;
+  let name = _stripToName(text) || 'Asset';
+  name = name.charAt(0).toUpperCase() + name.slice(1);
+  STATE.investments = list;
+  STATE.investments.push({ id: genId(), name, type: 'Other', amount, currentValue: amount, notes: '', date: (typeof today === 'function' ? today() : new Date().toISOString().slice(0,10)) });
+  saveState();
+  if (typeof addXP === 'function') addXP(25, 'Asset added');
+  const sym = (STATE.settings && STATE.settings.currency) || '₹';
+  return `📈 Asset added: ${name} (${sym}${amount})`;
+}
+
+// "add loan home loan 500000"  /  "update home loan to 400000"  /  "remove loan car"
+function _voiceLoan(text) {
+  if (!/(loan|debt|கடன்|कर्ज|ऋण)/i.test(text)) return null;
+  const list = STATE.loans || [];
+  if (_isRemove(text)) {
+    const ln = _findEntity(list, text);
+    if (!ln) return null;
+    STATE.loans = list.filter(x => x.id !== ln.id);
+    saveState();
+    return `🗑️ Loan removed: ${ln.name}`;
+  }
+  if (_isEdit(text)) {
+    const ln = _findEntity(list, text);
+    const amount = _extractAmount(text);
+    if (!ln || amount == null) return null;
+    ln.outstanding = amount;
+    saveState();
+    const sym = (STATE.settings && STATE.settings.currency) || '₹';
+    return `✏️ ${ln.name} outstanding → ${sym}${amount}`;
+  }
+  // add
+  const amount = _extractAmount(text);
+  if (!amount || amount <= 0) return null;
+  let name = _stripToName(text) || 'Loan';
+  name = name.charAt(0).toUpperCase() + name.slice(1);
+  STATE.loans = list;
+  STATE.loans.push({ id: genId(), name, type: 'Other', principal: amount, outstanding: amount, rate: 0, emi: 0 });
+  saveState();
+  const sym = (STATE.settings && STATE.settings.currency) || '₹';
+  return `🏦 Loan added: ${name} (${sym}${amount})`;
+}
+
+// Try each CRUD handler in order; first non-null feedback wins.
+function handleCrudIntent(text) {
+  const handlers = [_voiceBankBalance, _voiceBudget, _voiceGoal, _voiceAsset, _voiceLoan];
+  for (const h of handlers) {
+    let res = null;
+    try { res = h(text); } catch (e) { res = null; }
+    if (res) return res;
+  }
+  return null;
+}
+
 // Detect "add a transaction" intent and build a tx object, or return null.
 function parseTransactionCommand(text) {
   // Money intent words across the 3 languages
   const intent = /(transaction|expense|income|spend|spent|paid|pay|add|log|record|சேர்|செலவ|வருமான|பதி|खर्च|आय|जोड़|जमा|दर्ज|खरीद)/i;
   // Things that are NOT transactions even if they contain "add"
-  const notTx = /(budget|goal|habit|பட்ஜெட்|இலக்கு|பழக்கம்|बजट|लक्ष्य|आदत)/i;
+  const notTx = /(budget|goal|target|habit|balance|asset|investment|loan|debt|பட்ஜெட்|இலக்கு|பழக்கம்|இருப்பு|சொத்து|கடன்|बजट|लक्ष्य|आदत|बैलेंस|संपत्ति|कर्ज|ऋण)/i;
   if (!intent.test(text) || notTx.test(text)) return null;
 
   const amount = _extractAmount(text);
@@ -485,7 +664,16 @@ function handleVoiceTranscript(raw) {
   const text = (raw || '').toLowerCase().trim();
   if (!text) return;
 
-  // 1) Natural-language transaction ("add 10 rupees today in food")
+  // 1) Hands-free CRUD (bank balance, budget, goal, asset, loan)
+  const crud = handleCrudIntent(text);
+  if (crud) {
+    if (typeof toast === 'function') toast(`🎙️ ${crud}`, 'success');
+    _speak(crud.replace(/[^\p{L}\p{N}\s.]/gu, ''));
+    if (typeof softRefresh === 'function') softRefresh();
+    return;
+  }
+
+  // 2) Natural-language transaction ("add 10 rupees today in food")
   const tx = parseTransactionCommand(text);
   if (tx && typeof _commitTx === 'function') {
     _commitTx(tx);
