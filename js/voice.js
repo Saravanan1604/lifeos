@@ -41,6 +41,61 @@ const I18N = {
   'Settings':        { ta: 'அமைப்புகள்',      hi: 'सेटिंग्स' },
   'Help & Support':  { ta: 'உதவி & ஆதரவு',   hi: 'सहायता और समर्थन' },
   'Sign Out':        { ta: 'வெளியேறு',        hi: 'साइन आउट' },
+
+  // ---- Page titles / subtitles ----
+  'Manage your LifeOS preferences': { ta: 'உங்கள் LifeOS விருப்பங்களை நிர்வகிக்கவும்', hi: 'अपनी LifeOS प्राथमिकताएँ प्रबंधित करें' },
+
+  // ---- Common controls / time filters ----
+  'Day':   { ta: 'நாள்',   hi: 'दिन' },
+  'Week':  { ta: 'வாரம்',  hi: 'सप्ताह' },
+  'Month': { ta: 'மாதம்',  hi: 'महीना' },
+  'Year':  { ta: 'வருடம்', hi: 'वर्ष' },
+  'All':   { ta: 'அனைத்தும்', hi: 'सभी' },
+  'Edit':  { ta: 'திருத்து', hi: 'संपादित करें' },
+  'Save':  { ta: 'சேமி',   hi: 'सहेजें' },
+  'Cancel':{ ta: 'ரத்து',  hi: 'रद्द करें' },
+  'Delete':{ ta: 'நீக்கு', hi: 'हटाएँ' },
+  'Close': { ta: 'மூடு',   hi: 'बंद करें' },
+  'Bal':   { ta: 'இருப்பு', hi: 'बैलेंस' },
+  'Pay':   { ta: 'செலுத்து', hi: 'भुगतान' },
+  'Limit': { ta: 'வரம்பு', hi: 'सीमा' },
+  'Outstanding': { ta: 'நிலுவை', hi: 'बकाया' },
+
+  // ---- Finance page ----
+  '+ Add Transaction': { ta: '+ பரிவர்த்தனை சேர்', hi: '+ लेनदेन जोड़ें' },
+  'Add Income':  { ta: 'வருமானம் சேர்', hi: 'आय जोड़ें' },
+  'Add Expense': { ta: 'செலவு சேர்',    hi: 'खर्च जोड़ें' },
+  'Import CSV':  { ta: 'CSV இறக்குமதி', hi: 'CSV आयात' },
+  'Bulk Entry':  { ta: 'மொத்த உள்ளீடு', hi: 'बल्क एंट्री' },
+  'Paste Statement': { ta: 'அறிக்கையை ஒட்டு', hi: 'स्टेटमेंट पेस्ट करें' },
+  'Scan SMS':    { ta: 'SMS ஸ்கேன்',    hi: 'SMS स्कैन' },
+  'Import PDF':  { ta: 'PDF இறக்குமதி', hi: 'PDF आयात' },
+  'NET WORTH':   { ta: 'நிகர மதிப்பு',  hi: 'कुल संपत्ति' },
+  'INCOME':      { ta: 'வருமானம்',      hi: 'आय' },
+  'EXPENSES':    { ta: 'செலவுகள்',      hi: 'खर्च' },
+  'SAVINGS':     { ta: 'சேமிப்பு',      hi: 'बचत' },
+  'Bank Accounts': { ta: 'வங்கி கணக்குகள்', hi: 'बैंक खाते' },
+  'Total Bank Balance': { ta: 'மொத்த வங்கி இருப்பு', hi: 'कुल बैंक बैलेंस' },
+  '+ Add Bank':  { ta: '+ வங்கி சேர்',  hi: '+ बैंक जोड़ें' },
+  'Credit Cards':{ ta: 'கடன் அட்டைகள்', hi: 'क्रेडिट कार्ड' },
+  '+ Add Card':  { ta: '+ அட்டை சேர்',  hi: '+ कार्ड जोड़ें' },
+  'Savings':     { ta: 'சேமிப்பு',      hi: 'बचत' },
+  'Salary':      { ta: 'சம்பளம்',       hi: 'वेतन' },
+  'Fixed Deposit': { ta: 'நிலையான வைப்பு', hi: 'फिक्स्ड डिपॉज़िट' },
+
+  // ---- Settings page ----
+  'Profile':      { ta: 'சுயவிவரம்',   hi: 'प्रोफ़ाइल' },
+  'Display Name': { ta: 'காட்சிப் பெயர்', hi: 'प्रदर्शन नाम' },
+  'Currency Symbol': { ta: 'நாணய சின்னம்', hi: 'मुद्रा चिह्न' },
+  'Save Profile': { ta: 'சுயவிவரம் சேமி', hi: 'प्रोफ़ाइल सहेजें' },
+  'Theme':        { ta: 'தீம்',        hi: 'थीम' },
+  'Dark':         { ta: 'இருள்',       hi: 'डार्क' },
+  'Light':        { ta: 'ஒளி',         hi: 'लाइट' },
+  'Auto':         { ta: 'தானியங்கி',   hi: 'ऑटो' },
+  'Your Stats':   { ta: 'உங்கள் புள்ளிவிவரம்', hi: 'आपके आँकड़े' },
+  'Danger Zone':  { ta: 'ஆபத்து மண்டலம்', hi: 'खतरा क्षेत्र' },
+  'Reset All Data': { ta: 'எல்லா தரவையும் மீட்டமை', hi: 'सभी डेटा रीसेट करें' },
+
   // Voice feedback strings
   'voice_listening':   { en: 'Listening…',                ta: 'கேட்கிறேன்…',                 hi: 'सुन रहा हूँ…' },
   'voice_not_supported': { en: 'Voice control is not supported in this browser.', ta: 'இந்த உலாவியில் குரல் கட்டுப்பாடு ஆதரிக்கப்படவில்லை.', hi: 'इस ब्राउज़र में वॉयस कंट्रोल समर्थित नहीं है।' },
@@ -61,9 +116,64 @@ function t(en) {
   return en; // graceful fallback to English
 }
 
-// Walk the sidebar (and any [data-i18n] nodes) and translate text in place.
-// Original English text is stashed in dataset.en so switching back works.
+// Reverse index: any known translation (in any language) → English key.
+// Lets us translate forward AND revert when switching languages, even
+// though render functions emit English but the DOM may currently show Tamil.
+let _REVERSE = null;
+function _buildReverse() {
+  _REVERSE = {};
+  for (const en in I18N) {
+    if (en.startsWith('voice_')) continue;       // internal keys, not UI text
+    _REVERSE[en.toLowerCase()] = en;             // English maps to itself
+    const entry = I18N[en];
+    ['ta', 'hi'].forEach(l => { if (entry[l]) _REVERSE[entry[l].toLowerCase()] = en; });
+  }
+}
+
+// Given a chunk of visible text, return [prefix, englishKey] if it maps to a
+// known string (ignoring leading emoji/symbols/whitespace), else null.
+function _canonical(text) {
+  if (!_REVERSE) _buildReverse();
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  // Direct match
+  if (_REVERSE[trimmed.toLowerCase()]) return ['', _REVERSE[trimmed.toLowerCase()]];
+  // Strip a leading emoji / symbol run (e.g. "💰 Finance", "⚙️ Settings")
+  const m = trimmed.match(/^([^\p{L}\p{N}]+)(.+)$/u);
+  if (m) {
+    const key = _REVERSE[m[2].trim().toLowerCase()];
+    if (key) return [m[1], key];
+  }
+  return null;
+}
+
+// Translate the text nodes inside a root element in place.
+function _translateTextNodes(root) {
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const p = node.parentNode;
+      if (!p) return NodeFilter.FILTER_REJECT;
+      const tag = p.nodeName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA') return NodeFilter.FILTER_REJECT;
+      if (p.closest && p.closest('#voice-lang-pill')) return NodeFilter.FILTER_REJECT;
+      return node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const can = _canonical(node.nodeValue);
+    if (!can) return;
+    const [prefix, key] = can;
+    const ws = node.nodeValue.match(/^(\s*).*?(\s*)$/s); // preserve outer whitespace
+    node.nodeValue = (ws ? ws[1] : '') + prefix + t(key) + (ws ? ws[2] : '');
+  });
+}
+
+// Translate sidebar, dynamic [data-i18n] nodes, and all page content.
 function applyTranslations() {
+  // Sidebar — keep original English in dataset so it always round-trips
   document.querySelectorAll('.nav-text, .nav-group-label').forEach(el => {
     if (!el.dataset.en) el.dataset.en = el.textContent.trim();
     el.textContent = t(el.dataset.en);
@@ -72,6 +182,10 @@ function applyTranslations() {
     if (!el.dataset.en) el.dataset.en = el.getAttribute('data-i18n');
     el.textContent = t(el.dataset.en);
   });
+  // Page content + key chrome — generic text-node translation
+  _translateTextNodes(document.getElementById('page-container'));
+  _translateTextNodes(document.getElementById('content'));
+
   // Reflect on <html lang="">
   document.documentElement.lang = getLang();
   // Refresh language pill if present
