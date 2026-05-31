@@ -463,6 +463,49 @@ function _extractAmount(text) {
   return _wordsToNumber(text);                      // fall back to number words
 }
 
+// Local YYYY-MM-DD (avoids the UTC off-by-one toISOString can introduce).
+function _voiceLocalISO(d) {
+  const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return z.toISOString().slice(0, 10);
+}
+
+const _MONTHS = { january:0, jan:0, february:1, feb:1, march:2, mar:2, april:3, apr:3,
+  may:4, june:5, jun:5, july:6, jul:6, august:7, aug:7, september:8, sep:8, sept:8,
+  october:9, oct:9, november:10, nov:10, december:11, dec:11 };
+
+// Extract a date from a spoken phrase.
+// Returns { date: 'YYYY-MM-DD', matched: bool, raw: 'matched text' }.
+// Handles: today / yesterday / tomorrow / day before yesterday (EN+TA+HI)
+//          and explicit "may 25", "25 may", "april 12th".
+function _extractDate(text) {
+  const now = new Date();
+  const rel = (offset, raw) => { const d = new Date(now); d.setDate(d.getDate() + offset); return { date: _voiceLocalISO(d), matched: true, raw }; };
+
+  let mm;
+  if ((mm = text.match(/day before yesterday|முந்தா\s?நாள்|परसों/i))) return rel(-2, mm[0]);
+  if ((mm = text.match(/\btomorrow\b|நாளை|आने वाला कल|कल के बाद/i))) return rel(1, mm[0]);
+  if ((mm = text.match(/\byesterday\b|நேற்று|बीता कल|बीता|कल/i))) return rel(-1, mm[0]);
+  if ((mm = text.match(/\btoday\b|இன்று|आज/i))) return rel(0, mm[0]);
+
+  // Explicit month + day (either order), e.g. "may 25", "12 april", "apr 3rd"
+  const norm = _normalizeDigits(text);
+  const months = Object.keys(_MONTHS).join('|');
+  let m = norm.match(new RegExp('\\b(' + months + ')\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b', 'i'))
+       || norm.match(new RegExp('\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(' + months + ')\\b', 'i'));
+  if (m) {
+    let mon, day;
+    if (isNaN(parseInt(m[1], 10))) { mon = _MONTHS[m[1].toLowerCase()]; day = parseInt(m[2], 10); }
+    else { day = parseInt(m[1], 10); mon = _MONTHS[m[2].toLowerCase()]; }
+    if (mon != null && day >= 1 && day <= 31) {
+      let year = now.getFullYear();
+      // A date far in the future likely means last year (e.g. "december 20" said in Jan)
+      if (new Date(year, mon, day).getTime() - now.getTime() > 31 * 864e5) year--;
+      return { date: _voiceLocalISO(new Date(year, mon, day)), matched: true, raw: m[0] };
+    }
+  }
+  return { date: _voiceLocalISO(now), matched: false, raw: '' };
+}
+
 // Strip numbers, currency + command/connector words to recover a free-text name.
 function _stripToName(text, extraWords) {
   let s = _normalizeDigits(text).replace(/[\d,]+(?:\.\d+)?/g, ' ');
@@ -650,7 +693,12 @@ function parseTransactionCommand(text) {
   const notTx = /(budget|goal|target|habit|balance|asset|investment|loan|debt|பட்ஜெட்|இலக்கு|பழக்கம்|இருப்பு|சொத்து|கடன்|बजट|लक्ष्य|आदत|बैलेंस|संपत्ति|कर्ज|ऋण)/i;
   if (!intent.test(text) || notTx.test(text)) return null;
 
-  const amount = _extractAmount(text);
+  // Date first — then strip it so a day number ("may 25") isn't read as the amount.
+  const dInfo = _extractDate(text);
+  const date = dInfo.date;
+  const textNoDate = dInfo.raw ? text.replace(dInfo.raw.toLowerCase(), ' ') : text;
+
+  const amount = _extractAmount(textNoDate);
   if (!amount || amount <= 0) return null;          // no amount → not a transaction entry
 
   // Type: income vs expense (default expense)
@@ -669,22 +717,16 @@ function parseTransactionCommand(text) {
   // Sensible defaults if no category spoken
   if (!matched) matched = cats.find(c => c.name === (isIncome ? 'Salary' : 'Other')) || { name: 'Other', icon: '📦' };
 
-  // Date: today (default) / yesterday
-  let date = (typeof today === 'function') ? today() : new Date().toISOString().slice(0, 10);
-  if (/(yesterday|நேற்று|कल|बीता)/i.test(text)) {
-    const d = new Date(); d.setDate(d.getDate() - 1);
-    date = d.toISOString().slice(0, 10);
-  }
-
-  // Description: text after "for" / "on" (English), cleaned of date words,
+  // Description: text after "for" / "on", cleaned of the matched date,
   // the category name, and trailing punctuation. Blank if it adds nothing.
   let description = '';
-  const dm = text.match(/\b(?:for|on)\s+(.+)$/i);
+  const dm = textNoDate.match(/\b(?:for|on)\s+(.+)$/i);
   if (dm) {
     description = dm[1]
-      .replace(/(today|yesterday|நேற்று|இன்று|कल|आज)/gi, '')
+      .replace(/(today|yesterday|tomorrow|நேற்று|இன்று|நாளை|कल|आज)/gi, '')
       .replace(new RegExp('\\b' + matched.name + '\\b', 'gi'), '')
-      .replace(/[.\s]+$/, '').trim();
+      .replace(/\b(in|on|at|for|the|a|an|of|to)\b/gi, '')   // drop dangling connectors
+      .replace(/[.\s]+/g, ' ').trim();
   }
 
   return { type, amount, date, category: matched.name, icon: matched.icon || '💳', description, source: '' };
