@@ -350,6 +350,14 @@ function renderSettings() {
               <option value="£" ${STATE.settings?.currency==='£'?'selected':''}>£ British Pound</option>
             </select>
           </div>
+          <div class="form-group" style="margin-top:12px"><label class="form-label">🌐 Language / மொழி / भाषा</label>
+            <select id="s-lang" class="form-input" onchange="setLanguage(this.value)">
+              <option value="en" ${getLang()==='en'?'selected':''}>🇬🇧 English</option>
+              <option value="ta" ${getLang()==='ta'?'selected':''}>🇮🇳 தமிழ் (Tamil)</option>
+              <option value="hi" ${getLang()==='hi'?'selected':''}>🇮🇳 हिन्दी (Hindi)</option>
+            </select>
+          </div>
+          <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:4px">🎙️ Tap the mic in the floating dock to control the app by voice in your language.</p>
           <button class="btn-primary" style="margin-top:14px" onclick="saveSettings()">Save Profile</button>
         </div>
 

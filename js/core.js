@@ -365,6 +365,7 @@ function showApp() {
   navigate('dashboard');
   if (typeof startLiveSync === 'function') startLiveSync();
   if (typeof initPremiumFeatures === 'function') initPremiumFeatures();
+  if (typeof initVoiceControl === 'function') initVoiceControl();
 }
 
 // ===== SIDEBAR =====
@@ -527,6 +528,7 @@ function _renderPage(page) {
     default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
   }
   _appendQuickActions(page);
+  if (typeof applyTranslations === 'function') applyTranslations();
 }
 
 function navigate(page, skipHistory = false) {
