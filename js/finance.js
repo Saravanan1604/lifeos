@@ -1,5 +1,6 @@
 // ===== FINANCE PAGE =====
 let _finPeriod = 'month'; // 'day' | 'week' | 'month' | 'year' | 'all'
+let _finAnchor = null;    // specific date 'YYYY-MM-DD' the tx list is anchored to (null = current period)
 let _finType     = 'all';        // 'all' | 'income' | 'expense'
 let _finCategory = 'all';        // 'all' | <category name>
 let _finSort     = 'date-desc';  // 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc' | 'alpha-asc' | 'alpha-desc'
@@ -260,6 +261,16 @@ function renderFinance() {
           </div>
         </div>
 
+        <!-- Specific period picker + Add Transaction -->
+        <div style="padding:10px 16px;border-bottom:1px solid var(--glass-border);display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:11px;color:var(--text3);font-weight:600">📆 Jump to:</span>
+            <span id="fin-period-picker">${_finPickerHTML()}</span>
+          </div>
+          <button class="btn-primary btn-sm" onclick="openAddTxModal('expense')"
+            style="background:linear-gradient(135deg,#00c9a7,#6366f1);font-weight:700;padding:7px 16px;white-space:nowrap">+ Add Transaction</button>
+        </div>
+
         <!-- Search + Type / Category / Sort filters -->
         <div style="padding:10px 16px;border-bottom:1px solid var(--glass-border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <!-- Text Search -->
@@ -424,8 +435,67 @@ function refreshFinancePage() {
 
 function setFinPeriod(p) {
   _finPeriod = p;
+  _finAnchor = null;   // reset to current when switching period type
   document.querySelectorAll('.period-tabs .period-tab').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === p));
+  const pk = document.getElementById('fin-period-picker');
+  if (pk) pk.innerHTML = _finPickerHTML();   // swap picker to the right input type
   refreshFinancePage();
+}
+
+// ── Specific period picker for the transaction list ──────────────────────────
+function _finIsoWeekStr(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dn = (t.getUTCDay() + 6) % 7;
+  t.setUTCDate(t.getUTCDate() - dn + 3);
+  const firstThu = new Date(Date.UTC(t.getUTCFullYear(), 0, 4));
+  const week = 1 + Math.round(((t - firstThu) / 864e5 - 3 + ((firstThu.getUTCDay() + 6) % 7)) / 7);
+  return `${t.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+function _finWeekToMonday(val) {
+  const m = val.match(/(\d{4})-W(\d{2})/); if (!m) return null;
+  const year = +m[1], week = +m[2];
+  const jan4 = new Date(year, 0, 4);
+  const dow = (jan4.getDay() + 6) % 7;
+  const wk1Mon = new Date(jan4); wk1Mon.setDate(jan4.getDate() - dow);
+  const mon = new Date(wk1Mon); mon.setDate(wk1Mon.getDate() + (week - 1) * 7);
+  const z = new Date(mon.getTime() - mon.getTimezoneOffset() * 60000);
+  return z.toISOString().slice(0, 10);
+}
+function _finDefaultPickerValue(p) {
+  const now = new Date();
+  if (p === 'day')   return now.toISOString().slice(0, 10);
+  if (p === 'week')  return _finIsoWeekStr(now);
+  if (p === 'month') return now.toISOString().slice(0, 7);
+  if (p === 'year')  return String(now.getFullYear());
+  return '';
+}
+function _finAnchorToPickerValue(p, anchor) {
+  if (p === 'day')   return anchor;
+  if (p === 'month') return anchor.slice(0, 7);
+  if (p === 'year')  return anchor.slice(0, 4);
+  if (p === 'week')  return _finIsoWeekStr(new Date(anchor + 'T00:00:00'));
+  return '';
+}
+function _finPickerHTML() {
+  const p = _finPeriod;
+  if (p === 'all') return '<span style="font-size:12px;color:var(--text3)">All time</span>';
+  const type = p === 'day' ? 'date' : p === 'week' ? 'week' : p === 'month' ? 'month' : 'number';
+  const val  = _finAnchor ? _finAnchorToPickerValue(p, _finAnchor) : _finDefaultPickerValue(p);
+  return `<input type="${type}" id="fin-anchor-input" value="${val}" onchange="setFinAnchor(this.value)"
+    ${p === 'year' ? 'min="2000" max="2100" step="1"' : ''}
+    style="background:#1e293b;border:1px solid var(--glass-border);color:#f1f5f9;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;color-scheme:dark${p === 'year' ? ';width:90px' : ''}"/>`;
+}
+function _finAnchorFromPicker(p, val) {
+  if (!val) return null;
+  if (p === 'day')   return val;
+  if (p === 'month') return val + '-01';
+  if (p === 'year')  return val + '-01-01';
+  if (p === 'week')  return _finWeekToMonday(val);
+  return null;
+}
+function setFinAnchor(val) {
+  _finAnchor = _finAnchorFromPicker(_finPeriod, val);
+  renderFinanceTxList();
 }
 
 // Build <option>s for the category dropdown from every category the user
@@ -441,7 +511,7 @@ function renderFinanceTxList() {
   const container = document.getElementById('fin-tx-list');
   if (!container) return;
 
-  let txns = filterTxByPeriod([...(STATE.transactions || [])], _finPeriod);
+  let txns = filterTxByAnchor([...(STATE.transactions || [])], _finPeriod, _finAnchor);
   // Type filter (income / expense)
   if (_finType !== 'all')     txns = txns.filter(t => t.type === _finType);
   // Category filter

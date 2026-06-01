@@ -146,18 +146,23 @@ function filterTxByPeriod(txns, period) {
   return filterTxByAnchor(txns, period, null);
 }
 
+// Local YYYY-MM-DD (no UTC shift — important so an anchored date isn't off by a day).
+function _ymdLocal(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 // anchor: 'YYYY-MM-DD' string or null (= today)
 function filterTxByAnchor(txns, period, anchor) {
   const base = anchor ? new Date(anchor + 'T00:00:00') : new Date();
-  const d0   = base.toISOString().slice(0, 10);
-  if (period === 'day') return txns.filter(t => t.date === d0);
+  const d0   = _ymdLocal(base);
+  if (period === 'day') return txns.filter(t => (t.date || '').slice(0, 10) === d0);
   if (period === 'week') {
     // Mon→Sun week that contains the anchor date
     const dow = (base.getDay() + 6) % 7; // 0=Mon
     const mon = new Date(base); mon.setDate(base.getDate() - dow);
     const sun = new Date(mon);  sun.setDate(mon.getDate() + 6);
-    const s = mon.toISOString().slice(0, 10), e = sun.toISOString().slice(0, 10);
-    return txns.filter(t => t.date >= s && t.date <= e);
+    const s = _ymdLocal(mon), e = _ymdLocal(sun);
+    return txns.filter(t => { const d = (t.date || '').slice(0, 10); return d >= s && d <= e; });
   }
   if (period === 'month') {
     const ym = `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}`;
