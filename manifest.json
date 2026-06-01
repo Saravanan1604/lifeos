@@ -6,10 +6,12 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#0a0a1a",
   "theme_color": "#00c9a7",
   "orientation": "portrait-primary",
   "lang": "en",
+  "dir": "ltr",
   "categories": ["finance", "productivity", "health"],
   "icons": [
     {
