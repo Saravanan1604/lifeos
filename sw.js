@@ -1,8 +1,10 @@
-// LifeOS Service Worker — v8.0
-const CACHE = 'lifeos-v8';
+// LifeOS Service Worker — v9.0
+const CACHE = 'lifeos-v9';
 const ASSETS = [
   '/',
   '/index.html',
+  '/privacy.html',
+  '/terms.html',
   '/css/styles.css',
   '/css/calc.css',
   '/css/premium.css',

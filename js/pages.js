@@ -415,6 +415,18 @@ function renderSettings() {
         </div>
 
         <div class="glass-card" style="padding:22px">
+          <p class="section-title" style="margin-bottom:12px">📄 Legal</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="/privacy.html" target="_blank" rel="noopener" class="btn-secondary" style="justify-content:flex-start;gap:10px;text-align:left;text-decoration:none">
+              🔒 &nbsp;<span><strong>Privacy Policy</strong> — How your data is handled</span>
+            </a>
+            <a href="/terms.html" target="_blank" rel="noopener" class="btn-secondary" style="justify-content:flex-start;gap:10px;text-align:left;text-decoration:none">
+              📜 &nbsp;<span><strong>Terms of Service</strong></span>
+            </a>
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:8px;color:#ef4444">⚠️ Danger Zone</p>
           <p style="font-size:12px;color:rgba(241,245,249,0.5);margin-bottom:14px">Permanently deletes all your data. Cannot be undone.</p>
           <button class="btn-danger" onclick="confirmReset()">Reset All Data</button>

@@ -12,11 +12,28 @@
   <meta property="og:description" content="The ultimate app to track your daily expenses, manage budgets, and build healthy habits." />
   <meta property="og:type" content="website" />
 
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6889705040574527" crossorigin="anonymous"></script>
-  
-  <!-- AMP AdSense -->
-  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
+  <!-- Ads load ONLY for web visitors. AdSense is not permitted inside the
+       installed Android app (TWA) and could violate AdSense policies, so we
+       detect app/standalone mode and skip loading the ad library there. -->
+  <script>
+  (function () {
+    var isApp = false;
+    try {
+      isApp = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+        || window.navigator.standalone === true
+        || (document.referrer || '').indexOf('android-app://') === 0;
+    } catch (e) {}
+    window.__IS_APP = isApp;
+    if (isApp) {
+      document.documentElement.classList.add('is-app');   // CSS hides .ad-container
+    } else {
+      var s = document.createElement('script');
+      s.async = true; s.crossOrigin = 'anonymous';
+      s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6889705040574527';
+      document.head.appendChild(s);
+    }
+  })();
+  </script>
 
   <!-- ── PWA / Install ── -->
   <link rel="manifest" href="/manifest.json" />
@@ -275,11 +292,8 @@
 
     <!-- Main Content -->
     <main id="content" class="content">
-      <!-- Google AdSense Ad Unit -->
+      <!-- Google AdSense Ad Unit (web only — hidden in the installed app) -->
       <div class="ad-container" style="margin-bottom: 20px; text-align: center; min-height: 90px; width: 100%;">
-        
-        <!-- Standard AdSense -->
-        <!-- addf -->
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-client="ca-pub-6889705040574527"
@@ -287,19 +301,8 @@
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
         <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
+             if (!window.__IS_APP) { (adsbygoogle = window.adsbygoogle || []).push({}); }
         </script>
-
-        <!-- AMP AdSense -->
-        <amp-ad width="100vw" height="320"
-             type="adsense"
-             data-ad-client="ca-pub-6889705040574527"
-             data-ad-slot="1230387422"
-             data-auto-format="rspv"
-             data-full-width="">
-          <div overflow=""></div>
-        </amp-ad>
-
       </div>
 
       <div id="page-container" class="page-container">
@@ -458,6 +461,8 @@
   }
   tr[draggable="true"] td:first-child { cursor: grab; }
   tr.row-dragging td:first-child { cursor: grabbing; }
+  /* Hide web ads when running as the installed Android app (TWA) */
+  html.is-app .ad-container { display: none !important; }
 </style>
 
 <!-- ── PWA Service Worker ── -->
