@@ -1667,10 +1667,14 @@ function renderInvestments() {
       ? `${inv.qty} units${inv.livePrice?' · ₹'+inv.livePrice.toLocaleString('en-IN',{maximumFractionDigits:2})+'/unit':''}${lastUp?' · Updated '+lastUp:'  · Not fetched yet'}`
       : '';
 
-    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s"
+    return `<tr draggable="true" data-id="${inv.id}"
+        ondragstart="rowDragStart(event,'${inv.id}','inv')" ondragover="rowDragOver(event)"
+        ondragenter="rowDragEnter(event)" ondragleave="rowDragLeave(event)"
+        ondrop="rowDrop(event,'${inv.id}','inv')" ondragend="rowDragEnd(event)"
+        style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s"
         onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
-      <td style="padding:12px 16px;width:48px;text-align:center">
-        <div style="display:flex;flex-direction:column;gap:0">${moveBtn('up','moveInv',inv.id,list)}${moveBtn('down','moveInv',inv.id,list)}</div>
+      <td style="padding:12px 16px;width:48px;text-align:center;cursor:grab" title="Drag to reorder">
+        <span style="font-size:17px;color:rgba(255,255,255,0.35);line-height:1;user-select:none">⠿</span>
       </td>
       <td style="padding:12px 16px">
         <div style="display:flex;align-items:center;gap:12px">
@@ -1700,9 +1704,13 @@ function renderInvestments() {
     const pct  = loan.principal > 0 ? Math.min(100, Math.round((paid / loan.principal) * 100)) : 0;
     const monthlyInt = loan.outstanding > 0 && loan.interestRate > 0
       ? Math.round(loan.outstanding * (loan.interestRate / 100) / 12) : 0;
-    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
-      <td style="padding:12px 16px;width:48px;text-align:center">
-        <div style="display:flex;flex-direction:column;gap:0">${moveBtn('up','moveLoan',loan.id,list)}${moveBtn('down','moveLoan',loan.id,list)}</div>
+    return `<tr draggable="true" data-id="${loan.id}"
+        ondragstart="rowDragStart(event,'${loan.id}','loan')" ondragover="rowDragOver(event)"
+        ondragenter="rowDragEnter(event)" ondragleave="rowDragLeave(event)"
+        ondrop="rowDrop(event,'${loan.id}','loan')" ondragend="rowDragEnd(event)"
+        style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+      <td style="padding:12px 16px;width:48px;text-align:center;cursor:grab" title="Drag to reorder">
+        <span style="font-size:17px;color:rgba(255,255,255,0.35);line-height:1;user-select:none">⠿</span>
       </td>
       <td style="padding:12px 16px">
         <div style="display:flex;align-items:center;gap:12px">
@@ -1941,6 +1949,39 @@ function moveLoan(id, dir) {
   [arr[i], arr[j]] = [arr[j], arr[i]];
   STATE.loans = arr;
   saveState(); renderInvestments();
+}
+
+// ── Drag-and-drop reordering for asset & loan tables ─────────────────────────
+let _rowDragId = null, _rowDragList = null;
+
+function rowDragStart(e, id, listName) {
+  _rowDragId = id; _rowDragList = listName;
+  try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id); } catch (_) {}
+  const tr = e.currentTarget; if (tr) tr.style.opacity = '0.4';
+}
+function rowDragOver(e) { e.preventDefault(); try { e.dataTransfer.dropEffect = 'move'; } catch (_) {} }
+function rowDragEnter(e) {
+  const tr = e.currentTarget;
+  if (tr && _rowDragId) tr.style.boxShadow = 'inset 0 2px 0 0 #00c9a7';
+}
+function rowDragLeave(e) { const tr = e.currentTarget; if (tr) tr.style.boxShadow = ''; }
+function rowDragEnd(e) {
+  const tr = e.currentTarget; if (tr) { tr.style.opacity = ''; tr.style.boxShadow = ''; }
+  _rowDragId = null; _rowDragList = null;
+}
+function rowDrop(e, targetId, listName) {
+  e.preventDefault();
+  const tr = e.currentTarget; if (tr) tr.style.boxShadow = '';
+  if (!_rowDragId || _rowDragList !== listName || _rowDragId === targetId) return;
+  const arr = listName === 'inv' ? (STATE.investments || []) : (STATE.loans || []);
+  const from = arr.findIndex(x => x.id === _rowDragId);
+  const to   = arr.findIndex(x => x.id === targetId);
+  if (from < 0 || to < 0) return;
+  const [moved] = arr.splice(from, 1);
+  arr.splice(to, 0, moved);
+  if (listName === 'inv') STATE.investments = arr; else STATE.loans = arr;
+  saveState();
+  renderInvestments();
 }
 
 // ── Asset CRUD ───────────────────────────────────────────────────────────────
