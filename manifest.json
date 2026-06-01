@@ -41,39 +41,11 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/dashboard.png",
-      "sizes": "1080x2400",
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Dashboard — net worth, income & spending at a glance"
-    },
-    {
-      "src": "/screenshots/finance.png",
-      "sizes": "1080x2400",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Finance — banks, cards, cash & transactions"
-    },
-    {
-      "src": "/screenshots/budget.png",
-      "sizes": "1080x2400",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Budget Planner — track spending vs limits"
-    },
-    {
-      "src": "/screenshots/assets.png",
-      "sizes": "1080x2400",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "All Assets — investments, loans & net worth"
-    },
-    {
-      "src": "/screenshots/analytics.png",
-      "sizes": "1080x2400",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Financial overview & analytics"
+      "label": "LifeOS"
     }
   ],
   "shortcuts": [
