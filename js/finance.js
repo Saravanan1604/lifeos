@@ -1668,10 +1668,9 @@ function renderInvestments() {
       : '';
 
     return `<tr draggable="true" data-id="${inv.id}"
-        ondragstart="rowDragStart(event,'${inv.id}','inv')" ondragover="rowDragOver(event)"
-        ondragenter="rowDragEnter(event)" ondragleave="rowDragLeave(event)"
-        ondrop="rowDrop(event,'${inv.id}','inv')" ondragend="rowDragEnd(event)"
-        style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s"
+        ondragstart="rowDragStart(event)" ondragover="rowDragOver(event)"
+        ondrop="rowDrop(event)" ondragend="rowDragEnd(event,'inv')"
+        style="border-bottom:1px solid rgba(255,255,255,0.04);transition:background .15s"
         onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
       <td style="padding:12px 16px;width:48px;text-align:center;cursor:grab" title="Drag to reorder">
         <span style="font-size:17px;color:rgba(255,255,255,0.35);line-height:1;user-select:none">⠿</span>
@@ -1705,10 +1704,9 @@ function renderInvestments() {
     const monthlyInt = loan.outstanding > 0 && loan.interestRate > 0
       ? Math.round(loan.outstanding * (loan.interestRate / 100) / 12) : 0;
     return `<tr draggable="true" data-id="${loan.id}"
-        ondragstart="rowDragStart(event,'${loan.id}','loan')" ondragover="rowDragOver(event)"
-        ondragenter="rowDragEnter(event)" ondragleave="rowDragLeave(event)"
-        ondrop="rowDrop(event,'${loan.id}','loan')" ondragend="rowDragEnd(event)"
-        style="border-bottom:1px solid rgba(255,255,255,0.04);transition:.15s" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+        ondragstart="rowDragStart(event)" ondragover="rowDragOver(event)"
+        ondrop="rowDrop(event)" ondragend="rowDragEnd(event,'loan')"
+        style="border-bottom:1px solid rgba(255,255,255,0.04);transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
       <td style="padding:12px 16px;width:48px;text-align:center;cursor:grab" title="Drag to reorder">
         <span style="font-size:17px;color:rgba(255,255,255,0.35);line-height:1;user-select:none">⠿</span>
       </td>
@@ -1951,37 +1949,53 @@ function moveLoan(id, dir) {
   saveState(); renderInvestments();
 }
 
-// ── Drag-and-drop reordering for asset & loan tables ─────────────────────────
-let _rowDragId = null, _rowDragList = null;
+// ── Smooth drag-and-drop reordering for asset & loan tables ──────────────────
+// Rows reorder live in the DOM while dragging (no full page re-render), so it
+// stays buttery; we persist the new order to storage only on drop.
+let _draggingTr = null;
 
-function rowDragStart(e, id, listName) {
-  _rowDragId = id; _rowDragList = listName;
-  try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id); } catch (_) {}
-  const tr = e.currentTarget; if (tr) tr.style.opacity = '0.4';
+function rowDragStart(e) {
+  _draggingTr = e.currentTarget;
+  try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', _draggingTr.dataset.id || ''); } catch (_) {}
+  // Add the "lifted" class after the browser captures the drag image,
+  // otherwise the ghost would also be faded.
+  setTimeout(() => { if (_draggingTr) _draggingTr.classList.add('row-dragging'); }, 0);
 }
-function rowDragOver(e) { e.preventDefault(); try { e.dataTransfer.dropEffect = 'move'; } catch (_) {} }
-function rowDragEnter(e) {
-  const tr = e.currentTarget;
-  if (tr && _rowDragId) tr.style.boxShadow = 'inset 0 2px 0 0 #00c9a7';
-}
-function rowDragLeave(e) { const tr = e.currentTarget; if (tr) tr.style.boxShadow = ''; }
-function rowDragEnd(e) {
-  const tr = e.currentTarget; if (tr) { tr.style.opacity = ''; tr.style.boxShadow = ''; }
-  _rowDragId = null; _rowDragList = null;
-}
-function rowDrop(e, targetId, listName) {
+
+function rowDragOver(e) {
   e.preventDefault();
-  const tr = e.currentTarget; if (tr) tr.style.boxShadow = '';
-  if (!_rowDragId || _rowDragList !== listName || _rowDragId === targetId) return;
+  try { e.dataTransfer.dropEffect = 'move'; } catch (_) {}
+  const tr = e.currentTarget;
+  if (!_draggingTr || tr === _draggingTr) return;
+  if (tr.parentNode !== _draggingTr.parentNode) return;   // same table only
+  const rect = tr.getBoundingClientRect();
+  const after = (e.clientY - rect.top) > rect.height / 2;
+  tr.parentNode.insertBefore(_draggingTr, after ? tr.nextSibling : tr);
+}
+
+function rowDragEnd(e, listName) {
+  if (_draggingTr) _draggingTr.classList.remove('row-dragging');
+  _persistRowOrder(listName);
+  _draggingTr = null;
+}
+
+// keep these for the inline ondrop attribute; the live reorder already happened
+function rowDrop(e) { if (e && e.preventDefault) e.preventDefault(); }
+
+// Read the current DOM row order and write it back into STATE (hidden/filtered
+// items keep their positions; only the visible ones are reordered).
+function _persistRowOrder(listName) {
+  const tbody = _draggingTr ? _draggingTr.parentNode : null;
+  if (!tbody) return;
+  const ids = [...tbody.querySelectorAll('tr[data-id]')].map(r => r.dataset.id);
   const arr = listName === 'inv' ? (STATE.investments || []) : (STATE.loans || []);
-  const from = arr.findIndex(x => x.id === _rowDragId);
-  const to   = arr.findIndex(x => x.id === targetId);
-  if (from < 0 || to < 0) return;
-  const [moved] = arr.splice(from, 1);
-  arr.splice(to, 0, moved);
+  const byId = {}; arr.forEach(x => { byId[x.id] = x; });
+  const visibleIdxs = [];
+  arr.forEach((x, i) => { if (ids.indexOf(x.id) >= 0) visibleIdxs.push(i); });
+  const reordered = ids.map(id => byId[id]).filter(Boolean);
+  visibleIdxs.forEach((idx, k) => { if (reordered[k]) arr[idx] = reordered[k]; });
   if (listName === 'inv') STATE.investments = arr; else STATE.loans = arr;
   saveState();
-  renderInvestments();
 }
 
 // ── Asset CRUD ───────────────────────────────────────────────────────────────
