@@ -26,7 +26,7 @@ Use **PWABuilder** (easiest, free, made by Microsoft):
 3. It scores your PWA (manifest/SW/icons). Fix any red items it flags.
 4. Click **Package For Stores → Android → Generate Package**.
 5. In options, set:
-   - **Package ID**: `com.lifeos.app`  ← must match `assetlinks.json` and `manifest.json` `id`
+   - **Package ID**: `com.saravanan.lifeos`  ← must match `assetlinks.json` and `manifest.json` `id`
    - **App name**: `LifeOS`
    - **Signing key**: choose **"Create new"** (PWABuilder makes & stores it) — **download and BACK UP the `.keystore` + passwords**. If you lose them you can never update the app.
 6. Download the ZIP. It contains:
@@ -63,6 +63,6 @@ Play re-signs your app ("Play App Signing"), so the fingerprint that matters is 
 
 ## Gotchas
 - **Use the Play App Signing SHA-256**, not your upload key's — most common reason the URL bar won't disappear.
-- **Package ID must match everywhere**: `com.lifeos.app` in PWABuilder, `manifest.json` `id`, and `assetlinks.json`.
+- **Package ID must match everywhere**: `com.saravanan.lifeos` in PWABuilder, `manifest.json` `id`, and `assetlinks.json`.
 - **Back up your keystore** — losing it means you can't push updates.
 - App content updates ship instantly via your website (it's a TWA) — you only re-upload the `.aab` if you change the wrapper (icon, package, splash).
