@@ -85,6 +85,147 @@ function _cmpRow(label, cur, prev, lowerIsBetter, valColor) {
   </div>`;
 }
 
+// ---- Custom (user-picked) comparison ----------------------
+let _cmpMode = 'month';   // day | week | month | year
+const _MON3 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ISO week string "YYYY-Www" for a date (used as <input type=week> value).
+function _isoWeekStr(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dn = (t.getUTCDay() + 6) % 7;
+  t.setUTCDate(t.getUTCDate() - dn + 3);            // Thursday of this week
+  const firstThu = new Date(Date.UTC(t.getUTCFullYear(), 0, 4));
+  const week = 1 + Math.round(((t - firstThu) / 86400000 - 3 + ((firstThu.getUTCDay() + 6) % 7)) / 7);
+  return `${t.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+// Default A/B input values for the current mode.
+function _cmpDefaults(mode) {
+  const now = new Date();
+  if (mode === 'day') {
+    const y = new Date(now); y.setDate(y.getDate() - 1);
+    return [_cmpISO(now), _cmpISO(y)];
+  }
+  if (mode === 'week') {
+    const lw = new Date(now); lw.setDate(lw.getDate() - 7);
+    return [_isoWeekStr(now), _isoWeekStr(lw)];
+  }
+  if (mode === 'year') return [String(now.getFullYear()), String(now.getFullYear() - 1)];
+  // month
+  const ym = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  return [ym(now), ym(lm)];
+}
+
+// "2026-W23" → {start,end} Monday..Sunday.
+function _isoWeekToRange(val) {
+  const m = val.match(/(\d{4})-W(\d{2})/);
+  if (!m) return null;
+  const year = +m[1], week = +m[2];
+  const jan4 = new Date(year, 0, 4);
+  const dow = (jan4.getDay() + 6) % 7;
+  const wk1Mon = new Date(jan4); wk1Mon.setDate(jan4.getDate() - dow);
+  const start = new Date(wk1Mon); start.setDate(wk1Mon.getDate() + (week - 1) * 7);
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  return { start, end };
+}
+
+// Convert a picker value to {start,end (ISO), label} for the active mode.
+function _rangeFromValue(mode, val) {
+  if (!val) return null;
+  if (mode === 'day') {
+    return { start: val, end: val, label: fmtDate(val) };
+  }
+  if (mode === 'week') {
+    const r = _isoWeekToRange(val); if (!r) return null;
+    return { start: _cmpISO(r.start), end: _cmpISO(r.end), label: val.replace('-W', ' Wk ') };
+  }
+  if (mode === 'year') {
+    const y = parseInt(val, 10); if (!y) return null;
+    return { start: `${y}-01-01`, end: `${y}-12-31`, label: String(y) };
+  }
+  // month "YYYY-MM"
+  const m = val.match(/(\d{4})-(\d{2})/); if (!m) return null;
+  const y = +m[1], mo = +m[2] - 1;
+  const start = new Date(y, mo, 1), end = new Date(y, mo + 1, 0);
+  return { start: _cmpISO(start), end: _cmpISO(end), label: _MON3[mo] + ' ' + String(y).slice(2) };
+}
+
+function setCompareMode(mode) {
+  _cmpMode = mode;
+  const card = document.getElementById('cmp-custom-card');
+  if (card) { card.innerHTML = _customCardHTML(); runCustomCompare(); }
+}
+
+function _customCardHTML() {
+  const T = (typeof t === 'function') ? t : (x => x);
+  const [da, db] = _cmpDefaults(_cmpMode);
+  const inputType = _cmpMode === 'day' ? 'date' : _cmpMode === 'week' ? 'week' : _cmpMode === 'month' ? 'month' : 'number';
+  const yrAttr = _cmpMode === 'year' ? 'min="2000" max="2100" step="1"' : '';
+  const modeBtn = (m, label) => `<button onclick="setCompareMode('${m}')"
+    style="flex:1;min-width:64px;padding:8px 6px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid ${_cmpMode===m?'rgba(0,201,167,0.5)':'rgba(255,255,255,0.1)'};background:${_cmpMode===m?'rgba(0,201,167,0.18)':'rgba(255,255,255,0.04)'};color:${_cmpMode===m?'#00c9a7':'var(--text2)'}">${label}</button>`;
+  return `
+    <p class="section-title" style="margin-bottom:12px">🔍 ${T('Custom Compare')}</p>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      ${modeBtn('day', T('Day'))}${modeBtn('week', T('Week'))}${modeBtn('month', T('Month'))}${modeBtn('year', T('Year'))}
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+      <div class="form-group" style="margin:0;flex:1;min-width:130px"><label class="form-label">${T('Period A')}</label>
+        <input type="${inputType}" id="cmp-a" class="form-input" value="${da}" ${yrAttr}/></div>
+      <div class="form-group" style="margin:0;flex:1;min-width:130px"><label class="form-label">${T('Period B')}</label>
+        <input type="${inputType}" id="cmp-b" class="form-input" value="${db}" ${yrAttr}/></div>
+      <button class="btn-primary" style="padding:10px 18px" onclick="runCustomCompare()">${T('Compare')}</button>
+    </div>
+    <div id="cmp-custom-result" style="margin-top:16px"></div>`;
+}
+
+function runCustomCompare() {
+  const T = (typeof t === 'function') ? t : (x => x);
+  const av = document.getElementById('cmp-a')?.value;
+  const bv = document.getElementById('cmp-b')?.value;
+  const ra = _rangeFromValue(_cmpMode, av), rb = _rangeFromValue(_cmpMode, bv);
+  const out = document.getElementById('cmp-custom-result');
+  if (!out) return;
+  if (!ra || !rb) { out.innerHTML = `<p style="font-size:13px;color:var(--text3)">${T('Pick two periods to compare')}</p>`; return; }
+  const cur = _cmpSum(ra.start, ra.end), prev = _cmpSum(rb.start, rb.end);
+  const savColor = cur.savings >= 0 ? '#10b981' : '#ef4444';
+  out.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1)">
+      <span></span>
+      <span style="font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:#00c9a7;min-width:90px;text-align:right">${ra.label}</span>
+      <span style="font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);min-width:90px;text-align:right">${rb.label}</span>
+      <span style="font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);min-width:62px;text-align:right">${T('Change')}</span>
+    </div>
+    ${_cmpRow(T('Income'),  cur.income,  prev.income,  false, '#10b981')}
+    ${_cmpRow(T('Expense'), cur.expense, prev.expense, true,  '#ef4444')}
+    ${_cmpRow(T('Savings'), cur.savings, prev.savings, false, savColor)}
+    <div style="margin-top:14px;height:160px"><canvas id="cmp-custom-chart"></canvas></div>`;
+
+  if (typeof Chart !== 'undefined') {
+    try { if (chartInstances['cmp-custom']) chartInstances['cmp-custom'].destroy(); } catch (e) {}
+    const el = document.getElementById('cmp-custom-chart');
+    if (el) chartInstances['cmp-custom'] = new Chart(el.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: [T('Income'), T('Expense'), T('Savings')],
+        datasets: [
+          { label: ra.label, data: [cur.income, cur.expense, cur.savings],  backgroundColor: 'rgba(0,201,167,0.75)',  borderRadius: 5 },
+          { label: rb.label, data: [prev.income, prev.expense, prev.savings], backgroundColor: 'rgba(148,163,184,0.5)', borderRadius: 5 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#94a3b8', boxWidth: 12, font: { size: 11 } } },
+          tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${fmt(c.parsed.y)}` } } },
+        scales: {
+          x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } },
+          y: { ticks: { color: '#94a3b8', callback: v => '₹' + (Math.abs(v) >= 1000 ? (v/1000).toFixed(0) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+  }
+}
+
 function renderCompare() {
   const periods = _cmpPeriods();
 
@@ -115,8 +256,12 @@ function renderCompare() {
         <h1 class="page-title" data-i18n="Compare">${typeof t === 'function' ? t('Compare') : 'Compare'}</h1>
         <p class="page-subtitle" data-i18n="Side-by-side: Day · Week · Month · Year">${typeof t === 'function' ? t('Side-by-side: Day · Week · Month · Year') : 'Side-by-side: Day · Week · Month · Year'}</p>
       </div>
+      <div id="cmp-custom-card" class="glass-card" style="padding:20px;margin-bottom:16px">${_customCardHTML()}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px">${cards}</div>
     </div>`;
+
+  // Render the custom comparison result with its default A/B periods
+  runCustomCompare();
 
   // Charts (grouped bars: current vs previous for Income/Expense/Savings)
   if (typeof Chart !== 'undefined') {
