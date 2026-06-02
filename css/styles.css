@@ -374,6 +374,16 @@ body.light .chat-code{background:rgba(79,70,229,0.08);color:#4f46e5}
 .mobile-menu-btn{display:none;position:fixed;top:16px;left:16px;z-index:900;width:44px;height:44px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,0.1);color:var(--text);align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
 
 /* Responsive */
+/* ===== Open mobile drawer: always above the backdrop & tappable =====
+   (global, not inside a media query, so taps on nav items never fall through
+   to the backdrop regardless of viewport width or app mode) */
+.sidebar.mobile-open{
+  position:fixed!important; top:0!important; left:0!important; height:100vh!important;
+  transform:translateX(0)!important; z-index:1000!important;
+  width:min(82vw,300px);
+}
+#sidebar-backdrop{ z-index:998!important; }   /* below the sidebar (999/1000) */
+
 /* ===== TABLET / MOBILE LAYOUT (collapse sidebar to a drawer) ===== */
 @media(max-width:1024px){
   html,body{overflow-x:hidden;max-width:100%}

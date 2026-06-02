@@ -378,11 +378,36 @@ function _isMobileLayout() {
     || document.documentElement.classList.contains('is-app');
 }
 // Bulletproof: the hamburger always opens/closes the drawer (no width checks).
+// Inline styles guarantee the open drawer is fixed and ABOVE the backdrop so
+// nav taps never fall through to the backdrop (independent of CSS caching).
 function openMobileDrawer() {
   const sb = document.getElementById('sidebar');
   if (!sb) return;
   const open = sb.classList.toggle('mobile-open');
+  if (open) {
+    sb.style.position = 'fixed';
+    sb.style.top = '0';
+    sb.style.left = '0';
+    sb.style.height = '100vh';
+    sb.style.transform = 'translateX(0)';
+    sb.style.zIndex = '10000';   // above backdrop (9990)
+  } else {
+    // Clear inline overrides so the sidebar returns to its normal CSS state
+    sb.style.position = sb.style.top = sb.style.left = '';
+    sb.style.height = sb.style.transform = sb.style.zIndex = '';
+  }
   _toggleSidebarBackdrop(open);
+}
+
+// Close the drawer + clear inline overrides (used after navigation)
+function _closeMobileDrawer() {
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('mobile-open')) {
+    sb.classList.remove('mobile-open');
+    sb.style.position = sb.style.top = sb.style.left = '';
+    sb.style.height = sb.style.transform = sb.style.zIndex = '';
+  }
+  _toggleSidebarBackdrop(false);
 }
 function toggleSidebar() {
   const sb = document.getElementById('sidebar');
@@ -408,11 +433,13 @@ function _toggleSidebarBackdrop(show) {
       bd = document.createElement('div');
       bd.id = 'sidebar-backdrop';
       bd.style.cssText = 'position:fixed;inset:0;z-index:998;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px)';
-      bd.onclick = () => {
-        document.getElementById('sidebar').classList.remove('mobile-open');
-        _toggleSidebarBackdrop(false);
-      };
-      document.body.appendChild(bd);
+      bd.onclick = () => _closeMobileDrawer();
+      // Insert in the SAME parent as the sidebar and BEFORE it, so the sidebar
+      // (later sibling, higher z-index) reliably stacks above the backdrop and
+      // its nav items remain tappable (avoids cross-stacking-context issues).
+      const sb = document.getElementById('sidebar');
+      if (sb && sb.parentNode) sb.parentNode.insertBefore(bd, sb);
+      else document.body.appendChild(bd);
     }
     bd.style.display = 'block';
   } else if (bd) {
@@ -583,9 +610,7 @@ function navigate(page, skipHistory = false) {
     el.classList.toggle('active', el.dataset.page === page);
   });
   // Always close the mobile drawer after navigating (harmless on desktop)
-  const _sb = document.getElementById('sidebar');
-  if (_sb) _sb.classList.remove('mobile-open');
-  if (typeof _toggleSidebarBackdrop === 'function') _toggleSidebarBackdrop(false);
+  if (typeof _closeMobileDrawer === 'function') _closeMobileDrawer();
   sidebarCollapsed = false;
 
   const container = document.getElementById('page-container');
