@@ -85,3 +85,33 @@ html.is-app .nav-item.active::after { opacity: .6; color: #00c9a7; }
 
 /* A little breathing room around the nav list */
 html.is-app .sidebar-nav { padding: 4px 0 12px !important; }
+
+/* ============================================================
+   NATIVE-APP NAVIGATION (small screen)
+   Sidebar is hidden by default; tap ☰ → full-screen menu;
+   tap an option → navigates and closes. App-only (html.is-app).
+   ============================================================ */
+
+/* Always show the hamburger in the app */
+html.is-app .mobile-menu-btn { display: flex !important; }
+
+/* Sidebar = hidden full-screen drawer */
+html.is-app .sidebar {
+  position: fixed !important;
+  top: 0 !important; left: 0 !important;
+  width: 100vw !important; height: 100vh !important;
+  max-width: 100vw !important;
+  transform: translateX(-100%);
+  transition: transform .26s cubic-bezier(.4,0,.2,1);
+  z-index: 10000 !important;
+  overflow-y: auto !important;
+  background: var(--bg-card, #0c0c18) !important;
+  border-right: none !important;
+}
+html.is-app .sidebar.mobile-open { transform: translateX(0) !important; }
+
+/* Content takes the full width (no sidebar gutter) */
+html.is-app .content { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; }
+
+/* Give the full-screen menu a clean header spacing + close affordance */
+html.is-app .sidebar-header { position: sticky; top: 0; background: var(--bg-card, #0c0c18); z-index: 2; padding-top: 14px !important; }
