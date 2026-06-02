@@ -263,14 +263,16 @@ html.is-app .fin-hero-stats [id^="fin-"] .period-chip { display: none !important
    Rounded, layered cards with glassy action buttons.
    ============================================================ */
 
-/* FIX 1 — stop the floating theme (moon/sun) button colliding with the
-   "+ Add Bank/Card/Cash" buttons in section headers. Move it to the
-   bottom-right, clear of all top-right header actions. App-only. */
-html.is-app .theme-toggle {
-  top: auto !important;
-  bottom: 92px !important;
-  right: 16px !important;
-  z-index: 600 !important;
+/* FIX 1 — the theme (moon/sun) button is DOCKED into the page header's
+   right-side action group (grouped with "+ Add ..." via the header's gap),
+   so it never floats over / collides with header buttons. App-only. */
+html.is-app .theme-toggle.theme-toggle-docked {
+  position: static !important;
+  top: auto !important; right: auto !important; bottom: auto !important;
+  width: 40px !important; height: 40px !important;
+  flex: 0 0 auto !important;
+  margin-left: 4px !important;
+  box-shadow: none !important;
 }
 
 /* Account / card tiles: deeper rounding, soft shadow, and TIGHTER vertical

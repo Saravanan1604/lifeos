@@ -6,13 +6,11 @@ window.addEventListener('DOMContentLoaded', () => {
   // Apply saved theme
   if (STATE.settings?.theme === 'light') document.body.classList.add('light');
 
-  // Inject theme toggle button
-  const themeBtn = document.createElement('button');
-  themeBtn.className = 'theme-toggle';
-  themeBtn.title = 'Toggle Light/Dark Mode';
-  themeBtn.textContent = STATE.settings?.theme === 'light' ? '🌙' : '☀️';
-  themeBtn.onclick = toggleTheme;
-  document.body.appendChild(themeBtn);
+  // Inject floating theme toggle — web/desktop only. In the installed mobile
+  // app the button is docked into each page header by _dockThemeToggle().
+  if (!document.documentElement.classList.contains('is-app')) {
+    document.body.appendChild(_makeThemeBtn());
+  }
 
   applyTimeTheme();
   initMouseGlow();
@@ -141,7 +139,36 @@ function toggleTheme() {
   STATE.settings = STATE.settings || {};
   STATE.settings.theme = isLight ? 'light' : 'dark';
   saveState();
-  const btn = document.querySelector('.theme-toggle');
-  if (btn) btn.textContent = isLight ? '🌙' : '☀️';
+  document.querySelectorAll('.theme-toggle').forEach(b => b.textContent = isLight ? '🌙' : '☀️');
   toast(isLight ? '☀️ Light mode on' : '🌙 Dark mode on', 'info');
+}
+
+// Build a fresh theme-toggle button element.
+function _makeThemeBtn() {
+  const b = document.createElement('button');
+  b.className = 'theme-toggle';
+  b.title = 'Toggle Light/Dark Mode';
+  b.textContent = (STATE.settings?.theme === 'light') ? '🌙' : '☀️';
+  b.onclick = toggleTheme;
+  return b;
+}
+
+// In the installed mobile app, DOCK the theme button inside the current
+// page header's right-side action group (grouped with "+ Add ..." with a
+// gap) instead of floating. On the web/desktop it stays floating as before.
+function _dockThemeToggle() {
+  if (!document.documentElement.classList.contains('is-app')) return;
+  const header = document.querySelector('#page-container .page-header');
+  if (!header) return;
+  // The actions live in the last <div> of the header (flex row).
+  let group = null;
+  for (let i = header.children.length - 1; i >= 0; i--) {
+    if (header.children[i].tagName === 'DIV') { group = header.children[i]; break; }
+  }
+  if (!group) return;
+  // The previous header was wiped on re-render, so its button is gone — make one.
+  let btn = group.querySelector('.theme-toggle');
+  if (!btn) btn = _makeThemeBtn();
+  btn.classList.add('theme-toggle-docked');
+  group.appendChild(btn);     // appendChild moves the node if it already exists
 }
