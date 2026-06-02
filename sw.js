@@ -1,5 +1,10 @@
-// LifeOS Service Worker — v15.0
-const CACHE = 'lifeos-v15';
+// LifeOS Service Worker — v16.0
+const CACHE = 'lifeos-v16';
+
+// Allow the page to tell a waiting SW to activate immediately
+self.addEventListener('message', e => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
+});
 const ASSETS = [
   '/',
   '/index.html',
