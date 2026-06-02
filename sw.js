@@ -1,5 +1,5 @@
-// LifeOS Service Worker — v31.0
-const CACHE = 'lifeos-v31';
+// LifeOS Service Worker — v32.0
+const CACHE = 'lifeos-v32';
 
 // Allow the page to tell a waiting SW to activate immediately
 self.addEventListener('message', e => {
@@ -13,6 +13,7 @@ const ASSETS = [
   '/css/styles.css',
   '/css/calc.css',
   '/css/premium.css',
+  '/css/mobile.css',
   '/js/init.js',
   '/js/core.js',
   '/js/storage.js',

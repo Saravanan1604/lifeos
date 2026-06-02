@@ -1,0 +1,131 @@
+/* ============================================================
+   LifeOS — PREMIUM MOBILE THEME
+   Every rule is scoped under `html.is-app`, which is ONLY set in the
+   installed mobile app (TWA/PWA). Desktop web never has this class,
+   so NONE of this can affect the web application. Pure isolation.
+   ============================================================ */
+
+/* ---- 1. Sophisticated background depth ---- */
+html.is-app body {
+  background:
+    radial-gradient(1100px 600px at 8% -5%, rgba(0,201,167,.07), transparent 55%),
+    radial-gradient(900px 600px at 100% 0%, rgba(99,102,241,.08), transparent 50%),
+    linear-gradient(180deg, #0b0b16 0%, #08080f 100%) !important;
+  background-attachment: fixed !important;
+}
+html.is-app.light body,
+html.is-app body.light {
+  background:
+    radial-gradient(1000px 600px at 0% -5%, rgba(0,201,167,.10), transparent 55%),
+    radial-gradient(900px 600px at 100% 0%, rgba(99,102,241,.08), transparent 50%),
+    linear-gradient(180deg, #f6f8fc 0%, #eef1f7 100%) !important;
+}
+
+/* ---- 2. Premium cards: rounded, soft depth, hairline edge ---- */
+html.is-app .glass-card {
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,.07) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.04) inset,
+    0 10px 28px rgba(0,0,0,.30),
+    0 2px 8px rgba(0,0,0,.18) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)),
+    var(--card-bg, #13132a) !important;
+  transition: transform .18s cubic-bezier(.34,1.4,.5,1), box-shadow .25s ease;
+}
+html.is-app .light .glass-card,
+html.is-app.light .glass-card {
+  border-color: rgba(15,23,42,.06) !important;
+  box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 12px 30px rgba(15,23,42,.06) !important;
+  background: #ffffff !important;
+}
+
+/* ---- 3. Typography hierarchy + vertical rhythm ---- */
+html.is-app .page-title {
+  font-weight: 800 !important;
+  letter-spacing: -.4px !important;
+  line-height: 1.15 !important;
+  margin-bottom: 4px !important;
+}
+html.is-app .page-subtitle { opacity: .62 !important; letter-spacing: .1px !important; }
+html.is-app .section-title { font-weight: 700 !important; letter-spacing: -.2px !important; }
+html.is-app .page-header { margin-bottom: 18px !important; }
+
+/* ---- 4. Buttons: 48dp touch targets, press feedback, premium glow ---- */
+html.is-app .btn-primary,
+html.is-app .btn-secondary {
+  min-height: 48px !important;
+  border-radius: 14px !important;
+  font-weight: 700 !important;
+  transition: transform .12s ease, box-shadow .25s ease, filter .2s ease !important;
+}
+html.is-app .btn-primary {
+  box-shadow: 0 8px 22px rgba(0,201,167,.28), 0 2px 6px rgba(99,102,241,.18) !important;
+}
+html.is-app .btn-primary:active,
+html.is-app .btn-secondary:active,
+html.is-app .nav-item:active,
+html.is-app .period-tab:active,
+html.is-app .auth-tab:active,
+html.is-app #page-quick-actions button:active,
+html.is-app .float-dock-btn:active {
+  transform: scale(.955) !important;
+}
+
+/* ---- 5. Nav (drawer) polish + comfortable touch rows ---- */
+html.is-app .nav-item {
+  min-height: 48px !important;
+  border-radius: 12px !important;
+  margin: 2px 8px !important;
+  transition: background .18s ease, transform .12s ease !important;
+}
+html.is-app .nav-item.active {
+  background: linear-gradient(135deg, rgba(0,201,167,.18), rgba(99,102,241,.14)) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,201,167,.25) !important;
+}
+
+/* ---- 6. Inputs: rounded, clear focus ring ---- */
+html.is-app .form-input,
+html.is-app input, html.is-app select, html.is-app textarea {
+  border-radius: 12px !important;
+  transition: border-color .18s ease, box-shadow .18s ease !important;
+}
+html.is-app .form-input:focus,
+html.is-app input:focus, html.is-app select:focus, html.is-app textarea:focus {
+  border-color: rgba(0,201,167,.55) !important;
+  box-shadow: 0 0 0 3px rgba(0,201,167,.16) !important;
+  outline: none !important;
+}
+
+/* ---- 7. Pills / chips / segmented controls ---- */
+html.is-app .period-tabs {
+  border-radius: 14px !important;
+  padding: 4px !important;
+  background: rgba(255,255,255,.05) !important;
+}
+html.is-app .period-tab { border-radius: 10px !important; min-height: 40px !important; }
+html.is-app .period-tab.active {
+  box-shadow: 0 4px 12px rgba(99,102,241,.35) !important;
+}
+html.is-app #page-quick-actions button { min-height: 44px !important; border-radius: 24px !important; }
+
+/* ---- 8. Floating dock: bigger, premium, tactile ---- */
+html.is-app .float-dock-btn {
+  border-radius: 16px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4) !important;
+  transition: transform .14s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease !important;
+}
+
+/* ---- 9. Micro-animations: gentle content fade-in ---- */
+@keyframes msFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+html.is-app #page-container .fade-in { animation: msFadeUp .34s cubic-bezier(.22,.7,.3,1) both; }
+html.is-app .glass-card { will-change: transform; }
+
+/* ---- 10. Scrollbar + selection polish ---- */
+html.is-app ::-webkit-scrollbar { width: 0; height: 0; }
+html.is-app ::selection { background: rgba(0,201,167,.3); }
+
+/* ---- 11. Toasts & modals: rounded, lifted ---- */
+html.is-app .toast { border-radius: 14px !important; box-shadow: 0 10px 30px rgba(0,0,0,.4) !important; }
+html.is-app .modal-box { border-radius: 18px !important; box-shadow: 0 24px 70px rgba(0,0,0,.55) !important; }
