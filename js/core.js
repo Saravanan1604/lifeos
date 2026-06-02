@@ -374,14 +374,35 @@ function toggleSidebar() {
   const sb = document.getElementById('sidebar');
   const ct = document.getElementById('content');
   
-  if (window.innerWidth <= 768) {
-    // Mobile mode: just show/hide the sidebar fully
-    sb.classList.toggle('mobile-open');
+  if (window.innerWidth <= 1024) {
+    // Mobile/tablet mode: slide the drawer in/out
+    const open = sb.classList.toggle('mobile-open');
+    _toggleSidebarBackdrop(open);
   } else {
     // Desktop mode: toggle collapse (shrink width)
     sidebarCollapsed = !sidebarCollapsed;
     sb.classList.toggle('collapsed', sidebarCollapsed);
     ct.classList.toggle('expanded', sidebarCollapsed);
+  }
+}
+
+// Dim backdrop behind the mobile drawer; tap it to close (Gmail-style)
+function _toggleSidebarBackdrop(show) {
+  let bd = document.getElementById('sidebar-backdrop');
+  if (show) {
+    if (!bd) {
+      bd = document.createElement('div');
+      bd.id = 'sidebar-backdrop';
+      bd.style.cssText = 'position:fixed;inset:0;z-index:998;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px)';
+      bd.onclick = () => {
+        document.getElementById('sidebar').classList.remove('mobile-open');
+        _toggleSidebarBackdrop(false);
+      };
+      document.body.appendChild(bd);
+    }
+    bd.style.display = 'block';
+  } else if (bd) {
+    bd.style.display = 'none';
   }
 }
 
@@ -547,8 +568,9 @@ function navigate(page, skipHistory = false) {
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
-  if (window.innerWidth <= 768) {
+  if (window.innerWidth <= 1024) {
     document.getElementById('sidebar').classList.remove('mobile-open');
+    if (typeof _toggleSidebarBackdrop === 'function') _toggleSidebarBackdrop(false);
     sidebarCollapsed = false;
   }
 
