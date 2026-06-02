@@ -17,15 +17,14 @@
        detect app/standalone mode and skip loading the ad library there. -->
   <script>
   (function () {
-    var dm = '';
-    try {
-      ['standalone','fullscreen','minimal-ui'].forEach(function(m){
-        if (window.matchMedia && window.matchMedia('(display-mode: '+m+')').matches) dm = m;
-      });
-    } catch (e) {}
+    // Detect the installed app ONLY to skip web ads (AdSense isn't allowed in
+    // the app). No layout/scale changes — the app uses the same web layout.
     var isApp = false;
     try {
-      isApp = !!dm
+      isApp = (window.matchMedia && (
+          window.matchMedia('(display-mode: standalone)').matches ||
+          window.matchMedia('(display-mode: fullscreen)').matches ||
+          window.matchMedia('(display-mode: minimal-ui)').matches))
         || window.navigator.standalone === true
         || (document.referrer || '').indexOf('android-app://') === 0
         || localStorage.getItem('_isApp') === '1';
@@ -33,42 +32,16 @@
     if (isApp) { try { localStorage.setItem('_isApp', '1'); } catch (e) {} }
     window.__IS_APP = isApp;
     if (isApp) {
-      document.documentElement.classList.add('is-app');   // hides ads + enlarges layout
-      // Some app webviews render at ~980px and shrink the page to fit (tiny UI).
-      // Counter it by scaling the whole page so it behaves like a real phone.
-      var MS_TARGET = 412;
-      window.__applyMobileScale = function () {
-        if (!window.__IS_APP) return;
-        var b = document.body; if (!b) return;
-        var vw = window.innerWidth;
-        if (vw <= MS_TARGET + 40) {            // already phone-sized → no scaling
-          b.style.transform = ''; b.style.width = ''; b.style.transformOrigin = '';
-          document.documentElement.style.height = '';
-          return;
-        }
-        var scale = vw / MS_TARGET;
-        b.style.transformOrigin = 'top left';
-        b.style.width = MS_TARGET + 'px';
-        b.style.transform = 'scale(' + scale + ')';
-        // Make the document tall enough to scroll the scaled content fully
-        document.documentElement.style.height = Math.ceil(b.scrollHeight * scale) + 'px';
-      };
-      window.addEventListener('resize', function () { window.__applyMobileScale(); });
-      window.addEventListener('DOMContentLoaded', function () { setTimeout(window.__applyMobileScale, 50); });
+      // Hide the ad slot inside the app (no ads); load nothing.
+      var st = document.createElement('style');
+      st.textContent = '.ad-container{display:none!important}';
+      document.head.appendChild(st);
     } else {
       var s = document.createElement('script');
       s.async = true; s.crossOrigin = 'anonymous';
       s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6889705040574527';
       document.head.appendChild(s);
     }
-    // Temporary on-screen diagnostic (remove once layout confirmed)
-    window.addEventListener('DOMContentLoaded', function(){
-      var d = document.createElement('div');
-      d.style.cssText = 'position:fixed;left:6px;bottom:6px;z-index:100000;background:#000;color:#0f0;font:11px monospace;padding:4px 7px;border-radius:6px;opacity:.85;pointer-events:none';
-      var upd = function(){ d.textContent = 'v33 W:'+window.innerWidth+' app:'+(isApp?'Y':'N')+' dm:'+(dm||'browser'); };
-      upd(); window.addEventListener('resize', upd);
-      document.body.appendChild(d);
-    });
   })();
   </script>
 
@@ -95,11 +68,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=33" />
-  <link rel="stylesheet" href="css/calc.css?v=33" />
-  <link rel="stylesheet" href="css/premium.css?v=33" />
+  <link rel="stylesheet" href="css/styles.css?v=34" />
+  <link rel="stylesheet" href="css/calc.css?v=34" />
+  <link rel="stylesheet" href="css/premium.css?v=34" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=33" />
+  <link rel="stylesheet" href="css/mobile.css?v=34" />
 </head>
 <body>
 
@@ -471,23 +444,23 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=33"></script>
-<script src="js/core.js?v=33"></script>
-<script src="js/dashboard.js?v=33"></script>
-<script src="js/finance.js?v=33"></script>
-<script src="js/bank-tracker.js?v=33"></script>
-<script src="js/life.js?v=33"></script>
-<script src="js/growth.js?v=33"></script>
-<script src="js/ai.js?v=33"></script>
-<script src="js/calculator.js?v=33"></script>
-<script src="js/features.js?v=33"></script>
-<script src="js/premium.js?v=33"></script>
-<script src="js/categories.js?v=33"></script>
-<script src="js/compare.js?v=33"></script>
-<script src="js/pages.js?v=33"></script>
-<script src="js/help.js?v=33"></script>
-<script src="js/voice.js?v=33"></script>
-<script src="js/init.js?v=33"></script>
+<script src="js/storage.js?v=34"></script>
+<script src="js/core.js?v=34"></script>
+<script src="js/dashboard.js?v=34"></script>
+<script src="js/finance.js?v=34"></script>
+<script src="js/bank-tracker.js?v=34"></script>
+<script src="js/life.js?v=34"></script>
+<script src="js/growth.js?v=34"></script>
+<script src="js/ai.js?v=34"></script>
+<script src="js/calculator.js?v=34"></script>
+<script src="js/features.js?v=34"></script>
+<script src="js/premium.js?v=34"></script>
+<script src="js/categories.js?v=34"></script>
+<script src="js/compare.js?v=34"></script>
+<script src="js/pages.js?v=34"></script>
+<script src="js/help.js?v=34"></script>
+<script src="js/voice.js?v=34"></script>
+<script src="js/init.js?v=34"></script>
 
 <style>
   /* Voice mic listening pulse */
