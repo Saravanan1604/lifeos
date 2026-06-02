@@ -180,14 +180,23 @@ html.is-app .sidebar-nav { padding: 4px 0 12px !important; }
 /* Hamburger (☰) menu button — 500% larger icon for easy tapping */
 html.is-app .mobile-menu-btn {
   display: flex !important;
-  width: 120px !important;
-  height: 120px !important;
-  border-radius: 24px !important;
+  width: 84px !important;
+  height: 84px !important;
+  top: 14px !important; left: 14px !important;
+  border-radius: 22px !important;
+  /* Opaque so where it overlaps scrolling content it reads as a clean
+     floating button, not a bug */
+  background: #161826 !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5) !important;
 }
 html.is-app .mobile-menu-btn svg {
-  width: 96px !important;   /* ~500% of the original 24px line icon */
-  height: 96px !important;
+  width: 56px !important;
+  height: 56px !important;
 }
+/* Push page content below the floating menu button so titles never sit
+   under it (FIX: hamburger overlapping "Dashboard"/"Set Budget" titles) */
+html.is-app .content { padding-top: 108px !important; }
 
 /* Sidebar = hidden left-half FROSTED-GLASS drawer */
 html.is-app .sidebar {
@@ -470,3 +479,28 @@ html.is-app #dash-pie-chart > div:last-child > div > span:last-child {
   font-size: 18px !important; min-width: 50px !important; text-align: right !important;
   margin-left: 4px !important; color: var(--text3) !important;
 }
+
+/* ---------- 📊 LIFE SCORE rows (radar legend) ----------
+   FIX: "Productivity"/numbers were breaking letter-per-line because the
+   label box was too small for the large font. Give labels room + nowrap. */
+html.is-app .life-score-grid > div > div > div {            /* each score row */
+  align-items: center !important;
+}
+html.is-app .life-score-grid span[style*="width:72px"] {     /* label (Wealth/Health/...) */
+  width: auto !important; min-width: 120px !important;
+  font-size: 22px !important; white-space: nowrap !important;
+}
+html.is-app .life-score-grid span[style*="width:34px"] {     /* score number */
+  width: auto !important; min-width: 44px !important;
+  font-size: 24px !important; white-space: nowrap !important; text-align: right !important;
+}
+
+/* ---------- 📈 LIFE ANALYTICS tiles ("12/14" etc.) ----------
+   FIX: 4-across made tiles too narrow → "12/14" and "Achievements" wrapped.
+   Use 2×2 so each tile is wide enough; keep value on one line. */
+html.is-app .stat-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+html.is-app .stat-grid .stat-card-value {
+  white-space: nowrap !important;
+  font-size: clamp(32px, 10vw, 52px) !important;   /* shrinks to fit narrow tiles */
+}
+html.is-app .stat-grid .stat-card-label { font-size: 22px !important; line-height: 1.2 !important; }
