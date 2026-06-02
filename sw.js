@@ -1,5 +1,5 @@
-// LifeOS Service Worker — v14.0
-const CACHE = 'lifeos-v14';
+// LifeOS Service Worker — v15.0
+const CACHE = 'lifeos-v15';
 const ASSETS = [
   '/',
   '/index.html',

@@ -401,20 +401,20 @@ body.light .chat-code{background:rgba(79,70,229,0.08);color:#4f46e5}
    get the comfortable layout, not a cramped multi-column desktop one. */
 @media(max-width:900px){
   html{-webkit-text-size-adjust:100%}
-  /* Headings + key chrome */
-  .page-title{font-size:26px!important;line-height:1.2}
-  .page-subtitle{font-size:14px!important}
-  .section-title{font-size:18px!important}
+  /* Headings + key chrome — large & clear */
+  .page-title{font-size:30px!important;line-height:1.2}
+  .page-subtitle{font-size:16px!important}
+  .section-title{font-size:22px!important}
   /* Roomier cards + controls */
   .glass-card{padding:18px!important;border-radius:18px}
-  .btn-primary,.btn-secondary{font-size:15px!important;padding:12px 18px!important;border-radius:12px}
-  .form-input{font-size:16px!important;padding:13px 14px!important} /* 16px stops focus-zoom */
-  .form-label{font-size:13px!important}
-  .hero-value{font-size:36px!important}
-  #page-quick-actions button{font-size:14px!important;padding:11px 16px!important}
-  .float-dock-btn{width:54px!important;height:54px!important}
+  .btn-primary,.btn-secondary{font-size:17px!important;padding:13px 18px!important;border-radius:12px}
+  .form-input{font-size:17px!important;padding:14px 14px!important}
+  .form-label{font-size:15px!important}
+  .hero-value{font-size:40px!important}
+  #page-quick-actions button{font-size:15px!important;padding:12px 18px!important}
+  .float-dock-btn{width:56px!important;height:56px!important}
 
-  /* Force card/stat grids to ONE column so cards are full-width & big */
+  /* Card grids → 2 per row; stat grids 2-up; wide layout grids stack */
   .stat-grid{grid-template-columns:1fr 1fr!important;gap:12px}
   [style*="minmax(200px"],
   [style*="minmax(220px"],
@@ -422,25 +422,32 @@ body.light .chat-code{background:rgba(79,70,229,0.08);color:#4f46e5}
   [style*="minmax(260px"],
   [style*="minmax(280px"],
   [style*="minmax(300px"],
-  [style*="minmax(320px"]{grid-template-columns:1fr!important}
-  [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:1fr 1fr!important}
+  [style*="minmax(320px"]{grid-template-columns:repeat(2,1fr)!important}
+  [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:repeat(2,1fr)!important}
   [style*="grid-template-columns:2fr 1fr"]{grid-template-columns:1fr!important}
-  [style*="grid-template-columns:1fr 1fr 1fr 1fr"]{grid-template-columns:1fr 1fr!important}
+  [style*="grid-template-columns:1fr 1fr 1fr 1fr"]{grid-template-columns:repeat(2,1fr)!important}
   [style*="grid-template-columns:160px 1fr"],
   [style*="grid-template-columns:200px 1fr"]{grid-template-columns:1fr!important}
 
-  /* Bump the many hard-coded tiny inline font sizes (Gmail-comfortable) */
-  [style*="font-size:9px"]  {font-size:12px!important}
-  [style*="font-size:10px"] {font-size:13px!important}
-  [style*="font-size:11px"] {font-size:14px!important}
-  [style*="font-size:12px"] {font-size:15px!important}
-  [style*="font-size:13px"] {font-size:15px!important}
-  [style*="font-size:14px"] {font-size:16px!important}
-  [style*="font-size:15px"] {font-size:17px!important}
-  [style*="font-size:16px"] {font-size:18px!important}
+  /* Bump the many hard-coded tiny inline font sizes — much larger */
+  [style*="font-size:9px"]  {font-size:15px!important}
+  [style*="font-size:10px"] {font-size:16px!important}
+  [style*="font-size:11px"] {font-size:17px!important}
+  [style*="font-size:12px"] {font-size:18px!important}
+  [style*="font-size:13px"] {font-size:19px!important}
+  [style*="font-size:14px"] {font-size:20px!important}
+  [style*="font-size:15px"] {font-size:21px!important}
+  [style*="font-size:16px"] {font-size:22px!important}
 }
 
-@media(max-width:430px){
+/* Narrow phones: cards full-width (1 per row) so big text isn't cramped */
+@media(max-width:520px){
   .stat-grid{grid-template-columns:1fr!important}
-  .page-title{font-size:24px!important}
+  [style*="minmax(200px"],
+  [style*="minmax(220px"],
+  [style*="minmax(240px"],
+  [style*="minmax(260px"],
+  [style*="minmax(280px"]{grid-template-columns:1fr!important}
+  [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:1fr 1fr!important}
+  .page-title{font-size:26px!important}
 }
