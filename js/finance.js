@@ -2926,15 +2926,17 @@ let _csvResults = [];
 
 function openCsvImport() {
   _csvResults = [];
-  openModal('📊 Import CSV', `
+  openModal('📊 Import CSV / Excel', `
     <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
-      Upload a CSV exported from <strong>Google Pay</strong> or <strong>PhonePe</strong>.<br>
+      Upload a <strong>CSV or Excel</strong> file (.csv, .xls, .xlsx) — e.g. a
+      <strong>Google Pay / PhonePe</strong> export or a day-to-day expense sheet
+      with <em>Date, Income, Expense, Category</em> columns.<br>
       Auto-detects the format and maps all transactions.
     </div>
 
     <div class="form-group" style="margin-bottom:12px">
-      <label class="form-label">Select CSV file</label>
-      <input type="file" id="csv-file-input" accept=".csv,text/csv" class="form-input"
+      <label class="form-label">Select CSV / Excel file</label>
+      <input type="file" id="csv-file-input" accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="form-input"
         onchange="handleCsvFileSelect(this)"
         style="padding:10px;cursor:pointer"/>
     </div>
@@ -2957,21 +2959,115 @@ function openCsvImport() {
 function handleCsvFileSelect(input) {
   const file = input.files[0];
   if (!file) return;
+  const name = (file.name || '').toLowerCase();
+  const isExcel = name.endsWith('.xls') || name.endsWith('.xlsx') ||
+    /spreadsheet|ms-excel/.test(file.type || '');
   const reader = new FileReader();
+
   reader.onload = e => {
     try {
-      _csvResults = parseCsvText(e.target.result);
+      if (isExcel) {
+        if (typeof XLSX === 'undefined') {
+          _showImportStatus('csv', 'Excel support is still loading — try again in a moment.', 'warn');
+          return;
+        }
+        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        // Prefer a sheet named "Transactions", else the first non-empty sheet
+        let sheetName = wb.SheetNames.find(n => /transaction/i.test(n)) || wb.SheetNames[0];
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, blankrows: false, raw: false });
+        _csvResults = parseSheetRows(rows);
+      } else {
+        _csvResults = parseCsvText(e.target.result);
+      }
+
       if (!_csvResults.length) {
-        _showImportStatus('csv', 'No valid transactions found in this CSV. Make sure it\'s a GPay or PhonePe export.', 'warn');
+        _showImportStatus('csv', 'No valid transactions found. Make sure the file has Date + Income/Expense (or Amount) columns.', 'warn');
         return;
       }
       renderCsvResults();
       _showImportStatus('csv', `✅ Found ${_csvResults.length} transaction${_csvResults.length > 1 ? 's' : ''}`, 'ok');
-    } catch(err) {
-      _showImportStatus('csv', 'Could not parse CSV: ' + err.message, 'warn');
+    } catch (err) {
+      _showImportStatus('csv', 'Could not parse file: ' + err.message, 'warn');
     }
   };
-  reader.readAsText(file);
+
+  if (isExcel) reader.readAsArrayBuffer(file);
+  else reader.readAsText(file);
+}
+
+// Parse a sheet (array-of-arrays incl. header row) into transaction results.
+// Handles separate Income/Expense (or Debit/Credit) columns AND a single
+// Amount column. Used for Excel imports and generic spreadsheets.
+function parseSheetRows(rows) {
+  if (!rows || rows.length < 2) return [];
+  const headers = (rows[0] || []).map(h => String(h == null ? '' : h).toLowerCase().replace(/[^a-z0-9]/g, ' ').trim());
+  const find = (...names) => {
+    for (const n of names) { const i = headers.findIndex(h => h === n || h.includes(n)); if (i >= 0) return i; }
+    return -1;
+  };
+  const iDate = find('date');
+  const iInc  = find('income', 'credit', 'deposit', 'cr');
+  const iExp  = find('expense', 'debit', 'withdrawal', 'dr');
+  const iAmt  = find('amount', 'value');
+  const iCat  = find('category');
+  const iType = find('type');
+  // Collect ALL possible name/description columns; per row use the first non-empty
+  // (e.g. this sheet has both "Purpose" (the real name) and an empty "Description")
+  const descIdxs = ['purpose', 'description', 'remarks', 'narration', 'particulars', 'note', 'details', 'name']
+    .map(n => headers.findIndex(h => h === n || h.includes(n)))
+    .filter(i => i >= 0);
+  const num = v => parseFloat(String(v == null ? '' : v).replace(/[, ₹]/g, ''));
+
+  const out = [];
+  for (let r = 1; r < rows.length; r++) {
+    const row = rows[r]; if (!row || !row.length) continue;
+    const cell = i => (i >= 0 && row[i] != null ? String(row[i]).trim() : '');
+    let type, amount;
+
+    if (iInc >= 0 || iExp >= 0) {
+      const inc = num(cell(iInc)), exp = num(cell(iExp));
+      if (inc > 0) { type = 'income'; amount = inc; }
+      else if (exp > 0) { type = 'expense'; amount = exp; }
+      else continue;
+    } else if (iAmt >= 0) {
+      const raw = num(cell(iAmt)); if (!raw || isNaN(raw)) continue;
+      amount = Math.abs(raw);
+      const t = (cell(iType) || '').toLowerCase();
+      type = (raw < 0 || t.includes('debit') || t.includes('expense') || t.includes('dr')) ? 'expense' : 'income';
+    } else continue;
+
+    if (!amount || amount <= 0) continue;
+    let description = '';
+    for (const di of descIdxs) { const v = cell(di); if (v) { description = v; break; } }
+    if (!description) description = type === 'income' ? 'Credit' : 'Debit';
+    const date = iDate >= 0 ? _parseCsvDate(cell(iDate)) : today();
+    const lo = description.toLowerCase();
+    const category = _matchImportCategory(cell(iCat)) || smsCategoryGuess(lo, lo, type);
+    out.push({ type, amount, date: date || today(), description, category });
+  }
+  return out;
+}
+
+// Map an imported category string to one of the app's categories (or null to guess).
+function _matchImportCategory(raw) {
+  if (!raw) return null;
+  const c = raw.toLowerCase().trim();
+  const cats = (typeof CATEGORIES !== 'undefined') ? CATEGORIES : [];
+  const exact = cats.find(x => x.name.toLowerCase() === c);
+  if (exact) return exact.name;
+  const syn = {
+    gas: 'Fuel', petrol: 'Fuel', diesel: 'Fuel',
+    drinks: 'Food', tea: 'Food', coffee: 'Food', juice: 'Food', restaurant: 'Food', dining: 'Food', snacks: 'Food',
+    grocery: 'Groceries', groceries: 'Groceries',
+    movie: 'Entertainment', movies: 'Entertainment', games: 'Entertainment',
+    rent: 'Rent', salary: 'Salary', medical: 'Health', medicine: 'Health', hospital: 'Health',
+    transport: 'Transport', taxi: 'Transport', uber: 'Transport', ola: 'Transport', bus: 'Transport', train: 'Transport',
+    shopping: 'Shopping', bill: 'Bills', bills: 'Bills', recharge: 'Bills', electricity: 'Utilities', water: 'Utilities'
+  };
+  if (syn[c]) return syn[c];
+  // If it matches a category name loosely, use it
+  const loose = cats.find(x => c.includes(x.name.toLowerCase()) || x.name.toLowerCase().includes(c));
+  return loose ? loose.name : null;
 }
 
 function parseCsvText(text) {
