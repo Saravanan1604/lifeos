@@ -597,12 +597,12 @@ function _renderPage(page) {
     .filter(el => getComputedStyle(el).display !== 'none');
   _bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === page));
   const _ind = document.getElementById('bn-indicator');
-  if (_ind && _bnItems.length) {
-    const idx = _bnItems.findIndex(el => el.dataset.page === page);
-    if (idx >= 0) {
+  if (_ind) {
+    const active = _bnItems.find(el => el.dataset.page === page);
+    if (active && active.offsetWidth) {
       _ind.style.opacity = '1';
-      _ind.style.width = (100 / _bnItems.length) + '%';
-      _ind.style.transform = `translateX(${idx * 100}%)`;
+      _ind.style.width = active.offsetWidth + 'px';
+      _ind.style.transform = `translateX(${active.offsetLeft}px)`;
     } else {
       _ind.style.opacity = '0';   // page not in the tab bar (opened via More)
     }

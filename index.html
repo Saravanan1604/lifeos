@@ -71,11 +71,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=74" />
-  <link rel="stylesheet" href="css/calc.css?v=74" />
-  <link rel="stylesheet" href="css/premium.css?v=74" />
+  <link rel="stylesheet" href="css/styles.css?v=75" />
+  <link rel="stylesheet" href="css/calc.css?v=75" />
+  <link rel="stylesheet" href="css/premium.css?v=75" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=74" />
+  <link rel="stylesheet" href="css/mobile.css?v=75" />
 </head>
 <body>
 
@@ -323,26 +323,34 @@
     <!-- Bottom tab bar (installed app only — styled/shown via html.is-app) -->
     <nav id="bottom-nav">
       <div id="bn-indicator"></div>
-      <button class="bn-item" data-page="dashboard" onclick="navigate('dashboard')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span>Home</span>
-      </button>
-      <button class="bn-item" data-page="finance" onclick="navigate('finance')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        <span>Finance</span>
-      </button>
-      <button class="bn-item" data-page="investments" onclick="navigate('investments')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        <span>Assets</span>
-      </button>
-      <button class="bn-item" data-page="budget" onclick="navigate('budget')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-        <span>Budget</span>
-      </button>
-      <button class="bn-item" id="bn-more" onclick="openMobileDrawer()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
-        <span>More</span>
-      </button>
+      <div class="bn-group">
+        <button class="bn-item" data-page="dashboard" onclick="navigate('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </button>
+        <button class="bn-item" data-page="finance" onclick="navigate('finance')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          <span>Finance</span>
+        </button>
+        <button class="bn-item" data-page="investments" onclick="navigate('investments')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Assets</span>
+        </button>
+      </div>
+      <div class="bn-group">
+        <button class="bn-item" data-page="budget" onclick="navigate('budget')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          <span>Budget</span>
+        </button>
+        <button class="bn-item" data-page="goals" onclick="navigate('goals')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <span>Goals</span>
+        </button>
+        <button class="bn-item" id="bn-more" onclick="openMobileDrawer()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+          <span>More</span>
+        </button>
+      </div>
     </nav>
 
     <!-- Center Add-Transaction FAB (installed app only) -->
@@ -483,23 +491,23 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=74"></script>
-<script src="js/core.js?v=74"></script>
-<script src="js/dashboard.js?v=74"></script>
-<script src="js/finance.js?v=74"></script>
-<script src="js/bank-tracker.js?v=74"></script>
-<script src="js/life.js?v=74"></script>
-<script src="js/growth.js?v=74"></script>
-<script src="js/ai.js?v=74"></script>
-<script src="js/calculator.js?v=74"></script>
-<script src="js/features.js?v=74"></script>
-<script src="js/premium.js?v=74"></script>
-<script src="js/categories.js?v=74"></script>
-<script src="js/compare.js?v=74"></script>
-<script src="js/pages.js?v=74"></script>
-<script src="js/help.js?v=74"></script>
-<script src="js/voice.js?v=74"></script>
-<script src="js/init.js?v=74"></script>
+<script src="js/storage.js?v=75"></script>
+<script src="js/core.js?v=75"></script>
+<script src="js/dashboard.js?v=75"></script>
+<script src="js/finance.js?v=75"></script>
+<script src="js/bank-tracker.js?v=75"></script>
+<script src="js/life.js?v=75"></script>
+<script src="js/growth.js?v=75"></script>
+<script src="js/ai.js?v=75"></script>
+<script src="js/calculator.js?v=75"></script>
+<script src="js/features.js?v=75"></script>
+<script src="js/premium.js?v=75"></script>
+<script src="js/categories.js?v=75"></script>
+<script src="js/compare.js?v=75"></script>
+<script src="js/pages.js?v=75"></script>
+<script src="js/help.js?v=75"></script>
+<script src="js/voice.js?v=75"></script>
+<script src="js/init.js?v=75"></script>
 
 <style>
   /* Voice mic listening pulse */

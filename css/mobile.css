@@ -724,3 +724,55 @@ html.is-app .section-header .btn-sm {
   padding: 14px 22px !important;
   border-radius: 14px !important;
 }
+
+/* ============================================================
+   build 75 — major dashboard + bottom-nav restructure (app-only)
+   ============================================================ */
+
+/* #1 Bigger menu (☰) + bell */
+html.is-app .mobile-menu-btn { width: 66px !important; height: 66px !important; border-radius: 18px !important; }
+html.is-app .mobile-menu-btn svg { width: 44px !important; height: 44px !important; }
+html.is-app #mobile-notif-btn { width: 66px !important; height: 66px !important; border-radius: 18px !important; }
+html.is-app #mobile-notif-btn svg { width: 44px !important; height: 44px !important; }
+html.is-app .content { padding-top: 92px !important; }
+
+/* #2 remove the header "+ Add Transaction" button (it's the center FAB now) */
+html.is-app .page-header .btn-primary { display: none !important; }
+
+/* #12 remove the search bar */
+html.is-app .app-search { display: none !important; }
+
+/* #3 KPI cards → 2×2 (Income | Expense / Net Saving | Net Worth) */
+html.is-app .kpi-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+
+/* #9 remove Recent Transactions, #10 remove Life Analytics */
+html.is-app #dash-recent-tx,
+html.is-app #dash-life-analytics { display: none !important; }
+
+/* #6 remove the TOTAL label in the bank-balance donut centre */
+html.is-app .bank-donut-center { display: none !important; }
+
+/* #5 Top Spending: ring to the LEFT + 2x bigger, Food/Personal Care to the RIGHT */
+html.is-app #dash-pie-chart { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 18px !important; }
+html.is-app #dash-pie-chart > div:first-child { width: 52% !important; height: 200px !important; margin: 0 !important; flex-shrink: 0 !important; }
+html.is-app #dash-pie-chart > div:last-child { flex: 1 !important; }
+
+/* #7 Budget + #8 Goals — taller & spacious */
+html.is-app .dash-bg-grid > * { padding: 30px 22px !important; min-height: 320px !important; }
+html.is-app .dash-acct-grid > * { padding: 28px 22px !important; }
+
+/* #11 Bottom nav — 6 tabs in two groups, center gap for the FAB, 3x taller */
+html.is-app #bottom-nav {
+  padding: 22px 8px calc(22px + env(safe-area-inset-bottom, 0px)) !important;
+  justify-content: space-between !important;
+}
+html.is-app #bottom-nav .bn-group { display: flex; flex: 1; justify-content: space-around; align-items: center; }
+html.is-app #bottom-nav .bn-group:first-of-type { padding-right: 44px !important; }   /* leave room for FAB */
+html.is-app #bottom-nav .bn-group:last-of-type  { padding-left: 44px !important; }
+html.is-app #bottom-nav .bn-item[data-page="investments"] { display: flex !important; } /* show Assets again */
+html.is-app #bottom-nav .bn-item svg { width: 40px !important; height: 40px !important; }
+html.is-app #bottom-nav .bn-item span { font-size: 18px !important; }
+/* taller bar → push content & raise the FAB */
+html.is-app .content { padding-bottom: 150px !important; }
+html.is-app #fab-add { bottom: calc(42px + env(safe-area-inset-bottom, 0px)) !important; width: 78px !important; height: 78px !important; }
+html.is-app #fab-add svg { width: 40px !important; height: 40px !important; }

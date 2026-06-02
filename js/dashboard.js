@@ -227,8 +227,16 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
       accent:savRate<0?'#ef4444':savRate<10?'#f59e0b':'#00c9a7',
       alarm:savRate<0, warn:savRate>=0&&savRate<10}),
   ];
-  // Habits Today card — hidden in the installed app (keep Income/Expense/Savings only)
-  if (!window.__IS_APP) {
+  if (window.__IS_APP) {
+    // App: 4th card = Net Worth (Bank + Cash − Cards) → makes a 2×2 grid
+    const _bankT = (STATE.bankAccounts||[]).reduce((s,b)=>s+(b.balance||0),0);
+    const _cashT = (STATE.cashAccounts||[]).reduce((s,c)=>s+(c.balance||0),0);
+    const _cardT = (STATE.creditCards||[]).reduce((s,c)=>s+(c.outstanding||0),0);
+    const _nw = _bankT + _cashT - _cardT;
+    _kpi.push(card({label:'Net Worth', value:`${_nw<0?'-':''}${fmt(Math.abs(_nw))}`,
+      sub:'Bank + Cash − Cards', subColor:'var(--text3)',
+      sparkData:null, sparkColor:'#00c9a7', page:'finance', accent:_nw<0?'#ef4444':'#00c9a7', alarm:false, warn:false}));
+  } else {
     _kpi.push(card({label:'Habits Today', value:habits.length>0?`${doneToday}/${habits.length}`:'—',
       sub:habits.length>0?`${Math.round(doneToday/habits.length*100)}% done today`:'Add habits to track',
       subColor:habits.length>0&&doneToday===habits.length?'#10b981':'var(--text3)',
@@ -426,7 +434,7 @@ function _buildAccountsGoalsBudget() {
     : `<div style="display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center">
          <div style="position:relative;height:120px">
            <canvas id="dash-bank-chart"></canvas>
-           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+           <div class="bank-donut-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
              <span style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700">Total</span>
              <span style="font-size:12px;font-weight:900;color:#fff">${fmt(totalBank)}</span>
            </div>
@@ -730,7 +738,7 @@ function renderDashboard() {
       </div>
 
       <!-- ── Financial Overview + Spending side-by-side ─────────────── -->
-      <div class="glass-card" style="padding:22px;margin-bottom:20px">
+      <div class="glass-card" id="dash-fin-overview" style="padding:22px;margin-bottom:20px">
         <!-- Header row -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <div>
@@ -763,7 +771,7 @@ function renderDashboard() {
       ${_buildAccountsGoalsBudget()}
 
       <!-- Recent Transactions -->
-      <div class="glass-card" style="overflow:hidden">
+      <div class="glass-card" id="dash-recent-tx" style="overflow:hidden">
         <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center">
           <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Recent Transactions</p>
           <button class="btn-secondary btn-sm" onclick="navigate('finance')">View All →</button>
@@ -784,7 +792,7 @@ function renderDashboard() {
       </div>
 
       <!-- ═══ ANALYTICS SECTION ═══ -->
-      <div style="margin-top:8px">
+      <div id="dash-life-analytics" style="margin-top:8px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
           <span style="font-size:16px">📊</span>
           <h2 style="font-size:16px;font-weight:800;color:var(--text)">Life Analytics</h2>
@@ -888,6 +896,11 @@ function renderDashboard() {
       if (lsg) lsg.style.gridTemplateColumns = '1fr';
       const wg = document.querySelector('.welcome-grid');
       if (wg) wg.style.gridTemplateColumns = 'repeat(2,1fr)';
+    }
+    // App: move Financial Overview to the bottom of the dashboard
+    if (window.__IS_APP) {
+      const fo = document.getElementById('dash-fin-overview');
+      if (fo && fo.parentNode) fo.parentNode.appendChild(fo);
     }
   }, 50);
 
