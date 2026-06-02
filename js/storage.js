@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 82;
+const APP_BUILD = 83;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -103,30 +103,46 @@ function saveState() {
   }
 }
 
-// ===== UNDO FUNCTION =====
+// ===== UNDO / REDO =====
+const redoHistory = [];
+
+function _syncStateToCloud() {
+  const token = localStorage.getItem('lifeos_token');
+  if (token && STATE.user) {
+    fetch(`${API_URL}/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ state: STATE })
+    }).catch(() => {});
+  }
+}
+
 function undoLastAction() {
   if (stateHistory.length > 0) {
+    redoHistory.push(JSON.stringify(STATE));   // remember current so we can redo
+    if (redoHistory.length > 10) redoHistory.shift();
     const prevStateStr = stateHistory.pop();
     STATE = JSON.parse(prevStateStr);
     DB.save(STATE);
-    
-    // Cloud Sync Undo
-    const token = localStorage.getItem('lifeos_token');
-    if (token && STATE.user) {
-      fetch(`${API_URL}/sync`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ state: STATE })
-      }).catch(err => {});
-    }
-    
-    toast('Action undone successfully!', 'success');
+    _syncStateToCloud();
+    toast('Action undone', 'success');
     if (typeof navigate === 'function') navigate(currentPage || 'dashboard', true);
   } else {
     toast('Nothing to undo!', 'warning');
+  }
+}
+
+function redoLastAction() {
+  if (redoHistory.length > 0) {
+    stateHistory.push(JSON.stringify(STATE));   // so undo works again
+    const nextStateStr = redoHistory.pop();
+    STATE = JSON.parse(nextStateStr);
+    DB.save(STATE);
+    _syncStateToCloud();
+    toast('Action redone', 'success');
+    if (typeof navigate === 'function') navigate(currentPage || 'dashboard', true);
+  } else {
+    toast('Nothing to redo!', 'warning');
   }
 }
 

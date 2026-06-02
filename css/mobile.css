@@ -982,3 +982,48 @@ html.is-app .content table { white-space: nowrap !important; }
 html.is-app #bottom-nav .bn-group { justify-content: space-evenly !important; }
 html.is-app #bottom-nav .bn-group:first-of-type { padding-right: 46px !important; }
 html.is-app #bottom-nav .bn-group:last-of-type  { padding-left: 46px !important; }
+
+/* ============================================================
+   build 83 — redo, toolbar spread, finance tabs off,
+   assets ring-right/text-left, % one line, wider add buttons
+   ============================================================ */
+
+/* #5 Top toolbar — spread across the full width (use the left/centre space) */
+html.is-app #top-tools {
+  left: 70px !important; right: 8px !important;
+  justify-content: space-between !important;
+  gap: 4px !important;
+}
+html.is-app #top-tools button {
+  width: 52px !important; height: 52px !important; font-size: 26px !important;
+}
+html.is-app #top-tools button svg { width: 30px !important; height: 30px !important; }
+
+/* #2 Finance import options → two rows (wrap), centered; period tabs hidden via JS */
+html.is-app .page-header > div:last-child > div:last-child {
+  flex-wrap: wrap !important;
+  overflow: visible !important;
+  justify-content: center !important;
+}
+
+/* #3 + #4 All Assets — ring on the RIGHT, text on the LEFT, % on one line */
+html.is-app .asset-cat-grid,
+html.is-app .liab-cat-grid {
+  grid-template-columns: 1fr 150px !important;
+  gap: 16px !important;
+  align-items: center !important;
+  justify-items: stretch !important;
+}
+html.is-app .asset-cat-grid > div:first-child,
+html.is-app .liab-cat-grid > div:first-child { order: 2 !important; }   /* donut → right */
+html.is-app .asset-cat-grid > div:last-child,
+html.is-app .liab-cat-grid > div:last-child  { order: 1 !important; }   /* legend → left */
+/* percentage label: never break onto a second line */
+html.is-app .asset-cat-grid span[style*="width:40px"],
+html.is-app .liab-cat-grid span[style*="width:40px"] {
+  width: auto !important; min-width: 64px !important; white-space: nowrap !important;
+}
+
+/* #6 Add Asset / Add Liability (and other page pills) — fill the width */
+html.is-app #page-quick-actions { flex-wrap: nowrap !important; }
+html.is-app #page-quick-actions button { flex: 1 1 0 !important; justify-content: center !important; }

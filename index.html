@@ -71,11 +71,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=82" />
-  <link rel="stylesheet" href="css/calc.css?v=82" />
-  <link rel="stylesheet" href="css/premium.css?v=82" />
+  <link rel="stylesheet" href="css/styles.css?v=83" />
+  <link rel="stylesheet" href="css/calc.css?v=83" />
+  <link rel="stylesheet" href="css/premium.css?v=83" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=82" />
+  <link rel="stylesheet" href="css/mobile.css?v=83" />
 </head>
 <body>
 
@@ -325,6 +325,9 @@
       <button onclick="if(typeof undoLastAction==='function')undoLastAction()" title="Undo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
       </button>
+      <button onclick="if(typeof redoLastAction==='function')redoLastAction()" title="Redo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+      </button>
       <button onclick="if(typeof toggleCalculator==='function')toggleCalculator()" title="Calculator">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="8" y2="11"/><line x1="12" y1="11" x2="12" y2="11"/><line x1="16" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="8" y2="15"/><line x1="12" y1="15" x2="12" y2="15"/><line x1="16" y1="15" x2="16" y2="18"/></svg>
       </button>
@@ -511,23 +514,23 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=82"></script>
-<script src="js/core.js?v=82"></script>
-<script src="js/dashboard.js?v=82"></script>
-<script src="js/finance.js?v=82"></script>
-<script src="js/bank-tracker.js?v=82"></script>
-<script src="js/life.js?v=82"></script>
-<script src="js/growth.js?v=82"></script>
-<script src="js/ai.js?v=82"></script>
-<script src="js/calculator.js?v=82"></script>
-<script src="js/features.js?v=82"></script>
-<script src="js/premium.js?v=82"></script>
-<script src="js/categories.js?v=82"></script>
-<script src="js/compare.js?v=82"></script>
-<script src="js/pages.js?v=82"></script>
-<script src="js/help.js?v=82"></script>
-<script src="js/voice.js?v=82"></script>
-<script src="js/init.js?v=82"></script>
+<script src="js/storage.js?v=83"></script>
+<script src="js/core.js?v=83"></script>
+<script src="js/dashboard.js?v=83"></script>
+<script src="js/finance.js?v=83"></script>
+<script src="js/bank-tracker.js?v=83"></script>
+<script src="js/life.js?v=83"></script>
+<script src="js/growth.js?v=83"></script>
+<script src="js/ai.js?v=83"></script>
+<script src="js/calculator.js?v=83"></script>
+<script src="js/features.js?v=83"></script>
+<script src="js/premium.js?v=83"></script>
+<script src="js/categories.js?v=83"></script>
+<script src="js/compare.js?v=83"></script>
+<script src="js/pages.js?v=83"></script>
+<script src="js/help.js?v=83"></script>
+<script src="js/voice.js?v=83"></script>
+<script src="js/init.js?v=83"></script>
 
 <style>
   /* Voice mic listening pulse */
