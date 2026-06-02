@@ -431,6 +431,14 @@ function renderSettings() {
           <p style="font-size:12px;color:rgba(241,245,249,0.5);margin-bottom:14px">Permanently deletes all your data. Cannot be undone.</p>
           <button class="btn-danger" onclick="confirmReset()">Reset All Data</button>
         </div>
+
+        <div style="text-align:center;padding:18px 0 8px">
+          <div style="display:flex;align-items:center;justify-content:center;gap:7px;opacity:.7">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#00c9a7"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span style="font-size:13px;font-weight:700;color:var(--text2)">LifeOS</span>
+          </div>
+          <p style="font-size:12px;color:var(--text3);margin-top:5px">Version ${APP_VERSION} (build ${APP_BUILD})</p>
+        </div>
       </div>
     </div>`;
 }
