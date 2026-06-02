@@ -29,39 +29,39 @@ html.is-app input, html.is-app select, html.is-app textarea { font-size: 16px !i
 
 /* Section labels (OVERVIEW / FINANCE / LIFE / GROWTH) */
 html.is-app .nav-group-label {
-  font-size: 12px !important;
-  letter-spacing: 1.2px !important;
+  font-size: 17px !important;
+  letter-spacing: 1.5px !important;
   text-transform: uppercase !important;
   opacity: .5 !important;
-  padding: 16px 18px 6px !important;
+  padding: 22px 22px 8px !important;
   margin: 0 !important;
 }
 
-/* Each nav row: full-width, comfortable touch height, rounded, chevron at end */
+/* Each nav row: big, full-width, comfortable touch height, chevron at end */
 html.is-app .nav-item {
   display: flex !important;
   align-items: center !important;
-  gap: 14px !important;
+  gap: 20px !important;
   width: auto !important;
-  margin: 4px 10px !important;
-  padding: 14px 16px !important;
-  min-height: 54px !important;
-  border-radius: 14px !important;
-  background: rgba(255,255,255,.035) !important;
-  border: 1px solid rgba(255,255,255,.05) !important;
+  margin: 8px 14px !important;
+  padding: 20px 22px !important;
+  min-height: 72px !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.04) !important;
+  border: 1px solid rgba(255,255,255,.06) !important;
   position: relative !important;
   transition: background .15s ease, transform .12s ease !important;
 }
 html.is-app .nav-item:active { transform: scale(.98) !important; }
 
-/* Icon — a touch bigger and tinted */
-html.is-app .nav-item .nav-icon { flex-shrink: 0 !important; opacity: .9 !important; }
-html.is-app .nav-item .nav-icon svg { width: 21px !important; height: 21px !important; }
+/* Icon — large and tinted */
+html.is-app .nav-item .nav-icon { flex-shrink: 0 !important; opacity: .92 !important; }
+html.is-app .nav-item .nav-icon svg { width: 30px !important; height: 30px !important; }
 
 /* Label */
 html.is-app .nav-item .nav-text {
   flex: 1 !important;
-  font-size: 16px !important;
+  font-size: 23px !important;
   font-weight: 600 !important;
 }
 
@@ -69,9 +69,9 @@ html.is-app .nav-item .nav-text {
 html.is-app .nav-item::after {
   content: '›';
   margin-left: auto;
-  font-size: 24px;
+  font-size: 32px;
   line-height: 1;
-  opacity: .35;
+  opacity: .4;
   font-weight: 400;
 }
 
@@ -114,4 +114,9 @@ html.is-app .sidebar.mobile-open { transform: translateX(0) !important; }
 html.is-app .content { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; }
 
 /* Give the full-screen menu a clean header spacing + close affordance */
-html.is-app .sidebar-header { position: sticky; top: 0; background: var(--bg-card, #0c0c18); z-index: 2; padding-top: 14px !important; }
+html.is-app .sidebar-header { position: sticky; top: 0; background: var(--bg-card, #0c0c18); z-index: 2; padding: 16px 14px !important; }
+html.is-app .sidebar-logo-text { font-size: 24px !important; }
+html.is-app .sidebar-user .user-name { font-size: 20px !important; font-weight: 700 !important; }
+html.is-app .sidebar-user .user-level { font-size: 14px !important; }
+html.is-app .sidebar-user .user-avatar { width: 46px !important; height: 46px !important; }
+html.is-app .sidebar-xp .xp-label { font-size: 13px !important; }
