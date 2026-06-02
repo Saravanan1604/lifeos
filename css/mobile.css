@@ -5,18 +5,22 @@
    No layout, card, spacing, or scaling changes.
    ============================================================ */
 
-/* Headings a touch larger & clearer */
-html.is-app .page-title    { font-size: 26px !important; }
-html.is-app .page-subtitle { font-size: 14px !important; }
-html.is-app .section-title { font-size: 18px !important; }
+/* Headings larger & clearer */
+html.is-app .page-title    { font-size: 30px !important; }
+html.is-app .page-subtitle { font-size: 16px !important; }
+html.is-app .section-title { font-size: 21px !important; }
 
 /* Bump the many hard-coded tiny inline font sizes for readability */
-html.is-app [style*="font-size:9px"]  { font-size: 13px !important; }
-html.is-app [style*="font-size:10px"] { font-size: 14px !important; }
-html.is-app [style*="font-size:11px"] { font-size: 15px !important; }
-html.is-app [style*="font-size:12px"] { font-size: 15px !important; }
-html.is-app [style*="font-size:13px"] { font-size: 16px !important; }
-html.is-app [style*="font-size:14px"] { font-size: 16px !important; }
+html.is-app [style*="font-size:9px"]  { font-size: 15px !important; }
+html.is-app [style*="font-size:10px"] { font-size: 16px !important; }
+html.is-app [style*="font-size:11px"] { font-size: 17px !important; }
+html.is-app [style*="font-size:12px"] { font-size: 17px !important; }
+html.is-app [style*="font-size:13px"] { font-size: 18px !important; }
+html.is-app [style*="font-size:14px"] { font-size: 18px !important; }
+html.is-app [style*="font-size:15px"] { font-size: 19px !important; }
+
+/* Base body text up a notch too */
+html.is-app .content { font-size: 17px !important; }
 
 /* Form controls: 16px stops the focus-zoom jump on mobile */
 html.is-app .form-input,
