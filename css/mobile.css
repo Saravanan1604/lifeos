@@ -1066,7 +1066,10 @@ html.is-app #fab-add:active { transform: translateX(-50%) scale(.92) !important;
 
 /* #7 App launch animation */
 @keyframes lifeAppIn { from { opacity: 0; transform: translateY(14px) scale(.99); } to { opacity: 1; transform: none; } }
-html.is-app #main-app { animation: lifeAppIn .5s cubic-bezier(.4,0,.2,1) both; }
+/* NOTE: do NOT animate/transform #main-app — it contains the fixed top/bottom
+   bars and a transformed ancestor breaks position:fixed (bars drop to page
+   bottom). Animate only the scrolling content instead. */
+html.is-app #content { animation: lifeAppIn .45s cubic-bezier(.4,0,.2,1) both; }
 @keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 html.is-app #page-container .fade-in { animation: pageIn .32s ease both; }
 
