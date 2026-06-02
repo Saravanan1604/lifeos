@@ -592,6 +592,10 @@ function _renderPage(page) {
   }
   _appendQuickActions(page);
   if (typeof applyTranslations === 'function') applyTranslations();
+  // Re-sync the mobile page-scale (content height changes per page)
+  if (typeof window.__applyMobileScale === 'function') {
+    requestAnimationFrame(() => window.__applyMobileScale());
+  }
 }
 
 function navigate(page, skipHistory = false) {
