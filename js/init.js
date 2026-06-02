@@ -6,11 +6,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // Apply saved theme
   if (STATE.settings?.theme === 'light') document.body.classList.add('light');
 
-  // Inject floating theme toggle — web/desktop only. In the installed mobile
-  // app the button is docked into each page header by _dockThemeToggle().
-  if (!document.documentElement.classList.contains('is-app')) {
-    document.body.appendChild(_makeThemeBtn());
-  }
+  // Inject the floating theme toggle (sun/moon). On web it floats top-right;
+  // in the app, CSS pins it top-right next to the notification bell.
+  document.body.appendChild(_makeThemeBtn());
 
   applyTimeTheme();
   initMouseGlow();
@@ -157,6 +155,7 @@ function _makeThemeBtn() {
 // page header's right-side action group (grouped with "+ Add ..." with a
 // gap) instead of floating. On the web/desktop it stays floating as before.
 function _dockThemeToggle() {
+  return;   // disabled — the sun/moon now stays pinned top-right near the bell (see mobile.css)
   if (!document.documentElement.classList.contains('is-app')) return;
   const header = document.querySelector('#page-container .page-header');
   if (!header) return;

@@ -824,3 +824,42 @@ html.is-app .modal-box input,
 html.is-app .modal-box select,
 html.is-app .modal-box textarea { width: 100% !important; box-sizing: border-box !important; }
 html.is-app #modal-title { font-size: 28px !important; }
+
+/* ============================================================
+   build 77 — settings full width, import row one line,
+   bottom nav 2x, sun/moon pinned near bell (app-only)
+   ============================================================ */
+
+/* #1 Settings — cards use full screen width (was capped at 500px) */
+html.is-app [style*="max-width:500px"],
+html.is-app [style*="max-width: 500px"] { max-width: 100% !important; }
+
+/* #3 Finance import row (CSV / Bulk / Paste / SMS / PDF) — keep on ONE line */
+html.is-app .page-header > div:last-child > div:last-child {
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  justify-content: flex-start !important;
+}
+html.is-app .page-header > div:last-child > div:last-child > button { flex: 0 0 auto !important; }
+
+/* #2 Bottom nav buttons — 2x bigger */
+html.is-app #bottom-nav .bn-item svg { width: 52px !important; height: 52px !important; }
+html.is-app #bottom-nav .bn-item span { font-size: 22px !important; }
+html.is-app #bottom-nav { padding: 26px 8px calc(26px + env(safe-area-inset-bottom, 0px)) !important; }
+html.is-app .content { padding-bottom: 170px !important; }
+html.is-app #fab-add { width: 88px !important; height: 88px !important; bottom: calc(46px + env(safe-area-inset-bottom, 0px)) !important; }
+html.is-app #fab-add svg { width: 46px !important; height: 46px !important; }
+
+/* #4 Sun/Moon — always pinned top-right, just left of the bell */
+html.is-app .theme-toggle {
+  position: fixed !important;
+  top: 24px !important;
+  right: 110px !important;        /* bell is at right:14 (82px wide) → sit to its left */
+  left: auto !important;
+  width: 66px !important; height: 66px !important;
+  font-size: 32px !important;
+  z-index: 9001 !important;
+  display: flex !important; align-items: center; justify-content: center;
+  border-radius: 18px !important;
+}
