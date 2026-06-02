@@ -17,21 +17,37 @@
        detect app/standalone mode and skip loading the ad library there. -->
   <script>
   (function () {
+    var dm = '';
+    try {
+      ['standalone','fullscreen','minimal-ui'].forEach(function(m){
+        if (window.matchMedia && window.matchMedia('(display-mode: '+m+')').matches) dm = m;
+      });
+    } catch (e) {}
     var isApp = false;
     try {
-      isApp = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+      isApp = !!dm
         || window.navigator.standalone === true
-        || (document.referrer || '').indexOf('android-app://') === 0;
+        || (document.referrer || '').indexOf('android-app://') === 0
+        || localStorage.getItem('_isApp') === '1';
     } catch (e) {}
+    if (isApp) { try { localStorage.setItem('_isApp', '1'); } catch (e) {} }
     window.__IS_APP = isApp;
     if (isApp) {
-      document.documentElement.classList.add('is-app');   // CSS hides .ad-container
+      document.documentElement.classList.add('is-app');   // hides ads + enlarges layout
     } else {
       var s = document.createElement('script');
       s.async = true; s.crossOrigin = 'anonymous';
       s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6889705040574527';
       document.head.appendChild(s);
     }
+    // Temporary on-screen diagnostic (remove once layout confirmed)
+    window.addEventListener('DOMContentLoaded', function(){
+      var d = document.createElement('div');
+      d.style.cssText = 'position:fixed;left:6px;bottom:6px;z-index:100000;background:#000;color:#0f0;font:11px monospace;padding:4px 7px;border-radius:6px;opacity:.85;pointer-events:none';
+      var upd = function(){ d.textContent = 'W:'+window.innerWidth+' app:'+(isApp?'Y':'N')+' dm:'+(dm||'browser'); };
+      upd(); window.addEventListener('resize', upd);
+      document.body.appendChild(d);
+    });
   })();
   </script>
 
@@ -58,9 +74,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=22" />
-  <link rel="stylesheet" href="css/calc.css?v=22" />
-  <link rel="stylesheet" href="css/premium.css?v=22" />
+  <link rel="stylesheet" href="css/styles.css?v=23" />
+  <link rel="stylesheet" href="css/calc.css?v=23" />
+  <link rel="stylesheet" href="css/premium.css?v=23" />
 </head>
 <body>
 
@@ -432,23 +448,23 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=22"></script>
-<script src="js/core.js?v=22"></script>
-<script src="js/dashboard.js?v=22"></script>
-<script src="js/finance.js?v=22"></script>
-<script src="js/bank-tracker.js?v=22"></script>
-<script src="js/life.js?v=22"></script>
-<script src="js/growth.js?v=22"></script>
-<script src="js/ai.js?v=22"></script>
-<script src="js/calculator.js?v=22"></script>
-<script src="js/features.js?v=22"></script>
-<script src="js/premium.js?v=22"></script>
-<script src="js/categories.js?v=22"></script>
-<script src="js/compare.js?v=22"></script>
-<script src="js/pages.js?v=22"></script>
-<script src="js/help.js?v=22"></script>
-<script src="js/voice.js?v=22"></script>
-<script src="js/init.js?v=22"></script>
+<script src="js/storage.js?v=23"></script>
+<script src="js/core.js?v=23"></script>
+<script src="js/dashboard.js?v=23"></script>
+<script src="js/finance.js?v=23"></script>
+<script src="js/bank-tracker.js?v=23"></script>
+<script src="js/life.js?v=23"></script>
+<script src="js/growth.js?v=23"></script>
+<script src="js/ai.js?v=23"></script>
+<script src="js/calculator.js?v=23"></script>
+<script src="js/features.js?v=23"></script>
+<script src="js/premium.js?v=23"></script>
+<script src="js/categories.js?v=23"></script>
+<script src="js/compare.js?v=23"></script>
+<script src="js/pages.js?v=23"></script>
+<script src="js/help.js?v=23"></script>
+<script src="js/voice.js?v=23"></script>
+<script src="js/init.js?v=23"></script>
 
 <style>
   /* Voice mic listening pulse */
