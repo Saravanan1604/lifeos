@@ -237,27 +237,27 @@ html.is-app .sidebar-xp .xp-label { font-size: 13px !important; }
    App-only (html.is-app). Web/desktop untouched.
    ============================================================ */
 
-/* Quick Actions (welcome-grid): 3-col → 2 columns (2×5),
-   wider & more tappable. Also the Quick Access grid below it. */
+/* Quick Actions (welcome-grid) + Quick Access (qa-grid):
+   SINGLE full-width column so the large text never gets clipped. */
 html.is-app .welcome-grid,
 html.is-app .qa-grid {
-  grid-template-columns: 1fr 1fr !important;
+  grid-template-columns: 1fr !important;
   gap: 12px !important;
 }
 html.is-app .welcome-grid > *,
 html.is-app .qa-grid > * {
   min-height: 76px !important;
-  padding: 16px 14px !important;
+  padding: 18px 18px !important;
 }
 
 /* KPI cards (Income · Expenses · Net Savings · Habits):
-   4-col → 2×2 so each card is twice as wide and clearly readable */
+   SINGLE full-width column so big values fit on one line. */
 html.is-app .kpi-grid {
-  grid-template-columns: 1fr 1fr !important;
+  grid-template-columns: 1fr !important;
   gap: 12px !important;
 }
 html.is-app .kpi-grid > * {
-  padding: 18px 16px !important;
+  padding: 20px 18px !important;
 }
 
 /* Net Worth hero: kill the wasted right-side space, make it compact
