@@ -1130,3 +1130,30 @@ html.is-app.light #app::before, html.is-app .light #app::before {
 html.is-app .mobile-menu-btn, html.is-app #top-tools { z-index: 9001 !important; }
 /* page content clears the fixed top bar */
 html.is-app .content { padding-top: 96px !important; }
+
+/* ============================================================
+   build 88 — even bottom-nav spacing + crisper icons
+   ============================================================ */
+
+/* Even distance between all tabs (symmetric halves around the FAB) */
+html.is-app #bottom-nav { justify-content: space-between !important; }
+html.is-app #bottom-nav .bn-group {
+  flex: 1 !important;
+  display: flex !important;
+  justify-content: space-evenly !important;
+  align-items: center !important;
+}
+html.is-app #bottom-nav .bn-group:first-of-type { padding-right: 40px !important; }
+html.is-app #bottom-nav .bn-group:last-of-type  { padding-left: 40px !important; }
+
+/* Crisper, finer icons (thinner consistent stroke, clean rendering) */
+html.is-app #bottom-nav .bn-item svg {
+  width: 50px !important; height: 50px !important;
+  stroke-width: 1.75 !important;
+  shape-rendering: geometricPrecision;
+  vector-effect: non-scaling-stroke;
+  overflow: visible;
+}
+html.is-app #bottom-nav .bn-item span { font-size: 22px !important; font-weight: 600 !important; }
+/* even vertical rhythm + tap target */
+html.is-app #bottom-nav .bn-item { gap: 6px !important; padding: 4px 2px !important; }
