@@ -1113,22 +1113,14 @@ html.is-app .life-score-grid div[style*="height:5px"] {
    build 87 — fixed top bar + bottom bar (content scrolls under)
    ============================================================ */
 
-/* Solid fixed strip behind the menu + top toolbar so they stay put on scroll */
-html.is-app #app::before {
-  content: '';
-  position: fixed; top: 0; left: 0; right: 0;
-  height: 80px;
-  background: #0a0a1e;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  z-index: 8999;            /* below the buttons (9000+), above scrolling content */
-  pointer-events: none;
-}
-html.is-app.light #app::before, html.is-app .light #app::before {
-  background: #f4f6fb; border-bottom-color: rgba(15,23,42,0.08);
-}
-/* keep the menu + toolbar pinned on top of that bar */
-html.is-app .mobile-menu-btn, html.is-app #top-tools { z-index: 9001 !important; }
-/* page content clears the fixed top bar */
+/* The menu, toolbar and bottom nav are all position:fixed and carry their own
+   solid backgrounds — they already stay pinned while content scrolls. Force a
+   very high z-index so nothing can ever paint over them. No separate bar
+   element (that caused stacking issues that hid them). */
+html.is-app .mobile-menu-btn { z-index: 99999 !important; }
+html.is-app #top-tools       { z-index: 99999 !important; }
+html.is-app #bottom-nav      { z-index: 99999 !important; }
+html.is-app #fab-add         { z-index: 100000 !important; }
 html.is-app .content { padding-top: 96px !important; }
 
 /* ============================================================
