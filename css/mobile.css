@@ -6,42 +6,44 @@
    ============================================================ */
 
 /* ============================================================
-   GLOBAL TEXT SCALE — every text clamped to 40px MIN .. 70px MAX
-   (app-only). Smallest original sizes map to 40, largest to 70.
+   APPLE-STYLE TYPE SCALE (app-only)
+   Restrained sizes + clear hierarchy: one big number per card,
+   quiet small labels. Mirrors iOS Large-Title / Headline / Body /
+   Subhead / Caption. Web/desktop untouched.
    ============================================================ */
-html.is-app .page-title    { font-size: 70px !important; }
-html.is-app .page-subtitle { font-size: 46px !important; }
-html.is-app .section-title { font-size: 64px !important; }
+html.is-app .page-title    { font-size: 34px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }
+html.is-app .page-subtitle { font-size: 17px !important; }
+html.is-app .section-title { font-size: 22px !important; font-weight: 700 !important; letter-spacing: -0.2px !important; }
 
-/* Inline hard-coded sizes remapped into the 40..70 band */
-html.is-app [style*="font-size:9px"]  { font-size: 40px !important; }
-html.is-app [style*="font-size:10px"] { font-size: 40px !important; }
-html.is-app [style*="font-size:11px"] { font-size: 42px !important; }
-html.is-app [style*="font-size:12px"] { font-size: 44px !important; }
-html.is-app [style*="font-size:13px"] { font-size: 46px !important; }
-html.is-app [style*="font-size:14px"] { font-size: 48px !important; }
-html.is-app [style*="font-size:15px"] { font-size: 50px !important; }
-html.is-app [style*="font-size:16px"] { font-size: 52px !important; }
-html.is-app [style*="font-size:17px"] { font-size: 54px !important; }
-html.is-app [style*="font-size:18px"] { font-size: 56px !important; }
-html.is-app [style*="font-size:19px"] { font-size: 58px !important; }
-html.is-app [style*="font-size:20px"] { font-size: 60px !important; }
-html.is-app [style*="font-size:22px"] { font-size: 62px !important; }
-html.is-app [style*="font-size:24px"] { font-size: 64px !important; }
-html.is-app [style*="font-size:26px"] { font-size: 66px !important; }
-html.is-app [style*="font-size:28px"] { font-size: 68px !important; }
-html.is-app [style*="font-size:32px"] { font-size: 70px !important; }
-html.is-app [style*="font-size:36px"] { font-size: 70px !important; }
-html.is-app [style*="font-size:48px"] { font-size: 70px !important; }
+/* Inline hard-coded sizes remapped to a calm iOS-like scale */
+html.is-app [style*="font-size:9px"]  { font-size: 12px !important; }
+html.is-app [style*="font-size:10px"] { font-size: 13px !important; }
+html.is-app [style*="font-size:11px"] { font-size: 13px !important; }
+html.is-app [style*="font-size:12px"] { font-size: 14px !important; }
+html.is-app [style*="font-size:13px"] { font-size: 15px !important; }
+html.is-app [style*="font-size:14px"] { font-size: 16px !important; }
+html.is-app [style*="font-size:15px"] { font-size: 17px !important; }
+html.is-app [style*="font-size:16px"] { font-size: 18px !important; }
+html.is-app [style*="font-size:17px"] { font-size: 19px !important; }
+html.is-app [style*="font-size:18px"] { font-size: 20px !important; }
+html.is-app [style*="font-size:19px"] { font-size: 21px !important; }
+html.is-app [style*="font-size:20px"] { font-size: 22px !important; }
+html.is-app [style*="font-size:22px"] { font-size: 24px !important; }
+html.is-app [style*="font-size:24px"] { font-size: 28px !important; }
+html.is-app [style*="font-size:26px"] { font-size: 30px !important; }
+html.is-app [style*="font-size:28px"] { font-size: 32px !important; }
+html.is-app [style*="font-size:32px"] { font-size: 34px !important; }
+html.is-app [style*="font-size:36px"] { font-size: 34px !important; }
+html.is-app [style*="font-size:48px"] { font-size: 36px !important; }
 
-/* Base body + common value classes inside the band */
-html.is-app .content        { font-size: 40px !important; }
-html.is-app .stat-card-value { font-size: 70px !important; }
-html.is-app .stat-card-label { font-size: 40px !important; }
+/* Base body + common value classes */
+html.is-app .content         { font-size: 17px !important; }
+html.is-app .stat-card-value { font-size: 30px !important; font-weight: 800 !important; }
+html.is-app .stat-card-label { font-size: 14px !important; }
 
-/* Form controls inside the band */
+/* Form controls (16px+ avoids iOS focus zoom) */
 html.is-app .form-input,
-html.is-app input, html.is-app select, html.is-app textarea { font-size: 44px !important; }
+html.is-app input, html.is-app select, html.is-app textarea { font-size: 17px !important; }
 
 /* ── FIT TO SCREEN: never let the huge text cause sideways scrolling ── */
 html.is-app, html.is-app body, html.is-app .content { overflow-x: hidden !important; }
@@ -81,29 +83,29 @@ html.is-app .btn-primary, html.is-app .btn-secondary, html.is-app .btn-sm {
   word-break: normal !important;
 }
 
-/* Cards: generous (but not absurd) vertical padding */
-html.is-app .glass-card { padding-top: 32px !important; padding-bottom: 32px !important; }
+/* Cards: calm iOS padding + soft separation */
+html.is-app .glass-card { padding-top: 20px !important; padding-bottom: 20px !important; margin-bottom: 16px !important; }
 
-/* Buttons: twice as tall */
+/* Buttons: comfortable iOS tap height (~44pt) */
 html.is-app button,
 html.is-app .btn-primary, html.is-app .btn-secondary,
 html.is-app .btn-sm, html.is-app .btn-icon {
-  padding-top: 20px !important; padding-bottom: 20px !important; line-height: 1.2 !important;
+  padding-top: 11px !important; padding-bottom: 11px !important; line-height: 1.2 !important;
 }
 
-/* Inputs / selects: twice as tall */
+/* Inputs / selects: standard iOS field height */
 html.is-app .form-input,
 html.is-app input, html.is-app select, html.is-app textarea {
-  padding-top: 18px !important; padding-bottom: 18px !important; min-height: 64px !important;
+  padding-top: 12px !important; padding-bottom: 12px !important; min-height: 48px !important;
 }
 
-/* Period tabs (Day/Week/Month/Year/All): taller */
-html.is-app .period-tab { padding-top: 16px !important; padding-bottom: 16px !important; }
+/* Period tabs (Day/Week/Month/Year/All) */
+html.is-app .period-tab { padding-top: 9px !important; padding-bottom: 9px !important; }
 
-/* Transaction / list rows: double the vertical padding */
+/* Transaction / list rows: even, comfortable spacing */
 html.is-app .tx-row, html.is-app .list-row,
 html.is-app [class*="tx-item"], html.is-app [class*="list-item"] {
-  padding-top: 22px !important; padding-bottom: 22px !important;
+  padding-top: 14px !important; padding-bottom: 14px !important;
 }
 
 /* ============================================================
@@ -180,23 +182,23 @@ html.is-app .sidebar-nav { padding: 4px 0 12px !important; }
 /* Hamburger (☰) menu button — 500% larger icon for easy tapping */
 html.is-app .mobile-menu-btn {
   display: flex !important;
-  width: 84px !important;
-  height: 84px !important;
+  width: 52px !important;
+  height: 52px !important;
   top: 14px !important; left: 14px !important;
-  border-radius: 22px !important;
-  /* Opaque so where it overlaps scrolling content it reads as a clean
-     floating button, not a bug */
-  background: #161826 !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.5) !important;
+  border-radius: 14px !important;
+  background: rgba(22,24,38,0.7) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  backdrop-filter: blur(14px) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35) !important;
 }
 html.is-app .mobile-menu-btn svg {
-  width: 56px !important;
-  height: 56px !important;
+  width: 28px !important;
+  height: 28px !important;
 }
-/* Push page content below the floating menu button so titles never sit
-   under it (FIX: hamburger overlapping "Dashboard"/"Set Budget" titles) */
-html.is-app .content { padding-top: 108px !important; }
+/* Clear the floating menu button so the page title isn't under it */
+html.is-app .content { padding-top: 78px !important; }
+html.is-app .page-header { padding-left: 60px !important; }
 
 /* Sidebar = hidden left-half FROSTED-GLASS drawer */
 html.is-app .sidebar {
@@ -275,19 +277,19 @@ html.is-app .hero-networth,
 html.is-app [class*="hero"][class*="networth"] {
   min-height: auto !important;
 }
-/* Net Worth hero card — fill the empty space with bigger text */
-html.is-app .hero-card   { padding: 24px 22px !important; }
-html.is-app .hero-label  { font-size: 18px !important; letter-spacing: 1px !important; }
-html.is-app .hero-value  { font-size: 56px !important; line-height: 1.05 !important; margin: 6px 0 18px !important; }
+/* Net Worth hero card — Apple-style: one big number, quiet chips */
+html.is-app .hero-card   { padding: 22px 20px !important; }
+html.is-app .hero-label  { font-size: 13px !important; letter-spacing: 0.5px !important; }
+html.is-app .hero-value  { font-size: 40px !important; font-weight: 800 !important; letter-spacing: -1px !important; line-height: 1.05 !important; margin: 4px 0 16px !important; }
 /* Spread the 3 mini chips full-width across the card */
 html.is-app .hero-sub {
   display: grid !important;
   grid-template-columns: 1fr 1fr 1fr !important;
-  gap: 12px !important;
+  gap: 10px !important;
 }
-html.is-app .hero-sub-item { padding: 14px 12px !important; }
-html.is-app .hero-sub-item label { font-size: 16px !important; display: block; margin-bottom: 4px; }
-html.is-app .hero-sub-item span  { font-size: 22px !important; }
+html.is-app .hero-sub-item { padding: 12px 10px !important; min-width: 0 !important; }
+html.is-app .hero-sub-item label { font-size: 12px !important; display: block; margin-bottom: 3px; }
+html.is-app .hero-sub-item span  { font-size: 16px !important; font-weight: 700 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
 
 /* Financial Overview: chart | Top Spending → stack to single column.
    Chart fits full screen width, Top Spending ring drops below it. */
@@ -422,45 +424,45 @@ html.is-app .glass-card > div[style*="border-radius:12px"] {
    Scoped per card type so other pages are NOT affected.
    ============================================================ */
 
-/* ---------- 🏦 BANK CARDS ---------- */
-html.is-app .fin-bank-grid .fin-dark-card { padding-top: 70px !important; padding-bottom: 70px !important; }   /* card height */
-html.is-app .fin-bank-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 60px !important; }          /* bank icon */
-html.is-app .fin-bank-grid .fin-dark-card p[style*="letter-spacing:1.5px"] { font-size: 40px !important; }       /* bank name */
-html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 70px !important; }            /* balance value */
-html.is-app .fin-bank-grid .fin-dark-card button { font-size: 44px !important; }                                 /* action buttons */
-html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 40px !important; }          /* type + ••••0330 */
-html.is-app span[style*="color:var(--teal)"][style*="font-size:20px"] { font-size: 70px !important; }            /* Total Bank Balance */
+/* ---------- 🏦 BANK CARDS (Apple-style) ---------- */
+html.is-app .fin-bank-grid .fin-dark-card { padding-top: 20px !important; padding-bottom: 20px !important; }   /* card height */
+html.is-app .fin-bank-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 26px !important; }          /* bank icon */
+html.is-app .fin-bank-grid .fin-dark-card p[style*="letter-spacing:1.5px"] { font-size: 14px !important; }       /* bank name */
+html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 30px !important; }            /* balance value */
+html.is-app .fin-bank-grid .fin-dark-card button { font-size: 14px !important; }                                 /* action buttons */
+html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 14px !important; }          /* type + ••••0330 */
+html.is-app span[style*="color:var(--teal)"][style*="font-size:20px"] { font-size: 24px !important; }            /* Total Bank Balance */
 
-/* ---------- 💳 CREDIT CARDS ---------- */
-html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:2px"] { font-size: 60px !important; }       /* network (RUPAY/AMEX) */
-html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:14px"] { font-size: 52px !important; }           /* bank name */
-html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:3px"] { font-size: 52px !important; }       /* •••• 6007 */
-html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:11px"] { font-size: 49px !important; }           /* Outstanding/Limit labels */
-html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:16px"] { font-size: 60px !important; }           /* Outstanding value */
-html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:13px"] { font-size: 50px !important; }          /* Limit value */
-html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:10px"] { font-size: 45px !important; }          /* % utilised / Due */
-html.is-app span[style*="color:#ef4444"][style*="font-size:20px"] { font-size: 70px !important; }                /* Total Outstanding */
+/* ---------- 💳 CREDIT CARDS (Apple-style) ---------- */
+html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:2px"] { font-size: 13px !important; }       /* network (RUPAY/AMEX) */
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:14px"] { font-size: 18px !important; }           /* bank name */
+html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:3px"] { font-size: 15px !important; }       /* •••• 6007 */
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:11px"] { font-size: 13px !important; }           /* Outstanding/Limit labels */
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:16px"] { font-size: 22px !important; }           /* Outstanding value */
+html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:13px"] { font-size: 16px !important; }          /* Limit value */
+html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:10px"] { font-size: 13px !important; }          /* % utilised / Due */
+html.is-app span[style*="color:#ef4444"][style*="font-size:20px"] { font-size: 24px !important; }                /* Total Outstanding */
 
-/* ---------- 💵 CASH CARDS ---------- */
-html.is-app .fin-cash-grid .fin-dark-card p[style*="font-size:13px"] { font-size: 60px !important; }             /* wallet name */
-html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 70px !important; }            /* balance value */
-html.is-app span[style*="color:#f59e0b"][style*="font-size:20px"] { font-size: 70px !important; }                /* Total Cash */
+/* ---------- 💵 CASH CARDS (Apple-style) ---------- */
+html.is-app .fin-cash-grid .fin-dark-card p[style*="font-size:13px"] { font-size: 14px !important; }             /* wallet name */
+html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 30px !important; }            /* balance value */
+html.is-app span[style*="color:#f59e0b"][style*="font-size:20px"] { font-size: 24px !important; }                /* Total Cash */
 
 /* ---------- 💰 NET WORTH HERO (top of Finance) ---------- */
-html.is-app #fin-balance { font-size: 70px !important; }                                                          /* net worth value */
-html.is-app #fin-rate { font-size: 40px !important; }                                                             /* savings-rate pill */
+html.is-app #fin-balance { font-size: 38px !important; font-weight: 800 !important; letter-spacing: -1px !important; }  /* net worth value */
+html.is-app #fin-rate { font-size: 14px !important; }                                                             /* savings-rate pill */
 /* FIX 1 — Net Worth summary: 3 equal columns, no collision, no floating +/-.
    Values sized to fit 3-across and truncate with … if ever too long. */
 html.is-app .fin-hero-stats { gap: 8px !important; align-items: flex-start !important; }
 html.is-app .fin-hero-stats > div { min-width: 0 !important; }                                                    /* CRITICAL: lets columns shrink */
 html.is-app .fin-hero-stats p[style*="font-size:10px"] {
-  font-size: 22px !important;
+  font-size: 13px !important;
   white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
 }
 html.is-app .fin-hero-stats #fin-income,
 html.is-app .fin-hero-stats #fin-expense,
 html.is-app .fin-hero-stats #fin-savings {
-  font-size: 28px !important;
+  font-size: 18px !important; font-weight: 700 !important;
   white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
 }
 
@@ -474,9 +476,9 @@ html.is-app [style*="pointer-events:none"][style*="inset:0"] span:nth-child(2) {
 
 /* FIX 3 — Top Spending list: stop the amount + % from squishing together. */
 html.is-app #dash-pie-chart > div:last-child > div { gap: 12px !important; }                                       /* row spacing */
-html.is-app #dash-pie-chart > div:last-child > div > span { font-size: 22px !important; }                          /* icon/name/amount */
+html.is-app #dash-pie-chart > div:last-child > div > span { font-size: 15px !important; }                          /* icon/name/amount */
 html.is-app #dash-pie-chart > div:last-child > div > span:last-child {
-  font-size: 18px !important; min-width: 50px !important; text-align: right !important;
+  font-size: 13px !important; min-width: 44px !important; text-align: right !important;
   margin-left: 4px !important; color: var(--text3) !important;
 }
 
@@ -487,12 +489,12 @@ html.is-app .life-score-grid > div > div > div {            /* each score row */
   align-items: center !important;
 }
 html.is-app .life-score-grid span[style*="width:72px"] {     /* label (Wealth/Health/...) */
-  width: auto !important; min-width: 120px !important;
-  font-size: 22px !important; white-space: nowrap !important;
+  width: auto !important; min-width: 96px !important;
+  font-size: 15px !important; white-space: nowrap !important;
 }
 html.is-app .life-score-grid span[style*="width:34px"] {     /* score number */
-  width: auto !important; min-width: 44px !important;
-  font-size: 24px !important; white-space: nowrap !important; text-align: right !important;
+  width: auto !important; min-width: 36px !important;
+  font-size: 17px !important; white-space: nowrap !important; text-align: right !important;
 }
 
 /* ---------- 📈 LIFE ANALYTICS tiles ("12/14" etc.) ----------
@@ -501,6 +503,6 @@ html.is-app .life-score-grid span[style*="width:34px"] {     /* score number */
 html.is-app .stat-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
 html.is-app .stat-grid .stat-card-value {
   white-space: nowrap !important;
-  font-size: clamp(32px, 10vw, 52px) !important;   /* shrinks to fit narrow tiles */
+  font-size: clamp(24px, 7vw, 30px) !important;   /* shrinks to fit narrow tiles */
 }
-html.is-app .stat-grid .stat-card-label { font-size: 22px !important; line-height: 1.2 !important; }
+html.is-app .stat-grid .stat-card-label { font-size: 13px !important; line-height: 1.2 !important; }
