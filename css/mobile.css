@@ -177,7 +177,17 @@ html.is-app .sidebar-nav { padding: 4px 0 12px !important; }
    ============================================================ */
 
 /* Always show the hamburger in the app */
-html.is-app .mobile-menu-btn { display: flex !important; }
+/* Hamburger (☰) menu button — 500% larger icon for easy tapping */
+html.is-app .mobile-menu-btn {
+  display: flex !important;
+  width: 120px !important;
+  height: 120px !important;
+  border-radius: 24px !important;
+}
+html.is-app .mobile-menu-btn svg {
+  width: 96px !important;   /* ~500% of the original 24px line icon */
+  height: 96px !important;
+}
 
 /* Sidebar = hidden left-half FROSTED-GLASS drawer */
 html.is-app .sidebar {
