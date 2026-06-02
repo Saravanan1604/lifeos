@@ -252,7 +252,7 @@ function renderFinance() {
       </div>
 
       <!-- Transactions with period filter -->
-      <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
+      <div class="glass-card" id="fin-tx-section" style="overflow:hidden;margin-bottom:20px">
         <div style="padding:12px 16px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
           <p class="section-title" style="margin:0">💳 Transactions</p>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">

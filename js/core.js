@@ -499,6 +499,7 @@ const _QUICK_ACTIONS = {
   finance: [
     {icon:'💰', label:'Add Income',    color:'#10b981', bg:'rgba(16,185,129,0.12)',  bc:'rgba(16,185,129,0.3)',  fn:"openAddTxModal('income')"},
     {icon:'💸', label:'Add Expense',   color:'#ef4444', bg:'rgba(239,68,68,0.12)',   bc:'rgba(239,68,68,0.3)',   fn:"openAddTxModal('expense')"},
+    {icon:'📃', label:'All Transactions', color:'#6366f1', bg:'rgba(99,102,241,0.12)', bc:'rgba(99,102,241,0.3)', fn:"navigate('transactions')"},
   ],
   'bank-tracker': [
     {icon:'🏦', label:'Log Balance',   color:'#00c9a7', bg:'rgba(0,201,167,0.12)',   bc:'rgba(0,201,167,0.3)',   fn:"openQuickBalanceModal()"},
@@ -569,11 +570,29 @@ function _appendQuickActions(page) {
   else fadeIn.insertAdjacentHTML('afterbegin', html);
 }
 
+// Standalone Transactions page — reuses renderFinance, then strips everything
+// except the transactions section (with all its filters/search/bulk tools).
+function renderTransactions() {
+  if (typeof renderFinance !== 'function') return;
+  renderFinance();
+  const c = document.getElementById('page-container');
+  const fade = c && c.querySelector('.fade-in');
+  const sec = document.getElementById('fin-tx-section');
+  if (fade && sec) {
+    [...fade.children].forEach(ch => { if (ch !== sec) ch.remove(); });
+    sec.classList.add('tx-page-visible');
+    sec.insertAdjacentHTML('beforebegin',
+      '<div class="page-header" style="margin-bottom:16px"><div><h1 class="page-title">📃 Transactions</h1><p class="page-subtitle">All your income & expenses</p></div></div>');
+    if (typeof renderFinanceTxList === 'function') renderFinanceTxList();
+  }
+}
+
 function _renderPage(page) {
   const container = document.getElementById('page-container');
   switch (page) {
     case 'dashboard':    renderDashboard();    break;
     case 'finance':      renderFinance();       break;
+    case 'transactions': renderTransactions();  break;
     case 'investments':  renderInvestments();   break;
     case 'budget':       renderBudget();        break;
     case 'bank-tracker': renderBankTracker();   break;

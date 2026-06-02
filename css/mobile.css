@@ -863,3 +863,25 @@ html.is-app .theme-toggle {
   display: flex !important; align-items: center; justify-content: center;
   border-radius: 18px !important;
 }
+
+/* ============================================================
+   build 78 — separate Transactions page, bigger quick pills, bars
+   ============================================================ */
+
+/* #11 Transactions live on their own page now — hide the section on Finance,
+   show it only on the dedicated Transactions page */
+html.is-app #fin-tx-section { display: none !important; }
+html.is-app #fin-tx-section.tx-page-visible { display: block !important; }
+
+/* #9 Enlarge the green/red Add Income / Add Expense (page quick-action) pills */
+html.is-app #page-quick-actions { gap: 12px !important; margin-bottom: 20px !important; }
+html.is-app #page-quick-actions button { font-size: 24px !important; padding: 16px 26px !important; border-radius: 30px !important; }
+html.is-app #page-quick-actions button span { font-size: 30px !important; }
+
+/* #7 Dashboard progress bars — rounded + soft glow like the Life Score bars */
+html.is-app .dash-acct-grid div[style*="height:5px"],
+html.is-app .dash-bg-grid div[style*="height:5px"],
+html.is-app .dash-acct-grid div[style*="height:6px"] {
+  border-radius: 6px !important;
+  box-shadow: 0 0 8px rgba(255,255,255,0.22) !important;
+}
