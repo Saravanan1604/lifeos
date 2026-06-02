@@ -366,36 +366,6 @@ function showApp() {
   if (typeof startLiveSync === 'function') startLiveSync();
   if (typeof initPremiumFeatures === 'function') initPremiumFeatures();
   if (typeof initVoiceControl === 'function') initVoiceControl();
-  if (typeof _initBottomNav === 'function') _initBottomNav();
-}
-
-// ===== MOBILE BOTTOM NAVIGATION (installed app only) =====
-function _initBottomNav() {
-  if (!window.__IS_APP) return;
-  if (document.getElementById('mobile-bottom-nav')) return;
-  const items = [
-    ['dashboard',   '🏠', 'Home'],
-    ['finance',     '💳', 'Finance'],
-    ['investments', '📈', 'Assets'],
-    ['ai-coach',    '🤖', 'AI'],
-    ['__more',      '☰', 'More'],
-  ];
-  const nav = document.createElement('nav');
-  nav.id = 'mobile-bottom-nav';
-  nav.innerHTML = items.map(it => {
-    const onclk = it[0] === '__more' ? 'openMobileDrawer()' : `navigate('${it[0]}')`;
-    return `<button data-bn="${it[0]}" onclick="${onclk}">
-      <span class="bn-ico">${it[1]}</span><span class="bn-lbl">${it[2]}</span>
-    </button>`;
-  }).join('');
-  document.body.appendChild(nav);
-  updateBottomNav(currentPage);
-}
-function updateBottomNav(page) {
-  const nav = document.getElementById('mobile-bottom-nav');
-  if (!nav) return;
-  nav.querySelectorAll('button[data-bn]').forEach(b =>
-    b.classList.toggle('active', b.getAttribute('data-bn') === page));
 }
 
 // ===== SIDEBAR =====
@@ -643,7 +613,6 @@ function navigate(page, skipHistory = false) {
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
-  if (typeof updateBottomNav === 'function') updateBottomNav(page);
   // Always close the mobile drawer after navigating (harmless on desktop)
   if (typeof _closeMobileDrawer === 'function') _closeMobileDrawer();
   sidebarCollapsed = false;
