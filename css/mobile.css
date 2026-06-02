@@ -641,3 +641,61 @@ html.is-app #dash-pie-chart > div:first-child {
 /* 8. Dashboard Bank / Cash / Credit cards — taller & more spacious */
 html.is-app .dash-acct-grid > * { padding: 26px 20px !important; }
 html.is-app .dash-bg-grid > *   { padding: 24px 20px !important; }
+
+/* ============================================================
+   build 73 — center Add FAB, big period tabs, swipeable cards
+   App-only (html.is-app).
+   ============================================================ */
+
+/* ---- Center Add-Transaction FAB (HDFC-style) ---- */
+#fab-add { display: none; }
+html.is-app #fab-add {
+  display: flex !important; align-items: center; justify-content: center;
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+  z-index: 9002;
+  width: 70px; height: 70px; border-radius: 50%;
+  background: linear-gradient(135deg, #00b09b, #00c9a7);
+  border: 4px solid #0a0a1e;
+  color: #fff; box-shadow: 0 10px 26px rgba(0,201,167,0.55);
+  cursor: pointer;
+}
+html.is-app.light #fab-add, html.is-app .light #fab-add { border-color: #f1f5f9; }
+html.is-app #fab-add svg { width: 36px; height: 36px; }
+/* Hide the middle "Assets" tab so the FAB occupies the center slot */
+html.is-app #bottom-nav .bn-item[data-page="investments"] { display: none !important; }
+
+/* ---- Day/Week/Month/Year/All + calendar: one big row ---- */
+html.is-app .page-header > div:last-child {
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  gap: 8px !important;
+  -webkit-overflow-scrolling: touch;
+  width: 100% !important;
+}
+html.is-app .period-tabs { display: flex !important; flex-wrap: nowrap !important; gap: 6px !important; }
+html.is-app .period-tab {
+  font-size: 24px !important;
+  padding: 14px 18px !important;
+  white-space: nowrap !important;
+}
+
+/* ---- Swipeable cards: Bank / Credit / Cash become a horizontal carousel ---- */
+html.is-app .fin-bank-grid,
+html.is-app .fin-card-grid,
+html.is-app .fin-cash-grid {
+  display: flex !important;
+  grid-template-columns: none !important;
+  overflow-x: auto !important;
+  scroll-snap-type: x mandatory !important;
+  gap: 14px !important;
+  padding: 4px 2px 12px !important;
+  -webkit-overflow-scrolling: touch;
+}
+html.is-app .fin-bank-grid > *,
+html.is-app .fin-card-grid > *,
+html.is-app .fin-cash-grid > * {
+  flex: 0 0 82% !important;
+  min-width: 82% !important;
+  scroll-snap-align: center !important;
+}

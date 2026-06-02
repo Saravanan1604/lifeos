@@ -592,7 +592,9 @@ function _renderPage(page) {
   }
   _appendQuickActions(page);
   // Highlight the active bottom-nav tab + slide the indicator line (Instagram-style)
-  const _bnItems = [...document.querySelectorAll('#bottom-nav .bn-item')];
+  // Only count visible tabs (the center slot is the Add FAB in the app).
+  const _bnItems = [...document.querySelectorAll('#bottom-nav .bn-item')]
+    .filter(el => getComputedStyle(el).display !== 'none');
   _bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === page));
   const _ind = document.getElementById('bn-indicator');
   if (_ind && _bnItems.length) {

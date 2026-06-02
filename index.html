@@ -71,11 +71,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=72" />
-  <link rel="stylesheet" href="css/calc.css?v=72" />
-  <link rel="stylesheet" href="css/premium.css?v=72" />
+  <link rel="stylesheet" href="css/styles.css?v=73" />
+  <link rel="stylesheet" href="css/calc.css?v=73" />
+  <link rel="stylesheet" href="css/premium.css?v=73" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=72" />
+  <link rel="stylesheet" href="css/mobile.css?v=73" />
 </head>
 <body>
 
@@ -345,6 +345,12 @@
       </button>
     </nav>
 
+    <!-- Center Add-Transaction FAB (installed app only) -->
+    <button id="fab-add" title="Add Transaction"
+      onclick="navigate('finance');setTimeout(()=>{if(typeof openAddTxModal==='function')openAddTxModal()},220)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+
     <!-- Main Content -->
     <main id="content" class="content">
       <!-- Google AdSense Ad Unit (web only — hidden in the installed app) -->
@@ -477,23 +483,23 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=72"></script>
-<script src="js/core.js?v=72"></script>
-<script src="js/dashboard.js?v=72"></script>
-<script src="js/finance.js?v=72"></script>
-<script src="js/bank-tracker.js?v=72"></script>
-<script src="js/life.js?v=72"></script>
-<script src="js/growth.js?v=72"></script>
-<script src="js/ai.js?v=72"></script>
-<script src="js/calculator.js?v=72"></script>
-<script src="js/features.js?v=72"></script>
-<script src="js/premium.js?v=72"></script>
-<script src="js/categories.js?v=72"></script>
-<script src="js/compare.js?v=72"></script>
-<script src="js/pages.js?v=72"></script>
-<script src="js/help.js?v=72"></script>
-<script src="js/voice.js?v=72"></script>
-<script src="js/init.js?v=72"></script>
+<script src="js/storage.js?v=73"></script>
+<script src="js/core.js?v=73"></script>
+<script src="js/dashboard.js?v=73"></script>
+<script src="js/finance.js?v=73"></script>
+<script src="js/bank-tracker.js?v=73"></script>
+<script src="js/life.js?v=73"></script>
+<script src="js/growth.js?v=73"></script>
+<script src="js/ai.js?v=73"></script>
+<script src="js/calculator.js?v=73"></script>
+<script src="js/features.js?v=73"></script>
+<script src="js/premium.js?v=73"></script>
+<script src="js/categories.js?v=73"></script>
+<script src="js/compare.js?v=73"></script>
+<script src="js/pages.js?v=73"></script>
+<script src="js/help.js?v=73"></script>
+<script src="js/voice.js?v=73"></script>
+<script src="js/init.js?v=73"></script>
 
 <style>
   /* Voice mic listening pulse */
