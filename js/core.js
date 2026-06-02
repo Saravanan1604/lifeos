@@ -370,12 +370,19 @@ function showApp() {
 
 // ===== SIDEBAR =====
 let sidebarCollapsed = false;
+// True when we should use the mobile drawer: narrow viewport OR running as the
+// installed app/PWA (some Android webviews report a wide CSS width).
+function _isMobileLayout() {
+  return window.innerWidth <= 1024
+    || window.__IS_APP === true
+    || document.documentElement.classList.contains('is-app');
+}
 function toggleSidebar() {
   const sb = document.getElementById('sidebar');
   const ct = document.getElementById('content');
   
-  if (window.innerWidth <= 1024) {
-    // Mobile/tablet mode: slide the drawer in/out
+  if (window.innerWidth <= 1024 || _isMobileLayout()) {
+    // Mobile/tablet/app mode: slide the drawer in/out
     const open = sb.classList.toggle('mobile-open');
     _toggleSidebarBackdrop(open);
   } else {
@@ -568,7 +575,7 @@ function navigate(page, skipHistory = false) {
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
-  if (window.innerWidth <= 1024) {
+  if (_isMobileLayout()) {
     document.getElementById('sidebar').classList.remove('mobile-open');
     if (typeof _toggleSidebarBackdrop === 'function') _toggleSidebarBackdrop(false);
     sidebarCollapsed = false;
