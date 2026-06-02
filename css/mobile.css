@@ -5,38 +5,53 @@
    No layout, card, spacing, or scaling changes.
    ============================================================ */
 
-/* Headings ~2x larger & clearer */
-html.is-app .page-title    { font-size: 42px !important; }
-html.is-app .page-subtitle { font-size: 22px !important; }
-html.is-app .section-title { font-size: 30px !important; }
+/* ============================================================
+   GLOBAL TEXT SCALE — every text clamped to 40px MIN .. 70px MAX
+   (app-only). Smallest original sizes map to 40, largest to 70.
+   ============================================================ */
+html.is-app .page-title    { font-size: 70px !important; }
+html.is-app .page-subtitle { font-size: 46px !important; }
+html.is-app .section-title { font-size: 64px !important; }
 
-/* ~200% of the original hard-coded inline font sizes for readability */
-html.is-app [style*="font-size:9px"]  { font-size: 18px !important; }
-html.is-app [style*="font-size:10px"] { font-size: 20px !important; }
-html.is-app [style*="font-size:11px"] { font-size: 22px !important; }
-html.is-app [style*="font-size:12px"] { font-size: 23px !important; }
-html.is-app [style*="font-size:13px"] { font-size: 25px !important; }
-html.is-app [style*="font-size:14px"] { font-size: 26px !important; }
-html.is-app [style*="font-size:15px"] { font-size: 28px !important; }
-html.is-app [style*="font-size:16px"] { font-size: 30px !important; }
-html.is-app [style*="font-size:17px"] { font-size: 31px !important; }
-html.is-app [style*="font-size:18px"] { font-size: 32px !important; }
-html.is-app [style*="font-size:19px"] { font-size: 33px !important; }
-html.is-app [style*="font-size:20px"] { font-size: 34px !important; }
-html.is-app [style*="font-size:22px"] { font-size: 36px !important; }
-html.is-app [style*="font-size:24px"] { font-size: 40px !important; }
-html.is-app [style*="font-size:26px"] { font-size: 42px !important; }
-html.is-app [style*="font-size:28px"] { font-size: 46px !important; }
-html.is-app [style*="font-size:32px"] { font-size: 52px !important; }
+/* Inline hard-coded sizes remapped into the 40..70 band */
+html.is-app [style*="font-size:9px"]  { font-size: 40px !important; }
+html.is-app [style*="font-size:10px"] { font-size: 40px !important; }
+html.is-app [style*="font-size:11px"] { font-size: 42px !important; }
+html.is-app [style*="font-size:12px"] { font-size: 44px !important; }
+html.is-app [style*="font-size:13px"] { font-size: 46px !important; }
+html.is-app [style*="font-size:14px"] { font-size: 48px !important; }
+html.is-app [style*="font-size:15px"] { font-size: 50px !important; }
+html.is-app [style*="font-size:16px"] { font-size: 52px !important; }
+html.is-app [style*="font-size:17px"] { font-size: 54px !important; }
+html.is-app [style*="font-size:18px"] { font-size: 56px !important; }
+html.is-app [style*="font-size:19px"] { font-size: 58px !important; }
+html.is-app [style*="font-size:20px"] { font-size: 60px !important; }
+html.is-app [style*="font-size:22px"] { font-size: 62px !important; }
+html.is-app [style*="font-size:24px"] { font-size: 64px !important; }
+html.is-app [style*="font-size:26px"] { font-size: 66px !important; }
+html.is-app [style*="font-size:28px"] { font-size: 68px !important; }
+html.is-app [style*="font-size:32px"] { font-size: 70px !important; }
+html.is-app [style*="font-size:36px"] { font-size: 70px !important; }
+html.is-app [style*="font-size:48px"] { font-size: 70px !important; }
 
-/* Base body + common value classes scaled up too */
-html.is-app .content        { font-size: 21px !important; }
-html.is-app .stat-card-value { font-size: 44px !important; }
-html.is-app .stat-card-label { font-size: 18px !important; }
+/* Base body + common value classes inside the band */
+html.is-app .content        { font-size: 40px !important; }
+html.is-app .stat-card-value { font-size: 70px !important; }
+html.is-app .stat-card-label { font-size: 40px !important; }
 
-/* Form controls: 16px stops the focus-zoom jump on mobile */
+/* Form controls inside the band */
 html.is-app .form-input,
-html.is-app input, html.is-app select, html.is-app textarea { font-size: 20px !important; }
+html.is-app input, html.is-app select, html.is-app textarea { font-size: 44px !important; }
+
+/* ── FIT TO SCREEN: never let the huge text cause sideways scrolling ── */
+html.is-app, html.is-app body, html.is-app .content { overflow-x: hidden !important; }
+html.is-app .content { padding-left: 12px !important; padding-right: 12px !important; }
+/* Big numbers/labels wrap instead of overflowing their box */
+html.is-app .content * {
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  line-height: 1.15 !important;
+}
 
 /* ============================================================
    MENU — clean settings-style list (icon · label · chevron)
@@ -339,7 +354,7 @@ html.is-app .glass-card > div[style*="border-radius:12px"] {
 html.is-app .fin-bank-grid .fin-dark-card { padding-top: 70px !important; padding-bottom: 70px !important; }   /* card height */
 html.is-app .fin-bank-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 60px !important; }          /* bank icon */
 html.is-app .fin-bank-grid .fin-dark-card p[style*="letter-spacing:1.5px"] { font-size: 40px !important; }       /* bank name */
-html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 75px !important; }            /* balance value */
+html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 70px !important; }            /* balance value */
 html.is-app .fin-bank-grid .fin-dark-card button { font-size: 44px !important; }                                 /* action buttons */
 html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 40px !important; }          /* type + ••••0330 */
 html.is-app span[style*="color:var(--teal)"][style*="font-size:20px"] { font-size: 70px !important; }            /* Total Bank Balance */
@@ -356,11 +371,11 @@ html.is-app span[style*="color:#ef4444"][style*="font-size:20px"] { font-size: 7
 
 /* ---------- 💵 CASH CARDS ---------- */
 html.is-app .fin-cash-grid .fin-dark-card p[style*="font-size:13px"] { font-size: 60px !important; }             /* wallet name */
-html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 90px !important; }            /* balance value */
-html.is-app span[style*="color:#f59e0b"][style*="font-size:20px"] { font-size: 95px !important; }                /* Total Cash */
+html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 70px !important; }            /* balance value */
+html.is-app span[style*="color:#f59e0b"][style*="font-size:20px"] { font-size: 70px !important; }                /* Total Cash */
 
 /* ---------- 💰 NET WORTH HERO (top of Finance) ---------- */
-html.is-app #fin-balance { font-size: 100px !important; }                                                         /* net worth value */
+html.is-app #fin-balance { font-size: 70px !important; }                                                          /* net worth value */
 html.is-app #fin-rate { font-size: 40px !important; }                                                             /* savings-rate pill */
 html.is-app .fin-hero-stats p[style*="font-size:10px"] { font-size: 40px !important; }                            /* Income/Exp/Savings labels */
 html.is-app #fin-income, html.is-app #fin-expense, html.is-app #fin-savings { font-size: 70px !important; }       /* Income/Exp/Savings values */
