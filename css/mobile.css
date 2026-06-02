@@ -95,26 +95,43 @@ html.is-app .sidebar-nav { padding: 4px 0 12px !important; }
 /* Always show the hamburger in the app */
 html.is-app .mobile-menu-btn { display: flex !important; }
 
-/* Sidebar = hidden full-screen drawer */
+/* Sidebar = hidden left-half FROSTED-GLASS drawer */
 html.is-app .sidebar {
   position: fixed !important;
   top: 0 !important; left: 0 !important;
-  width: 100vw !important; height: 100vh !important;
-  max-width: 100vw !important;
+  width: 56vw !important; max-width: 56vw !important; height: 100vh !important;
   transform: translateX(-100%);
-  transition: transform .26s cubic-bezier(.4,0,.2,1);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
   z-index: 10000 !important;
   overflow-y: auto !important;
-  background: var(--bg-card, #0c0c18) !important;
-  border-right: none !important;
+  background: rgba(16, 18, 32, 0.55) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(150%) !important;
+  backdrop-filter: blur(26px) saturate(150%) !important;
+  border-right: 1px solid rgba(255,255,255,0.12) !important;
+  box-shadow: 12px 0 50px rgba(0,0,0,0.55) !important;
+}
+html.is-app.light .sidebar,
+html.is-app .light .sidebar {
+  background: rgba(255,255,255,0.6) !important;
+  border-right-color: rgba(15,23,42,0.1) !important;
 }
 html.is-app .sidebar.mobile-open { transform: translateX(0) !important; }
 
 /* Content takes the full width (no sidebar gutter) */
 html.is-app .content { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; }
 
-/* Give the full-screen menu a clean header spacing + close affordance */
-html.is-app .sidebar-header { position: sticky; top: 0; background: var(--bg-card, #0c0c18); z-index: 2; padding: 16px 14px !important; }
+/* Header transparent so the glass shows through */
+html.is-app .sidebar-header { position: sticky; top: 0; background: transparent !important; z-index: 2; padding: 16px 14px !important; }
+
+/* Backdrop: dim + blur the dashboard behind (premium glass feel) */
+html.is-app #sidebar-backdrop {
+  background: rgba(0,0,0,0.35) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  backdrop-filter: blur(6px) !important;
+}
+
+/* Slightly tighter nav rows so they fit the half-width panel cleanly */
+html.is-app .sidebar.mobile-open .nav-item { margin: 7px 12px !important; }
 html.is-app .sidebar-logo-text { font-size: 24px !important; }
 html.is-app .sidebar-user .user-name { font-size: 20px !important; font-weight: 700 !important; }
 html.is-app .sidebar-user .user-level { font-size: 14px !important; }
