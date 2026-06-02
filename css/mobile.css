@@ -129,3 +129,70 @@ html.is-app ::selection { background: rgba(0,201,167,.3); }
 /* ---- 11. Toasts & modals: rounded, lifted ---- */
 html.is-app .toast { border-radius: 14px !important; box-shadow: 0 10px 30px rgba(0,0,0,.4) !important; }
 html.is-app .modal-box { border-radius: 18px !important; box-shadow: 0 24px 70px rgba(0,0,0,.55) !important; }
+
+/* ============================================================
+   12. MOBILE-FIRST RESTRUCTURE (bottom nav, no sidebar, perf)
+   ============================================================ */
+
+/* Performance: drop the heavy particle canvas in the app (gradient bg replaces it) */
+html.is-app #particles-canvas { display: none !important; }
+
+/* Remove the top hamburger — navigation is the bottom bar now */
+html.is-app .mobile-menu-btn { display: none !important; }
+
+/* Bottom navigation bar — glass, fixed, safe-area aware */
+#mobile-bottom-nav { display: none; }   /* hidden on web */
+html.is-app #mobile-bottom-nav {
+  display: flex;
+  position: fixed; left: 0; right: 0; bottom: 0;
+  height: 70px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: rgba(12,12,24,.72);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 -8px 30px rgba(0,0,0,.35);
+  z-index: 9995;
+  justify-content: space-around; align-items: center;
+}
+html.is-app.light #mobile-bottom-nav,
+html.is-app .light #mobile-bottom-nav {
+  background: rgba(255,255,255,.78); border-top-color: rgba(15,23,42,.08);
+}
+html.is-app #mobile-bottom-nav button {
+  flex: 1; min-height: 48px;
+  background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  color: var(--text3, #94a3b8);
+  transition: color .15s ease, transform .12s ease;
+}
+html.is-app #mobile-bottom-nav button:active { transform: scale(.9); }
+html.is-app #mobile-bottom-nav .bn-ico { font-size: 22px; line-height: 1; filter: grayscale(.2); }
+html.is-app #mobile-bottom-nav .bn-lbl { font-size: 11px; font-weight: 600; letter-spacing: .2px; }
+html.is-app #mobile-bottom-nav button.active { color: #00c9a7; }
+html.is-app #mobile-bottom-nav button.active .bn-ico { filter: none; transform: translateY(-1px); }
+
+/* Make room above the bottom nav so content/dock never hide behind it */
+html.is-app .content { padding-bottom: calc(94px + env(safe-area-inset-bottom, 0px)) !important; }
+html.is-app .float-dock { bottom: calc(86px + env(safe-area-inset-bottom, 0px)) !important; }
+html.is-app .undo-btn  { bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important; }
+
+/* ---- 13. Desktop tables → stacked cards (no horizontal scroll) ---- */
+html.is-app .page-container table,
+html.is-app .page-container thead,
+html.is-app .page-container tbody,
+html.is-app .page-container tr,
+html.is-app .page-container td { display: block !important; width: 100% !important; min-width: 0 !important; }
+html.is-app .page-container thead { display: none !important; }   /* hide header row */
+html.is-app .page-container tr {
+  background: rgba(255,255,255,.04) !important;
+  border: 1px solid rgba(255,255,255,.06) !important;
+  border-radius: 16px !important;
+  padding: 12px 14px !important;
+  margin-bottom: 12px !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18) !important;
+}
+html.is-app .page-container td {
+  text-align: left !important;
+  padding: 5px 0 !important;
+  border: none !important;
+}
