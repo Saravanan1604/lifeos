@@ -143,11 +143,14 @@ html.is-app .sidebar-xp .xp-label { font-size: 13px !important; }
    App-only (html.is-app). Web/desktop untouched.
    ============================================================ */
 
-/* Quick Actions: 3-col → 2 columns (2×5), wider & more tappable */
+/* Quick Actions (welcome-grid): 3-col → 2 columns (2×5),
+   wider & more tappable. Also the Quick Access grid below it. */
+html.is-app .welcome-grid,
 html.is-app .qa-grid {
   grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
 }
+html.is-app .welcome-grid > *,
 html.is-app .qa-grid > * {
   min-height: 76px !important;
   padding: 16px 14px !important;
@@ -170,4 +173,3 @@ html.is-app [class*="hero"][class*="networth"] {
   min-height: auto !important;
 }
 html.is-app .hero-value { font-size: 40px !important; }
-html.is-app .welcome-grid { gap: 10px !important; }
