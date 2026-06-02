@@ -285,8 +285,8 @@ html.is-app .fin-dark-card {
 
 /* Bank cards: taller (more vertical padding) — bank section only */
 html.is-app .fin-bank-grid .fin-dark-card {
-  padding-top: 28px !important;
-  padding-bottom: 28px !important;
+  padding-top: 48px !important;
+  padding-bottom: 48px !important;
 }
 
 /* Action buttons (↑Bal · Edit · ✕) → clean frosted pills, evenly spaced */
