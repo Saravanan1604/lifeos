@@ -505,6 +505,10 @@ html.is-app [style*="grid-template-columns:2fr 1fr"],
 html.is-app [style*="grid-template-columns:160px 1fr"],
 html.is-app [style*="grid-template-columns:200px 1fr"]{grid-template-columns:1fr!important}
 html.is-app [style*="grid-template-columns:1fr 1fr 1fr 1fr"]{grid-template-columns:repeat(2,1fr)!important}
+/* 4-column grids (KPI stat row, Quick Actions) → 2×2 so they fit the phone */
+html.is-app [style*="grid-template-columns:repeat(4,1fr)"],
+html.is-app .kpi-grid,
+html.is-app .qa-grid{grid-template-columns:repeat(2,1fr)!important}
 /* Enlarge the many hard-coded tiny inline font sizes in the app */
 html.is-app [style*="font-size:9px"]  {font-size:15px!important}
 html.is-app [style*="font-size:10px"] {font-size:16px!important}
