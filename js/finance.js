@@ -112,7 +112,7 @@ function renderFinance() {
           : `
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px" class="fin-bank-grid">
             ${(STATE.bankAccounts||[]).map((b,i) => `
-            <div class="fin-dark-card" style="padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden">
+            <div class="fin-dark-card" onclick="if(!event.target.closest('button'))navigate('bank-tracker')" style="padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div style="font-size:22px">${b.icon||'🏦'}</div>
@@ -154,7 +154,7 @@ function renderFinance() {
               const pct = Math.min(100, Math.round((used/limit)*100));
               const utilColor = pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
               return `
-            <div class="fin-dark-card" style="padding:18px;border-radius:16px;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});position:relative;overflow:hidden">
+            <div class="fin-dark-card" onclick="if(!event.target.closest('button'))navigate('bank-tracker')" style="padding:18px;border-radius:16px;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
               <div style="position:absolute;top:-25px;right:-25px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none"></div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div>
@@ -204,7 +204,7 @@ function renderFinance() {
           ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon">💵</span><p>No cash wallets yet. Track your physical cash!</p></div>`
           : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px" class="fin-cash-grid">
             ${(STATE.cashAccounts||[]).map((ca,i) => `
-            <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3)">
+            <div class="fin-dark-card" onclick="if(!event.target.closest('button'))navigate('bank-tracker')" style="position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
               <div style="display:flex;justify-content:space-between;align-items:start;position:relative">
                 <div style="font-size:22px">💵</div>

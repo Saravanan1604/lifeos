@@ -776,3 +776,51 @@ html.is-app #bottom-nav .bn-item span { font-size: 18px !important; }
 html.is-app .content { padding-bottom: 150px !important; }
 html.is-app #fab-add { bottom: calc(42px + env(safe-area-inset-bottom, 0px)) !important; width: 78px !important; height: 78px !important; }
 html.is-app #fab-add svg { width: 40px !important; height: 40px !important; }
+
+/* ============================================================
+   build 76 — sizing + spacing + modal fit (app-only)
+   ============================================================ */
+
+/* #3 Menu (☰) + bell — bigger (≈3x icon) */
+html.is-app .mobile-menu-btn { width: 82px !important; height: 82px !important; border-radius: 20px !important; }
+html.is-app .mobile-menu-btn svg { width: 54px !important; height: 54px !important; }
+html.is-app #mobile-notif-btn { width: 82px !important; height: 82px !important; border-radius: 20px !important; }
+html.is-app #mobile-notif-btn svg { width: 54px !important; height: 54px !important; }
+html.is-app .content { padding-top: 110px !important; }
+
+/* #2 Day/Night theme toggle (docked in header) — bigger */
+html.is-app .theme-toggle.theme-toggle-docked { width: 62px !important; height: 62px !important; font-size: 34px !important; }
+
+/* #4 Floating AI / mic dock — much bigger */
+html.is-app .float-dock-btn { width: 84px !important; height: 84px !important; font-size: 38px !important; }
+html.is-app .float-dock.dock-collapsed .float-dock-btn { width: 60px !important; height: 60px !important; font-size: 28px !important; }
+
+/* #5 Dashboard Financial Overview — breathing room */
+html.is-app #dash-fin-overview { margin-top: 22px !important; margin-bottom: 22px !important; }
+
+/* #6 Dashboard Credit Cards row — taller & spaced (it's inside the accounts grid) */
+html.is-app .dash-acct-grid > * { margin-bottom: 6px !important; padding: 30px 22px !important; min-height: 150px !important; }
+
+/* #8 Finance top: centre the period tabs + import-options row, bigger */
+html.is-app .page-header > div:last-child { align-items: center !important; }
+html.is-app .page-header > div:last-child > div { justify-content: center !important; }
+html.is-app .page-header .btn-secondary { font-size: 20px !important; padding: 12px 16px !important; }
+
+/* #16 Budget planner — fit to screen (wrap long right-side text, no overflow) */
+html.is-app .content { overflow-x: hidden !important; }
+html.is-app .glass-card { overflow: hidden !important; }
+
+/* #14 Settings — let cards use the full width */
+html.is-app .content > div[style*="max-width"] { max-width: 100% !important; }
+
+/* #17 Add Income/Expense/Bank modal — fit the screen + 1.5x readable */
+html.is-app .modal-box {
+  width: 94vw !important; max-width: 94vw !important;
+  padding: 22px !important; max-height: 88vh !important;
+}
+html.is-app .modal-box [style*="grid-template-columns:1fr 1fr"],
+html.is-app .modal-box [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+html.is-app .modal-box input,
+html.is-app .modal-box select,
+html.is-app .modal-box textarea { width: 100% !important; box-sizing: border-box !important; }
+html.is-app #modal-title { font-size: 28px !important; }
