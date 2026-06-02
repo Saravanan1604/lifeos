@@ -137,3 +137,37 @@ html.is-app .sidebar-user .user-name { font-size: 20px !important; font-weight: 
 html.is-app .sidebar-user .user-level { font-size: 14px !important; }
 html.is-app .sidebar-user .user-avatar { width: 46px !important; height: 46px !important; }
 html.is-app .sidebar-xp .xp-label { font-size: 13px !important; }
+
+/* ============================================================
+   DASHBOARD — mobile 2-column layout (Android-style).
+   App-only (html.is-app). Web/desktop untouched.
+   ============================================================ */
+
+/* Quick Actions: 3-col → 2 columns (2×5), wider & more tappable */
+html.is-app .qa-grid {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+}
+html.is-app .qa-grid > * {
+  min-height: 76px !important;
+  padding: 16px 14px !important;
+}
+
+/* KPI cards (Income · Expenses · Net Savings · Habits):
+   4-col → 2×2 so each card is twice as wide and clearly readable */
+html.is-app .kpi-grid {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+}
+html.is-app .kpi-grid > * {
+  padding: 18px 16px !important;
+}
+
+/* Net Worth hero: kill the wasted right-side space, make it compact
+   so Income/Expense sit right under it */
+html.is-app .hero-networth,
+html.is-app [class*="hero"][class*="networth"] {
+  min-height: auto !important;
+}
+html.is-app .hero-value { font-size: 40px !important; }
+html.is-app .welcome-grid { gap: 10px !important; }
