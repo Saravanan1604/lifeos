@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "smartbill",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "require('http').createServer((req,res)=>{res.end('ok')}).listen(3001)"],
+      "port": 3001
+    },
+    {
+      "name": "saravanan-xerox",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["xerox-server.js"],
+      "port": 5500
+    },
+    {
+      "name": "lifeos",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3333", "."],
+      "port": 3333
+    }
+  ]
+}

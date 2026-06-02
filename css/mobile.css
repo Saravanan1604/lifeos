@@ -283,8 +283,24 @@ html.is-app .fin-dark-card button {
 /* Keep the button row tidy and clear of the corner decoration */
 html.is-app .fin-dark-card > div:first-child { gap: 10px !important; margin-bottom: 4px !important; }
 
-/* Big card balance value reads as the hero number of each tile */
-html.is-app .fin-dark-card p[style*="font-weight:900"] { letter-spacing: -0.5px !important; }
+/* Big card balance value reads as the hero number of each tile —
+   larger to fill the card and nudged slightly to the right */
+html.is-app .fin-dark-card p[style*="font-weight:900"] {
+  font-size: 46px !important;
+  letter-spacing: -0.5px !important;
+  margin-left: 8px !important;
+  margin-top: 6px !important;
+}
+/* Bank / card name label a bit bigger and aligned with the value */
+html.is-app .fin-dark-card p[style*="letter-spacing:1.5px"] {
+  font-size: 20px !important;
+  margin-left: 8px !important;
+}
+/* Sub row (type + last-4) nudged in to match */
+html.is-app .fin-dark-card > div[style*="justify-content:space-between"]:last-child {
+  margin-left: 8px !important;
+  margin-top: 12px !important;
+}
 
 /* Premium glass cards: a touch more rounding + breathing room */
 html.is-app .glass-card { border-radius: 22px !important; }
