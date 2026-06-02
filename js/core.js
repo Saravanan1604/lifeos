@@ -671,13 +671,18 @@ window.addEventListener('popstate', (e) => {
 // ===== SWIPE TO CHANGE TABS (installed app, Instagram-style) =====
 (function initSwipeNav() {
   const ORDER = ['dashboard', 'finance', 'investments', 'budget'];
-  let x0 = null, y0 = null;
+  let x0 = null, y0 = null, fromScroller = false;
   document.addEventListener('touchstart', e => {
     if (!document.documentElement.classList.contains('is-app')) return;
     const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY;
+    // If the touch starts inside a horizontal carousel/scroller, let it scroll
+    // — don't hijack it for page navigation.
+    fromScroller = !!(e.target.closest &&
+      e.target.closest('.fin-bank-grid, .fin-card-grid, .fin-cash-grid, [style*="overflow-x"]'));
   }, { passive: true });
   document.addEventListener('touchend', e => {
     if (x0 === null) return;
+    if (fromScroller) { x0 = null; y0 = null; fromScroller = false; return; }
     const t = e.changedTouches[0];
     const dx = t.clientX - x0, dy = t.clientY - y0;
     x0 = null; y0 = null;

@@ -699,3 +699,28 @@ html.is-app .fin-cash-grid > * {
   min-width: 82% !important;
   scroll-snap-align: center !important;
 }
+
+/* ============================================================
+   build 74 — uniform tall swipe cards + bigger "+ Add" buttons
+   ============================================================ */
+
+/* Bank / Credit / Cash carousel cards: same width (82%) + same TALL height */
+html.is-app .fin-bank-grid > *,
+html.is-app .fin-card-grid > *,
+html.is-app .fin-cash-grid > * {
+  flex: 0 0 82% !important;
+  min-width: 82% !important;
+  height: 300px !important;            /* uniform double height */
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+/* "+ Add Bank / Card / Cash" header buttons — bigger */
+html.is-app .section-header .btn-primary,
+html.is-app .section-header .btn-sm {
+  font-size: 22px !important;
+  padding: 14px 22px !important;
+  border-radius: 14px !important;
+}
