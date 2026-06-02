@@ -194,7 +194,7 @@ const LIVE_SYNC_KEYS = [
   'habitCompletions', 'healthEntries', 'tasks', 'budgets',
   'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
   'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',
-  'unlockedAchievements', 'deletedIds'
+  'unlockedAchievements', 'deletedIds', 'categoryRules'
 ];
 
 let _syncTimer     = null;

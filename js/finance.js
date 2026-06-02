@@ -668,24 +668,58 @@ function openBulkCategoryChange() {
   openModal(`🏷️ Change Category (${ids.length} transactions)`,
     `<div class="form-group"><label class="form-label">New Category</label>
      <select id="bulk-cat" class="form-input">${opts}</select></div>
+     <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:13px;color:var(--text2);cursor:pointer;line-height:1.5">
+       <input type="checkbox" id="bulk-cat-samename" checked style="width:16px;height:16px;accent-color:#00c9a7;margin-top:2px;flex-shrink:0"/>
+       <span>Apply to <strong>all transactions with the same name</strong>, and remember it for future entries &amp; imports</span>
+     </label>
      <div class="modal-actions">
        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-       <button class="btn-primary" onclick='applyBulkCategory(${JSON.stringify(ids)})'>✅ Apply to All</button>
+       <button class="btn-primary" onclick='applyBulkCategory(${JSON.stringify(ids)})'>✅ Apply</button>
      </div>`);
 }
 
 function applyBulkCategory(ids) {
   const cat = document.getElementById('bulk-cat')?.value;
   if (!cat) return;
+  const sameName = document.getElementById('bulk-cat-samename')?.checked;
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
   const icon = allCats.find(c => c.name === cat)?.icon || '💳';
-  STATE.transactions = (STATE.transactions || []).map(t =>
-    ids.includes(t.id) ? { ...t, category: cat, icon } : t
+  const txs = STATE.transactions || [];
+
+  // Collect the names of the selected transactions
+  const names = new Set(
+    txs.filter(t => ids.includes(t.id))
+       .map(t => (t.description || '').trim().toLowerCase())
+       .filter(Boolean)
   );
+
+  let count = 0;
+  STATE.transactions = txs.map(t => {
+    const selected  = ids.includes(t.id);
+    const sameNamed = sameName && names.has((t.description || '').trim().toLowerCase());
+    if (selected || sameNamed) { count++; return { ...t, category: cat, icon }; }
+    return t;
+  });
+
+  // Remember the rule so future adds/imports with this name auto-categorize
+  if (sameName) names.forEach(n => setCategoryRule(n, cat));
+
   saveState();
   closeModal();
-  toast(`Category updated to "${cat}" for ${ids.length} transaction${ids.length > 1 ? 's' : ''} ✅`, 'success');
+  toast(`Category "${cat}" applied to ${count} transaction${count > 1 ? 's' : ''}${sameName ? ' · saved for future' : ''} ✅`, 'success');
   renderFinanceTxList();
+}
+
+// ── Auto-categorization rules: remember "name → category" ──────────────────
+function getCategoryRule(desc) {
+  if (!desc) return null;
+  const rules = STATE.categoryRules || {};
+  return rules[desc.trim().toLowerCase()] || null;
+}
+function setCategoryRule(desc, cat) {
+  if (!desc || !cat) return;
+  STATE.categoryRules = STATE.categoryRules || {};
+  STATE.categoryRules[desc.trim().toLowerCase()] = cat;
 }
 
 function openBulkTypeChange() {
@@ -791,6 +825,13 @@ function confirmSaveTx() {
 
 function _commitTx(tx) {
   STATE.transactions = STATE.transactions || [];
+  // Auto-apply a remembered category rule for this name (if one exists)
+  const ruled = getCategoryRule(tx.description);
+  if (ruled) {
+    tx = { ...tx, category: ruled };
+    const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+    tx.icon = allCats.find(c => c.name === ruled)?.icon || tx.icon || '💳';
+  }
   const newTx = { id: genId(), ...tx, createdAt: new Date().toISOString() };
   STATE.transactions.unshift(newTx);
   _applyTxToAccount(newTx);
@@ -3042,7 +3083,8 @@ function parseSheetRows(rows) {
     if (!description) description = type === 'income' ? 'Credit' : 'Debit';
     const date = iDate >= 0 ? _parseCsvDate(cell(iDate)) : today();
     const lo = description.toLowerCase();
-    const category = _matchImportCategory(cell(iCat)) || smsCategoryGuess(lo, lo, type);
+    // Remembered rule wins, then the file's Category column, then a guess
+    const category = getCategoryRule(description) || _matchImportCategory(cell(iCat)) || smsCategoryGuess(lo, lo, type);
     out.push({ type, amount, date: date || today(), description, category });
   }
   return out;
@@ -3166,7 +3208,7 @@ function parseCsvText(text) {
     if (!amount || amount <= 0) return;
     if (!description) description = type === 'income' ? 'Credit' : 'Debit';
     const lo = description.toLowerCase();
-    const category = smsCategoryGuess(lo, lo, type);
+    const category = getCategoryRule(description) || smsCategoryGuess(lo, lo, type);
     results.push({ type, amount, date: date || today(), description, category });
   });
 
