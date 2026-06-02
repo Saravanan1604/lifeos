@@ -481,10 +481,16 @@ html.is-app .sidebar{transform:translateX(-100%);position:fixed;top:0;left:0;hei
 html.is-app .sidebar.mobile-open{transform:translateX(0)}
 html.is-app .mobile-menu-btn{display:flex}
 html.is-app .content{margin-left:0!important;padding-top:64px}
-html.is-app,html.is-app body{overflow-x:hidden}
-html.is-app .page-container{padding:16px;max-width:100%;overflow-x:hidden}
+html.is-app,html.is-app body{overflow-x:hidden!important}
+html.is-app .content,html.is-app .page-container{max-width:100%!important;overflow-x:hidden!important}
+html.is-app .page-container{padding:16px}
 html.is-app .page-container table{min-width:0!important;width:100%!important}
 html.is-app .page-header{flex-wrap:wrap;gap:10px}
+/* Catch-all: let space-between header rows wrap so they don't overflow the
+   narrow scaled layout (dashboard title bar, card headers, etc.) */
+html.is-app [style*="justify-content:space-between"]{flex-wrap:wrap!important}
+/* Charts can have fixed widths — constrain them */
+html.is-app canvas{max-width:100%!important}
 /* Card grids → 2 per row in the app */
 html.is-app .stat-grid,
 html.is-app [style*="minmax(200px"],
