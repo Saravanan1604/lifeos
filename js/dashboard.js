@@ -390,7 +390,7 @@ function _buildAccountsGoalsBudget() {
     const cPct  = Math.max(1, Math.round((totalCash / total) * 100));
     const dPct  = Math.max(1, Math.round((totalOut  / total) * 100));
     return `
-    <div onclick="navigate('finance')" style="background:linear-gradient(135deg,rgba(0,201,167,0.07),rgba(99,102,241,0.05));border:1px solid rgba(0,201,167,0.18);border-radius:20px;padding:18px 20px;margin-bottom:14px;cursor:pointer;transition:all .2s"
+    <div onclick="navigate('finance')" class="dash-nw-bar" style="background:linear-gradient(135deg,rgba(0,201,167,0.07),rgba(99,102,241,0.05));border:1px solid rgba(0,201,167,0.18);border-radius:20px;padding:18px 20px;margin-bottom:14px;cursor:pointer;transition:all .2s"
       onmouseover="this.style.borderColor='rgba(0,201,167,0.4)';this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='rgba(0,201,167,0.18)';this.style.transform=''">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
         <div style="display:flex;align-items:center;gap:8px">

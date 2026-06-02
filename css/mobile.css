@@ -885,3 +885,31 @@ html.is-app .dash-acct-grid div[style*="height:6px"] {
   border-radius: 6px !important;
   box-shadow: 0 0 8px rgba(255,255,255,0.22) !important;
 }
+
+/* ============================================================
+   build 79 — bottom Transactions tab, bigger tx text,
+   dashboard net-worth focus, budget/goals bars
+   ============================================================ */
+
+/* #2 Transactions history — even bigger text */
+html.is-app #fin-tx-section .tx-row p:first-child { font-size: 28px !important; font-weight: 700 !important; }
+html.is-app #fin-tx-section .tx-row p:last-child  { font-size: 19px !important; }
+html.is-app #fin-tx-section .tx-row span[style*="font-weight:700"] { font-size: 28px !important; }
+html.is-app #fin-tx-section .tx-ic { width: 62px !important; height: 62px !important; font-size: 30px !important; }
+
+/* #3 Dashboard — hide Bank/Cash/Credit cards, spotlight the Financial Net Worth */
+html.is-app .dash-acct-grid { display: none !important; }
+html.is-app .dash-nw-bar { padding: 34px 26px !important; margin-bottom: 20px !important; border-radius: 26px !important; }
+html.is-app .dash-nw-bar > div:first-child { margin-bottom: 26px !important; }           /* gap between text row and bar */
+html.is-app .dash-nw-bar p[style*="font-weight:700"] { font-size: 26px !important; }      /* "Financial Net Worth" */
+html.is-app .dash-nw-bar p[style*="var(--text3)"] { font-size: 18px !important; }         /* subtitle */
+html.is-app .dash-nw-bar span[style*="font-weight:900"] { font-size: 46px !important; }   /* the +₹ value */
+html.is-app .dash-nw-bar > div[style*="height:10px"] { height: 20px !important; }          /* the colour bar — taller */
+
+/* #4 Budget + Goals bars — rounded, glowy */
+html.is-app .dash-bg-grid div[style*="height:5px"],
+html.is-app .dash-bg-grid div[style*="height:6px"],
+html.is-app .dash-bg-grid div[style*="height:8px"] {
+  border-radius: 8px !important;
+  box-shadow: 0 0 8px rgba(255,255,255,0.25) !important;
+}

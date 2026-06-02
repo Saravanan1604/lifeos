@@ -689,7 +689,7 @@ window.addEventListener('popstate', (e) => {
 
 // ===== SWIPE TO CHANGE TABS (installed app, Instagram-style) =====
 (function initSwipeNav() {
-  const ORDER = ['dashboard', 'finance', 'investments', 'budget', 'goals'];
+  const ORDER = ['dashboard', 'finance', 'investments', 'budget', 'transactions'];
   let x0 = null, y0 = null, fromScroller = false;
   document.addEventListener('touchstart', e => {
     if (!document.documentElement.classList.contains('is-app')) return;
