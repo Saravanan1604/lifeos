@@ -225,3 +225,34 @@ html.is-app .dash-bg-grid {
   grid-template-columns: 1fr !important;
   gap: 14px !important;
 }
+
+/* ============================================================
+   FINANCE PAGE — single full-width cards + clean net-worth hero
+   App-only (html.is-app). Web/desktop untouched.
+   ============================================================ */
+
+/* Bank Accounts · Credit Cards · Cash Accounts → one full-width card each
+   (the big text was overflowing the narrow cards and getting cut off) */
+html.is-app .fin-bank-grid,
+html.is-app .fin-card-grid,
+html.is-app .fin-cash-grid {
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+}
+
+/* Income vs Expenses + Spending by Category charts → stack full width */
+html.is-app .fin-charts-row {
+  grid-template-columns: 1fr !important;
+  gap: 16px !important;
+}
+
+/* Net Worth hero — Income/Expenses/Savings as an even 3-col grid
+   so the value + Lifetime chip never overlap (like the dashboard hero) */
+html.is-app .fin-hero-stats {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 14px !important;
+}
+/* Any inline period/Lifetime chip drops onto its own line, no overlap */
+html.is-app .fin-hero-stats [id^="fin-"] > span,
+html.is-app .fin-hero-stats [id^="fin-"] .period-chip { display: block !important; margin: 4px 0 0 0 !important; }

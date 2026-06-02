@@ -81,7 +81,7 @@ function renderFinance() {
           </div>
           ${(()=>{
             const chips = typeof buildPeriodComparisonChips === 'function' ? buildPeriodComparisonChips(_finPeriod) : {incomeChip:'',expenseChip:''};
-            return `<div style="display:flex;gap:32px;margin-top:20px;flex-wrap:wrap">
+            return `<div style="display:flex;gap:32px;margin-top:20px;flex-wrap:wrap" class="fin-hero-stats">
             <div>
               <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">💚 Income</p>
               <p id="fin-income" style="font-size:22px;font-weight:900;color:#003326">+${fmt(income)}${chips.incomeChip}</p>
@@ -110,7 +110,7 @@ function renderFinance() {
         ${(STATE.bankAccounts||[]).length === 0
           ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon">🏦</span><p>No bank accounts yet. Add your first one!</p></div>`
           : `
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px" class="fin-bank-grid">
             ${(STATE.bankAccounts||[]).map((b,i) => `
             <div class="fin-dark-card" style="padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
@@ -147,7 +147,7 @@ function renderFinance() {
         ${(STATE.creditCards||[]).length === 0
           ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon">💳</span><p>No credit cards yet. Add your first one!</p></div>`
           : `
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px" class="fin-card-grid">
             ${(STATE.creditCards||[]).map((c,i) => {
               const used = c.outstanding || 0;
               const limit = c.limit || 1;
@@ -202,7 +202,7 @@ function renderFinance() {
         </div>
         ${(STATE.cashAccounts||[]).length === 0
           ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon">💵</span><p>No cash wallets yet. Track your physical cash!</p></div>`
-          : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px">
+          : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px" class="fin-cash-grid">
             ${(STATE.cashAccounts||[]).map((ca,i) => `
             <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3)">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
