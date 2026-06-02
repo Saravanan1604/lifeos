@@ -512,3 +512,68 @@ html.is-app .stat-grid .stat-card-value {
   font-size: clamp(38px, 11vw, 50px) !important;   /* shrinks to fit narrow tiles */
 }
 html.is-app .stat-grid .stat-card-label { font-size: 21px !important; line-height: 1.2 !important; }
+
+/* ============================================================
+   YONO-STYLE: bottom tab bar + top search + icon-tile grid
+   App-only (html.is-app). Hidden on web by default.
+   ============================================================ */
+
+/* ---- Bottom tab bar ---- */
+#bottom-nav { display: none; }                       /* hidden on web */
+html.is-app #bottom-nav {
+  display: flex !important;
+  position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: 9000;
+  justify-content: space-around; align-items: center;
+  padding: 10px 6px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: rgba(16,18,32,0.94);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+html.is-app.light #bottom-nav, html.is-app .light #bottom-nav {
+  background: rgba(255,255,255,0.95);
+  border-top-color: rgba(15,23,42,0.08);
+}
+html.is-app #bottom-nav .bn-item {
+  background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  color: rgba(255,255,255,0.5); flex: 1; min-width: 0; padding: 4px;
+}
+html.is-app.light #bottom-nav .bn-item, html.is-app .light #bottom-nav .bn-item { color: rgba(15,23,42,0.45); }
+html.is-app #bottom-nav .bn-item svg { width: 30px; height: 30px; }
+html.is-app #bottom-nav .bn-item span { font-size: 16px; font-weight: 600; }
+html.is-app #bottom-nav .bn-item.active { color: #00c9a7; }
+
+/* Leave room so content isn't hidden behind the bar */
+html.is-app .content { padding-bottom: 110px !important; }
+
+/* ---- Top search bar ---- */
+.app-search { display: none; }                       /* hidden on web */
+html.is-app .app-search {
+  display: flex !important; align-items: center; gap: 12px;
+  margin: 4px 0 20px; padding: 18px 20px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.55); cursor: pointer;
+}
+html.is-app.light .app-search, html.is-app .light .app-search {
+  background: rgba(15,23,42,0.04); border-color: rgba(15,23,42,0.1); color: rgba(15,23,42,0.5);
+}
+html.is-app .app-search svg { width: 28px; height: 28px; flex-shrink: 0; }
+html.is-app .app-search span { font-size: 24px; }
+
+/* ---- Quick Actions as 4-across icon tiles (YONO grid) ---- */
+html.is-app .welcome-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 10px !important; }
+html.is-app .welcome-grid > div {
+  flex-direction: column !important; align-items: center !important;
+  justify-content: flex-start !important; text-align: center !important;
+  gap: 10px !important; min-height: 128px !important; padding: 18px 6px !important;
+}
+html.is-app .welcome-grid > div > span { font-size: 40px !important; }       /* big icon on top */
+html.is-app .welcome-grid > div > div { width: 100% !important; min-width: 0 !important; }
+html.is-app .welcome-grid div p:first-child {                                 /* label wraps, centered */
+  white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
+  font-size: 17px !important; line-height: 1.15 !important;
+}
+html.is-app .welcome-grid div p:last-child { display: none !important; }      /* hide sub-text on tiles */

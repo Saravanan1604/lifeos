@@ -591,6 +591,10 @@ function _renderPage(page) {
     default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
   }
   _appendQuickActions(page);
+  // Highlight the active bottom-nav tab
+  document.querySelectorAll('#bottom-nav .bn-item[data-page]').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
   if (typeof _dockThemeToggle === 'function') _dockThemeToggle();
   if (typeof applyTranslations === 'function') applyTranslations();
   // Re-sync the mobile page-scale (content height changes per page)
