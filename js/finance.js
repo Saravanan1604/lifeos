@@ -2585,7 +2585,7 @@ function renderBudget() {
           <!-- Doughnut -->
           <div style="position:relative;height:190px">
             <canvas id="budget-donut-chart"></canvas>
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+            <div class="budget-donut-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
               <span style="font-size:13px;font-weight:900;color:var(--text1)">${fmt(totalLimit)}</span>
               <span style="font-size:10px;color:var(--text3);margin-top:2px">total budget</span>
             </div>
