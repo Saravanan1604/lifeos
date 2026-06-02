@@ -377,6 +377,13 @@ function _isMobileLayout() {
     || window.__IS_APP === true
     || document.documentElement.classList.contains('is-app');
 }
+// Bulletproof: the hamburger always opens/closes the drawer (no width checks).
+function openMobileDrawer() {
+  const sb = document.getElementById('sidebar');
+  if (!sb) return;
+  const open = sb.classList.toggle('mobile-open');
+  _toggleSidebarBackdrop(open);
+}
 function toggleSidebar() {
   const sb = document.getElementById('sidebar');
   const ct = document.getElementById('content');
@@ -575,11 +582,11 @@ function navigate(page, skipHistory = false) {
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
-  if (_isMobileLayout()) {
-    document.getElementById('sidebar').classList.remove('mobile-open');
-    if (typeof _toggleSidebarBackdrop === 'function') _toggleSidebarBackdrop(false);
-    sidebarCollapsed = false;
-  }
+  // Always close the mobile drawer after navigating (harmless on desktop)
+  const _sb = document.getElementById('sidebar');
+  if (_sb) _sb.classList.remove('mobile-open');
+  if (typeof _toggleSidebarBackdrop === 'function') _toggleSidebarBackdrop(false);
+  sidebarCollapsed = false;
 
   const container = document.getElementById('page-container');
 
