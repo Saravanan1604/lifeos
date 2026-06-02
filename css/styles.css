@@ -451,3 +451,50 @@ body.light .chat-code{background:rgba(79,70,229,0.08);color:#4f46e5}
   [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:1fr 1fr!important}
   .page-title{font-size:26px!important}
 }
+
+/* ===== INSTALLED APP (TWA/PWA): always use the big mobile layout =====
+   Some Android WebViews report a wide CSS viewport, so width media queries
+   may not fire. This forces the large, single/2-column layout in the app
+   regardless of the reported width. */
+html.is-app .page-title{font-size:30px!important;line-height:1.2}
+html.is-app .page-subtitle{font-size:16px!important}
+html.is-app .section-title{font-size:22px!important}
+html.is-app .glass-card{padding:18px!important;border-radius:18px}
+html.is-app .btn-primary,html.is-app .btn-secondary{font-size:17px!important;padding:13px 18px!important;border-radius:12px}
+html.is-app .form-input{font-size:17px!important;padding:14px!important}
+html.is-app .form-label{font-size:15px!important}
+html.is-app .hero-value{font-size:40px!important}
+html.is-app #page-quick-actions button{font-size:15px!important;padding:12px 18px!important}
+html.is-app .float-dock-btn{width:56px!important;height:56px!important}
+/* Collapse the sidebar to a drawer in the app */
+html.is-app .sidebar{transform:translateX(-100%);position:fixed;top:0;left:0;height:100vh;width:min(82vw,300px);z-index:999;box-shadow:0 0 50px rgba(0,0,0,.5)}
+html.is-app .sidebar.mobile-open{transform:translateX(0)}
+html.is-app .mobile-menu-btn{display:flex}
+html.is-app .content{margin-left:0!important;padding-top:64px}
+html.is-app,html.is-app body{overflow-x:hidden}
+html.is-app .page-container{padding:16px;max-width:100%;overflow-x:hidden}
+html.is-app .page-container table{min-width:0!important;width:100%!important}
+html.is-app .page-header{flex-wrap:wrap;gap:10px}
+/* Card grids → 2 per row in the app */
+html.is-app .stat-grid,
+html.is-app [style*="minmax(200px"],
+html.is-app [style*="minmax(220px"],
+html.is-app [style*="minmax(240px"],
+html.is-app [style*="minmax(260px"],
+html.is-app [style*="minmax(280px"],
+html.is-app [style*="minmax(300px"],
+html.is-app [style*="minmax(320px"]{grid-template-columns:repeat(2,1fr)!important}
+html.is-app [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:repeat(2,1fr)!important}
+html.is-app [style*="grid-template-columns:2fr 1fr"],
+html.is-app [style*="grid-template-columns:160px 1fr"],
+html.is-app [style*="grid-template-columns:200px 1fr"]{grid-template-columns:1fr!important}
+html.is-app [style*="grid-template-columns:1fr 1fr 1fr 1fr"]{grid-template-columns:repeat(2,1fr)!important}
+/* Enlarge the many hard-coded tiny inline font sizes in the app */
+html.is-app [style*="font-size:9px"]  {font-size:15px!important}
+html.is-app [style*="font-size:10px"] {font-size:16px!important}
+html.is-app [style*="font-size:11px"] {font-size:17px!important}
+html.is-app [style*="font-size:12px"] {font-size:18px!important}
+html.is-app [style*="font-size:13px"] {font-size:19px!important}
+html.is-app [style*="font-size:14px"] {font-size:20px!important}
+html.is-app [style*="font-size:15px"] {font-size:21px!important}
+html.is-app [style*="font-size:16px"] {font-size:22px!important}
