@@ -591,10 +591,20 @@ function _renderPage(page) {
     default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
   }
   _appendQuickActions(page);
-  // Highlight the active bottom-nav tab
-  document.querySelectorAll('#bottom-nav .bn-item[data-page]').forEach(el => {
-    el.classList.toggle('active', el.dataset.page === page);
-  });
+  // Highlight the active bottom-nav tab + slide the indicator line (Instagram-style)
+  const _bnItems = [...document.querySelectorAll('#bottom-nav .bn-item')];
+  _bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  const _ind = document.getElementById('bn-indicator');
+  if (_ind && _bnItems.length) {
+    const idx = _bnItems.findIndex(el => el.dataset.page === page);
+    if (idx >= 0) {
+      _ind.style.opacity = '1';
+      _ind.style.width = (100 / _bnItems.length) + '%';
+      _ind.style.transform = `translateX(${idx * 100}%)`;
+    } else {
+      _ind.style.opacity = '0';   // page not in the tab bar (opened via More)
+    }
+  }
   if (typeof _dockThemeToggle === 'function') _dockThemeToggle();
   if (typeof applyTranslations === 'function') applyTranslations();
   // Re-sync the mobile page-scale (content height changes per page)
@@ -655,3 +665,29 @@ window.addEventListener('popstate', (e) => {
     navigate('dashboard', true);
   }
 });
+
+// ===== SWIPE TO CHANGE TABS (installed app, Instagram-style) =====
+(function initSwipeNav() {
+  const ORDER = ['dashboard', 'finance', 'investments', 'budget'];
+  let x0 = null, y0 = null;
+  document.addEventListener('touchstart', e => {
+    if (!document.documentElement.classList.contains('is-app')) return;
+    const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - x0, dy = t.clientY - y0;
+    x0 = null; y0 = null;
+    // Horizontal swipe only (ignore vertical scrolls and small moves)
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    // Don't hijack swipes that start while the menu drawer is open
+    const sb = document.querySelector('.sidebar.mobile-open');
+    if (sb) return;
+    const cur = ORDER.indexOf(currentPage);
+    if (cur < 0) return;
+    const next = dx < 0 ? cur + 1 : cur - 1;
+    if (next < 0 || next >= ORDER.length) return;
+    navigate(ORDER[next]);
+  }, { passive: true });
+})();

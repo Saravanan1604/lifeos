@@ -577,3 +577,18 @@ html.is-app .welcome-grid div p:first-child {                                 /*
   font-size: 17px !important; line-height: 1.15 !important;
 }
 html.is-app .welcome-grid div p:last-child { display: none !important; }      /* hide sub-text on tiles */
+
+/* Instagram-style sliding indicator line on the bottom tab bar */
+html.is-app #bottom-nav { position: fixed; }   /* ensure positioning context */
+html.is-app #bn-indicator {
+  position: absolute;
+  top: 0; left: 0;
+  height: 3px;
+  width: 20%;                         /* JS sets exact width = 100/itemCount % */
+  background: #00c9a7;
+  border-radius: 0 0 3px 3px;
+  transform: translateX(0);
+  transition: transform .3s cubic-bezier(.4,0,.2,1), opacity .2s ease;
+  opacity: 0;
+  pointer-events: none;
+}
