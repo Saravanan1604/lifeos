@@ -1,2 +1,23 @@
-/* Mobile premium theme removed by request — the app now uses the standard
-   web layout. (File kept so the cached <link> reference stays valid.) */
+/* ============================================================
+   LifeOS — Mobile font bump ONLY (installed app).
+   Same web layout — just larger, more readable text on mobile.
+   Scoped to html.is-app, so the web app is never affected.
+   No layout, card, spacing, or scaling changes.
+   ============================================================ */
+
+/* Headings a touch larger & clearer */
+html.is-app .page-title    { font-size: 26px !important; }
+html.is-app .page-subtitle { font-size: 14px !important; }
+html.is-app .section-title { font-size: 18px !important; }
+
+/* Bump the many hard-coded tiny inline font sizes for readability */
+html.is-app [style*="font-size:9px"]  { font-size: 13px !important; }
+html.is-app [style*="font-size:10px"] { font-size: 14px !important; }
+html.is-app [style*="font-size:11px"] { font-size: 15px !important; }
+html.is-app [style*="font-size:12px"] { font-size: 15px !important; }
+html.is-app [style*="font-size:13px"] { font-size: 16px !important; }
+html.is-app [style*="font-size:14px"] { font-size: 16px !important; }
+
+/* Form controls: 16px stops the focus-zoom jump on mobile */
+html.is-app .form-input,
+html.is-app input, html.is-app select, html.is-app textarea { font-size: 16px !important; }

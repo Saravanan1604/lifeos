@@ -32,7 +32,10 @@
     if (isApp) { try { localStorage.setItem('_isApp', '1'); } catch (e) {} }
     window.__IS_APP = isApp;
     if (isApp) {
-      // Hide the ad slot inside the app (no ads); load nothing.
+      // Same web layout — only enable larger text on mobile (via html.is-app
+      // font rules in mobile.css). No layout/scale changes.
+      document.documentElement.classList.add('is-app');
+      // Hide the ad slot inside the app (no ads).
       var st = document.createElement('style');
       st.textContent = '.ad-container{display:none!important}';
       document.head.appendChild(st);
@@ -68,11 +71,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=34" />
-  <link rel="stylesheet" href="css/calc.css?v=34" />
-  <link rel="stylesheet" href="css/premium.css?v=34" />
+  <link rel="stylesheet" href="css/styles.css?v=35" />
+  <link rel="stylesheet" href="css/calc.css?v=35" />
+  <link rel="stylesheet" href="css/premium.css?v=35" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=34" />
+  <link rel="stylesheet" href="css/mobile.css?v=35" />
 </head>
 <body>
 
@@ -444,23 +447,23 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=34"></script>
-<script src="js/core.js?v=34"></script>
-<script src="js/dashboard.js?v=34"></script>
-<script src="js/finance.js?v=34"></script>
-<script src="js/bank-tracker.js?v=34"></script>
-<script src="js/life.js?v=34"></script>
-<script src="js/growth.js?v=34"></script>
-<script src="js/ai.js?v=34"></script>
-<script src="js/calculator.js?v=34"></script>
-<script src="js/features.js?v=34"></script>
-<script src="js/premium.js?v=34"></script>
-<script src="js/categories.js?v=34"></script>
-<script src="js/compare.js?v=34"></script>
-<script src="js/pages.js?v=34"></script>
-<script src="js/help.js?v=34"></script>
-<script src="js/voice.js?v=34"></script>
-<script src="js/init.js?v=34"></script>
+<script src="js/storage.js?v=35"></script>
+<script src="js/core.js?v=35"></script>
+<script src="js/dashboard.js?v=35"></script>
+<script src="js/finance.js?v=35"></script>
+<script src="js/bank-tracker.js?v=35"></script>
+<script src="js/life.js?v=35"></script>
+<script src="js/growth.js?v=35"></script>
+<script src="js/ai.js?v=35"></script>
+<script src="js/calculator.js?v=35"></script>
+<script src="js/features.js?v=35"></script>
+<script src="js/premium.js?v=35"></script>
+<script src="js/categories.js?v=35"></script>
+<script src="js/compare.js?v=35"></script>
+<script src="js/pages.js?v=35"></script>
+<script src="js/help.js?v=35"></script>
+<script src="js/voice.js?v=35"></script>
+<script src="js/init.js?v=35"></script>
 
 <style>
   /* Voice mic listening pulse */
