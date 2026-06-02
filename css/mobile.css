@@ -46,18 +46,43 @@ html.is-app input, html.is-app select, html.is-app textarea { font-size: 44px !i
 /* ── FIT TO SCREEN: never let the huge text cause sideways scrolling ── */
 html.is-app, html.is-app body, html.is-app .content { overflow-x: hidden !important; }
 html.is-app .content { padding-left: 12px !important; padding-right: 12px !important; }
-/* Big numbers/labels wrap instead of overflowing their box */
-html.is-app .content * {
-  overflow-wrap: anywhere !important;
-  word-break: break-word !important;
+/* Big numbers/labels wrap only when a single token is too long for the box
+   (avoids ugly mid-word breaks while still preventing overflow) */
+html.is-app .content * { overflow-wrap: break-word !important; }
+
+/* ── ELEMENT HEIGHT — taller rows/cards via PADDING (not line-height,
+   which was misaligning icons, pills and badges). Text gets a calm 1.25. ── */
+html.is-app .content * { line-height: 1.25 !important; }
+
+/* ── ALIGNMENT FIXES (pre-final polish) ──
+   Keep every icon+text / label+value row vertically centred so nothing
+   looks shifted now that the text is large. */
+html.is-app .section-header,
+html.is-app .page-header,
+html.is-app .stat-card,
+html.is-app .nav-item,
+html.is-app .period-tabs,
+html.is-app .hero-sub-item,
+html.is-app .fin-dark-card > div[style*="display:flex"] {
+  align-items: center !important;
+}
+/* Inline emoji / svg icons sit on the text baseline cleanly */
+html.is-app .content svg,
+html.is-app .content [style*="display:inline"] { vertical-align: middle !important; }
+/* Buttons & pills: center their contents, no awkward wrapping */
+html.is-app button,
+html.is-app .period-tab,
+html.is-app .streak-badge,
+html.is-app .btn-primary, html.is-app .btn-secondary, html.is-app .btn-sm {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  word-break: normal !important;
 }
 
-/* ── DOUBLE ELEMENT HEIGHT — taller rows, cards, buttons, inputs ── */
-/* Roughly 2x the vertical space of each element */
-html.is-app .content * { line-height: 2 !important; }
-
-/* Cards: double the vertical padding */
-html.is-app .glass-card { padding-top: 40px !important; padding-bottom: 40px !important; }
+/* Cards: generous (but not absurd) vertical padding */
+html.is-app .glass-card { padding-top: 32px !important; padding-bottom: 32px !important; }
 
 /* Buttons: twice as tall */
 html.is-app button,
