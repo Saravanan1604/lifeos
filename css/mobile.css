@@ -132,62 +132,6 @@ html.is-app #sidebar-backdrop {
 
 /* Slightly tighter nav rows so they fit the half-width panel cleanly */
 html.is-app .sidebar.mobile-open .nav-item { margin: 7px 12px !important; }
-
-/* ============================================================
-   REELS DASHBOARD — one graph + one card per screen, snap-scroll
-   App-only (html.is-app). TikTok/Reels-style pagination.
-   ============================================================ */
-html.is-app .reels-feed {
-  position: fixed; inset: 0; height: 100dvh;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  z-index: 1;
-  background:
-    radial-gradient(900px 600px at 0% 0%, rgba(0,201,167,.08), transparent 55%),
-    linear-gradient(180deg, #0b0b16, #08080f);
-}
-html.is-app .reels-feed::-webkit-scrollbar { display: none; }
-
-html.is-app .reels-page {
-  height: 100dvh;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  display: flex; flex-direction: column; gap: 16px;
-  box-sizing: border-box;
-  padding: 76px 16px calc(28px + env(safe-area-inset-bottom, 0px));
-}
-
-/* Graph fills remaining space (min-height:0 lets the canvas shrink) */
-html.is-app .reels-graph {
-  flex: 1 1 auto; min-height: 0; position: relative;
-  border-radius: 20px; overflow: hidden; padding: 14px;
-  background: rgba(255,255,255,.03);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-}
-html.is-app .reels-graph::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
-  background: linear-gradient(90deg, #00c9a7, #6366f1); opacity: .65;
-}
-html.is-app .reels-graph canvas { width: 100% !important; height: 100% !important; display: block; }
-
-/* Data card anchored at the bottom */
-html.is-app .reels-card {
-  flex: 0 0 auto;
-  border-radius: 20px; padding: 22px;
-  background: rgba(255,255,255,.05);
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.35);
-}
-html.is-app .reels-card-title { font-size: 16px; color: var(--text3, #94a3b8); font-weight: 600; margin: 0 0 6px; }
-html.is-app .reels-card-value { font-size: 34px; font-weight: 800; color: #fff; margin: 0 0 6px; letter-spacing: -.5px; line-height: 1.1; }
-html.is-app .reels-card-sub   { font-size: 14px; margin: 0; line-height: 1.5; }
-
-/* Keep the hamburger, theme toggle and dock above the feed */
-html.is-app .mobile-menu-btn,
-html.is-app .theme-toggle,
-html.is-app .float-dock { z-index: 60 !important; }
 html.is-app .sidebar-logo-text { font-size: 24px !important; }
 html.is-app .sidebar-user .user-name { font-size: 20px !important; font-weight: 700 !important; }
 html.is-app .sidebar-user .user-level { font-size: 14px !important; }
