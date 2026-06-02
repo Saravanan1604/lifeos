@@ -605,3 +605,39 @@ html.is-app .tx-row > span[style*="font-weight:700"],
 html.is-app .tx-row > div:last-child > span[style*="font-weight:700"] {
   font-weight: 800 !important;
 }
+
+/* ============================================================
+   DASHBOARD PhonePe-style adjustments (build 72) — app-only
+   ============================================================ */
+
+/* Notification bell — top-right, mirrors the menu button */
+#mobile-notif-btn { display: none; }
+html.is-app #mobile-notif-btn {
+  display: flex !important; align-items: center; justify-content: center;
+  position: fixed; top: 14px; right: 14px; z-index: 9001;
+  width: 52px; height: 52px; border-radius: 14px;
+  background: rgba(22,24,38,0.7); border: 1px solid rgba(255,255,255,0.1);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35); color: #fff; cursor: pointer;
+}
+html.is-app #mobile-notif-btn svg { width: 28px; height: 28px; }
+/* keep page title clear of BOTH top buttons */
+html.is-app .page-header { padding-right: 60px !important; }
+
+/* 5. Hide the duplicate green Net Worth hero in the app (Net Savings KPI covers it) */
+html.is-app .hero-card { display: none !important; }
+
+/* 9. Quick Access (bottom) → 2 columns */
+html.is-app .qa-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+
+/* 7. Financial Overview chart — taller */
+html.is-app div[style*="height:240px"] { height: 320px !important; }
+
+/* 6. Top Spending donut — pull to the left, sized nicely */
+html.is-app #dash-pie-chart > div:first-child {
+  width: 64% !important; margin: 0 auto 14px 0 !important;
+}
+
+/* 8. Dashboard Bank / Cash / Credit cards — taller & more spacious */
+html.is-app .dash-acct-grid > * { padding: 26px 20px !important; }
+html.is-app .dash-bg-grid > *   { padding: 24px 20px !important; }

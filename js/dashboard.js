@@ -210,7 +210,7 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
       ${alarm?'<p style="font-size:10px;color:#ef4444;font-weight:700;margin-top:4px;letter-spacing:.5px">ACTION NEEDED</p>':''}
     </div>`;
 
-  return [
+  const _kpi = [
     card({label:'Income', value:fmt(totalIncome),
       sub: incD?`${incD.pos?'↑':'↓'} ${Math.abs(incD.v)}% vs last month`:periodLabel(_incPeriod),
       subColor: incD?(incD.pos?'#10b981':'#ef4444'):'var(--text3)',
@@ -226,11 +226,15 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
       sparkData:spark('sav'), sparkColor:savRate<0?'#ef4444':'#00c9a7', page:'analytics',
       accent:savRate<0?'#ef4444':savRate<10?'#f59e0b':'#00c9a7',
       alarm:savRate<0, warn:savRate>=0&&savRate<10}),
-    card({label:'Habits Today', value:habits.length>0?`${doneToday}/${habits.length}`:'—',
+  ];
+  // Habits Today card — hidden in the installed app (keep Income/Expense/Savings only)
+  if (!window.__IS_APP) {
+    _kpi.push(card({label:'Habits Today', value:habits.length>0?`${doneToday}/${habits.length}`:'—',
       sub:habits.length>0?`${Math.round(doneToday/habits.length*100)}% done today`:'Add habits to track',
       subColor:habits.length>0&&doneToday===habits.length?'#10b981':'var(--text3)',
-      sparkData:null, sparkColor:'#f59e0b', page:'habits', accent:'#f59e0b', alarm:false, warn:false}),
-  ].join('');
+      sparkData:null, sparkColor:'#f59e0b', page:'habits', accent:'#f59e0b', alarm:false, warn:false}));
+  }
+  return _kpi.join('');
 }
 
 // Bank balances · credit cards · goals · budget — colorful chart overview
@@ -659,14 +663,14 @@ function renderDashboard() {
       </div>
 
       <!-- App search bar (shown in installed app only via html.is-app) -->
-      <div class="app-search" onclick="if(typeof openCommandPalette==='function')openCommandPalette()">
+      <div class="app-search" onclick="navigate('finance');setTimeout(()=>{var s=document.getElementById('fin-search-input');if(s)s.focus();},300)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span>Search transactions, pages…</span>
       </div>
 
-      ${_buildInsightBar()}
+      ${window.__IS_APP ? '' : _buildInsightBar()}
 
-      ${typeof buildSpendingPulseHTML === 'function' ? buildSpendingPulseHTML() : ''}
+      ${(!window.__IS_APP && typeof buildSpendingPulseHTML === 'function') ? buildSpendingPulseHTML() : ''}
 
       <!-- ── Quick Actions (always visible) ───────────────────────── -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px;border:1px solid rgba(0,201,167,0.2);background:linear-gradient(135deg,rgba(0,201,167,0.06),rgba(99,102,241,0.06))">
@@ -686,7 +690,6 @@ function renderDashboard() {
             {icon:'📈', title:'Add Asset',     sub:'Track investments & wealth', fn:"navigate('investments')",   c:'#8b5cf6', bg:'rgba(139,92,246,0.1)',  bc:'rgba(139,92,246,0.25)'},
             {icon:'✅', title:'Add Habit',     sub:'Build daily routines',       fn:"openAddHabitModal()",       c:'#00c9a7', bg:'rgba(0,201,167,0.1)',   bc:'rgba(0,201,167,0.25)'},
             {icon:'🎯', title:'Add Goal',      sub:'Set a savings goal',         fn:"openAddGoalModal()",        c:'#a78bfa', bg:'rgba(167,139,250,0.1)', bc:'rgba(167,139,250,0.25)'},
-            {icon:'❤️', title:'Log Health',    sub:'Track sleep, mood & steps',  fn:"navigate('health')",        c:'#f472b6', bg:'rgba(244,114,182,0.1)', bc:'rgba(244,114,182,0.25)'},
             {icon:'📝', title:'Write Journal', sub:'Record your emotions',       fn:"navigate('journal')",       c:'#60a5fa', bg:'rgba(96,165,250,0.1)',  bc:'rgba(96,165,250,0.25)'},
           ].map(a=>`
             <div onclick="${a.fn}" style="display:flex;align-items:center;gap:9px;padding:11px 12px;border-radius:12px;background:${a.bg};border:1px solid ${a.bc};cursor:pointer;transition:.2s"
