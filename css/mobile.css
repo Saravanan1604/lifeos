@@ -50,7 +50,35 @@ html.is-app .content { padding-left: 12px !important; padding-right: 12px !impor
 html.is-app .content * {
   overflow-wrap: anywhere !important;
   word-break: break-word !important;
-  line-height: 1.15 !important;
+}
+
+/* ── DOUBLE ELEMENT HEIGHT — taller rows, cards, buttons, inputs ── */
+/* Roughly 2x the vertical space of each element */
+html.is-app .content * { line-height: 2 !important; }
+
+/* Cards: double the vertical padding */
+html.is-app .glass-card { padding-top: 40px !important; padding-bottom: 40px !important; }
+
+/* Buttons: twice as tall */
+html.is-app button,
+html.is-app .btn-primary, html.is-app .btn-secondary,
+html.is-app .btn-sm, html.is-app .btn-icon {
+  padding-top: 20px !important; padding-bottom: 20px !important; line-height: 1.2 !important;
+}
+
+/* Inputs / selects: twice as tall */
+html.is-app .form-input,
+html.is-app input, html.is-app select, html.is-app textarea {
+  padding-top: 18px !important; padding-bottom: 18px !important; min-height: 64px !important;
+}
+
+/* Period tabs (Day/Week/Month/Year/All): taller */
+html.is-app .period-tab { padding-top: 16px !important; padding-bottom: 16px !important; }
+
+/* Transaction / list rows: double the vertical padding */
+html.is-app .tx-row, html.is-app .list-row,
+html.is-app [class*="tx-item"], html.is-app [class*="list-item"] {
+  padding-top: 22px !important; padding-bottom: 22px !important;
 }
 
 /* ============================================================
