@@ -432,7 +432,7 @@ function _toggleSidebarBackdrop(show) {
     if (!bd) {
       bd = document.createElement('div');
       bd.id = 'sidebar-backdrop';
-      bd.style.cssText = 'position:fixed;inset:0;z-index:998;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px)';
+      bd.style.cssText = 'position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px)';
       bd.onclick = () => _closeMobileDrawer();
       // Insert in the SAME parent as the sidebar and BEFORE it, so the sidebar
       // (later sibling, higher z-index) reliably stacks above the backdrop and

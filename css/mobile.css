@@ -1027,3 +1027,55 @@ html.is-app .liab-cat-grid span[style*="width:40px"] {
 /* #6 Add Asset / Add Liability (and other page pills) — fill the width */
 html.is-app #page-quick-actions { flex-wrap: nowrap !important; }
 html.is-app #page-quick-actions button { flex: 1 1 0 !important; justify-content: center !important; }
+
+/* ============================================================
+   build 84 — toolbar tighter/bigger, bottom 1.5x, calc lock,
+   big toasts, smoothness + launch animation
+   ============================================================ */
+
+/* #1 Top toolbar — minimal gaps, as large as fits one row */
+html.is-app #top-tools {
+  left: auto !important; right: 8px !important;
+  justify-content: flex-end !important; gap: 4px !important;
+}
+html.is-app #top-tools button { width: 50px !important; height: 50px !important; }
+html.is-app #top-tools button svg { width: 30px !important; height: 30px !important; }
+
+/* #2 Bottom nav — 1.5x bigger */
+html.is-app #bottom-nav .bn-item svg { width: 60px !important; height: 60px !important; }
+html.is-app #bottom-nav .bn-item span { font-size: 26px !important; }
+html.is-app #bottom-nav { padding: 28px 6px calc(28px + env(safe-area-inset-bottom,0px)) !important; }
+html.is-app #fab-add { width: 104px !important; height: 104px !important; bottom: calc(50px + env(safe-area-inset-bottom,0px)) !important; }
+html.is-app #fab-add svg { width: 54px !important; height: 54px !important; }
+html.is-app .content { padding-bottom: 200px !important; }
+
+/* #3 Calculator open → lock the background so it doesn't scroll */
+body.calc-open { overflow: hidden !important; }
+html.is-app body.calc-open .content { overflow: hidden !important; touch-action: none !important; }
+
+/* #6 Smoothness — gentle transitions + tap feedback + smooth scroll */
+html.is-app { scroll-behavior: smooth; }
+html.is-app .glass-card, html.is-app .fin-dark-card,
+html.is-app button, html.is-app .nav-item, html.is-app .bn-item,
+html.is-app .tx-row, html.is-app .stat-card {
+  transition: transform .16s ease, background .2s ease, box-shadow .2s ease, opacity .2s ease !important;
+}
+html.is-app button:active, html.is-app .bn-item:active,
+html.is-app .nav-item:active, html.is-app .tx-row:active { transform: scale(.96) !important; }
+html.is-app #fab-add:active { transform: translateX(-50%) scale(.92) !important; }
+
+/* #7 App launch animation */
+@keyframes lifeAppIn { from { opacity: 0; transform: translateY(14px) scale(.99); } to { opacity: 1; transform: none; } }
+html.is-app #main-app { animation: lifeAppIn .5s cubic-bezier(.4,0,.2,1) both; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+html.is-app #page-container .fade-in { animation: pageIn .32s ease both; }
+
+/* #8 Voice / toast response text — much bigger */
+html.is-app .toast {
+  font-size: 30px !important;
+  padding: 22px 26px !important;
+  border-radius: 18px !important;
+  max-width: 92vw !important;
+  gap: 12px !important;
+}
+html.is-app .toast span { font-size: 30px !important; }

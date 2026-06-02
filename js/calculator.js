@@ -50,10 +50,12 @@ function toggleCalculator() {
       });
     });
 
+    document.body.classList.add('calc-open');   // lock background scroll
   } else {
     win.style.opacity   = '0';
     win.style.transform = 'translateY(20px) scale(0.95)';
     win.style.pointerEvents = 'none';
+    document.body.classList.remove('calc-open');
     setTimeout(() => { if (!calcOpen) win.style.display = 'none'; }, 280);
   }
 }
