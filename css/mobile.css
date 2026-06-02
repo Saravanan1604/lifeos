@@ -5,26 +5,31 @@
    No layout, card, spacing, or scaling changes.
    ============================================================ */
 
-/* Headings larger & clearer */
-html.is-app .page-title    { font-size: 30px !important; }
-html.is-app .page-subtitle { font-size: 16px !important; }
-html.is-app .section-title { font-size: 21px !important; }
+/* Headings ~2x larger & clearer */
+html.is-app .page-title    { font-size: 42px !important; }
+html.is-app .page-subtitle { font-size: 22px !important; }
+html.is-app .section-title { font-size: 30px !important; }
 
-/* Bump the many hard-coded tiny inline font sizes for readability */
-html.is-app [style*="font-size:9px"]  { font-size: 15px !important; }
-html.is-app [style*="font-size:10px"] { font-size: 16px !important; }
-html.is-app [style*="font-size:11px"] { font-size: 17px !important; }
-html.is-app [style*="font-size:12px"] { font-size: 17px !important; }
-html.is-app [style*="font-size:13px"] { font-size: 18px !important; }
-html.is-app [style*="font-size:14px"] { font-size: 18px !important; }
-html.is-app [style*="font-size:15px"] { font-size: 19px !important; }
+/* ~200% of the original hard-coded inline font sizes for readability */
+html.is-app [style*="font-size:9px"]  { font-size: 18px !important; }
+html.is-app [style*="font-size:10px"] { font-size: 20px !important; }
+html.is-app [style*="font-size:11px"] { font-size: 22px !important; }
+html.is-app [style*="font-size:12px"] { font-size: 23px !important; }
+html.is-app [style*="font-size:13px"] { font-size: 25px !important; }
+html.is-app [style*="font-size:14px"] { font-size: 26px !important; }
+html.is-app [style*="font-size:15px"] { font-size: 28px !important; }
+html.is-app [style*="font-size:16px"] { font-size: 30px !important; }
+html.is-app [style*="font-size:18px"] { font-size: 32px !important; }
 
-/* Base body text up a notch too */
-html.is-app .content { font-size: 17px !important; }
+/* Base body + common value classes scaled up too */
+html.is-app .content        { font-size: 21px !important; }
+html.is-app .stat-card-value,
+html.is-app .hero-value     { font-size: 44px !important; }
+html.is-app .stat-card-label { font-size: 18px !important; }
 
 /* Form controls: 16px stops the focus-zoom jump on mobile */
 html.is-app .form-input,
-html.is-app input, html.is-app select, html.is-app textarea { font-size: 16px !important; }
+html.is-app input, html.is-app select, html.is-app textarea { font-size: 20px !important; }
 
 /* ============================================================
    MENU — clean settings-style list (icon · label · chevron)
