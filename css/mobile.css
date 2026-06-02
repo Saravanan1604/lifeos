@@ -253,6 +253,44 @@ html.is-app .fin-hero-stats {
   grid-template-columns: 1fr 1fr 1fr !important;
   gap: 14px !important;
 }
-/* Any inline period/Lifetime chip drops onto its own line, no overlap */
+/* Hide the faint inline period/Lifetime chip under the amounts — keeps the
+   net-worth hero clean and premium (the period tabs already show the range) */
 html.is-app .fin-hero-stats [id^="fin-"] > span,
-html.is-app .fin-hero-stats [id^="fin-"] .period-chip { display: block !important; margin: 4px 0 0 0 !important; }
+html.is-app .fin-hero-stats [id^="fin-"] .period-chip { display: none !important; }
+
+/* ============================================================
+   PREMIUM CARD POLISH (Finance + everywhere) — app-only
+   Rounded, layered cards with glassy action buttons.
+   ============================================================ */
+
+/* Account / card tiles: deeper rounding, padding, soft shadow */
+html.is-app .fin-dark-card {
+  border-radius: 22px !important;
+  padding: 22px !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.38) !important;
+}
+
+/* Action buttons (↑Bal · Edit · ✕) → clean frosted pills, evenly spaced */
+html.is-app .fin-dark-card button {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  padding: 9px 14px !important;
+  border-radius: 12px !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+  line-height: 1 !important;
+}
+/* Keep the button row tidy and clear of the corner decoration */
+html.is-app .fin-dark-card > div:first-child { gap: 10px !important; margin-bottom: 4px !important; }
+
+/* Big card balance value reads as the hero number of each tile */
+html.is-app .fin-dark-card p[style*="font-weight:900"] { letter-spacing: -0.5px !important; }
+
+/* Premium glass cards: a touch more rounding + breathing room */
+html.is-app .glass-card { border-radius: 22px !important; }
+
+/* Summary totals (Total Bank Balance / Outstanding / Cash) — pill feel */
+html.is-app .glass-card > div[style*="border-radius:12px"] {
+  border-radius: 16px !important;
+  padding: 16px 18px !important;
+}
