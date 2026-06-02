@@ -596,7 +596,96 @@ function renderDashBudgetChart() {
 }
 
 // ===== DASHBOARD =====
+// ===== MOBILE REELS DASHBOARD (installed app only) =====
+// One graph + one data card per full-height page, snap-scroll like Reels.
+// Desktop/web keeps the normal renderDashboard below.
+function renderMobileReels() {
+  const tx = STATE.transactions || [];
+  const sym = (STATE.settings && STATE.settings.currency) || '₹';
+  const now = new Date();
+
+  // Last 12 months buckets
+  const months = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: d.toLocaleString('en', { month: 'short' }) });
+  }
+  const inc = {}, exp = {};
+  months.forEach(m => { inc[m.key] = 0; exp[m.key] = 0; });
+  tx.forEach(t => { const k = (t.date || '').slice(0, 7); if (k in inc) { if (t.type === 'income') inc[k] += t.amount || 0; else exp[k] += t.amount || 0; } });
+  const labels = months.map(m => m.label);
+  const incomeArr = months.map(m => inc[m.key]);
+  const expenseArr = months.map(m => exp[m.key]);
+  const savingsArr = months.map((m, i) => incomeArr[i] - expenseArr[i]);
+  let run = 0; const netArr = savingsArr.map(s => (run += s));
+
+  const curKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const curInc = inc[curKey] || 0, curExp = exp[curKey] || 0, curSav = curInc - curExp;
+  const savingsRate = curInc > 0 ? Math.round((curSav / curInc) * 100) : 0;
+
+  const banks = STATE.bankAccounts || [], cash = STATE.cashAccounts || [], cards = STATE.creditCards || [];
+  const hasAccts = banks.length + cash.length + cards.length > 0;
+  const netWorth = hasAccts
+    ? banks.reduce((s, b) => s + (b.balance || 0), 0) + cash.reduce((s, c) => s + (c.balance || 0), 0) - cards.reduce((s, c) => s + (c.outstanding || 0), 0)
+    : curInc - curExp;
+
+  const catMap = {};
+  tx.forEach(t => { if (t.type === 'expense' && (t.date || '').slice(0, 7) === curKey) catMap[t.category || 'Other'] = (catMap[t.category || 'Other'] || 0) + (t.amount || 0); });
+  const catEntries = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const catTotal = catEntries.reduce((s, c) => s + c[1], 0);
+  const PIE = ['#00c9a7', '#6366f1', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
+
+  const money = n => `${sym}${Math.round(n).toLocaleString('en-IN')}`;
+  const pageHtml = (id, title, value, sub, subColor) => `
+    <section class="reels-page">
+      <div class="reels-graph"><canvas id="${id}"></canvas></div>
+      <div class="reels-card">
+        <p class="reels-card-title">${title}</p>
+        <p class="reels-card-value">${value}</p>
+        <p class="reels-card-sub" style="color:${subColor || 'var(--text3)'}">${sub}</p>
+      </div>
+    </section>`;
+
+  document.getElementById('page-container').innerHTML = `
+    <div class="reels-feed">
+      ${pageHtml('reel-net', '💰 Net Worth', money(netWorth), 'Banks + Cash − Cards · last 12 months', '#00c9a7')}
+      ${pageHtml('reel-ie', '📊 Income vs Expense', `${money(curInc)} in · ${money(curExp)} out`, 'This month', curSav >= 0 ? '#10b981' : '#ef4444')}
+      ${pageHtml('reel-sav', '🐷 Savings', money(curSav), `${savingsRate}% savings rate this month`, savingsRate >= 0 ? '#10b981' : '#ef4444')}
+      <section class="reels-page">
+        <div class="reels-graph"><canvas id="reel-cat"></canvas></div>
+        <div class="reels-card">
+          <p class="reels-card-title">🍔 Top Spending</p>
+          <p class="reels-card-value">${money(catTotal)}</p>
+          <p class="reels-card-sub">${catEntries.length ? catEntries.map((c, i) => `<span style="color:${PIE[i % PIE.length]}">●</span> ${c[0]}`).slice(0, 3).join(' &nbsp; ') : 'No expenses this month'}</p>
+        </div>
+      </section>
+    </div>`;
+
+  if (typeof Chart === 'undefined') return;
+  const gridC = 'rgba(255,255,255,0.05)', tickC = '#94a3b8';
+  const baseOpts = (fmtY) => ({ responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + money(c.parsed.y ?? c.parsed) } } },
+    scales: { x: { ticks: { color: tickC, font: { size: 11 } }, grid: { display: false } },
+              y: { ticks: { color: tickC, callback: v => (fmtY ? fmtY(v) : v) }, grid: { color: gridC } } } });
+  const kfmt = v => sym + (Math.abs(v) >= 1000 ? (v / 1000).toFixed(0) + 'k' : v);
+
+  const grad = (ctx, c1, c2) => { const g = ctx.createLinearGradient(0, 0, 0, 260); g.addColorStop(0, c1); g.addColorStop(1, c2); return g; };
+  const mk = (id, cfg) => { const el = document.getElementById(id); if (el) chartInstances[id] = new Chart(el.getContext('2d'), cfg); };
+
+  mk('reel-net', { type: 'line', data: { labels, datasets: [{ data: netArr, borderColor: '#00c9a7', borderWidth: 3, tension: .4, fill: true,
+      backgroundColor: ctx => grad(ctx.chart.ctx, 'rgba(0,201,167,.35)', 'rgba(0,201,167,0)'), pointRadius: 0 }] }, options: baseOpts(kfmt) });
+  mk('reel-ie', { type: 'bar', data: { labels, datasets: [
+      { label: 'Income', data: incomeArr, backgroundColor: 'rgba(16,185,129,.8)', borderRadius: 5 },
+      { label: 'Expense', data: expenseArr, backgroundColor: 'rgba(239,68,68,.8)', borderRadius: 5 }] }, options: baseOpts(kfmt) });
+  mk('reel-sav', { type: 'line', data: { labels, datasets: [{ data: savingsArr, borderColor: '#6366f1', borderWidth: 3, tension: .4, fill: true,
+      backgroundColor: ctx => grad(ctx.chart.ctx, 'rgba(99,102,241,.35)', 'rgba(99,102,241,0)'), pointRadius: 0 }] }, options: baseOpts(kfmt) });
+  mk('reel-cat', { type: 'doughnut', data: { labels: catEntries.map(c => c[0]), datasets: [{ data: catEntries.map(c => c[1]), backgroundColor: PIE, borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '64%', plugins: { legend: { position: 'bottom', labels: { color: tickC, font: { size: 12 }, padding: 12 } }, tooltip: { callbacks: { label: c => ' ' + c.label + ': ' + money(c.parsed) } } } } });
+}
+
 function renderDashboard() {
+  // Installed app → Reels-style one-screen-per-graph dashboard
+  if (window.__IS_APP) { try { return renderMobileReels(); } catch (e) { /* fall through to standard */ } }
   try {
   const scores = calcLifeScore();
   const txnsAll = STATE.transactions || [];
