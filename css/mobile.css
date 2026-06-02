@@ -173,3 +173,27 @@ html.is-app [class*="hero"][class*="networth"] {
   min-height: auto !important;
 }
 html.is-app .hero-value { font-size: 40px !important; }
+
+/* Financial Overview: chart | Top Spending → stack to single column.
+   Chart fits full screen width, Top Spending ring drops below it. */
+html.is-app .fin-overview-grid {
+  grid-template-columns: 1fr !important;
+  gap: 18px !important;
+}
+/* Give Top Spending its own card look when it drops below */
+html.is-app .fin-overview-grid > div:last-child {
+  border-top: 1px solid var(--glass-border);
+  padding-top: 16px !important;
+}
+
+/* Bank Balances · Cash Wallets · Credit Cards → one full-width card each */
+html.is-app .dash-acct-grid {
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+}
+
+/* Budget + Goals → Goals drops below Budget (one full-width card each) */
+html.is-app .dash-bg-grid {
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+}
