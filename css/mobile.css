@@ -23,8 +23,7 @@ html.is-app [style*="font-size:18px"] { font-size: 32px !important; }
 
 /* Base body + common value classes scaled up too */
 html.is-app .content        { font-size: 21px !important; }
-html.is-app .stat-card-value,
-html.is-app .hero-value     { font-size: 44px !important; }
+html.is-app .stat-card-value { font-size: 44px !important; }
 html.is-app .stat-card-label { font-size: 18px !important; }
 
 /* Form controls: 16px stops the focus-zoom jump on mobile */
@@ -181,7 +180,19 @@ html.is-app .hero-networth,
 html.is-app [class*="hero"][class*="networth"] {
   min-height: auto !important;
 }
-html.is-app .hero-value { font-size: 40px !important; }
+/* Net Worth hero card — fill the empty space with bigger text */
+html.is-app .hero-card   { padding: 24px 22px !important; }
+html.is-app .hero-label  { font-size: 18px !important; letter-spacing: 1px !important; }
+html.is-app .hero-value  { font-size: 56px !important; line-height: 1.05 !important; margin: 6px 0 18px !important; }
+/* Spread the 3 mini chips full-width across the card */
+html.is-app .hero-sub {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 12px !important;
+}
+html.is-app .hero-sub-item { padding: 14px 12px !important; }
+html.is-app .hero-sub-item label { font-size: 16px !important; display: block; margin-bottom: 4px; }
+html.is-app .hero-sub-item span  { font-size: 22px !important; }
 
 /* Financial Overview: chart | Top Spending → stack to single column.
    Chart fits full screen width, Top Spending ring drops below it. */
