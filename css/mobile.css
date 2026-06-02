@@ -21,3 +21,67 @@ html.is-app [style*="font-size:14px"] { font-size: 16px !important; }
 /* Form controls: 16px stops the focus-zoom jump on mobile */
 html.is-app .form-input,
 html.is-app input, html.is-app select, html.is-app textarea { font-size: 16px !important; }
+
+/* ============================================================
+   MENU — clean settings-style list (icon · label · chevron)
+   Styled like a modern app's menu. App-only (html.is-app).
+   ============================================================ */
+
+/* Section labels (OVERVIEW / FINANCE / LIFE / GROWTH) */
+html.is-app .nav-group-label {
+  font-size: 12px !important;
+  letter-spacing: 1.2px !important;
+  text-transform: uppercase !important;
+  opacity: .5 !important;
+  padding: 16px 18px 6px !important;
+  margin: 0 !important;
+}
+
+/* Each nav row: full-width, comfortable touch height, rounded, chevron at end */
+html.is-app .nav-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: auto !important;
+  margin: 4px 10px !important;
+  padding: 14px 16px !important;
+  min-height: 54px !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.035) !important;
+  border: 1px solid rgba(255,255,255,.05) !important;
+  position: relative !important;
+  transition: background .15s ease, transform .12s ease !important;
+}
+html.is-app .nav-item:active { transform: scale(.98) !important; }
+
+/* Icon — a touch bigger and tinted */
+html.is-app .nav-item .nav-icon { flex-shrink: 0 !important; opacity: .9 !important; }
+html.is-app .nav-item .nav-icon svg { width: 21px !important; height: 21px !important; }
+
+/* Label */
+html.is-app .nav-item .nav-text {
+  flex: 1 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+/* Chevron at the end (like a settings list) */
+html.is-app .nav-item::after {
+  content: '›';
+  margin-left: auto;
+  font-size: 24px;
+  line-height: 1;
+  opacity: .35;
+  font-weight: 400;
+}
+
+/* Active row highlight */
+html.is-app .nav-item.active {
+  background: linear-gradient(135deg, rgba(0,201,167,.16), rgba(99,102,241,.12)) !important;
+  border-color: rgba(0,201,167,.3) !important;
+}
+html.is-app .nav-item.active .nav-text { color: #00c9a7 !important; }
+html.is-app .nav-item.active::after { opacity: .6; color: #00c9a7; }
+
+/* A little breathing room around the nav list */
+html.is-app .sidebar-nav { padding: 4px 0 12px !important; }
