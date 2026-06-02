@@ -34,6 +34,12 @@
     window.__IS_APP = isApp;
     if (isApp) {
       document.documentElement.classList.add('is-app');   // hides ads + enlarges layout
+      // Some app webviews ignore width=device-width and render at ~980px,
+      // shrinking everything. Force a narrow viewport so the UI renders large.
+      try {
+        var vp = document.querySelector('meta[name="viewport"]');
+        if (vp) vp.setAttribute('content', 'width=460, initial-scale=1, viewport-fit=cover');
+      } catch (e) {}
     } else {
       var s = document.createElement('script');
       s.async = true; s.crossOrigin = 'anonymous';
@@ -74,9 +80,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=23" />
-  <link rel="stylesheet" href="css/calc.css?v=23" />
-  <link rel="stylesheet" href="css/premium.css?v=23" />
+  <link rel="stylesheet" href="css/styles.css?v=24" />
+  <link rel="stylesheet" href="css/calc.css?v=24" />
+  <link rel="stylesheet" href="css/premium.css?v=24" />
 </head>
 <body>
 
@@ -448,23 +454,23 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=23"></script>
-<script src="js/core.js?v=23"></script>
-<script src="js/dashboard.js?v=23"></script>
-<script src="js/finance.js?v=23"></script>
-<script src="js/bank-tracker.js?v=23"></script>
-<script src="js/life.js?v=23"></script>
-<script src="js/growth.js?v=23"></script>
-<script src="js/ai.js?v=23"></script>
-<script src="js/calculator.js?v=23"></script>
-<script src="js/features.js?v=23"></script>
-<script src="js/premium.js?v=23"></script>
-<script src="js/categories.js?v=23"></script>
-<script src="js/compare.js?v=23"></script>
-<script src="js/pages.js?v=23"></script>
-<script src="js/help.js?v=23"></script>
-<script src="js/voice.js?v=23"></script>
-<script src="js/init.js?v=23"></script>
+<script src="js/storage.js?v=24"></script>
+<script src="js/core.js?v=24"></script>
+<script src="js/dashboard.js?v=24"></script>
+<script src="js/finance.js?v=24"></script>
+<script src="js/bank-tracker.js?v=24"></script>
+<script src="js/life.js?v=24"></script>
+<script src="js/growth.js?v=24"></script>
+<script src="js/ai.js?v=24"></script>
+<script src="js/calculator.js?v=24"></script>
+<script src="js/features.js?v=24"></script>
+<script src="js/premium.js?v=24"></script>
+<script src="js/categories.js?v=24"></script>
+<script src="js/compare.js?v=24"></script>
+<script src="js/pages.js?v=24"></script>
+<script src="js/help.js?v=24"></script>
+<script src="js/voice.js?v=24"></script>
+<script src="js/init.js?v=24"></script>
 
 <style>
   /* Voice mic listening pulse */
