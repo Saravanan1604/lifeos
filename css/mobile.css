@@ -440,5 +440,33 @@ html.is-app span[style*="color:#f59e0b"][style*="font-size:20px"] { font-size: 7
 /* ---------- 💰 NET WORTH HERO (top of Finance) ---------- */
 html.is-app #fin-balance { font-size: 70px !important; }                                                          /* net worth value */
 html.is-app #fin-rate { font-size: 40px !important; }                                                             /* savings-rate pill */
-html.is-app .fin-hero-stats p[style*="font-size:10px"] { font-size: 40px !important; }                            /* Income/Exp/Savings labels */
-html.is-app #fin-income, html.is-app #fin-expense, html.is-app #fin-savings { font-size: 70px !important; }       /* Income/Exp/Savings values */
+/* FIX 1 — Net Worth summary: 3 equal columns, no collision, no floating +/-.
+   Values sized to fit 3-across and truncate with … if ever too long. */
+html.is-app .fin-hero-stats { gap: 8px !important; align-items: flex-start !important; }
+html.is-app .fin-hero-stats > div { min-width: 0 !important; }                                                    /* CRITICAL: lets columns shrink */
+html.is-app .fin-hero-stats p[style*="font-size:10px"] {
+  font-size: 22px !important;
+  white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+}
+html.is-app .fin-hero-stats #fin-income,
+html.is-app .fin-hero-stats #fin-expense,
+html.is-app .fin-hero-stats #fin-savings {
+  font-size: 28px !important;
+  white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+}
+
+/* FIX 2 — Chart.js doughnut CENTER label: keep it inside the ring.
+   Targets the absolute pointer-events:none overlay used by every donut. */
+html.is-app [style*="pointer-events:none"][style*="inset:0"] span:first-child { font-size: 13px !important; }      /* TOTAL caption */
+html.is-app [style*="pointer-events:none"][style*="inset:0"] span:nth-child(2) {
+  font-size: 24px !important; max-width: 82% !important;
+  white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+}
+
+/* FIX 3 — Top Spending list: stop the amount + % from squishing together. */
+html.is-app #dash-pie-chart > div:last-child > div { gap: 12px !important; }                                       /* row spacing */
+html.is-app #dash-pie-chart > div:last-child > div > span { font-size: 22px !important; }                          /* icon/name/amount */
+html.is-app #dash-pie-chart > div:last-child > div > span:last-child {
+  font-size: 18px !important; min-width: 50px !important; text-align: right !important;
+  margin-left: 4px !important; color: var(--text3) !important;
+}
