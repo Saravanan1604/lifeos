@@ -263,10 +263,21 @@ html.is-app .fin-hero-stats [id^="fin-"] .period-chip { display: none !important
    Rounded, layered cards with glassy action buttons.
    ============================================================ */
 
-/* Account / card tiles: deeper rounding, padding, soft shadow */
+/* FIX 1 — stop the floating theme (moon/sun) button colliding with the
+   "+ Add Bank/Card/Cash" buttons in section headers. Move it to the
+   bottom-right, clear of all top-right header actions. App-only. */
+html.is-app .theme-toggle {
+  top: auto !important;
+  bottom: 92px !important;
+  right: 16px !important;
+  z-index: 600 !important;
+}
+
+/* Account / card tiles: deeper rounding, soft shadow, and TIGHTER vertical
+   padding so cards aren't overly tall (FIX 2 — reclaim vertical space) */
 html.is-app .fin-dark-card {
   border-radius: 22px !important;
-  padding: 22px !important;
+  padding: 16px 22px !important;
   box-shadow: 0 14px 34px rgba(0,0,0,0.38) !important;
 }
 
@@ -289,17 +300,17 @@ html.is-app .fin-dark-card p[style*="font-weight:900"] {
   font-size: 46px !important;
   letter-spacing: -0.5px !important;
   margin-left: 8px !important;
-  margin-top: 6px !important;
+  margin-top: 2px !important;
 }
 /* Bank / card name label a bit bigger and aligned with the value */
 html.is-app .fin-dark-card p[style*="letter-spacing:1.5px"] {
   font-size: 20px !important;
-  margin-left: 8px !important;
+  margin: 6px 0 0 8px !important;
 }
-/* Sub row (type + last-4) nudged in to match */
+/* Sub row (type + last-4) — keep it tight to the value, nudged in to match */
 html.is-app .fin-dark-card > div[style*="justify-content:space-between"]:last-child {
   margin-left: 8px !important;
-  margin-top: 12px !important;
+  margin-top: 8px !important;
 }
 
 /* Premium glass cards: a touch more rounding + breathing room */
