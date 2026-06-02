@@ -329,3 +329,38 @@ html.is-app .glass-card > div[style*="border-radius:12px"] {
   border-radius: 16px !important;
   padding: 16px 18px !important;
 }
+
+/* ============================================================
+   ⭐ USER CUSTOM CARD SIZES  (edit these numbers freely)
+   Scoped per card type so other pages are NOT affected.
+   ============================================================ */
+
+/* ---------- 🏦 BANK CARDS ---------- */
+html.is-app .fin-bank-grid .fin-dark-card { padding-top: 70px !important; padding-bottom: 70px !important; }   /* card height */
+html.is-app .fin-bank-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 60px !important; }          /* bank icon */
+html.is-app .fin-bank-grid .fin-dark-card p[style*="letter-spacing:1.5px"] { font-size: 40px !important; }       /* bank name */
+html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 75px !important; }            /* balance value */
+html.is-app .fin-bank-grid .fin-dark-card button { font-size: 44px !important; }                                 /* action buttons */
+html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 40px !important; }          /* type + ••••0330 */
+html.is-app span[style*="color:var(--teal)"][style*="font-size:20px"] { font-size: 70px !important; }            /* Total Bank Balance */
+
+/* ---------- 💳 CREDIT CARDS ---------- */
+html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:2px"] { font-size: 60px !important; }       /* network (RUPAY/AMEX) */
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:14px"] { font-size: 52px !important; }           /* bank name */
+html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:3px"] { font-size: 52px !important; }       /* •••• 6007 */
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:11px"] { font-size: 49px !important; }           /* Outstanding/Limit labels */
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:16px"] { font-size: 60px !important; }           /* Outstanding value */
+html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:13px"] { font-size: 50px !important; }          /* Limit value */
+html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:10px"] { font-size: 45px !important; }          /* % utilised / Due */
+html.is-app span[style*="color:#ef4444"][style*="font-size:20px"] { font-size: 70px !important; }                /* Total Outstanding */
+
+/* ---------- 💵 CASH CARDS ---------- */
+html.is-app .fin-cash-grid .fin-dark-card p[style*="font-size:13px"] { font-size: 60px !important; }             /* wallet name */
+html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 90px !important; }            /* balance value */
+html.is-app span[style*="color:#f59e0b"][style*="font-size:20px"] { font-size: 95px !important; }                /* Total Cash */
+
+/* ---------- 💰 NET WORTH HERO (top of Finance) ---------- */
+html.is-app #fin-balance { font-size: 100px !important; }                                                         /* net worth value */
+html.is-app #fin-rate { font-size: 40px !important; }                                                             /* savings-rate pill */
+html.is-app .fin-hero-stats p[style*="font-size:10px"] { font-size: 40px !important; }                            /* Income/Exp/Savings labels */
+html.is-app #fin-income, html.is-app #fin-expense, html.is-app #fin-savings { font-size: 70px !important; }       /* Income/Exp/Savings values */
