@@ -563,13 +563,13 @@ function renderFinanceTxList() {
        <span style="font-size:12px;color:var(--text3);user-select:none">Select All &nbsp;<span id="sel-count-label"></span></span>
      </div>` +
     txns.map(tx => `
-    <div id="txrow-${tx.id}" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s"
+    <div id="txrow-${tx.id}" class="tx-row" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s"
          onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="if(!document.getElementById('chk-${tx.id}')?.checked)this.style.background=''">
       <div style="display:flex;align-items:center;gap:12px">
         <input type="checkbox" id="chk-${tx.id}" data-txid="${tx.id}" class="fin-tx-chk"
           onchange="onTxCheckChange()"
           style="width:16px;height:16px;accent-color:#00c9a7;cursor:pointer;flex-shrink:0"/>
-        <div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${tx.type === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'};font-size:18px">${tx.icon || '💳'}</div>
+        <div class="tx-ic" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${tx.type === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'};font-size:18px">${tx.icon || '💳'}</div>
         <div>
           <p style="font-size:13px;font-weight:600">${tx.description || tx.category}</p>
           <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}${tx.source ? ' · <span style="color:#f59e0b">' + _sourceLabel(tx.source) + '</span>' : ''}</p>

@@ -592,3 +592,16 @@ html.is-app #bn-indicator {
   opacity: 0;
   pointer-events: none;
 }
+
+/* ---- PhonePe-style transaction rows (app-only) ---- */
+html.is-app .tx-ic {
+  border-radius: 50% !important;      /* circular icon like PhonePe */
+  width: 56px !important; height: 56px !important;
+  font-size: 26px !important; flex-shrink: 0 !important;
+}
+html.is-app .tx-row { padding-left: 18px !important; padding-right: 18px !important; }
+/* amount sits bold on the right */
+html.is-app .tx-row > span[style*="font-weight:700"],
+html.is-app .tx-row > div:last-child > span[style*="font-weight:700"] {
+  font-weight: 800 !important;
+}
