@@ -1,3 +1,13 @@
+// ===== HAPTICS — subtle vibration on taps (installed app) =====
+(function initHaptics() {
+  if (!('vibrate' in navigator)) return;
+  document.addEventListener('click', (e) => {
+    if (!document.documentElement.classList.contains('is-app')) return;
+    const el = e.target.closest('button, .bn-item, #fab-add, .nav-item, .period-tab, .welcome-grid > div, .qa-grid > div, .tx-row, .fin-dark-card');
+    if (el) navigator.vibrate(10);
+  }, true);
+})();
+
 // ===== APP INIT =====
 window.addEventListener('DOMContentLoaded', () => {
   initParticles();

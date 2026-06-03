@@ -1065,11 +1065,10 @@ html.is-app .nav-item:active, html.is-app .tx-row:active { transform: scale(.96)
 html.is-app #fab-add:active { transform: translateX(-50%) scale(.92) !important; }
 
 /* #7 App launch animation */
-@keyframes lifeAppIn { from { opacity: 0; transform: translateY(14px) scale(.99); } to { opacity: 1; transform: none; } }
-/* NOTE: do NOT animate/transform #main-app — it contains the fixed top/bottom
-   bars and a transformed ancestor breaks position:fixed (bars drop to page
-   bottom). Animate only the scrolling content instead. */
-html.is-app #content { animation: lifeAppIn .45s cubic-bezier(.4,0,.2,1) both; }
+/* NOTE: NEVER put transform/animation on #main-app OR #content — both are
+   ancestors/containers of the fixed top + bottom bars, and a transformed
+   ancestor breaks position:fixed (bars only show at scroll extremes).
+   Launch animation lives on the per-page wrapper only (pageIn below). */
 @keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 html.is-app #page-container .fade-in { animation: pageIn .32s ease both; }
 
@@ -1152,3 +1151,34 @@ html.is-app #bottom-nav .bn-item svg {
 html.is-app #bottom-nav .bn-item span { font-size: 22px !important; font-weight: 600 !important; }
 /* even vertical rhythm + tap target */
 html.is-app #bottom-nav .bn-item { gap: 6px !important; padding: 4px 2px !important; }
+
+/* ============================================================
+   build 91 — App Lock screen (PIN keypad)  [not scoped — works everywhere]
+   ============================================================ */
+#app-lock {
+  position: fixed; inset: 0; z-index: 2147483646;
+  display: none; align-items: center; justify-content: center;
+  background: #0a0a1e;
+}
+body.light #app-lock { background: #f4f6fb; }
+#app-lock-card { width: min(360px, 86vw); text-align: center; padding: 24px; }
+#app-lock-card.shake { animation: lockShake .4s; }
+@keyframes lockShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-10px)} 40%,80%{transform:translateX(10px)} }
+#app-lock .lock-emoji { font-size: 54px; margin-bottom: 10px; }
+#app-lock h2 { color: var(--text, #f1f5f9); font-size: 24px; margin-bottom: 22px; font-weight: 700; }
+#app-lock .lock-dots { display: flex; gap: 18px; justify-content: center; margin-bottom: 34px; }
+#app-lock .lock-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(0,201,167,.6); transition: .15s; }
+#app-lock .lock-dot.filled { background: #00c9a7; border-color: #00c9a7; box-shadow: 0 0 12px rgba(0,201,167,.6); }
+#app-lock .lock-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+#app-lock .lock-pad button {
+  height: 76px; border-radius: 50%; font-size: 30px; font-weight: 600;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  color: var(--text, #f1f5f9); cursor: pointer; transition: transform .1s, background .15s;
+}
+body.light #app-lock .lock-pad button { background: rgba(15,23,42,.05); border-color: rgba(15,23,42,.1); }
+#app-lock .lock-pad button:active { transform: scale(.92); background: rgba(0,201,167,.18); }
+#app-lock .lock-pad .lock-cancel { color: #ef4444; }
+
+/* bigger keypad in the installed app */
+html.is-app #app-lock .lock-pad button { height: 92px; font-size: 36px; }
+html.is-app #app-lock h2 { font-size: 30px; }

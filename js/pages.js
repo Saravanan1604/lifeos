@@ -340,6 +340,16 @@ function renderSettings() {
       <div class="page-header"><h1 class="page-title">⚙️ Settings</h1><p class="page-subtitle">Manage your LifeOS preferences</p></div>
       <div style="display:flex;flex-direction:column;gap:16px;max-width:500px">
         <div class="glass-card" style="padding:22px">
+          <p class="section-title" style="margin-bottom:12px">🔒 App Lock</p>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Require a 4-digit PIN to open LifeOS.</p>
+          ${(typeof appLockEnabled==='function' && appLockEnabled())
+            ? `<div style="display:flex;gap:10px;flex-wrap:wrap">
+                 <button class="btn-secondary" onclick="setupAppLock()">Change PIN</button>
+                 <button class="btn-secondary" onclick="disableAppLock()" style="color:#ef4444;border-color:rgba(239,68,68,0.3)">Disable Lock</button>
+               </div>`
+            : `<button class="btn-primary" onclick="setupAppLock()">Enable App Lock</button>`}
+        </div>
+        <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:16px">👤 Profile</p>
           <div class="form-group"><label class="form-label">Display Name</label><input type="text" id="s-name" class="form-input" value="${STATE.settings?.name||''}"/></div>
           <div class="form-group" style="margin-top:12px"><label class="form-label">Currency Symbol</label>
