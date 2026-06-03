@@ -16,6 +16,47 @@ const CATEGORIES = [
   { name: 'Utilities', icon: '💡' }, { name: 'Other', icon: '📦' }
 ];
 
+// Consistent colour per category (used for circle icons + detail card)
+const CAT_COLORS = {
+  Salary:'#10b981', Business:'#0ea5e9', Freelance:'#22c55e', Food:'#f59e0b',
+  Transport:'#3b82f6', Shopping:'#ec4899', Health:'#ef4444', Bills:'#8b5cf6',
+  EMI:'#6366f1', Insurance:'#14b8a6', Investment:'#10b981', Entertainment:'#a855f7',
+  Education:'#0ea5e9', Travel:'#06b6d4', Gifts:'#f43f5e', Fuel:'#f97316',
+  Groceries:'#84cc16', Rent:'#eab308', Utilities:'#eab308', Other:'#94a3b8'
+};
+function catIcon(name)  { return (CATEGORIES.find(c => c.name === name) || {}).icon || '📦'; }
+function catColor(name) { return CAT_COLORS[name] || '#6366f1'; }
+
+// MyMoney-style colour-coded transaction detail card
+function openTxDetail(id) {
+  const tx = (STATE.transactions || []).find(t => t.id === id);
+  if (!tx) return;
+  const isInc = tx.type === 'income';
+  const col   = isInc ? '#10b981' : '#ef4444';
+  const acct  = tx.source ? _sourceLabel(tx.source) : '—';
+  const esc   = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const note  = (tx.note || tx.notes || '').trim() || 'No notes';
+  openModal('', `
+    <div class="txd">
+      <div class="txd-head" style="background:${col}">
+        <button class="txd-x" onclick="closeModal()">✕</button>
+        <div class="txd-actions">
+          <button onclick="closeModal();openEditTxModal('${id}')" title="Edit">✏️</button>
+          <button onclick="if(confirm('Delete this transaction?')){deleteTx('${id}');closeModal();}" title="Delete">🗑️</button>
+        </div>
+        <p class="txd-type">${isInc ? 'INCOME' : 'EXPENSE'}</p>
+        <p class="txd-amt">${isInc ? '+' : '-'}${fmt(tx.amount)}</p>
+        <p class="txd-date">${fmtDate(tx.date)}</p>
+      </div>
+      <div class="txd-body">
+        <div class="txd-row"><span>Account</span><b>${esc(acct)}</b></div>
+        <div class="txd-row"><span>Category</span><b><span class="txd-cat-ic" style="background:${catColor(tx.category)}">${catIcon(tx.category)}</span>${esc(tx.category || '—')}</b></div>
+        <div class="txd-row"><span>Name</span><b>${esc(tx.description || '—')}</b></div>
+        <div class="txd-row" style="border:none"><span>Notes</span><b style="font-weight:500;opacity:.85">${esc(note)}</b></div>
+      </div>
+    </div>`);
+}
+
 function renderFinance() {
   if (typeof reconcileCurrentBalances === 'function') reconcileCurrentBalances();
   const txnsAll = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -562,7 +603,8 @@ function renderFinanceTxList() {
        <span style="font-size:12px;color:var(--text3);user-select:none">Select All &nbsp;<span id="sel-count-label"></span></span>
      </div>` +
     txns.map(tx => `
-    <div id="txrow-${tx.id}" class="tx-row" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s"
+    <div id="txrow-${tx.id}" class="tx-row" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s;cursor:pointer"
+         onclick="if(!event.target.closest('button')&&!event.target.closest('input'))openTxDetail('${tx.id}')"
          onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="if(!document.getElementById('chk-${tx.id}')?.checked)this.style.background=''">
       <div style="display:flex;align-items:center;gap:12px">
         <input type="checkbox" id="chk-${tx.id}" data-txid="${tx.id}" class="fin-tx-chk"
