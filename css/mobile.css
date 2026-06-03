@@ -2163,3 +2163,25 @@ html.is-app .mm-preset { background: var(--glass); border: 1px solid var(--glass
 /* (12) global search results */
 .gs-h { font-size: 1.1rem; color: var(--text2); font-weight: 700; margin: 12px 0 6px; }
 .gs-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 8px; border-bottom: 1px solid var(--glass-border); cursor: pointer; font-size: 1.2rem; }
+
+/* ============================================================
+   build 156 — no text-select menu on long-press, full-screen
+   add/edit transaction page.
+   ============================================================ */
+/* stop the native Copy/Share/Select-all menu on long-press in the records list */
+html.is-app .mymoney-records,
+html.is-app .mymoney-records * {
+  -webkit-user-select: none !important; user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+/* inputs inside still selectable (none here, but safe) */
+html.is-app .mymoney-records input, html.is-app .mymoney-records textarea { -webkit-user-select: text !important; user-select: text !important; }
+
+/* full-screen Add / Edit transaction "page" */
+html.is-app #modal-overlay .modal-box.modal-fullscreen {
+  width: 100vw !important; height: 100vh !important; height: 100dvh !important;
+  max-width: none !important; max-height: none !important;
+  border-radius: 0 !important; display: flex; flex-direction: column;
+}
+html.is-app #modal-overlay:has(.modal-fullscreen) { align-items: stretch !important; padding: 0 !important; }
+html.is-app .modal-box.modal-fullscreen .modal-body { flex: 1; overflow-y: auto; }

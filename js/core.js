@@ -118,6 +118,8 @@ function openModal(title, bodyHTML) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-body').innerHTML = bodyHTML;
   const ov = document.getElementById('modal-overlay');
+  const _box = ov.querySelector('.modal-box');
+  if (_box) _box.classList.remove('modal-fullscreen');   // reset (tx form makes it fullscreen)
   const hd = ov.querySelector('.modal-header');
   if (hd) {
     hd.style.display = '';   // reset (detail card hides it after open)

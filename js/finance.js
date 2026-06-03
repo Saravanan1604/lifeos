@@ -323,8 +323,6 @@ function renderRecordsMyMoney() {
       </button>
       ${selBar}
       ${_recReminders()}
-      ${_recInsights()}
-      ${_recBudgetBars()}
       ${_recHeatmap()}
       <div class="mm-list">
         ${days.length ? rows : `<div class="mm-empty" onclick="openAddTxModal('expense')">${filterActive ? 'No transactions match your filters.' : `<span style="font-size:2.4rem">🧾</span><br/>No transactions in ${periodLabelTxt}.<br/><b style="color:#00c9a7">+ Tap to add one</b>`}</div>`}
@@ -407,7 +405,6 @@ function initRecordsGestures() {
     lpTimer = setTimeout(() => {
       if (!moved) {
         _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 450);
-        if (navigator.vibrate) try { navigator.vibrate(25); } catch (_) {}
         if (_recSelectMode) recToggleSel(id); else recEnterSelect(id);
       }
     }, 400);
@@ -427,7 +424,7 @@ function initRecordsGestures() {
 //  chips, budget bars, reminders, insights, heatmap, presets,
 //  auto-category, receipts, global search.
 // ===================================================================
-function _haptic(ms) { if (navigator.vibrate) { try { navigator.vibrate(ms || 15); } catch (e) {} } }
+function _haptic(ms) { /* vibration disabled by user preference */ }
 
 // (13) Receipt photo: read file → dataURL, preview, hold in _pendingReceipt
 let _pendingReceipt = null;
@@ -1505,6 +1502,7 @@ function openAddTxModal(defaultType) {
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveTx()">Save Transaction</button>
     </div>`);
+  document.querySelector('#modal-overlay .modal-box')?.classList.add('modal-fullscreen');
 }
 
 let _pendingTx = null; // holds values while duplicate-confirmation modal is open
@@ -1663,6 +1661,7 @@ function openEditTxModal(id) {
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveEditTx('${id}')">💾 Save Changes</button>
     </div>`);
+  document.querySelector('#modal-overlay .modal-box')?.classList.add('modal-fullscreen');
 }
 
 function saveEditTx(id) {
