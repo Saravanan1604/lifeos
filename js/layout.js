@@ -81,9 +81,9 @@ function _loDecorate(page) {
     const ctr = document.createElement('div');
     ctr.className = 'lo-ctrls';
     ctr.innerHTML =
-      `<button title="Move up"   onclick="loMove('${k}',-1)">▲</button>` +
-      `<button title="Move down" onclick="loMove('${k}',1)">▼</button>` +
-      `<button title="${w.hidden ? 'Show' : 'Hide'}" onclick="loHide('${k}')">${w.hidden ? '🚫' : '👁'}</button>`;
+      `<button title="Move up"   onclick="event.stopPropagation();loMove('${k}',-1)">▲</button>` +
+      `<button title="Move down" onclick="event.stopPropagation();loMove('${k}',1)">▼</button>` +
+      `<button title="${w.hidden ? 'Show' : 'Hide'}" onclick="event.stopPropagation();loHide('${k}')">${w.hidden ? '🚫' : '👁'}</button>`;
     el.appendChild(ctr);
   });
 }
@@ -121,3 +121,11 @@ function resetPageLayout() {
   navigate(page, true);
   if (typeof toast === 'function') toast('Layout reset to default', 'info');
 }
+
+// In edit mode, block a card's own tap (navigation) — but let the ▲▼/👁
+// control buttons work. Capture phase so it runs before the card's onclick.
+document.addEventListener('click', (e) => {
+  if (!_loEdit) return;
+  if (e.target.closest('.lo-ctrls') || e.target.closest('#lo-edit-bar')) return; // allow controls
+  if (e.target.closest('.lo-editing')) { e.preventDefault(); e.stopPropagation(); }
+}, true);

@@ -897,8 +897,9 @@ function renderDashboard() {
       const wg = document.querySelector('.welcome-grid');
       if (wg) wg.style.gridTemplateColumns = 'repeat(2,1fr)';
     }
-    // App: move Financial Overview to the bottom of the dashboard
-    if (window.__IS_APP) {
+    // App: move Financial Overview to the bottom — but ONLY if the user hasn't
+    // saved a custom layout (otherwise it fights the Layout Customizer).
+    if (window.__IS_APP && !localStorage.getItem('lifeos_layout_dashboard')) {
       const fo = document.getElementById('dash-fin-overview');
       if (fo && fo.parentNode) fo.parentNode.appendChild(fo);
     }
