@@ -338,9 +338,19 @@ function recRowTap(id) {
   openEditTxModal(id);                    // tap → edit
 }
 function recToggleSel(id) {
-  if (_recSel.has(id)) _recSel.delete(id); else _recSel.add(id);
-  if (_recSel.size === 0) _recSelectMode = false;
-  renderRecordsMyMoney();
+  const had = _recSel.has(id);
+  if (had) _recSel.delete(id); else _recSel.add(id);
+  // Leaving select mode needs a full re-render (removes the bar + checkboxes)
+  if (_recSel.size === 0) { _recSelectMode = false; renderRecordsMyMoney(); return; }
+  // Otherwise update only the tapped row + the count — no full page reload
+  const row = document.querySelector(`.mm-row[data-id="${id}"]`);
+  if (row) {
+    row.classList.toggle('sel', !had);
+    const chk = row.querySelector('.mm-check');
+    if (chk) { chk.classList.toggle('on', !had); chk.textContent = !had ? '✓' : ''; }
+  }
+  const cnt = document.querySelector('.mm-selcount');
+  if (cnt) cnt.textContent = `${_recSel.size} selected`;
 }
 function recEnterSelect(id) {
   _recSelectMode = true; _recSel = new Set([id]);
