@@ -2098,3 +2098,9 @@ html.is-app.light .mm-row.sel, html.is-app .light .mm-row.sel { background: #eaf
 html.is-app .mm-check { margin-right: 4px; }
 /* the selection action bar sits under Filter & Sort now */
 html.is-app .mm-selbar { position: static !important; border-radius: 16px; margin: 4px 14px 6px; }
+
+/* build 153 — disable double-tap-to-zoom inside the app (keeps scroll & swipe) */
+html.is-app, html.is-app body, html.is-app #app, html.is-app #main-app,
+html.is-app #content, html.is-app .mymoney-records, html.is-app * {
+  touch-action: manipulation;
+}
