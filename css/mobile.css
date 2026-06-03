@@ -1925,3 +1925,14 @@ html.is-app .mm-cbtn input[type="date"] {
   position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%;
   border: none; cursor: pointer;
 }
+
+/* ============================================================
+   build 138 — bump app to 1.5x (text + elements). Root at 150%
+   makes all rem-based text 1.5x; Records icons set in rem so the
+   round category icons scale up too. App-only.
+   ============================================================ */
+html.is-app { font-size: 150% !important; }
+html.is-app .mm-ic {
+  width: 3.25rem !important; height: 3.25rem !important;
+  font-size: 1.7rem !important;
+}
