@@ -1965,3 +1965,21 @@ html.is-app .mm-summary .mm-s-val {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
+
+/* build 143 — Records summary as 3 glassy premium cards */
+html.is-app .mm-summary {
+  border-bottom: none !important;
+  gap: 10px !important;
+  padding: 12px 14px 14px !important;
+}
+html.is-app .mm-summary > div {
+  background: var(--glass) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 16px !important;
+  padding: 14px 6px !important;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18) !important;
+  min-width: 0 !important;
+}
+html.is-app .mm-summary .mm-s-lbl { font-size: 1.05rem !important; }
+html.is-app .mm-summary .mm-s-val { font-size: 1.35rem !important; }
