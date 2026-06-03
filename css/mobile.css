@@ -2042,3 +2042,14 @@ html.is-app .mm-day .mm-day-total {
   color: var(--text);            /* black in light mode, white in dark mode */
   font-size: 1.25rem; font-weight: 700; white-space: nowrap; margin-left: 12px;
 }
+
+/* build 148 — 2x hamburger (three-line) + 8 top-tool icons.
+   Top tools wrap so all 8 stay visible at the larger size. */
+html.is-app .mobile-menu-btn { width: 92px !important; height: 92px !important; border-radius: 22px !important; }
+html.is-app .mobile-menu-btn svg { width: 56px !important; height: 56px !important; }
+html.is-app #top-tools {
+  flex-wrap: wrap !important; gap: 8px !important;
+  justify-content: flex-end !important; max-width: 66% !important;
+}
+html.is-app #top-tools button { width: 64px !important; height: 64px !important; border-radius: 16px !important; }
+html.is-app #top-tools button svg { width: 42px !important; height: 42px !important; }
