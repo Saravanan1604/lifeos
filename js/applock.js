@@ -63,7 +63,7 @@ async function _tryBiometric() {
         userVerification: 'required', timeout: 60000
       }
     });
-    _hideLockScreen();                       // success → unlock
+    _markUnlocked(); _hideLockScreen();      // success → unlock
     if (navigator.vibrate) navigator.vibrate(12);
   } catch (e) {
     const st = document.getElementById('app-lock-bio-status');
@@ -79,8 +79,14 @@ function _hashPin(p) {
   return 'h' + h;
 }
 
+const SESSION_UNLOCK = 'lifeos_unlocked';   // sessionStorage — survives refresh, cleared on app close
+
+function _markUnlocked() { try { sessionStorage.setItem(SESSION_UNLOCK, '1'); } catch {} }
+function _isUnlockedThisSession() { try { return sessionStorage.getItem(SESSION_UNLOCK) === '1'; } catch { return false; } }
+
 function maybeShowAppLock() {
   if (!appLockEnabled()) return;
+  if (_isUnlockedThisSession()) return;        // already unlocked → don't re-ask on refresh/focus
   if (lockType() === 'bio') { _showBioScreen(); _tryBiometric(); }
   else { _lockMode = 'verify'; _lockBuffer = ''; _showLockScreen('Enter your PIN'); }
 }
@@ -142,7 +148,7 @@ function _lockShake() {
 function _lockSubmit() {
   if (_lockMode === 'verify') {
     if (_hashPin(_lockBuffer) === localStorage.getItem(LOCK_PIN_KEY)) {
-      _lockBuffer = ''; _hideLockScreen();
+      _lockBuffer = ''; _markUnlocked(); _hideLockScreen();
       if (navigator.vibrate) navigator.vibrate(12);
     } else { _lockShake(); _lockBuffer = ''; _renderLockDots(); }
   } else if (_lockMode === 'set') {
@@ -179,8 +185,19 @@ function cancelAppLockSetup() {
   _lockBuffer = ''; _hideLockScreen();
 }
 
-// Lock on load + when the app returns to the foreground
+// Lock on load; re-lock only after the app has been in the background a while
+let _hiddenAt = 0;
+const RELOCK_AFTER_MS = 60000;   // re-ask only if backgrounded > 60s
 window.addEventListener('DOMContentLoaded', () => setTimeout(maybeShowAppLock, 50));
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') maybeShowAppLock();
+  if (document.visibilityState === 'hidden') {
+    _hiddenAt = Date.now();
+  } else {
+    // Returned to foreground — only re-lock if it was backgrounded long enough
+    if (_hiddenAt && (Date.now() - _hiddenAt) > RELOCK_AFTER_MS) {
+      try { sessionStorage.removeItem(SESSION_UNLOCK); } catch {}
+      maybeShowAppLock();
+    }
+    _hiddenAt = 0;
+  }
 });
