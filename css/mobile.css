@@ -1807,3 +1807,18 @@ html.is-app .mm-chip {
 html.is-app .mm-note { color: #8a8a72; font-size: 1.1rem; }
 html.is-app .mm-amt { font-size: 1.55rem; font-weight: 800; white-space: nowrap; }
 html.is-app .mm-empty { text-align: center; color: #8a8a72; font-size: 1.25rem; padding: 60px 20px; line-height: 1.6; }
+
+/* build 134 — Records filter button (right side of month bar) */
+html.is-app .mm-monthbar { position: relative; }
+html.is-app .mm-filter {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; border-radius: 12px;
+  background: #eef6ee; border: 1px solid #cfe6cf; color: #0f7a6a;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+}
+html.is-app .mm-filter svg { width: 22px; height: 22px; }
+html.is-app .mm-filter.on { background: #0f7a6a; border-color: #0f7a6a; color: #fff; }
+html.is-app .mm-filter .mm-fdot {
+  position: absolute; top: -3px; right: -3px; width: 11px; height: 11px;
+  border-radius: 50%; background: #d32f2f; border: 2px solid #fdfcef;
+}

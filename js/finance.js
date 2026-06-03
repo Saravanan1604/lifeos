@@ -6,6 +6,7 @@ let _finCategory = 'all';        // 'all' | <category name>
 let _finSort     = 'date-desc';  // 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc' | 'alpha-asc' | 'alpha-desc'
 let _finSelected = new Set();    // Selected transaction IDs (for bulk delete)
 let _recMonth = new Date();      // MyMoney-style Records page month anchor (app only)
+let _recSearch = '';             // Records page search text (app only)
 
 const CATEGORIES = [
   { name: 'Salary', icon: '💰' }, { name: 'Business', icon: '🏢' }, { name: 'Freelance', icon: '💻' },
@@ -92,15 +93,35 @@ function renderRecordsMyMoney() {
   const ym = `${y}-${String(m + 1).padStart(2, '0')}`;
   const monthLabel = _recMonth.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
 
-  const all = (STATE.transactions || []).filter(t => (t.date || '').startsWith(ym));
-  const income  = all.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
-  const expense = all.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+  const month = (STATE.transactions || []).filter(t => (t.date || '').startsWith(ym));
+  // summary reflects the whole month (independent of active filters)
+  const income  = month.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+  const expense = month.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
   const total   = income - expense;
 
-  // group by day (newest first)
+  // apply our existing filters (type / category / search)
+  const q = _recSearch.trim().toLowerCase();
+  let all = month;
+  if (_finType !== 'all')     all = all.filter(t => t.type === _finType);
+  if (_finCategory !== 'all') all = all.filter(t => t.category === _finCategory);
+  if (q) all = all.filter(t =>
+    (t.description || '').toLowerCase().includes(q) ||
+    (t.category || '').toLowerCase().includes(q) ||
+    (t.subcategory || '').toLowerCase().includes(q));
+
+  const filterActive = _finType !== 'all' || _finCategory !== 'all' || _finSort !== 'date-desc' || !!q;
+  const amtSort = _finSort === 'amount-desc' || _finSort === 'amount-asc';
+  const within = (a, b) => {
+    if (_finSort === 'amount-desc') return (+b.amount) - (+a.amount);
+    if (_finSort === 'amount-asc')  return (+a.amount) - (+b.amount);
+    if (_finSort === 'date-asc')    return new Date(a.createdAt || a.date) - new Date(b.createdAt || b.date);
+    return new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date);
+  };
+
+  // group by day
   const byDay = {};
   all.forEach(t => { (byDay[(t.date || '').slice(0, 10)] = byDay[(t.date || '').slice(0, 10)] || []).push(t); });
-  const days = Object.keys(byDay).sort((a, b) => b.localeCompare(a));
+  const days = Object.keys(byDay).sort((a, b) => _finSort === 'date-asc' ? a.localeCompare(b) : b.localeCompare(a));
 
   const dayHeader = (d) => {
     const dt = new Date(d + 'T00:00:00');
@@ -109,7 +130,7 @@ function renderRecordsMyMoney() {
 
   const rows = days.map(d => `
     <div class="mm-day">${dayHeader(d)}</div>
-    ${byDay[d].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)).map(t => {
+    ${byDay[d].sort(within).map(t => {
       const inc = t.type === 'income';
       const src = t.source ? _sourceLabel(t.source) : '';
       const isCard = /card|credit/i.test(t.source || '');
@@ -134,6 +155,10 @@ function renderRecordsMyMoney() {
         <button class="mm-navbtn" onclick="recMonthNav(-1)">‹</button>
         <span class="mm-month">${monthLabel}</span>
         <button class="mm-navbtn" onclick="recMonthNav(1)">›</button>
+        <button class="mm-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg>
+          ${filterActive ? '<span class="mm-fdot"></span>' : ''}
+        </button>
       </div>
       <div class="mm-summary">
         <div><span class="mm-s-lbl">EXPENSE</span><span class="mm-s-val neg">${fmt(expense)}</span></div>
@@ -141,9 +166,54 @@ function renderRecordsMyMoney() {
         <div><span class="mm-s-lbl">TOTAL</span><span class="mm-s-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</span></div>
       </div>
       <div class="mm-list">
-        ${days.length ? rows : `<div class="mm-empty">No transactions in ${monthLabel}.<br/>Tap ➕ to add one.</div>`}
+        ${days.length ? rows : `<div class="mm-empty">${filterActive ? 'No transactions match your filters.' : `No transactions in ${monthLabel}.<br/>Tap ➕ to add one.`}</div>`}
       </div>
     </div>`;
+}
+
+// Records filter modal — reuses the existing _finType / _finCategory / _finSort + search
+function openRecordsFilter() {
+  const cats = [...new Set((STATE.transactions || []).map(t => t.category).filter(Boolean))].sort();
+  const catOpts = `<option value="all">All categories</option>` +
+    cats.map(c => `<option value="${esc(c)}" ${_finCategory === c ? 'selected' : ''}>${catIcon(c)} ${esc(c)}</option>`).join('');
+  const sel = (v, cur) => v === cur ? 'selected' : '';
+  openModal('🔍 Filter Records', `
+    <div class="form-group"><label class="form-label">Search</label>
+      <input type="text" id="rf-search" class="form-input" value="${esc(_recSearch)}" placeholder="Name, category or note"/></div>
+    <div class="form-group"><label class="form-label">Type</label>
+      <select id="rf-type" class="form-input">
+        <option value="all" ${sel('all', _finType)}>All types</option>
+        <option value="income" ${sel('income', _finType)}>💚 Income only</option>
+        <option value="expense" ${sel('expense', _finType)}>❤️ Expense only</option>
+      </select></div>
+    <div class="form-group"><label class="form-label">Category</label>
+      <select id="rf-cat" class="form-input">${catOpts}</select></div>
+    <div class="form-group"><label class="form-label">Sort by</label>
+      <select id="rf-sort" class="form-input">
+        <option value="date-desc" ${sel('date-desc', _finSort)}>📅 Newest first</option>
+        <option value="date-asc" ${sel('date-asc', _finSort)}>📅 Oldest first</option>
+        <option value="amount-desc" ${sel('amount-desc', _finSort)}>💰 Highest amount</option>
+        <option value="amount-asc" ${sel('amount-asc', _finSort)}>💰 Lowest amount</option>
+      </select></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="clearRecordsFilter()">Clear all</button>
+      <button class="btn-primary" onclick="applyRecordsFilter()">Apply</button>
+    </div>`);
+}
+
+function applyRecordsFilter() {
+  _recSearch   = document.getElementById('rf-search')?.value || '';
+  _finType     = document.getElementById('rf-type')?.value || 'all';
+  _finCategory = document.getElementById('rf-cat')?.value || 'all';
+  _finSort     = document.getElementById('rf-sort')?.value || 'date-desc';
+  closeModal();
+  renderRecordsMyMoney();
+}
+
+function clearRecordsFilter() {
+  _recSearch = ''; _finType = 'all'; _finCategory = 'all'; _finSort = 'date-desc';
+  closeModal();
+  renderRecordsMyMoney();
 }
 
 // MyMoney-style colour-coded transaction detail card
