@@ -1514,3 +1514,29 @@ html.is-app .spend-ring-foot .srf-v { font-size: 26px; }
 .yearly-tbl tfoot th { font-weight: 800; color: var(--text); border-top: 2px solid var(--glass-border); }
 html.is-app .yearly-tbl th, html.is-app .yearly-tbl td { font-size: 20px; padding: 16px 8px; }
 html.is-app .yearly-tbl thead th { font-size: 16px; }
+
+/* ============================================================
+   build 119 — colourful menu (sidebar) icons
+   ============================================================ */
+html.is-app .nav-item .nav-icon { opacity: 1 !important; }
+html.is-app .nav-item[data-page="dashboard"]   .nav-icon { color: #00c9a7 !important; }
+html.is-app .nav-item[data-page="finance"]      .nav-icon { color: #3b82f6 !important; }
+html.is-app .nav-item[data-page="transactions"] .nav-icon { color: #6366f1 !important; }
+html.is-app .nav-item[data-page="investments"]  .nav-icon { color: #10b981 !important; }
+html.is-app .nav-item[data-page="bank-tracker"] .nav-icon { color: #0ea5e9 !important; }
+html.is-app .nav-item[data-page="budget"]       .nav-icon { color: #ef4444 !important; }
+html.is-app .nav-item[data-page="goals"]        .nav-icon { color: #14b8a6 !important; }
+html.is-app .nav-item[data-page="health"]       .nav-icon { color: #f43f5e !important; }
+html.is-app .nav-item[data-page="habits"]       .nav-icon { color: #f59e0b !important; }
+html.is-app .nav-item[data-page="journal"]      .nav-icon { color: #60a5fa !important; }
+html.is-app .nav-item[data-page="notes"]        .nav-icon { color: #eab308 !important; }
+html.is-app .nav-item[data-page="yearly"]       .nav-icon { color: #8b5cf6 !important; }
+html.is-app .nav-item[data-page="categories"]   .nav-icon { color: #ec4899 !important; }
+html.is-app .nav-item[data-page="analytics"]    .nav-icon { color: #a855f7 !important; }
+html.is-app .nav-item[data-page="compare"]      .nav-icon { color: #06b6d4 !important; }
+html.is-app .nav-item[data-page="achievements"] .nav-icon { color: #fbbf24 !important; }
+html.is-app .nav-item[data-page="ai-coach"]     .nav-icon { color: #22d3ee !important; }
+html.is-app .nav-item[data-page="settings"]     .nav-icon { color: #94a3b8 !important; }
+html.is-app .nav-item[data-page="help"]         .nav-icon { color: #34d399 !important; }
+/* keep the colour even when the row is active (only the text turns teal) */
+html.is-app .nav-item.active .nav-icon { opacity: 1 !important; }

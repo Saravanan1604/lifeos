@@ -13,7 +13,7 @@ const CATEGORIES = [
   { name: 'Insurance', icon: '🛡️' }, { name: 'Investment', icon: '📈' }, { name: 'Entertainment', icon: '🎬' },
   { name: 'Education', icon: '📚' }, { name: 'Travel', icon: '✈️' }, { name: 'Gifts', icon: '🎁' },
   { name: 'Fuel', icon: '⛽' }, { name: 'Groceries', icon: '🛒' }, { name: 'Rent', icon: '🏠' },
-  { name: 'Utilities', icon: '💡' }, { name: 'Other', icon: '📦' }
+  { name: 'Utilities', icon: '💡' }, { name: 'Warranties', icon: '🛡️' }, { name: 'Other', icon: '📦' }
 ];
 
 // Consistent colour per category (used for circle icons + detail card)
@@ -22,7 +22,7 @@ const CAT_COLORS = {
   Transport:'#3b82f6', Shopping:'#ec4899', Health:'#ef4444', Bills:'#8b5cf6',
   EMI:'#6366f1', Insurance:'#14b8a6', Investment:'#10b981', Entertainment:'#a855f7',
   Education:'#0ea5e9', Travel:'#06b6d4', Gifts:'#f43f5e', Fuel:'#f97316',
-  Groceries:'#84cc16', Rent:'#eab308', Utilities:'#eab308', Other:'#94a3b8'
+  Groceries:'#84cc16', Rent:'#eab308', Utilities:'#eab308', Warranties:'#f59e0b', Other:'#94a3b8'
 };
 function catIcon(name)  { return (CATEGORIES.find(c => c.name === name) || {}).icon || '📦'; }
 function catColor(name) { return CAT_COLORS[name] || '#6366f1'; }
