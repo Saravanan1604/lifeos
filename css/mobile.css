@@ -1950,3 +1950,7 @@ html.is-app .mm-ic {
   width: 3.3rem !important; height: 3.3rem !important;
   font-size: 1.75rem !important;
 }
+
+/* build 141 — Records summary (EXPENSE/INCOME/TOTAL) 1.25x bigger than the list rows */
+html.is-app .mm-summary .mm-s-lbl { font-size: 1.35rem !important; }
+html.is-app .mm-summary .mm-s-val { font-size: 1.95rem !important; }
