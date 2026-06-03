@@ -362,7 +362,7 @@ function showApp() {
   document.getElementById('main-app').style.display = 'flex';
   updateSidebar();
   checkStreak();
-  navigate('dashboard');
+  navigate(window.__IS_APP ? 'transactions' : 'dashboard');
   if (typeof startLiveSync === 'function') startLiveSync();
   if (typeof initPremiumFeatures === 'function') initPremiumFeatures();
   if (typeof initVoiceControl === 'function') initVoiceControl();
@@ -703,8 +703,9 @@ window.addEventListener('popstate', (e) => {
   if (sb) { _closeMobileDrawer(); return; }
 
   // 2) Any page → Home (re-renders).   3) On Home → ask to exit.
-  if (currentPage !== 'dashboard') {
-    navigate('dashboard', true);
+  const HOME = window.__IS_APP ? 'transactions' : 'dashboard';
+  if (currentPage !== HOME) {
+    navigate(HOME, true);
   } else if (window.__IS_APP) {
     showExitConfirm();
   }
