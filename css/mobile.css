@@ -1502,3 +1502,14 @@ html.is-app .spend-ring-amt { font-size: 42px; }
 html.is-app .spend-ring-sub { font-size: 18px; }
 html.is-app .spend-ring-foot .srf-l { font-size: 18px; }
 html.is-app .spend-ring-foot .srf-v { font-size: 26px; }
+
+/* ============================================================
+   build 117 — Yearly Report table
+   ============================================================ */
+.yearly-tbl { width: 100%; border-collapse: collapse; }
+.yearly-tbl th, .yearly-tbl td { padding: 12px 10px; text-align: right; border-bottom: 1px solid var(--glass-border); font-size: 14px; }
+.yearly-tbl th:first-child, .yearly-tbl td:first-child { text-align: left; }
+.yearly-tbl thead th { color: var(--text2); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+.yearly-tbl tfoot th { font-weight: 800; color: var(--text); border-top: 2px solid var(--glass-border); }
+html.is-app .yearly-tbl th, html.is-app .yearly-tbl td { font-size: 20px; padding: 16px 8px; }
+html.is-app .yearly-tbl thead th { font-size: 16px; }

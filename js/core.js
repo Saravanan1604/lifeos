@@ -595,6 +595,7 @@ function _renderPage(page) {
     case 'finance':      renderFinance();       break;
     case 'transactions': renderTransactions();  break;
     case 'notes':        renderNotes();         break;
+    case 'yearly':       renderYearly();        break;
     case 'investments':  renderInvestments();   break;
     case 'budget':       renderBudget();        break;
     case 'bank-tracker': renderBankTracker();   break;
