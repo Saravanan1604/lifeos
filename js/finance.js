@@ -268,20 +268,14 @@ function renderRecordsMyMoney() {
       const tm = t.time ? `<span class="mm-note">🕒 ${_fmtTime(t.time)}</span>` : '';
       const seld = _recSel.has(t.id);
       return `
-      <div class="mm-rowwrap">
-        <div class="mm-rowbg">
-          <span class="mm-bg-edit">✏️ Edit</span>
-          <span class="mm-bg-del">Delete 🗑️</span>
+      <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
+        ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
+        <div class="mm-ic" style="background:${catColor(t.category)}">${t.icon || catIcon(t.category)}</div>
+        <div class="mm-mid">
+          <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
+          <div class="mm-meta">${chip}${note}${sub}${tm}</div>
         </div>
-        <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
-          ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
-          <div class="mm-ic" style="background:${catColor(t.category)}">${t.icon || catIcon(t.category)}</div>
-          <div class="mm-mid">
-            <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
-            <div class="mm-meta">${chip}${note}${sub}${tm}</div>
-          </div>
-          <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
-        </div>
+        <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
       </div>`;
     }).join('')}
   `;
@@ -335,9 +329,9 @@ function renderRecordsMyMoney() {
 
 // ===== Records row gestures: long-press select, swipe-right delete, swipe-left edit =====
 function recRowTap(id) {
-  if (_recSuppressTap) return;            // ignore the click that follows a gesture
+  if (_recSuppressTap) return;            // ignore the click that follows a long-press
   if (_recSelectMode) { recToggleSel(id); return; }
-  // Plain tap does nothing (no detail popup). Use hold + swipe for edit/delete.
+  openEditTxModal(id);                    // tap → edit
 }
 function recToggleSel(id) {
   if (_recSel.has(id)) _recSel.delete(id); else _recSel.add(id);
@@ -395,53 +389,31 @@ function recBulkCategoryConfirm() {
 function initRecordsGestures() {
   const list = document.querySelector('.mymoney-records .mm-list');
   if (!list) return;
-  // armed  = user held long enough; only THEN does a horizontal drag act on the row.
-  // A plain (un-held) swipe is left alone so it changes pages like everywhere else.
-  let startX = 0, startY = 0, row = null, id = null, moved = false, lpTimer = null, armed = false, swiping = false;
-  const reset = () => { if (row) { row.style.transition = 'transform .2s ease'; row.style.transform = ''; } };
+  // Tap → edit (handled by onclick). Long-press (hold) → bulk multi-select.
+  // No swipe gestures — plain swipes are left for page navigation / scrolling.
+  let startX = 0, startY = 0, id = null, moved = false, lpTimer = null;
 
   list.addEventListener('touchstart', e => {
-    const r = e.target.closest('.mm-row'); if (!r) { row = null; return; }
-    row = r; id = r.dataset.id; const t = e.touches[0];
-    startX = t.clientX; startY = t.clientY; moved = false; armed = false; swiping = false;
-    row.style.transition = 'none';
+    const r = e.target.closest('.mm-row'); if (!r) return;
+    id = r.dataset.id; const t = e.touches[0];
+    startX = t.clientX; startY = t.clientY; moved = false;
     clearTimeout(lpTimer);
     lpTimer = setTimeout(() => {
-      if (!moved && !_recSelectMode) {
-        armed = true; window.__recGestureActive = true;        // block page-swipe now
+      if (!moved) {
+        _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 450);
         if (navigator.vibrate) try { navigator.vibrate(25); } catch (_) {}
-        if (row) row.classList.add('armed');
+        if (_recSelectMode) recToggleSel(id); else recEnterSelect(id);
       }
-    }, 350);
+    }, 400);
   }, { passive: true });
 
   list.addEventListener('touchmove', e => {
-    if (!row) return;
-    const t = e.touches[0], dx = t.clientX - startX, dy = t.clientY - startY;
-    // Movement before the hold completes = a normal swipe/scroll → cancel arming,
-    // let the page-swipe navigation handle it.
-    if (!armed && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) { moved = true; clearTimeout(lpTimer); return; }
-    if (armed && Math.abs(dx) > Math.abs(dy)) {
-      swiping = true;
-      row.style.transform = `translateX(${dx}px)`;
-    }
+    const t = e.touches[0];
+    if (Math.abs(t.clientX - startX) > 8 || Math.abs(t.clientY - startY) > 8) { moved = true; clearTimeout(lpTimer); }
   }, { passive: true });
 
-  list.addEventListener('touchend', e => {
-    clearTimeout(lpTimer);
-    if (row) row.classList.remove('armed');
-    if (armed) {
-      const dx = e.changedTouches[0].clientX - startX, TH = 80, _id = id;
-      reset();
-      _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 400);
-      if (swiping && dx < -TH)      setTimeout(() => deleteTx(_id), 60);        // hold + swipe left → delete
-      else if (swiping && dx > TH)  setTimeout(() => openEditTxModal(_id), 60); // hold + swipe right → edit
-      else                          recEnterSelect(_id);                        // held without swiping → multi-select
-      try { e.preventDefault(); } catch (_) {}
-    }
-    setTimeout(() => { window.__recGestureActive = false; }, 60);
-    row = null; armed = false; swiping = false;
-  });
+  list.addEventListener('touchend', () => { clearTimeout(lpTimer); });
+  list.addEventListener('touchcancel', () => { clearTimeout(lpTimer); });
 }
 
 // Records filter modal — reuses the existing _finType / _finCategory / _finSort + search
