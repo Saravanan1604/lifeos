@@ -684,25 +684,28 @@ function softRefresh() {
 
 // ===== HARDWARE BACK BUTTON (ANDROID PWA) =====
 let _exitingApp = false;
+// Seed an extra history entry so the first back is captured (not an instant exit).
+window.addEventListener('load', () => { try { history.pushState({ page: 'dashboard' }, ''); } catch (e) {} });
+
 window.addEventListener('popstate', (e) => {
   if (_exitingApp) return;
-  // A modal/lock/drawer open? Close it instead of navigating back.
-  const lock = document.getElementById('app-lock');
-  if (lock && lock.style.display === 'flex') { history.pushState({ page: currentPage }, ''); return; }
-  const modal = document.getElementById('modal-overlay');
-  if (modal && modal.style.display === 'flex') { closeModal(); history.pushState({ page: currentPage }, ''); return; }
-  const sb = document.querySelector('.sidebar.mobile-open');
-  if (sb) { _closeMobileDrawer(); history.pushState({ page: currentPage }, ''); return; }
+  // Re-arm history IMMEDIATELY so the stack never empties (which would let the
+  // TWA exit before our logic runs — that's why "second back" exited directly).
+  try { history.pushState({ page: currentPage || 'dashboard' }, ''); } catch (e) {}
 
-  // Back behaviour: any page → go Home first; on Home → ask to exit.
+  // 1) Close any open overlay first.
+  const lock = document.getElementById('app-lock');
+  if (lock && lock.style.display === 'flex') return;        // can't dismiss lock
+  const modal = document.getElementById('modal-overlay');
+  if (modal && modal.style.display === 'flex') { closeModal(); return; }
+  const sb = document.querySelector('.sidebar.mobile-open');
+  if (sb) { _closeMobileDrawer(); return; }
+
+  // 2) Any page → Home (re-renders).   3) On Home → ask to exit.
   if (currentPage !== 'dashboard') {
     navigate('dashboard', true);
-    history.pushState({ page: 'dashboard' }, '');
   } else if (window.__IS_APP) {
-    history.pushState({ page: 'dashboard' }, '');   // stay put
     showExitConfirm();
-  } else {
-    history.pushState({ page: 'dashboard' }, '');   // web: keep them in-app
   }
 });
 
@@ -717,11 +720,10 @@ function showExitConfirm() {
     </div>`);
 }
 function _doExitApp() {
-  _exitingApp = true;
+  _exitingApp = true;            // stop re-arming so back can reach the bottom
   closeModal();
-  // Pop our guard + the real entry → leaves the TWA
-  try { history.go(-2); } catch (e) {}
-  setTimeout(() => { try { window.close(); } catch (e) {} }, 120);
+  try { window.close(); } catch (e) {}
+  setTimeout(() => { try { history.go(-(Math.min(history.length, 60))); } catch (e) {} }, 80);
 }
 
 // ===== SWIPE TO CHANGE TABS (installed app, Instagram-style) =====
