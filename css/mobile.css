@@ -1666,3 +1666,36 @@ html.is-app #modal-overlay .modal-body p,
 html.is-app #modal-overlay .modal-body span,
 html.is-app #modal-overlay .modal-body div,
 html.is-app #modal-overlay .modal-body b { color: #1f2937; }
+
+/* ============================================================
+   build 128 — make app popup modals ~2x bigger / easier to use
+   ============================================================ */
+html.is-app #modal-overlay .modal-box {
+  width: 94vw !important;
+  max-width: 680px !important;
+  border-radius: 30px !important;
+}
+html.is-app #modal-overlay .modal-header { padding: 30px 26px 36px !important; }
+html.is-app #modal-overlay .modal-header h3 { font-size: 30px !important; }
+html.is-app #modal-overlay .modal-close { width: 46px !important; height: 46px !important; font-size: 22px !important; left: 18px !important; top: 18px !important; }
+html.is-app #modal-overlay .modal-body { padding: 28px 24px 26px !important; }
+html.is-app #modal-overlay .modal-body .form-label,
+html.is-app #modal-overlay .modal-body label { font-size: 19px !important; margin-bottom: 8px !important; }
+html.is-app #modal-overlay .modal-body .form-input,
+html.is-app #modal-overlay .modal-body select,
+html.is-app #modal-overlay .modal-body textarea {
+  font-size: 20px !important;
+  padding: 16px 16px !important;
+  border-radius: 14px !important;
+  min-height: 58px !important;
+}
+html.is-app #modal-overlay .modal-body textarea { min-height: 96px !important; }
+html.is-app #modal-overlay .modal-body .form-group { margin-bottom: 18px !important; }
+html.is-app #modal-overlay .modal-actions { gap: 14px !important; padding-top: 20px !important; }
+html.is-app #modal-overlay .modal-actions button,
+html.is-app #modal-overlay .modal-body .btn-primary,
+html.is-app #modal-overlay .modal-body .btn-secondary {
+  font-size: 19px !important;
+  padding: 15px 24px !important;
+  border-radius: 14px !important;
+}
