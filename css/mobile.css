@@ -265,14 +265,13 @@ html.is-app .qa-grid > * {
   padding: 26px 20px !important;
 }
 
-/* KPI cards (Income · Expenses · Net Savings · Habits):
-   SINGLE full-width column so big values fit on one line. */
+/* KPI cards (Income · Expenses / Net Saving · Net Worth) → 2×2 */
 html.is-app .kpi-grid {
-  grid-template-columns: 1fr !important;
+  grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
 }
 html.is-app .kpi-grid > * {
-  padding: 28px 20px !important;
+  padding: 24px 18px !important;
 }
 
 /* Net Worth hero: kill the wasted right-side space, make it compact
@@ -631,7 +630,7 @@ html.is-app .hero-card { display: none !important; }
 html.is-app .qa-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
 
 /* 7. Financial Overview chart — taller */
-html.is-app div[style*="height:240px"] { height: 320px !important; }
+html.is-app div[style*="height:240px"] { height: 470px !important; }
 
 /* 6. Top Spending donut — pull to the left, sized nicely */
 html.is-app #dash-pie-chart > div:first-child {
@@ -1367,3 +1366,18 @@ html.is-app .qa-grid > * {
 html.is-app .qa-grid > * span:first-child,
 html.is-app .qa-grid > * [style*="font-size:26px"] { font-size: 46px !important; }
 html.is-app .qa-grid > * p, html.is-app .qa-grid > * div { font-size: 24px !important; }
+
+/* ============================================================
+   build 105 — finance stats one line + spending pie left
+   ============================================================ */
+/* #5 Finance: Total Txns · This Month · Savings Rate → one line */
+html.is-app .fin-stat-row {
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 8px !important;
+}
+html.is-app .fin-stat-row > * { padding: 18px 8px !important; }
+html.is-app .fin-stat-row .stat-card-value, html.is-app .fin-stat-row p { font-size: 30px !important; }
+
+/* #5 Finance Spending by Category — make the donut card use the space
+   (chart legend renders to the side automatically when wide) */
+html.is-app #finance-pie-chart { max-height: 260px !important; }

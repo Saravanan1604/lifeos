@@ -223,7 +223,7 @@ function renderFinance() {
           </div>`}
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px" class="fin-stat-row">
         ${[
           { id:'fin-stat-count', label:'Total Txns',   value: txnsAll.length,  icon:'⚡', color:'rgba(99,102,241,0.15)', tc:'#6366f1' },
           { id:'fin-stat-month', label:periodLabel(_finPeriod), value: txns.length, icon:'🎯', color:'rgba(16,185,129,0.15)', tc:'#10b981' },

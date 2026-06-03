@@ -526,10 +526,10 @@ function _buildAccountsGoalsBudget() {
         <span style="font-size:18px">💼</span>
         <h2 style="font-size:15px;font-weight:800;color:var(--text)">Financial Overview</h2>
       </div>
-      <div style="display:flex;gap:8px">
-        <button onclick="navigate('bank-tracker')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.25);color:#00c9a7;cursor:pointer;font-weight:700;transition:.2s" onmouseover="this.style.background='rgba(0,201,167,0.2)'" onmouseout="this.style.background='rgba(0,201,167,0.1)'">Bank Tracker ↗</button>
-        <button onclick="navigate('finance')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#818cf8;cursor:pointer;font-weight:700;transition:.2s" onmouseover="this.style.background='rgba(99,102,241,0.2)'" onmouseout="this.style.background='rgba(99,102,241,0.1)'">Finance ↗</button>
-      </div>
+      ${window.__IS_APP ? '' : `<div style="display:flex;gap:8px">
+        <button onclick="navigate('bank-tracker')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.25);color:#00c9a7;cursor:pointer;font-weight:700;transition:.2s">Bank Tracker ↗</button>
+        <button onclick="navigate('finance')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#818cf8;cursor:pointer;font-weight:700;transition:.2s">Finance ↗</button>
+      </div>`}
     </div>
     ${nwBar}
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px" class="dash-acct-grid">

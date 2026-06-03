@@ -683,14 +683,45 @@ function softRefresh() {
 }
 
 // ===== HARDWARE BACK BUTTON (ANDROID PWA) =====
+let _exitingApp = false;
 window.addEventListener('popstate', (e) => {
+  if (_exitingApp) return;
+  // A modal/lock/drawer open? Close it instead of navigating back.
+  const lock = document.getElementById('app-lock');
+  if (lock && lock.style.display === 'flex') { history.pushState({ page: currentPage }, ''); return; }
+  const modal = document.getElementById('modal-overlay');
+  if (modal && modal.style.display === 'flex') { closeModal(); history.pushState({ page: currentPage }, ''); return; }
+  const sb = document.querySelector('.sidebar.mobile-open');
+  if (sb) { _closeMobileDrawer(); history.pushState({ page: currentPage }, ''); return; }
+
   if (e.state && e.state.page) {
     navigate(e.state.page, true);
+  } else if (window.__IS_APP && currentPage === 'dashboard') {
+    // At the home screen → ask before exiting the app
+    history.pushState({ page: 'dashboard' }, '');     // stay put
+    showExitConfirm();
   } else {
-    // default
     navigate('dashboard', true);
   }
 });
+
+function showExitConfirm() {
+  openModal('', `
+    <div style="text-align:center;padding:8px 4px">
+      <p style="font-size:19px;font-weight:600;margin:6px 0 22px">Do you want to exit the app?</p>
+      <div style="display:flex;gap:12px;justify-content:center">
+        <button class="btn-secondary" onclick="closeModal()" style="min-width:110px">Cancel</button>
+        <button class="btn-primary" onclick="_doExitApp()" style="min-width:110px">Exit</button>
+      </div>
+    </div>`);
+}
+function _doExitApp() {
+  _exitingApp = true;
+  closeModal();
+  // Pop our guard + the real entry → leaves the TWA
+  try { history.go(-2); } catch (e) {}
+  setTimeout(() => { try { window.close(); } catch (e) {} }, 120);
+}
 
 // ===== SWIPE TO CHANGE TABS (installed app, Instagram-style) =====
 (function initSwipeNav() {
