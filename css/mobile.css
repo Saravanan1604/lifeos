@@ -1822,3 +1822,89 @@ html.is-app .mm-filter .mm-fdot {
   position: absolute; top: -3px; right: -3px; width: 11px; height: 11px;
   border-radius: 50%; background: #d32f2f; border: 2px solid #fdfcef;
 }
+
+/* ============================================================
+   build 135 — Records page: theme-aware (matches app + dark mode),
+   day/week/month/year/all tabs, big simple filter bar.
+   Overrides the earlier cream styling. App-only.
+   ============================================================ */
+html.is-app .mymoney-records {
+  background: transparent;          /* inherit the app background (dark/light) */
+  margin: -16px -16px 0;
+  padding: 6px 0 40px;
+  min-height: calc(100vh - 60px);
+  color: var(--text);
+}
+/* period tabs (day/week/month/year/all) */
+html.is-app .mymoney-records .mm-ptabs {
+  display: flex; gap: 6px; padding: 10px 14px 4px;
+}
+html.is-app .mymoney-records .mm-ptab {
+  flex: 1; padding: 10px 4px; border: 1px solid var(--glass-border);
+  background: var(--glass); color: var(--text2);
+  border-radius: 12px; font-size: 1.15rem; font-weight: 700; cursor: pointer;
+}
+html.is-app .mymoney-records .mm-ptab.active {
+  background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; border-color: transparent;
+}
+/* month/period navigator */
+html.is-app .mm-monthbar {
+  display: flex; align-items: center; justify-content: center; gap: 26px;
+  padding: 12px 0 10px; position: relative;
+}
+html.is-app .mm-month  { color: var(--text); font-size: 1.7rem; font-weight: 800; }
+html.is-app .mm-navbtn {
+  background: none; border: none; color: #00c9a7; font-size: 2.2rem; line-height: 1;
+  cursor: pointer; padding: 4px 12px; font-weight: 700;
+}
+/* summary row */
+html.is-app .mm-summary {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  padding: 6px 18px 16px; border-bottom: 1px solid var(--glass-border);
+  text-align: center;
+}
+html.is-app .mm-summary > div { display: flex; flex-direction: column; gap: 4px; }
+html.is-app .mm-s-lbl { color: var(--text2); font-size: 1.05rem; font-weight: 600; letter-spacing: .5px; }
+html.is-app .mm-s-val { font-size: 1.55rem; font-weight: 800; }
+html.is-app .mm-s-val.pos, html.is-app .mm-amt.pos { color: #10b981; }
+html.is-app .mm-s-val.neg, html.is-app .mm-amt.neg { color: #ef4444; }
+/* big simple filter bar */
+html.is-app .mm-filterbar {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: calc(100% - 28px); margin: 14px 14px 4px;
+  padding: 16px; border-radius: 16px;
+  background: var(--glass); border: 1px solid var(--glass-border); color: var(--text);
+  font-size: 1.35rem; font-weight: 700; cursor: pointer;
+}
+html.is-app .mm-filterbar svg { width: 26px; height: 26px; }
+html.is-app .mm-filterbar.on {
+  background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; border-color: transparent;
+}
+/* day header */
+html.is-app .mm-day {
+  color: var(--text); font-size: 1.25rem; font-weight: 700;
+  padding: 18px 18px 8px; border-bottom: 1px solid var(--glass-border); margin: 0 0 2px;
+}
+/* a transaction row */
+html.is-app .mm-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-bottom: 1px solid var(--glass-border);
+  cursor: pointer; transition: background .15s;
+}
+html.is-app .mm-row:active { background: var(--glass); }
+html.is-app .mm-ic {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; color: #fff; box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+html.is-app .mm-mid { flex: 1; min-width: 0; }
+html.is-app .mm-cat { color: var(--text); font-size: 1.5rem; font-weight: 700; margin: 0 0 3px; }
+html.is-app .mm-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+html.is-app .mm-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--glass); border: 1px solid var(--glass-border); color: var(--text2);
+  border-radius: 8px; padding: 2px 8px; font-size: 1.05rem; font-weight: 600;
+}
+html.is-app .mm-note { color: var(--text2); font-size: 1.1rem; }
+html.is-app .mm-amt { font-size: 1.55rem; font-weight: 800; white-space: nowrap; }
+html.is-app .mm-empty { text-align: center; color: var(--text2); font-size: 1.25rem; padding: 60px 20px; line-height: 1.6; }

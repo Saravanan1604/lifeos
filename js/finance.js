@@ -5,7 +5,8 @@ let _finType     = 'all';        // 'all' | 'income' | 'expense'
 let _finCategory = 'all';        // 'all' | <category name>
 let _finSort     = 'date-desc';  // 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc' | 'alpha-asc' | 'alpha-desc'
 let _finSelected = new Set();    // Selected transaction IDs (for bulk delete)
-let _recMonth = new Date();      // MyMoney-style Records page month anchor (app only)
+let _recPeriod = 'month';        // Records page period: day|week|month|year|all (app only)
+let _recAnchor = new Date();     // Records page anchor date (app only)
 let _recSearch = '';             // Records page search text (app only)
 
 const CATEGORIES = [
@@ -83,25 +84,44 @@ function processRecurring() {
 }
 
 // ===== MyMoney-style Records page (installed app only) =====
-function recMonthNav(delta) {
-  _recMonth = new Date(_recMonth.getFullYear(), _recMonth.getMonth() + delta, 1);
+function recNav(delta) {
+  const d = new Date(_recAnchor);
+  if (_recPeriod === 'day')   d.setDate(d.getDate() + delta);
+  if (_recPeriod === 'week')  d.setDate(d.getDate() + 7 * delta);
+  if (_recPeriod === 'month') d.setMonth(d.getMonth() + delta);
+  if (_recPeriod === 'year')  d.setFullYear(d.getFullYear() + delta);
+  _recAnchor = d;
   renderRecordsMyMoney();
+}
+function recSetPeriod(p) { _recPeriod = p; renderRecordsMyMoney(); }
+
+function _recPeriodLabel() {
+  const a = _recAnchor;
+  if (_recPeriod === 'all') return 'All Time';
+  if (_recPeriod === 'year') return String(a.getFullYear());
+  if (_recPeriod === 'month') return a.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  if (_recPeriod === 'day') return a.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+  // week → Mon–Sun range containing the anchor
+  const dow = (a.getDay() + 6) % 7;
+  const mon = new Date(a); mon.setDate(a.getDate() - dow);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const o = { day: '2-digit', month: 'short' };
+  return `${mon.toLocaleDateString('en-IN', o)} – ${sun.toLocaleDateString('en-IN', o)}`;
 }
 
 function renderRecordsMyMoney() {
-  const y = _recMonth.getFullYear(), m = _recMonth.getMonth();
-  const ym = `${y}-${String(m + 1).padStart(2, '0')}`;
-  const monthLabel = _recMonth.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  const anchorYmd = _ymdLocal(_recAnchor);
+  const periodTxns = filterTxByAnchor([...(STATE.transactions || [])], _recPeriod, anchorYmd);
+  const periodLabelTxt = _recPeriodLabel();
 
-  const month = (STATE.transactions || []).filter(t => (t.date || '').startsWith(ym));
-  // summary reflects the whole month (independent of active filters)
-  const income  = month.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
-  const expense = month.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+  // summary reflects the whole period (independent of active filters)
+  const income  = periodTxns.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+  const expense = periodTxns.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
   const total   = income - expense;
 
   // apply our existing filters (type / category / search)
   const q = _recSearch.trim().toLowerCase();
-  let all = month;
+  let all = periodTxns;
   if (_finType !== 'all')     all = all.filter(t => t.type === _finType);
   if (_finCategory !== 'all') all = all.filter(t => t.category === _finCategory);
   if (q) all = all.filter(t =>
@@ -149,24 +169,30 @@ function renderRecordsMyMoney() {
     }).join('')}
   `).join('');
 
+  const tabs = ['day', 'week', 'month', 'year', 'all'];
+  const tabLabels = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
+  const periodTabs = tabs.map(p =>
+    `<button class="mm-ptab ${_recPeriod === p ? 'active' : ''}" onclick="recSetPeriod('${p}')">${tabLabels[p]}</button>`).join('');
+
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in mymoney-records">
+      <div class="mm-ptabs">${periodTabs}</div>
       <div class="mm-monthbar">
-        <button class="mm-navbtn" onclick="recMonthNav(-1)">‹</button>
-        <span class="mm-month">${monthLabel}</span>
-        <button class="mm-navbtn" onclick="recMonthNav(1)">›</button>
-        <button class="mm-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg>
-          ${filterActive ? '<span class="mm-fdot"></span>' : ''}
-        </button>
+        ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="recNav(-1)">‹</button>`}
+        <span class="mm-month">${periodLabelTxt}</span>
+        ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="recNav(1)">›</button>`}
       </div>
       <div class="mm-summary">
         <div><span class="mm-s-lbl">EXPENSE</span><span class="mm-s-val neg">${fmt(expense)}</span></div>
         <div><span class="mm-s-lbl">INCOME</span><span class="mm-s-val pos">${fmt(income)}</span></div>
         <div><span class="mm-s-lbl">TOTAL</span><span class="mm-s-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</span></div>
       </div>
+      <button class="mm-filterbar ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg>
+        <span>${filterActive ? 'Filters active — tap to edit' : 'Filter & Sort'}</span>
+      </button>
       <div class="mm-list">
-        ${days.length ? rows : `<div class="mm-empty">${filterActive ? 'No transactions match your filters.' : `No transactions in ${monthLabel}.<br/>Tap ➕ to add one.`}</div>`}
+        ${days.length ? rows : `<div class="mm-empty">${filterActive ? 'No transactions match your filters.' : `No transactions in ${periodLabelTxt}.<br/>Tap ➕ to add one.`}</div>`}
       </div>
     </div>`;
 }
