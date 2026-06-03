@@ -302,7 +302,9 @@ function renderRecordsMyMoney() {
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="recNav(-1)">‹</button>`}
         <span class="mm-month">${periodLabelTxt}</span>
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="recNav(1)">›</button>`}
+        <button class="mm-today" onclick="recToday()" title="Jump to today">Today</button>
       </div>
+      ${_recAccountChips()}
       ${showTotal ? `<div class="mm-summary">
         <div><span class="mm-s-lbl">EXPENSE</span><span class="mm-s-val neg">${fmt(expense)}</span></div>
         <div><span class="mm-s-lbl">INCOME${incomeCarried ? ' <span style="opacity:.7;font-weight:600">(month)</span>' : ''}</span><span class="mm-s-val pos">${fmt(income)}</span></div>
@@ -320,8 +322,12 @@ function renderRecordsMyMoney() {
         <span>${filterActive ? 'Filters active — tap to edit' : 'Filter & Sort'}</span>
       </button>
       ${selBar}
+      ${_recReminders()}
+      ${_recInsights()}
+      ${_recBudgetBars()}
+      ${_recHeatmap()}
       <div class="mm-list">
-        ${days.length ? rows : `<div class="mm-empty">${filterActive ? 'No transactions match your filters.' : `No transactions in ${periodLabelTxt}.<br/>Tap ➕ to add one.`}</div>`}
+        ${days.length ? rows : `<div class="mm-empty" onclick="openAddTxModal('expense')">${filterActive ? 'No transactions match your filters.' : `<span style="font-size:2.4rem">🧾</span><br/>No transactions in ${periodLabelTxt}.<br/><b style="color:#00c9a7">+ Tap to add one</b>`}</div>`}
       </div>
     </div>`;
   if (typeof initRecordsGestures === 'function') initRecordsGestures();
@@ -416,6 +422,206 @@ function initRecordsGestures() {
   list.addEventListener('touchcancel', () => { clearTimeout(lpTimer); });
 }
 
+// ===================================================================
+//  UX feature pack (builds 155): undo snackbar, today btn, account
+//  chips, budget bars, reminders, insights, heatmap, presets,
+//  auto-category, receipts, global search.
+// ===================================================================
+function _haptic(ms) { if (navigator.vibrate) { try { navigator.vibrate(ms || 15); } catch (e) {} } }
+
+// (13) Receipt photo: read file → dataURL, preview, hold in _pendingReceipt
+let _pendingReceipt = null;
+function _txReceiptPreview(input, imgId) {
+  const f = input.files && input.files[0]; if (!f) { _pendingReceipt = null; return; }
+  const r = new FileReader();
+  r.onload = () => {
+    // downscale to keep storage small
+    const img = new Image();
+    img.onload = () => {
+      const max = 900, sc = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = img.width * sc; c.height = img.height * sc;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      _pendingReceipt = c.toDataURL('image/jpeg', 0.7);
+      const el = document.getElementById(imgId); if (el) { el.src = _pendingReceipt; el.style.display = 'block'; }
+    };
+    img.src = r.result;
+  };
+  r.readAsDataURL(f);
+}
+
+// (1) Undo snackbar
+function showUndoSnack(msg, onUndo) {
+  let el = document.getElementById('undo-snack');
+  if (!el) { el = document.createElement('div'); el.id = 'undo-snack'; document.body.appendChild(el); }
+  el.innerHTML = `<span>${esc(msg)}</span><button>UNDO</button>`;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el.querySelector('button').onclick = () => { el.classList.remove('show'); clearTimeout(el._t); onUndo && onUndo(); };
+  el._t = setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+// (4) Jump to current period
+function recToday() { _recAnchor = new Date(); renderRecordsMyMoney(); }
+
+// (10) Account balance chips
+function _recAccountChips() {
+  const bank = (STATE.bankAccounts || []).reduce((s, b) => s + (b.balance || 0), 0);
+  const cash = (STATE.cashAccounts || []).reduce((s, c) => s + (c.balance || 0), 0);
+  const card = (STATE.creditCards || []).reduce((s, c) => s + (c.outstanding || 0), 0);
+  if (!(STATE.bankAccounts || []).length && !(STATE.cashAccounts || []).length && !(STATE.creditCards || []).length) return '';
+  return `<div class="mm-acct-chips">
+    <div class="mm-acct" onclick="navigate('bank-tracker')"><span>🏦 Bank</span><b>${fmt(bank)}</b></div>
+    <div class="mm-acct" onclick="navigate('bank-tracker')"><span>💵 Cash</span><b>${fmt(cash)}</b></div>
+    <div class="mm-acct" onclick="navigate('bank-tracker')"><span>💳 Card</span><b style="color:#ef4444">${fmt(card)}</b></div>
+  </div>`;
+}
+
+// (9) Recurring reminders due soon
+function _recReminders() {
+  const rec = STATE.recurring || []; if (!rec.length) return '';
+  const today = new Date(); const soon = new Date(); soon.setDate(today.getDate() + 3);
+  const due = rec.filter(r => { const d = new Date(r.nextDate + 'T00:00:00'); return d <= soon; });
+  if (!due.length) return '';
+  return `<div class="mm-reminder" onclick="navigate('categories')">
+    🔔 ${due.length} recurring ${due.length > 1 ? 'bills' : 'bill'} due soon — ${due.slice(0,2).map(r => esc(r.description || r.category)).join(', ')}${due.length > 2 ? '…' : ''}
+  </div>`;
+}
+
+// (11) Auto insights (month view)
+function _recInsights() {
+  if (_recPeriod !== 'month') return '';
+  const a = _recAnchor;
+  const ymThis = `${a.getFullYear()}-${String(a.getMonth() + 1).padStart(2, '0')}`;
+  const prev = new Date(a.getFullYear(), a.getMonth() - 1, 1);
+  const ymPrev = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
+  const txns = STATE.transactions || [];
+  const expThis = txns.filter(t => t.type !== 'income' && (t.date || '').startsWith(ymThis));
+  const expPrev = txns.filter(t => t.type !== 'income' && (t.date || '').startsWith(ymPrev)).reduce((s, t) => s + (+t.amount || 0), 0);
+  const sumThis = expThis.reduce((s, t) => s + (+t.amount || 0), 0);
+  if (!expThis.length) return '';
+  // top category
+  const byCat = {}; expThis.forEach(t => byCat[t.category] = (byCat[t.category] || 0) + (+t.amount || 0));
+  const top = Object.entries(byCat).sort((x, y) => y[1] - x[1])[0];
+  let trend = '';
+  if (expPrev > 0) {
+    const pct = Math.round(((sumThis - expPrev) / expPrev) * 100);
+    trend = pct === 0 ? 'same spend as last month'
+      : `${Math.abs(pct)}% ${pct > 0 ? 'more' : 'less'} than last month`;
+  }
+  return `<div class="mm-insight">
+    <span class="mm-insight-ic">💡</span>
+    <span>Top: <b>${catIcon(top[0])} ${esc(top[0])}</b> (${fmt(top[1])})${trend ? ' · ' + trend : ''}</span>
+  </div>`;
+}
+
+// (8) Budget progress bars
+function _recBudgetBars() {
+  const budgets = STATE.budgets || []; if (!budgets.length) return '';
+  const txns = filterTxByAnchor([...(STATE.transactions || [])], _recPeriod, _ymdLocal(_recAnchor)).filter(t => t.type === 'expense');
+  const rows = budgets.map(b => {
+    const limit = getBudgetLimit(b, _recPeriod === 'all' ? 'year' : _recPeriod) || 1;
+    const spent = txns.filter(t => (t.category || '').trim().toLowerCase() === (b.category || '').trim().toLowerCase()).reduce((s, t) => s + t.amount, 0);
+    if (spent <= 0) return '';
+    const pct = Math.min(100, Math.round((spent / limit) * 100));
+    const col = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f59e0b' : '#10b981';
+    return `<div class="mm-bud">
+      <div class="mm-bud-top"><span>${catIcon(b.category)} ${esc(b.category)}</span><span>${fmt(spent)} / ${fmt(limit)}</span></div>
+      <div class="mm-bud-bar"><div style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).filter(Boolean).join('');
+  if (!rows) return '';
+  return `<details class="mm-budgets"><summary>📊 Budgets this ${_recPeriod === 'all' ? 'year' : _recPeriod}</summary>${rows}</details>`;
+}
+
+// (14) Calendar heatmap (month view)
+function _recHeatmap() {
+  if (_recPeriod !== 'month') return '';
+  const a = _recAnchor, y = a.getFullYear(), m = a.getMonth();
+  const ym = `${y}-${String(m + 1).padStart(2, '0')}`;
+  const daysIn = new Date(y, m + 1, 0).getDate();
+  const firstDow = (new Date(y, m, 1).getDay() + 6) % 7; // Mon=0
+  const perDay = {};
+  (STATE.transactions || []).filter(t => t.type !== 'income' && (t.date || '').startsWith(ym))
+    .forEach(t => { const d = +(t.date || '').slice(8, 10); perDay[d] = (perDay[d] || 0) + (+t.amount || 0); });
+  const max = Math.max(1, ...Object.values(perDay));
+  let cells = '';
+  for (let i = 0; i < firstDow; i++) cells += `<span class="mm-hm-cell empty"></span>`;
+  for (let d = 1; d <= daysIn; d++) {
+    const v = perDay[d] || 0;
+    const inten = v ? (0.18 + 0.82 * (v / max)) : 0;
+    const bg = v ? `rgba(239,68,68,${inten.toFixed(2)})` : 'var(--glass)';
+    const ymd = `${ym}-${String(d).padStart(2, '0')}`;
+    cells += `<span class="mm-hm-cell" style="background:${bg}" onclick="recPickDay('${ymd}')">${d}</span>`;
+  }
+  return `<details class="mm-heat"><summary>📅 Spending heatmap</summary>
+    <div class="mm-hm-grid">${['M','T','W','T','F','S','S'].map(w => `<span class="mm-hm-dow">${w}</span>`).join('')}${cells}</div></details>`;
+}
+
+// (6) Quick-add presets — most-used amount+category+source combos
+function _txPresets() {
+  const map = {};
+  (STATE.transactions || []).slice(0, 300).forEach(t => {
+    const key = `${t.type}|${t.amount}|${t.category}|${t.source || ''}`;
+    map[key] = map[key] || { c: 0, t };
+    map[key].c++;
+  });
+  return Object.values(map).sort((a, b) => b.c - a.c).slice(0, 4).filter(x => x.c >= 2).map(x => x.t);
+}
+let _presetCache = [];
+function _presetChipsHtml() {
+  _presetCache = _txPresets();
+  if (!_presetCache.length) return '';
+  return `<div class="form-group"><label class="form-label">⚡ Quick add</label>
+    <div class="mm-presets">${_presetCache.map((t, i) =>
+      `<button type="button" class="mm-preset" onclick="applyTxPreset(${i})">${catIcon(t.category)} ${esc(t.category)} ${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</button>`).join('')}</div></div>`;
+}
+function applyTxPreset(i) {
+  const t = _presetCache[i]; if (!t) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (el != null && v != null) el.value = v; };
+  set('tx-type', t.type); set('tx-amount', t.amount); set('tx-cat', t.category); set('tx-source', t.source || '');
+  _haptic(12);
+}
+
+// (7) Smart auto-category from description history
+function recAutoCategory(desc) {
+  desc = (desc || '').trim().toLowerCase(); if (desc.length < 2) return;
+  const ruled = (typeof getCategoryRule === 'function') ? getCategoryRule(desc) : null;
+  let cat = ruled;
+  if (!cat) {
+    const m = {};
+    (STATE.transactions || []).forEach(t => { if ((t.description || '').trim().toLowerCase() === desc) m[t.category] = (m[t.category] || 0) + 1; });
+    const top = Object.entries(m).sort((a, b) => b[1] - a[1])[0];
+    if (top) cat = top[0];
+  }
+  const sel = document.getElementById('tx-cat');
+  if (cat && sel && [...sel.options].some(o => o.value === cat)) sel.value = cat;
+}
+
+// (12) Global search across transactions / notes / categories
+function openGlobalSearch() {
+  openModal('🔍 Search', `
+    <input type="text" id="gs-input" class="form-input" placeholder="Search transactions, notes, categories…" oninput="runGlobalSearch(this.value)" autofocus/>
+    <div id="gs-results" style="margin-top:14px;max-height:50vh;overflow-y:auto"></div>`);
+  setTimeout(() => document.getElementById('gs-input')?.focus(), 100);
+}
+function runGlobalSearch(q) {
+  q = (q || '').trim().toLowerCase();
+  const box = document.getElementById('gs-results'); if (!box) return;
+  if (q.length < 2) { box.innerHTML = `<p style="color:var(--text2);font-size:1.1rem">Type at least 2 letters…</p>`; return; }
+  const txns = (STATE.transactions || []).filter(t =>
+    (t.description || '').toLowerCase().includes(q) || (t.category || '').toLowerCase().includes(q) ||
+    (t.subcategory || '').toLowerCase().includes(q)).slice(0, 25);
+  const notes = (STATE.notes || []).filter(n => (n.title || '').toLowerCase().includes(q) || (n.body || n.text || '').toLowerCase().includes(q)).slice(0, 10);
+  let html = '';
+  if (txns.length) html += `<p class="gs-h">Transactions</p>` + txns.map(t =>
+    `<div class="gs-row" onclick="closeModal();navigate('transactions');setTimeout(()=>openEditTxModal('${t.id}'),200)">
+      <span>${catIcon(t.category)} ${esc(t.description || t.category)}</span>
+      <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</b></div>`).join('');
+  if (notes.length) html += `<p class="gs-h">Notes</p>` + notes.map(n =>
+    `<div class="gs-row" onclick="closeModal();navigate('notes')"><span>📝 ${esc(n.title || (n.body || n.text || '').slice(0,30))}</span></div>`).join('');
+  box.innerHTML = html || `<p style="color:var(--text2);font-size:1.1rem">No matches.</p>`;
+}
+
 // Records filter modal — reuses the existing _finType / _finCategory / _finSort + search
 function openRecordsFilter() {
   const cats = [...new Set((STATE.transactions || []).map(t => t.category).filter(Boolean))].sort();
@@ -424,7 +630,7 @@ function openRecordsFilter() {
   const sel = (v, cur) => v === cur ? 'selected' : '';
   openModal('🔍 Filter Records', `
     <div class="form-group"><label class="form-label">Search</label>
-      <input type="text" id="rf-search" class="form-input" value="${esc(_recSearch)}" placeholder="Name, category or note"/></div>
+      <input type="text" id="rf-search" class="form-input" value="${esc(_recSearch)}" placeholder="Name, category or note" oninput="_recSearch=this.value; if(typeof renderRecordsMyMoney==='function')renderRecordsMyMoney();"/></div>
     <div class="form-group"><label class="form-label">Type</label>
       <select id="rf-type" class="form-input">
         <option value="all" ${sel('all', _finType)}>All types</option>
@@ -1259,12 +1465,14 @@ function deleteSelectedTx() {
 }
 
 function openAddTxModal(defaultType) {
+  _pendingReceipt = null;
   const _defType = defaultType || 'expense';
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
   const catOptions = allCats.map(c => `<option value="${c.name}" data-icon="${c.icon}">${c.icon} ${c.name}</option>`).join('');
   const srcOptions = _buildAccountSourceOptions('');
 
   openModal('Add Transaction', `
+    ${_presetChipsHtml()}
     <div class="form-group"><label class="form-label">Type</label>
       <select id="tx-type" class="form-input">
         <option value="expense" ${_defType==='expense'?'selected':''}>❤️ Expense</option>
@@ -1289,7 +1497,10 @@ function openAddTxModal(defaultType) {
         <option value="monthly">Monthly</option>
         <option value="yearly">Yearly</option>
       </select></div>
-    <div class="form-group"><label class="form-label">Description</label><input type="text" id="tx-desc" class="form-input" placeholder="What was this for?"/></div>
+    <div class="form-group"><label class="form-label">Description</label><input type="text" id="tx-desc" class="form-input" placeholder="What was this for?" oninput="recAutoCategory(this.value)"/></div>
+    <div class="form-group"><label class="form-label">📎 Receipt <span style="opacity:.6;font-weight:400">(optional)</span></label>
+      <input type="file" id="tx-receipt" class="form-input" accept="image/*" capture="environment" onchange="_txReceiptPreview(this,'tx-receipt-img')"/>
+      <img id="tx-receipt-img" style="display:none;margin-top:10px;max-width:100%;border-radius:12px"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveTx()">Save Transaction</button>
@@ -1310,10 +1521,11 @@ function saveTx() {
   const subcategory = (document.getElementById('tx-subcat')?.value || '').trim();
   const frequency = document.getElementById('tx-repeat')?.value || '';
   const time = document.getElementById('tx-time')?.value || '';
+  const receipt = _pendingReceipt || '';
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
   const dupe = _findDuplicate(amount, date, description, null);
   if (dupe) {
-    _pendingTx = { type, amount, date, category, icon, description, source, subcategory, frequency, time };
+    _pendingTx = { type, amount, date, category, icon, description, source, subcategory, frequency, time, receipt };
     openModal('⚠️ Possible Duplicate', `
       <p style="font-size:13px;color:var(--text2);margin-bottom:14px">A similar transaction already exists:</p>
       <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px">
@@ -1328,7 +1540,7 @@ function saveTx() {
       </div>`);
     return;
   }
-  _commitTx({ type, amount, date, category, icon, description, source, subcategory, frequency, time });
+  _commitTx({ type, amount, date, category, icon, description, source, subcategory, frequency, time, receipt });
 }
 
 function confirmSaveTx() {
@@ -1369,12 +1581,22 @@ function _commitTx(tx) {
 
 function deleteTx(id) {
   const tx = (STATE.transactions || []).find(t => t.id === id);
-  if (tx) _reverseTxFromAccount(tx);
+  if (!tx) return;
+  const snap = { ...tx };
+  _reverseTxFromAccount(tx);
   STATE.transactions = (STATE.transactions || []).filter(t => t.id !== id);
   saveState();
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
-  toast('Transaction deleted', 'info');
-  renderFinanceTxList();
+  _haptic(20);
+  // (1) undo snackbar
+  showUndoSnack('Transaction deleted', () => {
+    STATE.transactions.unshift(snap);
+    if (typeof _applyTxToAccount === 'function') _applyTxToAccount(snap);
+    saveState();
+    if (window.__IS_APP && currentPage === 'transactions') renderRecordsMyMoney(); else renderFinanceTxList();
+    toast('Restored', 'success');
+  });
+  if (window.__IS_APP && currentPage === 'transactions') renderRecordsMyMoney(); else renderFinanceTxList();
 }
 
 function openEditTxModal(id) {
@@ -1385,6 +1607,7 @@ function openEditTxModal(id) {
     `<option value="${c.name}" ${c.name === tx.category ? 'selected' : ''}>${c.icon} ${c.name}</option>`
   ).join('');
 
+  _pendingReceipt = tx.receipt || null;
   const srcOptions = _buildAccountSourceOptions(tx.source || '');
   openModal('✏️ Edit Transaction', `
     <div class="form-group">
@@ -1424,6 +1647,11 @@ function openEditTxModal(id) {
     <div class="form-group">
       <label class="form-label">Description</label>
       <input type="text" id="etx-desc" class="form-input" value="${tx.description || ''}" placeholder="What was this for?"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📎 Receipt <span style="opacity:.6;font-weight:400">(optional)</span></label>
+      <input type="file" id="etx-receipt" class="form-input" accept="image/*" capture="environment" onchange="_txReceiptPreview(this,'etx-receipt-img')"/>
+      <img id="etx-receipt-img" src="${tx.receipt || ''}" style="${tx.receipt ? '' : 'display:none;'}margin-top:10px;max-width:100%;border-radius:12px"/>
     </div>
     <div class="form-group" style="margin-top:-5px">
       <label style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -1465,6 +1693,7 @@ function saveEditTx(id) {
   tx.source      = source;
   tx.subcategory = subcategory;
   tx.time        = time;
+  tx.receipt     = _pendingReceipt || '';
 
   _applyTxToAccount(tx); // apply new balance effect
 

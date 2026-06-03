@@ -77,11 +77,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=154" />
-  <link rel="stylesheet" href="css/calc.css?v=154" />
-  <link rel="stylesheet" href="css/premium.css?v=154" />
+  <link rel="stylesheet" href="css/styles.css?v=155" />
+  <link rel="stylesheet" href="css/calc.css?v=155" />
+  <link rel="stylesheet" href="css/premium.css?v=155" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=154" />
+  <link rel="stylesheet" href="css/mobile.css?v=155" />
 </head>
 <body>
 
@@ -225,6 +225,10 @@
       <nav class="sidebar-nav">
         <div class="nav-group">
           <p class="nav-group-label">Overview</p>
+          <button class="nav-item" onclick="if(typeof closeMobileDrawer==='function')closeMobileDrawer();openGlobalSearch()" data-page="search">
+            <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <span class="nav-text">Search</span>
+          </button>
           <button class="nav-item active" onclick="navigate('dashboard')" data-page="dashboard">
             <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
             <span class="nav-text">Dashboard</span>
@@ -531,29 +535,29 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=154"></script>
-<script src="js/core.js?v=154"></script>
-<script src="js/dashboard.js?v=154"></script>
-<script src="js/finance.js?v=154"></script>
-<script src="js/bank-tracker.js?v=154"></script>
-<script src="js/life.js?v=154"></script>
-<script src="js/growth.js?v=154"></script>
-<script src="js/ai.js?v=154"></script>
-<script src="js/calculator.js?v=154"></script>
-<script src="js/features.js?v=154"></script>
-<script src="js/premium.js?v=154"></script>
-<script src="js/categories.js?v=154"></script>
-<script src="js/compare.js?v=154"></script>
-<script src="js/pages.js?v=154"></script>
-<script src="js/help.js?v=154"></script>
-<script src="js/voice.js?v=154"></script>
-<script src="js/applock.js?v=154"></script>
-<script src="js/onboarding.js?v=154"></script>
-<script src="js/layout.js?v=154"></script>
-<script src="js/notes.js?v=154"></script>
-<script src="js/widgets.js?v=154"></script>
-<script src="js/yearly.js?v=154"></script>
-<script src="js/init.js?v=154"></script>
+<script src="js/storage.js?v=155"></script>
+<script src="js/core.js?v=155"></script>
+<script src="js/dashboard.js?v=155"></script>
+<script src="js/finance.js?v=155"></script>
+<script src="js/bank-tracker.js?v=155"></script>
+<script src="js/life.js?v=155"></script>
+<script src="js/growth.js?v=155"></script>
+<script src="js/ai.js?v=155"></script>
+<script src="js/calculator.js?v=155"></script>
+<script src="js/features.js?v=155"></script>
+<script src="js/premium.js?v=155"></script>
+<script src="js/categories.js?v=155"></script>
+<script src="js/compare.js?v=155"></script>
+<script src="js/pages.js?v=155"></script>
+<script src="js/help.js?v=155"></script>
+<script src="js/voice.js?v=155"></script>
+<script src="js/applock.js?v=155"></script>
+<script src="js/onboarding.js?v=155"></script>
+<script src="js/layout.js?v=155"></script>
+<script src="js/notes.js?v=155"></script>
+<script src="js/widgets.js?v=155"></script>
+<script src="js/yearly.js?v=155"></script>
+<script src="js/init.js?v=155"></script>
 
 <!-- ===== First-run Onboarding ===== -->
 <div id="onboarding" style="display:none">
