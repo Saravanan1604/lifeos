@@ -120,6 +120,7 @@ function openModal(title, bodyHTML) {
   const ov = document.getElementById('modal-overlay');
   const hd = ov.querySelector('.modal-header');
   if (hd) {
+    hd.style.display = '';   // reset (detail card hides it after open)
     if (window.__IS_APP) hd.style.background = _modalAccent(title);
     else hd.style.background = '';
   }
@@ -761,11 +762,11 @@ function _doExitApp() {
     // If the touch starts inside a horizontal carousel/scroller, let it scroll
     // — don't hijack it for page navigation.
     fromScroller = !!(e.target.closest &&
-      e.target.closest('.fin-bank-grid, .fin-card-grid, .fin-cash-grid, [style*="overflow-x"]'));
+      e.target.closest('.fin-bank-grid, .fin-card-grid, .fin-cash-grid, .mm-row, [style*="overflow-x"]'));
   }, { passive: true });
   document.addEventListener('touchend', e => {
     if (x0 === null) return;
-    if (fromScroller) { x0 = null; y0 = null; fromScroller = false; return; }
+    if (fromScroller || window.__recGestureActive) { x0 = null; y0 = null; fromScroller = false; return; }
     const t = e.changedTouches[0];
     const dx = t.clientX - x0, dy = t.clientY - y0;
     x0 = null; y0 = null;

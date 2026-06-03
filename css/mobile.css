@@ -2008,3 +2008,28 @@ html.is-app .txd-actions button {
 }
 html.is-app .txd-actions { gap: 12px !important; right: 16px !important; top: 16px !important; }
 html.is-app .txd-head .txd-x { left: 16px !important; top: 16px !important; }
+
+/* build 145 — Records gestures: long-press select bar + swipe feedback */
+html.is-app .mm-row { will-change: transform; }
+html.is-app .mm-row.sel { background: rgba(0,201,167,0.14) !important; }
+html.is-app .mm-check {
+  width: 2rem; height: 2rem; flex-shrink: 0; border-radius: 50%;
+  border: 2px solid var(--glass-border); display: inline-flex; align-items: center;
+  justify-content: center; font-size: 1.2rem; color: #fff;
+}
+html.is-app .mm-check.on { background: #00c9a7; border-color: #00c9a7; }
+html.is-app .mm-selbar {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+  background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff;
+  position: sticky; top: 0; z-index: 5;
+}
+html.is-app .mm-selbar .mm-selx {
+  background: rgba(255,255,255,0.25); border: none; color: #fff;
+  width: 40px; height: 40px; border-radius: 50%; font-size: 1.4rem; cursor: pointer;
+}
+html.is-app .mm-selbar .mm-selcount { flex: 1; font-size: 1.4rem; font-weight: 700; }
+html.is-app .mm-selbar .mm-selact {
+  background: rgba(255,255,255,0.22); border: none; color: #fff;
+  padding: 10px 14px; border-radius: 12px; font-size: 1.2rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+html.is-app .mm-selbar .mm-selact.del { background: rgba(239,68,68,0.85); }

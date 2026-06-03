@@ -8,6 +8,9 @@ let _finSelected = new Set();    // Selected transaction IDs (for bulk delete)
 let _recPeriod = 'month';        // Records page period: day|week|month|year|all (app only)
 let _recAnchor = new Date();     // Records page anchor date (app only)
 let _recSearch = '';             // Records page search text (app only)
+let _recSelectMode = false;      // Records multi-select (long-press) mode
+let _recSel = new Set();         // selected transaction ids
+let _recSuppressTap = false;     // ignore the tap that follows a gesture
 
 const CATEGORIES = [
   { name: 'Salary', icon: '💰' }, { name: 'Business', icon: '🏢' }, { name: 'Freelance', icon: '💻' },
@@ -218,8 +221,10 @@ function renderRecordsMyMoney() {
       const note = t.description ? `<span class="mm-note">“${esc(t.description)}”</span>` : '';
       const sub = t.subcategory ? `<span class="mm-note">› ${esc(t.subcategory)}</span>` : '';
       const tm = t.time ? `<span class="mm-note">🕒 ${_fmtTime(t.time)}</span>` : '';
+      const seld = _recSel.has(t.id);
       return `
-      <div class="mm-row" onclick="openTxDetail('${t.id}')">
+      <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
+        ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
         <div class="mm-ic" style="background:${catColor(t.category)}">${t.icon || catIcon(t.category)}</div>
         <div class="mm-mid">
           <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
@@ -236,8 +241,17 @@ function renderRecordsMyMoney() {
   const periodTabs = tabs.map(p =>
     `<button class="mm-ptab ${_recPeriod === p ? 'active' : ''}" onclick="recSetPeriod('${p}')">${tabLabels[p]}</button>`).join('');
 
+  const selBar = _recSelectMode ? `
+      <div class="mm-selbar">
+        <button class="mm-selx" onclick="recCancelSelect()">✕</button>
+        <span class="mm-selcount">${_recSel.size} selected</span>
+        <button class="mm-selact" onclick="recBulkCategory()">🏷️ Category</button>
+        <button class="mm-selact del" onclick="recBulkDelete()">🗑️ Delete</button>
+      </div>` : '';
+
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in mymoney-records">
+      ${selBar}
       <div class="mm-ptabs">${periodTabs}</div>
       <div class="mm-monthbar">
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="recNav(-1)">‹</button>`}
@@ -264,6 +278,107 @@ function renderRecordsMyMoney() {
         ${days.length ? rows : `<div class="mm-empty">${filterActive ? 'No transactions match your filters.' : `No transactions in ${periodLabelTxt}.<br/>Tap ➕ to add one.`}</div>`}
       </div>
     </div>`;
+  if (typeof initRecordsGestures === 'function') initRecordsGestures();
+}
+
+// ===== Records row gestures: long-press select, swipe-right delete, swipe-left edit =====
+function recRowTap(id) {
+  if (_recSuppressTap) return;            // ignore the click that follows a gesture
+  if (_recSelectMode) { recToggleSel(id); return; }
+  openTxDetail(id);
+}
+function recToggleSel(id) {
+  if (_recSel.has(id)) _recSel.delete(id); else _recSel.add(id);
+  if (_recSel.size === 0) _recSelectMode = false;
+  renderRecordsMyMoney();
+}
+function recEnterSelect(id) {
+  _recSelectMode = true; _recSel = new Set([id]);
+  if (navigator.vibrate) try { navigator.vibrate(25); } catch (e) {}
+  renderRecordsMyMoney();
+}
+function recCancelSelect() { _recSelectMode = false; _recSel = new Set(); renderRecordsMyMoney(); }
+
+function recBulkDelete() {
+  const n = _recSel.size; if (!n) return;
+  openModal('🗑️ Delete Transactions', `
+    <p style="font-size:1.3rem;text-align:center;margin:6px 0 20px">Delete ${n} selected transaction${n > 1 ? 's' : ''}?</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" style="background:#ef4444" onclick="recBulkDeleteConfirm()">Delete</button>
+    </div>`);
+}
+function recBulkDeleteConfirm() {
+  const ids = [..._recSel];
+  ids.forEach(id => { const tx = (STATE.transactions || []).find(t => t.id === id); if (tx && typeof _reverseTxFromAccount === 'function') _reverseTxFromAccount(tx); });
+  STATE.transactions = (STATE.transactions || []).filter(t => !ids.includes(t.id));
+  saveState();
+  if (typeof autoSyncGoals === 'function') autoSyncGoals();
+  _recSelectMode = false; _recSel = new Set();
+  closeModal(); toast(`${ids.length} deleted`, 'info'); renderRecordsMyMoney();
+}
+function recBulkCategory() {
+  if (!_recSel.size) return;
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const opts = allCats.map(c => `<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
+  openModal('🏷️ Change Category', `
+    <div class="form-group"><label class="form-label">New Category (${_recSel.size} selected)</label>
+      <select id="recbulk-cat" class="form-input">${opts}</select></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="recBulkCategoryConfirm()">Apply</button>
+    </div>`);
+}
+function recBulkCategoryConfirm() {
+  const cat = document.getElementById('recbulk-cat')?.value; if (!cat) return;
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const icon = allCats.find(c => c.name === cat)?.icon || '💳';
+  const ids = [..._recSel];
+  (STATE.transactions || []).forEach(t => { if (ids.includes(t.id)) { t.category = cat; t.icon = icon; } });
+  saveState();
+  _recSelectMode = false; _recSel = new Set();
+  closeModal(); toast('Category updated', 'success'); renderRecordsMyMoney();
+}
+
+function initRecordsGestures() {
+  const list = document.querySelector('.mymoney-records .mm-list');
+  if (!list) return;
+  let startX = 0, startY = 0, row = null, id = null, moved = false, lpTimer = null, swiping = false;
+  const reset = () => { if (row) { row.style.transition = 'transform .2s ease, background .2s ease'; row.style.transform = ''; row.style.background = ''; } };
+
+  list.addEventListener('touchstart', e => {
+    const r = e.target.closest('.mm-row'); if (!r) { row = null; return; }
+    row = r; id = r.dataset.id; const t = e.touches[0];
+    startX = t.clientX; startY = t.clientY; moved = false; swiping = false;
+    row.style.transition = 'none';
+    clearTimeout(lpTimer);
+    lpTimer = setTimeout(() => { if (!moved && !_recSelectMode) { _recSuppressTap = true; recEnterSelect(id); setTimeout(() => _recSuppressTap = false, 400); } }, 500);
+  }, { passive: true });
+
+  list.addEventListener('touchmove', e => {
+    if (!row) return;
+    const t = e.touches[0], dx = t.clientX - startX, dy = t.clientY - startY;
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) { moved = true; clearTimeout(lpTimer); }
+    if (!_recSelectMode && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+      swiping = true; window.__recGestureActive = true;
+      row.style.transform = `translateX(${dx}px)`;
+      row.style.background = dx > 0 ? 'rgba(239,68,68,0.20)' : 'rgba(59,130,246,0.20)';
+    }
+  }, { passive: true });
+
+  list.addEventListener('touchend', e => {
+    clearTimeout(lpTimer);
+    if (row && swiping) {
+      const dx = e.changedTouches[0].clientX - startX, TH = 90, _id = id;
+      reset();
+      _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 400);
+      if (dx > TH)      setTimeout(() => txdDelete(_id), 60);        // swipe right → delete
+      else if (dx < -TH) setTimeout(() => openEditTxModal(_id), 60); // swipe left → edit
+      try { e.preventDefault(); } catch (_) {}
+    }
+    setTimeout(() => { window.__recGestureActive = false; }, 60);
+    row = null; swiping = false;
+  });
 }
 
 // Records filter modal — reuses the existing _finType / _finCategory / _finSort + search
@@ -341,6 +456,9 @@ function openTxDetail(id) {
         <div class="txd-row" style="border:none"><span>Notes</span><b style="font-weight:500;opacity:.85">${esc(note)}</b></div>
       </div>
     </div>`);
+  // the detail card has its own close/header — hide the generic modal header bar
+  const _hd = document.querySelector('#modal-overlay .modal-header');
+  if (_hd) _hd.style.display = 'none';
 }
 
 // Detail-card edit / delete (custom confirm — browser confirm() is unreliable in the TWA)
