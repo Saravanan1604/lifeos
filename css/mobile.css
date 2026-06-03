@@ -1737,3 +1737,10 @@ html.is-app .content         { font-size: 1.75rem !important; }
 html.is-app .stat-card-value { font-size: 3.125rem !important; }
 html.is-app .stat-card-label { font-size: 1.4375rem !important; }
 html.is-app input, html.is-app select, html.is-app textarea { font-size: 1.6875rem !important; }
+
+/* ============================================================
+   build 130 — make the whole app font 1.25x bigger
+   (root at 125%; all rem-based text scales up, still follows
+   the system font-size setting proportionally). App-only.
+   ============================================================ */
+html.is-app { font-size: 125% !important; }
