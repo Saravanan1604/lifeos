@@ -115,9 +115,19 @@ function renderRecordsMyMoney() {
   const periodLabelTxt = _recPeriodLabel();
 
   // summary reflects the whole period (independent of active filters)
-  const income  = periodTxns.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
   const expense = periodTxns.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
-  const total   = income - expense;
+  let income    = periodTxns.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+  // Carry income forward for the FULL month when viewing a day or week
+  // (e.g. salary credited on the 1st still counts when you look at any day).
+  let incomeCarried = false;
+  if (_recPeriod === 'day' || _recPeriod === 'week') {
+    const ym = `${_recAnchor.getFullYear()}-${String(_recAnchor.getMonth() + 1).padStart(2, '0')}`;
+    income = (STATE.transactions || [])
+      .filter(t => t.type === 'income' && (t.date || '').startsWith(ym))
+      .reduce((s, t) => s + (+t.amount || 0), 0);
+    incomeCarried = true;
+  }
+  const total = income - expense;
 
   // apply our existing filters (type / category / search)
   const q = _recSearch.trim().toLowerCase();
@@ -184,7 +194,7 @@ function renderRecordsMyMoney() {
       </div>
       <div class="mm-summary">
         <div><span class="mm-s-lbl">EXPENSE</span><span class="mm-s-val neg">${fmt(expense)}</span></div>
-        <div><span class="mm-s-lbl">INCOME</span><span class="mm-s-val pos">${fmt(income)}</span></div>
+        <div><span class="mm-s-lbl">INCOME${incomeCarried ? ' <span style="opacity:.7;font-weight:600">(month)</span>' : ''}</span><span class="mm-s-val pos">${fmt(income)}</span></div>
         <div><span class="mm-s-lbl">TOTAL</span><span class="mm-s-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</span></div>
       </div>
       <button class="mm-filterbar ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()">
