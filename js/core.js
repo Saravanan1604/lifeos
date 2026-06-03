@@ -100,10 +100,30 @@ function toast(msg, type = 'info') {
 }
 
 // ===== MODAL =====
+// Premium dual-tone accents (installed app only). The coloured header band is
+// chosen from keywords in the modal title — expense=red, income=green, etc.
+function _modalAccent(title) {
+  const t = (title || '').toLowerCase();
+  if (/expense|spend|debit|delete|remove/.test(t)) return 'linear-gradient(135deg,#ef4444,#b91c1c)';
+  if (/income|salary|credit balance|deposit/.test(t)) return 'linear-gradient(135deg,#10b981,#047857)';
+  if (/bank|balance|account/.test(t))               return 'linear-gradient(135deg,#3b82f6,#1e40af)';
+  if (/card|credit/.test(t))                          return 'linear-gradient(135deg,#8b5cf6,#5b21b6)';
+  if (/cash|wallet/.test(t))                          return 'linear-gradient(135deg,#f59e0b,#b45309)';
+  if (/goal|target|save/.test(t))                     return 'linear-gradient(135deg,#14b8a6,#0f766e)';
+  if (/budget|limit/.test(t))                         return 'linear-gradient(135deg,#6366f1,#4338ca)';
+  if (/transaction|add/.test(t))                      return 'linear-gradient(135deg,#00c9a7,#6366f1)';
+  return 'linear-gradient(135deg,#00c9a7,#6366f1)';
+}
 function openModal(title, bodyHTML) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-body').innerHTML = bodyHTML;
-  document.getElementById('modal-overlay').style.display = 'flex';
+  const ov = document.getElementById('modal-overlay');
+  const hd = ov.querySelector('.modal-header');
+  if (hd) {
+    if (window.__IS_APP) hd.style.background = _modalAccent(title);
+    else hd.style.background = '';
+  }
+  ov.style.display = 'flex';
 }
 function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';

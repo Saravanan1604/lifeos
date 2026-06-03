@@ -1591,3 +1591,78 @@ html.is-app .fin-dark-card::after {
   pointer-events: none;
   border-radius: inherit;
 }
+
+/* ============================================================
+   build 127 — premium dual-tone popup modals (app only)
+   Colourful header band (set per-type in openModal) + cream body,
+   MyMoney-style. Scoped to html.is-app so web modals are untouched.
+   ============================================================ */
+html.is-app #modal-overlay .modal-box {
+  background: #fffdf3 !important;
+  border: none !important;
+  border-radius: 26px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.55) !important;
+  max-width: 460px !important;
+}
+/* coloured header band */
+html.is-app #modal-overlay .modal-header {
+  margin: 0 !important;
+  padding: 22px 22px 26px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  position: relative !important;
+  /* background gradient is set inline by openModal() per type */
+}
+html.is-app #modal-overlay .modal-header h3 {
+  color: #ffffff !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: .3px !important;
+  margin: 0 !important;
+  text-align: center !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.18) !important;
+}
+html.is-app #modal-overlay .modal-close {
+  position: absolute !important; left: 14px !important; top: 14px !important;
+  width: 38px !important; height: 38px !important; border-radius: 50% !important;
+  background: rgba(255,255,255,0.22) !important; color: #fff !important;
+  border: none !important; font-size: 17px !important; cursor: pointer !important;
+}
+/* cream body with dark, readable text */
+html.is-app #modal-overlay .modal-body {
+  background: #fffdf3 !important;
+  color: #1f2937 !important;
+  padding: 22px 20px !important;
+}
+html.is-app #modal-overlay .modal-body .form-label,
+html.is-app #modal-overlay .modal-body label {
+  color: #0f4c43 !important; font-weight: 700 !important;
+}
+html.is-app #modal-overlay .modal-body .form-input,
+html.is-app #modal-overlay .modal-body select,
+html.is-app #modal-overlay .modal-body textarea {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1.5px solid #d8d4c0 !important;
+  border-radius: 12px !important;
+  color-scheme: light !important;
+}
+html.is-app #modal-overlay .modal-body .form-input::placeholder,
+html.is-app #modal-overlay .modal-body textarea::placeholder { color: #9ca3af !important; }
+html.is-app #modal-overlay .modal-body select option { background: #ffffff !important; color: #111827 !important; }
+/* secondary (cancel) button readable on cream */
+html.is-app #modal-overlay .modal-body .btn-secondary {
+  background: #efece0 !important; color: #374151 !important; border: 1px solid #d8d4c0 !important;
+}
+html.is-app #modal-overlay .modal-actions { border-top: 1px solid #ece8d8 !important; padding-top: 16px !important; margin-top: 6px !important; }
+/* generic text inside the body (headings, helper text) stays dark */
+html.is-app #modal-overlay .modal-body h1,
+html.is-app #modal-overlay .modal-body h2,
+html.is-app #modal-overlay .modal-body h3,
+html.is-app #modal-overlay .modal-body h4,
+html.is-app #modal-overlay .modal-body p,
+html.is-app #modal-overlay .modal-body span,
+html.is-app #modal-overlay .modal-body div,
+html.is-app #modal-overlay .modal-body b { color: #1f2937; }
