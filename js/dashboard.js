@@ -733,7 +733,7 @@ function renderDashboard() {
       </div>
 
       <!-- KPI Cards with sparklines + delta + alarm states -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px" class="kpi-grid">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px" class="kpi-grid">
         ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
       </div>
 
