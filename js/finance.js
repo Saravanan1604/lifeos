@@ -143,6 +143,48 @@ function recToggleCarry() {
   STATE.settings.carryForward = !STATE.settings.carryForward;
   saveState(); renderRecordsMyMoney();
 }
+function recCarrySettings() {
+  STATE.settings = STATE.settings || {};
+  const on = STATE.settings.carryForward === true;
+  const from = STATE.settings.carryFrom || '';
+  openModal('↪ Carry Forward Balance', `
+    <label style="display:flex;align-items:center;gap:12px;font-size:1.3rem;font-weight:700;margin-bottom:16px;cursor:pointer">
+      <input type="checkbox" id="cf-on" ${on ? 'checked' : ''} style="width:24px;height:24px;accent-color:#00c9a7"/>
+      Carry the running balance forward
+    </label>
+    <p style="font-size:1.05rem;color:var(--text2);margin:-6px 0 16px">When on, TOTAL becomes a running BALANCE that carries across periods.</p>
+    <div class="form-group"><label class="form-label">Start counting from</label>
+      <input type="date" id="cf-from" class="form-input" value="${from}"/>
+      <p style="font-size:1rem;color:var(--text2);margin-top:6px">Leave blank to include all transactions.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+      <button class="btn-secondary btn-sm" onclick="_cfQuick('week')">This week</button>
+      <button class="btn-secondary btn-sm" onclick="_cfQuick('month')">This month</button>
+      <button class="btn-secondary btn-sm" onclick="_cfQuick('year')">This year</button>
+      <button class="btn-secondary btn-sm" onclick="_cfQuick('all')">All time</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="recCarrySave()">Save</button>
+    </div>`);
+}
+function _cfQuick(kind) {
+  const el = document.getElementById('cf-from'); if (!el) return;
+  const n = new Date();
+  if (kind === 'all') { el.value = ''; return; }
+  let d;
+  if (kind === 'week')  { const dow = (n.getDay() + 6) % 7; d = new Date(n); d.setDate(n.getDate() - dow); }
+  if (kind === 'month') d = new Date(n.getFullYear(), n.getMonth(), 1);
+  if (kind === 'year')  d = new Date(n.getFullYear(), 0, 1);
+  el.value = _ymdLocal(d);
+  const on = document.getElementById('cf-on'); if (on) on.checked = true;
+}
+function recCarrySave() {
+  STATE.settings = STATE.settings || {};
+  STATE.settings.carryForward = !!document.getElementById('cf-on')?.checked;
+  STATE.settings.carryFrom = document.getElementById('cf-from')?.value || '';
+  saveState(); closeModal(); renderRecordsMyMoney();
+}
 function recPickDay(v) {
   if (!v) return;
   _recAnchor = new Date(v + 'T00:00:00');
@@ -176,8 +218,9 @@ function renderRecordsMyMoney() {
   const carryForward = STATE.settings && STATE.settings.carryForward === true;
   if (carryForward && _recPeriod !== 'all') {
     const periodEnd = _recPeriodEndYmd();
+    const from = (STATE.settings && STATE.settings.carryFrom) || '';   // optional start date
     total = (STATE.transactions || [])
-      .filter(t => (t.date || '').slice(0, 10) <= periodEnd)
+      .filter(t => { const d = (t.date || '').slice(0, 10); return d <= periodEnd && (!from || d >= from); })
       .reduce((s, t) => s + (t.type === 'income' ? (+t.amount || 0) : -(+t.amount || 0)), 0);
   }
 
@@ -259,8 +302,7 @@ function renderRecordsMyMoney() {
       </div>` : '';
 
   document.getElementById('page-container').innerHTML = `
-    <div class="fade-in mymoney-records">
-      ${selBar}
+    <div class="fade-in mymoney-records ${_recSelectMode ? 'selmode' : ''}">
       <div class="mm-ptabs">${periodTabs}</div>
       <div class="mm-monthbar">
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="recNav(-1)">‹</button>`}
@@ -277,12 +319,13 @@ function renderRecordsMyMoney() {
           <input type="date" value="${anchorYmd}" onchange="recPickDay(this.value)"/>
         </label>
         <button class="mm-cbtn ${showTotal ? 'on' : ''}" onclick="recToggleTotal()">Σ Total</button>
-        <button class="mm-cbtn ${carryForward ? 'on' : ''}" onclick="recToggleCarry()">↪ Carry fwd</button>
+        <button class="mm-cbtn ${carryForward ? 'on' : ''}" onclick="recCarrySettings()">↪ Carry fwd</button>
       </div>
       <button class="mm-filterbar ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg>
         <span>${filterActive ? 'Filters active — tap to edit' : 'Filter & Sort'}</span>
       </button>
+      ${selBar}
       <div class="mm-list">
         ${days.length ? rows : `<div class="mm-empty">${filterActive ? 'No transactions match your filters.' : `No transactions in ${periodLabelTxt}.<br/>Tap ➕ to add one.`}</div>`}
       </div>

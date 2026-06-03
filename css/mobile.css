@@ -2089,3 +2089,12 @@ html.is-app .mm-row.armed {
   transform: scale(1.02);
   border-radius: 12px;
 }
+
+/* build 152 — fix select-mode mess: hide swipe reveal + solid selected rows */
+html.is-app .mymoney-records.selmode .mm-rowbg { display: none !important; }
+html.is-app .mymoney-records.selmode .mm-row { transform: none !important; }
+html.is-app .mm-row.sel { background: var(--bg) !important; box-shadow: inset 4px 0 0 #00c9a7; }
+html.is-app.light .mm-row.sel, html.is-app .light .mm-row.sel { background: #eafaf6 !important; box-shadow: inset 4px 0 0 #00c9a7; }
+html.is-app .mm-check { margin-right: 4px; }
+/* the selection action bar sits under Filter & Sort now */
+html.is-app .mm-selbar { position: static !important; border-radius: 16px; margin: 4px 14px 6px; }
