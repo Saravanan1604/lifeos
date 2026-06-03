@@ -1419,3 +1419,36 @@ html.is-app .kpi-grid > *:nth-child(1) { box-shadow: 0 8px 26px rgba(16,185,129,
 html.is-app .kpi-grid > *:nth-child(2) { box-shadow: 0 8px 26px rgba(239,68,68,0.18),  inset 0 1px 0 rgba(255,255,255,0.06) !important; }
 html.is-app .kpi-grid > *:nth-child(3) { box-shadow: 0 8px 26px rgba(245,158,11,0.18), inset 0 1px 0 rgba(255,255,255,0.06) !important; }
 html.is-app .kpi-grid > *:nth-child(4) { box-shadow: 0 8px 26px rgba(0,201,167,0.18),  inset 0 1px 0 rgba(255,255,255,0.06) !important; }
+
+/* ============================================================
+   build 110 — no login flash + premium equal-spaced bottom nav
+   ============================================================ */
+/* Hide the auth screen instantly when a session exists (no 1s flash) */
+html.has-session #auth-screen { display: none !important; }
+html.has-session #main-app    { display: flex !important; }
+
+/* ---- Premium bottom nav with EQUAL spacing ---- */
+html.is-app #bottom-nav {
+  justify-content: space-evenly !important;
+  background: rgba(11,13,22,0.98) !important;
+  border-top: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: 0 -8px 28px rgba(0,0,0,0.4) !important;
+}
+html.is-app.light #bottom-nav, html.is-app .light #bottom-nav { background: rgba(255,255,255,0.98) !important; }
+/* flatten the two groups so all 6 tabs are equal-width siblings */
+html.is-app #bottom-nav .bn-group { display: contents !important; }
+html.is-app #bottom-nav .bn-item {
+  flex: 1 1 0 !important; min-width: 0 !important;
+  position: relative !important; padding: 6px 2px !important; gap: 5px !important;
+}
+/* active tab: teal with a soft pill highlight */
+html.is-app #bottom-nav .bn-item.active { color: #00c9a7 !important; }
+html.is-app #bottom-nav .bn-item.active::before {
+  content: ''; position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+  width: 64px; height: 64px; border-radius: 18px;
+  background: radial-gradient(circle, rgba(0,201,167,0.18), rgba(0,201,167,0) 70%);
+  pointer-events: none; z-index: -1;
+}
+/* keep the centre two tabs clear of the FAB */
+html.is-app #bottom-nav .bn-item[data-page="investments"] { padding-right: 30px !important; }
+html.is-app #bottom-nav .bn-item[data-page="budget"]      { padding-left: 30px !important; }
