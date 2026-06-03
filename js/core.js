@@ -694,14 +694,15 @@ window.addEventListener('popstate', (e) => {
   const sb = document.querySelector('.sidebar.mobile-open');
   if (sb) { _closeMobileDrawer(); history.pushState({ page: currentPage }, ''); return; }
 
-  if (e.state && e.state.page) {
-    navigate(e.state.page, true);
-  } else if (window.__IS_APP && currentPage === 'dashboard') {
-    // At the home screen → ask before exiting the app
-    history.pushState({ page: 'dashboard' }, '');     // stay put
+  // Back behaviour: any page → go Home first; on Home → ask to exit.
+  if (currentPage !== 'dashboard') {
+    navigate('dashboard', true);
+    history.pushState({ page: 'dashboard' }, '');
+  } else if (window.__IS_APP) {
+    history.pushState({ page: 'dashboard' }, '');   // stay put
     showExitConfirm();
   } else {
-    navigate('dashboard', true);
+    history.pushState({ page: 'dashboard' }, '');   // web: keep them in-app
   }
 });
 
