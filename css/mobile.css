@@ -735,8 +735,9 @@ html.is-app #mobile-notif-btn { width: 66px !important; height: 66px !important;
 html.is-app #mobile-notif-btn svg { width: 44px !important; height: 44px !important; }
 html.is-app .content { padding-top: 92px !important; }
 
-/* #2 remove the header "+ Add Transaction" button (it's the center FAB now) */
-html.is-app .page-header .btn-primary { display: none !important; }
+/* #2 the dashboard/finance header "+ Add Transaction" is hidden in the JS
+   templates (the centre FAB replaces it). We do NOT hide all header primary
+   buttons here, so legitimate ones (Export PDF, New Note, Add Asset…) show. */
 
 /* #12 remove the search bar */
 html.is-app .app-search { display: none !important; }

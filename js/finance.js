@@ -94,7 +94,7 @@ function renderFinance() {
         <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             ${window.__IS_APP ? '' : periodTabsHtml(_finPeriod, 'setFinPeriod')}
-            <button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>
+            ${window.__IS_APP ? '' : `<button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>`}
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="btn-secondary btn-sm" onclick="openCsvImport()" style="display:flex;align-items:center;gap:6px">📊 Import CSV</button>
