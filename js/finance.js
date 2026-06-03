@@ -372,7 +372,7 @@ function initRecordsGestures() {
       const dx = e.changedTouches[0].clientX - startX, TH = 90, _id = id;
       reset();
       _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 400);
-      if (dx > TH)      setTimeout(() => txdDelete(_id), 60);        // swipe right → delete
+      if (dx > TH)      setTimeout(() => deleteTx(_id), 60);          // swipe right → delete instantly (no confirm)
       else if (dx < -TH) setTimeout(() => openEditTxModal(_id), 60); // swipe left → edit
       try { e.preventDefault(); } catch (_) {}
     }
