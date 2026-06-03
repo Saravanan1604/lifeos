@@ -1744,3 +1744,66 @@ html.is-app input, html.is-app select, html.is-app textarea { font-size: 1.6875r
    the system font-size setting proportionally). App-only.
    ============================================================ */
 html.is-app { font-size: 125% !important; }
+
+/* ============================================================
+   build 132 — MyMoney-style Records page (app only)
+   Cream theme + grouped-by-day rows with colourful round icons.
+   Scoped to .mymoney-records inside html.is-app, so nothing else
+   (web, other pages) is affected.
+   ============================================================ */
+html.is-app .mymoney-records {
+  background: #fdfcef;
+  margin: -16px -16px 0;        /* bleed to page edges */
+  padding: 8px 0 40px;
+  min-height: calc(100vh - 60px);
+}
+/* month navigator */
+html.is-app .mm-monthbar {
+  display: flex; align-items: center; justify-content: center; gap: 26px;
+  padding: 14px 0 10px;
+}
+html.is-app .mm-month  { color: #0f4c43; font-size: 1.6rem; font-weight: 700; }
+html.is-app .mm-navbtn {
+  background: none; border: none; color: #0f7a6a; font-size: 2rem; line-height: 1;
+  cursor: pointer; padding: 4px 10px; font-weight: 700;
+}
+/* summary row */
+html.is-app .mm-summary {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  padding: 6px 18px 16px; border-bottom: 1px solid #e7e3cf;
+  text-align: center;
+}
+html.is-app .mm-summary > div { display: flex; flex-direction: column; gap: 4px; }
+html.is-app .mm-s-lbl { color: #6b7280; font-size: 1.05rem; font-weight: 600; letter-spacing: .5px; }
+html.is-app .mm-s-val { font-size: 1.5rem; font-weight: 800; }
+html.is-app .mm-s-val.pos, html.is-app .mm-amt.pos { color: #0f9d58; }
+html.is-app .mm-s-val.neg, html.is-app .mm-amt.neg { color: #d32f2f; }
+/* day header */
+html.is-app .mm-day {
+  color: #0f4c43; font-size: 1.25rem; font-weight: 700;
+  padding: 18px 18px 8px; border-bottom: 1px solid #d9d4bd; margin: 0 0 2px;
+}
+/* a transaction row */
+html.is-app .mm-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-bottom: 1px solid #ece8d4;
+  cursor: pointer; transition: background .15s;
+}
+html.is-app .mm-row:active { background: #f3f0dd; }
+html.is-app .mm-ic {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; color: #fff;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+}
+html.is-app .mm-mid { flex: 1; min-width: 0; }
+html.is-app .mm-cat { color: #16302b; font-size: 1.5rem; font-weight: 700; margin: 0 0 3px; }
+html.is-app .mm-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+html.is-app .mm-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #eef6ee; border: 1px solid #cfe6cf; color: #3a5a3a;
+  border-radius: 8px; padding: 2px 8px; font-size: 1.05rem; font-weight: 600;
+}
+html.is-app .mm-note { color: #8a8a72; font-size: 1.1rem; }
+html.is-app .mm-amt { font-size: 1.55rem; font-weight: 800; white-space: nowrap; }
+html.is-app .mm-empty { text-align: center; color: #8a8a72; font-size: 1.25rem; padding: 60px 20px; line-height: 1.6; }

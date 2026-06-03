@@ -595,6 +595,8 @@ function _appendQuickActions(page) {
 // Standalone Transactions page — reuses renderFinance, then strips everything
 // except the transactions section (with all its filters/search/bulk tools).
 function renderTransactions() {
+  // Installed app → MyMoney-style records list
+  if (window.__IS_APP && typeof renderRecordsMyMoney === 'function') { renderRecordsMyMoney(); return; }
   if (typeof renderFinance !== 'function') return;
   renderFinance();
   const c = document.getElementById('page-container');

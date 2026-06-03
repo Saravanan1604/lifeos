@@ -5,6 +5,7 @@ let _finType     = 'all';        // 'all' | 'income' | 'expense'
 let _finCategory = 'all';        // 'all' | <category name>
 let _finSort     = 'date-desc';  // 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc' | 'alpha-asc' | 'alpha-desc'
 let _finSelected = new Set();    // Selected transaction IDs (for bulk delete)
+let _recMonth = new Date();      // MyMoney-style Records page month anchor (app only)
 
 const CATEGORIES = [
   { name: 'Salary', icon: '💰' }, { name: 'Business', icon: '🏢' }, { name: 'Freelance', icon: '💻' },
@@ -70,6 +71,71 @@ function processRecurring() {
     saveState();
     if (typeof toast === 'function') toast(`🔁 ${created} recurring transaction${created > 1 ? 's' : ''} added`, 'info');
   }
+}
+
+// ===== MyMoney-style Records page (installed app only) =====
+function recMonthNav(delta) {
+  _recMonth = new Date(_recMonth.getFullYear(), _recMonth.getMonth() + delta, 1);
+  renderRecordsMyMoney();
+}
+
+function renderRecordsMyMoney() {
+  const y = _recMonth.getFullYear(), m = _recMonth.getMonth();
+  const ym = `${y}-${String(m + 1).padStart(2, '0')}`;
+  const monthLabel = _recMonth.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+
+  const all = (STATE.transactions || []).filter(t => (t.date || '').startsWith(ym));
+  const income  = all.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+  const expense = all.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+  const total   = income - expense;
+
+  // group by day (newest first)
+  const byDay = {};
+  all.forEach(t => { (byDay[(t.date || '').slice(0, 10)] = byDay[(t.date || '').slice(0, 10)] || []).push(t); });
+  const days = Object.keys(byDay).sort((a, b) => b.localeCompare(a));
+
+  const dayHeader = (d) => {
+    const dt = new Date(d + 'T00:00:00');
+    return `${dt.toLocaleDateString('en-IN', { month: 'short' })} ${String(dt.getDate()).padStart(2, '0')}, ${dt.toLocaleDateString('en-IN', { weekday: 'long' })}`;
+  };
+
+  const rows = days.map(d => `
+    <div class="mm-day">${dayHeader(d)}</div>
+    ${byDay[d].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)).map(t => {
+      const inc = t.type === 'income';
+      const src = t.source ? _sourceLabel(t.source) : '';
+      const isCard = /card|credit/i.test(t.source || '');
+      const chip = src ? `<span class="mm-chip">${isCard ? '💳' : '💵'} ${esc(src)}</span>` : '';
+      const note = t.description ? `<span class="mm-note">“${esc(t.description)}”</span>` : '';
+      const sub = t.subcategory ? `<span class="mm-note">› ${esc(t.subcategory)}</span>` : '';
+      return `
+      <div class="mm-row" onclick="openTxDetail('${t.id}')">
+        <div class="mm-ic" style="background:${catColor(t.category)}">${t.icon || catIcon(t.category)}</div>
+        <div class="mm-mid">
+          <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
+          <div class="mm-meta">${chip}${note}${sub}</div>
+        </div>
+        <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
+      </div>`;
+    }).join('')}
+  `).join('');
+
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in mymoney-records">
+      <div class="mm-monthbar">
+        <button class="mm-navbtn" onclick="recMonthNav(-1)">‹</button>
+        <span class="mm-month">${monthLabel}</span>
+        <button class="mm-navbtn" onclick="recMonthNav(1)">›</button>
+      </div>
+      <div class="mm-summary">
+        <div><span class="mm-s-lbl">EXPENSE</span><span class="mm-s-val neg">${fmt(expense)}</span></div>
+        <div><span class="mm-s-lbl">INCOME</span><span class="mm-s-val pos">${fmt(income)}</span></div>
+        <div><span class="mm-s-lbl">TOTAL</span><span class="mm-s-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</span></div>
+      </div>
+      <div class="mm-list">
+        ${days.length ? rows : `<div class="mm-empty">No transactions in ${monthLabel}.<br/>Tap ➕ to add one.</div>`}
+      </div>
+    </div>`;
 }
 
 // MyMoney-style colour-coded transaction detail card
@@ -485,6 +551,9 @@ function renderFinancePieChart(topCats) {
 
 // ===== PARTIAL REFRESH — update hero + stats + list without full page re-render =====
 function refreshFinancePage() {
+  // MyMoney-style Records page (app) — re-render it instead of the finance page
+  if (window.__IS_APP && typeof currentPage !== 'undefined' && currentPage === 'transactions'
+      && typeof renderRecordsMyMoney === 'function') { renderRecordsMyMoney(); return; }
   if (!document.getElementById('fin-tx-list')) { renderFinance(); return; }
 
   const txnsAll = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -594,6 +663,8 @@ function _finCategoryOptions() {
 }
 
 function renderFinanceTxList() {
+  if (window.__IS_APP && typeof currentPage !== 'undefined' && currentPage === 'transactions'
+      && typeof renderRecordsMyMoney === 'function') { renderRecordsMyMoney(); return; }
   const container = document.getElementById('fin-tx-list');
   if (!container) return;
 
