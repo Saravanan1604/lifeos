@@ -28,6 +28,14 @@ const CAT_COLORS = {
 function catIcon(name)  { return (CATEGORIES.find(c => c.name === name) || {}).icon || '📦'; }
 function catColor(name) { return CAT_COLORS[name] || '#6366f1'; }
 
+// Global HTML-escape helper (some functions defined their own local `esc`;
+// this one is available everywhere).
+if (typeof window.esc !== 'function') {
+  window.esc = s => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 // Distinct subcategories already used (for the datalist suggestions)
 function _subcatSuggestions() {
   const set = new Set();
