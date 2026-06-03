@@ -1540,3 +1540,29 @@ html.is-app .nav-item[data-page="settings"]     .nav-icon { color: #94a3b8 !impo
 html.is-app .nav-item[data-page="help"]         .nav-icon { color: #34d399 !important; }
 /* keep the colour even when the row is active (only the text turns teal) */
 html.is-app .nav-item.active .nav-icon { opacity: 1 !important; }
+
+/* ============================================================
+   build 125 — bottom-nav: white indicator + even premium spacing
+   (order is Records · Finance · Assets · + · Dashboard · Budget · More)
+   ============================================================ */
+/* the active-tab indicator: full white, rounded, soft glow */
+html.is-app #bn-indicator {
+  height: 4px !important;
+  background: #ffffff !important;
+  border-radius: 4px !important;
+  box-shadow: 0 0 10px rgba(255,255,255,0.85), 0 0 4px rgba(255,255,255,0.6) !important;
+}
+/* equal-width tabs, evenly distributed */
+html.is-app #bottom-nav { justify-content: space-evenly !important; padding-left: 4px !important; padding-right: 4px !important; }
+html.is-app #bottom-nav .bn-group { display: contents !important; }
+html.is-app #bottom-nav .bn-item {
+  flex: 1 1 0 !important; min-width: 0 !important;
+  display: flex !important; flex-direction: column !important;
+  align-items: center !important; justify-content: center !important;
+  padding: 6px 0 !important; gap: 5px !important;
+}
+/* symmetric clearance around the centre FAB:
+   Assets is the last tab BEFORE the FAB, Dashboard is the first AFTER it */
+html.is-app #bottom-nav .bn-item[data-page="investments"] { padding-right: 34px !important; padding-left: 0 !important; }
+html.is-app #bottom-nav .bn-item[data-page="dashboard"]   { padding-left: 34px !important; padding-right: 0 !important; }
+html.is-app #bottom-nav .bn-item[data-page="budget"]      { padding-left: 0 !important; }
