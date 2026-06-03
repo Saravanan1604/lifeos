@@ -1699,3 +1699,41 @@ html.is-app #modal-overlay .modal-body .btn-secondary {
   padding: 15px 24px !important;
   border-radius: 14px !important;
 }
+
+/* ============================================================
+   build 129 — text scales with the phone's system font size
+   (Display → Font size). Root font-size is left relative and the
+   mobile type scale is expressed in rem, so raising the Android
+   font size enlarges the whole app like native Google apps do.
+   Same visual size at the default (1rem = 16px). App-only.
+   ============================================================ */
+html.is-app { font-size: 100% !important; -webkit-text-size-adjust: auto !important; text-size-adjust: auto !important; }
+
+html.is-app .page-title    { font-size: 3.25rem !important; }
+html.is-app .page-subtitle { font-size: 1.625rem !important; }
+html.is-app .section-title { font-size: 2.125rem !important; }
+
+html.is-app [style*="font-size:9px"]  { font-size: 1.125rem !important; }
+html.is-app [style*="font-size:10px"] { font-size: 1.25rem !important; }
+html.is-app [style*="font-size:11px"] { font-size: 1.25rem !important; }
+html.is-app [style*="font-size:12px"] { font-size: 1.375rem !important; }
+html.is-app [style*="font-size:13px"] { font-size: 1.5rem !important; }
+html.is-app [style*="font-size:14px"] { font-size: 1.5625rem !important; }
+html.is-app [style*="font-size:15px"] { font-size: 1.6875rem !important; }
+html.is-app [style*="font-size:16px"] { font-size: 1.75rem !important; }
+html.is-app [style*="font-size:17px"] { font-size: 1.875rem !important; }
+html.is-app [style*="font-size:18px"] { font-size: 2rem !important; }
+html.is-app [style*="font-size:19px"] { font-size: 2.0625rem !important; }
+html.is-app [style*="font-size:20px"] { font-size: 2.1875rem !important; }
+html.is-app [style*="font-size:22px"] { font-size: 2.4375rem !important; }
+html.is-app [style*="font-size:24px"] { font-size: 2.75rem !important; }
+html.is-app [style*="font-size:26px"] { font-size: 3rem !important; }
+html.is-app [style*="font-size:28px"] { font-size: 3.1875rem !important; }
+html.is-app [style*="font-size:32px"] { font-size: 3.4375rem !important; }
+html.is-app [style*="font-size:36px"] { font-size: 3.4375rem !important; }
+html.is-app [style*="font-size:48px"] { font-size: 3.625rem !important; }
+
+html.is-app .content         { font-size: 1.75rem !important; }
+html.is-app .stat-card-value { font-size: 3.125rem !important; }
+html.is-app .stat-card-label { font-size: 1.4375rem !important; }
+html.is-app input, html.is-app select, html.is-app textarea { font-size: 1.6875rem !important; }
