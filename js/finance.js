@@ -27,6 +27,51 @@ const CAT_COLORS = {
 function catIcon(name)  { return (CATEGORIES.find(c => c.name === name) || {}).icon || '📦'; }
 function catColor(name) { return CAT_COLORS[name] || '#6366f1'; }
 
+// Distinct subcategories already used (for the datalist suggestions)
+function _subcatSuggestions() {
+  const set = new Set();
+  (STATE.transactions || []).forEach(t => { if (t.subcategory) set.add(t.subcategory); });
+  return [...set].sort().map(s => `<option value="${esc(s)}"></option>`).join('');
+}
+
+// Advance a date string by a recurring frequency
+function _advanceDate(dateStr, freq) {
+  const d = new Date(dateStr + 'T00:00:00');
+  if (freq === 'daily')   d.setDate(d.getDate() + 1);
+  if (freq === 'weekly')  d.setDate(d.getDate() + 7);
+  if (freq === 'monthly') d.setMonth(d.getMonth() + 1);
+  if (freq === 'yearly')  d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+// On app open: auto-generate any due recurring transactions (catches up if missed)
+function processRecurring() {
+  STATE.recurring = STATE.recurring || [];
+  if (!STATE.recurring.length) return;
+  const todayStr = today();
+  let created = 0;
+  STATE.recurring.forEach(r => {
+    let guard = 0;
+    while (r.nextDate && r.nextDate <= todayStr && guard < 400) {
+      const tx = {
+        id: genId(), type: r.type, amount: r.amount, date: r.nextDate,
+        category: r.category, icon: r.icon, description: r.description,
+        source: r.source || '', subcategory: r.subcategory || '',
+        recurringId: r.id, createdAt: new Date().toISOString()
+      };
+      STATE.transactions = STATE.transactions || [];
+      STATE.transactions.unshift(tx);
+      if (typeof _applyTxToAccount === 'function') _applyTxToAccount(tx);
+      r.nextDate = _advanceDate(r.nextDate, r.frequency);
+      created++; guard++;
+    }
+  });
+  if (created) {
+    saveState();
+    if (typeof toast === 'function') toast(`🔁 ${created} recurring transaction${created > 1 ? 's' : ''} added`, 'info');
+  }
+}
+
 // MyMoney-style colour-coded transaction detail card
 function openTxDetail(id) {
   const tx = (STATE.transactions || []).find(t => t.id === id);
@@ -51,6 +96,7 @@ function openTxDetail(id) {
       <div class="txd-body">
         <div class="txd-row"><span>Account</span><b>${esc(acct)}</b></div>
         <div class="txd-row"><span>Category</span><b><span class="txd-cat-ic" style="background:${catColor(tx.category)}">${catIcon(tx.category)}</span>${esc(tx.category || '—')}</b></div>
+        ${tx.subcategory ? `<div class="txd-row"><span>Subcategory</span><b>${esc(tx.subcategory)}</b></div>` : ''}
         <div class="txd-row"><span>Name</span><b>${esc(tx.description || '—')}</b></div>
         <div class="txd-row" style="border:none"><span>Notes</span><b style="font-weight:500;opacity:.85">${esc(note)}</b></div>
       </div>
@@ -612,8 +658,8 @@ function renderFinanceTxList() {
           style="width:16px;height:16px;accent-color:#00c9a7;cursor:pointer;flex-shrink:0"/>
         <div class="tx-ic" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${catColor(tx.category)}26;border:1px solid ${catColor(tx.category)}55;font-size:18px">${tx.icon || catIcon(tx.category)}</div>
         <div>
-          <p style="font-size:13px;font-weight:600">${tx.description || tx.category}</p>
-          <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}${tx.source ? ' · <span style="color:#f59e0b">' + _sourceLabel(tx.source) + '</span>' : ''}</p>
+          <p style="font-size:13px;font-weight:600">${tx.description || tx.category}${tx.recurringId ? ' <span title="Recurring" style="font-size:11px">🔁</span>' : ''}</p>
+          <p style="font-size:11px;color:var(--text3)">${tx.category}${tx.subcategory ? ' › <span style="color:#a5b4fc">' + esc(tx.subcategory) + '</span>' : ''} · ${fmtDate(tx.date)}${tx.source ? ' · <span style="color:#f59e0b">' + _sourceLabel(tx.source) + '</span>' : ''}</p>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
@@ -819,8 +865,19 @@ function openAddTxModal(defaultType) {
       <div class="form-group"><label class="form-label">Date</label><input type="date" id="tx-date" class="form-input" value="${today()}"/></div>
     </div>
     <div class="form-group"><label class="form-label">Category</label><select id="tx-cat" class="form-input">${catOptions}</select></div>
+    <div class="form-group"><label class="form-label">Subcategory <span style="opacity:.6;font-weight:400">(optional)</span></label>
+      <input type="text" id="tx-subcat" class="form-input" list="subcat-list" placeholder="e.g. Groceries, Labour cost, Restaurant"/>
+      <datalist id="subcat-list">${_subcatSuggestions()}</datalist></div>
     <div class="form-group"><label class="form-label">💳 Account / Paid From</label>
       <select id="tx-source" class="form-input">${srcOptions}</select></div>
+    <div class="form-group"><label class="form-label">🔁 Repeat</label>
+      <select id="tx-repeat" class="form-input">
+        <option value="">None (one-time)</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+        <option value="yearly">Yearly</option>
+      </select></div>
     <div class="form-group"><label class="form-label">Description</label><input type="text" id="tx-desc" class="form-input" placeholder="What was this for?"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
@@ -839,10 +896,12 @@ function saveTx() {
   const icon = CATEGORIES.find(c => c.name === category)?.icon || '💳';
   const description = document.getElementById('tx-desc').value.trim();
   const source = document.getElementById('tx-source')?.value || '';
+  const subcategory = (document.getElementById('tx-subcat')?.value || '').trim();
+  const frequency = document.getElementById('tx-repeat')?.value || '';
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
   const dupe = _findDuplicate(amount, date, description, null);
   if (dupe) {
-    _pendingTx = { type, amount, date, category, icon, description, source };
+    _pendingTx = { type, amount, date, category, icon, description, source, subcategory, frequency };
     openModal('⚠️ Possible Duplicate', `
       <p style="font-size:13px;color:var(--text2);margin-bottom:14px">A similar transaction already exists:</p>
       <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px">
@@ -857,7 +916,7 @@ function saveTx() {
       </div>`);
     return;
   }
-  _commitTx({ type, amount, date, category, icon, description, source });
+  _commitTx({ type, amount, date, category, icon, description, source, subcategory, frequency });
 }
 
 function confirmSaveTx() {
@@ -866,6 +925,8 @@ function confirmSaveTx() {
 
 function _commitTx(tx) {
   STATE.transactions = STATE.transactions || [];
+  const frequency = tx.frequency || '';
+  delete tx.frequency;
   // Auto-apply a remembered category rule for this name (if one exists)
   const ruled = getCategoryRule(tx.description);
   if (ruled) {
@@ -876,11 +937,21 @@ function _commitTx(tx) {
   const newTx = { id: genId(), ...tx, createdAt: new Date().toISOString() };
   STATE.transactions.unshift(newTx);
   _applyTxToAccount(newTx);
+  // Register a recurring rule (next occurrence after this one)
+  if (frequency) {
+    STATE.recurring = STATE.recurring || [];
+    STATE.recurring.push({
+      id: genId(), type: tx.type, amount: tx.amount, category: tx.category,
+      icon: tx.icon, description: tx.description, source: tx.source || '',
+      subcategory: tx.subcategory || '', frequency,
+      nextDate: _advanceDate(newTx.date, frequency), createdAt: new Date().toISOString()
+    });
+  }
   saveState();
   addXP(10, 'Transaction logged');
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
-  toast('Transaction saved! +10 XP', 'success');
+  toast(frequency ? `Transaction saved & set to repeat ${frequency}! +10 XP` : 'Transaction saved! +10 XP', 'success');
   refreshFinancePage();
 }
 
@@ -926,6 +997,11 @@ function openEditTxModal(id) {
       <select id="etx-cat" class="form-input">${catOptions}</select>
     </div>
     <div class="form-group">
+      <label class="form-label">Subcategory <span style="opacity:.6;font-weight:400">(optional)</span></label>
+      <input type="text" id="etx-subcat" class="form-input" list="subcat-list" value="${esc(tx.subcategory || '')}" placeholder="e.g. Groceries, Labour cost"/>
+      <datalist id="subcat-list">${_subcatSuggestions()}</datalist>
+    </div>
+    <div class="form-group">
       <label class="form-label">💳 Account / Paid From</label>
       <select id="etx-source" class="form-input">${srcOptions}</select>
     </div>
@@ -955,6 +1031,7 @@ function saveEditTx(id) {
   const cat    = document.getElementById('etx-cat')?.value;
   const desc   = document.getElementById('etx-desc')?.value.trim();
   const source = document.getElementById('etx-source')?.value || tx.source || '';
+  const subcategory = (document.getElementById('etx-subcat')?.value || '').trim();
   const applyAll = document.getElementById('etx-apply-all')?.checked;
 
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
@@ -969,6 +1046,7 @@ function saveEditTx(id) {
   tx.icon        = allCats.find(c => c.name === cat)?.icon || tx.icon || '💳';
   tx.description = desc;
   tx.source      = source;
+  tx.subcategory = subcategory;
 
   _applyTxToAccount(tx); // apply new balance effect
 

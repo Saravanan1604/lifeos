@@ -382,6 +382,7 @@ function showApp() {
   document.getElementById('main-app').style.display = 'flex';
   updateSidebar();
   checkStreak();
+  if (typeof processRecurring === 'function') processRecurring();
   navigate(window.__IS_APP ? 'transactions' : 'dashboard');
   if (typeof startLiveSync === 'function') startLiveSync();
   if (typeof initPremiumFeatures === 'function') initPremiumFeatures();

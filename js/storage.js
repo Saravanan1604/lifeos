@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 130;
+const APP_BUILD = 131;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -25,6 +25,8 @@ const DB = {
       tasks: [],
       chatHistory: [],
       notes: [],               // Google Keep–style notes
+      recurring: [],           // [{ id, type, amount, category, icon, description, source, subcategory, frequency, nextDate }]
+      customCategories: [],    // user-created categories
       bankBalanceHistory: [],  // [{ accountId, balance, date, note }]
       bankTransfers: [],       // [{ id, fromId, toId, amount, date, note }]
       creditCards: [],
@@ -215,7 +217,8 @@ const LIVE_SYNC_KEYS = [
   'habitCompletions', 'healthEntries', 'tasks', 'budgets',
   'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
   'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',
-  'unlockedAchievements', 'deletedIds', 'categoryRules', 'notes'
+  'unlockedAchievements', 'deletedIds', 'categoryRules', 'notes',
+  'recurring', 'customCategories'
 ];
 
 let _syncTimer     = null;

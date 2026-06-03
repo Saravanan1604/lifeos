@@ -51,8 +51,13 @@ function renderCategories() {
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <div><h1 class="page-title">🏷️ Categories</h1><p class="page-subtitle">Manage your transaction categories</p></div>
-        <button class="btn-primary btn-sm" onclick="openAddCategoryModal()">+ Custom Category</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-secondary btn-sm" onclick="openMergeCategoriesModal()">🔀 Merge</button>
+          <button class="btn-primary btn-sm" onclick="openAddCategoryModal()">+ Custom Category</button>
+        </div>
       </div>
+
+      ${_renderRecurringSection()}
 
       <!-- Custom Categories -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px">
@@ -106,6 +111,32 @@ function renderCategories() {
               <span style="font-size:13px;font-weight:500">${c.name}</span>
             </div>`).join('')}
         </div>
+      </div>
+    </div>`;
+}
+
+// Recurring transactions list (shown on the Categories page)
+function _renderRecurringSection() {
+  const rec = STATE.recurring || [];
+  if (!rec.length) return '';
+  return `
+    <div class="glass-card" style="padding:20px;margin-bottom:20px">
+      <div class="section-header">
+        <p class="section-title">🔁 Recurring Transactions</p>
+        <span style="font-size:12px;color:rgba(241,245,249,0.5)">${rec.length} active</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+        ${rec.map(r => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0">
+              <span style="font-size:22px">${r.icon || '🔁'}</span>
+              <div style="min-width:0">
+                <p style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description || r.category}</p>
+                <span style="font-size:11px;color:var(--text3)">${r.frequency} · ${r.type === 'income' ? '+' : '-'}${fmt(r.amount)} · next ${fmtDate(r.nextDate)}</span>
+              </div>
+            </div>
+            <button class="btn-icon btn-sm" onclick="deleteRecurring('${r.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);font-size:13px;flex-shrink:0" title="Stop recurring">✕</button>
+          </div>`).join('')}
       </div>
     </div>`;
 }
@@ -189,8 +220,56 @@ function updateCategory(id) {
   const type = document.getElementById('cat-type').value;
   if (!name) { toast('Enter a name', 'error'); return; }
   const cat = (STATE.customCategories || []).find(c => c.id === id);
-  if (cat) { cat.name = name; cat.icon = icon; cat.type = type; }
+  if (cat) {
+    const oldName = cat.name;
+    cat.name = name; cat.icon = icon; cat.type = type;
+    // Rename existing transactions + recurring rules that used the old name
+    if (oldName !== name) {
+      (STATE.transactions || []).forEach(t => { if (t.category === oldName) { t.category = name; t.icon = icon; } });
+      (STATE.recurring || []).forEach(r => { if (r.category === oldName) { r.category = name; r.icon = icon; } });
+      (STATE.budgets || []).forEach(b => { if (b.category === oldName) b.category = name; });
+    }
+  }
   saveState(); closeModal(); toast('Category updated!', 'success'); renderCategories();
+}
+
+// ===== MERGE CATEGORIES =====
+function openMergeCategoriesModal() {
+  const opts = getAllCategories().map(c => `<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
+  openModal('🔀 Merge Categories', `
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Move every transaction from one category into another. The source category's transactions are re-tagged; if it's a custom category it's removed.</p>
+    <div class="form-group"><label class="form-label">Merge FROM (source)</label>
+      <select id="mrg-from" class="form-input">${opts}</select></div>
+    <div class="form-group"><label class="form-label">INTO (target)</label>
+      <select id="mrg-into" class="form-input">${opts}</select></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="mergeCategories()">Merge</button>
+    </div>`);
+}
+
+function mergeCategories() {
+  const from = document.getElementById('mrg-from')?.value;
+  const into = document.getElementById('mrg-into')?.value;
+  if (!from || !into) return;
+  if (from === into) { toast('Pick two different categories', 'error'); return; }
+  const intoCat = getAllCategories().find(c => c.name === into);
+  const intoIcon = intoCat?.icon || '📦';
+  let count = 0;
+  (STATE.transactions || []).forEach(t => { if (t.category === from) { t.category = into; t.icon = intoIcon; count++; } });
+  (STATE.recurring || []).forEach(r => { if (r.category === from) { r.category = into; r.icon = intoIcon; } });
+  (STATE.budgets || []).forEach(b => { if (b.category === from) b.category = into; });
+  // Remove the source custom category (defaults can't be removed)
+  STATE.customCategories = (STATE.customCategories || []).filter(c => c.name !== from);
+  saveState(); closeModal();
+  toast(`✅ Merged "${from}" → "${into}" (${count} moved)`, 'success');
+  renderCategories();
+}
+
+// ===== RECURRING MANAGEMENT =====
+function deleteRecurring(id) {
+  STATE.recurring = (STATE.recurring || []).filter(r => r.id !== id);
+  saveState(); toast('Recurring rule removed', 'info'); renderCategories();
 }
 
 function deleteCategory(id) {
