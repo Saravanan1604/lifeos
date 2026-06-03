@@ -762,7 +762,7 @@ function _doExitApp() {
     // If the touch starts inside a horizontal carousel/scroller, let it scroll
     // — don't hijack it for page navigation.
     fromScroller = !!(e.target.closest &&
-      e.target.closest('.fin-bank-grid, .fin-card-grid, .fin-cash-grid, .mm-row, [style*="overflow-x"]'));
+      e.target.closest('.fin-bank-grid, .fin-card-grid, .fin-cash-grid, [style*="overflow-x"]'));
   }, { passive: true });
   document.addEventListener('touchend', e => {
     if (x0 === null) return;

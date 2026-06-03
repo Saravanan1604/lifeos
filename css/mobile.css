@@ -2082,3 +2082,10 @@ html.is-app .mm-rowwrap .mm-row {
   position: relative; z-index: 1; background: var(--bg);
 }
 html.is-app.light .mm-rowwrap .mm-row, html.is-app .light .mm-rowwrap .mm-row { background: #ffffff; }
+
+/* build 151 — visual cue when a row is "armed" (held) for swipe edit/delete */
+html.is-app .mm-row.armed {
+  box-shadow: 0 6px 22px rgba(0,0,0,0.35);
+  transform: scale(1.02);
+  border-radius: 12px;
+}

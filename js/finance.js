@@ -294,7 +294,7 @@ function renderRecordsMyMoney() {
 function recRowTap(id) {
   if (_recSuppressTap) return;            // ignore the click that follows a gesture
   if (_recSelectMode) { recToggleSel(id); return; }
-  openTxDetail(id);
+  // Plain tap does nothing (no detail popup). Use hold + swipe for edit/delete.
 }
 function recToggleSel(id) {
   if (_recSel.has(id)) _recSel.delete(id); else _recSel.add(id);
@@ -352,40 +352,52 @@ function recBulkCategoryConfirm() {
 function initRecordsGestures() {
   const list = document.querySelector('.mymoney-records .mm-list');
   if (!list) return;
-  let startX = 0, startY = 0, row = null, id = null, moved = false, lpTimer = null, swiping = false;
-  const reset = () => { if (row) { row.style.transition = 'transform .2s ease, background .2s ease'; row.style.transform = ''; row.style.background = ''; } };
+  // armed  = user held long enough; only THEN does a horizontal drag act on the row.
+  // A plain (un-held) swipe is left alone so it changes pages like everywhere else.
+  let startX = 0, startY = 0, row = null, id = null, moved = false, lpTimer = null, armed = false, swiping = false;
+  const reset = () => { if (row) { row.style.transition = 'transform .2s ease'; row.style.transform = ''; } };
 
   list.addEventListener('touchstart', e => {
     const r = e.target.closest('.mm-row'); if (!r) { row = null; return; }
     row = r; id = r.dataset.id; const t = e.touches[0];
-    startX = t.clientX; startY = t.clientY; moved = false; swiping = false;
+    startX = t.clientX; startY = t.clientY; moved = false; armed = false; swiping = false;
     row.style.transition = 'none';
     clearTimeout(lpTimer);
-    lpTimer = setTimeout(() => { if (!moved && !_recSelectMode) { _recSuppressTap = true; recEnterSelect(id); setTimeout(() => _recSuppressTap = false, 400); } }, 500);
+    lpTimer = setTimeout(() => {
+      if (!moved && !_recSelectMode) {
+        armed = true; window.__recGestureActive = true;        // block page-swipe now
+        if (navigator.vibrate) try { navigator.vibrate(25); } catch (_) {}
+        if (row) row.classList.add('armed');
+      }
+    }, 350);
   }, { passive: true });
 
   list.addEventListener('touchmove', e => {
     if (!row) return;
     const t = e.touches[0], dx = t.clientX - startX, dy = t.clientY - startY;
-    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) { moved = true; clearTimeout(lpTimer); }
-    if (!_recSelectMode && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
-      swiping = true; window.__recGestureActive = true;
+    // Movement before the hold completes = a normal swipe/scroll → cancel arming,
+    // let the page-swipe navigation handle it.
+    if (!armed && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) { moved = true; clearTimeout(lpTimer); return; }
+    if (armed && Math.abs(dx) > Math.abs(dy)) {
+      swiping = true;
       row.style.transform = `translateX(${dx}px)`;
     }
   }, { passive: true });
 
   list.addEventListener('touchend', e => {
     clearTimeout(lpTimer);
-    if (row && swiping) {
-      const dx = e.changedTouches[0].clientX - startX, TH = 90, _id = id;
+    if (row) row.classList.remove('armed');
+    if (armed) {
+      const dx = e.changedTouches[0].clientX - startX, TH = 80, _id = id;
       reset();
       _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 400);
-      if (dx < -TH)      setTimeout(() => deleteTx(_id), 60);         // swipe left → delete instantly (no confirm)
-      else if (dx > TH)  setTimeout(() => openEditTxModal(_id), 60);  // swipe right → edit
+      if (swiping && dx < -TH)      setTimeout(() => deleteTx(_id), 60);        // hold + swipe left → delete
+      else if (swiping && dx > TH)  setTimeout(() => openEditTxModal(_id), 60); // hold + swipe right → edit
+      else                          recEnterSelect(_id);                        // held without swiping → multi-select
       try { e.preventDefault(); } catch (_) {}
     }
     setTimeout(() => { window.__recGestureActive = false; }, 60);
-    row = null; swiping = false;
+    row = null; armed = false; swiping = false;
   });
 }
 
