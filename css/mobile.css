@@ -1566,3 +1566,28 @@ html.is-app #bottom-nav .bn-item {
 html.is-app #bottom-nav .bn-item[data-page="investments"] { padding-right: 34px !important; padding-left: 0 !important; }
 html.is-app #bottom-nav .bn-item[data-page="dashboard"]   { padding-left: 34px !important; padding-right: 0 !important; }
 html.is-app #bottom-nav .bn-item[data-page="budget"]      { padding-left: 0 !important; }
+
+/* ============================================================
+   build 126 — two-tone "double colour" bank/credit/cash cards
+   (app only; web keeps its smooth gradient). Uses the per-card
+   --c1 (lighter) / --c2 (darker) vars set inline in finance.js.
+   ============================================================ */
+html.is-app .fin-dark-card {
+  background:
+    linear-gradient(115deg,
+      var(--c2,#0f172a) 0%,
+      var(--c2,#0f172a) 46%,
+      var(--c1,#1e293b) 54%,
+      var(--c1,#1e293b) 100%) !important;
+}
+/* glossy diagonal sheen across the split, like the reference card */
+html.is-app .fin-dark-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(120deg,
+      rgba(255,255,255,0) 40%,
+      rgba(255,255,255,0.10) 50%,
+      rgba(255,255,255,0) 60%);
+  pointer-events: none;
+  border-radius: inherit;
+}
