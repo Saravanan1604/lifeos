@@ -2670,6 +2670,7 @@ function renderBudget() {
                 <p style="font-size:11px;color:var(--text3)">${over ? `₹${(spent-limit).toLocaleString('en-IN')} over budget` : `₹${(limit-spent).toLocaleString('en-IN')} remaining · ${pct.toFixed(0)}% used`}</p>
                 <p style="font-size:10px;color:var(--text3);opacity:0.7">₹${breakdown}</p>
               </div>
+              ${b.notes ? `<p style="font-size:11px;color:var(--text2);margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.04);border-left:3px solid rgba(99,102,241,0.5);border-radius:6px">📝 ${String(b.notes).replace(/</g,'&lt;')}</p>` : ''}
             </div>`;
         }).join('')}
       </div>
@@ -2745,6 +2746,10 @@ function openAddBudgetModal(editIndex) {
       <input type="number" id="b-limit" class="form-input" placeholder="e.g. 5000" value="${eAmount}"/>
       <p style="font-size:11px;color:var(--text3);margin-top:6px">Auto-splits to daily / monthly / yearly when viewing other periods.</p>
     </div>
+    <div class="form-group">
+      <label class="form-label">📝 Notes (optional)</label>
+      <textarea id="b-notes" class="form-input" rows="2" placeholder="e.g. Includes weekend dining, festival months higher…">${b?.notes ? String(b.notes).replace(/</g,'&lt;') : ''}</textarea>
+    </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveBudget(${isEdit ? editIndex : -1})">${isEdit ? 'Update' : 'Save Budget'}</button>
@@ -2755,14 +2760,15 @@ function saveBudget(editIndex) {
   const category = document.getElementById('b-cat').value;
   const amount   = parseFloat(document.getElementById('b-limit').value);
   const period   = document.getElementById('b-period').value || 'month';
+  const notes    = (document.getElementById('b-notes')?.value || '').trim();
   if (!amount || amount <= 0) { toast('Enter a valid limit', 'error'); return; }
   STATE.budgets = STATE.budgets || [];
   if (editIndex >= 0) {
-    STATE.budgets[editIndex] = { ...STATE.budgets[editIndex], amount, period };
+    STATE.budgets[editIndex] = { ...STATE.budgets[editIndex], amount, period, notes };
   } else {
     const existing = STATE.budgets.findIndex(b => b.category === category);
-    if (existing >= 0) STATE.budgets[existing] = { ...STATE.budgets[existing], amount, period };
-    else STATE.budgets.push({ id: genId(), category, amount, period });
+    if (existing >= 0) STATE.budgets[existing] = { ...STATE.budgets[existing], amount, period, notes };
+    else STATE.budgets.push({ id: genId(), category, amount, period, notes });
   }
   saveState(); closeModal(); toast(editIndex >= 0 ? 'Budget updated!' : 'Budget set!', 'success'); renderBudget();
 }
