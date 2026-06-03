@@ -680,6 +680,27 @@ function renderDashboard() {
 
       ${(!window.__IS_APP && typeof buildSpendingPulseHTML === 'function') ? buildSpendingPulseHTML() : ''}
 
+      <!-- ── Spending hero ring (axio-style) ───────────────────────── -->
+      ${(() => {
+        const pct = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : (totalExpense > 0 ? 100 : 0);
+        const sav = totalIncome - totalExpense;
+        const mon = new Date().toLocaleString('default', { month: 'long' });
+        return `<div class="spend-ring-card glass-card" style="padding:24px 20px;margin-bottom:20px;text-align:center" onclick="navigate('finance')">
+          <p style="font-size:13px;color:var(--text3);font-weight:600">Spent in <b style="color:var(--text)">${mon}</b></p>
+          <div class="spend-ring" style="--pct:${pct};--col:${pct > 85 ? '#ef4444' : pct > 60 ? '#f59e0b' : '#00c9a7'}">
+            <div class="spend-ring-inner">
+              <span class="spend-ring-amt">${fmt(totalExpense)}</span>
+              <span class="spend-ring-sub">${pct}% of income</span>
+            </div>
+          </div>
+          <div class="spend-ring-foot">
+            <div><p class="srf-l">Income</p><p class="srf-v" style="color:#10b981">${fmt(totalIncome)}</p></div>
+            <div style="border-left:1px solid var(--glass-border)"></div>
+            <div><p class="srf-l">Saved</p><p class="srf-v" style="color:${sav >= 0 ? '#00c9a7' : '#ef4444'}">${fmt(sav)}</p></div>
+          </div>
+        </div>`;
+      })()}
+
       <!-- ── Quick Actions (always visible) ───────────────────────── -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px;border:1px solid rgba(0,201,167,0.2);background:linear-gradient(135deg,rgba(0,201,167,0.06),rgba(99,102,241,0.06))">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
@@ -781,7 +802,7 @@ function renderDashboard() {
           : recent.map(tx => `
             <div class="tx-row" onclick="if(typeof openTxDetail==='function')openTxDetail('${tx.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.04)'" onmouseout="this.style.background=''">
               <div style="display:flex;align-items:center;gap:12px">
-                <div class="tx-ic" style="width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${tx.type==='income'?'rgba(0,201,167,0.15)':'rgba(239,68,68,0.15)'};font-size:18px;flex-shrink:0">${tx.icon||(tx.type==='income'?'💚':'❤️')}</div>
+                <div class="tx-ic" style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}26;border:1px solid ${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}55;font-size:18px;flex-shrink:0">${tx.icon||(typeof catIcon==='function'?catIcon(tx.category):'💳')}</div>
                 <div>
                   <p style="font-size:13px;font-weight:600">${tx.description||tx.category}</p>
                   <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>

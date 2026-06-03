@@ -610,7 +610,7 @@ function renderFinanceTxList() {
         <input type="checkbox" id="chk-${tx.id}" data-txid="${tx.id}" class="fin-tx-chk"
           onchange="onTxCheckChange()"
           style="width:16px;height:16px;accent-color:#00c9a7;cursor:pointer;flex-shrink:0"/>
-        <div class="tx-ic" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${tx.type === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'};font-size:18px">${tx.icon || '💳'}</div>
+        <div class="tx-ic" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${catColor(tx.category)}26;border:1px solid ${catColor(tx.category)}55;font-size:18px">${tx.icon || catIcon(tx.category)}</div>
         <div>
           <p style="font-size:13px;font-weight:600">${tx.description || tx.category}</p>
           <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}${tx.source ? ' · <span style="color:#f59e0b">' + _sourceLabel(tx.source) + '</span>' : ''}</p>
