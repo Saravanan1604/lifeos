@@ -1936,3 +1936,10 @@ html.is-app .mm-ic {
   width: 3.25rem !important; height: 3.25rem !important;
   font-size: 1.7rem !important;
 }
+
+/* build 139 — increase app text/elements further (root 200% = ~2x base) */
+html.is-app { font-size: 200% !important; }
+html.is-app .mm-ic {
+  width: 3.4rem !important; height: 3.4rem !important;
+  font-size: 1.8rem !important;
+}
