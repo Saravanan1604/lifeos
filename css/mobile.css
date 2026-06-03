@@ -1265,3 +1265,36 @@ html.is-app #onboarding .ob-art { font-size: 84px; }
 html.is-app .empty-state { padding: 40px 20px !important; text-align: center; }
 html.is-app .empty-state .empty-state-icon { font-size: 64px !important; display: block; margin-bottom: 14px; opacity: .9; }
 html.is-app .empty-state p { font-size: 24px !important; color: var(--text2, #cbd5e1) !important; }
+
+/* ============================================================
+   build 96 — Layout Customizer (edit mode)  [web + app]
+   ============================================================ */
+#lo-edit-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 14px 16px; margin-bottom: 14px; border-radius: 14px;
+  background: linear-gradient(135deg, rgba(0,201,167,.16), rgba(99,102,241,.14));
+  border: 1px solid rgba(0,201,167,.35); color: var(--text, #f1f5f9);
+  font-weight: 700; flex-wrap: wrap;
+}
+#lo-edit-bar button { padding: 9px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: var(--text,#f1f5f9); cursor: pointer; font-weight: 700; margin-left: 8px; }
+#lo-edit-bar button.done { background: linear-gradient(135deg,#00b09b,#00c9a7); border: none; color: #00261f; }
+html.is-app #lo-edit-bar { font-size: 22px; }
+html.is-app #lo-edit-bar button { font-size: 20px; padding: 12px 18px; }
+
+/* Card being edited: dashed outline + room for controls */
+.lo-editing { position: relative; outline: 2px dashed rgba(0,201,167,.5); outline-offset: 3px; border-radius: 20px; }
+.lo-editing.lo-hidden-edit { opacity: .45; }
+.lo-ctrls {
+  position: absolute; top: 8px; right: 8px; z-index: 30;
+  display: flex; gap: 6px; background: rgba(10,12,24,.85); padding: 6px; border-radius: 12px;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.12);
+}
+.lo-ctrls button {
+  width: 40px; height: 40px; border-radius: 9px; border: none; cursor: pointer;
+  background: rgba(255,255,255,.1); color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center;
+}
+.lo-ctrls button:active { transform: scale(.9); }
+html.is-app .lo-ctrls button { width: 54px; height: 54px; font-size: 24px; }
+
+/* Compact ("small") cards */
+.lo-compact { zoom: 0.85; }
