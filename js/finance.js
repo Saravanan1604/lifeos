@@ -225,14 +225,20 @@ function renderRecordsMyMoney() {
       const tm = t.time ? `<span class="mm-note">🕒 ${_fmtTime(t.time)}</span>` : '';
       const seld = _recSel.has(t.id);
       return `
-      <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
-        ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
-        <div class="mm-ic" style="background:${catColor(t.category)}">${t.icon || catIcon(t.category)}</div>
-        <div class="mm-mid">
-          <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
-          <div class="mm-meta">${chip}${note}${sub}${tm}</div>
+      <div class="mm-rowwrap">
+        <div class="mm-rowbg">
+          <span class="mm-bg-edit">✏️ Edit</span>
+          <span class="mm-bg-del">Delete 🗑️</span>
         </div>
-        <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
+        <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
+          ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
+          <div class="mm-ic" style="background:${catColor(t.category)}">${t.icon || catIcon(t.category)}</div>
+          <div class="mm-mid">
+            <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
+            <div class="mm-meta">${chip}${note}${sub}${tm}</div>
+          </div>
+          <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
+        </div>
       </div>`;
     }).join('')}
   `;
@@ -365,7 +371,6 @@ function initRecordsGestures() {
     if (!_recSelectMode && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
       swiping = true; window.__recGestureActive = true;
       row.style.transform = `translateX(${dx}px)`;
-      row.style.background = dx > 0 ? 'rgba(239,68,68,0.20)' : 'rgba(59,130,246,0.20)';
     }
   }, { passive: true });
 
@@ -375,8 +380,8 @@ function initRecordsGestures() {
       const dx = e.changedTouches[0].clientX - startX, TH = 90, _id = id;
       reset();
       _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 400);
-      if (dx > TH)      setTimeout(() => deleteTx(_id), 60);          // swipe right → delete instantly (no confirm)
-      else if (dx < -TH) setTimeout(() => openEditTxModal(_id), 60); // swipe left → edit
+      if (dx < -TH)      setTimeout(() => deleteTx(_id), 60);         // swipe left → delete instantly (no confirm)
+      else if (dx > TH)  setTimeout(() => openEditTxModal(_id), 60);  // swipe right → edit
       try { e.preventDefault(); } catch (_) {}
     }
     setTimeout(() => { window.__recGestureActive = false; }, 60);
