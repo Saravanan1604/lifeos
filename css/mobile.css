@@ -1983,3 +1983,28 @@ html.is-app .mm-summary > div {
 }
 html.is-app .mm-summary .mm-s-lbl { font-size: 1.05rem !important; }
 html.is-app .mm-summary .mm-s-val { font-size: 1.35rem !important; }
+
+/* ============================================================
+   build 144 — Transaction detail card: 2x text, 3x edit/delete
+   buttons, lighter colours, and hide the redundant modal header.
+   ============================================================ */
+/* the detail card supplies its own close + header, so hide the generic one */
+html.is-app #modal-overlay .modal-box:has(.txd) .modal-header { display: none !important; }
+html.is-app #modal-overlay .modal-box:has(.txd) .modal-body { padding: 14px !important; }
+
+/* 2x card text */
+html.is-app .txd-amt  { font-size: 3rem !important; }
+html.is-app .txd-type { font-size: 1.5rem !important; }
+html.is-app .txd-date { font-size: 1.5rem !important; }
+html.is-app .txd-row span, html.is-app .txd-row b { font-size: 1.75rem !important; }
+html.is-app .txd-cat-ic { width: 2.6rem !important; height: 2.6rem !important; font-size: 1.4rem !important; }
+html.is-app .txd-head  { padding: 30px 18px !important; }
+html.is-app .txd-row   { padding: 18px 4px !important; }
+
+/* 3x edit / delete / close buttons */
+html.is-app .txd-head .txd-x,
+html.is-app .txd-actions button {
+  width: 76px !important; height: 76px !important; font-size: 34px !important;
+}
+html.is-app .txd-actions { gap: 12px !important; right: 16px !important; top: 16px !important; }
+html.is-app .txd-head .txd-x { left: 16px !important; top: 16px !important; }

@@ -316,7 +316,8 @@ function openTxDetail(id) {
   const tx = (STATE.transactions || []).find(t => t.id === id);
   if (!tx) return;
   const isInc = tx.type === 'income';
-  const col   = isInc ? '#10b981' : '#ef4444';
+  // lighter red / green for better text visibility
+  const col   = isInc ? 'linear-gradient(135deg,#34d399,#10b981)' : 'linear-gradient(135deg,#fb7185,#f43f5e)';
   const acct  = tx.source ? _sourceLabel(tx.source) : '—';
   const esc   = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
   const note  = (tx.note || tx.notes || '').trim() || 'No notes';
@@ -325,8 +326,8 @@ function openTxDetail(id) {
       <div class="txd-head" style="background:${col}">
         <button class="txd-x" onclick="closeModal()">✕</button>
         <div class="txd-actions">
-          <button onclick="closeModal();openEditTxModal('${id}')" title="Edit">✏️</button>
-          <button onclick="if(confirm('Delete this transaction?')){deleteTx('${id}');closeModal();}" title="Delete">🗑️</button>
+          <button onclick="txdEdit('${id}')" title="Edit">✏️</button>
+          <button onclick="txdDelete('${id}')" title="Delete">🗑️</button>
         </div>
         <p class="txd-type">${isInc ? 'INCOME' : 'EXPENSE'}</p>
         <p class="txd-amt">${isInc ? '+' : '-'}${fmt(tx.amount)}</p>
@@ -341,6 +342,18 @@ function openTxDetail(id) {
       </div>
     </div>`);
 }
+
+// Detail-card edit / delete (custom confirm — browser confirm() is unreliable in the TWA)
+function txdEdit(id) { closeModal(); openEditTxModal(id); }
+function txdDelete(id) {
+  openModal('🗑️ Delete Transaction', `
+    <p style="font-size:1.3rem;text-align:center;margin:6px 0 20px">Delete this transaction permanently?</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" style="background:#ef4444" onclick="_txdDoDelete('${id}')">Delete</button>
+    </div>`);
+}
+function _txdDoDelete(id) { deleteTx(id); closeModal(); }
 
 function renderFinance() {
   if (typeof reconcileCurrentBalances === 'function') reconcileCurrentBalances();
