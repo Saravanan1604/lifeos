@@ -71,11 +71,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=94" />
-  <link rel="stylesheet" href="css/calc.css?v=94" />
-  <link rel="stylesheet" href="css/premium.css?v=94" />
+  <link rel="stylesheet" href="css/styles.css?v=95" />
+  <link rel="stylesheet" href="css/calc.css?v=95" />
+  <link rel="stylesheet" href="css/premium.css?v=95" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=94" />
+  <link rel="stylesheet" href="css/mobile.css?v=95" />
 </head>
 <body>
 
@@ -514,24 +514,64 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=94"></script>
-<script src="js/core.js?v=94"></script>
-<script src="js/dashboard.js?v=94"></script>
-<script src="js/finance.js?v=94"></script>
-<script src="js/bank-tracker.js?v=94"></script>
-<script src="js/life.js?v=94"></script>
-<script src="js/growth.js?v=94"></script>
-<script src="js/ai.js?v=94"></script>
-<script src="js/calculator.js?v=94"></script>
-<script src="js/features.js?v=94"></script>
-<script src="js/premium.js?v=94"></script>
-<script src="js/categories.js?v=94"></script>
-<script src="js/compare.js?v=94"></script>
-<script src="js/pages.js?v=94"></script>
-<script src="js/help.js?v=94"></script>
-<script src="js/voice.js?v=94"></script>
-<script src="js/applock.js?v=94"></script>
-<script src="js/init.js?v=94"></script>
+<script src="js/storage.js?v=95"></script>
+<script src="js/core.js?v=95"></script>
+<script src="js/dashboard.js?v=95"></script>
+<script src="js/finance.js?v=95"></script>
+<script src="js/bank-tracker.js?v=95"></script>
+<script src="js/life.js?v=95"></script>
+<script src="js/growth.js?v=95"></script>
+<script src="js/ai.js?v=95"></script>
+<script src="js/calculator.js?v=95"></script>
+<script src="js/features.js?v=95"></script>
+<script src="js/premium.js?v=95"></script>
+<script src="js/categories.js?v=95"></script>
+<script src="js/compare.js?v=95"></script>
+<script src="js/pages.js?v=95"></script>
+<script src="js/help.js?v=95"></script>
+<script src="js/voice.js?v=95"></script>
+<script src="js/applock.js?v=95"></script>
+<script src="js/onboarding.js?v=95"></script>
+<script src="js/init.js?v=95"></script>
+
+<!-- ===== First-run Onboarding ===== -->
+<div id="onboarding" style="display:none">
+  <div id="ob-card">
+    <button id="ob-skip" onclick="obSkip()">Skip</button>
+    <div class="ob-slide">
+      <div class="ob-art">⚡</div>
+      <h2>Welcome to LifeOS</h2>
+      <p>Your money, habits, goals and life — all in one clean place. Let's set you up in 20 seconds.</p>
+    </div>
+    <div class="ob-slide" style="display:none">
+      <div class="ob-art">👤</div>
+      <h2>A few basics</h2>
+      <div class="ob-field"><label>Your name</label><input id="ob-name" type="text" placeholder="e.g. Saravanan" /></div>
+      <div class="ob-field"><label>Currency</label>
+        <select id="ob-currency">
+          <option value="₹">₹ Indian Rupee</option>
+          <option value="$">$ US Dollar</option>
+          <option value="€">€ Euro</option>
+          <option value="£">£ British Pound</option>
+        </select>
+      </div>
+    </div>
+    <div class="ob-slide" style="display:none">
+      <div class="ob-art">🚀</div>
+      <h2>You're all set!</h2>
+      <p>Add your first entry to get started — or explore the app.</p>
+      <div class="ob-actions">
+        <button class="ob-quick income" onclick="obAddFirst('income')">💰 Add Income</button>
+        <button class="ob-quick expense" onclick="obAddFirst('expense')">💸 Add Expense</button>
+      </div>
+    </div>
+    <div class="ob-dots"><span class="ob-dot on"></span><span class="ob-dot"></span><span class="ob-dot"></span></div>
+    <div class="ob-nav">
+      <button id="ob-back" onclick="obBack()" style="visibility:hidden">← Back</button>
+      <button id="ob-next" class="ob-primary" onclick="obNext()">Next →</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== App Lock overlay (PIN) — hidden unless enabled in Settings ===== -->
 <div id="app-lock" style="display:none">

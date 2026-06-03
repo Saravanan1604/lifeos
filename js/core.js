@@ -366,6 +366,7 @@ function showApp() {
   if (typeof startLiveSync === 'function') startLiveSync();
   if (typeof initPremiumFeatures === 'function') initPremiumFeatures();
   if (typeof initVoiceControl === 'function') initVoiceControl();
+  if (typeof maybeShowOnboarding === 'function') setTimeout(maybeShowOnboarding, 300);
 }
 
 // ===== SIDEBAR =====
