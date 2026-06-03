@@ -594,6 +594,7 @@ function _renderPage(page) {
     case 'dashboard':    renderDashboard();    break;
     case 'finance':      renderFinance();       break;
     case 'transactions': renderTransactions();  break;
+    case 'notes':        renderNotes();         break;
     case 'investments':  renderInvestments();   break;
     case 'budget':       renderBudget();        break;
     case 'bank-tracker': renderBankTracker();   break;

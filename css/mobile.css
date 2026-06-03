@@ -1300,3 +1300,46 @@ html.is-app .lo-ctrls button { width: 54px; height: 54px; font-size: 24px; }
 
 /* Compact ("small") cards */
 .lo-compact { zoom: 0.85; }
+
+/* ============================================================
+   build 102 — Notes (Google Keep style)  [web + app]
+   ============================================================ */
+.notes-grid { column-count: 2; column-gap: 12px; }
+@media (min-width: 900px) { .notes-grid { column-count: 4; } }
+.note-card {
+  break-inside: avoid; display: block; width: 100%; margin: 0 0 12px;
+  border-radius: 16px; padding: 16px; cursor: pointer; position: relative;
+  border: 1px solid rgba(255,255,255,0.1); transition: transform .12s, box-shadow .2s;
+}
+.note-card:active { transform: scale(.98); }
+.note-title { font-weight: 700; font-size: 16px; margin-bottom: 6px; color: var(--text,#f1f5f9); }
+.note-body { font-size: 14px; color: var(--text2,#cbd5e1); white-space: pre-wrap; word-break: break-word; line-height: 1.45; }
+.note-pin { position: absolute; top: 10px; right: 12px; font-size: 14px; }
+.note-actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 12px; }
+.note-actions button { background: rgba(0,0,0,0.18); border: none; border-radius: 8px; width: 34px; height: 34px; font-size: 15px; cursor: pointer; }
+html.is-app .note-title { font-size: 26px; }
+html.is-app .note-body  { font-size: 22px; }
+html.is-app .note-actions button { width: 52px; height: 52px; font-size: 24px; }
+
+/* Note colours (dark-friendly tints) */
+.note-default { background: rgba(30,33,52,0.96); }
+.note-red     { background: #4a2222; }
+.note-orange  { background: #4a3220; }
+.note-yellow  { background: #443f1e; }
+.note-green   { background: #21402c; }
+.note-teal    { background: #1c3f3a; }
+.note-blue    { background: #1f3350; }
+.note-purple  { background: #33234e; }
+.note-pink    { background: #45203a; }
+body.light .note-default { background: #fff; }
+body.light .note-red { background:#fdecea } body.light .note-orange{background:#fdf0e3}
+body.light .note-yellow{background:#fef9e0} body.light .note-green{background:#e7f5ec}
+body.light .note-teal{background:#e3f4f1} body.light .note-blue{background:#e8f0fb}
+body.light .note-purple{background:#f1e9fb} body.light .note-pink{background:#fbe9f4}
+body.light .note-title, body.light .note-body { color:#1f2937; }
+
+/* Colour swatches in the editor */
+.note-swatches { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+.note-swatch { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
+.note-swatch.on { border-color: #00c9a7; box-shadow: 0 0 0 2px rgba(0,201,167,.4); }
+html.is-app .note-swatch { width: 48px; height: 48px; }

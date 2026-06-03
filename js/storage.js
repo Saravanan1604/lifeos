@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 101;
+const APP_BUILD = 102;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -24,6 +24,7 @@ const DB = {
       emotionEntries: [],
       tasks: [],
       chatHistory: [],
+      notes: [],               // Google Keep–style notes
       bankBalanceHistory: [],  // [{ accountId, balance, date, note }]
       bankTransfers: [],       // [{ id, fromId, toId, amount, date, note }]
       creditCards: [],
@@ -214,7 +215,7 @@ const LIVE_SYNC_KEYS = [
   'habitCompletions', 'healthEntries', 'tasks', 'budgets',
   'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
   'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',
-  'unlockedAchievements', 'deletedIds', 'categoryRules'
+  'unlockedAchievements', 'deletedIds', 'categoryRules', 'notes'
 ];
 
 let _syncTimer     = null;
