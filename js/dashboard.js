@@ -637,7 +637,7 @@ function renderDashboard() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
-          <h1 class="page-title">${window.__IS_APP ? 'Home' : 'Dashboard'}</h1>
+          <h1 class="page-title">Dashboard</h1>
           <p class="page-subtitle">${getGreeting(STATE.settings?.name || 'there')}</p>
           <p style="font-size:12px;color:rgba(241,245,249,0.4);margin-top:2px">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
         </div>
