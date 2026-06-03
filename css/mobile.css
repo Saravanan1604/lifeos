@@ -1182,3 +1182,13 @@ body.light #app-lock .lock-pad button { background: rgba(15,23,42,.05); border-c
 /* bigger keypad in the installed app */
 html.is-app #app-lock .lock-pad button { height: 92px; font-size: 36px; }
 html.is-app #app-lock h2 { font-size: 30px; }
+
+/* App Lock — biometric button */
+#app-lock .bio-btn {
+  width: 130px; height: 130px; border-radius: 50%;
+  background: rgba(0,201,167,.12); border: 2px solid rgba(0,201,167,.45);
+  color: #00c9a7; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform .12s, box-shadow .2s; box-shadow: 0 0 30px rgba(0,201,167,.25);
+}
+#app-lock .bio-btn:active { transform: scale(.94); }
+#app-lock .bio-btn svg { width: 72px; height: 72px; }

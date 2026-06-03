@@ -1,15 +1,75 @@
 // ============================================================
 //  App Lock — opt-in 4-digit PIN (default OFF, never locks unless set)
 // ============================================================
-const LOCK_PIN_KEY = 'lifeos_pin';
-const LOCK_ON_KEY  = 'lifeos_lock_on';
+const LOCK_PIN_KEY  = 'lifeos_pin';
+const LOCK_ON_KEY   = 'lifeos_lock_on';
+const LOCK_TYPE_KEY = 'lifeos_lock_type';  // 'pin' | 'bio'
+const LOCK_BIO_KEY  = 'lifeos_bio_cred';   // base64 credential id
 
 let _lockBuffer  = '';
 let _lockMode    = 'verify';   // 'verify' | 'set' | 'confirm'
 let _lockTempPin = '';
 
 function appLockEnabled() {
-  return localStorage.getItem(LOCK_ON_KEY) === '1' && !!localStorage.getItem(LOCK_PIN_KEY);
+  if (localStorage.getItem(LOCK_ON_KEY) !== '1') return false;
+  const t = localStorage.getItem(LOCK_TYPE_KEY) || 'pin';
+  return t === 'bio' ? !!localStorage.getItem(LOCK_BIO_KEY) : !!localStorage.getItem(LOCK_PIN_KEY);
+}
+function lockType() { return localStorage.getItem(LOCK_TYPE_KEY) || 'pin'; }
+
+/* ---------- Biometric (WebAuthn platform authenticator) ---------- */
+function _b64(buf)  { return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+function _unb64(s)  { return Uint8Array.from(atob(s), c => c.charCodeAt(0)); }
+
+async function biometricSupported() {
+  try {
+    return !!(window.PublicKeyCredential &&
+      await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable());
+  } catch { return false; }
+}
+
+async function enableBiometricLock() {
+  if (!(await biometricSupported())) {
+    if (typeof toast === 'function') toast('Biometric not available on this device', 'warning');
+    return;
+  }
+  try {
+    const cred = await navigator.credentials.create({
+      publicKey: {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        rp: { name: 'LifeOS', id: location.hostname },
+        user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'lifeos-user', displayName: 'LifeOS User' },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
+        timeout: 60000, attestation: 'none'
+      }
+    });
+    localStorage.setItem(LOCK_BIO_KEY, _b64(cred.rawId));
+    localStorage.setItem(LOCK_TYPE_KEY, 'bio');
+    localStorage.setItem(LOCK_ON_KEY, '1');
+    if (typeof toast === 'function') toast('🔐 Biometric lock enabled', 'success');
+    if (typeof navigate === 'function') navigate('settings', true);
+  } catch (e) {
+    if (typeof toast === 'function') toast('Could not set up biometric', 'error');
+  }
+}
+
+async function _tryBiometric() {
+  try {
+    await navigator.credentials.get({
+      publicKey: {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        allowCredentials: [{ type: 'public-key', id: _unb64(localStorage.getItem(LOCK_BIO_KEY)) }],
+        userVerification: 'required', timeout: 60000
+      }
+    });
+    _hideLockScreen();                       // success → unlock
+    if (navigator.vibrate) navigator.vibrate(12);
+  } catch (e) {
+    const st = document.getElementById('app-lock-bio-status');
+    if (st) st.textContent = 'Authentication failed — tap to retry';
+    if (navigator.vibrate) navigator.vibrate([30,40,30]);
+  }
 }
 
 // Light obfuscation (not real crypto — just so the PIN isn't plain text)
@@ -21,13 +81,29 @@ function _hashPin(p) {
 
 function maybeShowAppLock() {
   if (!appLockEnabled()) return;
-  _lockMode = 'verify'; _lockBuffer = '';
-  _showLockScreen('Enter your PIN');
+  if (lockType() === 'bio') { _showBioScreen(); _tryBiometric(); }
+  else { _lockMode = 'verify'; _lockBuffer = ''; _showLockScreen('Enter your PIN'); }
+}
+
+function _showBioScreen() {
+  const ov = document.getElementById('app-lock');
+  const pad = document.getElementById('app-lock-pin');
+  const bio = document.getElementById('app-lock-bio');
+  if (!ov) return;
+  if (pad) pad.style.display = 'none';
+  if (bio) bio.style.display = 'flex';
+  const t = document.getElementById('app-lock-title');
+  if (t) t.textContent = 'Unlock LifeOS';
+  ov.style.display = 'flex';
 }
 
 function _showLockScreen(title) {
   const ov = document.getElementById('app-lock');
   if (!ov) return;
+  const pad = document.getElementById('app-lock-pin');
+  const bio = document.getElementById('app-lock-bio');
+  if (pad) pad.style.display = 'block';
+  if (bio) bio.style.display = 'none';
   const t = document.getElementById('app-lock-title');
   if (t) t.textContent = title;
   ov.style.display = 'flex';
@@ -76,6 +152,7 @@ function _lockSubmit() {
     if (_lockBuffer === _lockTempPin) {
       localStorage.setItem(LOCK_PIN_KEY, _hashPin(_lockBuffer));
       localStorage.setItem(LOCK_ON_KEY, '1');
+      localStorage.setItem(LOCK_TYPE_KEY, 'pin');
       _lockBuffer = ''; _hideLockScreen();
       if (typeof toast === 'function') toast('🔒 App Lock enabled', 'success');
       if (typeof navigate === 'function') navigate('settings', true);
@@ -91,9 +168,12 @@ function setupAppLock() { _lockMode = 'set'; _lockBuffer = ''; _lockTempPin = ''
 function disableAppLock() {
   localStorage.removeItem(LOCK_PIN_KEY);
   localStorage.removeItem(LOCK_ON_KEY);
+  localStorage.removeItem(LOCK_TYPE_KEY);
+  localStorage.removeItem(LOCK_BIO_KEY);
   if (typeof toast === 'function') toast('App Lock disabled', 'info');
   if (typeof navigate === 'function') navigate('settings', true);
 }
+function retryBiometric() { _tryBiometric(); }
 function cancelAppLockSetup() {
   if (_lockMode === 'verify') return;   // can't dismiss the lock when verifying
   _lockBuffer = ''; _hideLockScreen();

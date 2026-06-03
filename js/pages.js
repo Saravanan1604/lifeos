@@ -341,13 +341,18 @@ function renderSettings() {
       <div style="display:flex;flex-direction:column;gap:16px;max-width:500px">
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🔒 App Lock</p>
-          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Require a 4-digit PIN to open LifeOS.</p>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Require a PIN or fingerprint / face to open LifeOS.</p>
           ${(typeof appLockEnabled==='function' && appLockEnabled())
-            ? `<div style="display:flex;gap:10px;flex-wrap:wrap">
-                 <button class="btn-secondary" onclick="setupAppLock()">Change PIN</button>
+            ? `<p style="font-size:13px;color:#00c9a7;font-weight:700;margin-bottom:12px">✅ Lock ON — ${ (typeof lockType==='function'&&lockType()==='bio') ? 'Biometric' : 'PIN' }</p>
+               <div style="display:flex;gap:10px;flex-wrap:wrap">
+                 <button class="btn-secondary" onclick="setupAppLock()">Set PIN</button>
+                 <button class="btn-secondary" onclick="enableBiometricLock()">Use Biometric</button>
                  <button class="btn-secondary" onclick="disableAppLock()" style="color:#ef4444;border-color:rgba(239,68,68,0.3)">Disable Lock</button>
                </div>`
-            : `<button class="btn-primary" onclick="setupAppLock()">Enable App Lock</button>`}
+            : `<div style="display:flex;gap:10px;flex-wrap:wrap">
+                 <button class="btn-primary" onclick="enableBiometricLock()">🔐 Enable Biometric Lock</button>
+                 <button class="btn-secondary" onclick="setupAppLock()">Use a PIN instead</button>
+               </div>`}
         </div>
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:16px">👤 Profile</p>
