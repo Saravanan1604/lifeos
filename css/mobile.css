@@ -1385,9 +1385,13 @@ html.is-app #finance-pie-chart { max-height: 260px !important; }
 /* ============================================================
    build 106 — Bank Tracker rebuild (graph full width, stats 1 row)
    ============================================================ */
-/* #6 Graph full width (stack), taller, premium */
-html.is-app #bt-main-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
-html.is-app #bt-main-grid div[style*="height:180px"] { height: 320px !important; }
+/* #6 Graph full width (stack), taller, premium — Banks, Credit Cards & Cash */
+html.is-app #bt-main-grid,
+html.is-app #cc-main-grid,
+html.is-app #cash-main-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+html.is-app #bt-main-grid div[style*="height:180px"],
+html.is-app #cc-main-grid div[style*="height:180px"],
+html.is-app #cash-main-grid div[style*="height:180px"] { height: 320px !important; }
 /* Stats Accounts · Entries · Transfers · Days → one line */
 html.is-app .bt-stats { grid-template-columns: repeat(4, 1fr) !important; gap: 10px !important; }
 html.is-app .bt-stats > * { padding: 20px 8px !important; }

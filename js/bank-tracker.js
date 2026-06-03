@@ -792,7 +792,7 @@ function renderCCTracker() {
 
         <!-- Stats + Cards overview -->
         <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="bt-stats">
             ${[
               { label:'Cards',      value:cards.length,                                              icon:'💳', tc:'#ef4444' },
               { label:'Entries',    value:history.filter(h=>!selId||h.cardId===selId).length,        icon:'📸', tc:'#f59e0b' },
@@ -806,7 +806,7 @@ function renderCCTracker() {
               </div>`).join('')}
           </div>
           <!-- Quick update per card -->
-          <div class="glass-card" style="padding:14px;flex:1">
+          <div class="glass-card bt-quicklog" style="padding:14px;flex:1">
             <p style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase">Quick Update</p>
             <div style="display:flex;flex-wrap:wrap;gap:8px">
               ${cards.map(c=>`
@@ -1079,7 +1079,7 @@ function renderCashTracker() {
 
         <!-- Stats + Quick Log -->
         <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="bt-stats">
             ${[
               { label:'Wallets',  value:accounts.length,                                           icon:'💵', tc:'#f59e0b' },
               { label:'Entries',  value:history.filter(h=>!selId||h.accountId===selId).length,    icon:'📸', tc:'#00c9a7' },
@@ -1093,7 +1093,7 @@ function renderCashTracker() {
               </div>`).join('')}
           </div>
           <!-- Quick log per wallet -->
-          <div class="glass-card" style="padding:14px;flex:1">
+          <div class="glass-card bt-quicklog" style="padding:14px;flex:1">
             <p style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase">Quick Log</p>
             <div style="display:flex;flex-wrap:wrap;gap:8px">
               ${accounts.map(a=>`
