@@ -1381,3 +1381,15 @@ html.is-app .fin-stat-row .stat-card-value, html.is-app .fin-stat-row p { font-s
 /* #5 Finance Spending by Category — make the donut card use the space
    (chart legend renders to the side automatically when wide) */
 html.is-app #finance-pie-chart { max-height: 260px !important; }
+
+/* ============================================================
+   build 106 — Bank Tracker rebuild (graph full width, stats 1 row)
+   ============================================================ */
+/* #6 Graph full width (stack), taller, premium */
+html.is-app #bt-main-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+html.is-app #bt-main-grid div[style*="height:180px"] { height: 320px !important; }
+/* Stats Accounts · Entries · Transfers · Days → one line */
+html.is-app .bt-stats { grid-template-columns: repeat(4, 1fr) !important; gap: 10px !important; }
+html.is-app .bt-stats > * { padding: 20px 8px !important; }
+/* Remove Quick Log */
+html.is-app .bt-quicklog { display: none !important; }

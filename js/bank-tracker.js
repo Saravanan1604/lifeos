@@ -278,7 +278,7 @@ function renderBankTracker() {
 
         <!-- Stats + Quick Log -->
         <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="bt-stats">
             ${[
               { label:'Accounts',  value:accounts.length,                                           icon:'🏦', tc:'#818cf8' },
               { label:'Entries',   value:history.filter(h=>!selId||h.accountId===selId).length,     icon:'📸', tc:'#00c9a7' },
@@ -292,7 +292,7 @@ function renderBankTracker() {
               </div>`).join('')}
           </div>
           <!-- Quick-log per bank -->
-          <div class="glass-card" style="padding:14px;flex:1">
+          <div class="glass-card bt-quicklog" style="padding:14px;flex:1">
             <p style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase">Quick Log</p>
             <div style="display:flex;flex-wrap:wrap;gap:8px">
               ${accounts.map(a=>`

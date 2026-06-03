@@ -388,7 +388,7 @@ function renderFinancePieChart(topCats) {
       responsive: true, maintainAspectRatio: false,
       cutout: '60%',
       plugins: {
-        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Inter', size: 11 }, padding: 12, boxWidth: 10 } },
+        legend: { position: (window.__IS_APP ? 'right' : 'bottom'), labels: { color: '#94a3b8', font: { family: 'Inter', size: 13 }, padding: 14, boxWidth: 12 } },
         tooltip: { callbacks: { label: ctx => ` ₹${ctx.parsed.toLocaleString('en-IN')}` } }
       }
     }
