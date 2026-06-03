@@ -729,7 +729,7 @@ function _doExitApp() {
 
 // ===== SWIPE TO CHANGE TABS (installed app, Instagram-style) =====
 (function initSwipeNav() {
-  const ORDER = ['dashboard', 'finance', 'investments', 'budget', 'transactions'];
+  const ORDER = ['transactions', 'finance', 'investments', 'dashboard', 'budget'];
   let x0 = null, y0 = null, fromScroller = false;
   document.addEventListener('touchstart', e => {
     if (!document.documentElement.classList.contains('is-app')) return;
