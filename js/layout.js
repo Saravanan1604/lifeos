@@ -67,8 +67,9 @@ function _loDecorate(page) {
   if (!document.getElementById('lo-edit-bar')) {
     const bar = document.createElement('div');
     bar.id = 'lo-edit-bar';
-    bar.innerHTML = `<span>✏️ Customizing — move, hide or resize cards</span>
-      <div><button onclick="resetPageLayout()">Reset</button>
+    bar.innerHTML = `<span>✏️ Customizing — move or hide cards</span>
+      <div>${page === 'dashboard' ? `<button onclick="if(typeof openWidgetPicker==='function')openWidgetPicker()">➕ Add Chart</button>` : ''}
+      <button onclick="resetPageLayout()">Reset</button>
       <button class="done" onclick="toggleEditLayout()">✓ Done</button></div>`;
     f.insertBefore(bar, f.firstChild);
   }

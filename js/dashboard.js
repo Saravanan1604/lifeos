@@ -870,6 +870,9 @@ function renderDashboard() {
         </div>
       </div>
 
+      <!-- User-added chart widgets (from the layout customizer) -->
+      <div id="home-widgets"></div>
+
     </div>`;
 
   if (window.innerWidth < 700) {
@@ -903,6 +906,8 @@ function renderDashboard() {
       const fo = document.getElementById('dash-fin-overview');
       if (fo && fo.parentNode) fo.parentNode.appendChild(fo);
     }
+    // Render any chart widgets the user added to Home
+    if (typeof renderHomeWidgets === 'function') renderHomeWidgets();
   }, 50);
 
   } catch(err) {
