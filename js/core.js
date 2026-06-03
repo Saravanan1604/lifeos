@@ -637,6 +637,8 @@ function _renderPage(page) {
 }
 
 function navigate(page, skipHistory = false) {
+  // Leaving the page you were customizing? Exit edit mode so back/nav works.
+  if (typeof _loEdit !== 'undefined' && _loEdit && page !== currentPage) { _loEdit = false; }
   // Re-rendering the page you're already on (live-sync poll, price refresh,
   // post-action update) is a soft refresh — no spinner flash, keep scroll.
   const softRefresh = (page === currentPage) && skipHistory;

@@ -83,7 +83,6 @@ function _loDecorate(page) {
     ctr.innerHTML =
       `<button title="Move up"   onclick="loMove('${k}',-1)">▲</button>` +
       `<button title="Move down" onclick="loMove('${k}',1)">▼</button>` +
-      `<button title="Resize"    onclick="loSize('${k}')">${w.size === 'small' ? '⤢' : '⤡'}</button>` +
       `<button title="${w.hidden ? 'Show' : 'Hide'}" onclick="loHide('${k}')">${w.hidden ? '🚫' : '👁'}</button>`;
     el.appendChild(ctr);
   });
