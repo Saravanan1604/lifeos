@@ -1954,3 +1954,14 @@ html.is-app .mm-ic {
 /* build 141 — Records summary (EXPENSE/INCOME/TOTAL) 1.25x bigger than the list rows */
 html.is-app .mm-summary .mm-s-lbl { font-size: 1.35rem !important; }
 html.is-app .mm-summary .mm-s-val { font-size: 1.95rem !important; }
+
+/* build 142 — fix Records summary spacing so the 3 amounts don't touch */
+html.is-app .mm-summary { column-gap: 12px !important; padding-left: 14px !important; padding-right: 14px !important; }
+html.is-app .mm-summary > div { min-width: 0 !important; }
+html.is-app .mm-summary .mm-s-lbl { font-size: 1.2rem !important; }
+html.is-app .mm-summary .mm-s-val {
+  font-size: 1.55rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
