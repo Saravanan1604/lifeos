@@ -200,12 +200,12 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
   const savD = curr&&prev?delta(curr.savings,prev.savings):null;
 
   const card = ({label,value,sub,subColor,sparkData,sparkColor,page,accent,alarm,warn}) => `
-    <div onclick="navigate('${page}')" style="cursor:pointer;padding:18px 16px;border-radius:14px;background:var(--glass);border:1px solid ${alarm?'rgba(239,68,68,0.45)':warn?'rgba(245,158,11,0.35)':'var(--glass-border)'};${alarm?'box-shadow:0 0 18px rgba(239,68,68,0.12);':''}transition:.2s" onmouseover="this.style.background='${accent}0d'" onmouseout="this.style.background='var(--glass)'">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
-        <p style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin:0">${alarm?'🚨 ':warn?'⚠️ ':''}${label}</p>
-        ${sparkData?_sparklineSvg(sparkData,72,22,sparkColor):''}
+    <div onclick="navigate('${page}')" class="kpi-card" style="--acc:${accent};cursor:pointer;padding:20px 18px;border-radius:20px;background:linear-gradient(155deg, ${accent}22, rgba(255,255,255,0.02));border:1px solid ${accent}40;box-shadow:0 10px 28px ${accent}1f, inset 0 1px 0 rgba(255,255,255,0.07);transition:transform .15s ease, box-shadow .2s ease" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <p style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin:0">${alarm?'🚨 ':warn?'⚠️ ':''}${label}</p>
+        <span style="width:10px;height:10px;border-radius:50%;background:${accent};box-shadow:0 0 10px ${accent}"></span>
       </div>
-      <p style="font-size:24px;font-weight:900;color:${accent};line-height:1;margin:0 0 5px">${value}</p>
+      <p style="font-size:24px;font-weight:900;color:${accent};line-height:1;margin:0 0 6px">${value}</p>
       <p style="font-size:11px;color:${subColor};font-weight:600;margin:0">${sub}</p>
       ${alarm?'<p style="font-size:10px;color:#ef4444;font-weight:700;margin-top:4px;letter-spacing:.5px">ACTION NEEDED</p>':''}
     </div>`;

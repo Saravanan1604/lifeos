@@ -1405,20 +1405,16 @@ html.is-app .bt-quicklog { display: none !important; }
 /* ============================================================
    build 108 — KPI cards 2x2 (forced) + glassy colour
    ============================================================ */
+/* KPI cards 2×2 — let the per-card accent gradient (set inline) show through;
+   just add the glassy blur + spacing here. */
 html.is-app .kpi-grid { grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
 html.is-app .kpi-grid > * {
-  background: linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02)) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
   -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
   backdrop-filter: blur(14px) saturate(140%) !important;
-  box-shadow: 0 8px 26px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06) !important;
   border-radius: 20px !important;
+  min-height: 150px !important;
+  display: flex !important; flex-direction: column !important; justify-content: center !important;
 }
-/* faint accent glow per card (matches the value colour underneath) */
-html.is-app .kpi-grid > *:nth-child(1) { box-shadow: 0 8px 26px rgba(16,185,129,0.18), inset 0 1px 0 rgba(255,255,255,0.06) !important; }
-html.is-app .kpi-grid > *:nth-child(2) { box-shadow: 0 8px 26px rgba(239,68,68,0.18),  inset 0 1px 0 rgba(255,255,255,0.06) !important; }
-html.is-app .kpi-grid > *:nth-child(3) { box-shadow: 0 8px 26px rgba(245,158,11,0.18), inset 0 1px 0 rgba(255,255,255,0.06) !important; }
-html.is-app .kpi-grid > *:nth-child(4) { box-shadow: 0 8px 26px rgba(0,201,167,0.18),  inset 0 1px 0 rgba(255,255,255,0.06) !important; }
 
 /* ============================================================
    build 110 — no login flash + premium equal-spaced bottom nav
