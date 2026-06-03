@@ -1109,9 +1109,11 @@ html.is-app .toast span { font-size: 30px !important; }
    chart + bar load animations
    ============================================================ */
 
-/* #1 Less transparent layer — make cards & the menu drawer more solid */
-html.is-app .glass-card,
-html.is-app .fin-dark-card { background: rgba(18,20,34,0.94) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+/* #1 Less transparent layer — make the GLASS cards more solid.
+   NOTE: do NOT touch .fin-dark-card here — those bank/credit/cash cards use
+   their own colourful gradient backgrounds (overriding them made them all look
+   the same dark colour). */
+html.is-app .glass-card { background: rgba(18,20,34,0.94) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 html.is-app.light .glass-card, html.is-app .light .glass-card { background: #ffffff !important; }
 html.is-app .sidebar { background: rgba(14,16,28,0.97) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; }
 html.is-app.light .sidebar, html.is-app .light .sidebar { background: rgba(255,255,255,0.98) !important; }
