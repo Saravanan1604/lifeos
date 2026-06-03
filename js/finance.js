@@ -211,8 +211,10 @@ function renderRecordsMyMoney() {
     return `${dt.toLocaleDateString('en-IN', { month: 'short' })} ${String(dt.getDate()).padStart(2, '0')}, ${dt.toLocaleDateString('en-IN', { weekday: 'long' })}`;
   };
 
-  const rows = days.map(d => `
-    <div class="mm-day">${dayHeader(d)}</div>
+  const rows = days.map(d => {
+    const dayExp = byDay[d].filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+    return `
+    <div class="mm-day"><span>${dayHeader(d)}</span><span class="mm-day-total">-${fmt(dayExp)}</span></div>
     ${byDay[d].sort(within).map(t => {
       const inc = t.type === 'income';
       const src = t.source ? _sourceLabel(t.source) : '';
@@ -233,7 +235,8 @@ function renderRecordsMyMoney() {
         <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
       </div>`;
     }).join('')}
-  `).join('');
+  `;
+  }).join('');
 
   const showTotal = !(STATE.settings && STATE.settings.showTotal === false);
   const tabs = ['day', 'week', 'month', 'year', 'all'];
