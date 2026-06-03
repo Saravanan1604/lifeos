@@ -1343,3 +1343,27 @@ body.light .note-title, body.light .note-body { color:#1f2937; }
 .note-swatch { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; }
 .note-swatch.on { border-color: #00c9a7; box-shadow: 0 0 0 2px rgba(0,201,167,.4); }
 html.is-app .note-swatch { width: 48px; height: 48px; }
+
+/* ============================================================
+   build 103 — KPI 2x2, bigger Quick Access
+   ============================================================ */
+
+/* #4 Income · Expenses / Net Saving · Net Worth → clean even 2x2 */
+html.is-app .kpi-grid {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+}
+html.is-app .kpi-grid > * {
+  min-height: 150px !important;
+  display: flex !important; flex-direction: column !important; justify-content: center !important;
+  padding: 24px 18px !important;
+}
+
+/* #5 Quick Access (bottom of Home) — bigger tiles */
+html.is-app .qa-grid > * {
+  min-height: 140px !important;
+  padding: 26px 14px !important;
+}
+html.is-app .qa-grid > * span:first-child,
+html.is-app .qa-grid > * [style*="font-size:26px"] { font-size: 46px !important; }
+html.is-app .qa-grid > * p, html.is-app .qa-grid > * div { font-size: 24px !important; }

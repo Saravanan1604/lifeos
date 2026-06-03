@@ -340,6 +340,11 @@ function renderSettings() {
       <div class="page-header"><h1 class="page-title">⚙️ Settings</h1><p class="page-subtitle">Manage your LifeOS preferences</p></div>
       <div style="display:flex;flex-direction:column;gap:16px;max-width:500px">
         <div class="glass-card" style="padding:22px">
+          <p class="section-title" style="margin-bottom:12px">🌐 Web Version</p>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Open LifeOS in your browser — same account, bigger screen.</p>
+          <button class="btn-primary" onclick="window.open('https://lifeos-psi-roan.vercel.app','_blank')">🌐 Open Web App ↗</button>
+        </div>
+        <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🔒 App Lock</p>
           <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Require a PIN or fingerprint / face to open LifeOS.</p>
           ${(typeof appLockEnabled==='function' && appLockEnabled())
