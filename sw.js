@@ -1,5 +1,5 @@
-// LifeOS Service Worker - v136.0
-const CACHE = 'lifeos-v136';
+// LifeOS Service Worker - v137.0
+const CACHE = 'lifeos-v137';
 
 // Allow the page to tell a waiting SW to activate immediately
 self.addEventListener('message', e => {

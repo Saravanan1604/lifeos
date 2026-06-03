@@ -1908,3 +1908,20 @@ html.is-app .mm-chip {
 html.is-app .mm-note { color: var(--text2); font-size: 1.1rem; }
 html.is-app .mm-amt { font-size: 1.55rem; font-weight: 800; white-space: nowrap; }
 html.is-app .mm-empty { text-align: center; color: var(--text2); font-size: 1.25rem; padding: 60px 20px; line-height: 1.6; }
+
+/* build 137 — Records page control buttons (calendar / total / carry-forward) */
+html.is-app .mm-ctrls {
+  display: flex; gap: 8px; padding: 6px 14px 2px; flex-wrap: wrap;
+}
+html.is-app .mm-cbtn {
+  position: relative; flex: 1; min-width: 0; text-align: center;
+  padding: 11px 6px; border-radius: 12px;
+  background: var(--glass); border: 1px solid var(--glass-border); color: var(--text2);
+  font-size: 1.1rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+html.is-app .mm-cbtn.on { background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; border-color: transparent; }
+html.is-app .mm-cbtn input[type="date"] {
+  position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%;
+  border: none; cursor: pointer;
+}

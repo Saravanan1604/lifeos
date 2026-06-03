@@ -38,6 +38,16 @@ if (typeof window.esc !== 'function') {
     .replace(/"/g, '&quot;');
 }
 
+// Current local time HH:MM (used as the non-mandatory default)
+function _nowTime() { const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+// Format "15:07" → "3:07 PM"
+function _fmtTime(t) {
+  if (!t || !/^\d{1,2}:\d{2}/.test(t)) return '';
+  let [h, m] = t.split(':').map(Number);
+  const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+  return `${h}:${String(m).padStart(2,'0')} ${ap}`;
+}
+
 // Distinct subcategories already used (for the datalist suggestions)
 function _subcatSuggestions() {
   const set = new Set();
@@ -109,6 +119,34 @@ function _recPeriodLabel() {
   return `${mon.toLocaleDateString('en-IN', o)} – ${sun.toLocaleDateString('en-IN', o)}`;
 }
 
+// Last calendar day (YYYY-MM-DD) of the currently displayed period
+function _recPeriodEndYmd() {
+  const a = _recAnchor;
+  if (_recPeriod === 'day')   return _ymdLocal(a);
+  if (_recPeriod === 'week')  { const dow = (a.getDay() + 6) % 7; const sun = new Date(a); sun.setDate(a.getDate() - dow + 6); return _ymdLocal(sun); }
+  if (_recPeriod === 'month') return _ymdLocal(new Date(a.getFullYear(), a.getMonth() + 1, 0));
+  if (_recPeriod === 'year')  return `${a.getFullYear()}-12-31`;
+  return _ymdLocal(new Date());
+}
+
+// Records page control toggles + calendar jump
+function recToggleTotal() {
+  STATE.settings = STATE.settings || {};
+  STATE.settings.showTotal = STATE.settings.showTotal === false ? true : false;
+  saveState(); renderRecordsMyMoney();
+}
+function recToggleCarry() {
+  STATE.settings = STATE.settings || {};
+  STATE.settings.carryForward = !STATE.settings.carryForward;
+  saveState(); renderRecordsMyMoney();
+}
+function recPickDay(v) {
+  if (!v) return;
+  _recAnchor = new Date(v + 'T00:00:00');
+  _recPeriod = 'day';
+  renderRecordsMyMoney();
+}
+
 function renderRecordsMyMoney() {
   const anchorYmd = _ymdLocal(_recAnchor);
   const periodTxns = filterTxByAnchor([...(STATE.transactions || [])], _recPeriod, anchorYmd);
@@ -127,7 +165,18 @@ function renderRecordsMyMoney() {
       .reduce((s, t) => s + (+t.amount || 0), 0);
     incomeCarried = true;
   }
-  const total = income - expense;
+  let total = income - expense;
+
+  // Carry forward to next month: TOTAL becomes the running balance — the net of
+  // ALL transactions up to the end of the displayed period (so each month opens
+  // with the previous month's closing balance).
+  const carryForward = STATE.settings && STATE.settings.carryForward === true;
+  if (carryForward && _recPeriod !== 'all') {
+    const periodEnd = _recPeriodEndYmd();
+    total = (STATE.transactions || [])
+      .filter(t => (t.date || '').slice(0, 10) <= periodEnd)
+      .reduce((s, t) => s + (t.type === 'income' ? (+t.amount || 0) : -(+t.amount || 0)), 0);
+  }
 
   // apply our existing filters (type / category / search)
   const q = _recSearch.trim().toLowerCase();
@@ -141,11 +190,12 @@ function renderRecordsMyMoney() {
 
   const filterActive = _finType !== 'all' || _finCategory !== 'all' || _finSort !== 'date-desc' || !!q;
   const amtSort = _finSort === 'amount-desc' || _finSort === 'amount-asc';
+  const tkey = t => `${t.date || ''}T${t.time || '00:00'}`;
   const within = (a, b) => {
     if (_finSort === 'amount-desc') return (+b.amount) - (+a.amount);
     if (_finSort === 'amount-asc')  return (+a.amount) - (+b.amount);
-    if (_finSort === 'date-asc')    return new Date(a.createdAt || a.date) - new Date(b.createdAt || b.date);
-    return new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date);
+    if (_finSort === 'date-asc')    return tkey(a).localeCompare(tkey(b)) || (new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+    return tkey(b).localeCompare(tkey(a)) || (new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   };
 
   // group by day
@@ -167,18 +217,20 @@ function renderRecordsMyMoney() {
       const chip = src ? `<span class="mm-chip">${isCard ? '💳' : '💵'} ${esc(src)}</span>` : '';
       const note = t.description ? `<span class="mm-note">“${esc(t.description)}”</span>` : '';
       const sub = t.subcategory ? `<span class="mm-note">› ${esc(t.subcategory)}</span>` : '';
+      const tm = t.time ? `<span class="mm-note">🕒 ${_fmtTime(t.time)}</span>` : '';
       return `
       <div class="mm-row" onclick="openTxDetail('${t.id}')">
         <div class="mm-ic" style="background:${catColor(t.category)}">${t.icon || catIcon(t.category)}</div>
         <div class="mm-mid">
           <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
-          <div class="mm-meta">${chip}${note}${sub}</div>
+          <div class="mm-meta">${chip}${note}${sub}${tm}</div>
         </div>
         <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
       </div>`;
     }).join('')}
   `).join('');
 
+  const showTotal = !(STATE.settings && STATE.settings.showTotal === false);
   const tabs = ['day', 'week', 'month', 'year', 'all'];
   const tabLabels = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
   const periodTabs = tabs.map(p =>
@@ -192,10 +244,17 @@ function renderRecordsMyMoney() {
         <span class="mm-month">${periodLabelTxt}</span>
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="recNav(1)">›</button>`}
       </div>
-      <div class="mm-summary">
+      ${showTotal ? `<div class="mm-summary">
         <div><span class="mm-s-lbl">EXPENSE</span><span class="mm-s-val neg">${fmt(expense)}</span></div>
         <div><span class="mm-s-lbl">INCOME${incomeCarried ? ' <span style="opacity:.7;font-weight:600">(month)</span>' : ''}</span><span class="mm-s-val pos">${fmt(income)}</span></div>
-        <div><span class="mm-s-lbl">TOTAL</span><span class="mm-s-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</span></div>
+        <div><span class="mm-s-lbl">${carryForward ? 'BALANCE' : 'TOTAL'}</span><span class="mm-s-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</span></div>
+      </div>` : ''}
+      <div class="mm-ctrls">
+        <label class="mm-cbtn" title="Pick a day">📅 Day
+          <input type="date" value="${anchorYmd}" onchange="recPickDay(this.value)"/>
+        </label>
+        <button class="mm-cbtn ${showTotal ? 'on' : ''}" onclick="recToggleTotal()">Σ Total</button>
+        <button class="mm-cbtn ${carryForward ? 'on' : ''}" onclick="recToggleCarry()">↪ Carry fwd</button>
       </div>
       <button class="mm-filterbar ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg>
@@ -271,7 +330,7 @@ function openTxDetail(id) {
         </div>
         <p class="txd-type">${isInc ? 'INCOME' : 'EXPENSE'}</p>
         <p class="txd-amt">${isInc ? '+' : '-'}${fmt(tx.amount)}</p>
-        <p class="txd-date">${fmtDate(tx.date)}</p>
+        <p class="txd-date">${fmtDate(tx.date)}${tx.time ? ' · ' + _fmtTime(tx.time) : ''}</p>
       </div>
       <div class="txd-body">
         <div class="txd-row"><span>Account</span><b>${esc(acct)}</b></div>
@@ -1049,6 +1108,7 @@ function openAddTxModal(defaultType) {
       <div class="form-group"><label class="form-label">Amount (₹)</label><input type="number" id="tx-amount" class="form-input" placeholder="0.00" min="0" step="0.01"/></div>
       <div class="form-group"><label class="form-label">Date</label><input type="date" id="tx-date" class="form-input" value="${today()}"/></div>
     </div>
+    <div class="form-group"><label class="form-label">Time <span style="opacity:.6;font-weight:400">(optional)</span></label><input type="time" id="tx-time" class="form-input" value="${_nowTime()}"/></div>
     <div class="form-group"><label class="form-label">Category</label><select id="tx-cat" class="form-input">${catOptions}</select></div>
     <div class="form-group"><label class="form-label">Subcategory <span style="opacity:.6;font-weight:400">(optional)</span></label>
       <input type="text" id="tx-subcat" class="form-input" list="subcat-list" placeholder="e.g. Groceries, Labour cost, Restaurant"/>
@@ -1083,10 +1143,11 @@ function saveTx() {
   const source = document.getElementById('tx-source')?.value || '';
   const subcategory = (document.getElementById('tx-subcat')?.value || '').trim();
   const frequency = document.getElementById('tx-repeat')?.value || '';
+  const time = document.getElementById('tx-time')?.value || '';
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
   const dupe = _findDuplicate(amount, date, description, null);
   if (dupe) {
-    _pendingTx = { type, amount, date, category, icon, description, source, subcategory, frequency };
+    _pendingTx = { type, amount, date, category, icon, description, source, subcategory, frequency, time };
     openModal('⚠️ Possible Duplicate', `
       <p style="font-size:13px;color:var(--text2);margin-bottom:14px">A similar transaction already exists:</p>
       <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px">
@@ -1101,7 +1162,7 @@ function saveTx() {
       </div>`);
     return;
   }
-  _commitTx({ type, amount, date, category, icon, description, source, subcategory, frequency });
+  _commitTx({ type, amount, date, category, icon, description, source, subcategory, frequency, time });
 }
 
 function confirmSaveTx() {
@@ -1178,6 +1239,10 @@ function openEditTxModal(id) {
       </div>
     </div>
     <div class="form-group">
+      <label class="form-label">Time <span style="opacity:.6;font-weight:400">(optional)</span></label>
+      <input type="time" id="etx-time" class="form-input" value="${tx.time || ''}"/>
+    </div>
+    <div class="form-group">
       <label class="form-label">Category</label>
       <select id="etx-cat" class="form-input">${catOptions}</select>
     </div>
@@ -1217,6 +1282,7 @@ function saveEditTx(id) {
   const desc   = document.getElementById('etx-desc')?.value.trim();
   const source = document.getElementById('etx-source')?.value || tx.source || '';
   const subcategory = (document.getElementById('etx-subcat')?.value || '').trim();
+  const time = document.getElementById('etx-time')?.value || '';
   const applyAll = document.getElementById('etx-apply-all')?.checked;
 
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
@@ -1232,6 +1298,7 @@ function saveEditTx(id) {
   tx.description = desc;
   tx.source      = source;
   tx.subcategory = subcategory;
+  tx.time        = time;
 
   _applyTxToAccount(tx); // apply new balance effect
 
