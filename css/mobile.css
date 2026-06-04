@@ -3049,14 +3049,16 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
 #txpad .pad-amt-wrap .pad-amount-input { width: 100% !important; padding-right: 18px !important; }
 #txpad .pad-notes-wrap { display: block !important; position: relative !important; flex: 0 0 auto !important; min-height: 150px !important; }
 #txpad .pad-notes-wrap .pad-notes { width: 100% !important; height: 150px !important; min-height: 150px !important; box-sizing: border-box !important; padding-bottom: 56px !important; }
-#txpad .pad-notes-actions { position: absolute !important; right: 12px; bottom: 12px; display: flex !important; gap: 10px; }
+/* calc + mic now sit in their own right-aligned row between Notes and SAVE */
+#txpad .pad-notes-actions { position: static !important; display: flex !important; justify-content: flex-end !important; gap: 14px; margin-top: 12px; }
 #txpad .pad-notes-actions .pad-calc-btn,
 #txpad .pad-notes-actions .pad-mic-btn {
   position: static !important; flex: 0 0 auto !important; align-self: auto !important;
-  width: 44px !important; height: 44px !important; min-width: 0 !important; border-radius: 12px !important;
+  width: 68px !important; height: 68px !important; min-width: 0 !important; border-radius: 18px !important;
 }
 #txpad .pad-notes-actions .pad-calc-btn svg.lucide,
-#txpad .pad-notes-actions .pad-mic-btn svg.lucide { width: 18px !important; height: 18px !important; }
+#txpad .pad-notes-actions .pad-mic-btn svg.lucide { width: 32px !important; height: 32px !important; }
+#txpad .pad-notes-wrap .pad-notes { padding-bottom: 16px !important; }
 
 /* ============================================================
    build 239 — Add-sheet polish: ₹ symbol + emphasised amount,
