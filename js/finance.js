@@ -931,7 +931,7 @@ function openTxDetail(id) {
       </div>
       <div class="txd-body">
         <div class="txd-row"><span>Account</span><b>${esc(acct)}</b></div>
-        <div class="txd-row"><span>Category</span><b><span class="txd-cat-ic" style="background:${catColor(tx.category)}">${catIcon(tx.category)}</span>${esc(tx.category || '—')}</b></div>
+        <div class="txd-row"><span>Category</span><b><span class="txd-cat-ic" style="background:${catColor(tx.category)}">${catIconHtml(tx.category)}</span>${esc(tx.category || '—')}</b></div>
         ${tx.subcategory ? `<div class="txd-row"><span>Subcategory</span><b>${esc(tx.subcategory)}</b></div>` : ''}
         <div class="txd-row"><span>Name</span><b>${esc(tx.description || '—')}</b></div>
         <div class="txd-row" style="border:none"><span>Notes</span><b style="font-weight:500;opacity:.85">${esc(note)}</b></div>
@@ -1512,7 +1512,7 @@ function renderFinanceTxList() {
         <input type="checkbox" id="chk-${tx.id}" data-txid="${tx.id}" class="fin-tx-chk"
           onchange="onTxCheckChange()"
           style="width:16px;height:16px;accent-color:#00c9a7;cursor:pointer;flex-shrink:0"/>
-        <div class="tx-ic" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${catColor(tx.category)}26;border:1px solid ${catColor(tx.category)}55;font-size:18px">${tx.icon || catIcon(tx.category)}</div>
+        <div class="tx-ic" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${catColor(tx.category)}26;border:1px solid ${catColor(tx.category)}55;color:${catColor(tx.category)};font-size:18px">${catIconHtml(tx.category)}</div>
         <div>
           <p style="font-size:13px;font-weight:600">${tx.description || tx.category}${tx.recurringId ? ' <span title="Recurring" style="font-size:11px">🔁</span>' : ''}</p>
           <p style="font-size:11px;color:var(--text3)">${tx.category}${tx.subcategory ? ' › <span style="color:#a5b4fc">' + esc(tx.subcategory) + '</span>' : ''} · ${fmtDate(tx.date)}${tx.source ? ' · <span style="color:#f59e0b">' + _sourceLabel(tx.source) + '</span>' : ''}</p>
@@ -3639,7 +3639,7 @@ function renderBudget() {
                 const over = spent > limit;
                 return `<div style="display:flex;align-items:center;gap:8px">
                   <span style="width:10px;height:10px;border-radius:2px;background:${color};flex-shrink:0"></span>
-                  <span style="font-size:13px">${cat?.icon||'📦'}</span>
+                  <span class="cat-lic" style="color:${color};font-size:13px">${catIconHtml(b.category)}</span>
                   <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.category}</span>
                   <span style="font-size:11px;color:${over?'#ef4444':'var(--text3)'};font-weight:${over?700:400}">${fmt(spent)}<span style="color:var(--text3);font-weight:400"> / ${fmt(limit)}</span></span>
                   <span style="font-size:10px;width:36px;text-align:right;color:${over?'#ef4444':pct>80?'#f59e0b':'#10b981'};font-weight:700">${pct.toFixed(0)}%</span>
@@ -3663,7 +3663,7 @@ function renderBudget() {
             return `<div class="glass-card" style="padding:18px">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
                 <div style="display:flex;align-items:center;gap:10px">
-                  <span style="font-size:22px">${cat?.icon||'📦'}</span>
+                  <span class="cat-lic" style="color:${BUDGET_COLORS[bi % BUDGET_COLORS.length]};font-size:22px">${catIconHtml(b.category)}</span>
                   <div>
                     <div style="font-weight:600;font-size:14px">${b.category}</div>
                     <div style="font-size:11px;color:var(--text3)">Set: ${fmt(bAmount)}/${bPeriod}</div>

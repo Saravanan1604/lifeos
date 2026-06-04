@@ -802,7 +802,7 @@ function renderDashboard() {
           : recent.map(tx => `
             <div class="tx-row" onclick="if(typeof openTxDetail==='function')openTxDetail('${tx.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.04)'" onmouseout="this.style.background=''">
               <div style="display:flex;align-items:center;gap:12px">
-                <div class="tx-ic" style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}26;border:1px solid ${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}55;font-size:18px;flex-shrink:0">${tx.icon||(typeof catIcon==='function'?catIcon(tx.category):'💳')}</div>
+                <div class="tx-ic" style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}26;border:1px solid ${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}55;color:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')};font-size:18px;flex-shrink:0">${typeof catIconHtml==='function'?catIconHtml(tx.category):(tx.icon||'')}</div>
                 <div>
                   <p style="font-size:13px;font-weight:600">${tx.description||tx.category}</p>
                   <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>

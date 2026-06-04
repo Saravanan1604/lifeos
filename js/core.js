@@ -641,6 +641,8 @@ function _renderPage(page) {
     default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
   }
   _appendQuickActions(page);
+  // Render any Lucide line-icons (<i data-lucide>) injected by the page
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
   if (typeof applyPageLayout === 'function') applyPageLayout(page);
   // Highlight the active bottom-nav tab + slide the indicator line (Instagram-style)
   // Only count visible tabs (the center slot is the Add FAB in the app).

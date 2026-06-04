@@ -2916,3 +2916,11 @@ html.is-app .mm-cbtn svg.lucide,
 html.is-app .mm-selact svg.lucide { width: 1.25rem; height: 1.25rem; vertical-align: -0.18em; margin-right: 5px; }
 html.is-app #modal-overlay .pad-cats .pad-cat-lucide svg.lucide { width: 1.9rem; height: 1.9rem; color: #00c9a7; }
 html.is-app #modal-overlay .pad-cats button { gap: 6px; }
+
+/* category line icons on Dashboard / Finance / Budget / detail card */
+html.is-app .tx-ic { display: inline-flex !important; align-items: center; justify-content: center; }
+html.is-app .tx-ic svg.lucide { width: 1.5rem; height: 1.5rem; }
+html.is-app .txd-cat-ic { display: inline-flex; align-items: center; justify-content: center; }
+html.is-app .txd-cat-ic svg.lucide { width: 1.3rem; height: 1.3rem; color: #fff; stroke: #fff; }
+html.is-app .cat-lic { display: inline-flex; align-items: center; justify-content: center; }
+html.is-app .cat-lic svg.lucide { width: 1.3em; height: 1.3em; }
