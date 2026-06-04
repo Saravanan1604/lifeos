@@ -3043,8 +3043,11 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
   flex-direction: column; align-items: center;
   background: rgba(8,8,24,0.97); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   padding: calc(46px + env(safe-area-inset-top,0px)) 24px calc(30px + env(safe-area-inset-bottom,0px));
-  color: var(--text);
+  color: #f1f5f9 !important;
 }
+/* voice page bg is always dark → force light text regardless of app theme */
+#voice-page, #voice-page .vp-transcript, #voice-page .vp-cmd-txt,
+#voice-page .vp-cmds-title, #voice-page .vp-close { color: #f1f5f9 !important; }
 #voice-page .vp-close {
   position: absolute; top: calc(18px + env(safe-area-inset-top,0px)); right: 18px;
   width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
