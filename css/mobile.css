@@ -2512,3 +2512,30 @@ html.is-app #modal-overlay .modal-body li { color: #475569 !important; }
 }
 #txpad .pad-key.oper { font-size: 2.2rem !important; }
 #txpad .pad-key.eq   { font-size: 2.3rem !important; }
+
+/* ============================================================
+   build 179 — Samsung One-UI style keypad (rounded squares,
+   teal operator column, filled teal equals). App only.
+   ============================================================ */
+#txpad .pad-keys.pad-calc {
+  flex: 1 1 auto !important; align-content: space-evenly !important;
+  justify-items: stretch !important; gap: 10px !important; margin-top: 10px !important;
+}
+#txpad .pad-key {
+  width: 100% !important; max-width: none !important; aspect-ratio: 1 / 1 !important;
+  border-radius: 26px !important; border: none !important; box-shadow: none !important;
+  background: rgba(255,255,255,0.06) !important; color: var(--text) !important;
+  font-size: 2.1rem !important; font-weight: 500 !important;
+}
+html.is-app.light #txpad .pad-key, html.is-app .light #txpad .pad-key {
+  background: rgba(15,23,42,0.05) !important; color: #1c1c1e !important;
+}
+#txpad .pad-key:active { background: rgba(0,201,167,0.22) !important; }
+/* function keys: C ⌫ % — teal text */
+#txpad .pad-key.fn { background: rgba(0,201,167,0.12) !important; color: #00c9a7 !important; }
+html.is-app.light #txpad .pad-key.fn, html.is-app .light #txpad .pad-key.fn { background: rgba(0,201,167,0.12) !important; color: #009e85 !important; }
+/* operator column: ÷ × − +  — teal pills */
+#txpad .pad-key.oper { background: rgba(0,201,167,0.18) !important; color: #00c9a7 !important; font-size: 2.4rem !important; font-weight: 600 !important; }
+html.is-app.light #txpad .pad-key.oper, html.is-app .light #txpad .pad-key.oper { color: #009e85 !important; }
+/* equals: filled teal */
+#txpad .pad-key.eq { background: #00c9a7 !important; color: #fff !important; font-size: 2.5rem !important; }
