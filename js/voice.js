@@ -816,6 +816,8 @@ function closeVoicePage() {
   vpStopListen();
   const el = document.getElementById('voice-page');
   if (el) el.style.display = 'none';
+  // If we came from the Add sheet, bring it back instead of revealing Records.
+  if (typeof _pad !== 'undefined' && _pad && typeof renderTxPad === 'function') renderTxPad();
 }
 
 function vpToggleListen() { if (_vpListening) vpStopListen(); else vpStartListen(); }

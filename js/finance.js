@@ -868,10 +868,10 @@ ${_pad.mode === 'add' ? `
     <div class="pad-tools">
       <p class="pad-tools-label">Quick import</p>
       <div class="pad-tools-grid">
-        <button class="pad-tool" onclick="padClose();openCsvImport()"><span class="pad-tool-ic"><i data-lucide="file-spreadsheet"></i></span><span>Import CSV</span></button>
-        <button class="pad-tool" onclick="padClose();openBulkEntry()"><span class="pad-tool-ic"><i data-lucide="calendar-days"></i></span><span>Bulk Entry</span></button>
-        <button class="pad-tool" onclick="padClose();openSmsParser()"><span class="pad-tool-ic"><i data-lucide="message-square-text"></i></span><span>Scan SMS</span></button>
-        <button class="pad-tool" onclick="padClose();openPdfImport()"><span class="pad-tool-ic"><i data-lucide="file-text"></i></span><span>Import PDF</span></button>
+        <button class="pad-tool" onclick="openCsvImport()"><span class="pad-tool-ic"><i data-lucide="file-spreadsheet"></i></span><span>Import CSV</span></button>
+        <button class="pad-tool" onclick="openBulkEntry()"><span class="pad-tool-ic"><i data-lucide="calendar-days"></i></span><span>Bulk Entry</span></button>
+        <button class="pad-tool" onclick="openSmsParser()"><span class="pad-tool-ic"><i data-lucide="message-square-text"></i></span><span>Scan SMS</span></button>
+        <button class="pad-tool" onclick="openPdfImport()"><span class="pad-tool-ic"><i data-lucide="file-text"></i></span><span>Import PDF</span></button>
       </div>
     </div>` : ''}
 
@@ -4385,8 +4385,9 @@ function saveAllCsvTx() {
   if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} CSV transaction${toSave.length>1?'s':''} imported`);
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
+  if (typeof padClose === 'function') padClose();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported from CSV! 🎉`, 'success');
-  refreshFinancePage();
+  if (window.__IS_APP && typeof navigate === 'function') navigate(currentPage || 'transactions', true); else refreshFinancePage();
 }
 
 // ===== BULK DATE ENTRY =====
@@ -4493,8 +4494,9 @@ function saveBulkEntries() {
   if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} bulk transaction${toSave.length>1?'s':''} logged`);
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
+  if (typeof padClose === 'function') padClose();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} saved! +${toSave.length * 10} XP 🎉`, 'success');
-  refreshFinancePage();
+  if (window.__IS_APP && typeof navigate === 'function') navigate(currentPage || 'transactions', true); else refreshFinancePage();
 }
 
 // ===== SMART STATEMENT PASTE (GPay / PhonePe) =====
@@ -4714,8 +4716,9 @@ function saveAllStmtTx() {
   if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} statement transaction${toSave.length>1?'s':''} imported`);
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
+  if (typeof padClose === 'function') padClose();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported! 🎉`, 'success');
-  refreshFinancePage();
+  if (window.__IS_APP && typeof navigate === 'function') navigate(currentPage || 'transactions', true); else refreshFinancePage();
 }
 
 // ===== PDF IMPORT =====
@@ -5095,6 +5098,7 @@ function saveAllPdfTx() {
   if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} PDF transaction${toSave.length>1?'s':''} imported`);
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
+  if (typeof padClose === 'function') padClose();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported from PDF! 🎉`, 'success');
   if (window.__IS_APP && typeof navigate === 'function') navigate(currentPage || 'transactions', true);
   else refreshFinancePage();
