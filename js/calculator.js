@@ -233,6 +233,15 @@ function calcFinancial(op) {
     const rate = inputs['fin-gst-rate'];
     const gst = amount * rate / 100;
     result = `GST: ₹${gst.toFixed(2)}\nTotal: ₹${(amount+gst).toFixed(2)}`;
+  } else if (op === 'tax') {
+    const inc = inputs['fin-tax-income'] || 0;
+    // India new-regime slabs (FY 2024-25)
+    const slabs = [[300000,0],[400000,0.05],[300000,0.10],[200000,0.15],[300000,0.20],[Infinity,0.30]];
+    let rem = inc, tax = 0;
+    for (const [w, rate] of slabs) { if (rem <= 0) break; const t = Math.min(rem, w); tax += t * rate; rem -= t; }
+    if (inc <= 700000) tax = 0;            // §87A rebate
+    const cess = tax * 0.04, total = tax + cess;
+    result = `Taxable: ₹${inc.toLocaleString('en-IN')}\nTax: ₹${tax.toFixed(0)}\nCess (4%): ₹${cess.toFixed(0)}\nTotal Tax: ₹${total.toFixed(0)}`;
   } else if (op === 'percent') {
     const total = inputs['fin-pct-total'];
     const pct = inputs['fin-pct-val'];
@@ -291,6 +300,7 @@ function renderCalcBody() {
         <button class="calc-fin-tab" onclick="switchFinTab(this,'sip-calc')">SIP</button>
         <button class="calc-fin-tab" onclick="switchFinTab(this,'fd-calc')">FD</button>
         <button class="calc-fin-tab" onclick="switchFinTab(this,'gst-calc')">GST</button>
+        <button class="calc-fin-tab" onclick="switchFinTab(this,'tax-calc')">Tax</button>
         <button class="calc-fin-tab" onclick="switchFinTab(this,'pct-calc')">%</button>
       </div>
       <div id="fin-panes">
@@ -316,6 +326,10 @@ function renderCalcBody() {
           <div class="fin-row"><label>Amount (₹)</label><input id="fin-gst-amount" type="number" class="form-input fin-input" placeholder="1000"/></div>
           <div class="fin-row"><label>GST Rate (%)</label><input id="fin-gst-rate" type="number" class="form-input fin-input" placeholder="18"/></div>
           <button class="btn-primary btn-full" onclick="calcFinancial('gst')">Calculate GST</button>
+        </div>
+        <div id="tax-calc" class="fin-pane" style="display:none">
+          <div class="fin-row"><label>Annual Income (₹)</label><input id="fin-tax-income" type="number" class="form-input fin-input" placeholder="1200000"/></div>
+          <button class="btn-primary btn-full" onclick="calcFinancial('tax')">Calculate Tax (New Regime)</button>
         </div>
         <div id="pct-calc" class="fin-pane" style="display:none">
           <div class="fin-row"><label>Total Amount (₹)</label><input id="fin-pct-total" type="number" class="form-input fin-input" placeholder="10000"/></div>

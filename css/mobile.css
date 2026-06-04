@@ -2287,3 +2287,22 @@ html.is-app #auth-screen .auth-card {
 html.is-app #auth-screen #offline-banner {
   width: 100% !important; max-width: 480px !important; margin: 16px auto 0 !important;
 }
+
+/* build 162 — round-button calculator design (app only), like the reference */
+html.is-app .calc-grid-basic, html.is-app .calc-grid-sci { gap: 12px !important; }
+html.is-app .calc-btn {
+  height: auto !important; aspect-ratio: 1 / 1 !important;
+  border-radius: 50% !important; border: none !important;
+  background: rgba(255,255,255,0.07) !important; color: var(--text) !important;
+  font-size: 28px !important; font-weight: 500 !important;
+  display: flex; align-items: center; justify-content: center;
+}
+html.is-app.light .calc-btn, html.is-app .light .calc-btn { background: rgba(15,23,42,0.06) !important; }
+html.is-app .calc-btn:active { transform: scale(.93) !important; }
+/* operators & equals — blue, like the reference */
+html.is-app .calc-op  { background: #2563eb !important; color: #fff !important; }
+html.is-app .calc-eq  { background: #1d4ed8 !important; color: #fff !important; }
+/* scientific functions — soft blue */
+html.is-app .calc-sci { background: rgba(37,99,235,0.16) !important; color: #60a5fa !important; font-size: 22px !important; }
+/* memory / clear row — green-teal accents */
+html.is-app .calc-mem { background: rgba(16,185,129,0.16) !important; color: #34d399 !important; font-size: 20px !important; }
