@@ -13,7 +13,7 @@ let calcDragPos = null; // {left, top} after first drag
 // ============================================================
 let _cp = '';
 const _CP_KEYS = [
-  { k: 'AC',  cls: 'fn' }, { k: '⌫', cls: 'fn' }, { k: '%', cls: 'fn' }, { k: '÷', cls: 'op' },
+  { k: 'C',  cls: 'fn' }, { k: '⌫', cls: 'fn' }, { k: '%', cls: 'fn' }, { k: '÷', cls: 'op' },
   { k: '7' }, { k: '8' }, { k: '9' }, { k: '×', cls: 'op' },
   { k: '4' }, { k: '5' }, { k: '6' }, { k: '−', cls: 'op' },
   { k: '1' }, { k: '2' }, { k: '3' }, { k: '+', cls: 'op' },
@@ -56,7 +56,7 @@ function cpRender() {
 }
 function cpKey(k) {
   const ops = '+−×÷';
-  if (k === 'AC') _cp = '';
+  if (k === 'C' || k === 'AC') _cp = '';
   else if (k === '⌫') _cp = _cp.slice(0, -1);
   else if (k === '=') { const v = _cpEval(_cp); if (!isNaN(v)) _cp = String(+(+v).toFixed(4)); }
   else {

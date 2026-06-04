@@ -3080,12 +3080,12 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
 #calc-page {
   position: fixed; inset: 0; z-index: 2147483646; display: none; flex-direction: column;
   background: var(--bg, #080818); color: var(--text, #f1f5f9);
-  padding: calc(14px + env(safe-area-inset-top,0px)) 16px calc(18px + env(safe-area-inset-bottom,0px));
+  padding: calc(50px + env(safe-area-inset-top,0px)) 16px calc(18px + env(safe-area-inset-bottom,0px));
 }
 #calc-page .cp-top { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-#calc-page .cp-x { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255,255,255,0.08); color: var(--text); display: flex; align-items: center; justify-content: center; }
-#calc-page .cp-x svg.lucide { width: 1.6rem; height: 1.6rem; }
-#calc-page .cp-title { font-size: 22px; font-weight: 700; color: var(--text2); letter-spacing: .3px; }
+#calc-page .cp-x { width: 100px; height: 100px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255,255,255,0.08); color: var(--text); display: flex; align-items: center; justify-content: center; }
+#calc-page .cp-x svg.lucide { width: 3rem; height: 3rem; }
+#calc-page .cp-title { font-size: 50px; font-weight: 700; color: var(--text2); letter-spacing: .3px; }
 #calc-page .cp-use { background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; border: none; border-radius: 14px; padding: 14px 26px; font-size: 22px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 #calc-page .cp-use svg.lucide { width: 1.5rem; height: 1.5rem; }
 #calc-page .cp-x { width: 60px; height: 60px; }
@@ -3097,7 +3097,7 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
 #calc-page .cp-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding-top: 8px; flex-shrink: 0; }
 #calc-page .cp-key { aspect-ratio: 1 / 1; border: none; border-radius: 50%; font-size: 80px; font-weight: 500; cursor: pointer; background: rgba(255,255,255,0.09); color: var(--text); display: flex; align-items: center; justify-content: center; transition: transform .07s, filter .12s; }
 #calc-page .cp-key:active { transform: scale(.92); filter: brightness(1.2); }
-#calc-page .cp-key.fn { background: rgba(255,255,255,0.2); color: var(--text); font-weight: 600; font-size: 90px; }
+#calc-page .cp-key.fn { background: rgba(255,255,255,0.2); color: var(--text); font-weight: 600; font-size: 80px; }
 #calc-page .cp-key.op { background: linear-gradient(135deg,#00c9a7,#0ea5e9); color: #fff; font-size: 90px; }
 #calc-page .cp-key.op.eq { background: linear-gradient(135deg,#00c9a7,#6366f1); }
 #calc-page .cp-key.zero { grid-column: span 2; aspect-ratio: auto; border-radius: 60px; justify-content: flex-start; padding-left: 46px; }
