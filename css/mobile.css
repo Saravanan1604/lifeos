@@ -2197,8 +2197,8 @@ html.is-app .modal-box.modal-fullscreen .modal-body { flex: 1; overflow-y: auto;
   -webkit-user-select: none; user-select: none;
 }
 html.is-app.dark #txpad, html.is-app:not(.light) #txpad { background: #0e1326; color: #e6f4f1; }
-/* keep pickers above the pad */
-html.is-app #modal-overlay { z-index: 100010 !important; }
+/* keep pickers above the pad — must beat #txpad's z-index (2147483600) */
+html.is-app #modal-overlay { z-index: 2147483647 !important; }
 
 #txpad .pad-head { display: flex; justify-content: space-between; align-items: center; }
 #txpad .pad-cancel, #txpad .pad-save { background: none; border: none; font-size: 1.4rem; font-weight: 800; cursor: pointer; color: inherit; padding: 6px 4px; }
