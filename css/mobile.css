@@ -3035,6 +3035,12 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
   position: static !important; flex: 0 0 88px !important; width: 88px !important; height: auto !important;
   align-self: stretch !important; right: auto !important; bottom: auto !important; border-radius: 18px !important;
 }
+
+/* build 237 — Amount compact, Notes taller (amount height < notes height) */
+#txpad .pad-amt-wrap { flex: 0 0 auto !important; }
+#txpad .pad-amt-wrap .pad-amount-input { min-height: 90px !important; height: 90px !important; }
+#txpad .pad-notes-wrap { flex: 1 1 auto !important; min-height: 150px !important; }
+#txpad .pad-notes-wrap .pad-notes { height: 100% !important; min-height: 150px !important; }
 /* calculator "Use" button (returns value to the amount) */
 .calc-use { background: linear-gradient(135deg,#00c9a7,#6366f1); color:#fff; border:none; border-radius:8px; padding:6px 14px; font-weight:700; cursor:pointer; margin-right:8px; font-size:14px; }
 /* account picker: default-star rows */
