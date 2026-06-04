@@ -2658,3 +2658,52 @@ html.is-app .light #txpad .pad-numgrid .pad-key-fn {
 #txpad.typing .pad-save-btn { margin-top: 14px; }
 #txpad.typing .pad-notes { min-height: 140px !important; }
 
+
+/* ============================================================
+   build 186 — premium dark frosted-glass Add/Edit page
+   (matches the dark "Themes panel" reference). App only.
+   ============================================================ */
+#txpad {
+  background:
+    radial-gradient(720px 380px at 12% -8%, rgba(0,201,167,0.12), transparent 60%),
+    radial-gradient(720px 380px at 100% 2%, rgba(99,102,241,0.12), transparent 55%),
+    linear-gradient(180deg, #0f1320 0%, #0a0d15 100%) !important;
+  color: #eef2f5 !important;
+}
+#txpad .pad-head .pad-cancel { color: #9aa3b2 !important; font-weight: 800 !important; }
+/* segmented Income/Expense control */
+#txpad .pad-type-pills {
+  display: flex; gap: 6px; padding: 6px; margin: 10px 0 16px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px;
+}
+#txpad .pad-pill {
+  flex: 1; border: none; background: transparent; color: #9aa3b2;
+  padding: 13px; border-radius: 13px; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: .2s;
+}
+#txpad .pad-pill-on.pad-pill-inc { background: linear-gradient(135deg,#10b981,#059669); color: #fff; box-shadow: 0 6px 18px rgba(16,185,129,0.35); }
+#txpad .pad-pill-on.pad-pill-exp { background: linear-gradient(135deg,#fb7185,#ef4444); color: #fff; box-shadow: 0 6px 18px rgba(239,68,68,0.3); }
+/* frosted-glass fields */
+#txpad .pad-field > button,
+#txpad .pad-field .pad-dt,
+#txpad .pad-amount-input,
+#txpad .pad-notes {
+  background: rgba(255,255,255,0.045) !important;
+  border: 1px solid rgba(255,255,255,0.09) !important;
+  border-radius: 16px !important; color: #eef2f5 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+#txpad .pad-field label:not(.pad-dt),
+#txpad .pad-amt-label { color: rgba(230,238,240,0.5) !important; font-weight: 600 !important; }
+/* amount field */
+#txpad .pad-amount-input { font-size: 2.6rem !important; font-weight: 800 !important; text-align: right !important; padding: 16px 18px !important; }
+#txpad .pad-input-inc { border-color: rgba(16,185,129,0.55) !important; color: #34d399 !important; }
+#txpad .pad-input-exp { border-color: rgba(239,68,68,0.55) !important; color: #fb7185 !important; }
+/* notes */
+#txpad .pad-notes { min-height: 120px !important; padding: 14px 16px !important; font-size: 1.25rem !important; }
+/* glowing SAVE */
+#txpad .pad-save-btn {
+  border: none !important; border-radius: 18px !important; padding: 17px !important;
+  font-size: 1.5rem !important; font-weight: 800 !important; color: #fff !important; margin-top: 14px !important; width: 100%;
+}
+#txpad .pad-save-inc { background: linear-gradient(135deg,#10b981,#059669) !important; box-shadow: 0 12px 28px rgba(16,185,129,0.42) !important; }
+#txpad .pad-save-exp { background: linear-gradient(135deg,#fb7185,#ef4444) !important; box-shadow: 0 12px 28px rgba(239,68,68,0.38) !important; }
