@@ -3017,16 +3017,24 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
 #txpad .pad-tool .pad-tool-ic svg.lucide { width: 1.7rem; height: 1.7rem; color: #00c9a7; }
 
 /* calculator button to the RIGHT of the amount value (same row) */
-#txpad .pad-amt-wrap { display: flex !important; align-items: stretch; gap: 10px; }
-#txpad .pad-amt-wrap .pad-amount-input { flex: 1 1 auto; min-width: 0; }
+#txpad .pad-amt-wrap { display: flex !important; flex-direction: row !important; align-items: stretch !important; gap: 10px !important; width: 100% !important; }
+#txpad .pad-amt-wrap .pad-amount-input { flex: 1 1 auto !important; min-width: 0 !important; width: auto !important; }
 #txpad .pad-calc-btn {
-  flex: 0 0 auto; align-self: stretch;
+  flex: 0 0 64px !important; align-self: stretch !important;
   width: 64px; border-radius: 14px; border: none; cursor: pointer;
   background: rgba(0,201,167,0.18); color: #00c9a7;
   display: flex; align-items: center; justify-content: center;
 }
 #txpad .pad-calc-btn:active { transform: scale(.93); }
 #txpad .pad-calc-btn svg.lucide { width: 1.9rem; height: 1.9rem; }
+
+/* build 234 — notes + mic as one aligned row (mic was overlapping/floating) */
+#txpad .pad-notes-wrap { display: flex !important; flex-direction: row !important; align-items: stretch !important; gap: 10px !important; position: static !important; width: 100% !important; margin-top: 12px; }
+#txpad .pad-notes-wrap .pad-notes { flex: 1 1 auto !important; min-width: 0 !important; }
+#txpad .pad-notes-wrap .pad-mic-btn {
+  position: static !important; flex: 0 0 88px !important; width: 88px !important; height: auto !important;
+  align-self: stretch !important; right: auto !important; bottom: auto !important; border-radius: 18px !important;
+}
 /* calculator "Use" button (returns value to the amount) */
 .calc-use { background: linear-gradient(135deg,#00c9a7,#6366f1); color:#fff; border:none; border-radius:8px; padding:6px 14px; font-weight:700; cursor:pointer; margin-right:8px; font-size:14px; }
 /* account picker: default-star rows */
