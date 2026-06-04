@@ -313,7 +313,7 @@ function _buildAccountsGoalsBudget() {
         const grad=pct>80?'linear-gradient(90deg,#f59e0b,#ef4444)':pct>50?'linear-gradient(90deg,#10b981,#f59e0b)':'linear-gradient(90deg,#00c9a7,#10b981)';
         return `<div>
           <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
-            <span style="font-weight:600">💳 ${c.bankName}</span>
+            <span style="font-weight:600"><i data-lucide="credit-card"></i> ${c.bankName}</span>
             <span style="color:var(--text3)">${fmt(used)} / ${fmt(c.limit||0)} · <b style="color:${uc}">${pct}%</b></span>
           </div>
           <div style="height:9px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden"><div style="height:9px;border-radius:6px;width:${pct}%;background:${grad};box-shadow:0 0 10px ${uc}77;transition:.5s"></div></div>
@@ -353,7 +353,7 @@ function _buildAccountsGoalsBudget() {
       </div>
       ${cash.length===0 ? empty('No cash wallets yet') : wrap(cash.map(c=>`
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
-          <span style="font-weight:600">💵 ${c.name}</span>
+          <span style="font-weight:600"><i data-lucide="banknote"></i> ${c.name}</span>
           <span style="color:#f59e0b;font-weight:700">${fmt(c.balance||0)}</span>
         </div>`).join(''))}
     </div>`;
@@ -371,7 +371,7 @@ function _buildAccountsGoalsBudget() {
   const cardHead = (icon, label, value, vc, sub) =>
     `<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
        <div style="display:flex;align-items:center;gap:10px">
-         <div style="width:38px;height:38px;border-radius:11px;background:${vc}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${icon}</div>
+         <div style="width:38px;height:38px;border-radius:11px;background:${vc}22;color:${vc};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0"><i data-lucide="${(typeof EMOJI_LUCIDE!=='undefined'&&EMOJI_LUCIDE[icon])||icon}"></i></div>
          <div>
            <p style="font-size:12px;font-weight:700;color:var(--text2)">${label}</p>
            <p style="font-size:10px;color:var(--text3);margin-top:1px">${sub}</p>
@@ -430,7 +430,7 @@ function _buildAccountsGoalsBudget() {
   // ── BANK card ─────────────────────────────────────────────────────
   const posBanks2 = banks.filter(b=>(b.balance||0)>0);
   const bankBody  = posBanks2.length===0
-    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">🏦</span><p style="font-size:11px;color:var(--text3)">No bank accounts yet</p></div>`
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px"><i data-lucide="landmark"></i></span><p style="font-size:11px;color:var(--text3)">No bank accounts yet</p></div>`
     : `<div style="display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center">
          <div style="position:relative;height:120px">
            <canvas id="dash-bank-chart"></canvas>
@@ -453,13 +453,13 @@ function _buildAccountsGoalsBudget() {
 
   // ── CASH card ─────────────────────────────────────────────────────
   const cashBody = cash.length===0
-    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">💵</span><p style="font-size:11px;color:var(--text3)">No cash wallets yet</p></div>`
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px"><i data-lucide="banknote"></i></span><p style="font-size:11px;color:var(--text3)">No cash wallets yet</p></div>`
     : `<div style="display:flex;flex-direction:column;gap:9px;max-height:130px;overflow-y:auto">
         ${cash.map(c=>{
           const pct=totalCash>0?Math.round(((c.balance||0)/totalCash)*100):0;
           return `<div>
             <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-              <span style="font-weight:600">💵 ${c.name}</span>
+              <span style="font-weight:600"><i data-lucide="banknote"></i> ${c.name}</span>
               <span style="color:#f59e0b;font-weight:700">${fmt(c.balance||0)}</span>
             </div>
             <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.07)"><div style="height:6px;border-radius:6px;width:${pct}%;background:linear-gradient(90deg,#f59e0b,#fbbf24);box-shadow:0 0 7px rgba(245,158,11,0.5);transition:.5s"></div></div>
@@ -472,7 +472,7 @@ function _buildAccountsGoalsBudget() {
   // ── CARDS card ────────────────────────────────────────────────────
   const utilC = overallUtil>80?'#ef4444':overallUtil>50?'#f59e0b':'#10b981';
   const cardsBody = cards.length===0
-    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">💳</span><p style="font-size:11px;color:var(--text3)">No credit cards yet</p></div>`
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px"><i data-lucide="credit-card"></i></span><p style="font-size:11px;color:var(--text3)">No credit cards yet</p></div>`
     : `<div style="display:flex;flex-direction:column;gap:9px;max-height:130px;overflow-y:auto">
         ${cards.map(c=>{
           const used=c.outstanding||0,lim=c.limit||1,pct=Math.min(100,Math.round(used/lim*100));
@@ -480,7 +480,7 @@ function _buildAccountsGoalsBudget() {
           const grad=pct>80?'linear-gradient(90deg,#f59e0b,#ef4444)':pct>50?'linear-gradient(90deg,#10b981,#f59e0b)':'linear-gradient(90deg,#00c9a7,#10b981)';
           return `<div>
             <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-              <span style="font-weight:600">💳 ${c.bankName}</span>
+              <span style="font-weight:600"><i data-lucide="credit-card"></i> ${c.bankName}</span>
               <span style="color:var(--text3)">${fmt(used)}/${fmt(c.limit||0)} <b style="color:${uc}"> · ${pct}%</b></span>
             </div>
             <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.07)"><div style="height:6px;border-radius:6px;width:${pct}%;background:${grad};box-shadow:0 0 7px ${uc}66;transition:.5s"></div></div>
@@ -493,7 +493,7 @@ function _buildAccountsGoalsBudget() {
   // ── BUDGET card ───────────────────────────────────────────────────
   const mon = new Date().toLocaleString('default',{month:'long'});
   const budgetBody = budgets.length===0
-    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">📊</span><p style="font-size:11px;color:var(--text3)">No budgets set yet</p></div>`
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px"><i data-lucide="pie-chart"></i></span><p style="font-size:11px;color:var(--text3)">No budgets set yet</p></div>`
     : `<div style="height:${Math.max(160,Math.min(8,budgets.length)*34)}px;position:relative"><canvas id="dash-budget-chart"></canvas></div>`;
   const newBudgetCard = cardWrap('#f59e0b',"navigate('budget')",
     cardHead('📊','Budget',mon,'#f59e0b','spent vs limit this month') + budgetBody);
@@ -501,7 +501,7 @@ function _buildAccountsGoalsBudget() {
   // ── GOALS card ────────────────────────────────────────────────────
   const goalsDone2 = goals.filter(g=>g.current>=g.target).length;
   const goalsBody  = goals.length===0
-    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px">🎯</span><p style="font-size:11px;color:var(--text3)">No goals yet</p></div>`
+    ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px"><i data-lucide="target"></i></span><p style="font-size:11px;color:var(--text3)">No goals yet</p></div>`
     : `<div style="display:flex;flex-direction:column;gap:9px;max-height:200px;overflow-y:auto">
         ${goals.slice(0,6).map(g=>{
           const pct=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;
@@ -712,18 +712,18 @@ function renderDashboard() {
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" class="welcome-grid">
           ${[
-            {icon:'💰', title:'Add Income',    sub:'Log income & salary',        fn:"openAddTxModal('income')",  c:'#10b981', bg:'rgba(16,185,129,0.1)',  bc:'rgba(16,185,129,0.25)'},
-            {icon:'💸', title:'Add Expense',   sub:'Track your spending',        fn:"openAddTxModal('expense')", c:'#ef4444', bg:'rgba(239,68,68,0.1)',   bc:'rgba(239,68,68,0.25)'},
-            {icon:'🏦', title:'Link Bank',     sub:'Add a bank account',         fn:"navigate('bank-tracker')",  c:'#3b82f6', bg:'rgba(59,130,246,0.1)',  bc:'rgba(59,130,246,0.25)'},
-            {icon:'🎯', title:'Set Budget',    sub:'Plan monthly spend',         fn:"navigate('budget')",        c:'#f59e0b', bg:'rgba(245,158,11,0.1)',  bc:'rgba(245,158,11,0.25)'},
-            {icon:'📈', title:'Add Asset',     sub:'Track investments & wealth', fn:"navigate('investments')",   c:'#8b5cf6', bg:'rgba(139,92,246,0.1)',  bc:'rgba(139,92,246,0.25)'},
-            {icon:'✅', title:'Add Habit',     sub:'Build daily routines',       fn:"openAddHabitModal()",       c:'#00c9a7', bg:'rgba(0,201,167,0.1)',   bc:'rgba(0,201,167,0.25)'},
-            {icon:'🎯', title:'Add Goal',      sub:'Set a savings goal',         fn:"openAddGoalModal()",        c:'#a78bfa', bg:'rgba(167,139,250,0.1)', bc:'rgba(167,139,250,0.25)'},
-            {icon:'📝', title:'Write Journal', sub:'Record your emotions',       fn:"navigate('journal')",       c:'#60a5fa', bg:'rgba(96,165,250,0.1)',  bc:'rgba(96,165,250,0.25)'},
+            {icon:'banknote',    title:'Add Income',    sub:'Log income & salary',        fn:"openAddTxModal('income')",  c:'#10b981', bg:'rgba(16,185,129,0.1)',  bc:'rgba(16,185,129,0.25)'},
+            {icon:'arrow-up-right',title:'Add Expense', sub:'Track your spending',        fn:"openAddTxModal('expense')", c:'#ef4444', bg:'rgba(239,68,68,0.1)',   bc:'rgba(239,68,68,0.25)'},
+            {icon:'landmark',    title:'Link Bank',     sub:'Add a bank account',         fn:"navigate('bank-tracker')",  c:'#3b82f6', bg:'rgba(59,130,246,0.1)',  bc:'rgba(59,130,246,0.25)'},
+            {icon:'target',      title:'Set Budget',    sub:'Plan monthly spend',         fn:"navigate('budget')",        c:'#f59e0b', bg:'rgba(245,158,11,0.1)',  bc:'rgba(245,158,11,0.25)'},
+            {icon:'trending-up', title:'Add Asset',     sub:'Track investments & wealth', fn:"navigate('investments')",   c:'#8b5cf6', bg:'rgba(139,92,246,0.1)',  bc:'rgba(139,92,246,0.25)'},
+            {icon:'check-circle',title:'Add Habit',     sub:'Build daily routines',       fn:"openAddHabitModal()",       c:'#00c9a7', bg:'rgba(0,201,167,0.1)',   bc:'rgba(0,201,167,0.25)'},
+            {icon:'goal',        title:'Add Goal',      sub:'Set a savings goal',         fn:"openAddGoalModal()",        c:'#a78bfa', bg:'rgba(167,139,250,0.1)', bc:'rgba(167,139,250,0.25)'},
+            {icon:'pencil',      title:'Write Journal', sub:'Record your emotions',       fn:"navigate('journal')",       c:'#60a5fa', bg:'rgba(96,165,250,0.1)',  bc:'rgba(96,165,250,0.25)'},
           ].map(a=>`
             <div onclick="${a.fn}" style="display:flex;align-items:center;gap:9px;padding:11px 12px;border-radius:12px;background:${a.bg};border:1px solid ${a.bc};cursor:pointer;transition:.2s"
               onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 14px ${a.bc}'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-              <span style="font-size:20px;flex-shrink:0">${a.icon}</span>
+              <span style="font-size:20px;flex-shrink:0;color:${a.c}"><i data-lucide="${a.icon}"></i></span>
               <div style="min-width:0">
                 <p style="font-size:12px;font-weight:700;color:${a.c};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title}</p>
                 <p style="font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.sub}</p>

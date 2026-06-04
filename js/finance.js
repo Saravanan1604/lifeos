@@ -50,7 +50,9 @@ const EMOJI_LUCIDE = {
   '🍔':'utensils-crossed','🛒':'shopping-cart','🚗':'car','⛽':'fuel','🛍️':'shopping-bag',
   '🏥':'stethoscope','🧾':'receipt','🏠':'house','🛡️':'shield','📈':'trending-up',
   '🎬':'clapperboard','📚':'book-open','✈️':'plane','💡':'lightbulb','📱':'smartphone',
-  '🔄':'refresh-cw','💆':'sparkles','📦':'package','💳':'credit-card','🎯':'target','📝':'pencil'
+  '🔄':'refresh-cw','💆':'sparkles','📦':'package','💳':'credit-card','🎯':'target','📝':'pencil',
+  '📊':'pie-chart','🔥':'flame','✅':'check-circle','💸':'arrow-up-right','💡':'lightbulb','💊':'pill',
+  '🔌':'plug','💼':'briefcase','🏠':'house','⭐':'star','🏆':'trophy','📚':'book-open','✈️':'plane'
 };
 function catLucide(name) {
   if (CAT_LUCIDE[name]) return CAT_LUCIDE[name];
