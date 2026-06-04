@@ -2306,3 +2306,8 @@ html.is-app .calc-eq  { background: #1d4ed8 !important; color: #fff !important; 
 html.is-app .calc-sci { background: rgba(37,99,235,0.16) !important; color: #60a5fa !important; font-size: 22px !important; }
 /* memory / clear row — green-teal accents */
 html.is-app .calc-mem { background: rgba(16,185,129,0.16) !important; color: #34d399 !important; font-size: 20px !important; }
+
+/* build 163 — subcategory + repeat row on the keypad add/edit page */
+#txpad .pad-pickrow.pad-mini { margin-top: -4px; margin-bottom: 12px; }
+#txpad .pad-pickrow.pad-mini .pad-field label { font-size: 1rem; }
+#txpad .pad-pickrow.pad-mini .pad-field > button { padding: 10px; font-size: 1.15rem; }

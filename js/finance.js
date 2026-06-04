@@ -642,6 +642,7 @@ function openTxPad(type, editId) {
     category: ex ? ex.category : '',
     notes: ex ? (ex.description || '') : '',
     subcategory: ex ? (ex.subcategory || '') : '',
+    repeat: '',
     date: ex ? ex.date : today(),
     time: ex ? (ex.time || _nowTime()) : _nowTime(),
     receipt: ex ? (ex.receipt || '') : ''
@@ -706,6 +707,22 @@ function padPickCategory() {
   openModal('Choose Category', `<div class="pad-cats">${cats.map(c =>
     `<button onclick="_pad.category='${c.name.replace(/'/g, "\\'")}';closeModal();renderTxPad()"><span style="font-size:1.8rem">${c.icon}</span><span>${esc(c.name)}</span></button>`).join('')}</div>`);
 }
+function padPickSubcat() {
+  openModal('🏷️ Subcategory', `
+    <div class="form-group"><label class="form-label">Subcategory <span style="opacity:.6;font-weight:400">(optional)</span></label>
+      <input type="text" id="pad-subcat-in" class="form-input" list="subcat-list" value="${esc(_pad.subcategory || '')}" placeholder="e.g. Groceries, Labour cost, Restaurant" autofocus/>
+      <datalist id="subcat-list">${_subcatSuggestions()}</datalist></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="_pad.subcategory='';closeModal();renderTxPad()">Clear</button>
+      <button class="btn-primary" onclick="_pad.subcategory=(document.getElementById('pad-subcat-in').value||'').trim();closeModal();renderTxPad()">Done</button>
+    </div>`);
+  setTimeout(() => document.getElementById('pad-subcat-in')?.focus(), 100);
+}
+function padPickRepeat() {
+  const opts = [['', 'One-time'], ['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'], ['yearly', 'Yearly']];
+  openModal('🔁 Repeat', `<div class="pad-pick">${opts.map(([v, l]) =>
+    `<button onclick="_pad.repeat='${v}';closeModal();renderTxPad()">${_pad.repeat === v ? '✓ ' : ''}${l}</button>`).join('')}</div>`);
+}
 function padSetDate(v) { if (v) _pad.date = v; renderTxPad(); }
 function padSetTime(v) { if (v) _pad.time = v; renderTxPad(); }
 function padSave() {
@@ -724,6 +741,15 @@ function padSave() {
     STATE.transactions = STATE.transactions || [];
     STATE.transactions.unshift(newTx);
     _applyTxToAccount(newTx);
+    // register a recurring rule if Repeat was chosen
+    if (_pad.repeat) {
+      STATE.recurring = STATE.recurring || [];
+      STATE.recurring.push({
+        id: genId(), type: _pad.type, amount, category: _pad.category, icon,
+        description: _pad.notes, source: _pad.source || '', subcategory: _pad.subcategory || '',
+        frequency: _pad.repeat, nextDate: _advanceDate(newTx.date, _pad.repeat), createdAt: new Date().toISOString()
+      });
+    }
     if (typeof addXP === 'function') addXP(10, 'Transaction logged');
   }
   saveState();
@@ -754,6 +780,10 @@ function renderTxPad() {
     <div class="pad-pickrow">
       <div class="pad-field"><label>Account</label><button onclick="padPickAccount()">${esc(acctLabel)}</button></div>
       <div class="pad-field"><label>Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIc}</span>${esc(_pad.category)}</button></div>
+    </div>
+    <div class="pad-pickrow pad-mini">
+      <div class="pad-field"><label>🏷️ Subcategory</label><button onclick="padPickSubcat()">${_pad.subcategory ? esc(_pad.subcategory) : '—'}</button></div>
+      ${_pad.mode === 'add' ? `<div class="pad-field"><label>🔁 Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>` : '<div class="pad-field"></div>'}
     </div>
     <textarea class="pad-notes" placeholder="Add notes" oninput="_pad.notes=this.value" onfocus="padNotesMode(true)">${esc(_pad.notes)}</textarea>
     <div class="pad-amountbox" onclick="padNotesMode(false)">
