@@ -653,7 +653,7 @@ function openTxPad(type, editId) {
   }
   renderTxPad();
 }
-function padClose() { const el = document.getElementById('txpad'); if (el) el.remove(); _pad = null; }
+function padClose() { const el = document.getElementById('txpad'); if (el) el.remove(); document.documentElement.classList.remove('txpad-open'); _pad = null; }
 // Toggle between the number keypad (amount) and the device keyboard (notes)
 function padNotesMode(on) {
   const el = document.getElementById('txpad'); if (!el) return;
@@ -770,6 +770,7 @@ function padSave() {
 function renderTxPad() {
   let el = document.getElementById('txpad');
   if (!el) { el = document.createElement('div'); el.id = 'txpad'; document.body.appendChild(el); }
+  document.documentElement.classList.add('txpad-open');
   const acctLabel = _pad.source ? _sourceLabel(_pad.source) : 'Account';
   const catIc = catIcon(_pad.category), catCol = catColor(_pad.category);
   const dateLabel = new Date(_pad.date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
