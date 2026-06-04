@@ -2372,3 +2372,10 @@ html.is-app:not(.light) #txpad .pad-key { background: rgba(255,255,255,0.07) !im
 #txpad .pad-amountbox { padding: 8px 18px !important; }
 #txpad #pad-amount { font-size: 2.6rem !important; }
 #txpad .pad-notes { min-height: 56px !important; }
+
+/* build 166 — keypad fills the available space evenly (no big gap) */
+#txpad .pad-keys {
+  flex: 1 1 auto !important; margin-top: 12px !important;
+  grid-auto-rows: 1fr !important; gap: 10px !important;
+}
+#txpad .pad-key { font-size: 1.9rem !important; }
