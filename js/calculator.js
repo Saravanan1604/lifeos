@@ -12,6 +12,7 @@ let calcDragPos = null; // {left, top} after first drag
 //  Opened from the Add-Transaction amount field; "Use" returns value.
 // ============================================================
 let _cp = '';
+let _calcPadSnap = null;   // remembers the Add-sheet (_pad) we were called from
 const _CP_KEYS = [
   { k: 'C',  cls: 'fn' }, { k: '⌫', cls: 'fn' }, { k: '%', cls: 'fn' }, { k: '÷', cls: 'op' },
   { k: '7' }, { k: '8' }, { k: '9' }, { k: '×', cls: 'op' },
@@ -21,6 +22,7 @@ const _CP_KEYS = [
 ];
 function openCalcPage() {
   _cp = '';
+  _calcPadSnap = (typeof _pad !== 'undefined' && _pad) ? _pad : null;
   let el = document.getElementById('calc-page');
   if (!el) { el = document.createElement('div'); el.id = 'calc-page'; document.body.appendChild(el); }
   el.innerHTML = `
@@ -44,7 +46,7 @@ function closeCalcPage() { const el = document.getElementById('calc-page'); if (
 // Back from calculator → close it and bring the Add sheet back (if we came from it)
 function calcPageBack() {
   closeCalcPage();
-  if (typeof _pad !== 'undefined' && _pad && typeof renderTxPad === 'function') renderTxPad();
+  if (_calcPadSnap && typeof renderTxPad === 'function') { _pad = _calcPadSnap; renderTxPad(); }
 }
 
 // Hardware/browser Back closes any open full-screen overlay (calc / voice)
@@ -92,14 +94,16 @@ function cpKey(k) {
 }
 function calcPageUse() {
   const v = _cpEval(_cp);
-  const ok = !isNaN(v) && typeof _pad !== 'undefined' && _pad;
-  if (ok) _pad.expr = String(+(+v).toFixed(2));
+  const p = (typeof _pad !== 'undefined' && _pad) ? _pad : _calcPadSnap;
+  const ok = !isNaN(v) && !!p;
+  if (ok) p.expr = String(+(+v).toFixed(2));
   closeCalcPage();
   // Re-render the Add sheet LAST so the amount field shows the result on top.
   if (ok && typeof renderTxPad === 'function') {
+    _pad = p;
     renderTxPad();
     const inp = document.getElementById('pad-amount-input');
-    if (inp) inp.value = _pad.expr;
+    if (inp) inp.value = p.expr;
   }
 }
 
