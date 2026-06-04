@@ -653,6 +653,12 @@ function openTxPad(type, editId) {
   renderTxPad();
 }
 function padClose() { const el = document.getElementById('txpad'); if (el) el.remove(); _pad = null; }
+// Toggle between the number keypad (amount) and the device keyboard (notes)
+function padNotesMode(on) {
+  const el = document.getElementById('txpad'); if (!el) return;
+  if (on) el.classList.add('typing');
+  else { el.classList.remove('typing'); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }
+}
 function padSetType(t) {
   _pad.type = t;
   const cats = getAllCategories().filter(c => c.type === t || c.type === 'both');
@@ -738,8 +744,8 @@ function renderTxPad() {
       <div class="pad-field"><label>Account</label><button onclick="padPickAccount()">${esc(acctLabel)}</button></div>
       <div class="pad-field"><label>Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIc}</span>${esc(_pad.category)}</button></div>
     </div>
-    <textarea class="pad-notes" placeholder="Add notes" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
-    <div class="pad-amountbox"><span id="pad-amount">${_padFmtAmount()}</span><button class="pad-bs" onclick="padBack()">⌫</button></div>
+    <textarea class="pad-notes" placeholder="Add notes" oninput="_pad.notes=this.value" onfocus="padNotesMode(true)">${esc(_pad.notes)}</textarea>
+    <div class="pad-amountbox" onclick="padNotesMode(false)"><span id="pad-amount">${_padFmtAmount()}</span><button class="pad-bs" onclick="event.stopPropagation();padBack()">⌫</button></div>
     <div class="pad-keys">
       ${key('7')}${key('8')}${key('9')}
       ${key('4')}${key('5')}${key('6')}

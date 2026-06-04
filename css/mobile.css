@@ -2258,3 +2258,7 @@ html.is-app:not(.light) #txpad .pad-key { background: rgba(255,255,255,0.06); }
 #txpad .pad-key.pad-done { background: #0f9d58 !important; }
 #txpad .pad-field > button, #txpad .pad-amountbox, #txpad .pad-notes { border-color: var(--glass-border) !important; }
 #txpad .pad-sep { background: var(--glass-border) !important; }
+
+/* build 159 — hide number keypad while typing notes (device keyboard shows) */
+#txpad.typing .pad-keys, #txpad.typing .pad-foot { display: none !important; }
+#txpad.typing .pad-notes { min-height: 160px !important; }
