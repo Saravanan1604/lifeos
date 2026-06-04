@@ -780,27 +780,27 @@ function renderTxPad() {
   const isIncome = _pad.type === 'income';
   el.innerHTML = `
     <div class="pad-head">
-      <button class="pad-cancel" onclick="padClose()">✕ CANCEL</button>
+      <button class="pad-cancel" onclick="padClose()"><i data-lucide="x"></i> CANCEL</button>
     </div>
 
     <div class="pad-type-pills">
-      <button class="pad-pill${isIncome ? ' pad-pill-on pad-pill-inc' : ''}" onclick="padSetType('income')">💚 Income</button>
-      <button class="pad-pill${!isIncome ? ' pad-pill-on pad-pill-exp' : ''}" onclick="padSetType('expense')">❤️ Expense</button>
+      <button class="pad-pill${isIncome ? ' pad-pill-on pad-pill-inc' : ''}" onclick="padSetType('income')"><i data-lucide="arrow-down-left"></i> Income</button>
+      <button class="pad-pill${!isIncome ? ' pad-pill-on pad-pill-exp' : ''}" onclick="padSetType('expense')"><i data-lucide="arrow-up-right"></i> Expense</button>
     </div>
 
     <div class="pad-pickrow pad-dates">
-      <div class="pad-field"><label>📅 Date</label><label class="pad-dt">${dateLabel}<input type="date" value="${_pad.date}" onchange="padSetDate(this.value)"/></label></div>
-      <div class="pad-field"><label>🕒 Time</label><label class="pad-dt">${_fmtTime(_pad.time)}<input type="time" value="${_pad.time}" onchange="padSetTime(this.value)"/></label></div>
+      <div class="pad-field"><label><i data-lucide="calendar"></i> Date</label><label class="pad-dt">${dateLabel}<input type="date" value="${_pad.date}" onchange="padSetDate(this.value)"/></label></div>
+      <div class="pad-field"><label><i data-lucide="clock"></i> Time</label><label class="pad-dt">${_fmtTime(_pad.time)}<input type="time" value="${_pad.time}" onchange="padSetTime(this.value)"/></label></div>
     </div>
 
     <div class="pad-pickrow">
-      <div class="pad-field"><label>Account</label><button onclick="padPickAccount()">${esc(acctLabel)}</button></div>
-      <div class="pad-field"><label>Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIc}</span>${esc(_pad.category)}</button></div>
+      <div class="pad-field"><label><i data-lucide="wallet"></i> Account</label><button onclick="padPickAccount()">${esc(acctLabel)}</button></div>
+      <div class="pad-field"><label><i data-lucide="shapes"></i> Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIc}</span>${esc(_pad.category)}</button></div>
     </div>
 
     <div class="pad-pickrow pad-mini ${_pad.mode === 'add' ? '' : 'one'}">
-      <div class="pad-field"><label>🏷️ Subcategory</label><button onclick="padPickSubcat()">${_pad.subcategory ? esc(_pad.subcategory) : '—'}</button></div>
-      ${_pad.mode === 'add' ? `<div class="pad-field"><label>🔁 Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>` : ''}
+      <div class="pad-field"><label><i data-lucide="tag"></i> Subcategory</label><button onclick="padPickSubcat()">${_pad.subcategory ? esc(_pad.subcategory) : '—'}</button></div>
+      ${_pad.mode === 'add' ? `<div class="pad-field"><label><i data-lucide="repeat"></i> Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>` : ''}
     </div>
 
     <label class="pad-amt-label">Amount (₹)</label>
@@ -812,7 +812,7 @@ function renderTxPad() {
 
     <div class="pad-notes-wrap">
       <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
-      <button class="pad-mic-btn" onclick="event.stopPropagation();startVoiceControl()" title="Speak to add">🎙️</button>
+      <button class="pad-mic-btn" onclick="event.stopPropagation();startVoiceControl()" title="Speak to add"><i data-lucide="mic"></i></button>
     </div>
 
     <button class="pad-save-btn${isIncome ? ' pad-save-inc' : ' pad-save-exp'}" onclick="padSave()">✓ SAVE</button>
@@ -820,15 +820,16 @@ ${_pad.mode === 'add' ? `
     <div class="pad-tools">
       <p class="pad-tools-label">Quick import</p>
       <div class="pad-tools-grid">
-        <button class="pad-tool" onclick="padClose();openCsvImport()"><span class="pad-tool-ic">📊</span><span>Import CSV</span></button>
-        <button class="pad-tool" onclick="padClose();openBulkEntry()"><span class="pad-tool-ic">📅</span><span>Bulk Entry</span></button>
-        <button class="pad-tool" onclick="padClose();openSmsParser()"><span class="pad-tool-ic">📲</span><span>Scan SMS</span></button>
-        <button class="pad-tool" onclick="padClose();openPdfImport()"><span class="pad-tool-ic">📑</span><span>Import PDF</span></button>
+        <button class="pad-tool" onclick="padClose();openCsvImport()"><span class="pad-tool-ic"><i data-lucide="file-spreadsheet"></i></span><span>Import CSV</span></button>
+        <button class="pad-tool" onclick="padClose();openBulkEntry()"><span class="pad-tool-ic"><i data-lucide="calendar-days"></i></span><span>Bulk Entry</span></button>
+        <button class="pad-tool" onclick="padClose();openSmsParser()"><span class="pad-tool-ic"><i data-lucide="message-square-text"></i></span><span>Scan SMS</span></button>
+        <button class="pad-tool" onclick="padClose();openPdfImport()"><span class="pad-tool-ic"><i data-lucide="file-text"></i></span><span>Import PDF</span></button>
       </div>
     </div>` : ''}
 
     <button class="pad-cancel-btn" onclick="padClose()">Cancel</button>
   `;
+  if (window.lucide && lucide.createIcons) lucide.createIcons();
   setTimeout(() => { const inp = document.getElementById('pad-amount-input'); if (inp) inp.focus(); }, 80);
 }
 
@@ -5025,5 +5026,6 @@ function saveAllPdfTx() {
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
   toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported from PDF! 🎉`, 'success');
-  refreshFinancePage();
+  if (window.__IS_APP && typeof navigate === 'function') navigate(currentPage || 'transactions', true);
+  else refreshFinancePage();
 }
