@@ -2790,3 +2790,78 @@ html.is-app.txpad-open #app { visibility: hidden !important; }
   background: linear-gradient(135deg,#00c9a7,#6366f1) !important; color: #fff !important;
   box-shadow: 0 10px 26px rgba(0,201,167,0.4) !important;
 }
+
+/* ============================================================
+   build 192 — popups: position a bit higher, bigger & readable.
+   In DARK mode (body without .light) use a frosted DARK-glass body
+   with light text so option lists (Account / Category / Repeat /
+   Subcategory / Scan SMS / Import PDF) are fully visible.
+   Light mode keeps the existing cream look.
+   ============================================================ */
+/* Nudge all app popups up from dead-center + allow tall lists to scroll */
+html.is-app #modal-overlay { align-items: flex-start !important; }
+html.is-app #modal-overlay .modal-box {
+  margin-top: 11vh !important;
+  max-height: 80vh !important;
+  display: flex !important; flex-direction: column !important;
+}
+/* Bigger, easier-to-tap option text (both themes) */
+html.is-app #modal-overlay .pad-pick button { font-size: 1.45rem !important; padding: 18px 16px !important; }
+html.is-app #modal-overlay .pad-cats button  { font-size: 1.15rem !important; padding: 16px 6px !important; }
+
+/* ---- DARK mode: frosted dark-glass popup ---- */
+html.is-app body:not(.light) #modal-overlay .modal-box {
+  background: rgba(16,21,40,0.82) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(150%) !important;
+  backdrop-filter: blur(28px) saturate(150%) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6) !important;
+}
+html.is-app body:not(.light) #modal-overlay .modal-body {
+  background: transparent !important;
+  color: var(--text) !important;
+  overflow-y: auto !important;
+}
+/* default body text light (no !important → inline accent colours still win) */
+html.is-app body:not(.light) #modal-overlay .modal-body h1,
+html.is-app body:not(.light) #modal-overlay .modal-body h2,
+html.is-app body:not(.light) #modal-overlay .modal-body h3,
+html.is-app body:not(.light) #modal-overlay .modal-body h4,
+html.is-app body:not(.light) #modal-overlay .modal-body p,
+html.is-app body:not(.light) #modal-overlay .modal-body span,
+html.is-app body:not(.light) #modal-overlay .modal-body div,
+html.is-app body:not(.light) #modal-overlay .modal-body li,
+html.is-app body:not(.light) #modal-overlay .modal-body button,
+html.is-app body:not(.light) #modal-overlay .modal-body b { color: #e8eef7; }
+/* labels in teal accent */
+html.is-app body:not(.light) #modal-overlay .modal-body .form-label,
+html.is-app body:not(.light) #modal-overlay .modal-body label { color: #5eead4 !important; }
+/* inputs / textarea / select → dark glass with light text */
+html.is-app body:not(.light) #modal-overlay .modal-body .form-input,
+html.is-app body:not(.light) #modal-overlay .modal-body input,
+html.is-app body:not(.light) #modal-overlay .modal-body select,
+html.is-app body:not(.light) #modal-overlay .modal-body textarea {
+  background: rgba(255,255,255,0.07) !important;
+  color: #f1f5f9 !important;
+  border: 1.5px solid rgba(255,255,255,0.16) !important;
+  color-scheme: dark !important;
+}
+html.is-app body:not(.light) #modal-overlay .modal-body .form-input::placeholder,
+html.is-app body:not(.light) #modal-overlay .modal-body textarea::placeholder { color: rgba(241,245,249,0.45) !important; }
+html.is-app body:not(.light) #modal-overlay .modal-body select option { background: #131a2e !important; color: #f1f5f9 !important; }
+/* option-list tiles (Account / Category / Repeat) → glass */
+html.is-app body:not(.light) #modal-overlay .pad-pick button,
+html.is-app body:not(.light) #modal-overlay .pad-cats button {
+  background: rgba(255,255,255,0.06) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+}
+html.is-app body:not(.light) #modal-overlay .pad-pick button:active,
+html.is-app body:not(.light) #modal-overlay .pad-cats button:active {
+  background: rgba(0,201,167,0.20) !important;
+}
+/* cancel / secondary button → dark glass */
+html.is-app body:not(.light) #modal-overlay .modal-body .btn-secondary {
+  background: rgba(255,255,255,0.08) !important; color: #e8eef7 !important; border: 1px solid rgba(255,255,255,0.16) !important;
+}
+html.is-app body:not(.light) #modal-overlay .modal-actions { border-top: 1px solid rgba(255,255,255,0.12) !important; }
