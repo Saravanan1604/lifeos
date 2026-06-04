@@ -2987,12 +2987,13 @@ html.is-app .mm-today { font-size: 1.15rem !important; padding: 8px 14px !import
 /* #3 — voice mic inside the Add sheet notes box */
 #txpad .pad-notes-wrap { position: relative; }
 #txpad .pad-mic-btn {
-  position: absolute; right: 12px; bottom: 12px;
-  width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+  position: absolute; right: 14px; bottom: 14px;
+  width: 88px; height: 88px; border-radius: 50%; border: none; cursor: pointer;
   font-size: 1.6rem; color: #fff; display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg,#00c9a7,#6366f1);
-  box-shadow: 0 6px 18px rgba(0,201,167,0.45); transition: transform .12s;
+  box-shadow: 0 8px 26px rgba(0,201,167,0.55); transition: transform .12s;
 }
+#txpad .pad-mic-btn svg.lucide { width: 2.6rem !important; height: 2.6rem !important; }
 #txpad .pad-mic-btn:active { transform: scale(.9); }
 #txpad.listening .pad-mic-btn { animation: padMicPulse 1s infinite; }
 @keyframes padMicPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(0,201,167,0.5);} 50%{ box-shadow:0 0 0 12px rgba(0,201,167,0);} }
@@ -3033,6 +3034,45 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
 .pad-pick-row .pad-pick-main { flex:1; }
 .pad-pick-star { width:54px; flex:0 0 54px; border:1px solid var(--glass-border); background:var(--glass); color:var(--text3); border-radius:12px; font-size:1.5rem; cursor:pointer; }
 .pad-pick-star.on { color:#f59e0b; background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.45); }
+
+/* ============================================================
+   build 214 — full-screen Voice Command page (wave + transcript)
+   ============================================================ */
+#voice-page {
+  position: fixed; inset: 0; z-index: 2147483646; display: none;
+  flex-direction: column; align-items: center;
+  background: rgba(8,8,24,0.97); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  padding: calc(46px + env(safe-area-inset-top,0px)) 24px calc(30px + env(safe-area-inset-bottom,0px));
+  color: var(--text);
+}
+#voice-page .vp-close {
+  position: absolute; top: calc(18px + env(safe-area-inset-top,0px)); right: 18px;
+  width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255,255,255,0.08); color: var(--text); display: flex; align-items: center; justify-content: center;
+}
+#voice-page .vp-close svg.lucide { width: 1.7rem; height: 1.7rem; }
+#voice-page .vp-orb { position: relative; width: 200px; height: 200px; margin: 24px 0 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+#voice-page .vp-ring { position: absolute; inset: 18px; border-radius: 50%; border: 2px solid rgba(0,201,167,0.45); opacity: 0; }
+#voice-page .vp-orb.on .vp-ring { animation: vpwave 2.1s ease-out infinite; }
+#voice-page .vp-orb.on .vp-ring:nth-child(2) { animation-delay: .7s; }
+#voice-page .vp-orb.on .vp-ring:nth-child(3) { animation-delay: 1.4s; }
+@keyframes vpwave { 0% { transform: scale(.55); opacity: .7; } 100% { transform: scale(1.4); opacity: 0; } }
+#voice-page .vp-mic {
+  width: 132px; height: 132px; border-radius: 50%; border: none; cursor: pointer; color: #fff;
+  background: linear-gradient(135deg,#00c9a7,#6366f1); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 14px 44px rgba(0,201,167,0.55);
+}
+#voice-page .vp-orb.on .vp-mic { animation: vpPulse 1.3s ease-in-out infinite; }
+@keyframes vpPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+#voice-page .vp-mic svg.lucide { width: 58px; height: 58px; }
+#voice-page .vp-status { font-size: 18px; color: var(--text2); font-weight: 600; margin-bottom: 8px; }
+#voice-page .vp-transcript { font-size: 26px; font-weight: 800; text-align: center; min-height: 34px; margin-bottom: 26px; padding: 0 8px; }
+#voice-page .vp-cmds { width: 100%; max-width: 480px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 18px; padding: 18px; overflow-y: auto; }
+#voice-page .vp-cmds-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); font-weight: 700; margin-bottom: 12px; }
+#voice-page .vp-cmd { display: flex; align-items: center; gap: 12px; padding: 11px 4px; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+#voice-page .vp-cmd:last-child { border-bottom: none; }
+#voice-page .vp-cmd-ic { width: 36px; height: 36px; border-radius: 10px; background: rgba(0,201,167,0.15); color: #00c9a7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+#voice-page .vp-cmd-ic svg.lucide { width: 1.2rem; height: 1.2rem; }
 
 /* #5 — category circle + control line icons (Records + pickers) */
 html.is-app .mm-ic { display: flex !important; align-items: center; justify-content: center; }

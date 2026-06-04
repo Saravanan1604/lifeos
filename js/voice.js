@@ -776,6 +776,83 @@ function handleVoiceTranscript(raw) {
   _speak(t('voice_no_match'));
 }
 
+// ============================================================
+//  Full-screen Voice Command page (wave animation + live transcript)
+// ============================================================
+let _vpRec = null;
+let _vpListening = false;
+
+function openVoicePage() {
+  let el = document.getElementById('voice-page');
+  if (!el) { el = document.createElement('div'); el.id = 'voice-page'; document.body.appendChild(el); }
+  const examples = [
+    { ic: 'arrow-up-right', t: '“Spent 250 on food”' },
+    { ic: 'arrow-up-right', t: '“Add expense 500 groceries”' },
+    { ic: 'arrow-down-left', t: '“Income 20000 salary”' },
+    { ic: 'arrow-down-left', t: '“Received 1000 gift”' },
+    { ic: 'layout-dashboard', t: '“Go to dashboard / budget / bank”' },
+    { ic: 'target', t: '“Add goal” · “Add habit”' },
+    { ic: 'calculator', t: '“Open calculator”' },
+    { ic: 'sun-moon', t: '“Dark mode” · “Sync” · “Help”' },
+  ];
+  el.innerHTML = `
+    <button class="vp-close" onclick="closeVoicePage()"><i data-lucide="x"></i></button>
+    <div class="vp-orb" id="vp-orb" onclick="vpToggleListen()">
+      <span class="vp-ring"></span><span class="vp-ring"></span><span class="vp-ring"></span>
+      <button class="vp-mic"><i data-lucide="mic"></i></button>
+    </div>
+    <p class="vp-status" id="vp-status">Listening…</p>
+    <p class="vp-transcript" id="vp-transcript">Say a command</p>
+    <div class="vp-cmds">
+      <p class="vp-cmds-title">Commands this app understands</p>
+      ${examples.map(e => `<div class="vp-cmd"><span class="vp-cmd-ic"><i data-lucide="${e.ic}"></i></span><span>${e.t}</span></div>`).join('')}
+    </div>`;
+  el.style.display = 'flex';
+  if (window.lucide && lucide.createIcons) lucide.createIcons();
+  vpStartListen();
+}
+
+function closeVoicePage() {
+  vpStopListen();
+  const el = document.getElementById('voice-page');
+  if (el) el.style.display = 'none';
+}
+
+function vpToggleListen() { if (_vpListening) vpStopListen(); else vpStartListen(); }
+
+function vpStartListen() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const orb = document.getElementById('vp-orb');
+  const status = document.getElementById('vp-status');
+  if (!SR) { if (status) status.textContent = 'Voice not supported on this device'; return; }
+  try { if (_vpRec) _vpRec.abort(); } catch (_) {}
+  _vpRec = new SR();
+  _vpRec.lang = (typeof VOICE_LANGS !== 'undefined' && typeof getLang === 'function') ? VOICE_LANGS[getLang()].speech : 'en-IN';
+  _vpRec.interimResults = true;
+  _vpRec.continuous = false;
+  _vpRec.maxAlternatives = 3;
+  _vpRec.onstart = () => { _vpListening = true; if (orb) orb.classList.add('on'); if (status) status.textContent = 'Listening…'; };
+  _vpRec.onerror = (e) => { _vpListening = false; if (orb) orb.classList.remove('on'); if (status) status.textContent = e.error === 'not-allowed' ? 'Microphone permission denied' : 'Tap the mic to try again'; };
+  _vpRec.onend = () => { _vpListening = false; if (orb) orb.classList.remove('on'); };
+  _vpRec.onresult = (e) => {
+    let txt = '';
+    for (let i = 0; i < e.results.length; i++) txt += e.results[i][0].transcript;
+    const tEl = document.getElementById('vp-transcript');
+    if (tEl) tEl.textContent = txt;
+    if (e.results[e.results.length - 1].isFinal) {
+      if (status) status.textContent = 'Got it ✓';
+      setTimeout(() => { handleVoiceTranscript(txt); closeVoicePage(); }, 500);
+    }
+  };
+  try { _vpRec.start(); } catch (_) {}
+}
+
+function vpStopListen() {
+  _vpListening = false;
+  const orb = document.getElementById('vp-orb'); if (orb) orb.classList.remove('on');
+  if (_vpRec) { try { _vpRec.stop(); } catch (_) {} }
+}
+
 function startVoiceControl() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {

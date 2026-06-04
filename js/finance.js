@@ -860,7 +860,7 @@ function renderTxPad() {
 
     <div class="pad-notes-wrap">
       <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
-      <button class="pad-mic-btn" onclick="event.stopPropagation();startVoiceControl()" title="Speak to add"><i data-lucide="mic"></i></button>
+      <button class="pad-mic-btn" onclick="event.stopPropagation();openVoicePage()" title="Speak to add"><i data-lucide="mic"></i></button>
     </div>
 
     <button class="pad-save-btn${isIncome ? ' pad-save-inc' : ' pad-save-exp'}" onclick="padSave()">✓ SAVE</button>
