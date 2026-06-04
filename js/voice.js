@@ -376,7 +376,7 @@ const VOICE_COMMANDS = [
   { keys: ['write journal', 'new entry', 'நாட்குறிப்பு எழுது', 'जर्नल लिखो'],
     run: () => { navigate('journal'); setTimeout(() => { if (typeof openAddJournalModal === 'function') openAddJournalModal(); }, 150); }, say: 'Journal entry' },
   { keys: ['calculator', 'calculate', 'கணிப்பான்', 'கால்குலேட்டர்', 'कैलकुलेटर'],
-    run: () => { if (typeof toggleCalculator === 'function') toggleCalculator(); }, say: 'Calculator' },
+    run: () => { if (typeof openCalcPage === 'function') openCalcPage(); else if (typeof toggleCalculator === 'function') toggleCalculator(); }, say: 'Calculator' },
 
   // ----- App control -----
   { keys: ['light mode', 'dark mode', 'theme', 'வண்ண', 'தீம்', 'थीम', 'मोड'],
