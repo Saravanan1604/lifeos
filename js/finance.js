@@ -819,7 +819,7 @@ function renderTxPad() {
   let el = document.getElementById('txpad');
   if (!el) { el = document.createElement('div'); el.id = 'txpad'; document.body.appendChild(el); }
   document.documentElement.classList.add('txpad-open');
-  const acctLabel = _pad.source ? _sourceLabel(_pad.source) : 'Account';
+  const acctLabel = _pad.source ? _sourceLabel(_pad.source) : 'Select account';
   const catIc = catIcon(_pad.category), catCol = catColor(_pad.category);
   const dateLabel = new Date(_pad.date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   const isIncome = _pad.type === 'income';
@@ -845,7 +845,8 @@ function renderTxPad() {
     </div>
 
     <label class="pad-amt-label">Amount (₹)</label>
-    <div class="pad-amt-wrap">
+    <div class="pad-amt-wrap${isIncome ? ' amt-inc' : ' amt-exp'}">
+      <span class="pad-amt-cur">${(STATE.settings && STATE.settings.currency) || '₹'}</span>
       <input type="number" inputmode="decimal" step="0.01" min="0"
         class="pad-amount-input${isIncome ? ' pad-input-inc' : ' pad-input-exp'}"
         id="pad-amount-input" placeholder="0.00"

@@ -3057,6 +3057,40 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
 }
 #txpad .pad-notes-actions .pad-calc-btn svg.lucide,
 #txpad .pad-notes-actions .pad-mic-btn svg.lucide { width: 18px !important; height: 18px !important; }
+
+/* ============================================================
+   build 239 — Add-sheet polish: ₹ symbol + emphasised amount,
+   bigger calc/mic chips, clearer Quick Import header, even spacing
+   ============================================================ */
+/* #1 amount focal point: ₹ on the left, coloured/thicker border */
+#txpad .pad-amt-wrap { position: relative !important; }
+#txpad .pad-amt-cur {
+  position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+  font-size: 34px; font-weight: 800; pointer-events: none; opacity: .85;
+}
+#txpad .pad-amt-wrap.amt-inc .pad-amt-cur { color: #10b981; }
+#txpad .pad-amt-wrap.amt-exp .pad-amt-cur { color: #ef4444; }
+#txpad .pad-amt-wrap .pad-amount-input { border-width: 2px !important; padding-left: 48px !important; }
+#txpad .pad-input-inc { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16,185,129,0.12) !important; }
+#txpad .pad-input-exp { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important; }
+
+/* #2 bigger, clearer calc + mic chips */
+#txpad .pad-notes-actions .pad-calc-btn,
+#txpad .pad-notes-actions .pad-mic-btn { width: 50px !important; height: 50px !important; border-radius: 14px !important; }
+#txpad .pad-notes-actions .pad-calc-btn { background: rgba(0,201,167,0.22) !important; color: #00c9a7 !important; }
+#txpad .pad-notes-actions .pad-mic-btn { background: linear-gradient(135deg,#00c9a7,#6366f1) !important; color: #fff !important; }
+#txpad .pad-notes-actions .pad-calc-btn svg.lucide,
+#txpad .pad-notes-actions .pad-mic-btn svg.lucide { width: 22px !important; height: 22px !important; }
+#txpad .pad-notes-wrap .pad-notes { padding-bottom: 64px !important; }
+
+/* #3 clearer Quick Import header */
+#txpad .pad-tools-label { font-size: 1.2rem !important; font-weight: 800 !important; color: #00c9a7 !important; opacity: 1 !important; letter-spacing: 1px; }
+
+/* #4 even vertical rhythm */
+#txpad .pad-amt-label { margin: 14px 0 8px 2px !important; }
+#txpad .pad-notes-wrap { margin-top: 14px !important; }
+#txpad .pad-save-btn { margin-top: 16px !important; }
+#txpad .pad-tools { margin-top: 20px !important; }
 /* calculator "Use" button (returns value to the amount) */
 .calc-use { background: linear-gradient(135deg,#00c9a7,#6366f1); color:#fff; border:none; border-radius:8px; padding:6px 14px; font-weight:700; cursor:pointer; margin-right:8px; font-size:14px; }
 /* account picker: default-star rows */
