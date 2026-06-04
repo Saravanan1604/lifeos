@@ -77,11 +77,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=192" />
-  <link rel="stylesheet" href="css/calc.css?v=192" />
-  <link rel="stylesheet" href="css/premium.css?v=192" />
+  <link rel="stylesheet" href="css/styles.css?v=193" />
+  <link rel="stylesheet" href="css/calc.css?v=193" />
+  <link rel="stylesheet" href="css/premium.css?v=193" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=192" />
+  <link rel="stylesheet" href="css/mobile.css?v=193" />
 </head>
 <body>
 
@@ -396,7 +396,7 @@
 
     <!-- Center Add-Transaction FAB (installed app only) -->
     <button id="fab-add" title="Add Transaction"
-      onclick="navigate('transactions');setTimeout(()=>{if(typeof openAddTxModal==='function')openAddTxModal()},220)">
+      onclick="if(typeof openAddTxModal==='function')openAddTxModal()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </button>
 
@@ -443,11 +443,11 @@
     <!-- =================== FAB QUICK-ADD FAN MENU =================== -->
     <!-- Fan menu items — slide left from the dock -->
     <div id="fab-menu" style="position:fixed;bottom:168px;right:84px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;z-index:9990">
-      <div class="fab-item" onclick="closeFab();navigate('finance');setTimeout(()=>openAddTxModal('income'),120)" title="Add Income">
+      <div class="fab-item" onclick="closeFab();openAddTxModal('income')" title="Add Income">
         <span class="fab-item-label">Add Income</span>
         <div class="fab-item-btn" style="background:linear-gradient(135deg,#10b981,#059669)">💚</div>
       </div>
-      <div class="fab-item" onclick="closeFab();navigate('finance');setTimeout(()=>openAddTxModal('expense'),120)" title="Add Expense">
+      <div class="fab-item" onclick="closeFab();openAddTxModal('expense')" title="Add Expense">
         <span class="fab-item-label">Add Expense</span>
         <div class="fab-item-btn" style="background:linear-gradient(135deg,#ef4444,#dc2626)">💸</div>
       </div>
@@ -532,29 +532,29 @@
   <div id="calc-body" class="calc-body"></div>
 </div>
 
-<script src="js/storage.js?v=192"></script>
-<script src="js/core.js?v=192"></script>
-<script src="js/dashboard.js?v=192"></script>
-<script src="js/finance.js?v=192"></script>
-<script src="js/bank-tracker.js?v=192"></script>
-<script src="js/life.js?v=192"></script>
-<script src="js/growth.js?v=192"></script>
-<script src="js/ai.js?v=192"></script>
-<script src="js/calculator.js?v=192"></script>
-<script src="js/features.js?v=192"></script>
-<script src="js/premium.js?v=192"></script>
-<script src="js/categories.js?v=192"></script>
-<script src="js/compare.js?v=192"></script>
-<script src="js/pages.js?v=192"></script>
-<script src="js/help.js?v=192"></script>
-<script src="js/voice.js?v=192"></script>
-<script src="js/applock.js?v=192"></script>
-<script src="js/onboarding.js?v=192"></script>
-<script src="js/layout.js?v=192"></script>
-<script src="js/notes.js?v=192"></script>
-<script src="js/widgets.js?v=192"></script>
-<script src="js/yearly.js?v=192"></script>
-<script src="js/init.js?v=192"></script>
+<script src="js/storage.js?v=193"></script>
+<script src="js/core.js?v=193"></script>
+<script src="js/dashboard.js?v=193"></script>
+<script src="js/finance.js?v=193"></script>
+<script src="js/bank-tracker.js?v=193"></script>
+<script src="js/life.js?v=193"></script>
+<script src="js/growth.js?v=193"></script>
+<script src="js/ai.js?v=193"></script>
+<script src="js/calculator.js?v=193"></script>
+<script src="js/features.js?v=193"></script>
+<script src="js/premium.js?v=193"></script>
+<script src="js/categories.js?v=193"></script>
+<script src="js/compare.js?v=193"></script>
+<script src="js/pages.js?v=193"></script>
+<script src="js/help.js?v=193"></script>
+<script src="js/voice.js?v=193"></script>
+<script src="js/applock.js?v=193"></script>
+<script src="js/onboarding.js?v=193"></script>
+<script src="js/layout.js?v=193"></script>
+<script src="js/notes.js?v=193"></script>
+<script src="js/widgets.js?v=193"></script>
+<script src="js/yearly.js?v=193"></script>
+<script src="js/init.js?v=193"></script>
 
 <!-- ===== First-run Onboarding ===== -->
 <div id="onboarding" style="display:none">

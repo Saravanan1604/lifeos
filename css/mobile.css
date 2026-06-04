@@ -2865,3 +2865,36 @@ html.is-app body:not(.light) #modal-overlay .modal-body .btn-secondary {
   background: rgba(255,255,255,0.08) !important; color: #e8eef7 !important; border: 1px solid rgba(255,255,255,0.16) !important;
 }
 html.is-app body:not(.light) #modal-overlay .modal-actions { border-top: 1px solid rgba(255,255,255,0.12) !important; }
+
+/* ============================================================
+   build 193 — Records bigger controls (#7), txpad mic (#3),
+   bottom Cancel (#4)
+   ============================================================ */
+/* #7 — bigger, easier-to-tap Records control buttons */
+html.is-app .mymoney-records .mm-ptab { padding: 15px 4px !important; font-size: 1.35rem !important; border-radius: 14px !important; }
+html.is-app .mm-cbtn { padding: 16px 8px !important; font-size: 1.3rem !important; border-radius: 14px !important; }
+html.is-app .mm-filterbar { padding: 20px !important; font-size: 1.5rem !important; }
+html.is-app .mm-today { font-size: 1.15rem !important; padding: 8px 14px !important; }
+
+/* #3 — voice mic inside the Add sheet notes box */
+#txpad .pad-notes-wrap { position: relative; }
+#txpad .pad-mic-btn {
+  position: absolute; right: 12px; bottom: 12px;
+  width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+  font-size: 1.6rem; color: #fff; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg,#00c9a7,#6366f1);
+  box-shadow: 0 6px 18px rgba(0,201,167,0.45); transition: transform .12s;
+}
+#txpad .pad-mic-btn:active { transform: scale(.9); }
+#txpad.listening .pad-mic-btn { animation: padMicPulse 1s infinite; }
+@keyframes padMicPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(0,201,167,0.5);} 50%{ box-shadow:0 0 0 12px rgba(0,201,167,0);} }
+
+/* #4 — full-width Cancel at the bottom of the Add sheet */
+#txpad .pad-cancel-btn {
+  width: 100%; margin-top: 14px; padding: 16px 0; border-radius: 16px;
+  font-size: 1.4rem; font-weight: 700; cursor: pointer;
+  background: rgba(255,255,255,0.06); color: var(--text2, #9aa3b2);
+  border: 1px solid rgba(255,255,255,0.12); transition: transform .12s, background .2s;
+}
+#txpad .pad-cancel-btn:active { transform: scale(.97); background: rgba(255,255,255,0.12); }
+html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: #5b6470; border-color: rgba(0,0,0,0.1); }

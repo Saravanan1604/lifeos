@@ -261,8 +261,8 @@ function renderRecordsMyMoney() {
     ${byDay[d].sort(within).map(t => {
       const inc = t.type === 'income';
       const src = t.source ? _sourceLabel(t.source) : '';
-      const isCard = /card|credit/i.test(t.source || '');
-      const chip = src ? `<span class="mm-chip">${isCard ? '💳' : '💵'} ${esc(src)}</span>` : '';
+      // _sourceLabel already includes the 🏦/💵/💳 icon — don't prepend another.
+      const chip = src ? `<span class="mm-chip">${esc(src)}</span>` : '';
       const note = t.description ? `<span class="mm-note">“${esc(t.description)}”</span>` : '';
       const sub = t.subcategory ? `<span class="mm-note">› ${esc(t.subcategory)}</span>` : '';
       const tm = t.time ? `<span class="mm-note">🕒 ${_fmtTime(t.time)}</span>` : '';
@@ -764,8 +764,11 @@ function padSave() {
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   padClose();
   toast('Saved ✅', 'success');
-  if (window.__IS_APP && currentPage === 'transactions') renderRecordsMyMoney();
-  else if (typeof refreshFinancePage === 'function') refreshFinancePage();
+  // Re-render whichever page the user was on (don't force them to Records).
+  if (window.__IS_APP) {
+    if (typeof navigate === 'function') navigate(currentPage || 'transactions', true);
+    else if (typeof refreshFinancePage === 'function') refreshFinancePage();
+  } else if (typeof refreshFinancePage === 'function') refreshFinancePage();
 }
 function renderTxPad() {
   let el = document.getElementById('txpad');
@@ -807,7 +810,10 @@ function renderTxPad() {
       value="${esc(_pad.expr)}"
       oninput="_pad.expr=this.value" />
 
-    <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
+    <div class="pad-notes-wrap">
+      <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
+      <button class="pad-mic-btn" onclick="event.stopPropagation();startVoiceControl()" title="Speak to add">🎙️</button>
+    </div>
 
     <button class="pad-save-btn${isIncome ? ' pad-save-inc' : ' pad-save-exp'}" onclick="padSave()">✓ SAVE</button>
 ${_pad.mode === 'add' ? `
@@ -820,6 +826,8 @@ ${_pad.mode === 'add' ? `
         <button class="pad-tool" onclick="padClose();openPdfImport()"><span class="pad-tool-ic">📑</span><span>Import PDF</span></button>
       </div>
     </div>` : ''}
+
+    <button class="pad-cancel-btn" onclick="padClose()">Cancel</button>
   `;
   setTimeout(() => { const inp = document.getElementById('pad-amount-input'); if (inp) inp.focus(); }, 80);
 }
