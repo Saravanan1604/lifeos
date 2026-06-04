@@ -90,11 +90,16 @@ function cpKey(k) {
 }
 function calcPageUse() {
   const v = _cpEval(_cp);
-  if (!isNaN(v) && typeof _pad !== 'undefined' && _pad) {
-    _pad.expr = String(+(+v).toFixed(2));
-    if (typeof renderTxPad === 'function') renderTxPad();
+  const ok = !isNaN(v) && typeof _pad !== 'undefined' && _pad;
+  if (ok) _pad.expr = String(+(+v).toFixed(2));
+  closeCalcPage();
+  try { history.back(); } catch (_) {}
+  // Re-render the Add sheet LAST so the amount field shows the result on top.
+  if (ok && typeof renderTxPad === 'function') {
+    renderTxPad();
+    const inp = document.getElementById('pad-amount-input');
+    if (inp) inp.value = _pad.expr;
   }
-  try { history.back(); } catch (_) { closeCalcPage(); }
 }
 
 // (legacy floating calculator hook — kept for other entry points)
