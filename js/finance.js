@@ -985,7 +985,7 @@ function renderFinance() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
-          <h1 class="page-title">💰 Finance</h1>
+          <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
@@ -994,10 +994,10 @@ function renderFinance() {
             ${window.__IS_APP ? '' : `<button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>`}
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn-secondary btn-sm" onclick="openCsvImport()" style="display:flex;align-items:center;gap:6px">📊 Import CSV</button>
-          <button class="btn-secondary btn-sm" onclick="openBulkEntry()" style="display:flex;align-items:center;gap:6px">📅 Bulk Entry</button>
-          <button class="btn-secondary btn-sm" onclick="openSmsParser()" style="display:flex;align-items:center;gap:6px">📲 Scan SMS</button>
-          <button class="btn-secondary btn-sm" onclick="openPdfImport()" style="display:flex;align-items:center;gap:6px">📑 Import PDF</button>
+          <button class="btn-secondary btn-sm" onclick="openCsvImport()" style="display:flex;align-items:center;gap:6px"><i data-lucide="file-spreadsheet"></i> Import CSV</button>
+          <button class="btn-secondary btn-sm" onclick="openBulkEntry()" style="display:flex;align-items:center;gap:6px"><i data-lucide="calendar-days"></i> Bulk Entry</button>
+          <button class="btn-secondary btn-sm" onclick="openSmsParser()" style="display:flex;align-items:center;gap:6px"><i data-lucide="message-square-text"></i> Scan SMS</button>
+          <button class="btn-secondary btn-sm" onclick="openPdfImport()" style="display:flex;align-items:center;gap:6px"><i data-lucide="file-text"></i> Import PDF</button>
           </div>
         </div>
       </div>
@@ -1007,28 +1007,28 @@ function renderFinance() {
         <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.15)"></div>
         <div style="position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
         <div style="position:relative">
-          <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,60,50,0.75);margin-bottom:6px">💰 Net Worth ${_hasAccounts ? '<span style="font-size:9px;opacity:0.6;font-weight:600">(Bank + Cash − Cards)</span>' : ''}</p>
+          <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,60,50,0.75);margin-bottom:6px"><i data-lucide="wallet"></i> Net Worth ${_hasAccounts ? '<span style="font-size:9px;opacity:0.6;font-weight:600">(Bank + Cash − Cards)</span>' : ''}</p>
           <p id="fin-balance" style="font-size:48px;font-weight:900;color:#001a14;letter-spacing:-2px;line-height:1">${fmt(_netWorth)}</p>
           <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap">
             <span id="fin-rate" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.4);color:${savingsOk?'#004d3a':'#7f0000'}">
-              ${savingsOk?'📈':'📉'} ${savingsRate}% savings rate
+              <i data-lucide="${savingsOk?'trending-up':'trending-down'}"></i> ${savingsRate}% savings rate
             </span>
-            ${_hasAccounts ? `<span style="font-size:11px;font-weight:600;color:rgba(0,50,40,0.7)">🏦 ${fmt(_bankTotal)} &nbsp;💵 ${fmt(_cashTotal)} &nbsp;💳 -${fmt(_cardTotal)}</span>` : ''}
-            <span style="font-size:12px;font-weight:600;color:rgba(0,50,40,0.8)">✨ ${userName}'s wallet</span>
+            ${_hasAccounts ? `<span style="font-size:11px;font-weight:600;color:rgba(0,50,40,0.7);display:inline-flex;align-items:center;gap:3px"><i data-lucide="landmark"></i> ${fmt(_bankTotal)} &nbsp;<i data-lucide="banknote"></i> ${fmt(_cashTotal)} &nbsp;<i data-lucide="credit-card"></i> -${fmt(_cardTotal)}</span>` : ''}
+            <span style="font-size:12px;font-weight:600;color:rgba(0,50,40,0.8)"><i data-lucide="sparkles"></i> ${userName}'s wallet</span>
           </div>
           ${(()=>{
             const chips = typeof buildPeriodComparisonChips === 'function' ? buildPeriodComparisonChips(_finPeriod) : {incomeChip:'',expenseChip:''};
             return `<div style="display:flex;gap:32px;margin-top:20px;flex-wrap:wrap" class="fin-hero-stats">
             <div>
-              <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">💚 Income</p>
+              <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px"><i data-lucide="arrow-down-left"></i> Income</p>
               <p id="fin-income" style="font-size:22px;font-weight:900;color:#003326">+${fmt(income)}${chips.incomeChip}</p>
             </div>
             <div>
-              <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">❤️ Expenses</p>
+              <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px"><i data-lucide="arrow-up-right"></i> Expenses</p>
               <p id="fin-expense" style="font-size:22px;font-weight:900;color:#7f0000">-${fmt(expense)}${chips.expenseChip}</p>
             </div>
             <div>
-              <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px">💜 Savings</p>
+              <p style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,60,50,0.7);margin-bottom:4px"><i data-lucide="piggy-bank"></i> Savings</p>
               <p id="fin-savings" style="font-size:22px;font-weight:900;color:${savingsOk?'#001a14':'#7f0000'}">${savingsOk?'+':''}${fmt(savings)}</p>
             </div>
           </div>`;
@@ -1039,20 +1039,20 @@ function renderFinance() {
       <!-- Bank Accounts -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px">
         <div class="section-header" style="margin-bottom:16px">
-          <p class="section-title">🏦 Bank Accounts
+          <p class="section-title"><i data-lucide="landmark"></i> Bank Accounts
             <span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${(STATE.bankAccounts||[]).length} accounts</span>
           </p>
           <button class="btn-primary btn-sm" onclick="addBankAccount()">+ Add Bank</button>
         </div>
         ${(STATE.bankAccounts||[]).length === 0
-          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon">🏦</span><p>No bank accounts yet. Add your first one!</p></div>`
+          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="landmark"></i></span><p>No bank accounts yet. Add your first one!</p></div>`
           : `
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px" class="fin-bank-grid">
             ${(STATE.bankAccounts||[]).map((b,i) => `
             <div class="fin-dark-card" onclick="if(!event.target.closest('button'))navigate('bank-tracker')" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                <div style="font-size:22px">${b.icon||'🏦'}</div>
+                <div style="font-size:22px"><i data-lucide="landmark"></i></div>
                 <div style="display:flex;gap:6px">
                   <button onclick="updateBankBalance(${i})" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
                   <button onclick="editBankAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
@@ -1068,7 +1068,7 @@ function renderFinance() {
             </div>`).join('')}
           </div>
           <div style="padding:12px 16px;border-radius:12px;background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.2);display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:13px;font-weight:600;color:var(--teal)">💰 Total Bank Balance</span>
+            <span style="font-size:13px;font-weight:600;color:var(--teal);display:inline-flex;align-items:center;gap:5px"><i data-lucide="wallet"></i> Total Bank Balance</span>
             <span style="font-size:20px;font-weight:900;color:var(--teal)">${fmt((STATE.bankAccounts||[]).reduce((s,b)=>s+b.balance,0))}</span>
           </div>`}
       </div>
@@ -1076,13 +1076,13 @@ function renderFinance() {
       <!-- Credit Cards -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px">
         <div class="section-header" style="margin-bottom:16px">
-          <p class="section-title">💳 Credit Cards
+          <p class="section-title"><i data-lucide="credit-card"></i> Credit Cards
             <span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${(STATE.creditCards||[]).length} cards</span>
           </p>
           <button class="btn-primary btn-sm" onclick="addCreditCard()">+ Add Card</button>
         </div>
         ${(STATE.creditCards||[]).length === 0
-          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon">💳</span><p>No credit cards yet. Add your first one!</p></div>`
+          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="credit-card"></i></span><p>No credit cards yet. Add your first one!</p></div>`
           : `
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px" class="fin-card-grid">
             ${(STATE.creditCards||[]).map((c,i) => {
