@@ -782,6 +782,22 @@ html.is-app .fin-card-grid .fin-dark-card,
 html.is-app .fin-cash-grid .fin-dark-card {
   padding: 16px !important; aspect-ratio: 1.586 / 1 !important; height: auto !important;
 }
+/* build 201 — tighten card content: group icon/name/balance at the top,
+   pin the meta row (type · last-4 · limit) to the bottom (no big empty middle) */
+html.is-app .fin-bank-grid .fin-dark-card,
+html.is-app .fin-card-grid .fin-dark-card,
+html.is-app .fin-cash-grid .fin-dark-card {
+  justify-content: flex-start !important;
+  gap: 3px !important;
+}
+html.is-app .fin-bank-grid .fin-dark-card > *:last-child,
+html.is-app .fin-card-grid .fin-dark-card > *:last-child,
+html.is-app .fin-cash-grid .fin-dark-card > *:last-child {
+  margin-top: auto !important;
+}
+/* a touch more separation above the big balance number */
+html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"],
+html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { margin-top: 2px !important; line-height: 1.05 !important; }
 
 /* ============================================================
    build 75 — major dashboard + bottom-nav restructure (app-only)
