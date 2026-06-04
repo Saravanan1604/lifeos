@@ -954,6 +954,28 @@ function txdDelete(id) {
 }
 function _txdDoDelete(id) { deleteTx(id); closeModal(); }
 
+// Swipe-dots under each card carousel (Bank / Credit / Cash) — shows how many
+// cards there are and which one is centred. App only.
+function _finSwipeDots() {
+  ['fin-bank-grid', 'fin-card-grid', 'fin-cash-grid'].forEach(cls => {
+    const grid = document.querySelector('.' + cls);
+    if (!grid) return;
+    const cards = [...grid.children];
+    const next = grid.nextElementSibling;
+    if (next && next.classList.contains('swipe-dots')) next.remove();
+    if (cards.length < 2) return;
+    const dots = document.createElement('div');
+    dots.className = 'swipe-dots';
+    dots.innerHTML = cards.map((_, i) => `<span class="${i === 0 ? 'on' : ''}"></span>`).join('');
+    grid.after(dots);
+    grid.addEventListener('scroll', () => {
+      const per = grid.scrollWidth / cards.length;
+      const i = Math.min(cards.length - 1, Math.round(grid.scrollLeft / per));
+      [...dots.children].forEach((d, j) => d.classList.toggle('on', j === i));
+    }, { passive: true });
+  });
+}
+
 function renderFinance() {
   if (typeof reconcileCurrentBalances === 'function') reconcileCurrentBalances();
   const txnsAll = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -1165,7 +1187,7 @@ function renderFinance() {
         ${[
           { id:'fin-stat-count', label:'Total Txns',   value: txnsAll.length,  icon:'zap', color:'rgba(99,102,241,0.15)', tc:'#6366f1' },
           { id:'fin-stat-month', label:periodLabel(_finPeriod), value: txns.length, icon:'target', color:'rgba(16,185,129,0.15)', tc:'#10b981' },
-          { id:'fin-stat-rate',  label:'Savings Rate', value: savingsRate+'%', icon:'trending-up', color:'rgba(139,92,246,0.15)', tc:'#8b5cf6' },
+          { id:'fin-stat-avg',   label:'Avg Spend', value: fmt(txns.filter(t=>t.type==='expense').length ? expense/txns.filter(t=>t.type==='expense').length : 0), icon:'receipt', color:'rgba(139,92,246,0.15)', tc:'#8b5cf6' },
         ].map(s=>`
           <div class="glass-card" style="padding:16px;text-align:center">
             <div style="display:inline-flex;padding:8px;border-radius:10px;background:${s.color};font-size:18px;margin-bottom:8px;color:${s.tc}"><i data-lucide="${s.icon}"></i></div>
@@ -1297,10 +1319,10 @@ function renderFinanceChart(txns) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } } },
+      plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Inter', size: (window.__IS_APP ? 18 : 12) }, padding: (window.__IS_APP ? 16 : 10), boxWidth: (window.__IS_APP ? 16 : 12) } } },
       scales: {
-        x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        y: { ticks: { color: '#64748b', callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        x: { ticks: { color: '#64748b', font: { size: (window.__IS_APP ? 15 : 11) } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { ticks: { color: '#64748b', font: { size: (window.__IS_APP ? 15 : 11) }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.05)' } }
       }
     }
   });
@@ -1326,7 +1348,7 @@ function renderFinancePieChart(topCats) {
       responsive: true, maintainAspectRatio: false,
       cutout: '60%',
       plugins: {
-        legend: { position: (window.__IS_APP ? 'right' : 'bottom'), labels: { color: '#94a3b8', font: { family: 'Inter', size: 13 }, padding: 14, boxWidth: 12 } },
+        legend: { position: (window.__IS_APP ? 'right' : 'bottom'), labels: { color: '#94a3b8', font: { family: 'Inter', size: (window.__IS_APP ? 18 : 13) }, padding: (window.__IS_APP ? 18 : 14), boxWidth: (window.__IS_APP ? 16 : 12) } },
         tooltip: { callbacks: { label: ctx => ` ₹${ctx.parsed.toLocaleString('en-IN')}` } }
       }
     }

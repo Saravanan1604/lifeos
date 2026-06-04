@@ -366,6 +366,16 @@ html.is-app .fin-hero-accts svg.lucide,
 html.is-app .fin-hero-wallet svg.lucide,
 html.is-app .fin-hero-meta #fin-rate svg.lucide { width: 1.05em !important; height: 1.05em !important; }
 
+/* build 206 — swipe dots under each card carousel */
+html.is-app .swipe-dots { display: flex; justify-content: center; gap: 9px; margin: 0 0 16px; }
+html.is-app .swipe-dots span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.22); transition: .25s; }
+html.is-app .swipe-dots span.on { background: #00c9a7; width: 28px; border-radius: 5px; }
+
+/* stat chips — bigger labels + subtle top accent */
+html.is-app .fin-stat-row > * { border-top: 3px solid rgba(0,201,167,0.5) !important; }
+html.is-app .fin-stat-row p[id^="fin-stat"] { font-size: 36px !important; }
+html.is-app .fin-stat-row p[style*="font-size:11px"] { font-size: 21px !important; margin-top: 4px !important; }
+
 /* ============================================================
    PREMIUM CARD POLISH (Finance + everywhere) — app-only
    Rounded, layered cards with glassy action buttons.
