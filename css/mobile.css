@@ -350,6 +350,22 @@ html.is-app .fin-hero-stats {
 html.is-app .fin-hero-stats [id^="fin-"] > span,
 html.is-app .fin-hero-stats [id^="fin-"] .period-chip { display: none !important; }
 
+/* build 206 — tidy the Net Worth hero meta: stack rows, left-aligned, even gaps
+   (the savings chip, the bank/cash/card totals, and the wallet name each get
+   their own line instead of wrapping into a messy block) */
+html.is-app .fin-hero-meta {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  margin-top: 16px !important;
+}
+html.is-app .fin-hero-meta #fin-rate { font-size: 22px !important; padding: 8px 16px !important; border-radius: 22px !important; }
+html.is-app .fin-hero-accts { gap: 22px !important; font-size: 24px !important; }
+html.is-app .fin-hero-wallet { font-size: 24px !important; }
+html.is-app .fin-hero-accts svg.lucide,
+html.is-app .fin-hero-wallet svg.lucide,
+html.is-app .fin-hero-meta #fin-rate svg.lucide { width: 1.05em !important; height: 1.05em !important; }
+
 /* ============================================================
    PREMIUM CARD POLISH (Finance + everywhere) — app-only
    Rounded, layered cards with glassy action buttons.

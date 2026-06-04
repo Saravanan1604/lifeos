@@ -1009,12 +1009,12 @@ function renderFinance() {
         <div style="position:relative">
           <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,60,50,0.75);margin-bottom:6px"><i data-lucide="wallet"></i> Net Worth ${_hasAccounts ? '<span style="font-size:9px;opacity:0.6;font-weight:600">(Bank + Cash − Cards)</span>' : ''}</p>
           <p id="fin-balance" style="font-size:48px;font-weight:900;color:#001a14;letter-spacing:-2px;line-height:1">${fmt(_netWorth)}</p>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <div class="fin-hero-meta" style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap">
             <span id="fin-rate" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.4);color:${savingsOk?'#004d3a':'#7f0000'}">
               <i data-lucide="${savingsOk?'trending-up':'trending-down'}"></i> ${savingsRate}% savings rate
             </span>
-            ${_hasAccounts ? `<span style="font-size:11px;font-weight:600;color:rgba(0,50,40,0.7);display:inline-flex;align-items:center;gap:3px"><i data-lucide="landmark"></i> ${fmt(_bankTotal)} &nbsp;<i data-lucide="banknote"></i> ${fmt(_cashTotal)} &nbsp;<i data-lucide="credit-card"></i> -${fmt(_cardTotal)}</span>` : ''}
-            <span style="font-size:12px;font-weight:600;color:rgba(0,50,40,0.8)"><i data-lucide="sparkles"></i> ${userName}'s wallet</span>
+            ${_hasAccounts ? `<span class="fin-hero-accts" style="font-size:11px;font-weight:600;color:rgba(0,50,40,0.75);display:flex;align-items:center;gap:16px;flex-wrap:wrap"><span style="display:inline-flex;align-items:center;gap:4px"><i data-lucide="landmark"></i> ${fmt(_bankTotal)}</span><span style="display:inline-flex;align-items:center;gap:4px"><i data-lucide="banknote"></i> ${fmt(_cashTotal)}</span><span style="display:inline-flex;align-items:center;gap:4px"><i data-lucide="credit-card"></i> -${fmt(_cardTotal)}</span></span>` : ''}
+            <span class="fin-hero-wallet" style="font-size:12px;font-weight:600;color:rgba(0,50,40,0.8);display:inline-flex;align-items:center;gap:5px"><i data-lucide="sparkles"></i> ${userName}'s wallet</span>
           </div>
           ${(()=>{
             const chips = typeof buildPeriodComparisonChips === 'function' ? buildPeriodComparisonChips(_finPeriod) : {incomeChip:'',expenseChip:''};
