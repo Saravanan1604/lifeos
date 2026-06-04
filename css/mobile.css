@@ -3030,6 +3030,27 @@ html.is-app #modal-overlay .subcat-modal .btn-primary {
 /* build 244 — reduce the amount number (0.00) by ~25% */
 #txpad .pad-amount-input { font-size: 2.3rem !important; }
 
+/* ============================================================
+   build 253 — improved global Search (rich results, chips)
+   ============================================================ */
+html.is-app #modal-overlay .gs-input { font-size: 1.5rem !important; padding: 20px 18px !important; border-radius: 16px !important; }
+html.is-app #modal-overlay .gs-results { margin-top: 16px; max-height: 56vh; overflow-y: auto; }
+html.is-app #modal-overlay .gs-h { font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #00c9a7; margin: 16px 4px 8px; }
+html.is-app #modal-overlay .gs-hint { font-size: 1.2rem; color: var(--text2); margin: 8px 4px; }
+html.is-app #modal-overlay .gs-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 2px; }
+html.is-app #modal-overlay .gs-chip { font-size: 1.2rem; padding: 10px 18px; border-radius: 22px; border: 1px solid var(--glass-border); background: rgba(0,201,167,0.12); color: #00c9a7; font-weight: 700; cursor: pointer; }
+html.is-app #modal-overlay .gs-row { display: flex; align-items: center; gap: 14px; padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; }
+html.is-app #modal-overlay .gs-row:active { background: rgba(0,201,167,0.10); border-radius: 12px; }
+html.is-app #modal-overlay .gs-ic { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+html.is-app #modal-overlay .gs-ic svg.lucide { width: 24px; height: 24px; }
+html.is-app #modal-overlay .gs-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html.is-app #modal-overlay .gs-mid b { font-size: 1.35rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app #modal-overlay .gs-sub { font-size: 1.05rem; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app #modal-overlay .gs-right { font-size: 1.35rem; font-weight: 800; flex-shrink: 0; }
+html.is-app #modal-overlay .gs-empty { text-align: center; padding: 30px 0; color: var(--text3); }
+html.is-app #modal-overlay .gs-empty svg.lucide { width: 48px; height: 48px; opacity: .5; }
+html.is-app #modal-overlay .gs-empty p { font-size: 1.2rem; margin-top: 10px; }
+
 /* #5 — Lucide line icons inside the Add sheet (replaces emoji) */
 #txpad .svg-inline, #txpad svg.lucide { stroke-width: 2; }
 #txpad .pad-field > label svg.lucide { width: 1.25rem; height: 1.25rem; vertical-align: -0.18em; margin-right: 4px; opacity: .85; }

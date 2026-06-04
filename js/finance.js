@@ -637,26 +637,78 @@ function recAutoCategory(desc) {
 // (12) Global search across transactions / notes / categories
 function openGlobalSearch() {
   openModal('🔍 Search', `
-    <input type="text" id="gs-input" class="form-input" placeholder="Search transactions, notes, categories…" oninput="runGlobalSearch(this.value)" autofocus/>
-    <div id="gs-results" style="margin-top:14px;max-height:50vh;overflow-y:auto"></div>`);
-  setTimeout(() => document.getElementById('gs-input')?.focus(), 100);
+    <div class="gs-wrap">
+      <input type="text" id="gs-input" class="form-input gs-input" placeholder="Search money, notes, accounts, goals…" oninput="runGlobalSearch(this.value)" autofocus/>
+      <div id="gs-results" class="gs-results"></div>
+    </div>`);
+  setTimeout(() => { runGlobalSearch(''); document.getElementById('gs-input')?.focus(); }, 100);
+}
+function _gsRow(onclick, ic, color, title, sub, right, rightColor) {
+  return `<div class="gs-row" onclick="${onclick}">
+    <span class="gs-ic" style="background:${color}22;color:${color}"><i data-lucide="${ic}"></i></span>
+    <span class="gs-mid"><b>${esc(title)}</b>${sub ? `<span class="gs-sub">${esc(sub)}</span>` : ''}</span>
+    ${right ? `<b class="gs-right" style="color:${rightColor || 'var(--text)'}">${right}</b>` : ''}
+  </div>`;
 }
 function runGlobalSearch(q) {
   q = (q || '').trim().toLowerCase();
   const box = document.getElementById('gs-results'); if (!box) return;
-  if (q.length < 2) { box.innerHTML = `<p style="color:var(--text2);font-size:1.1rem">Type at least 2 letters…</p>`; return; }
+
+  // Empty state → quick suggestions
+  if (!q) {
+    box.innerHTML = `<p class="gs-hint">Try searching:</p>
+      <div class="gs-chips">
+        ${['food','salary','250','icici','rent','fuel'].map(s => `<button class="gs-chip" onclick="document.getElementById('gs-input').value='${s}';runGlobalSearch('${s}')">${s}</button>`).join('')}
+      </div>
+      <p class="gs-hint" style="margin-top:16px">Search across transactions, notes, accounts, cards, categories, goals & budgets — even by amount.</p>`;
+    _lucideRefresh();
+    return;
+  }
+  if (q.length < 2) { box.innerHTML = `<p class="gs-hint">Keep typing…</p>`; return; }
+
+  const num = parseFloat(q.replace(/[^\d.]/g, ''));
+  const hasNum = !isNaN(num) && num > 0;
+  let html = '';
+
+  // Transactions (text or amount)
   const txns = (STATE.transactions || []).filter(t =>
     (t.description || '').toLowerCase().includes(q) || (t.category || '').toLowerCase().includes(q) ||
-    (t.subcategory || '').toLowerCase().includes(q)).slice(0, 25);
-  const notes = (STATE.notes || []).filter(n => (n.title || '').toLowerCase().includes(q) || (n.body || n.text || '').toLowerCase().includes(q)).slice(0, 10);
-  let html = '';
-  if (txns.length) html += `<p class="gs-h">Transactions</p>` + txns.map(t =>
-    `<div class="gs-row" onclick="closeModal();navigate('transactions');setTimeout(()=>openEditTxModal('${t.id}'),200)">
-      <span>${catIcon(t.category)} ${esc(t.description || t.category)}</span>
-      <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</b></div>`).join('');
+    (t.subcategory || '').toLowerCase().includes(q) || _sourceLabel(t.source || '').toLowerCase().includes(q) ||
+    (hasNum && Math.abs((+t.amount || 0) - num) < 0.001)
+  ).sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 20);
+  if (txns.length) html += `<p class="gs-h">Transactions</p>` + txns.map(t => {
+    const sub = [t.subcategory, t.source ? _sourceLabel(t.source) : '', fmtDate(t.date)].filter(Boolean).join(' · ');
+    return _gsRow(`closeModal();navigate('transactions');setTimeout(()=>openEditTxModal('${t.id}'),200)`,
+      catLucide(t.category), catColor(t.category), t.description || t.category, sub,
+      (t.type === 'income' ? '+' : '-') + fmt(t.amount), t.type === 'income' ? '#10b981' : '#ef4444');
+  }).join('');
+
+  // Accounts / cards / cash
+  const accs = [];
+  (STATE.bankAccounts || []).forEach(b => { if ((b.bankName || '').toLowerCase().includes(q)) accs.push(_gsRow(`closeModal();navigate('bank-tracker')`, 'landmark', '#3b82f6', b.bankName, 'Bank account', fmt(b.balance || 0), '#3b82f6')); });
+  (STATE.creditCards || []).forEach(c => { if ((c.bankName || '').toLowerCase().includes(q)) accs.push(_gsRow(`closeModal();navigate('bank-tracker')`, 'credit-card', '#8b5cf6', c.bankName, 'Credit card', fmt(c.outstanding || 0), '#ef4444')); });
+  (STATE.cashAccounts || []).forEach(c => { if ((c.name || '').toLowerCase().includes(q)) accs.push(_gsRow(`closeModal();navigate('bank-tracker')`, 'banknote', '#f59e0b', c.name, 'Cash wallet', fmt(c.balance || 0), '#f59e0b')); });
+  if (accs.length) html += `<p class="gs-h">Accounts</p>` + accs.join('');
+
+  // Categories
+  const cats = (typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES)
+    .filter(c => c.name.toLowerCase().includes(q)).slice(0, 8);
+  if (cats.length) html += `<p class="gs-h">Categories</p>` + cats.map(c =>
+    _gsRow(`closeModal();navigate('transactions');setTimeout(()=>{_finCategory='${c.name.replace(/'/g,"\\'")}';if(typeof renderRecordsMyMoney==='function')renderRecordsMyMoney();},200)`,
+      catLucide(c.name), catColor(c.name), c.name, 'View transactions', '', '')).join('');
+
+  // Goals
+  const goals = (STATE.goals || []).filter(g => (g.name || '').toLowerCase().includes(q)).slice(0, 6);
+  if (goals.length) html += `<p class="gs-h">Goals</p>` + goals.map(g =>
+    _gsRow(`closeModal();navigate('goals')`, 'rocket', '#a78bfa', g.name, 'Goal', g.target ? fmt(g.target) : '', '#a78bfa')).join('');
+
+  // Notes
+  const notes = (STATE.notes || []).filter(n => (n.title || '').toLowerCase().includes(q) || (n.body || n.text || '').toLowerCase().includes(q)).slice(0, 8);
   if (notes.length) html += `<p class="gs-h">Notes</p>` + notes.map(n =>
-    `<div class="gs-row" onclick="closeModal();navigate('notes')"><span>📝 ${esc(n.title || (n.body || n.text || '').slice(0,30))}</span></div>`).join('');
-  box.innerHTML = html || `<p style="color:var(--text2);font-size:1.1rem">No matches.</p>`;
+    _gsRow(`closeModal();navigate('notes')`, 'sticky-note', '#eab308', n.title || (n.body || n.text || '').slice(0, 30), 'Note', '', '')).join('');
+
+  box.innerHTML = html || `<div class="gs-empty"><i data-lucide="search-x"></i><p>No matches for “${esc(q)}”</p></div>`;
+  _lucideRefresh();
 }
 
 // ===================================================================
