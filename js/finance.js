@@ -844,6 +844,7 @@ function renderTxPad() {
       ${_pad.mode === 'add' ? `<div class="pad-field"><label><i data-lucide="repeat"></i> Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>` : ''}
     </div>
 
+    <div class="pad-entry-zone">
     <label class="pad-amt-label">Amount (₹)</label>
     <div class="pad-amt-wrap${isIncome ? ' amt-inc' : ' amt-exp'}">
       <span class="pad-amt-cur">${(STATE.settings && STATE.settings.currency) || '₹'}</span>
@@ -861,6 +862,7 @@ function renderTxPad() {
         <button class="pad-mic-btn" onclick="event.stopPropagation();openVoicePage()" title="Speak to add"><i data-lucide="mic"></i></button>
       </div>
     </div>
+    </div><!-- /pad-entry-zone -->
 
     <button class="pad-save-btn${isIncome ? ' pad-save-inc' : ' pad-save-exp'}" onclick="padSave()">✓ SAVE</button>
 ${_pad.mode === 'add' ? `
