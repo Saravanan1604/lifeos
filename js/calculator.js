@@ -25,7 +25,7 @@ function openCalcPage() {
   if (!el) { el = document.createElement('div'); el.id = 'calc-page'; document.body.appendChild(el); }
   el.innerHTML = `
     <div class="cp-top">
-      <button class="cp-x" onclick="closeCalcPage()" title="Back"><i data-lucide="arrow-left"></i></button>
+      <button class="cp-x" onclick="calcPageBack()" title="Back"><i data-lucide="arrow-left"></i></button>
       <span class="cp-title">Calculator</span>
       <button class="cp-use" onclick="calcPageUse()"><i data-lucide="check"></i> Use</button>
     </div>
@@ -41,6 +41,11 @@ function openCalcPage() {
   cpRender();
 }
 function closeCalcPage() { const el = document.getElementById('calc-page'); if (el) el.style.display = 'none'; }
+// Back from calculator → close it and bring the Add sheet back (if we came from it)
+function calcPageBack() {
+  closeCalcPage();
+  if (typeof _pad !== 'undefined' && _pad && typeof renderTxPad === 'function') renderTxPad();
+}
 
 // Hardware/browser Back closes any open full-screen overlay (calc / voice)
 if (!window._lifeosOverlayBack) {
