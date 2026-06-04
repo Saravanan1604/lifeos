@@ -323,7 +323,6 @@ function renderRecordsMyMoney() {
       </button>
       ${selBar}
       ${_recReminders()}
-      ${_recHeatmap()}
       <div class="mm-list">
         ${days.length ? rows : `<div class="mm-empty" onclick="openAddTxModal('expense')">${filterActive ? 'No transactions match your filters.' : `<span style="font-size:2.4rem">🧾</span><br/>No transactions in ${periodLabelTxt}.<br/><b style="color:#00c9a7">+ Tap to add one</b>`}</div>`}
       </div>
@@ -627,6 +626,131 @@ function runGlobalSearch(q) {
   if (notes.length) html += `<p class="gs-h">Notes</p>` + notes.map(n =>
     `<div class="gs-row" onclick="closeModal();navigate('notes')"><span>📝 ${esc(n.title || (n.body || n.text || '').slice(0,30))}</span></div>`).join('');
   box.innerHTML = html || `<p style="color:var(--text2);font-size:1.1rem">No matches.</p>`;
+}
+
+// ===================================================================
+//  (2/3) Full-screen keypad Add/Edit transaction page (MyMoney style)
+// ===================================================================
+let _pad = null;
+function openTxPad(type, editId) {
+  const ex = editId ? (STATE.transactions || []).find(t => t.id === editId) : null;
+  _pad = {
+    mode: ex ? 'edit' : 'add', id: editId || null,
+    type: ex ? ex.type : (type || 'expense'),
+    amount: ex ? String(ex.amount) : '',
+    source: ex ? (ex.source || '') : '',
+    category: ex ? ex.category : '',
+    notes: ex ? (ex.description || '') : '',
+    subcategory: ex ? (ex.subcategory || '') : '',
+    date: ex ? ex.date : today(),
+    time: ex ? (ex.time || _nowTime()) : _nowTime(),
+    receipt: ex ? (ex.receipt || '') : ''
+  };
+  if (!_pad.category) {
+    const cats = getAllCategories().filter(c => c.type === _pad.type || c.type === 'both');
+    _pad.category = cats[0]?.name || 'Food';
+  }
+  renderTxPad();
+}
+function padClose() { const el = document.getElementById('txpad'); if (el) el.remove(); _pad = null; }
+function padSetType(t) {
+  _pad.type = t;
+  const cats = getAllCategories().filter(c => c.type === t || c.type === 'both');
+  if (!cats.some(c => c.name === _pad.category)) _pad.category = cats[0]?.name || _pad.category;
+  renderTxPad();
+}
+function _padFmtAmount() {
+  if (!_pad.amount) return '0';
+  const [i, d] = _pad.amount.split('.');
+  const ii = (+i || 0).toLocaleString('en-IN');
+  return d != null ? `${ii}.${d}` : ii;
+}
+function padDigit(d) {
+  if (d === '.') { if (_pad.amount.includes('.')) return; if (!_pad.amount) _pad.amount = '0'; }
+  if (_pad.amount.replace('.', '').length >= 12) return;
+  const dec = _pad.amount.split('.')[1];
+  if (dec && dec.length >= 2 && d !== '.') return;
+  _pad.amount += d;
+  const el = document.getElementById('pad-amount'); if (el) el.textContent = _padFmtAmount();
+}
+function padBack() {
+  _pad.amount = _pad.amount.slice(0, -1);
+  const el = document.getElementById('pad-amount'); if (el) el.textContent = _padFmtAmount();
+}
+function padPickAccount() {
+  const list = [{ v: '', l: '🚫 No account' }];
+  (STATE.cashAccounts || []).forEach(c => list.push({ v: `cash:${c.id}`, l: `💵 ${c.name}` }));
+  (STATE.bankAccounts || []).forEach(b => list.push({ v: `bank:${b.id}`, l: `🏦 ${b.bankName}` }));
+  (STATE.creditCards || []).forEach(c => list.push({ v: `card:${c.id}`, l: `💳 ${c.bankName}` }));
+  openModal('Choose Account', `<div class="pad-pick">${list.map(o =>
+    `<button onclick="_pad.source='${o.v}';closeModal();renderTxPad()">${o.l}</button>`).join('')}</div>`);
+}
+function padPickCategory() {
+  const cats = getAllCategories().filter(c => c.type === _pad.type || c.type === 'both');
+  openModal('Choose Category', `<div class="pad-cats">${cats.map(c =>
+    `<button onclick="_pad.category='${c.name.replace(/'/g, "\\'")}';closeModal();renderTxPad()"><span style="font-size:1.8rem">${c.icon}</span><span>${esc(c.name)}</span></button>`).join('')}</div>`);
+}
+function padSetDate(v) { if (v) _pad.date = v; renderTxPad(); }
+function padSetTime(v) { if (v) _pad.time = v; renderTxPad(); }
+function padSave() {
+  const amount = parseFloat(_pad.amount);
+  if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
+  const icon = getAllCategories().find(c => c.name === _pad.category)?.icon || catIcon(_pad.category) || '💳';
+  if (_pad.mode === 'edit') {
+    const tx = (STATE.transactions || []).find(t => t.id === _pad.id);
+    if (tx) {
+      _reverseTxFromAccount(tx);
+      Object.assign(tx, { type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, source: _pad.source, receipt: _pad.receipt });
+      _applyTxToAccount(tx);
+    }
+  } else {
+    const newTx = { id: genId(), type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, source: _pad.source, receipt: _pad.receipt, createdAt: new Date().toISOString() };
+    STATE.transactions = STATE.transactions || [];
+    STATE.transactions.unshift(newTx);
+    _applyTxToAccount(newTx);
+    if (typeof addXP === 'function') addXP(10, 'Transaction logged');
+  }
+  saveState();
+  if (typeof autoSyncGoals === 'function') autoSyncGoals();
+  padClose();
+  toast('Saved ✅', 'success');
+  if (window.__IS_APP && currentPage === 'transactions') renderRecordsMyMoney();
+  else if (typeof refreshFinancePage === 'function') refreshFinancePage();
+}
+function renderTxPad() {
+  let el = document.getElementById('txpad');
+  if (!el) { el = document.createElement('div'); el.id = 'txpad'; document.body.appendChild(el); }
+  const acctLabel = _pad.source ? _sourceLabel(_pad.source) : 'Account';
+  const catIc = catIcon(_pad.category), catCol = catColor(_pad.category);
+  const dateLabel = new Date(_pad.date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  const key = (d) => `<button class="pad-key" onclick="padDigit('${d}')">${d}</button>`;
+  el.innerHTML = `
+    <div class="pad-head">
+      <button class="pad-cancel" onclick="padClose()">✕ CANCEL</button>
+      <button class="pad-save" onclick="padSave()">✓ SAVE</button>
+    </div>
+    <div class="pad-types">
+      <button class="${_pad.type === 'income' ? 'on' : ''}" onclick="padSetType('income')">INCOME</button>
+      <span>|</span>
+      <button class="${_pad.type === 'expense' ? 'on' : ''}" onclick="padSetType('expense')">${_pad.type === 'expense' ? '✓ ' : ''}EXPENSE</button>
+    </div>
+    <div class="pad-pickrow">
+      <div class="pad-field"><label>Account</label><button onclick="padPickAccount()">${esc(acctLabel)}</button></div>
+      <div class="pad-field"><label>Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIc}</span>${esc(_pad.category)}</button></div>
+    </div>
+    <textarea class="pad-notes" placeholder="Add notes" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
+    <div class="pad-amountbox"><span id="pad-amount">${_padFmtAmount()}</span><button class="pad-bs" onclick="padBack()">⌫</button></div>
+    <div class="pad-keys">
+      ${key('7')}${key('8')}${key('9')}
+      ${key('4')}${key('5')}${key('6')}
+      ${key('1')}${key('2')}${key('3')}
+      ${key('.')}${key('0')}<button class="pad-key pad-done" onclick="padSave()">✓</button>
+    </div>
+    <div class="pad-foot">
+      <label class="pad-dt">${dateLabel}<input type="date" value="${_pad.date}" onchange="padSetDate(this.value)"/></label>
+      <span class="pad-sep"></span>
+      <label class="pad-dt">${_fmtTime(_pad.time)}<input type="time" value="${_pad.time}" onchange="padSetTime(this.value)"/></label>
+    </div>`;
 }
 
 // Records filter modal — reuses the existing _finType / _finCategory / _finSort + search
@@ -1472,6 +1596,7 @@ function deleteSelectedTx() {
 }
 
 function openAddTxModal(defaultType) {
+  if (window.__IS_APP) { openTxPad(defaultType); return; }
   _pendingReceipt = null;
   const _defType = defaultType || 'expense';
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
@@ -1610,6 +1735,7 @@ function deleteTx(id) {
 function openEditTxModal(id) {
   const tx = (STATE.transactions || []).find(t => t.id === id);
   if (!tx) return;
+  if (window.__IS_APP) { openTxPad(null, id); return; }
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
   const catOptions = allCats.map(c =>
     `<option value="${c.name}" ${c.name === tx.category ? 'selected' : ''}>${c.icon} ${c.name}</option>`
