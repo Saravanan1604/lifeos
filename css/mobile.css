@@ -3030,7 +3030,7 @@ html.is-app #modal-overlay .subcat-modal .btn-primary {
 #txpad .pad-pill svg.lucide { width: 1.5rem; height: 1.5rem; vertical-align: -0.25em; margin-right: 6px; }
 #txpad .pad-cancel svg.lucide { width: 1.2rem; height: 1.2rem; vertical-align: -0.18em; }
 #txpad .pad-mic-btn svg.lucide { width: 1.7rem; height: 1.7rem; }
-#txpad .pad-tool .pad-tool-ic svg.lucide { width: 1.7rem; height: 1.7rem; color: #00c9a7; }
+#txpad .pad-tool .pad-tool-ic svg.lucide { width: 2.2rem; height: 2.2rem; color: #00c9a7; }
 
 /* calculator button to the RIGHT of the amount value (same row) */
 #txpad .pad-amt-wrap { display: flex !important; flex-direction: row !important; align-items: stretch !important; gap: 10px !important; width: 100% !important; }
