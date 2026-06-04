@@ -616,6 +616,7 @@ function renderTransactions() {
 
 function _renderPage(page) {
   const container = document.getElementById('page-container');
+  if (container) container.setAttribute('data-page', page);
   switch (page) {
     case 'dashboard':    renderDashboard();    break;
     case 'finance':      renderFinance();       break;
