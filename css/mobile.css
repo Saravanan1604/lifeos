@@ -3033,7 +3033,9 @@ html.is-app #modal-overlay .subcat-modal .btn-primary {
 /* ============================================================
    build 253 — improved global Search (rich results, chips)
    ============================================================ */
-html.is-app #modal-overlay .gs-input { font-size: 1.5rem !important; padding: 20px 18px !important; border-radius: 16px !important; }
+html.is-app #modal-overlay .gs-inputbar { position: relative; display: flex; align-items: center; }
+html.is-app #modal-overlay .gs-inputbar > svg.lucide { position: absolute; left: 16px; width: 26px; height: 26px; color: #00c9a7; pointer-events: none; }
+html.is-app #modal-overlay .gs-input { width: 100%; font-size: 1.5rem !important; padding: 20px 18px 20px 52px !important; border-radius: 16px !important; }
 html.is-app #modal-overlay .gs-results { margin-top: 16px; max-height: 56vh; overflow-y: auto; }
 html.is-app #modal-overlay .gs-h { font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #00c9a7; margin: 16px 4px 8px; }
 html.is-app #modal-overlay .gs-hint { font-size: 1.2rem; color: var(--text2); margin: 8px 4px; }

@@ -636,9 +636,12 @@ function recAutoCategory(desc) {
 
 // (12) Global search across transactions / notes / categories
 function openGlobalSearch() {
-  openModal('🔍 Search', `
+  openModal('Search', `
     <div class="gs-wrap">
-      <input type="text" id="gs-input" class="form-input gs-input" placeholder="Search money, notes, accounts, goals…" oninput="runGlobalSearch(this.value)" autofocus/>
+      <div class="gs-inputbar">
+        <i data-lucide="search"></i>
+        <input type="text" id="gs-input" class="form-input gs-input" placeholder="Search money, notes, accounts, goals…" oninput="runGlobalSearch(this.value)" autofocus/>
+      </div>
       <div id="gs-results" class="gs-results"></div>
     </div>`);
   setTimeout(() => { runGlobalSearch(''); document.getElementById('gs-input')?.focus(); }, 100);
