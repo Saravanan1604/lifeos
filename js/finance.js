@@ -785,9 +785,9 @@ function renderTxPad() {
       <span>|</span>
       <button class="${_pad.type === 'expense' ? 'on' : ''}" onclick="padSetType('expense')">${_pad.type === 'expense' ? '✓ ' : ''}EXPENSE</button>
     </div>
-    <div class="pad-dates">
-      <label class="pad-dt">📅 ${dateLabel}<input type="date" value="${_pad.date}" onchange="padSetDate(this.value)"/></label>
-      <label class="pad-dt">🕒 ${_fmtTime(_pad.time)}<input type="time" value="${_pad.time}" onchange="padSetTime(this.value)"/></label>
+    <div class="pad-pickrow pad-dates">
+      <div class="pad-field"><label>📅 Date</label><label class="pad-dt">${dateLabel}<input type="date" value="${_pad.date}" onchange="padSetDate(this.value)"/></label></div>
+      <div class="pad-field"><label>🕒 Time</label><label class="pad-dt">${_fmtTime(_pad.time)}<input type="time" value="${_pad.time}" onchange="padSetTime(this.value)"/></label></div>
     </div>
     <div class="pad-pickrow">
       <div class="pad-field"><label>Account</label><button onclick="padPickAccount()">${esc(acctLabel)}</button></div>
