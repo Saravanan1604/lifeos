@@ -386,11 +386,56 @@ const VOICE_COMMANDS = [
   { keys: ['logout', 'sign out', 'வெளியேறு', 'लॉग आउट', 'साइन आउट'],
     run: () => { if (typeof handleLogout === 'function') handleLogout(); }, say: 'Signing out' },
 
+  // ----- More pages -----
+  { keys: ['notes', 'note', 'குறிப்பு', 'नोट्स'], run: () => navigate('notes'), say: 'Notes' },
+  { keys: ['yearly', 'year report', 'annual', 'வருடாந்திர', 'वार्षिक'], run: () => navigate('yearly'), say: 'Yearly Report' },
+  { keys: ['career', 'job', 'skills', 'வேலை', 'करियर', 'नौकरी'], run: () => navigate('growth'), say: 'Career Hub' },
+
+  // ----- Create accounts / cards -----
+  { keys: ['add bank account', 'new bank', 'create bank', 'add account', 'புதிய வங்கி', 'नया बैंक'],
+    run: () => { navigate('finance'); setTimeout(() => { if (typeof addBankAccount === 'function') addBankAccount(); }, 150); }, say: 'Add bank account' },
+  { keys: ['add credit card', 'add card', 'new card', 'புதிய அட்டை', 'नया कार्ड'],
+    run: () => { navigate('finance'); setTimeout(() => { if (typeof addCreditCard === 'function') addCreditCard(); }, 150); }, say: 'Add credit card' },
+  { keys: ['add cash', 'add wallet', 'new wallet', 'புதிய பணப்பை', 'नया वॉलेट'],
+    run: () => { navigate('finance'); setTimeout(() => { if (typeof addCashAccount === 'function') addCashAccount(); }, 150); }, say: 'Add cash wallet' },
+  { keys: ['add budget', 'new budget', 'create budget', 'புதிய பட்ஜெட்', 'नया बजट'],
+    run: () => { navigate('budget'); setTimeout(() => { if (typeof openAddBudgetModal === 'function') openAddBudgetModal(-1); }, 150); }, say: 'Add budget' },
+  { keys: ['add asset', 'add investment', 'new asset', 'புதிய சொத்து', 'नई संपत्ति'],
+    run: () => { navigate('investments'); setTimeout(() => { if (typeof openAddInvestmentModal === 'function') openAddInvestmentModal(); }, 150); }, say: 'Add asset' },
+
+  // ----- Import / capture tools -----
+  { keys: ['import csv', 'upload csv', 'csv', 'csv இறக்கு', 'सीएसवी'], run: () => { if (typeof openCsvImport === 'function') openCsvImport(); }, say: 'Import CSV' },
+  { keys: ['import pdf', 'upload pdf', 'pdf statement', 'pdf இறக்கு', 'पीडीएफ'], run: () => { if (typeof openPdfImport === 'function') openPdfImport(); }, say: 'Import PDF' },
+  { keys: ['scan sms', 'read sms', 'parse sms', 'எஸ்எம்எஸ்', 'एसएमएस'], run: () => { if (typeof openSmsParser === 'function') openSmsParser(); }, say: 'Scan SMS' },
+  { keys: ['bulk entry', 'multiple entries', 'மொத்த உள்ளீடு', 'बल्क एंट्री'], run: () => { if (typeof openBulkEntry === 'function') openBulkEntry(); }, say: 'Bulk Entry' },
+
+  // ----- Undo / redo / layout / notifications -----
+  { keys: ['undo', 'மீட்டமை', 'पूर्ववत'], run: () => { if (typeof undoLastAction === 'function') undoLastAction(); }, say: 'Undone' },
+  { keys: ['redo', 'மறுபடியும்', 'फिर से'], run: () => { if (typeof redoLastAction === 'function') redoLastAction(); }, say: 'Redone' },
+  { keys: ['customize', 'edit layout', 'rearrange', 'தனிப்பயன்', 'लेआउट'], run: () => { if (typeof toggleEditLayout === 'function') toggleEditLayout(); }, say: 'Customize layout' },
+  { keys: ['notification', 'alerts', 'அறிவிப்பு', 'सूचना'], run: () => { if (typeof openNotifPanel === 'function') openNotifPanel(); }, say: 'Notifications' },
+  { keys: ['lock app', 'lock', 'பூட்டு', 'लॉक'], run: () => { if (typeof lockAppNow === 'function') lockAppNow(); }, say: 'Locked' },
+
+  // ----- Time period filters (apply to Finance / Records / Budget) -----
+  { keys: ['today', 'இன்று', 'आज'], run: () => _voiceSetPeriod('day'), say: 'Today' },
+  { keys: ['this week', 'weekly', 'வாரம்', 'इस सप्ताह'], run: () => _voiceSetPeriod('week'), say: 'This week' },
+  { keys: ['this month', 'monthly', 'மாதம்', 'इस महीने'], run: () => _voiceSetPeriod('month'), say: 'This month' },
+  { keys: ['this year', 'yearly view', 'வருடம்', 'इस साल'], run: () => _voiceSetPeriod('year'), say: 'This year' },
+  { keys: ['all time', 'everything', 'மொத்தம்', 'सभी'], run: () => _voiceSetPeriod('all'), say: 'All time' },
+
   // ----- Language switching by voice -----
   { keys: ['english', 'ஆங்கிலம்', 'अंग्रेज़ी', 'इंग्लिश'], run: () => setLanguage('en'), say: 'English' },
   { keys: ['tamil', 'தமிழ்', 'तमिल'], run: () => setLanguage('ta'), say: 'தமிழ்' },
   { keys: ['hindi', 'हिंदी', 'हिन्दी', 'இந்தி'], run: () => setLanguage('hi'), say: 'हिन्दी' },
 ];
+
+// Apply a time period to whichever money page the user is on
+function _voiceSetPeriod(p) {
+  const pg = (typeof currentPage !== 'undefined') ? currentPage : '';
+  if (pg === 'transactions' && typeof recSetPeriod === 'function') recSetPeriod(p);
+  else if (pg === 'budget' && typeof setBudgetPeriod === 'function') setBudgetPeriod(p);
+  else if (typeof setFinPeriod === 'function') { if (pg !== 'finance') navigate('finance'); setTimeout(() => setFinPeriod(p), 120); }
+}
 
 let _recognition = null;
 let _listening = false;
