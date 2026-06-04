@@ -25,7 +25,7 @@ function openCalcPage() {
   if (!el) { el = document.createElement('div'); el.id = 'calc-page'; document.body.appendChild(el); }
   el.innerHTML = `
     <div class="cp-top">
-      <button class="cp-x" onclick="history.back()" title="Back"><i data-lucide="arrow-left"></i></button>
+      <button class="cp-x" onclick="closeCalcPage()" title="Back"><i data-lucide="arrow-left"></i></button>
       <span class="cp-title">Calculator</span>
       <button class="cp-use" onclick="calcPageUse()"><i data-lucide="check"></i> Use</button>
     </div>
@@ -39,9 +39,6 @@ function openCalcPage() {
   el.style.display = 'flex';
   if (window.lucide && lucide.createIcons) lucide.createIcons();
   cpRender();
-  // Push a history entry so the phone's Back button (and our ← button) closes
-  // the calculator and returns to the page/sheet underneath, not the app exit.
-  try { history.pushState({ lifeosOverlay: 'calc' }, ''); } catch (_) {}
 }
 function closeCalcPage() { const el = document.getElementById('calc-page'); if (el) el.style.display = 'none'; }
 
@@ -93,7 +90,6 @@ function calcPageUse() {
   const ok = !isNaN(v) && typeof _pad !== 'undefined' && _pad;
   if (ok) _pad.expr = String(+(+v).toFixed(2));
   closeCalcPage();
-  try { history.back(); } catch (_) {}
   // Re-render the Add sheet LAST so the amount field shows the result on top.
   if (ok && typeof renderTxPad === 'function') {
     renderTxPad();
