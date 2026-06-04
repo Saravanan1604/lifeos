@@ -2401,3 +2401,19 @@ html.is-app.light #txpad .pad-key.fn, html.is-app .light #txpad .pad-key.fn { ba
 #txpad .pad-key.oper { background: #2e9e44 !important; color: #fff !important; font-size: 2.3rem !important; }
 /* equals — blue circle */
 #txpad .pad-key.eq { background: #2f6bff !important; color: #fff !important; font-size: 2.4rem !important; }
+
+/* build 168 — bigger round keys, centered keypad, fix spacing */
+#txpad .pad-keys.pad-calc {
+  flex: 1 1 auto !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-auto-rows: auto !important;
+  align-content: center !important;
+  gap: 16px 10px !important; margin-top: 8px !important;
+}
+#txpad .pad-key {
+  width: 100% !important; max-width: 82px !important; height: auto !important;
+  aspect-ratio: 1 / 1 !important; margin: 0 auto !important;
+  border-radius: 50% !important; font-size: 2.2rem !important;
+}
+#txpad .pad-key.oper { background: #2e9e44 !important; color: #fff !important; }
+#txpad .pad-key.eq   { background: #2f6bff !important; color: #fff !important; }
