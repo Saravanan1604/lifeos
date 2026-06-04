@@ -2727,3 +2727,35 @@ html.is-app .light #txpad .pad-numgrid .pad-key-fn {
 #txpad .pad-notes { min-height: 110px !important; max-height: 200px !important; flex: 0 0 auto !important; font-size: 1.4rem !important; }
 /* bigger SAVE */
 #txpad .pad-save-btn { padding: 20px !important; font-size: 1.7rem !important; border-radius: 20px !important; }
+
+/* build 188 — Add page matches Records page (glass cards + teal/indigo accents) */
+#txpad { background: var(--bg) !important; }
+/* segmented Income/Expense → like the Records period tabs */
+#txpad .pad-type-pills { background: var(--glass) !important; border: 1px solid var(--glass-border) !important; }
+#txpad .pad-pill { color: var(--text2) !important; }
+#txpad .pad-pill-on,
+#txpad .pad-pill-on.pad-pill-inc,
+#txpad .pad-pill-on.pad-pill-exp {
+  background: linear-gradient(135deg,#00c9a7,#6366f1) !important; color: #fff !important;
+  box-shadow: 0 6px 18px rgba(0,201,167,0.3) !important;
+}
+/* fields → Records glass cards */
+#txpad .pad-field > button,
+#txpad .pad-field .pad-dt,
+#txpad .pad-amount-input,
+#txpad .pad-notes {
+  background: var(--glass) !important; border: 1px solid var(--glass-border) !important;
+  color: var(--text) !important; box-shadow: none !important;
+}
+#txpad .pad-field label:not(.pad-dt), #txpad .pad-amt-label { color: var(--text2) !important; }
+#txpad .pad-amount-input,
+#txpad .pad-input-inc,
+#txpad .pad-input-exp { color: var(--text) !important; border-color: var(--glass-border) !important; }
+#txpad .pad-amount-input:focus { border-color: #00c9a7 !important; }
+/* SAVE → teal/indigo gradient like Records active controls */
+#txpad .pad-save-btn,
+#txpad .pad-save-inc,
+#txpad .pad-save-exp {
+  background: linear-gradient(135deg,#00c9a7,#6366f1) !important; color: #fff !important;
+  box-shadow: 0 10px 26px rgba(0,201,167,0.4) !important;
+}
