@@ -17,7 +17,7 @@ const _CP_KEYS = [
   { k: '7' }, { k: '8' }, { k: '9' }, { k: '×', cls: 'op' },
   { k: '4' }, { k: '5' }, { k: '6' }, { k: '−', cls: 'op' },
   { k: '1' }, { k: '2' }, { k: '3' }, { k: '+', cls: 'op' },
-  { k: '0', cls: 'zero' }, { k: '.' }, { k: '=', cls: 'op eq' },
+  { k: '( )', cls: 'fn' }, { k: '0' }, { k: '.' }, { k: '=', cls: 'op eq' },
 ];
 function openCalcPage() {
   _cp = '';
@@ -58,6 +58,13 @@ function cpKey(k) {
   const ops = '+−×÷';
   if (k === 'C' || k === 'AC') _cp = '';
   else if (k === '⌫') _cp = _cp.slice(0, -1);
+  else if (k === '( )') {
+    const open = (_cp.match(/\(/g) || []).length, close = (_cp.match(/\)/g) || []).length;
+    const last = _cp.slice(-1);
+    if (!_cp || '+−×÷('.includes(last)) _cp += '(';
+    else if (open > close) _cp += ')';
+    else _cp += '×(';
+  }
   else if (k === '=') { const v = _cpEval(_cp); if (!isNaN(v)) _cp = String(+(+v).toFixed(4)); }
   else {
     const last = _cp.slice(-1);
