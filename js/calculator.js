@@ -7,10 +7,31 @@ let calcMemory = 0;
 let calcJustCalc = false;
 let calcDragPos = null; // {left, top} after first drag
 
+// When the calculator is opened from the Add-Transaction amount field, show a
+// "✓ Use" button that drops the result straight into the amount and closes.
+let _calcReturnToPad = false;
+function openCalcForPad() {
+  _calcReturnToPad = true;
+  if (!calcOpen) toggleCalculator();
+  const b = document.getElementById('calc-use-btn');
+  if (b) b.style.display = '';
+}
+function calcUseValue() {
+  const v = parseFloat(String(calcDisplay).replace(/,/g, ''));
+  if (!isNaN(v) && typeof _pad !== 'undefined' && _pad) {
+    _pad.expr = String(+(+v).toFixed(2));
+    if (typeof renderTxPad === 'function') renderTxPad();
+  }
+  _calcReturnToPad = false;
+  const b = document.getElementById('calc-use-btn'); if (b) b.style.display = 'none';
+  if (calcOpen) toggleCalculator();
+}
+
 function toggleCalculator() {
   calcOpen = !calcOpen;
   const win = document.getElementById('calc-window');
   if (!win) { console.error('calc-window not found'); return; }
+  if (!calcOpen) { _calcReturnToPad = false; const _b = document.getElementById('calc-use-btn'); if (_b) _b.style.display = 'none'; }
 
   if (calcOpen) {
     // 1. Set critical styles first — position MUST be fixed

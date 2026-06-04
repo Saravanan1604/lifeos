@@ -3015,6 +3015,25 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
 #txpad .pad-mic-btn svg.lucide { width: 1.7rem; height: 1.7rem; }
 #txpad .pad-tool .pad-tool-ic svg.lucide { width: 1.7rem; height: 1.7rem; color: #00c9a7; }
 
+/* calculator button inside the amount field */
+#txpad .pad-amt-wrap { position: relative; }
+#txpad .pad-amt-wrap .pad-amount-input { padding-right: 66px !important; }
+#txpad .pad-calc-btn {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  width: 48px; height: 48px; border-radius: 12px; border: none; cursor: pointer;
+  background: rgba(0,201,167,0.18); color: #00c9a7;
+  display: flex; align-items: center; justify-content: center;
+}
+#txpad .pad-calc-btn:active { transform: translateY(-50%) scale(.9); }
+#txpad .pad-calc-btn svg.lucide { width: 1.7rem; height: 1.7rem; }
+/* calculator "Use" button (returns value to the amount) */
+.calc-use { background: linear-gradient(135deg,#00c9a7,#6366f1); color:#fff; border:none; border-radius:8px; padding:6px 14px; font-weight:700; cursor:pointer; margin-right:8px; font-size:14px; }
+/* account picker: default-star rows */
+.pad-pick-row { display:flex; gap:8px; align-items:stretch; }
+.pad-pick-row .pad-pick-main { flex:1; }
+.pad-pick-star { width:54px; flex:0 0 54px; border:1px solid var(--glass-border); background:var(--glass); color:var(--text3); border-radius:12px; font-size:1.5rem; cursor:pointer; }
+.pad-pick-star.on { color:#f59e0b; background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.45); }
+
 /* #5 — category circle + control line icons (Records + pickers) */
 html.is-app .mm-ic { display: flex !important; align-items: center; justify-content: center; }
 html.is-app .mm-ic svg.lucide { width: 1.7rem; height: 1.7rem; color: #fff; stroke: #fff; }

@@ -669,7 +669,7 @@ function openTxPad(type, editId) {
     mode: ex ? 'edit' : 'add', id: editId || null,
     type: ex ? ex.type : (type || 'expense'),
     expr: ex ? String(ex.amount) : '',
-    source: ex ? (ex.source || '') : '',
+    source: ex ? (ex.source || '') : (STATE.settings?.defaultAccount || ''),
     category: ex ? ex.category : '',
     notes: ex ? (ex.description || '') : '',
     subcategory: ex ? (ex.subcategory || '') : '',
@@ -730,8 +730,22 @@ function padPickAccount() {
   (STATE.cashAccounts || []).forEach(c => list.push({ v: `cash:${c.id}`, l: `💵 ${c.name}` }));
   (STATE.bankAccounts || []).forEach(b => list.push({ v: `bank:${b.id}`, l: `🏦 ${b.bankName}` }));
   (STATE.creditCards || []).forEach(c => list.push({ v: `card:${c.id}`, l: `💳 ${c.bankName}` }));
-  openModal('Choose Account', `<div class="pad-pick">${list.map(o =>
-    `<button onclick="_pad.source='${o.v}';closeModal();renderTxPad()">${o.l}</button>`).join('')}</div>`);
+  const def = STATE.settings?.defaultAccount || '';
+  openModal('Choose Account', `<div class="pad-pick">${list.map(o => {
+    const isDef = o.v && o.v === def;
+    return `<div class="pad-pick-row">
+      <button class="pad-pick-main" onclick="_pad.source='${o.v}';closeModal();renderTxPad()">${o.l}${isDef ? ' <span style="opacity:.7;font-size:.8em">· default</span>' : ''}</button>
+      ${o.v ? `<button class="pad-pick-star ${isDef ? 'on' : ''}" title="Set as default account" onclick="event.stopPropagation();padSetDefaultAccount('${o.v}')">★</button>` : ''}
+    </div>`;
+  }).join('')}
+    <p style="font-size:.85em;opacity:.6;margin-top:10px;text-align:center">Tap ★ to set your default account for new entries</p></div>`);
+}
+function padSetDefaultAccount(v) {
+  STATE.settings = STATE.settings || {};
+  STATE.settings.defaultAccount = (STATE.settings.defaultAccount === v) ? '' : v;
+  if (typeof saveState === 'function') saveState();
+  if (typeof toast === 'function') toast(STATE.settings.defaultAccount ? 'Default account set ★' : 'Default account cleared', 'success');
+  padPickAccount();
 }
 function padPickCategory() {
   const cats = getAllCategories().filter(c => c.type === _pad.type || c.type === 'both');
@@ -835,11 +849,14 @@ function renderTxPad() {
     </div>
 
     <label class="pad-amt-label">Amount (₹)</label>
-    <input type="number" inputmode="decimal" step="0.01" min="0"
-      class="pad-amount-input${isIncome ? ' pad-input-inc' : ' pad-input-exp'}"
-      id="pad-amount-input" placeholder="0.00"
-      value="${esc(_pad.expr)}"
-      oninput="_pad.expr=this.value" />
+    <div class="pad-amt-wrap">
+      <input type="number" inputmode="decimal" step="0.01" min="0"
+        class="pad-amount-input${isIncome ? ' pad-input-inc' : ' pad-input-exp'}"
+        id="pad-amount-input" placeholder="0.00"
+        value="${esc(_pad.expr)}"
+        oninput="_pad.expr=this.value" />
+      <button class="pad-calc-btn" onclick="event.stopPropagation();openCalcForPad()" title="Calculator"><i data-lucide="calculator"></i></button>
+    </div>
 
     <div class="pad-notes-wrap">
       <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
