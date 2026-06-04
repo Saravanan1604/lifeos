@@ -2272,3 +2272,18 @@ html.is-app:not(.light) #txpad .pad-key { background: rgba(255,255,255,0.06); }
 html.is-app:not(.light) #txpad .pad-key.op { color: #34d399; }
 #txpad .pad-key.op.eq { background: #0f9d58 !important; color: #fff; }
 #txpad .pad-key.op.fn { color: #ef4444; }
+
+/* build 161 — fix login/auth screen layout on mobile (stack card + offline banner) */
+html.is-app #auth-screen {
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  overflow-y: auto !important;
+  padding: 32px 16px calc(32px + env(safe-area-inset-bottom,0px)) !important;
+}
+html.is-app #auth-screen .auth-card {
+  width: 100% !important; max-width: 480px !important; margin: 0 auto !important; padding: 28px 22px !important;
+}
+html.is-app #auth-screen #offline-banner {
+  width: 100% !important; max-width: 480px !important; margin: 16px auto 0 !important;
+}
