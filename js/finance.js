@@ -855,7 +855,7 @@ function renderTxPad() {
         id="pad-amount-input" placeholder="0.00"
         value="${esc(_pad.expr)}"
         oninput="_pad.expr=this.value" />
-      <button class="pad-calc-btn" onclick="event.stopPropagation();openCalcForPad()" title="Calculator"><i data-lucide="calculator"></i></button>
+      <button class="pad-calc-btn" onclick="event.stopPropagation();openCalcPage()" title="Calculator"><i data-lucide="calculator"></i></button>
     </div>
 
     <div class="pad-notes-wrap">

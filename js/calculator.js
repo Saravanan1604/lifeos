@@ -7,8 +7,76 @@ let calcMemory = 0;
 let calcJustCalc = false;
 let calcDragPos = null; // {left, top} after first drag
 
-// When the calculator is opened from the Add-Transaction amount field, show a
-// "✓ Use" button that drops the result straight into the amount and closes.
+// ============================================================
+//  Clean full-screen calculator page (iOS / Google style grid)
+//  Opened from the Add-Transaction amount field; "Use" returns value.
+// ============================================================
+let _cp = '';
+const _CP_KEYS = [
+  { k: 'AC',  cls: 'fn' }, { k: '⌫', cls: 'fn' }, { k: '%', cls: 'fn' }, { k: '÷', cls: 'op' },
+  { k: '7' }, { k: '8' }, { k: '9' }, { k: '×', cls: 'op' },
+  { k: '4' }, { k: '5' }, { k: '6' }, { k: '−', cls: 'op' },
+  { k: '1' }, { k: '2' }, { k: '3' }, { k: '+', cls: 'op' },
+  { k: '0', cls: 'zero' }, { k: '.' }, { k: '=', cls: 'op eq' },
+];
+function openCalcPage() {
+  _cp = '';
+  let el = document.getElementById('calc-page');
+  if (!el) { el = document.createElement('div'); el.id = 'calc-page'; document.body.appendChild(el); }
+  el.innerHTML = `
+    <div class="cp-top">
+      <button class="cp-x" onclick="closeCalcPage()"><i data-lucide="x"></i></button>
+      <span class="cp-title">Calculator</span>
+      <button class="cp-use" onclick="calcPageUse()"><i data-lucide="check"></i> Use</button>
+    </div>
+    <div class="cp-display">
+      <div class="cp-expr" id="cp-expr">0</div>
+      <div class="cp-res" id="cp-res"></div>
+    </div>
+    <div class="cp-keys">
+      ${_CP_KEYS.map(o => `<button class="cp-key ${o.cls || ''}" onclick="cpKey('${o.k}')">${o.k}</button>`).join('')}
+    </div>`;
+  el.style.display = 'flex';
+  if (window.lucide && lucide.createIcons) lucide.createIcons();
+  cpRender();
+}
+function closeCalcPage() { const el = document.getElementById('calc-page'); if (el) el.style.display = 'none'; }
+function _cpEval(expr) {
+  if (!expr) return NaN;
+  let e = String(expr).replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/%/g, '*0.01');
+  e = e.replace(/[+\-*/.]+$/, '');
+  if (!/^[-+*/.()0-9\s]*$/.test(e)) return NaN;
+  try { const v = Function('"use strict";return (' + (e || '0') + ')')(); return (typeof v === 'number' && isFinite(v)) ? v : NaN; }
+  catch (_) { return NaN; }
+}
+function cpRender() {
+  const ex = document.getElementById('cp-expr'); const rs = document.getElementById('cp-res');
+  if (ex) ex.textContent = _cp || '0';
+  if (rs) { const v = _cpEval(_cp); rs.textContent = (_cp && !isNaN(v)) ? '= ' + (+v).toLocaleString('en-IN', { maximumFractionDigits: 2 }) : ''; }
+}
+function cpKey(k) {
+  const ops = '+−×÷';
+  if (k === 'AC') _cp = '';
+  else if (k === '⌫') _cp = _cp.slice(0, -1);
+  else if (k === '=') { const v = _cpEval(_cp); if (!isNaN(v)) _cp = String(+(+v).toFixed(4)); }
+  else {
+    const last = _cp.slice(-1);
+    if (ops.includes(k)) { if (!_cp && k !== '−') return; if (ops.includes(last)) _cp = _cp.slice(0, -1); }
+    _cp += k;
+  }
+  cpRender();
+  if (navigator.vibrate) { try { navigator.vibrate(6); } catch (_) {} }
+}
+function calcPageUse() {
+  const v = _cpEval(_cp);
+  if (!isNaN(v) && typeof _pad !== 'undefined' && _pad) {
+    _pad.expr = String(+(+v).toFixed(2));
+    if (typeof renderTxPad === 'function') renderTxPad();
+  }
+  closeCalcPage();
+}
+
+// (legacy floating calculator hook — kept for other entry points)
 let _calcReturnToPad = false;
 function openCalcForPad() {
   _calcReturnToPad = true;
