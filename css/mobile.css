@@ -2262,3 +2262,13 @@ html.is-app:not(.light) #txpad .pad-key { background: rgba(255,255,255,0.06); }
 /* build 159 — hide number keypad while typing notes (device keyboard shows) */
 #txpad.typing .pad-keys, #txpad.typing .pad-foot { display: none !important; }
 #txpad.typing .pad-notes { min-height: 160px !important; }
+
+/* build 160 — calculator keypad (4 columns, operators, live result) */
+#txpad .pad-amt-wrap { width: 100%; text-align: right; }
+#txpad #pad-amount { font-size: 3rem; font-weight: 800; line-height: 1.1; word-break: break-all; }
+#txpad #pad-result { display: block; font-size: 1.3rem; font-weight: 700; opacity: .6; min-height: 1.4rem; }
+#txpad .pad-keys.pad-calc { grid-template-columns: repeat(4, 1fr); }
+#txpad .pad-key.op { background: rgba(15,122,106,0.16) !important; color: #0f9d58; font-weight: 800; }
+html.is-app:not(.light) #txpad .pad-key.op { color: #34d399; }
+#txpad .pad-key.op.eq { background: #0f9d58 !important; color: #fff; }
+#txpad .pad-key.op.fn { color: #ef4444; }

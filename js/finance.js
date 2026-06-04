@@ -637,7 +637,7 @@ function openTxPad(type, editId) {
   _pad = {
     mode: ex ? 'edit' : 'add', id: editId || null,
     type: ex ? ex.type : (type || 'expense'),
-    amount: ex ? String(ex.amount) : '',
+    expr: ex ? String(ex.amount) : '',
     source: ex ? (ex.source || '') : '',
     category: ex ? ex.category : '',
     notes: ex ? (ex.description || '') : '',
@@ -665,23 +665,33 @@ function padSetType(t) {
   if (!cats.some(c => c.name === _pad.category)) _pad.category = cats[0]?.name || _pad.category;
   renderTxPad();
 }
-function _padFmtAmount() {
-  if (!_pad.amount) return '0';
-  const [i, d] = _pad.amount.split('.');
-  const ii = (+i || 0).toLocaleString('en-IN');
-  return d != null ? `${ii}.${d}` : ii;
+function _padFmtNum(v) { return (+v).toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
+// Evaluate the calculator expression (× ÷ % + −). % means ×0.01.
+function _padEval(expr) {
+  if (!expr) return 0;
+  let e = String(expr).replace(/,/g, '').replace(/×/g, '*').replace(/÷/g, '/').replace(/%/g, '*0.01');
+  e = e.replace(/[+\-*/.]+$/, '');                 // drop trailing operator
+  if (!/^[-+*/.()0-9\s]*$/.test(e)) return NaN;
+  try { const v = Function('"use strict";return (' + (e || '0') + ')')(); return (typeof v === 'number' && isFinite(v)) ? v : NaN; }
+  catch (_) { return NaN; }
 }
-function padDigit(d) {
-  if (d === '.') { if (_pad.amount.includes('.')) return; if (!_pad.amount) _pad.amount = '0'; }
-  if (_pad.amount.replace('.', '').length >= 12) return;
-  const dec = _pad.amount.split('.')[1];
-  if (dec && dec.length >= 2 && d !== '.') return;
-  _pad.amount += d;
-  const el = document.getElementById('pad-amount'); if (el) el.textContent = _padFmtAmount();
+function _padUpdateDisplay() {
+  const d = document.getElementById('pad-amount'); if (d) d.textContent = _pad.expr || '0';
+  const r = document.getElementById('pad-result');
+  if (r) { const v = _padEval(_pad.expr); r.textContent = (_pad.expr && !isNaN(v)) ? '= ' + _padFmtNum(v) : ''; }
 }
-function padBack() {
-  _pad.amount = _pad.amount.slice(0, -1);
-  const el = document.getElementById('pad-amount'); if (el) el.textContent = _padFmtAmount();
+function padKey(k) {
+  const ops = '+-×÷%';
+  if (k === 'C') _pad.expr = '';
+  else if (k === 'back') _pad.expr = _pad.expr.slice(0, -1);
+  else if (k === '=') { const r = _padEval(_pad.expr); if (!isNaN(r)) _pad.expr = String(+(+r).toFixed(2)); }
+  else {
+    const last = _pad.expr.slice(-1);
+    if (ops.includes(k)) { if (!_pad.expr && k !== '-') return; if (ops.includes(last)) _pad.expr = _pad.expr.slice(0, -1); }
+    if (_pad.expr.replace(/[^0-9]/g, '').length >= 14) return;
+    _pad.expr += k;
+  }
+  _padUpdateDisplay();
 }
 function padPickAccount() {
   const list = [{ v: '', l: '🚫 No account' }];
@@ -699,8 +709,8 @@ function padPickCategory() {
 function padSetDate(v) { if (v) _pad.date = v; renderTxPad(); }
 function padSetTime(v) { if (v) _pad.time = v; renderTxPad(); }
 function padSave() {
-  const amount = parseFloat(_pad.amount);
-  if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
+  const amount = +(+_padEval(_pad.expr)).toFixed(2);
+  if (!amount || amount <= 0 || isNaN(amount)) { toast('Enter a valid amount', 'error'); return; }
   const icon = getAllCategories().find(c => c.name === _pad.category)?.icon || catIcon(_pad.category) || '💳';
   if (_pad.mode === 'edit') {
     const tx = (STATE.transactions || []).find(t => t.id === _pad.id);
@@ -729,7 +739,8 @@ function renderTxPad() {
   const acctLabel = _pad.source ? _sourceLabel(_pad.source) : 'Account';
   const catIc = catIcon(_pad.category), catCol = catColor(_pad.category);
   const dateLabel = new Date(_pad.date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  const key = (d) => `<button class="pad-key" onclick="padDigit('${d}')">${d}</button>`;
+  const key = (d) => `<button class="pad-key" onclick="padKey('${d}')">${d}</button>`;
+  const op  = (d) => `<button class="pad-key op" onclick="padKey('${d}')">${d}</button>`;
   el.innerHTML = `
     <div class="pad-head">
       <button class="pad-cancel" onclick="padClose()">✕ CANCEL</button>
@@ -745,18 +756,22 @@ function renderTxPad() {
       <div class="pad-field"><label>Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIc}</span>${esc(_pad.category)}</button></div>
     </div>
     <textarea class="pad-notes" placeholder="Add notes" oninput="_pad.notes=this.value" onfocus="padNotesMode(true)">${esc(_pad.notes)}</textarea>
-    <div class="pad-amountbox" onclick="padNotesMode(false)"><span id="pad-amount">${_padFmtAmount()}</span><button class="pad-bs" onclick="event.stopPropagation();padBack()">⌫</button></div>
-    <div class="pad-keys">
-      ${key('7')}${key('8')}${key('9')}
-      ${key('4')}${key('5')}${key('6')}
-      ${key('1')}${key('2')}${key('3')}
-      ${key('.')}${key('0')}<button class="pad-key pad-done" onclick="padSave()">✓</button>
+    <div class="pad-amountbox" onclick="padNotesMode(false)">
+      <div class="pad-amt-wrap"><span id="pad-amount">${esc(_pad.expr) || '0'}</span><span id="pad-result"></span></div>
+    </div>
+    <div class="pad-keys pad-calc">
+      <button class="pad-key op fn" onclick="padKey('C')">C</button>${op('%')}<button class="pad-key op" onclick="padKey('back')">⌫</button>${op('÷')}
+      ${key('7')}${key('8')}${key('9')}${op('×')}
+      ${key('4')}${key('5')}${key('6')}${op('-')}
+      ${key('1')}${key('2')}${key('3')}${op('+')}
+      ${key('0')}${key('00')}${key('.')}<button class="pad-key op eq" onclick="padKey('=')">=</button>
     </div>
     <div class="pad-foot">
       <label class="pad-dt">${dateLabel}<input type="date" value="${_pad.date}" onchange="padSetDate(this.value)"/></label>
       <span class="pad-sep"></span>
       <label class="pad-dt">${_fmtTime(_pad.time)}<input type="time" value="${_pad.time}" onchange="padSetTime(this.value)"/></label>
     </div>`;
+  _padUpdateDisplay();
 }
 
 // Records filter modal — reuses the existing _finType / _finCategory / _finSort + search
