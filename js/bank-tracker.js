@@ -203,7 +203,7 @@ function renderBankTracker() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
-          <h1 class="page-title">🏦 Bank Tracker</h1>
+          <h1 class="page-title"><i data-lucide="landmark"></i> Bank Tracker</h1>
           <p class="page-subtitle">Balance history across all your accounts</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -266,7 +266,7 @@ function renderBankTracker() {
         <!-- Trend Chart -->
         <div class="glass-card" style="padding:20px">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-            <p class="section-title" style="font-size:13px;margin:0">📈 ${trendPeriod==='1y'?'1-Year':'30-Day'} Trend
+            <p class="section-title" style="font-size:13px;margin:0"><i data-lucide="trending-up"></i> ${trendPeriod==='1y'?'1-Year':'30-Day'} Trend
               <span style="font-size:10px;font-weight:500;color:var(--text3);margin-left:6px">${selId?(getAccountById(selId)?.bankName||'Account'):'All Accounts'}</span>
             </p>
             ${_trendToggleHtml('#00c9a7')}
@@ -336,7 +336,7 @@ function renderBankTracker() {
       ${transfers.length ? `
       <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
         <div style="padding:14px 20px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center">
-          <p class="section-title">⇄ Transfer Log</p>
+          <p class="section-title"><i data-lucide="arrow-left-right"></i> Transfer Log</p>
           <span style="font-size:12px;color:var(--text3)">${transfers.length} transfers</span>
         </div>
         ${[...transfers].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10).map(t=>{
@@ -713,7 +713,7 @@ function renderCCTracker() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
-          <h1 class="page-title">🏦 Bank Tracker</h1>
+          <h1 class="page-title"><i data-lucide="landmark"></i> Bank Tracker</h1>
           <p class="page-subtitle">Credit card outstanding history</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -780,7 +780,7 @@ function renderCCTracker() {
         <!-- Trend Chart -->
         <div class="glass-card" style="padding:20px">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-            <p class="section-title" style="font-size:13px;margin:0">📈 ${trendPeriod==='1y'?'1-Year':'30-Day'} Outstanding
+            <p class="section-title" style="font-size:13px;margin:0"><i data-lucide="trending-up"></i> ${trendPeriod==='1y'?'1-Year':'30-Day'} Outstanding
               <span style="font-size:10px;font-weight:500;color:var(--text3);margin-left:6px">${selId?(getCardById(selId)?.bankName||'Card'):'All Cards'}</span>
             </p>
             ${_trendToggleHtml('#ef4444')}
@@ -1008,7 +1008,7 @@ function renderCashTracker() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
-          <h1 class="page-title">🏦 Bank Tracker</h1>
+          <h1 class="page-title"><i data-lucide="landmark"></i> Bank Tracker</h1>
           <p class="page-subtitle">Cash wallet balance history</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1067,7 +1067,7 @@ function renderCashTracker() {
         <!-- Trend Chart -->
         <div class="glass-card" style="padding:20px">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-            <p class="section-title" style="font-size:13px;margin:0">📈 ${trendPeriod==='1y'?'1-Year':'30-Day'} Trend
+            <p class="section-title" style="font-size:13px;margin:0"><i data-lucide="trending-up"></i> ${trendPeriod==='1y'?'1-Year':'30-Day'} Trend
               <span style="font-size:10px;font-weight:500;color:var(--text3);margin-left:6px">${selId?(getById(selId)?.name||'Wallet'):'All Wallets'}</span>
             </p>
             ${_trendToggleHtml('#f59e0b')}

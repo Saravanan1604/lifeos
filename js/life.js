@@ -11,7 +11,7 @@ function renderHealth() {
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
-      <div class="page-header"><h1 class="page-title">🏥 Health Hub</h1><p class="page-subtitle">Track sleep, steps, mood & water daily</p></div>
+      <div class="page-header"><h1 class="page-title"><i data-lucide="heart-pulse"></i> Health Hub</h1><p class="page-subtitle">Track sleep, steps, mood & water daily</p></div>
       <div class="stat-grid">
         <div class="stat-card bg-blue"><span class="stat-card-icon">😴</span><div class="stat-card-value">${avgSleep}h</div><div class="stat-card-label">Avg Sleep (7 days)</div></div>
         <div class="stat-card bg-pink"><span class="stat-card-icon">😊</span><div class="stat-card-value">${avgMood}/10</div><div class="stat-card-label">Avg Mood (7 days)</div></div>
@@ -21,7 +21,7 @@ function renderHealth() {
 
       <!-- Today's Log -->
       <div class="glass-card" style="padding:22px;margin-bottom:20px">
-        <div class="section-header"><p class="section-title">📝 Today's Health Log</p>
+        <div class="section-header"><p class="section-title"><i data-lucide="clipboard-list"></i> Today's Health Log</p>
           ${todayEntry ? '<span class="tag tag-green">✓ Logged today</span>' : '<span class="tag tag-gold">⚠ Not logged yet</span>'}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" class="health-form-grid">
@@ -41,13 +41,13 @@ function renderHealth() {
 
       <!-- History Chart -->
       ${last7.length > 1 ? `<div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <p class="section-title" style="margin-bottom:16px">📊 7-Day Sleep & Mood</p>
+        <p class="section-title" style="margin-bottom:16px"><i data-lucide="bar-chart-3"></i> 7-Day Sleep & Mood</p>
         <div class="chart-container"><canvas id="health-chart"></canvas></div>
       </div>` : ''}
 
       <!-- History -->
       ${entries.length > 0 ? `<div class="glass-card" style="overflow:hidden">
-        <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.08)"><p class="section-title">📅 History</p></div>
+        <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.08)"><p class="section-title"><i data-lucide="calendar"></i> History</p></div>
         ${entries.slice(0,10).map(e => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.04)">
             <div><p style="font-weight:600;font-size:13px">${fmtDate(e.date)}</p><p style="font-size:11px;color:var(--text3)">${e.note||'No note'}</p></div>
@@ -157,7 +157,7 @@ function renderHabits() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div><h1 class="page-title">🔥 Habit Tracker</h1><p class="page-subtitle">Build life-changing daily habits</p></div>
+        <div><h1 class="page-title"><i data-lucide="flame"></i> Habit Tracker</h1><p class="page-subtitle">Build life-changing daily habits</p></div>
         <button class="btn-primary btn-sm" onclick="openAddHabitModal()">+ New Habit</button>
       </div>
 
@@ -170,7 +170,7 @@ function renderHabits() {
 
       <!-- Habits List -->
       ${habits.length === 0
-        ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon">🔥</span><p>No habits yet. Add your first habit to start building streaks!</p></div></div>`
+        ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon"><i data-lucide="flame"></i></span><p>No habits yet. Add your first habit to start building streaks!</p></div></div>`
         : habits.map(h => {
           const done    = isDone(h);
           const streak  = getStreak(h.id);
@@ -330,11 +330,11 @@ function renderGoals() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div><h1 class="page-title">🚀 Goals</h1><p class="page-subtitle">Track your life goals with AI-powered insights</p></div>
+        <div><h1 class="page-title"><i data-lucide="rocket"></i> Goals</h1><p class="page-subtitle">Track your life goals with AI-powered insights</p></div>
         <button class="btn-primary btn-sm" onclick="openAddGoalModal()">+ New Goal</button>
       </div>
       ${goals.length === 0
-        ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon">🚀</span><p>No goals yet. Set your first life goal!</p></div></div>`
+        ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon"><i data-lucide="rocket"></i></span><p>No goals yet. Set your first life goal!</p></div></div>`
         : `<div style="display:flex;flex-direction:column;gap:14px">
           ${goals.map(g => {
             const pct = g.target > 0 ? Math.min(100, Math.round((g.current / g.target) * 100)) : 0;

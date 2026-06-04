@@ -14,7 +14,7 @@ function renderJournal() {
   document.getElementById('page-container').innerHTML=`
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
-        <div><h1 class="page-title">😊 Emotion Journal</h1><p class="page-subtitle">Track your emotional wellbeing daily</p></div>
+        <div><h1 class="page-title"><i data-lucide="smile"></i> Emotion Journal</h1><p class="page-subtitle">Track your emotional wellbeing daily</p></div>
         <div style="display:flex;align-items:center;gap:10px">
           <label style="font-size:12px;color:var(--text3)">Write for date:</label>
           <input type="date" id="j-date-pick" class="form-input" style="width:auto;padding:7px 12px"
@@ -51,7 +51,7 @@ function renderJournal() {
       ${entries.length>0?`
       <div class="glass-card" style="overflow:hidden">
         <div style="padding:14px 20px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center">
-          <p class="section-title">📅 Past Entries <span style="font-size:12px;font-weight:400;color:var(--text3)">${entries.length} total</span></p>
+          <p class="section-title"><i data-lucide="calendar"></i> Past Entries <span style="font-size:12px;font-weight:400;color:var(--text3)">${entries.length} total</span></p>
           ${entries.length>5?`<button class="btn-secondary btn-sm" onclick="journalShowAll=!journalShowAll;renderJournal()">${journalShowAll?'Show Less ▲':'View All ▼'}</button>`:''}
         </div>
         ${(journalShowAll?entries:entries.slice(0,5)).map(e=>`
@@ -129,7 +129,7 @@ function renderCareer(){
 
   document.getElementById('page-container').innerHTML=`
     <div class="fade-in">
-      <div class="page-header"><h1 class="page-title">💼 Career Hub</h1><p class="page-subtitle">Grow your skills and track opportunities</p></div>
+      <div class="page-header"><h1 class="page-title"><i data-lucide="briefcase"></i> Career Hub</h1><p class="page-subtitle">Grow your skills and track opportunities</p></div>
       <div class="stat-grid">
         <div class="stat-card bg-blue"><span class="stat-card-icon">🎓</span><div class="stat-card-value">${skills.length}</div><div class="stat-card-label">Skills Tracked</div></div>
         <div class="stat-card bg-indigo"><span class="stat-card-icon">📋</span><div class="stat-card-value">${jobs.length}</div><div class="stat-card-label">Applications</div></div>
@@ -140,7 +140,7 @@ function renderCareer(){
       <!-- Skills -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px">
         <div class="section-header">
-          <p class="section-title">🎓 Skills</p>
+          <p class="section-title"><i data-lucide="graduation-cap"></i> Skills</p>
           <button class="btn-primary btn-sm" onclick="openAddSkillModal()">+ Add Skill</button>
         </div>
         ${skills.length===0
@@ -159,11 +159,11 @@ function renderCareer(){
       <!-- Job Applications -->
       <div class="glass-card" style="overflow:hidden">
         <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center">
-          <p class="section-title">📋 Job Applications</p>
+          <p class="section-title"><i data-lucide="clipboard-list"></i> Job Applications</p>
           <button class="btn-primary btn-sm" onclick="openAddJobModal()">+ Add Application</button>
         </div>
         ${jobs.length===0
-          ?`<div class="empty-state"><span class="empty-state-icon">📋</span><p>No applications tracked yet.</p></div>`
+          ?`<div class="empty-state"><span class="empty-state-icon"><i data-lucide="clipboard-list"></i></span><p>No applications tracked yet.</p></div>`
           :jobs.map(j=>{
             const stColors={Applied:'tag-blue',Interview:'tag-gold',Offer:'tag-green',Rejected:'tag-red'};
             return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.04)">

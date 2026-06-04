@@ -1213,7 +1213,7 @@ function renderFinance() {
       <!-- Transactions with period filter -->
       <div class="glass-card" id="fin-tx-section" style="overflow:hidden;margin-bottom:20px">
         <div style="padding:12px 16px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-          <p class="section-title" style="margin:0">💳 Transactions</p>
+          <p class="section-title" style="margin:0"><i data-lucide="credit-card"></i> Transactions</p>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             ${periodTabsHtml(_finPeriod, 'setFinPeriod')}
             <span id="fin-tx-count" style="font-size:11px;color:var(--text3)"></span>
@@ -1503,7 +1503,7 @@ function renderFinanceTxList() {
   if (countEl) countEl.textContent = `${txns.length} entr${txns.length === 1 ? 'y' : 'ies'}`;
 
   if (!txns.length) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💳</span><p>No transactions${_finPeriod !== 'all' ? ' for ' + periodLabel(_finPeriod) : ' yet'}. Add your first one!</p></div>`;
+    container.innerHTML = `<div class="empty-state"><span class="empty-state-icon"><i data-lucide="credit-card"></i></span><p>No transactions${_finPeriod !== 'all' ? ' for ' + periodLabel(_finPeriod) : ' yet'}. Add your first one!</p></div>`;
     // remove bulk bar if empty
     const bb = document.getElementById('fin-bulk-bar'); if (bb) bb.style.display = 'none';
     return;
@@ -2886,7 +2886,7 @@ function renderInvestments() {
 
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
-        <div><h1 class="page-title">📊 All Assets</h1><p class="page-subtitle">Investments, loans & net worth</p></div>
+        <div><h1 class="page-title"><i data-lucide="bar-chart-3"></i> All Assets</h1><p class="page-subtitle">Investments, loans & net worth</p></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <button id="refresh-prices-btn" class="btn-secondary btn-sm" onclick="fetchLivePrices()"
             title="Fetch live prices for Stocks & Crypto with ticker symbols"
@@ -2933,7 +2933,7 @@ function renderInvestments() {
         ${investments.length === 0 ? '' : `
         <div class="glass-card" style="padding:20px">
           <div class="section-header" style="margin-bottom:14px">
-            <p class="section-title">🗂️ Asset Allocation by Category</p>
+            <p class="section-title"><i data-lucide="layers"></i> Asset Allocation by Category</p>
             <span style="font-size:12px;color:var(--text3)">${fmt(totalCurrent)} total</span>
           </div>
           <div style="display:grid;grid-template-columns:160px 1fr;gap:20px;align-items:center" class="asset-cat-grid">
@@ -2961,7 +2961,7 @@ function renderInvestments() {
           return `
         <div class="glass-card" style="padding:20px">
           <div class="section-header" style="margin-bottom:14px">
-            <p class="section-title">💸 Liabilities by Category</p>
+            <p class="section-title"><i data-lucide="trending-down"></i> Liabilities by Category</p>
             <span style="font-size:12px;color:var(--text3)">${fmt(totalLoan)} total</span>
           </div>
           <div style="display:grid;grid-template-columns:160px 1fr;gap:20px;align-items:center" class="liab-cat-grid">
@@ -3006,7 +3006,7 @@ function renderInvestments() {
 
       <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
         ${filtered.length === 0
-          ? `<div class="empty-state"><span class="empty-state-icon">📈</span><p>${investments.length===0?'No assets yet. Add your first!':'Nothing in this category.'}</p></div>`
+          ? `<div class="empty-state"><span class="empty-state-icon"><i data-lucide="trending-up"></i></span><p>${investments.length===0?'No assets yet. Add your first!':'Nothing in this category.'}</p></div>`
           : `<div style="overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;min-width:700px">
               <thead>
@@ -3033,7 +3033,7 @@ function renderInvestments() {
 
       <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
         ${loans.length === 0
-          ? `<div class="empty-state"><span class="empty-state-icon">🏦</span><p>No loans tracked. Add one to monitor your liabilities.</p></div>`
+          ? `<div class="empty-state"><span class="empty-state-icon"><i data-lucide="landmark"></i></span><p>No loans tracked. Add one to monitor your liabilities.</p></div>`
           : `<div style="overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;min-width:720px">
               <thead>
@@ -3595,7 +3595,7 @@ function renderBudget() {
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <div>
-          <h1 class="page-title">🎯 Budget Planner</h1>
+          <h1 class="page-title"><i data-lucide="target"></i> Budget Planner</h1>
           <p class="page-subtitle">${periodLabel(_budgetPeriod)} spending vs budget limits</p>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -3604,12 +3604,12 @@ function renderBudget() {
         </div>
       </div>
 
-      ${budgets.length === 0 ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon">🎯</span><p>Set budgets for your expense categories to track spending.</p></div></div>` : `
+      ${budgets.length === 0 ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon"><i data-lucide="target"></i></span><p>Set budgets for your expense categories to track spending.</p></div></div>` : `
 
       <!-- ── BUDGET SUMMARY + CHART ─────────────────────────────────── -->
       <div class="glass-card" style="padding:22px;margin-bottom:20px">
         <div class="section-header" style="margin-bottom:18px">
-          <p class="section-title">📊 Total Budget Overview</p>
+          <p class="section-title"><i data-lucide="pie-chart"></i> Total Budget Overview</p>
           <span style="font-size:12px;color:var(--text3)">${periodLabel(_budgetPeriod)}</span>
         </div>
         <div style="display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:center" class="budget-overview-grid">

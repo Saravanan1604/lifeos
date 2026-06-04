@@ -274,7 +274,7 @@ function _buildAccountsGoalsBudget() {
   const banksCard = `
     <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(0,201,167,0.4)'" onmouseout="this.style.borderColor=''">
       <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title">🏦 Bank Balances</p>
+        <p class="section-title"><i data-lucide="landmark"></i> Bank Balances</p>
         <span style="font-size:14px;font-weight:800;color:var(--teal)">${fmt(totalBank)}</span>
       </div>
       ${posBanks.length===0 ? empty('No bank balances yet') : `
@@ -294,7 +294,7 @@ function _buildAccountsGoalsBudget() {
   const budgetCard = `
     <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('budget')" onmouseover="this.style.borderColor='rgba(245,158,11,0.4)'" onmouseout="this.style.borderColor=''">
       <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title">📊 Budget — ${new Date().toLocaleString('default',{month:'short'})}</p>
+        <p class="section-title"><i data-lucide="pie-chart"></i> Budget — ${new Date().toLocaleString('default',{month:'short'})}</p>
         <span style="font-size:11px;color:var(--text3)">spent vs limit</span>
       </div>
       ${budgets.length===0 ? empty('No budgets set') : `<div style="height:${Math.max(170, Math.min(8,budgets.length)*36)}px;position:relative"><canvas id="dash-budget-chart"></canvas></div>`}
@@ -304,7 +304,7 @@ function _buildAccountsGoalsBudget() {
   const cardsCard = `
     <div class="glass-card" style="padding:18px;cursor:pointer" onclick="bankTrackerTab='cards';navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(239,68,68,0.4)'" onmouseout="this.style.borderColor=''">
       <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title">💳 Credit Cards</p>
+        <p class="section-title"><i data-lucide="credit-card"></i> Credit Cards</p>
         <span style="font-size:12px;font-weight:700;color:#ef4444">${fmt(totalOut)} / ${fmt(totalLimit)} · ${overallUtil}%</span>
       </div>
       ${cards.length===0 ? empty('No credit cards yet') : wrap(cards.map(c=>{
@@ -326,7 +326,7 @@ function _buildAccountsGoalsBudget() {
   const goalsCard = `
     <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('goals')" onmouseover="this.style.borderColor='rgba(139,92,246,0.4)'" onmouseout="this.style.borderColor=''">
       <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title">🎯 Goals</p>
+        <p class="section-title"><i data-lucide="target"></i> Goals</p>
         <span style="font-size:12px;color:var(--text3)">${goalsDone}/${goals.length} done</span>
       </div>
       ${goals.length===0 ? empty('No goals yet') : wrap(goals.slice(0,6).map(g=>{
@@ -348,7 +348,7 @@ function _buildAccountsGoalsBudget() {
   const cashCard = `
     <div class="glass-card" style="padding:18px;cursor:pointer" onclick="bankTrackerTab='cash';navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(245,158,11,0.4)'" onmouseout="this.style.borderColor=''">
       <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title">💵 Cash Wallets</p>
+        <p class="section-title"><i data-lucide="banknote"></i> Cash Wallets</p>
         <span style="font-size:14px;font-weight:800;color:#f59e0b">${fmt(totalCash)}</span>
       </div>
       ${cash.length===0 ? empty('No cash wallets yet') : wrap(cash.map(c=>`
@@ -798,7 +798,7 @@ function renderDashboard() {
           <button class="btn-secondary btn-sm" onclick="navigate('finance')">View All →</button>
         </div>
         ${recent.length === 0
-          ? `<div class="empty-state"><span class="empty-state-icon">💸</span><p>No transactions yet. <span onclick="navigate('finance')" style="color:#00c9a7;cursor:pointer;text-decoration:underline">Add one now →</span></p></div>`
+          ? `<div class="empty-state"><span class="empty-state-icon"><i data-lucide="receipt"></i></span><p>No transactions yet. <span onclick="navigate('finance')" style="color:#00c9a7;cursor:pointer;text-decoration:underline">Add one now →</span></p></div>`
           : recent.map(tx => `
             <div class="tx-row" onclick="if(typeof openTxDetail==='function')openTxDetail('${tx.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.04)'" onmouseout="this.style.background=''">
               <div style="display:flex;align-items:center;gap:12px">
