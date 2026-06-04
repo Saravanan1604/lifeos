@@ -777,10 +777,11 @@ function renderTxPad() {
   el.innerHTML = `
     <div class="pad-head">
       <button class="pad-cancel" onclick="padClose()">✕ CANCEL</button>
-      <div class="pad-type-pills">
-        <button class="pad-pill${isIncome ? ' pad-pill-on pad-pill-inc' : ''}" onclick="padSetType('income')">💚 Income</button>
-        <button class="pad-pill${!isIncome ? ' pad-pill-on pad-pill-exp' : ''}" onclick="padSetType('expense')">❤️ Expense</button>
-      </div>
+    </div>
+
+    <div class="pad-type-pills">
+      <button class="pad-pill${isIncome ? ' pad-pill-on pad-pill-inc' : ''}" onclick="padSetType('income')">💚 Income</button>
+      <button class="pad-pill${!isIncome ? ' pad-pill-on pad-pill-exp' : ''}" onclick="padSetType('expense')">❤️ Expense</button>
     </div>
 
     <div class="pad-pickrow pad-dates">
@@ -808,6 +809,16 @@ function renderTxPad() {
     <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
 
     <button class="pad-save-btn${isIncome ? ' pad-save-inc' : ' pad-save-exp'}" onclick="padSave()">✓ SAVE</button>
+${_pad.mode === 'add' ? `
+    <div class="pad-tools">
+      <p class="pad-tools-label">Quick import</p>
+      <div class="pad-tools-grid">
+        <button class="pad-tool" onclick="padClose();openCsvImport()"><span class="pad-tool-ic">📊</span><span>Import CSV</span></button>
+        <button class="pad-tool" onclick="padClose();openBulkEntry()"><span class="pad-tool-ic">📅</span><span>Bulk Entry</span></button>
+        <button class="pad-tool" onclick="padClose();openSmsParser()"><span class="pad-tool-ic">📲</span><span>Scan SMS</span></button>
+        <button class="pad-tool" onclick="padClose();openPdfImport()"><span class="pad-tool-ic">📑</span><span>Import PDF</span></button>
+      </div>
+    </div>` : ''}
   `;
   setTimeout(() => { const inp = document.getElementById('pad-amount-input'); if (inp) inp.focus(); }, 80);
 }

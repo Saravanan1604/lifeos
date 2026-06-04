@@ -1,5 +1,5 @@
-// LifeOS Service Worker - v188.0
-const CACHE = 'lifeos-v188';
+// LifeOS Service Worker - v189.0
+const CACHE = 'lifeos-v189';
 
 // Allow the page to tell a waiting SW to activate immediately
 self.addEventListener('message', e => {
@@ -14,20 +14,21 @@ const ASSETS = [
   '/css/calc.css',
   '/css/premium.css',
   '/css/mobile.css',
-  '/js/init.js',
-  '/js/core.js',
   '/js/storage.js',
+  '/js/core.js',
   '/js/dashboard.js',
   '/js/finance.js',
-  '/js/health.js',
-  '/js/habits.js',
-  '/js/goals.js',
+  '/js/bank-tracker.js',
+  '/js/life.js',
   '/js/growth.js',
-  '/js/calculator.js',
-  '/js/analytics.js',
-  '/js/settings.js',
   '/js/ai.js',
+  '/js/calculator.js',
+  '/js/features.js',
   '/js/premium.js',
+  '/js/categories.js',
+  '/js/compare.js',
+  '/js/pages.js',
+  '/js/help.js',
   '/js/voice.js',
   '/js/applock.js',
   '/js/onboarding.js',
@@ -35,7 +36,7 @@ const ASSETS = [
   '/js/notes.js',
   '/js/widgets.js',
   '/js/yearly.js',
-  '/js/compare.js',
+  '/js/init.js',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
@@ -46,9 +47,14 @@ const ASSETS = [
 // Install — cache all core assets
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' }))))
-      .then(() => self.skipWaiting())
-      .catch(() => self.skipWaiting()) // don't fail install on CDN errors
+    caches.open(CACHE).then(cache =>
+      // Cache each asset individually so one failure (404 / CDN hiccup) can't
+      // reject the whole batch the way cache.addAll() does (it's atomic).
+      Promise.allSettled(
+        ASSETS.map(u => cache.add(new Request(u, { cache: 'reload' })))
+      )
+    ).then(() => self.skipWaiting())
+     .catch(() => self.skipWaiting())
   );
 });
 
