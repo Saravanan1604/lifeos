@@ -15,9 +15,9 @@
    scales the page down from a wider logical width. So we keep Apple's
    HIERARCHY (varied sizes) but scale the whole system up ~1.4x to be
    physically readable. Ratios are preserved → still looks Apple-like. */
-html.is-app .page-title    { font-size: 52px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }
-html.is-app .page-subtitle { font-size: 26px !important; }
-html.is-app .section-title { font-size: 34px !important; font-weight: 700 !important; letter-spacing: -0.2px !important; }
+html.is-app .page-title    { font-size: 38px !important; font-weight: 800 !important; letter-spacing: -0.5px !important; }
+html.is-app .page-subtitle { font-size: 18px !important; color: var(--text2) !important; font-weight: 500 !important; }
+html.is-app .section-title { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -0.2px !important; }
 
 /* Inline hard-coded sizes — Apple hierarchy, scaled up for this device */
 html.is-app [style*="font-size:9px"]  { font-size: 18px !important; }
