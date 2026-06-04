@@ -793,9 +793,9 @@ function renderTxPad() {
       <div class="pad-field"><label>Account</label><button onclick="padPickAccount()">${esc(acctLabel)}</button></div>
       <div class="pad-field"><label>Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIc}</span>${esc(_pad.category)}</button></div>
     </div>
-    <div class="pad-pickrow pad-mini">
+    <div class="pad-pickrow pad-mini ${_pad.mode === 'add' ? '' : 'one'}">
       <div class="pad-field"><label>🏷️ Subcategory</label><button onclick="padPickSubcat()">${_pad.subcategory ? esc(_pad.subcategory) : '—'}</button></div>
-      ${_pad.mode === 'add' ? `<div class="pad-field"><label>🔁 Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>` : '<div class="pad-field"></div>'}
+      ${_pad.mode === 'add' ? `<div class="pad-field"><label>🔁 Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>` : ''}
     </div>
     <textarea class="pad-notes" placeholder="Add notes" oninput="_pad.notes=this.value" onfocus="padNotesMode(true)">${esc(_pad.notes)}</textarea>
     <div class="pad-amountbox" onclick="padNotesMode(false)">

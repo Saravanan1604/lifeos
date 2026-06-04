@@ -2497,3 +2497,18 @@ html.is-app.light #txpad .pad-key.fn,   html.is-app .light #txpad .pad-key.fn   
 html.is-app #modal-overlay .modal-body p,
 html.is-app #modal-overlay .modal-body small,
 html.is-app #modal-overlay .modal-body li { color: #475569 !important; }
+
+/* build 178 — balanced subcategory row + Google-style filled keypad */
+/* edit mode: subcategory spans full width (no empty half) */
+#txpad .pad-pickrow.pad-mini.one { grid-template-columns: 1fr !important; }
+/* keypad fills the available height evenly (like Google calculator) */
+#txpad .pad-keys.pad-calc {
+  flex: 1 1 auto !important; align-content: space-evenly !important;
+  justify-items: center !important; gap: 6px !important; margin-top: 10px !important;
+}
+#txpad .pad-key {
+  max-width: 78px !important; width: 100% !important; aspect-ratio: 1 / 1 !important;
+  font-size: 2rem !important;
+}
+#txpad .pad-key.oper { font-size: 2.2rem !important; }
+#txpad .pad-key.eq   { font-size: 2.3rem !important; }
