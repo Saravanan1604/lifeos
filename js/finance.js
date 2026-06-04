@@ -801,12 +801,12 @@ function renderTxPad() {
     <div class="pad-amountbox" onclick="padNotesMode(false)">
       <div class="pad-amt-wrap"><span id="pad-amount">${esc(_pad.expr) || '0'}</span><span id="pad-result"></span></div>
     </div>
-    <div class="pad-keys pad-calc">
-      <button class="pad-key fn" onclick="padKey('C')">C</button><button class="pad-key fn" onclick="padKey('back')">⌫</button><button class="pad-key fn" onclick="padKey('%')">%</button><button class="pad-key oper" onclick="padKey('÷')">÷</button>
-      ${key('7')}${key('8')}${key('9')}<button class="pad-key oper" onclick="padKey('×')">×</button>
-      ${key('4')}${key('5')}${key('6')}<button class="pad-key oper" onclick="padKey('-')">−</button>
-      ${key('1')}${key('2')}${key('3')}<button class="pad-key oper" onclick="padKey('+')">+</button>
-      <button class="pad-key" onclick="padParen()">( )</button>${key('0')}${key('.')}<button class="pad-key eq" onclick="padKey('=')">=</button>
+    <div class="pad-keys pad-num">
+      ${key('7')}${key('8')}${key('9')}
+      ${key('4')}${key('5')}${key('6')}
+      ${key('1')}${key('2')}${key('3')}
+      <button class="pad-key fn" onclick="padKey('C')">C</button>${key('0')}${key('.')}
+      <button class="pad-key fn" onclick="padKey('back')" style="grid-column:1/4">⌫ Backspace</button>
     </div>
     `;
   _padUpdateDisplay();

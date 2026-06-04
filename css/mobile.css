@@ -2539,3 +2539,16 @@ html.is-app.light #txpad .pad-key.fn, html.is-app .light #txpad .pad-key.fn { ba
 html.is-app.light #txpad .pad-key.oper, html.is-app .light #txpad .pad-key.oper { color: #009e85 !important; }
 /* equals: filled teal */
 #txpad .pad-key.eq { background: #00c9a7 !important; color: #fff !important; font-size: 2.5rem !important; }
+
+/* build 180 — plain number pad (calculator math removed) */
+#txpad #pad-result { display: none !important; }
+#txpad .pad-keys.pad-num {
+  display: grid !important; grid-template-columns: repeat(3, 1fr) !important;
+  grid-auto-rows: minmax(54px, 1fr) !important; align-content: stretch !important;
+  gap: 10px !important; margin-top: 10px !important; flex: 1 1 auto !important;
+}
+#txpad .pad-keys.pad-num .pad-key {
+  aspect-ratio: auto !important; width: 100% !important; max-width: none !important;
+  border-radius: 18px !important; font-size: 2rem !important;
+}
+#txpad .pad-keys.pad-num .pad-key.fn { background: rgba(0,201,167,0.14) !important; color: #00c9a7 !important; }
