@@ -2562,34 +2562,3 @@ html.is-app.light #txpad .pad-key.oper, html.is-app .light #txpad .pad-key.oper 
 }
 #txpad .pad-amount-input::placeholder { color: var(--text2); }
 
-/* ============================================================
-   build 182 — monochrome frosted-glass Dashboard theme (app only)
-   Greyscale palette + glassy charcoal cards, like the reference.
-   Scoped to the dashboard page so other pages keep their colour.
-   ============================================================ */
-html.is-app #page-container[data-page="dashboard"] {
-  filter: grayscale(1) contrast(1.03) brightness(1.02);
-}
-/* frosted glass cards */
-html.is-app #page-container[data-page="dashboard"] .glass-card,
-html.is-app #page-container[data-page="dashboard"] .stat-card,
-html.is-app #page-container[data-page="dashboard"] .kpi-card,
-html.is-app #page-container[data-page="dashboard"] [class*="card"] {
-  background: rgba(28,28,30,0.82) !important;
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  border-radius: 22px !important;
-  box-shadow: 0 10px 34px rgba(0,0,0,0.30) !important;
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  color: #f2f2f2 !important;
-}
-/* light frosted page background */
-html.is-app #page-container[data-page="dashboard"] {
-  background:
-    radial-gradient(1200px 500px at 50% -10%, rgba(255,255,255,0.45), rgba(255,255,255,0) 60%),
-    linear-gradient(180deg, #e9eaec 0%, #d9dbde 100%);
-  margin: -16px -16px 0; padding: 22px 16px 60px; min-height: calc(100vh - 60px);
-  border-radius: 0;
-}
-/* big page title like the reference */
-html.is-app #page-container[data-page="dashboard"] .page-title { color: #111 !important; font-weight: 900 !important; }
-html.is-app #page-container[data-page="dashboard"] .page-subtitle { color: #555 !important; }
