@@ -157,9 +157,10 @@ html.is-app .nav-item .nav-icon { flex-shrink: 0 !important; opacity: .92 !impor
 html.is-app .nav-item .nav-icon svg { width: 30px !important; height: 30px !important; }
 
 /* Label */
+html.is-app #notif-bell-btn { display: none !important; }
 html.is-app .nav-item .nav-text {
   flex: 1 !important;
-  font-size: 23px !important;
+  font-size: 46px !important;
   font-weight: 600 !important;
 }
 
