@@ -3094,11 +3094,11 @@ html.is-app #modal-overlay .subcat-modal .btn-primary {
 
 /* #2 bigger, clearer calc + mic chips */
 #txpad .pad-notes-actions .pad-calc-btn,
-#txpad .pad-notes-actions .pad-mic-btn { width: 50px !important; height: 50px !important; border-radius: 14px !important; }
+#txpad .pad-notes-actions .pad-mic-btn { width: 104px !important; height: 104px !important; border-radius: 24px !important; }
 #txpad .pad-notes-actions .pad-calc-btn { background: rgba(0,201,167,0.22) !important; color: #00c9a7 !important; }
 #txpad .pad-notes-actions .pad-mic-btn { background: linear-gradient(135deg,#00c9a7,#6366f1) !important; color: #fff !important; }
 #txpad .pad-notes-actions .pad-calc-btn svg.lucide,
-#txpad .pad-notes-actions .pad-mic-btn svg.lucide { width: 22px !important; height: 22px !important; }
+#txpad .pad-notes-actions .pad-mic-btn svg.lucide { width: 52px !important; height: 52px !important; }
 #txpad .pad-notes-wrap .pad-notes { padding-bottom: 64px !important; }
 
 /* #3 clearer Quick Import header */
