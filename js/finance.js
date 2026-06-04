@@ -824,10 +824,6 @@ function renderTxPad() {
   const dateLabel = new Date(_pad.date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   const isIncome = _pad.type === 'income';
   el.innerHTML = `
-    <div class="pad-head">
-      <button class="pad-cancel" onclick="padClose()"><i data-lucide="x"></i> CANCEL</button>
-    </div>
-
     <div class="pad-type-pills">
       <button class="pad-pill${isIncome ? ' pad-pill-on pad-pill-inc' : ''}" onclick="padSetType('income')"><i data-lucide="arrow-down-left"></i> Income</button>
       <button class="pad-pill${!isIncome ? ' pad-pill-on pad-pill-exp' : ''}" onclick="padSetType('expense')"><i data-lucide="arrow-up-right"></i> Expense</button>
@@ -855,12 +851,14 @@ function renderTxPad() {
         id="pad-amount-input" placeholder="0.00"
         value="${esc(_pad.expr)}"
         oninput="_pad.expr=this.value" />
-      <button class="pad-calc-btn" onclick="event.stopPropagation();openCalcPage()" title="Calculator"><i data-lucide="calculator"></i></button>
     </div>
 
     <div class="pad-notes-wrap">
       <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
-      <button class="pad-mic-btn" onclick="event.stopPropagation();openVoicePage()" title="Speak to add"><i data-lucide="mic"></i></button>
+      <div class="pad-notes-actions">
+        <button class="pad-calc-btn" onclick="event.stopPropagation();openCalcPage()" title="Calculator"><i data-lucide="calculator"></i></button>
+        <button class="pad-mic-btn" onclick="event.stopPropagation();openVoicePage()" title="Speak to add"><i data-lucide="mic"></i></button>
+      </div>
     </div>
 
     <button class="pad-save-btn${isIncome ? ' pad-save-inc' : ' pad-save-exp'}" onclick="padSave()">✓ SAVE</button>

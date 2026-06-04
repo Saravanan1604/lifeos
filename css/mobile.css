@@ -3041,6 +3041,22 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
 #txpad .pad-amt-wrap .pad-amount-input { min-height: 90px !important; height: 90px !important; }
 #txpad .pad-notes-wrap { flex: 1 1 auto !important; min-height: 150px !important; }
 #txpad .pad-notes-wrap .pad-notes { height: 100% !important; min-height: 150px !important; }
+
+/* build 238 — top CANCEL removed; amount full width; calc + mic = small 18px
+   icons docked at the bottom-right of the notes box */
+#txpad .pad-head { display: none !important; }
+#txpad .pad-amt-wrap { display: block !important; }
+#txpad .pad-amt-wrap .pad-amount-input { width: 100% !important; padding-right: 18px !important; }
+#txpad .pad-notes-wrap { display: block !important; position: relative !important; flex: 0 0 auto !important; min-height: 150px !important; }
+#txpad .pad-notes-wrap .pad-notes { width: 100% !important; height: 150px !important; min-height: 150px !important; box-sizing: border-box !important; padding-bottom: 56px !important; }
+#txpad .pad-notes-actions { position: absolute !important; right: 12px; bottom: 12px; display: flex !important; gap: 10px; }
+#txpad .pad-notes-actions .pad-calc-btn,
+#txpad .pad-notes-actions .pad-mic-btn {
+  position: static !important; flex: 0 0 auto !important; align-self: auto !important;
+  width: 44px !important; height: 44px !important; min-width: 0 !important; border-radius: 12px !important;
+}
+#txpad .pad-notes-actions .pad-calc-btn svg.lucide,
+#txpad .pad-notes-actions .pad-mic-btn svg.lucide { width: 18px !important; height: 18px !important; }
 /* calculator "Use" button (returns value to the amount) */
 .calc-use { background: linear-gradient(135deg,#00c9a7,#6366f1); color:#fff; border:none; border-radius:8px; padding:6px 14px; font-weight:700; cursor:pointer; margin-right:8px; font-size:14px; }
 /* account picker: default-star rows */
