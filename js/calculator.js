@@ -49,16 +49,8 @@ function calcPageBack() {
   if (_calcPadSnap && typeof renderTxPad === 'function') { _pad = _calcPadSnap; renderTxPad(); }
 }
 
-// Hardware/browser Back closes any open full-screen overlay (calc / voice)
-if (!window._lifeosOverlayBack) {
-  window._lifeosOverlayBack = true;
-  window.addEventListener('popstate', () => {
-    const cp = document.getElementById('calc-page');
-    if (cp && cp.style.display !== 'none' && cp.style.display !== '') { cp.style.display = 'none'; return; }
-    const vp = document.getElementById('voice-page');
-    if (vp && vp.style.display !== 'none' && vp.style.display !== '') { vp.style.display = 'none'; if (typeof vpStopListen === 'function') vpStopListen(); return; }
-  });
-}
+// (Hardware Back for calc/voice overlays is handled in core.js's popstate
+//  handler, with the Add-sheet exception — no separate listener needed here.)
 function _cpEval(expr) {
   if (!expr) return NaN;
   let e = String(expr).replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/%/g, '*0.01');

@@ -730,6 +730,18 @@ window.addEventListener('popstate', (e) => {
   if (lock && lock.style.display === 'flex') return;        // can't dismiss lock
   const modal = document.getElementById('modal-overlay');
   if (modal && modal.style.display === 'flex') { closeModal(); return; }
+  // EXCEPTION: calculator / voice pages sit ON TOP of the Add sheet — back should
+  // close only that overlay and return to the Add sheet (not close the whole sheet).
+  const _calcP = document.getElementById('calc-page');
+  if (_calcP && _calcP.style.display !== 'none' && _calcP.style.display !== '') {
+    if (typeof calcPageBack === 'function') calcPageBack(); else _calcP.style.display = 'none';
+    return;
+  }
+  const _voiceP = document.getElementById('voice-page');
+  if (_voiceP && _voiceP.style.display !== 'none' && _voiceP.style.display !== '') {
+    if (typeof closeVoicePage === 'function') closeVoicePage(); else _voiceP.style.display = 'none';
+    return;
+  }
   // Full-screen Add/Edit keypad page → close it (back to records)
   if (document.getElementById('txpad')) { if (typeof padClose === 'function') padClose(); return; }
   // Multi-select mode → cancel selection
