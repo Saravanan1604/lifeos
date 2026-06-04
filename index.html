@@ -77,11 +77,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=235" />
-  <link rel="stylesheet" href="css/calc.css?v=235" />
-  <link rel="stylesheet" href="css/premium.css?v=235" />
+  <link rel="stylesheet" href="css/styles.css?v=236" />
+  <link rel="stylesheet" href="css/calc.css?v=236" />
+  <link rel="stylesheet" href="css/premium.css?v=236" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=235" />
+  <link rel="stylesheet" href="css/mobile.css?v=236" />
 </head>
 <body>
 
@@ -519,46 +519,31 @@
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
 </button>
 
-<!-- Floating Calculator Window — outside app to avoid overflow clipping -->
-<div id="calc-window" class="calc-window glass-card">
-  <div class="calc-header">
-    <div class="calc-tabs">
-      <button class="calc-mode-btn active" data-mode="basic" onclick="switchCalcMode('basic')">Basic</button>
-      <button class="calc-mode-btn" data-mode="scientific" onclick="switchCalcMode('scientific')">Sci</button>
-      <button class="calc-mode-btn" data-mode="financial" onclick="switchCalcMode('financial')">Fin</button>
-    </div>
-    <button class="calc-use" id="calc-use-btn" onclick="calcUseValue()" style="display:none">✓ Use</button>
-    <button class="calc-close" onclick="toggleCalculator()">✕</button>
-  </div>
-  <div id="calc-display-wrap" class="calc-display-wrap">
-    <div id="calc-display" class="calc-display">0</div>
-  </div>
-  <div id="calc-body" class="calc-body"></div>
-</div>
+<!-- (Old floating calculator removed — replaced by the full-screen calc page) -->
 
-<script src="js/storage.js?v=235"></script>
-<script src="js/core.js?v=235"></script>
-<script src="js/dashboard.js?v=235"></script>
-<script src="js/finance.js?v=235"></script>
-<script src="js/bank-tracker.js?v=235"></script>
-<script src="js/life.js?v=235"></script>
-<script src="js/growth.js?v=235"></script>
-<script src="js/ai.js?v=235"></script>
-<script src="js/calculator.js?v=235"></script>
-<script src="js/features.js?v=235"></script>
-<script src="js/premium.js?v=235"></script>
-<script src="js/categories.js?v=235"></script>
-<script src="js/compare.js?v=235"></script>
-<script src="js/pages.js?v=235"></script>
-<script src="js/help.js?v=235"></script>
-<script src="js/voice.js?v=235"></script>
-<script src="js/applock.js?v=235"></script>
-<script src="js/onboarding.js?v=235"></script>
-<script src="js/layout.js?v=235"></script>
-<script src="js/notes.js?v=235"></script>
-<script src="js/widgets.js?v=235"></script>
-<script src="js/yearly.js?v=235"></script>
-<script src="js/init.js?v=235"></script>
+<script src="js/storage.js?v=236"></script>
+<script src="js/core.js?v=236"></script>
+<script src="js/dashboard.js?v=236"></script>
+<script src="js/finance.js?v=236"></script>
+<script src="js/bank-tracker.js?v=236"></script>
+<script src="js/life.js?v=236"></script>
+<script src="js/growth.js?v=236"></script>
+<script src="js/ai.js?v=236"></script>
+<script src="js/calculator.js?v=236"></script>
+<script src="js/features.js?v=236"></script>
+<script src="js/premium.js?v=236"></script>
+<script src="js/categories.js?v=236"></script>
+<script src="js/compare.js?v=236"></script>
+<script src="js/pages.js?v=236"></script>
+<script src="js/help.js?v=236"></script>
+<script src="js/voice.js?v=236"></script>
+<script src="js/applock.js?v=236"></script>
+<script src="js/onboarding.js?v=236"></script>
+<script src="js/layout.js?v=236"></script>
+<script src="js/notes.js?v=236"></script>
+<script src="js/widgets.js?v=236"></script>
+<script src="js/yearly.js?v=236"></script>
+<script src="js/init.js?v=236"></script>
 
 <!-- ===== First-run Onboarding ===== -->
 <div id="onboarding" style="display:none">

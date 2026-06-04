@@ -119,6 +119,8 @@ function calcUseValue() {
 }
 
 function toggleCalculator() {
+  // Old floating calculator removed — always open the new full-screen page.
+  if (typeof openCalcPage === 'function') { openCalcPage(); return; }
   calcOpen = !calcOpen;
   const win = document.getElementById('calc-window');
   if (!win) { console.error('calc-window not found'); return; }
