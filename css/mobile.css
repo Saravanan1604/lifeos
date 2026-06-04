@@ -20,6 +20,8 @@ html.is-app body:not(.light) .page-title { color: rgba(241,245,249,0.5) !importa
 html.is-app body.light .page-title { color: rgba(15,23,42,0.55) !important; }
 html.is-app .page-subtitle { font-size: 18px !important; color: var(--text2) !important; font-weight: 500 !important; }
 html.is-app .section-title { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -0.2px !important; }
+html.is-app body:not(.light) .section-title { color: rgba(241,245,249,0.5) !important; }
+html.is-app body.light .section-title { color: rgba(15,23,42,0.55) !important; }
 
 /* Inline hard-coded sizes — Apple hierarchy, scaled up for this device */
 html.is-app [style*="font-size:9px"]  { font-size: 18px !important; }
