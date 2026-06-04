@@ -33,6 +33,34 @@ const CAT_COLORS = {
 function catIcon(name)  { return (CATEGORIES.find(c => c.name === name) || {}).icon || '📦'; }
 function catColor(name) { return CAT_COLORS[name] || '#6366f1'; }
 
+// ===== Lucide line-icon mapping (display only — stored data stays as emoji) =====
+// Maps a category NAME to a Lucide icon. Falls back to an emoji→icon table,
+// then a neutral 'circle'. Render-time only, so no data migration is needed.
+const CAT_LUCIDE = {
+  Salary:'banknote', Business:'building-2', Freelance:'laptop', Interest:'landmark',
+  'Gift Received':'gift', 'Other Income':'banknote', Food:'utensils-crossed',
+  Groceries:'shopping-cart', Transport:'car', Fuel:'fuel', Shopping:'shopping-bag',
+  Health:'stethoscope', Bills:'receipt', Rent:'house', EMI:'landmark', Insurance:'shield',
+  Investment:'trending-up', Entertainment:'clapperboard', Education:'book-open',
+  Travel:'plane', Gifts:'gift', Utilities:'lightbulb', Subscriptions:'smartphone',
+  SIP:'refresh-cw', 'Personal Care':'sparkles', Warranties:'shield-check', Other:'package'
+};
+const EMOJI_LUCIDE = {
+  '💰':'banknote','🏢':'building-2','💻':'laptop','🏦':'landmark','🎁':'gift','💵':'banknote',
+  '🍔':'utensils-crossed','🛒':'shopping-cart','🚗':'car','⛽':'fuel','🛍️':'shopping-bag',
+  '🏥':'stethoscope','🧾':'receipt','🏠':'house','🛡️':'shield','📈':'trending-up',
+  '🎬':'clapperboard','📚':'book-open','✈️':'plane','💡':'lightbulb','📱':'smartphone',
+  '🔄':'refresh-cw','💆':'sparkles','📦':'package','💳':'credit-card','🎯':'target','📝':'pencil'
+};
+function catLucide(name) {
+  if (CAT_LUCIDE[name]) return CAT_LUCIDE[name];
+  const emo = catIcon(name);
+  return EMOJI_LUCIDE[emo] || 'circle';
+}
+// Returns an <i data-lucide> tag; call lucide.createIcons() after injecting.
+function catIconHtml(name) { return `<i data-lucide="${catLucide(name)}"></i>`; }
+function _lucideRefresh() { if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} } }
+
 // Global HTML-escape helper (some functions defined their own local `esc`;
 // this one is available everywhere).
 if (typeof window.esc !== 'function') {
@@ -270,7 +298,7 @@ function renderRecordsMyMoney() {
       return `
       <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
         ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
-        <div class="mm-ic" style="background:${catColor(t.category)}">${t.icon || catIcon(t.category)}</div>
+        <div class="mm-ic" style="background:${catColor(t.category)}">${catIconHtml(t.category)}</div>
         <div class="mm-mid">
           <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
           <div class="mm-meta">${chip}${note}${sub}${tm}</div>
@@ -291,8 +319,8 @@ function renderRecordsMyMoney() {
       <div class="mm-selbar">
         <button class="mm-selx" onclick="recCancelSelect()">✕</button>
         <span class="mm-selcount">${_recSel.size} selected</span>
-        <button class="mm-selact" onclick="recBulkCategory()">🏷️ Category</button>
-        <button class="mm-selact del" onclick="recBulkDelete()">🗑️ Delete</button>
+        <button class="mm-selact" onclick="recBulkCategory()"><i data-lucide="tag"></i> Category</button>
+        <button class="mm-selact del" onclick="recBulkDelete()"><i data-lucide="trash-2"></i> Delete</button>
       </div>` : '';
 
   document.getElementById('page-container').innerHTML = `
@@ -311,11 +339,11 @@ function renderRecordsMyMoney() {
         <div><span class="mm-s-lbl">${carryForward ? 'BALANCE' : 'TOTAL'}</span><span class="mm-s-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</span></div>
       </div>` : ''}
       <div class="mm-ctrls">
-        <label class="mm-cbtn" title="Pick a day">📅 Day
+        <label class="mm-cbtn" title="Pick a day"><i data-lucide="calendar"></i> Day
           <input type="date" value="${anchorYmd}" onchange="recPickDay(this.value)"/>
         </label>
-        <button class="mm-cbtn ${showTotal ? 'on' : ''}" onclick="recToggleTotal()">Σ Total</button>
-        <button class="mm-cbtn ${carryForward ? 'on' : ''}" onclick="recCarrySettings()">↪ Carry fwd</button>
+        <button class="mm-cbtn ${showTotal ? 'on' : ''}" onclick="recToggleTotal()"><i data-lucide="sigma"></i> Total</button>
+        <button class="mm-cbtn ${carryForward ? 'on' : ''}" onclick="recCarrySettings()"><i data-lucide="corner-down-right"></i> Carry fwd</button>
       </div>
       <button class="mm-filterbar ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg>
@@ -327,6 +355,7 @@ function renderRecordsMyMoney() {
         ${days.length ? rows : `<div class="mm-empty" onclick="openAddTxModal('expense')">${filterActive ? 'No transactions match your filters.' : `<span style="font-size:2.4rem">🧾</span><br/>No transactions in ${periodLabelTxt}.<br/><b style="color:#00c9a7">+ Tap to add one</b>`}</div>`}
       </div>
     </div>`;
+  _lucideRefresh();
   if (typeof initRecordsGestures === 'function') initRecordsGestures();
 }
 
@@ -705,7 +734,7 @@ function padPickAccount() {
 function padPickCategory() {
   const cats = getAllCategories().filter(c => c.type === _pad.type || c.type === 'both');
   openModal('Choose Category', `<div class="pad-cats">${cats.map(c =>
-    `<button onclick="_pad.category='${c.name.replace(/'/g, "\\'")}';closeModal();renderTxPad()"><span style="font-size:1.8rem">${c.icon}</span><span>${esc(c.name)}</span></button>`).join('')}</div>`);
+    `<button onclick="_pad.category='${c.name.replace(/'/g, "\\'")}';closeModal();renderTxPad()"><span class="pad-cat-lucide">${catIconHtml(c.name)}</span><span>${esc(c.name)}</span></button>`).join('')}</div>`);
 }
 function padPickSubcat() {
   openModal('🏷️ Subcategory', `
@@ -795,7 +824,7 @@ function renderTxPad() {
 
     <div class="pad-pickrow">
       <div class="pad-field"><label><i data-lucide="wallet"></i> Account</label><button onclick="padPickAccount()">${esc(acctLabel)}</button></div>
-      <div class="pad-field"><label><i data-lucide="shapes"></i> Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIc}</span>${esc(_pad.category)}</button></div>
+      <div class="pad-field"><label><i data-lucide="shapes"></i> Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIconHtml(_pad.category)}</span>${esc(_pad.category)}</button></div>
     </div>
 
     <div class="pad-pickrow pad-mini ${_pad.mode === 'add' ? '' : 'one'}">

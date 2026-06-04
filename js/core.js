@@ -127,6 +127,7 @@ function openModal(title, bodyHTML) {
     else hd.style.background = '';
   }
   ov.style.display = 'flex';
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
 }
 function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
