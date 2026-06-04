@@ -154,7 +154,8 @@ html.is-app .sidebar-nav { align-items: stretch !important; }
 
 /* Icon — large and tinted */
 html.is-app .nav-item .nav-icon { flex-shrink: 0 !important; opacity: .92 !important; }
-html.is-app .nav-item .nav-icon svg { width: 30px !important; height: 30px !important; }
+html.is-app .nav-item .nav-icon svg { width: 46px !important; height: 46px !important; }
+html.is-app .nav-item .nav-icon { width: 46px !important; height: 46px !important; }
 
 /* Label */
 html.is-app #notif-bell-btn { display: none !important; }
