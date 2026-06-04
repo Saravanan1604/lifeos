@@ -736,6 +736,7 @@ html.is-app .fin-cash-grid {
   grid-template-columns: none !important;
   overflow-x: auto !important;
   scroll-snap-type: x mandatory !important;
+  align-items: flex-start !important;   /* don't stretch cards to row height */
   gap: 14px !important;
   padding: 4px 2px 14px !important;
   margin-bottom: 8px !important;
@@ -750,25 +751,27 @@ html.is-app .fin-cash-grid > * {
   flex: 0 0 86% !important;
   width: 86% !important;
   min-width: 86% !important;
-  aspect-ratio: 1.586 / 1 !important;   /* real card proportions */
-  height: auto !important;
+  height: 54vw !important;              /* ATM ratio: 86vw / 1.586 ≈ 54vw */
+  max-height: 240px !important;
+  min-height: 0 !important;
+  aspect-ratio: auto !important;
   padding: 18px !important;
   scroll-snap-align: center !important;
   display: flex !important;
   flex-direction: column !important;
-  justify-content: space-between !important;
+  justify-content: flex-start !important;
 }
 /* scale inner text to fit the shorter ATM-card height */
 html.is-app .fin-bank-grid .fin-dark-card div[style*="font-size:22px"],
-html.is-app .fin-cash-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 34px !important; }   /* icon */
+html.is-app .fin-cash-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 40px !important; }   /* icon */
 html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"],
-html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 46px !important; }    /* balance — max big */
+html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 56px !important; }    /* balance — max big */
 html.is-app .fin-bank-grid .fin-dark-card p[style*="letter-spacing:1.5px"],
-html.is-app .fin-cash-grid .fin-dark-card p[style*="letter-spacing:1px"] { font-size: 24px !important; } /* bank/wallet name */
+html.is-app .fin-cash-grid .fin-dark-card p[style*="letter-spacing:1px"] { font-size: 30px !important; } /* bank/wallet name */
 html.is-app .fin-bank-grid .fin-dark-card button,
 html.is-app .fin-card-grid .fin-dark-card button,
-html.is-app .fin-cash-grid .fin-dark-card button { font-size: 16px !important; padding: 6px 12px !important; }
-html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 18px !important; }  /* type · last4 */
+html.is-app .fin-cash-grid .fin-dark-card button { font-size: 22px !important; padding: 9px 16px !important; border-radius: 10px !important; }
+html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 22px !important; }  /* type · last4 */
 html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:2px"] { font-size: 18px !important; }   /* network */
 html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:14px"]  { font-size: 26px !important; }      /* bank name */
 html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:3px"] { font-size: 22px !important; }   /* •••• number */
@@ -780,7 +783,7 @@ html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:10px"] { font-s
 html.is-app .fin-bank-grid .fin-dark-card,
 html.is-app .fin-card-grid .fin-dark-card,
 html.is-app .fin-cash-grid .fin-dark-card {
-  padding: 16px !important; aspect-ratio: 1.586 / 1 !important; height: auto !important;
+  padding: 16px !important; height: 54vw !important; max-height: 240px !important; aspect-ratio: auto !important;
 }
 /* build 201 — tighten card content: group icon/name/balance at the top,
    pin the meta row (type · last-4 · limit) to the bottom (no big empty middle) */
