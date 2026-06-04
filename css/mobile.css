@@ -725,30 +725,62 @@ html.is-app .section-header .btn-sm {
 }
 
 /* ============================================================
-   build 199 — Finance cards: clean stacked grid (like the web).
-   Replaces the oversized 82%-width / fixed-300px-height horizontal
-   carousel that was cutting cards off and looking unbalanced on mobile.
+   build 200 — Finance cards: SWIPEABLE carousel sized like a real
+   ATM/credit card (85.6×54mm → 1.586:1 aspect ratio). Text scaled
+   down to fit the card height so nothing overflows or gets cut.
    ============================================================ */
 html.is-app .fin-bank-grid,
 html.is-app .fin-card-grid,
 html.is-app .fin-cash-grid {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  overflow-x: visible !important;
-  scroll-snap-type: none !important;
+  display: flex !important;
+  grid-template-columns: none !important;
+  overflow-x: auto !important;
+  scroll-snap-type: x mandatory !important;
   gap: 14px !important;
-  padding: 0 !important;
-  margin-bottom: 16px !important;
+  padding: 4px 2px 14px !important;
+  margin-bottom: 8px !important;
+  -webkit-overflow-scrolling: touch;
 }
+html.is-app .fin-bank-grid::-webkit-scrollbar,
+html.is-app .fin-card-grid::-webkit-scrollbar,
+html.is-app .fin-cash-grid::-webkit-scrollbar { height: 0; }
 html.is-app .fin-bank-grid > *,
 html.is-app .fin-card-grid > *,
 html.is-app .fin-cash-grid > * {
-  flex: none !important;
-  width: auto !important;
-  min-width: 0 !important;
-  height: auto !important;            /* size to content — no giant empty cards */
-  scroll-snap-align: none !important;
-  justify-content: flex-start !important;
+  flex: 0 0 86% !important;
+  width: 86% !important;
+  min-width: 86% !important;
+  aspect-ratio: 1.586 / 1 !important;   /* real card proportions */
+  height: auto !important;
+  padding: 18px !important;
+  scroll-snap-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+/* scale inner text to fit the shorter ATM-card height */
+html.is-app .fin-bank-grid .fin-dark-card div[style*="font-size:22px"],
+html.is-app .fin-cash-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 26px !important; }
+html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"],
+html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 32px !important; }
+html.is-app .fin-bank-grid .fin-dark-card p[style*="letter-spacing:1.5px"],
+html.is-app .fin-cash-grid .fin-dark-card p[style*="letter-spacing:1px"] { font-size: 17px !important; }
+html.is-app .fin-bank-grid .fin-dark-card button,
+html.is-app .fin-card-grid .fin-dark-card button,
+html.is-app .fin-cash-grid .fin-dark-card button { font-size: 14px !important; padding: 4px 9px !important; }
+html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 14px !important; }
+html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:2px"] { font-size: 14px !important; }
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:14px"]  { font-size: 19px !important; }
+html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:3px"] { font-size: 16px !important; }
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:11px"]  { font-size: 14px !important; }
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:16px"]  { font-size: 23px !important; }
+html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:13px"] { font-size: 16px !important; }
+html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:10px"] { font-size: 13px !important; }
+/* keep ATM proportions + tidy padding (beats earlier 30px padding rule) */
+html.is-app .fin-bank-grid .fin-dark-card,
+html.is-app .fin-card-grid .fin-dark-card,
+html.is-app .fin-cash-grid .fin-dark-card {
+  padding: 16px !important; aspect-ratio: 1.586 / 1 !important; height: auto !important;
 }
 
 /* ============================================================
