@@ -1124,7 +1124,7 @@ function renderFinance() {
             </div>`}).join('')}
           </div>
           <div style="padding:12px 16px;border-radius:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:13px;font-weight:600;color:#ef4444">💳 Total Outstanding</span>
+            <span style="font-size:13px;font-weight:600;color:#ef4444;display:inline-flex;align-items:center;gap:5px"><i data-lucide="credit-card"></i> Total Outstanding</span>
             <span style="font-size:20px;font-weight:900;color:#ef4444">${fmt((STATE.creditCards||[]).reduce((s,c)=>s+(c.outstanding||0),0))}</span>
           </div>`}
       </div>
@@ -1132,19 +1132,19 @@ function renderFinance() {
       <!-- Cash Accounts -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px">
         <div class="section-header" style="margin-bottom:16px">
-          <p class="section-title">💵 Cash Accounts
+          <p class="section-title"><i data-lucide="banknote"></i> Cash Accounts
             <span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${(STATE.cashAccounts||[]).length} wallets</span>
           </p>
           <button class="btn-primary btn-sm" onclick="addCashAccount()">+ Add Cash</button>
         </div>
         ${(STATE.cashAccounts||[]).length === 0
-          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon">💵</span><p>No cash wallets yet. Track your physical cash!</p></div>`
+          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="banknote"></i></span><p>No cash wallets yet. Track your physical cash!</p></div>`
           : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px" class="fin-cash-grid">
             ${(STATE.cashAccounts||[]).map((ca,i) => `
             <div class="fin-dark-card" onclick="if(!event.target.closest('button'))navigate('bank-tracker')" style="--c1:#a16207;--c2:#78350f;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
               <div style="display:flex;justify-content:space-between;align-items:start;position:relative">
-                <div style="font-size:22px">💵</div>
+                <div style="font-size:22px"><i data-lucide="banknote"></i></div>
                 <div style="display:flex;gap:4px">
                   <button onclick="updateCashBalance(${i})" style="background:rgba(251,191,36,0.3);border:none;color:#fbbf24;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
                   <button onclick="editCashAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
@@ -1156,19 +1156,19 @@ function renderFinance() {
             </div>`).join('')}
           </div>
           <div style="padding:12px 16px;border-radius:12px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:13px;font-weight:600;color:#f59e0b">💵 Total Cash</span>
+            <span style="font-size:13px;font-weight:600;color:#f59e0b;display:inline-flex;align-items:center;gap:5px"><i data-lucide="banknote"></i> Total Cash</span>
             <span style="font-size:20px;font-weight:900;color:#f59e0b">${fmt((STATE.cashAccounts||[]).reduce((s,ca)=>s+(ca.balance||0),0))}</span>
           </div>`}
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px" class="fin-stat-row">
         ${[
-          { id:'fin-stat-count', label:'Total Txns',   value: txnsAll.length,  icon:'⚡', color:'rgba(99,102,241,0.15)', tc:'#6366f1' },
-          { id:'fin-stat-month', label:periodLabel(_finPeriod), value: txns.length, icon:'🎯', color:'rgba(16,185,129,0.15)', tc:'#10b981' },
-          { id:'fin-stat-rate',  label:'Savings Rate', value: savingsRate+'%', icon:'📈', color:'rgba(139,92,246,0.15)', tc:'#8b5cf6' },
+          { id:'fin-stat-count', label:'Total Txns',   value: txnsAll.length,  icon:'zap', color:'rgba(99,102,241,0.15)', tc:'#6366f1' },
+          { id:'fin-stat-month', label:periodLabel(_finPeriod), value: txns.length, icon:'target', color:'rgba(16,185,129,0.15)', tc:'#10b981' },
+          { id:'fin-stat-rate',  label:'Savings Rate', value: savingsRate+'%', icon:'trending-up', color:'rgba(139,92,246,0.15)', tc:'#8b5cf6' },
         ].map(s=>`
           <div class="glass-card" style="padding:16px;text-align:center">
-            <div style="display:inline-flex;padding:8px;border-radius:10px;background:${s.color};font-size:18px;margin-bottom:8px">${s.icon}</div>
+            <div style="display:inline-flex;padding:8px;border-radius:10px;background:${s.color};font-size:18px;margin-bottom:8px;color:${s.tc}"><i data-lucide="${s.icon}"></i></div>
             <p id="${s.id}" style="font-size:20px;font-weight:800;color:${s.tc}">${s.value}</p>
             <p style="font-size:11px;color:var(--text3);margin-top:2px">${s.label}</p>
           </div>`).join('')}
@@ -1177,11 +1177,11 @@ function renderFinance() {
       <!-- Charts Row -->
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px" class="fin-charts-row">
         <div class="glass-card" style="padding:20px">
-          <p class="section-title" style="margin-bottom:16px">📈 Income vs Expenses</p>
+          <p class="section-title" style="margin-bottom:16px"><i data-lucide="bar-chart-3"></i> Income vs Expenses</p>
           <div class="chart-container"><canvas id="finance-chart"></canvas></div>
         </div>
         <div class="glass-card" style="padding:20px">
-          <p class="section-title" style="margin-bottom:16px">🥧 Spending by Category</p>
+          <p class="section-title" style="margin-bottom:16px"><i data-lucide="pie-chart"></i> Spending by Category</p>
           ${topCats.length === 0
             ? `<div style="display:flex;align-items:center;justify-content:center;height:180px;color:var(--text3);font-size:13px">No expense data yet.</div>`
             : `<div class="chart-container"><canvas id="finance-pie-chart"></canvas></div>`}
