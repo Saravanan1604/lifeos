@@ -1,4 +1,4 @@
-// ===== FINANCE PAGE =====
+﻿// ===== FINANCE PAGE =====
 let _finPeriod = 'month'; // 'day' | 'week' | 'month' | 'year' | 'all'
 let _finAnchor = null;    // specific date 'YYYY-MM-DD' the tx list is anchored to (null = current period)
 let _finType     = 'all';        // 'all' | 'income' | 'expense'
@@ -773,35 +773,61 @@ function renderTxPad() {
   const acctLabel = _pad.source ? _sourceLabel(_pad.source) : 'Account';
   const catIc = catIcon(_pad.category), catCol = catColor(_pad.category);
   const dateLabel = new Date(_pad.date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  const key = (d) => `<button class="pad-key" onclick="padKey('${d}')">${d}</button>`;
-  const op  = (d) => `<button class="pad-key op" onclick="padKey('${d}')">${d}</button>`;
+  const isIncome = _pad.type === 'income';
+  const displayVal = _pad.expr || '0';
+  const rv = _pad.expr ? _padEval(_pad.expr) : null;
+  const showResult = rv !== null && !isNaN(rv) && _pad.expr && /[+\-\xd7\xf7%]/.test(_pad.expr);
   el.innerHTML = `
     <div class="pad-head">
       <button class="pad-cancel" onclick="padClose()">✕ CANCEL</button>
-      <button class="pad-save" onclick="padSave()">✓ SAVE</button>
+      <div class="pad-type-pills">
+        <button class="pad-pill${isIncome ? ' pad-pill-on pad-pill-inc' : ''}" onclick="padSetType('income')">💚 Income</button>
+        <button class="pad-pill${!isIncome ? ' pad-pill-on pad-pill-exp' : ''}" onclick="padSetType('expense')">❤️ Expense</button>
+      </div>
     </div>
-    <div class="pad-types">
-      <button class="${_pad.type === 'income' ? 'on' : ''}" onclick="padSetType('income')">INCOME</button>
-      <span>|</span>
-      <button class="${_pad.type === 'expense' ? 'on' : ''}" onclick="padSetType('expense')">${_pad.type === 'expense' ? '✓ ' : ''}EXPENSE</button>
-    </div>
+
     <div class="pad-pickrow pad-dates">
       <div class="pad-field"><label>📅 Date</label><label class="pad-dt">${dateLabel}<input type="date" value="${_pad.date}" onchange="padSetDate(this.value)"/></label></div>
       <div class="pad-field"><label>🕒 Time</label><label class="pad-dt">${_fmtTime(_pad.time)}<input type="time" value="${_pad.time}" onchange="padSetTime(this.value)"/></label></div>
     </div>
+
     <div class="pad-pickrow">
       <div class="pad-field"><label>Account</label><button onclick="padPickAccount()">${esc(acctLabel)}</button></div>
       <div class="pad-field"><label>Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIc}</span>${esc(_pad.category)}</button></div>
     </div>
+
     <div class="pad-pickrow pad-mini ${_pad.mode === 'add' ? '' : 'one'}">
       <div class="pad-field"><label>🏷️ Subcategory</label><button onclick="padPickSubcat()">${_pad.subcategory ? esc(_pad.subcategory) : '—'}</button></div>
       ${_pad.mode === 'add' ? `<div class="pad-field"><label>🔁 Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>` : ''}
     </div>
-    <label class="pad-amt-label">Amount (₹)</label>
-    <input type="number" inputmode="decimal" step="0.01" min="0" class="pad-amount-input" id="pad-amount-input"
-      placeholder="0" value="${esc(_pad.expr)}" oninput="_pad.expr=this.value"/>
-    <textarea class="pad-notes" placeholder="Add notes" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
-    `;
+
+    <div class="pad-amountbox${isIncome ? ' pad-amt-inc-box' : ' pad-amt-exp-box'}">
+      <div class="pad-amt-wrap">
+        <div id="pad-amount" class="pad-amount-display">${displayVal}</div>
+        <div id="pad-result" class="pad-result-hint">${showResult ? '= ' + _padFmtNum(rv) : ''}</div>
+      </div>
+      <button class="pad-bs" onclick="padKey('back')">⌫</button>
+    </div>
+
+    <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value" onfocus="padNotesMode(true)" onblur="padNotesMode(false)">${esc(_pad.notes)}</textarea>
+
+    <div class="pad-keys pad-numgrid">
+      <button class="pad-key" onclick="padKey('7')">7</button>
+      <button class="pad-key" onclick="padKey('8')">8</button>
+      <button class="pad-key" onclick="padKey('9')">9</button>
+      <button class="pad-key" onclick="padKey('4')">4</button>
+      <button class="pad-key" onclick="padKey('5')">5</button>
+      <button class="pad-key" onclick="padKey('6')">6</button>
+      <button class="pad-key" onclick="padKey('1')">1</button>
+      <button class="pad-key" onclick="padKey('2')">2</button>
+      <button class="pad-key" onclick="padKey('3')">3</button>
+      <button class="pad-key pad-key-fn" onclick="padKey('.')">.</button>
+      <button class="pad-key" onclick="padKey('0')">0</button>
+      <button class="pad-key pad-key-fn" onclick="padKey('C')">C</button>
+    </div>
+
+    <button class="pad-save-btn${isIncome ? ' pad-save-inc' : ' pad-save-exp'}" onclick="padSave()">✓ SAVE</button>
+  `;
 }
 
 // Records filter modal — reuses the existing _finType / _finCategory / _finSort + search

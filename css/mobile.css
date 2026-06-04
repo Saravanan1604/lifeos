@@ -2562,3 +2562,94 @@ html.is-app.light #txpad .pad-key.oper, html.is-app .light #txpad .pad-key.oper 
 }
 #txpad .pad-amount-input::placeholder { color: var(--text2); }
 
+/* ============================================================
+   build 184 — Premium redesign: pill type toggle, custom numpad,
+   gradient SAVE button, coloured amount box. App only.
+   ============================================================ */
+
+/* --- Type toggle pills in the header bar --- */
+#txpad .pad-type-pills {
+  display: flex; gap: 8px;
+}
+#txpad .pad-pill {
+  padding: 9px 18px; border-radius: 24px; font-size: 1.15rem; font-weight: 700;
+  border: 2px solid var(--glass-border); background: var(--glass); color: var(--text2);
+  cursor: pointer; transition: all .18s; letter-spacing: .2px;
+}
+#txpad .pad-pill-on { color: #fff; border-color: transparent; }
+#txpad .pad-pill-on.pad-pill-inc { background: linear-gradient(135deg,#10b981,#059669); box-shadow: 0 4px 14px rgba(16,185,129,0.40); }
+#txpad .pad-pill-on.pad-pill-exp { background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 14px rgba(239,68,68,0.40); }
+/* Hide the old .pad-types bar (overridden by pills) */
+#txpad .pad-types { display: none !important; }
+/* Hide old inline pad-save (header) — SAVE is now at bottom */
+#txpad .pad-head .pad-save { display: none !important; }
+
+/* --- Amount display box --- */
+#txpad .pad-amountbox {
+  position: relative; display: flex; align-items: center; justify-content: space-between;
+  border-radius: 20px !important; padding: 14px 18px !important; margin-bottom: 10px !important;
+  min-height: 72px; border: 2px solid transparent !important;
+}
+#txpad .pad-amt-inc-box { background: linear-gradient(var(--bg),var(--bg)) padding-box, linear-gradient(135deg,#10b981,#6366f1) border-box !important; }
+#txpad .pad-amt-exp-box { background: linear-gradient(var(--bg),var(--bg)) padding-box, linear-gradient(135deg,#ef4444,#f59e0b) border-box !important; }
+#txpad .pad-amount-display {
+  font-size: 2.8rem !important; font-weight: 800; word-break: break-all; flex: 1;
+  text-align: right; line-height: 1.1; letter-spacing: -1px;
+}
+#txpad .pad-result-hint {
+  font-size: 1.1rem; font-weight: 600; opacity: .55; text-align: right;
+  min-height: 1.2rem; margin-top: 2px;
+}
+#txpad .pad-amt-wrap { flex: 1; display: flex; flex-direction: column; align-items: flex-end; }
+#txpad .pad-bs {
+  background: none; border: none; font-size: 2.2rem; color: var(--text2);
+  cursor: pointer; padding: 4px 6px; flex-shrink: 0; margin-left: 10px;
+}
+
+/* --- 3×4 numpad grid --- */
+#txpad .pad-numgrid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-auto-rows: 1fr !important;
+  flex: 1 1 auto !important;
+  gap: 10px !important; margin-top: 8px !important;
+}
+/* digit keys: Samsung One-UI rounded squares */
+#txpad .pad-numgrid .pad-key {
+  width: 100% !important; max-width: none !important; aspect-ratio: 1.3 / 1 !important;
+  border-radius: 20px !important; border: none !important; box-shadow: none !important;
+  background: rgba(255,255,255,0.06) !important; color: var(--text) !important;
+  font-size: 2rem !important; font-weight: 600 !important;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform .1s, background .1s;
+}
+html.is-app.light #txpad .pad-numgrid .pad-key,
+html.is-app .light #txpad .pad-numgrid .pad-key {
+  background: rgba(15,23,42,0.06) !important; color: #1c1c1e !important;
+}
+#txpad .pad-numgrid .pad-key:active { transform: scale(.93); background: rgba(0,201,167,0.22) !important; }
+/* function keys (. and C) */
+#txpad .pad-numgrid .pad-key-fn {
+  background: rgba(0,201,167,0.13) !important; color: #00c9a7 !important; font-weight: 700 !important;
+}
+html.is-app.light #txpad .pad-numgrid .pad-key-fn,
+html.is-app .light #txpad .pad-numgrid .pad-key-fn {
+  background: rgba(0,201,167,0.15) !important; color: #009e85 !important;
+}
+
+/* --- Full-width SAVE button at the bottom --- */
+#txpad .pad-save-btn {
+  width: 100%; padding: 18px 0; border-radius: 20px; border: none;
+  font-size: 1.5rem; font-weight: 800; letter-spacing: .5px; cursor: pointer;
+  color: #fff; margin-top: 10px; flex-shrink: 0;
+  transition: transform .15s, box-shadow .15s;
+}
+#txpad .pad-save-btn:active { transform: scale(.97); }
+#txpad .pad-save-inc { background: linear-gradient(135deg,#10b981,#059669); box-shadow: 0 6px 22px rgba(16,185,129,0.45); }
+#txpad .pad-save-exp { background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 6px 22px rgba(239,68,68,0.45); }
+
+/* Keep typing mode hiding the keypad */
+#txpad.typing .pad-numgrid { display: none !important; }
+#txpad.typing .pad-save-btn { margin-top: 14px; }
+#txpad.typing .pad-notes { min-height: 140px !important; }
+
