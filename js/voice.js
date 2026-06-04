@@ -782,7 +782,9 @@ function handleVoiceTranscript(raw) {
 let _vpRec = null;
 let _vpListening = false;
 
+let _vpPadSnap = null;
 function openVoicePage() {
+  _vpPadSnap = (typeof _pad !== 'undefined' && _pad) ? _pad : null;
   let el = document.getElementById('voice-page');
   if (!el) { el = document.createElement('div'); el.id = 'voice-page'; document.body.appendChild(el); }
   const examples = [
@@ -817,7 +819,8 @@ function closeVoicePage() {
   const el = document.getElementById('voice-page');
   if (el) el.style.display = 'none';
   // If we came from the Add sheet, bring it back instead of revealing Records.
-  if (typeof _pad !== 'undefined' && _pad && typeof renderTxPad === 'function') renderTxPad();
+  const p = (typeof _pad !== 'undefined' && _pad) ? _pad : _vpPadSnap;
+  if (p && typeof renderTxPad === 'function') { _pad = p; renderTxPad(); }
 }
 
 function vpToggleListen() { if (_vpListening) vpStopListen(); else vpStartListen(); }
