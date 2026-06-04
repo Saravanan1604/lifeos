@@ -3009,6 +3009,18 @@ html.is-app .mm-today { font-size: 1.15rem !important; padding: 8px 14px !import
 #txpad .pad-cancel-btn:active { transform: scale(.97); background: rgba(239,68,68,0.22); }
 html.is-app.light #txpad .pad-cancel-btn { background: rgba(239,68,68,0.10); color: #dc2626 !important; border-color: rgba(239,68,68,0.4); }
 
+/* build 243 — Subcategory popup ~2x bigger (input + buttons) */
+html.is-app #modal-overlay .subcat-modal { padding: 8px 0; }
+html.is-app #modal-overlay .subcat-modal .form-label { font-size: 1.5rem !important; margin-bottom: 12px !important; }
+html.is-app #modal-overlay .subcat-modal .form-input {
+  font-size: 1.6rem !important; padding: 22px 20px !important; border-radius: 16px !important; min-height: 72px !important;
+}
+html.is-app #modal-overlay .subcat-modal .modal-actions { margin-top: 22px !important; gap: 14px !important; }
+html.is-app #modal-overlay .subcat-modal .btn-secondary,
+html.is-app #modal-overlay .subcat-modal .btn-primary {
+  font-size: 1.5rem !important; padding: 18px 30px !important; border-radius: 14px !important; min-width: 120px !important;
+}
+
 /* #5 — Lucide line icons inside the Add sheet (replaces emoji) */
 #txpad .svg-inline, #txpad svg.lucide { stroke-width: 2; }
 #txpad .pad-field > label svg.lucide { width: 1.25rem; height: 1.25rem; vertical-align: -0.18em; margin-right: 4px; opacity: .85; }

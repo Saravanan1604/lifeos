@@ -754,12 +754,14 @@ function padPickCategory() {
 }
 function padPickSubcat() {
   openModal('🏷️ Subcategory', `
+    <div class="subcat-modal">
     <div class="form-group"><label class="form-label">Subcategory <span style="opacity:.6;font-weight:400">(optional)</span></label>
       <input type="text" id="pad-subcat-in" class="form-input" list="subcat-list" value="${esc(_pad.subcategory || '')}" placeholder="e.g. Groceries, Labour cost, Restaurant" autofocus/>
       <datalist id="subcat-list">${_subcatSuggestions()}</datalist></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="_pad.subcategory='';closeModal();renderTxPad()">Clear</button>
       <button class="btn-primary" onclick="_pad.subcategory=(document.getElementById('pad-subcat-in').value||'').trim();closeModal();renderTxPad()">Done</button>
+    </div>
     </div>`);
   setTimeout(() => document.getElementById('pad-subcat-in')?.focus(), 100);
 }
