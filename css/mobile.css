@@ -2492,3 +2492,8 @@ html.is-app.light #txpad .pad-key.fn,   html.is-app .light #txpad .pad-key.fn   
 }
 #txpad .pad-key.oper { font-size: 1.6rem !important; }
 #txpad .pad-key.eq   { font-size: 1.7rem !important; }
+
+/* build 176 — ensure helper text is readable on the cream modal body */
+html.is-app #modal-overlay .modal-body p,
+html.is-app #modal-overlay .modal-body small,
+html.is-app #modal-overlay .modal-body li { color: #475569 !important; }

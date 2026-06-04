@@ -152,10 +152,10 @@ function recCarrySettings() {
       <input type="checkbox" id="cf-on" ${on ? 'checked' : ''} style="width:24px;height:24px;accent-color:#00c9a7"/>
       Carry the running balance forward
     </label>
-    <p style="font-size:1.05rem;color:var(--text2);margin:-6px 0 16px">When on, TOTAL becomes a running BALANCE that carries across periods.</p>
+    <p style="font-size:1.05rem;color:#475569;margin:-6px 0 16px">When on, TOTAL becomes a running BALANCE that carries across periods.</p>
     <div class="form-group"><label class="form-label">Start counting from</label>
       <input type="date" id="cf-from" class="form-input" value="${from}"/>
-      <p style="font-size:1rem;color:var(--text2);margin-top:6px">Leave blank to include all transactions.</p>
+      <p style="font-size:1rem;color:#475569;margin-top:6px">Leave blank to include all transactions.</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
       <button class="btn-secondary btn-sm" onclick="_cfQuick('week')">This week</button>
