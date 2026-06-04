@@ -2556,11 +2556,16 @@ html.is-app.light #txpad .pad-key.oper, html.is-app .light #txpad .pad-key.oper 
 /* build 181 — amount uses the device keyboard (no custom keypad) */
 #txpad .pad-amt-label { display: block; font-size: 1.1rem; opacity: .7; margin: 6px 0 6px 4px; }
 #txpad .pad-amount-input {
-  width: 100%; border: 1px solid var(--glass-border); background: var(--glass); color: var(--text);
+  width: 100%; border: 2px solid var(--glass-border); background: var(--glass); color: var(--text);
   border-radius: 16px; padding: 16px 18px; font-size: 2.6rem; font-weight: 800; text-align: right;
   outline: none; margin-bottom: 14px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
 }
 #txpad .pad-amount-input::placeholder { color: var(--text2); }
+/* income = green border, expense = red border */
+#txpad .pad-input-inc { border-color: #10b981 !important; }
+#txpad .pad-input-exp { border-color: #ef4444 !important; }
+/* notes grows to fill the remaining vertical space */
+#txpad .pad-notes { flex: 1 1 auto !important; min-height: 80px !important; }
 
 /* ============================================================
    build 184 — Premium redesign: pill type toggle, custom numpad,
