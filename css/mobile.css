@@ -2348,3 +2348,27 @@ html.is-app:not(.light) #txpad .pad-key { background: rgba(255,255,255,0.07) !im
 }
 #txpad .pad-key.op.fn { background: linear-gradient(135deg,#f87171,#ef4444) !important; box-shadow: 0 4px 14px rgba(239,68,68,0.3) !important; }
 #txpad .pad-key.op.eq { background: linear-gradient(135deg,#0f9d58,#0a7d46) !important; box-shadow: 0 5px 16px rgba(15,157,88,0.45) !important; }
+
+/* build 165 — keypad page matches Records page look + tighter sizing */
+/* digit tiles: glass like records cards */
+#txpad .pad-key {
+  background: var(--glass) !important; color: var(--text) !important;
+  border: 1px solid var(--glass-border) !important; border-radius: 16px !important;
+  box-shadow: none !important; font-size: 1.9rem !important; font-weight: 600 !important;
+}
+/* operators: teal→indigo gradient (same as records tabs / filter bar) */
+#txpad .pad-key.op {
+  background: linear-gradient(135deg,#00c9a7,#6366f1) !important; color: #fff !important;
+  border: none !important; box-shadow: 0 4px 12px rgba(0,201,167,0.28) !important; font-size: 1.9rem !important;
+}
+#txpad .pad-key.op.fn { background: linear-gradient(135deg,#fb7185,#ef4444) !important; box-shadow: 0 4px 12px rgba(239,68,68,0.25) !important; }
+#txpad .pad-key.op.eq { background: linear-gradient(135deg,#00c9a7,#0ea5e9) !important; box-shadow: 0 5px 16px rgba(0,201,167,0.4) !important; }
+/* compact, balanced keypad pinned to the bottom */
+#txpad .pad-keys {
+  flex: 0 0 auto !important; margin-top: auto !important;
+  gap: 10px !important; grid-auto-rows: minmax(56px, 66px) !important;
+}
+/* slightly tighter top sections */
+#txpad .pad-amountbox { padding: 8px 18px !important; }
+#txpad #pad-amount { font-size: 2.6rem !important; }
+#txpad .pad-notes { min-height: 56px !important; }
