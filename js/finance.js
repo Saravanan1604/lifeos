@@ -723,6 +723,14 @@ function padPickRepeat() {
   openModal('🔁 Repeat', `<div class="pad-pick">${opts.map(([v, l]) =>
     `<button onclick="_pad.repeat='${v}';closeModal();renderTxPad()">${_pad.repeat === v ? '✓ ' : ''}${l}</button>`).join('')}</div>`);
 }
+function padParen() {
+  const open = (_pad.expr.match(/\(/g) || []).length, close = (_pad.expr.match(/\)/g) || []).length;
+  const last = _pad.expr.slice(-1);
+  if (!_pad.expr || '+-×÷('.includes(last)) _pad.expr += '(';
+  else if (open > close) _pad.expr += ')';
+  else _pad.expr += '×(';
+  _padUpdateDisplay();
+}
 function padSetDate(v) { if (v) _pad.date = v; renderTxPad(); }
 function padSetTime(v) { if (v) _pad.time = v; renderTxPad(); }
 function padSave() {
@@ -794,11 +802,11 @@ function renderTxPad() {
       <div class="pad-amt-wrap"><span id="pad-amount">${esc(_pad.expr) || '0'}</span><span id="pad-result"></span></div>
     </div>
     <div class="pad-keys pad-calc">
-      <button class="pad-key op fn" onclick="padKey('C')">C</button>${op('%')}<button class="pad-key op" onclick="padKey('back')">⌫</button>${op('÷')}
-      ${key('7')}${key('8')}${key('9')}${op('×')}
-      ${key('4')}${key('5')}${key('6')}${op('-')}
-      ${key('1')}${key('2')}${key('3')}${op('+')}
-      ${key('0')}${key('00')}${key('.')}<button class="pad-key op eq" onclick="padKey('=')">=</button>
+      <button class="pad-key fn" onclick="padKey('C')">C</button><button class="pad-key fn" onclick="padKey('back')">⌫</button><button class="pad-key fn" onclick="padKey('%')">%</button><button class="pad-key oper" onclick="padKey('÷')">÷</button>
+      ${key('7')}${key('8')}${key('9')}<button class="pad-key oper" onclick="padKey('×')">×</button>
+      ${key('4')}${key('5')}${key('6')}<button class="pad-key oper" onclick="padKey('-')">−</button>
+      ${key('1')}${key('2')}${key('3')}<button class="pad-key oper" onclick="padKey('+')">+</button>
+      <button class="pad-key" onclick="padParen()">( )</button>${key('0')}${key('.')}<button class="pad-key eq" onclick="padKey('=')">=</button>
     </div>
     `;
   _padUpdateDisplay();

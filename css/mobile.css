@@ -2379,3 +2379,25 @@ html.is-app:not(.light) #txpad .pad-key { background: rgba(255,255,255,0.07) !im
   grid-auto-rows: 1fr !important; gap: 10px !important;
 }
 #txpad .pad-key { font-size: 1.9rem !important; }
+
+/* build 167 — iOS-style round calculator buttons on the add/edit keypad */
+#txpad .pad-keys.pad-calc {
+  flex: 1 1 auto !important; margin-top: 10px !important;
+  grid-auto-rows: 1fr !important; gap: 8px !important; align-items: center;
+}
+#txpad .pad-key {
+  width: 74px !important; height: 74px !important; max-width: 100%; aspect-ratio: 1 !important;
+  margin: 0 auto !important; border-radius: 50% !important; border: none !important;
+  background: #2c2c2e !important; color: #fff !important; box-shadow: none !important;
+  font-size: 2rem !important; font-weight: 500 !important;
+  display: flex; align-items: center; justify-content: center;
+}
+html.is-app.light #txpad .pad-key, html.is-app .light #txpad .pad-key { background: #e4e4ea !important; color: #1c1c1e !important; }
+#txpad .pad-key:active { filter: brightness(1.25); transform: scale(.95); }
+/* function keys (C ⌫ %) — slightly lighter dark circle */
+#txpad .pad-key.fn { background: #3a3a3c !important; color: #fff !important; }
+html.is-app.light #txpad .pad-key.fn, html.is-app .light #txpad .pad-key.fn { background: #d0d0d6 !important; color: #1c1c1e !important; }
+/* operators — green circles */
+#txpad .pad-key.oper { background: #2e9e44 !important; color: #fff !important; font-size: 2.3rem !important; }
+/* equals — blue circle */
+#txpad .pad-key.eq { background: #2f6bff !important; color: #fff !important; font-size: 2.4rem !important; }
