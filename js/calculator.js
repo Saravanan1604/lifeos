@@ -25,7 +25,7 @@ function openCalcPage() {
   if (!el) { el = document.createElement('div'); el.id = 'calc-page'; document.body.appendChild(el); }
   el.innerHTML = `
     <div class="cp-top">
-      <button class="cp-x" onclick="closeCalcPage()"><i data-lucide="x"></i></button>
+      <button class="cp-x" onclick="history.back()" title="Back"><i data-lucide="arrow-left"></i></button>
       <span class="cp-title">Calculator</span>
       <button class="cp-use" onclick="calcPageUse()"><i data-lucide="check"></i> Use</button>
     </div>
@@ -39,8 +39,22 @@ function openCalcPage() {
   el.style.display = 'flex';
   if (window.lucide && lucide.createIcons) lucide.createIcons();
   cpRender();
+  // Push a history entry so the phone's Back button (and our ← button) closes
+  // the calculator and returns to the page/sheet underneath, not the app exit.
+  try { history.pushState({ lifeosOverlay: 'calc' }, ''); } catch (_) {}
 }
 function closeCalcPage() { const el = document.getElementById('calc-page'); if (el) el.style.display = 'none'; }
+
+// Hardware/browser Back closes any open full-screen overlay (calc / voice)
+if (!window._lifeosOverlayBack) {
+  window._lifeosOverlayBack = true;
+  window.addEventListener('popstate', () => {
+    const cp = document.getElementById('calc-page');
+    if (cp && cp.style.display !== 'none' && cp.style.display !== '') { cp.style.display = 'none'; return; }
+    const vp = document.getElementById('voice-page');
+    if (vp && vp.style.display !== 'none' && vp.style.display !== '') { vp.style.display = 'none'; if (typeof vpStopListen === 'function') vpStopListen(); return; }
+  });
+}
 function _cpEval(expr) {
   if (!expr) return NaN;
   let e = String(expr).replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/%/g, '*0.01');
@@ -80,7 +94,7 @@ function calcPageUse() {
     _pad.expr = String(+(+v).toFixed(2));
     if (typeof renderTxPad === 'function') renderTxPad();
   }
-  closeCalcPage();
+  try { history.back(); } catch (_) { closeCalcPage(); }
 }
 
 // (legacy floating calculator hook — kept for other entry points)
