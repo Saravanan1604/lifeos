@@ -760,22 +760,22 @@ html.is-app .fin-cash-grid > * {
 }
 /* scale inner text to fit the shorter ATM-card height */
 html.is-app .fin-bank-grid .fin-dark-card div[style*="font-size:22px"],
-html.is-app .fin-cash-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 26px !important; }
+html.is-app .fin-cash-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 34px !important; }   /* icon */
 html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"],
-html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 32px !important; }
+html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 46px !important; }    /* balance — max big */
 html.is-app .fin-bank-grid .fin-dark-card p[style*="letter-spacing:1.5px"],
-html.is-app .fin-cash-grid .fin-dark-card p[style*="letter-spacing:1px"] { font-size: 17px !important; }
+html.is-app .fin-cash-grid .fin-dark-card p[style*="letter-spacing:1px"] { font-size: 24px !important; } /* bank/wallet name */
 html.is-app .fin-bank-grid .fin-dark-card button,
 html.is-app .fin-card-grid .fin-dark-card button,
-html.is-app .fin-cash-grid .fin-dark-card button { font-size: 14px !important; padding: 4px 9px !important; }
-html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 14px !important; }
-html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:2px"] { font-size: 14px !important; }
-html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:14px"]  { font-size: 19px !important; }
-html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:3px"] { font-size: 16px !important; }
-html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:11px"]  { font-size: 14px !important; }
-html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:16px"]  { font-size: 23px !important; }
-html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:13px"] { font-size: 16px !important; }
-html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:10px"] { font-size: 13px !important; }
+html.is-app .fin-cash-grid .fin-dark-card button { font-size: 16px !important; padding: 6px 12px !important; }
+html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 18px !important; }  /* type · last4 */
+html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:2px"] { font-size: 18px !important; }   /* network */
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:14px"]  { font-size: 26px !important; }      /* bank name */
+html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:3px"] { font-size: 22px !important; }   /* •••• number */
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:11px"]  { font-size: 17px !important; }      /* Outstanding/Limit labels */
+html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:16px"]  { font-size: 32px !important; }      /* Outstanding value */
+html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:13px"] { font-size: 22px !important; }      /* Limit value */
+html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:10px"] { font-size: 16px !important; }      /* % utilised · Due */
 /* keep ATM proportions + tidy padding (beats earlier 30px padding rule) */
 html.is-app .fin-bank-grid .fin-dark-card,
 html.is-app .fin-card-grid .fin-dark-card,
