@@ -2437,3 +2437,16 @@ body:has(#txpad) #fab-add,
 body:has(#txpad) #bottom-nav,
 body:has(#txpad) #top-tools,
 body:has(#txpad) .mobile-menu-btn { display: none !important; }
+
+/* build 171 — bigger calculator keys (fill columns, tighter gaps) */
+#txpad { padding-left: 10px !important; padding-right: 10px !important; }
+#txpad .pad-keys.pad-calc {
+  flex: 1 1 auto !important; align-content: center !important;
+  grid-auto-rows: min-content !important; gap: 14px 6px !important;
+}
+#txpad .pad-key {
+  max-width: none !important; width: 100% !important; aspect-ratio: 1 / 1 !important;
+  font-size: 2.6rem !important;
+}
+#txpad .pad-key.oper { font-size: 2.9rem !important; }
+#txpad .pad-key.eq   { font-size: 3rem !important; }
