@@ -725,6 +725,10 @@ window.addEventListener('popstate', (e) => {
   if (lock && lock.style.display === 'flex') return;        // can't dismiss lock
   const modal = document.getElementById('modal-overlay');
   if (modal && modal.style.display === 'flex') { closeModal(); return; }
+  // Full-screen Add/Edit keypad page → close it (back to records)
+  if (document.getElementById('txpad')) { if (typeof padClose === 'function') padClose(); return; }
+  // Multi-select mode → cancel selection
+  if (typeof _recSelectMode !== 'undefined' && _recSelectMode) { if (typeof recCancelSelect === 'function') recCancelSelect(); return; }
   const sb = document.querySelector('.sidebar.mobile-open');
   if (sb) { _closeMobileDrawer(); return; }
 
