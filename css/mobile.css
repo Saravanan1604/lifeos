@@ -2707,3 +2707,23 @@ html.is-app .light #txpad .pad-numgrid .pad-key-fn {
 }
 #txpad .pad-save-inc { background: linear-gradient(135deg,#10b981,#059669) !important; box-shadow: 0 12px 28px rgba(16,185,129,0.42) !important; }
 #txpad .pad-save-exp { background: linear-gradient(135deg,#fb7185,#ef4444) !important; box-shadow: 0 12px 28px rgba(239,68,68,0.38) !important; }
+
+/* build 187 — Add page blends with app background + bigger elements */
+#txpad {
+  background: var(--bg) !important;     /* match the app background */
+}
+/* bigger labels + fields */
+#txpad .pad-field label:not(.pad-dt), #txpad .pad-amt-label { font-size: 1.3rem !important; margin-bottom: 8px !important; }
+#txpad .pad-field > button, #txpad .pad-field .pad-dt {
+  padding: 18px 14px !important; font-size: 1.55rem !important; border-radius: 18px !important; min-height: 64px;
+}
+#txpad .pad-cat-ic { width: 2.3rem !important; height: 2.3rem !important; font-size: 1.3rem !important; }
+/* bigger type pills */
+#txpad .pad-type-pills { padding: 7px; }
+#txpad .pad-pill { padding: 16px !important; font-size: 1.45rem !important; }
+/* bigger amount */
+#txpad .pad-amount-input { font-size: 3.1rem !important; padding: 22px 20px !important; min-height: 78px; }
+/* trim the oversized notes box */
+#txpad .pad-notes { min-height: 110px !important; max-height: 200px !important; flex: 0 0 auto !important; font-size: 1.4rem !important; }
+/* bigger SAVE */
+#txpad .pad-save-btn { padding: 20px !important; font-size: 1.7rem !important; border-radius: 20px !important; }
