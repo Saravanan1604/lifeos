@@ -797,19 +797,11 @@ function renderTxPad() {
       <div class="pad-field"><label>🏷️ Subcategory</label><button onclick="padPickSubcat()">${_pad.subcategory ? esc(_pad.subcategory) : '—'}</button></div>
       ${_pad.mode === 'add' ? `<div class="pad-field"><label>🔁 Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>` : ''}
     </div>
-    <textarea class="pad-notes" placeholder="Add notes" oninput="_pad.notes=this.value" onfocus="padNotesMode(true)">${esc(_pad.notes)}</textarea>
-    <div class="pad-amountbox" onclick="padNotesMode(false)">
-      <div class="pad-amt-wrap"><span id="pad-amount">${esc(_pad.expr) || '0'}</span><span id="pad-result"></span></div>
-    </div>
-    <div class="pad-keys pad-num">
-      ${key('7')}${key('8')}${key('9')}
-      ${key('4')}${key('5')}${key('6')}
-      ${key('1')}${key('2')}${key('3')}
-      <button class="pad-key fn" onclick="padKey('C')">C</button>${key('0')}${key('.')}
-      <button class="pad-key fn" onclick="padKey('back')" style="grid-column:1/4">⌫ Backspace</button>
-    </div>
+    <label class="pad-amt-label">Amount (₹)</label>
+    <input type="number" inputmode="decimal" step="0.01" min="0" class="pad-amount-input" id="pad-amount-input"
+      placeholder="0" value="${esc(_pad.expr)}" oninput="_pad.expr=this.value"/>
+    <textarea class="pad-notes" placeholder="Add notes" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
     `;
-  _padUpdateDisplay();
 }
 
 // Records filter modal — reuses the existing _finType / _finCategory / _finSort + search

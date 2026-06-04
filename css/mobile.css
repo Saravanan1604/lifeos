@@ -2552,3 +2552,12 @@ html.is-app.light #txpad .pad-key.oper, html.is-app .light #txpad .pad-key.oper 
   border-radius: 18px !important; font-size: 2rem !important;
 }
 #txpad .pad-keys.pad-num .pad-key.fn { background: rgba(0,201,167,0.14) !important; color: #00c9a7 !important; }
+
+/* build 181 — amount uses the device keyboard (no custom keypad) */
+#txpad .pad-amt-label { display: block; font-size: 1.1rem; opacity: .7; margin: 6px 0 6px 4px; }
+#txpad .pad-amount-input {
+  width: 100%; border: 1px solid var(--glass-border); background: var(--glass); color: var(--text);
+  border-radius: 16px; padding: 16px 18px; font-size: 2.6rem; font-weight: 800; text-align: right;
+  outline: none; margin-bottom: 14px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+}
+#txpad .pad-amount-input::placeholder { color: var(--text2); }
