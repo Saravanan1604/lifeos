@@ -2450,3 +2450,21 @@ body:has(#txpad) .mobile-menu-btn { display: none !important; }
 }
 #txpad .pad-key.oper { font-size: 2.9rem !important; }
 #txpad .pad-key.eq   { font-size: 3rem !important; }
+
+/* build 172 — fit calculator keys + fix operator colours in light mode */
+/* compact the top section so all 5 key rows fit */
+#txpad .pad-types { margin: 8px 0 10px !important; }
+#txpad .pad-pickrow { margin-bottom: 8px !important; }
+#txpad .pad-field > button, #txpad .pad-field .pad-dt { padding: 10px !important; }
+#txpad .pad-notes { min-height: 44px !important; padding: 10px !important; }
+#txpad .pad-amountbox { padding: 6px 16px !important; margin-bottom: 8px !important; }
+#txpad #pad-amount { font-size: 2.2rem !important; }
+/* keys: big but capped so they don't overflow */
+#txpad .pad-keys.pad-calc { gap: 10px 6px !important; align-content: center !important; }
+#txpad .pad-key { max-width: 88px !important; font-size: 2.2rem !important; }
+#txpad .pad-key.oper { font-size: 2.4rem !important; }
+#txpad .pad-key.eq   { font-size: 2.5rem !important; }
+/* operators/equals must beat the light-theme key colour (higher specificity) */
+html.is-app.light #txpad .pad-key.oper, html.is-app .light #txpad .pad-key.oper { background: #2e9e44 !important; color: #fff !important; }
+html.is-app.light #txpad .pad-key.eq,   html.is-app .light #txpad .pad-key.eq   { background: #2f6bff !important; color: #fff !important; }
+html.is-app.light #txpad .pad-key.fn,   html.is-app .light #txpad .pad-key.fn   { background: #d0d0d6 !important; }
