@@ -2430,3 +2430,10 @@ html.is-app.light #txpad .pad-key.fn, html.is-app .light #txpad .pad-key.fn { ba
 }
 #txpad .pad-field .pad-dt input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; }
 #txpad .pad-field { position: relative; }
+
+/* build 170 — keypad page covers nav/FAB (removes stray square) + ensure on top */
+html.is-app #txpad { z-index: 2147483600 !important; }
+body:has(#txpad) #fab-add,
+body:has(#txpad) #bottom-nav,
+body:has(#txpad) #top-tools,
+body:has(#txpad) .mobile-menu-btn { display: none !important; }
