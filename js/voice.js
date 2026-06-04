@@ -348,6 +348,10 @@ const VOICE_COMMANDS = [
   { keys: ['asset', 'investment', 'சொத்து', 'முதலீடு', 'संपत्ति', 'निवेश'], run: () => navigate('investments'), say: 'Assets' },
   { keys: ['budget', 'பட்ஜெட்', 'बजट'], run: () => navigate('budget'), say: 'Budget' },
   { keys: ['bank', 'வங்கி', 'बैंक'], run: () => navigate('bank-tracker'), say: 'Bank Tracker' },
+  { keys: ['records', 'all transactions', 'transaction list', 'show transactions'], run: () => navigate('transactions'), say: 'Records' },
+  { keys: ['credit card', 'cards', 'card'], run: () => navigate('bank-tracker'), say: 'Cards' },
+  { keys: ['cash', 'wallet', 'purse'], run: () => navigate('bank-tracker'), say: 'Cash' },
+  { keys: ['net worth', 'networth', 'wealth', 'total balance'], run: () => navigate('finance'), say: 'Net worth' },
   { keys: ['health', 'சுகாதார', 'உடல்நலம்', 'स्वास्थ्य', 'सेहत'], run: () => navigate('health'), say: 'Health Hub' },
   { keys: ['habit', 'பழக்க', 'आदत'], run: () => navigate('habits'), say: 'Habits' },
   { keys: ['goal', 'இலக்கு', 'लक्ष्य'], run: () => navigate('goals'), say: 'Goals' },
@@ -787,15 +791,61 @@ function openVoicePage() {
   _vpPadSnap = (typeof _pad !== 'undefined' && _pad) ? _pad : null;
   let el = document.getElementById('voice-page');
   if (!el) { el = document.createElement('div'); el.id = 'voice-page'; document.body.appendChild(el); }
+  const E = 'arrow-up-right', I = 'arrow-down-left', B = 'landmark', N = 'layout-dashboard', A = 'zap';
   const examples = [
-    { ic: 'arrow-up-right', t: '“Spent 250 on food”' },
-    { ic: 'arrow-up-right', t: '“Add expense 500 groceries”' },
-    { ic: 'arrow-down-left', t: '“Income 20000 salary”' },
-    { ic: 'arrow-down-left', t: '“Received 1000 gift”' },
-    { ic: 'layout-dashboard', t: '“Go to dashboard / budget / bank”' },
-    { ic: 'target', t: '“Add goal” · “Add habit”' },
-    { ic: 'calculator', t: '“Open calculator”' },
-    { ic: 'sun-moon', t: '“Dark mode” · “Sync” · “Help”' },
+    { h: 'Expenses' },
+    { ic: E, t: '“Spent 250 on food”' },
+    { ic: E, t: '“Paid 500 for groceries”' },
+    { ic: E, t: '“Bought coffee for 80”' },
+    { ic: E, t: '“Spent 1200 on shopping”' },
+    { ic: E, t: '“Paid 300 for fuel”' },
+    { ic: E, t: '“Spent 150 on transport”' },
+    { ic: E, t: '“Paid 2000 rent”' },
+    { ic: E, t: '“Spent 600 on entertainment”' },
+    { ic: E, t: '“Paid 450 for health”' },
+    { ic: E, t: '“Spent 99 on subscriptions”' },
+    { ic: E, t: '“Paid 1500 EMI”' },
+    { ic: E, t: '“Spent 350 on travel”' },
+    { ic: E, t: '“Paid 700 electricity bill”' },
+    { ic: E, t: '“Paid 1000 insurance”' },
+    { ic: E, t: '“Spent 250 on education”' },
+    { ic: E, t: '“Spent 400 on gifts”' },
+    { ic: E, t: '“Add expense 500 shopping”' },
+    { h: 'Income' },
+    { ic: I, t: '“Income 20000 salary”' },
+    { ic: I, t: '“Received 5000 freelance”' },
+    { ic: I, t: '“Got 1000 gift”' },
+    { ic: I, t: '“Add income 15000 business”' },
+    { ic: I, t: '“Received 250 interest”' },
+    { ic: I, t: '“Salary 30000”' },
+    { ic: I, t: '“Received 2000 bonus”' },
+    { ic: I, t: '“Income 1200 from rent”' },
+    { h: 'Banks & Accounts' },
+    { ic: B, t: '“Open bank tracker”' },
+    { ic: B, t: '“Show bank balance”' },
+    { ic: B, t: '“Show credit cards”' },
+    { ic: B, t: '“Show cash / wallet”' },
+    { ic: B, t: '“Net worth”' },
+    { ic: B, t: '“Open assets”' },
+    { ic: B, t: '“Open budget”' },
+    { ic: B, t: '“Show all transactions”' },
+    { ic: B, t: '“Open records”' },
+    { h: 'Navigate' },
+    { ic: N, t: '“Go to dashboard”' },
+    { ic: N, t: '“Open finance”' },
+    { ic: N, t: '“Open health / habits / goals”' },
+    { ic: N, t: '“Open journal”' },
+    { ic: N, t: '“Open categories”' },
+    { ic: N, t: '“Open analytics”' },
+    { ic: N, t: '“Open settings”' },
+    { ic: N, t: '“Help”' },
+    { h: 'Quick actions' },
+    { ic: A, t: '“Add expense” · “Add income”' },
+    { ic: A, t: '“Open calculator”' },
+    { ic: A, t: '“Add goal” · “Add habit”' },
+    { ic: A, t: '“Write journal”' },
+    { ic: A, t: '“Dark mode” · “Light mode”' },
+    { ic: A, t: '“Sync now”' },
   ];
   el.innerHTML = `
     <button class="vp-close" onclick="closeVoicePage()"><i data-lucide="x"></i></button>
@@ -807,7 +857,9 @@ function openVoicePage() {
     <p class="vp-transcript" id="vp-transcript">Say a command</p>
     <div class="vp-cmds">
       <p class="vp-cmds-title">Commands this app understands</p>
-      ${examples.map(e => `<div class="vp-cmd"><span class="vp-cmd-ic"><i data-lucide="${e.ic}"></i></span><span>${e.t}</span></div>`).join('')}
+      ${examples.map(e => e.h
+        ? `<p class="vp-cmd-head">${e.h}</p>`
+        : `<div class="vp-cmd"><span class="vp-cmd-ic"><i data-lucide="${e.ic}"></i></span><span class="vp-cmd-txt">${e.t}</span></div>`).join('')}
     </div>`;
   el.style.display = 'flex';
   if (window.lucide && lucide.createIcons) lucide.createIcons();

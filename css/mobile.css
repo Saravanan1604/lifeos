@@ -3065,14 +3065,17 @@ html.is-app.light #txpad .pad-cancel-btn { background: rgba(0,0,0,0.04); color: 
 #voice-page .vp-orb.on .vp-mic { animation: vpPulse 1.3s ease-in-out infinite; }
 @keyframes vpPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 #voice-page .vp-mic svg.lucide { width: 58px; height: 58px; }
-#voice-page .vp-status { font-size: 18px; color: var(--text2); font-weight: 600; margin-bottom: 8px; }
-#voice-page .vp-transcript { font-size: 26px; font-weight: 800; text-align: center; min-height: 34px; margin-bottom: 26px; padding: 0 8px; }
-#voice-page .vp-cmds { width: 100%; max-width: 480px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 18px; padding: 18px; overflow-y: auto; }
-#voice-page .vp-cmds-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); font-weight: 700; margin-bottom: 12px; }
-#voice-page .vp-cmd { display: flex; align-items: center; gap: 12px; padding: 11px 4px; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+#voice-page .vp-status { font-size: 24px; color: #5eead4; font-weight: 700; margin-bottom: 10px; }
+#voice-page .vp-transcript { font-size: 30px; font-weight: 800; text-align: center; min-height: 38px; margin-bottom: 22px; padding: 0 8px; color: var(--text); }
+#voice-page .vp-cmds { width: 100%; max-width: 520px; flex: 1 1 auto; min-height: 0; overflow-y: auto; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 18px; padding: 18px 18px 24px; -webkit-overflow-scrolling: touch; }
+#voice-page .vp-cmds-title { font-size: 16px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); font-weight: 800; margin-bottom: 14px; text-align: center; }
+#voice-page .vp-cmd-head { font-size: 18px; font-weight: 800; color: #00c9a7; letter-spacing: .5px; margin: 16px 0 8px; }
+#voice-page .vp-cmd-head:first-of-type { margin-top: 0; }
+#voice-page .vp-cmd { display: flex; align-items: center; gap: 14px; padding: 13px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); }
 #voice-page .vp-cmd:last-child { border-bottom: none; }
-#voice-page .vp-cmd-ic { width: 36px; height: 36px; border-radius: 10px; background: rgba(0,201,167,0.15); color: #00c9a7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-#voice-page .vp-cmd-ic svg.lucide { width: 1.2rem; height: 1.2rem; }
+#voice-page .vp-cmd-txt { font-size: 23px; font-weight: 600; color: var(--text); }
+#voice-page .vp-cmd-ic { width: 44px; height: 44px; border-radius: 12px; background: rgba(0,201,167,0.15); color: #00c9a7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+#voice-page .vp-cmd-ic svg.lucide { width: 1.5rem; height: 1.5rem; }
 
 /* ============================================================
    build 215 — clean full-screen calculator (iOS / Google style)
