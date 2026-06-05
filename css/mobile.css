@@ -3514,3 +3514,34 @@ html.is-app #sync-btn #sync-btn-icon {
   transform-origin: center;
 }
 html.is-app #sync-btn:active { transform: scale(.9) !important; }
+
+/* ============================================================
+   build 296 — bottom nav: only Records · Finance · [+] · Assets · More.
+   5 equal slots (the centre slot holds the FAB) so everything — incl. the
+   + button — is evenly spaced. Tab icons/labels scaled 1.25×.
+   This block is last in the file so it wins over all earlier nav rules.
+   ============================================================ */
+html.is-app #bottom-nav {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-evenly !important;
+  padding-left: 4px !important; padding-right: 4px !important;
+}
+html.is-app #bottom-nav .bn-group { display: contents !important; }
+/* every slot (4 tabs + centre FAB slot) shares equal width */
+html.is-app #bottom-nav .bn-item,
+html.is-app #bottom-nav .bn-fab-slot {
+  flex: 1 1 0 !important; min-width: 0 !important;
+}
+/* kill the old asymmetric clearances tied to the removed Dashboard/Budget */
+html.is-app #bottom-nav .bn-item[data-page="investments"],
+html.is-app #bottom-nav .bn-item[data-page="finance"],
+html.is-app #bottom-nav .bn-item[data-page="transactions"],
+html.is-app #bottom-nav #bn-more {
+  padding-left: 0 !important; padding-right: 0 !important;
+}
+html.is-app #bottom-nav .bn-fab-slot { height: 1px; }
+/* 1.25× larger icons + labels (was 50px / 22px) */
+html.is-app #bottom-nav .bn-item svg { width: 62px !important; height: 62px !important; }
+html.is-app #bottom-nav .bn-item span { font-size: 28px !important; }
+html.is-app #bottom-nav .bn-item { gap: 7px !important; padding: 6px 0 !important; }
