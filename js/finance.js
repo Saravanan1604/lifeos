@@ -324,9 +324,6 @@ function renderRecordsMyMoney() {
         <div class="mm-row-actions left">
           <button class="mm-act mm-act-del" onclick="event.stopPropagation();_recSwipeDelete('${t.id}')"><i data-lucide="trash-2"></i></button>
         </div>
-        <div class="mm-row-actions right">
-          <button class="mm-act mm-act-del" onclick="event.stopPropagation();_recSwipeDelete('${t.id}')"><i data-lucide="trash-2"></i></button>
-        </div>
         <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
           ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
           <div class="mm-ic" style="background:${catColor(t.category)}">${catIconHtml(t.category)}</div>
@@ -537,12 +534,16 @@ function initRecordsGestures() {
     const t = e.touches[0]; const dx = t.clientX - startX, dy = t.clientY - startY;
     if (Math.abs(dx) > 8 || Math.abs(dy) > 8) { moved = true; clearTimeout(lpTimer); }
     if (!horiz && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.3) {
-      horiz = true; window.__recGestureActive = true; row.style.transition = 'none';
-      if (_recOpenRow && _recOpenRow !== row) _recCloseSwipe();
+      // Only intercept rightward swipe (reveal delete) or closing an already-open row.
+      // Leftward swipe on a closed row is left alone → page-swipe navigation handles it.
+      if (dx > 0 || _recOpenRow === row) {
+        horiz = true; window.__recGestureActive = true; row.style.transition = 'none';
+        if (_recOpenRow && _recOpenRow !== row) _recCloseSwipe();
+      }
     }
     if (horiz) {
       e.preventDefault();
-      lastTx = Math.max(-_REC_OPEN, Math.min(_REC_OPEN, baseT + dx));
+      lastTx = Math.max(0, Math.min(_REC_OPEN, baseT + dx));
       row.style.transform = `translateX(${lastTx}px)`;
     }
   }, { passive: false });
@@ -552,16 +553,12 @@ function initRecordsGestures() {
     setTimeout(() => { window.__recGestureActive = false; }, 60);
     if (horiz && row) {
       row.style.transition = '';
-      if (lastTx < -_REC_OPEN / 2) {
-        // swiped left → reveal right-side delete
-        row.style.transform = `translateX(${-_REC_OPEN}px)`; row.classList.add('swiped'); row.classList.remove('swiped-left'); _recOpenRow = row; _recOpenDir = -1;
-        _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 350);
-      } else if (lastTx > _REC_OPEN / 2) {
+      if (lastTx > _REC_OPEN / 2) {
         // swiped right → reveal left-side delete
-        row.style.transform = `translateX(${_REC_OPEN}px)`; row.classList.add('swiped','swiped-left'); _recOpenRow = row; _recOpenDir = 1;
+        row.style.transform = `translateX(${_REC_OPEN}px)`; row.classList.add('swiped'); _recOpenRow = row; _recOpenDir = 1;
         _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 350);
       } else {
-        row.style.transform = ''; row.classList.remove('swiped','swiped-left'); if (_recOpenRow === row) { _recOpenRow = null; _recOpenDir = 0; }
+        row.style.transform = ''; row.classList.remove('swiped'); if (_recOpenRow === row) { _recOpenRow = null; _recOpenDir = 0; }
       }
     }
     row = null; horiz = false;
