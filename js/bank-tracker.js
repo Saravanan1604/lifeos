@@ -1,4 +1,4 @@
-// ===== BANK TRACKER PAGE =====
+﻿// ===== BANK TRACKER PAGE =====
 let bankTrackerAccount = null; // currently selected account id
 let bankTrackerTab     = 'banks'; // 'banks' | 'cards' | 'cash'
 let bankTrackerCard    = null;    // currently selected credit card id
@@ -237,28 +237,7 @@ function renderBankTracker() {
         <div style="position:relative">
           <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,201,167,0.7);margin-bottom:6px">🏦 Total Bank Balance</p>
           <p style="font-size:52px;font-weight:900;color:#00c9a7;letter-spacing:-2px;line-height:1">${fmt(totalBalance)}</p>
-          <!-- Bank selector pills -->
-          <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px">
-            <!-- ALL pill -->
-            <div onclick="bankTrackerAccount=null;renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${!selId?'rgba(99,102,241,0.25)':'rgba(255,255,255,0.06)'};border:1px solid ${!selId?'rgba(99,102,241,0.6)':'rgba(255,255,255,0.1)'};cursor:pointer;transition:.2s;text-align:center;min-width:70px">
-              <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${!selId?'#818cf8':'rgba(255,255,255,0.45)'}">ALL</p>
-              <p style="font-size:14px;font-weight:800;color:${!selId?'#818cf8':'rgba(255,255,255,0.65)'};margin-top:2px">${accounts.length} banks</p>
-            </div>
-            ${accounts.map(a => {
-              const isActive = selId === a.id;
-              const lastSnap = [...history].filter(h=>h.accountId===a.id).sort((x,y)=>y.date.localeCompare(x.date))[0];
-              const lastDate = lastSnap ? formatRelativeDate(lastSnap.date) : 'No entries';
-              return `
-              <div onclick="bankTrackerAccount='${a.id}';renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${isActive?'rgba(0,201,167,0.2)':'rgba(255,255,255,0.06)'};border:1px solid ${isActive?'rgba(0,201,167,0.5)':'rgba(255,255,255,0.08)'};cursor:pointer;transition:.2s;min-width:120px">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-                  <span style="font-size:16px">${a.icon||'🏦'}</span>
-                  <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${a.bankName}</p>
-                </div>
-                <p style="font-size:18px;font-weight:900;color:#fff">${fmt(a.balance||0)}</p>
-                <p style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px">Updated ${lastDate}</p>
-              </div>`;
-            }).join('')}
-          </div>
+          <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.45);margin-top:10px">${accounts.length} accounts · tap a card in Finance to view individual log</p>
         </div>
       </div>
 
