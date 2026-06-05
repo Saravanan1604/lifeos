@@ -2206,6 +2206,7 @@ html.is-app .mm-row-actions {
   position: absolute; top: 0; bottom: 0; z-index: 0;
   display: flex; align-items: stretch;
 }
+html.is-app .mm-recur-ic { width: 15px; height: 15px; vertical-align: -2px; color: #f59e0b; stroke-width: 2.4; display: inline-block; }
 html.is-app .mm-row-actions.right { right: 0; }
 html.is-app .mm-row-actions.left  { left: 0; }
 html.is-app .mm-row-actions .mm-act {

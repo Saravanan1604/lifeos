@@ -331,7 +331,7 @@ function renderRecordsMyMoney() {
           ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
           <div class="mm-ic" style="background:${catColor(t.category)}">${catIconHtml(t.category)}</div>
           <div class="mm-mid">
-            <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔄' : ''}</p>
+            <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' <i data-lucide="repeat" class="mm-recur-ic"></i>' : ''}</p>
             <div class="mm-meta">${chip}${note}${sub}${tm}</div>
           </div>
           <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
@@ -1851,7 +1851,7 @@ function renderFinanceTxList() {
           style="width:16px;height:16px;accent-color:#00c9a7;cursor:pointer;flex-shrink:0"/>
         <div class="tx-ic" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${catColor(tx.category)}26;border:1px solid ${catColor(tx.category)}55;color:${catColor(tx.category)};font-size:18px">${catIconHtml(tx.category)}</div>
         <div>
-          <p style="font-size:13px;font-weight:600">${tx.description || tx.category}${tx.recurringId ? ' <span title="Recurring" style="font-size:11px">🔄</span>' : ''}</p>
+          <p style="font-size:13px;font-weight:600">${tx.description || tx.category}${tx.recurringId ? ' <i data-lucide="repeat" class="mm-recur-ic" title="Recurring"></i>' : ''}</p>
           <p style="font-size:11px;color:var(--text3)">${tx.category}${tx.subcategory ? ' › <span style="color:#a5b4fc">' + esc(tx.subcategory) + '</span>' : ''} · ${fmtDate(tx.date)}${tx.source ? ' · <span style="color:#f59e0b">' + _sourceLabel(tx.source) + '</span>' : ''}</p>
         </div>
       </div>
