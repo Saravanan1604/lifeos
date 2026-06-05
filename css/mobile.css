@@ -3414,6 +3414,11 @@ html.is-app .fin-viewtabs button { flex: 1; border: none; background: transparen
 html.is-app .fin-viewtabs button svg.lucide { width: 1.3rem; height: 1.3rem; }
 html.is-app .fin-viewtabs button.on { background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; }
 
+/* build 285 — extra themes (AMOLED true-black, Ocean, Sunset) */
+body.amoled { --bg: #000000; --bg2: #060606; --glass: rgba(255,255,255,0.05); --glass-border: rgba(255,255,255,0.10); background: #000 !important; }
+body.ocean  { --bg: #04121f; --bg2: #07223b; --glass: rgba(120,200,255,0.06); --glass-border: rgba(120,200,255,0.16); background: #04121f !important; }
+body.sunset { --bg: #1b0d16; --bg2: #2a0f1a; --glass: rgba(255,170,120,0.07); --glass-border: rgba(255,150,100,0.18); background: #1b0d16 !important; }
+
 /* build 270 — sticky day headers + dimmer meta (emphasise category + amount) */
 html.is-app .mm-day {
   position: sticky !important; top: 0 !important; z-index: 6 !important;

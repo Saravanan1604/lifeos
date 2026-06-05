@@ -393,6 +393,15 @@ function renderSettings() {
             <button onclick="setTheme('auto')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
               <span style="font-size:22px">🌗</span><span style="font-size:12px;font-weight:600">Auto</span>
             </button>
+            <button onclick="setTheme('amoled')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
+              <span style="font-size:22px">⬛</span><span style="font-size:12px;font-weight:600">AMOLED</span>
+            </button>
+            <button onclick="setTheme('ocean')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
+              <span style="font-size:22px">🌊</span><span style="font-size:12px;font-weight:600">Ocean</span>
+            </button>
+            <button onclick="setTheme('sunset')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
+              <span style="font-size:22px">🌇</span><span style="font-size:12px;font-weight:600">Sunset</span>
+            </button>
           </div>
           <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:8px">Auto switches theme based on time of day</p>
         </div>
@@ -474,13 +483,23 @@ function setTheme(mode) {
   STATE.settings = STATE.settings || {};
   STATE.settings.theme = mode;
   saveState();
-  const h = new Date().getHours();
-  if (mode === 'light') document.body.classList.add('light');
-  else if (mode === 'dark') document.body.classList.remove('light');
-  else { if (h >= 6 && h < 19) document.body.classList.add('light'); else document.body.classList.remove('light'); }
+  applyThemeClass(mode);
   const btn = document.querySelector('.theme-toggle');
   if (btn) btn.textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
-  toast(`Theme: ${mode} mode ✅`, 'success');
+  toast(`Theme: ${mode} ✅`, 'success');
+  if (typeof currentPage !== 'undefined' && currentPage === 'settings' && typeof navigate === 'function') navigate('settings', true);
+}
+// Apply a theme by toggling body classes (dark is the default = no class)
+function applyThemeClass(mode) {
+  const body = document.body;
+  body.classList.remove('light', 'amoled', 'ocean', 'sunset');
+  const h = new Date().getHours();
+  if (mode === 'light') body.classList.add('light');
+  else if (mode === 'amoled') body.classList.add('amoled');
+  else if (mode === 'ocean') body.classList.add('ocean');
+  else if (mode === 'sunset') body.classList.add('sunset');
+  else if (mode === 'auto') { if (h >= 6 && h < 19) body.classList.add('light'); }
+  // 'dark' → no class
 }
 
 function exportData() {

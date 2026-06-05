@@ -13,8 +13,9 @@ window.addEventListener('DOMContentLoaded', () => {
   initParticles();
   STATE = DB.load();
 
-  // Apply saved theme
-  if (STATE.settings?.theme === 'light') document.body.classList.add('light');
+  // Apply saved theme (dark | light | auto | amoled | ocean | sunset)
+  if (typeof applyThemeClass === 'function') applyThemeClass(STATE.settings?.theme || 'dark');
+  else if (STATE.settings?.theme === 'light') document.body.classList.add('light');
 
   // Inject the floating theme toggle (sun/moon). On web it floats top-right;
   // in the app, CSS pins it top-right next to the notification bell.
