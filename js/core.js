@@ -1,90 +1,98 @@
-// ===== PARTICLES =====
-function initParticles() {
-  const canvas = document.getElementById('particles-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W = canvas.width = window.innerWidth;
-  let H = canvas.height = window.innerHeight;
-  window.addEventListener('resize', () => {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  });
+// ===== BACKGROUND ANIMATIONS (selectable) =====
+// Modes: network | bubbles | stars | snow | aurora | none
+let _bgMode = 'network';
+let _bgRAF = null;
+let _bgCtx = null, _bgW = 0, _bgH = 0, _bgParts = [];
 
-  // Dark mode: teal glow network
-  const darkColors = [
-    'rgba(0,201,167,', 'rgba(0,229,190,', 'rgba(10,207,131,',
-    'rgba(0,201,167,', 'rgba(0,229,190,', 'rgba(99,102,241,',
-  ];
-  // Light mode: indigo/violet — visible on white background
-  const lightColors = [
-    'rgba(79,70,229,', 'rgba(99,102,241,', 'rgba(139,92,246,',
-    'rgba(0,130,110,', 'rgba(16,120,100,', 'rgba(109,40,217,',
-  ];
+const _DARK_COLORS = ['rgba(0,201,167,', 'rgba(0,229,190,', 'rgba(10,207,131,', 'rgba(0,201,167,', 'rgba(0,229,190,', 'rgba(99,102,241,'];
+const _LIGHT_COLORS = ['rgba(79,70,229,', 'rgba(99,102,241,', 'rgba(139,92,246,', 'rgba(0,130,110,', 'rgba(16,120,100,', 'rgba(109,40,217,'];
 
-  const particles = Array.from({ length: 40 }, () => ({
-    x: Math.random() * W,
-    y: Math.random() * H,
+function _bgSeed() {
+  const W = _bgW, H = _bgH;
+  const counts = { network: 40, bubbles: 26, stars: 80, snow: 90, aurora: 5, none: 0 };
+  const n = counts[_bgMode] != null ? counts[_bgMode] : 40;
+  _bgParts = Array.from({ length: n }, () => ({
+    x: Math.random() * W, y: Math.random() * H,
     r: Math.random() * 2.2 + 1.2,
-    dx: (Math.random() - 0.5) * 0.18,
-    dy: (Math.random() - 0.5) * 0.18,
-    colorIdx: Math.floor(Math.random() * darkColors.length),
+    dx: (Math.random() - 0.5) * 0.18, dy: (Math.random() - 0.5) * 0.18,
+    vy: Math.random() * 0.7 + 0.25,
+    sway: Math.random() * Math.PI * 2,
+    big: Math.random() * 90 + 50,
+    colorIdx: Math.floor(Math.random() * _DARK_COLORS.length),
     opacity: Math.random() * 0.5 + 0.35,
     pulse: Math.random() * Math.PI * 2,
   }));
+}
 
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    const isLight = document.body.classList.contains('light');
-    const colors = isLight ? lightColors : darkColors;
-    const lineRGB = isLight ? '79,70,229' : '0,201,167';
-    const lineAlpha = isLight ? 0.14 : 0.35;
-    const lineW = isLight ? 0.55 : 0.9;
+function _bgDraw() {
+  const ctx = _bgCtx, W = _bgW, H = _bgH, P = _bgParts;
+  if (!ctx) return;
+  if (_bgMode === 'none') { ctx.clearRect(0, 0, W, H); _bgRAF = null; return; }
+  ctx.clearRect(0, 0, W, H);
+  const isLight = document.body.classList.contains('light');
+  const colors = isLight ? _LIGHT_COLORS : _DARK_COLORS;
+  const lineRGB = isLight ? '79,70,229' : '0,201,167';
 
-    // ─── Lines behind dots ───
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const ddx = particles[i].x - particles[j].x;
-        const ddy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(ddx * ddx + ddy * ddy);
-        if (dist < 200) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(${lineRGB},${lineAlpha * (1 - dist / 200)})`;
-          ctx.lineWidth = lineW;
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-        }
-      }
+  if (_bgMode === 'network') {
+    for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
+      const dx = P[i].x - P[j].x, dy = P[i].y - P[j].y, d = Math.hypot(dx, dy);
+      if (d < 200) { ctx.beginPath(); ctx.strokeStyle = `rgba(${lineRGB},${(isLight ? 0.14 : 0.35) * (1 - d / 200)})`; ctx.lineWidth = isLight ? 0.55 : 0.9; ctx.moveTo(P[i].x, P[i].y); ctx.lineTo(P[j].x, P[j].y); ctx.stroke(); }
     }
-
-    // ─── Dots ───
-    particles.forEach(p => {
-      p.pulse += 0.012;
-      const breathe = p.opacity + Math.sin(p.pulse) * 0.08;
-      const col = colors[p.colorIdx % colors.length];
-
-      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
-      grad.addColorStop(0, col + (breathe * 0.7) + ')');
-      grad.addColorStop(0.5, col + (breathe * 0.25) + ')');
-      grad.addColorStop(1, col + '0)');
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = col + breathe + ')';
-      ctx.fill();
-
-      p.x += p.dx; p.y += p.dy;
-      if (p.x < 0 || p.x > W) p.dx *= -1;
-      if (p.y < 0 || p.y > H) p.dy *= -1;
+    P.forEach(p => {
+      p.pulse += 0.012; const b = p.opacity + Math.sin(p.pulse) * 0.08; const col = colors[p.colorIdx % colors.length];
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
+      g.addColorStop(0, col + (b * 0.7) + ')'); g.addColorStop(0.5, col + (b * 0.25) + ')'); g.addColorStop(1, col + '0)');
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 4, 0, 7); ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fillStyle = col + b + ')'; ctx.fill();
+      p.x += p.dx; p.y += p.dy; if (p.x < 0 || p.x > W) p.dx *= -1; if (p.y < 0 || p.y > H) p.dy *= -1;
     });
-
-    requestAnimationFrame(draw);
+  } else if (_bgMode === 'stars') {
+    P.forEach(p => { p.pulse += 0.03; const b = 0.3 + Math.abs(Math.sin(p.pulse)) * 0.6; const col = colors[p.colorIdx % colors.length];
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.9, 0, 7); ctx.fillStyle = col + b + ')'; ctx.fill(); });
+  } else if (_bgMode === 'bubbles') {
+    P.forEach(p => { p.sway += 0.02; p.y -= p.vy; p.x += Math.sin(p.sway) * 0.4; if (p.y < -20) { p.y = H + 20; p.x = Math.random() * W; }
+      const col = colors[p.colorIdx % colors.length]; const rad = p.r * 6;
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
+      g.addColorStop(0, col + '0.18)'); g.addColorStop(0.8, col + '0.05)'); g.addColorStop(1, col + '0)');
+      ctx.beginPath(); ctx.arc(p.x, p.y, rad, 0, 7); ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 2.2, 0, 7); ctx.strokeStyle = col + '0.25)'; ctx.lineWidth = 1; ctx.stroke(); });
+  } else if (_bgMode === 'snow') {
+    P.forEach(p => { p.sway += 0.015; p.y += p.vy; p.x += Math.sin(p.sway) * 0.5; if (p.y > H + 10) { p.y = -10; p.x = Math.random() * W; }
+      const col = colors[p.colorIdx % colors.length]; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fillStyle = col + '0.6)'; ctx.fill(); });
+  } else if (_bgMode === 'aurora') {
+    P.forEach(p => { p.sway += 0.004; p.x += Math.cos(p.sway) * 0.6; p.y += Math.sin(p.sway * 0.8) * 0.5;
+      if (p.x < -p.big) p.x = W + p.big; if (p.x > W + p.big) p.x = -p.big; if (p.y < -p.big) p.y = H + p.big; if (p.y > H + p.big) p.y = -p.big;
+      const col = colors[p.colorIdx % colors.length]; const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.big);
+      g.addColorStop(0, col + (isLight ? '0.12)' : '0.20)')); g.addColorStop(1, col + '0)');
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.big, 0, 7); ctx.fillStyle = g; ctx.fill(); });
   }
-  draw();
+  _bgRAF = requestAnimationFrame(_bgDraw);
+}
+
+function initParticles() {
+  const canvas = document.getElementById('particles-canvas');
+  if (!canvas) return;
+  _bgCtx = canvas.getContext('2d');
+  _bgW = canvas.width = window.innerWidth;
+  _bgH = canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => { _bgW = canvas.width = window.innerWidth; _bgH = canvas.height = window.innerHeight; });
+  _bgMode = (STATE.settings && STATE.settings.bgAnim) || 'network';
+  _bgSeed();
+  if (_bgRAF) cancelAnimationFrame(_bgRAF);
+  if (_bgMode === 'none') _bgCtx.clearRect(0, 0, _bgW, _bgH); else _bgDraw();
+}
+
+// Settings: pick a background animation (or none)
+function setBgAnim(mode) {
+  STATE.settings = STATE.settings || {};
+  STATE.settings.bgAnim = mode;
+  if (typeof saveState === 'function') saveState();
+  _bgMode = mode;
+  _bgSeed();
+  if (_bgRAF) { cancelAnimationFrame(_bgRAF); _bgRAF = null; }
+  if (_bgCtx) { if (mode === 'none') _bgCtx.clearRect(0, 0, _bgW, _bgH); else _bgDraw(); }
+  if (typeof toast === 'function') toast('Background updated', 'success');
+  if (typeof currentPage !== 'undefined' && currentPage === 'settings' && typeof navigate === 'function') navigate('settings', true);
 }
 
 

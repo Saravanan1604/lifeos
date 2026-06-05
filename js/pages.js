@@ -407,6 +407,19 @@ function renderSettings() {
         </div>
 
         <div class="glass-card" style="padding:22px">
+          <p class="section-title" style="margin-bottom:12px">🌌 Background Animation</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            ${[['network','🕸️','Network'],['bubbles','🫧','Bubbles'],['stars','✨','Stars'],['snow','❄️','Snow'],['aurora','🌈','Aurora'],['none','⬛','Plain']]
+              .map(([m,e,l]) => {
+                const on = ((STATE.settings && STATE.settings.bgAnim) || 'network') === m;
+                return `<button onclick="setBgAnim('${m}')" class="btn-secondary" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;${on?'border:1.5px solid #00c9a7;background:rgba(0,201,167,0.12)':''}">
+                  <span style="font-size:22px">${e}</span><span style="font-size:12px;font-weight:600">${l}</span></button>`;
+              }).join('')}
+          </div>
+          <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:8px">Choose a moving background — or “Plain” to turn it off (saves battery).</p>
+        </div>
+
+        <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:8px">🤖 AI Demo Data</p>
           <p style="font-size:13px;color:rgba(241,245,249,0.6);margin-bottom:14px">Fill all modules with realistic sample data to explore every feature instantly.</p>
           <button class="btn-primary" onclick="seedDemoData()" style="background:linear-gradient(135deg,#10b981,#059669)">🚀 Load AI Demo Data</button>
