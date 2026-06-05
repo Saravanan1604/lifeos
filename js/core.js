@@ -662,7 +662,7 @@ function _renderPage(page) {
   if (container) container.setAttribute('data-page', page);
   switch (page) {
     case 'dashboard':    renderDashboard();    break;
-    case 'finance':      renderFinance();       break;
+    case 'finance':      if (typeof bankTrackerTab !== 'undefined') bankTrackerTab = 'banks'; renderBankTracker(); break;
     case 'transactions': renderTransactions();  break;
     case 'notes':        renderNotes();         break;
     case 'yearly':       renderYearly();        break;
@@ -820,7 +820,7 @@ function _doExitApp() {
 
 // ===== SWIPE TO CHANGE TABS (installed app, Instagram-style) =====
 (function initSwipeNav() {
-  const ORDER = ['transactions', 'finance', 'investments', 'dashboard', 'budget'];
+  const ORDER = ['transactions', 'bank-tracker', 'investments', 'dashboard', 'budget'];
   let x0 = null, y0 = null, fromScroller = false;
   document.addEventListener('touchstart', e => {
     if (!document.documentElement.classList.contains('is-app')) return;

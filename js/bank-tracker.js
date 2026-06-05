@@ -203,7 +203,7 @@ function renderBankTracker() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
-          <h1 class="page-title"><i data-lucide="landmark"></i> Bank Tracker</h1>
+          <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">Balance history across all your accounts</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -713,7 +713,7 @@ function renderCCTracker() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
-          <h1 class="page-title"><i data-lucide="landmark"></i> Bank Tracker</h1>
+          <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">Credit card outstanding history</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1008,7 +1008,7 @@ function renderCashTracker() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
-          <h1 class="page-title"><i data-lucide="landmark"></i> Bank Tracker</h1>
+          <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">Cash wallet balance history</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
