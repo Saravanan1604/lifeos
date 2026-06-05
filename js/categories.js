@@ -51,10 +51,10 @@ function renderCategories() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div><h1 class="page-title">🏷️ Categories</h1><p class="page-subtitle">Manage your transaction categories</p></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn-secondary btn-sm" onclick="openMergeCategoriesModal()">🔀 Merge</button>
-          <button class="btn-primary btn-sm" onclick="openAddCategoryModal()">+ Custom Category</button>
+        <div><h1 class="page-title"><i data-lucide="tag"></i> Categories</h1><p class="page-subtitle">Manage your transaction categories</p></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;width:100%">
+          <button class="btn-secondary cat-hdr-btn" onclick="openMergeCategoriesModal()"><i data-lucide="git-merge"></i> Merge</button>
+          <button class="btn-primary cat-hdr-btn" onclick="openAddCategoryModal()"><i data-lucide="plus"></i> Custom Category</button>
         </div>
       </div>
 
@@ -72,18 +72,15 @@ function renderCategories() {
             </div>`
           : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
               ${custom.map(c => `
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;transition:.2s" onmouseover="this.style.background='var(--glass-hover)'" onmouseout="this.style.background='var(--glass)'">
+                <div onclick="openEditCategoryModal('${c.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;transition:.2s;cursor:pointer">
                   <div style="display:flex;align-items:center;gap:10px">
-                    <span style="font-size:24px">${c.icon}</span>
+                    <span class="cat-lic" style="font-size:24px">${c.icon}</span>
                     <div>
                       <p style="font-size:13px;font-weight:600">${c.name}</p>
                       <span class="tag ${c.type==='income'?'tag-green':c.type==='expense'?'tag-red':'tag-blue'}" style="font-size:10px;padding:2px 7px">${c.type}</span>
                     </div>
                   </div>
-                  <div style="display:flex;gap:4px">
-                    <button class="btn-icon btn-sm" onclick="openEditCategoryModal('${c.id}')" style="font-size:13px">✏️</button>
-                    <button class="btn-icon btn-sm" onclick="deleteCategory('${c.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);font-size:13px">✕</button>
-                  </div>
+                  <button class="btn-icon btn-sm" onclick="event.stopPropagation();deleteCategory('${c.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);font-size:15px">✕</button>
                 </div>`).join('')}
             </div>`}
       </div>
@@ -94,7 +91,7 @@ function renderCategories() {
         <div style="display:flex;flex-wrap:wrap;gap:8px">
           ${incomeDefaults.map(c => `
             <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:20px">
-              <span style="font-size:16px">${c.icon}</span>
+              <span class="cat-lic" style="color:${typeof catColor==='function'?catColor(c.name):'#10b981'};font-size:16px">${typeof catIconHtml==='function'?catIconHtml(c.name):c.icon}</span>
               <span style="font-size:13px;font-weight:500">${c.name}</span>
             </div>`).join('')}
         </div>
@@ -106,7 +103,7 @@ function renderCategories() {
         <div style="display:flex;flex-wrap:wrap;gap:8px">
           ${expenseDefaults.map(c => `
             <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:20px">
-              <span style="font-size:16px">${c.icon}</span>
+              <span class="cat-lic" style="color:${typeof catColor==='function'?catColor(c.name):'#ef4444'};font-size:16px">${typeof catIconHtml==='function'?catIconHtml(c.name):c.icon}</span>
               <span style="font-size:13px;font-weight:500">${c.name}</span>
             </div>`).join('')}
         </div>

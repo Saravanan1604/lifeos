@@ -3285,6 +3285,14 @@ html.is-app #modal-overlay .emoji-pick-btn {
 html.is-app #modal-overlay .emoji-pick-btn:active { transform: scale(.9); }
 html.is-app #modal-overlay .emoji-pick-btn.active { background: rgba(0,201,167,0.22) !important; border-color: #00c9a7 !important; }
 
+/* build 263 — bigger Merge / + Custom Category buttons */
+html.is-app .cat-hdr-btn {
+  flex: 1 1 0 !important; min-width: 140px !important;
+  display: flex !important; align-items: center; justify-content: center; gap: 8px;
+  font-size: 1.5rem !important; font-weight: 700 !important; padding: 18px 16px !important; border-radius: 16px !important;
+}
+html.is-app .cat-hdr-btn svg.lucide { width: 1.4rem; height: 1.4rem; }
+
 /* category line icons on Dashboard / Finance / Budget / detail card */
 html.is-app .tx-ic { display: inline-flex !important; align-items: center; justify-content: center; }
 html.is-app .tx-ic svg.lucide { width: 1.5rem; height: 1.5rem; }
