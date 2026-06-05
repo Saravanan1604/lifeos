@@ -1,4 +1,4 @@
-﻿// ===== FINANCE PAGE =====
+// ===== FINANCE PAGE =====
 let _finPeriod = 'month'; // 'day' | 'week' | 'month' | 'year' | 'all'
 let _finAnchor = null;    // specific date 'YYYY-MM-DD' the tx list is anchored to (null = current period)
 let _finType     = 'all';        // 'all' | 'income' | 'expense'
@@ -1284,7 +1284,7 @@ function acctSection(type) {
 let _finView = 'overview'; // 'overview' (cards/charts/tx) | 'history' (bank-tracker trends)
 // Inject the Overview / History toggle at the top of the merged Finance page
 function _injectFinTabs() {
-  const pc = document.getElementById('page-container'); if (!pc) return;
+  const pc = document.querySelector('#page-container .fade-in'); if (!pc) return;
   if (pc.querySelector('.fin-viewtabs')) return;
   const bar = document.createElement('div');
   bar.className = 'fin-viewtabs';
@@ -1390,7 +1390,7 @@ function renderFinance() {
           : `
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px" class="fin-bank-grid">
             ${(STATE.bankAccounts||[]).map((b,i) => `
-            <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('button')){bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
+            <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('button')){_finView='history';bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('finance')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div style="font-size:22px"><i data-lucide="landmark"></i></div>
@@ -1428,7 +1428,7 @@ function renderFinance() {
               const pct = Math.min(100, Math.round((used/limit)*100));
               const utilColor = pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
               return `
-            <div class="fin-dark-card" onclick="if(!event.target.closest('button'))navigate('bank-tracker')" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};padding:18px;border-radius:16px;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
+            <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('button')){_finView='history';bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('finance')}" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};padding:18px;border-radius:16px;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
               <div style="position:absolute;top:-25px;right:-25px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none"></div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div>
@@ -1474,7 +1474,7 @@ function renderFinance() {
           ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="banknote"></i></span><p>No cash wallets yet. Track your physical cash!</p></div>`
           : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px" class="fin-cash-grid">
             ${(STATE.cashAccounts||[]).map((ca,i) => `
-            <div class="fin-dark-card" onclick="if(!event.target.closest('button'))navigate('bank-tracker')" style="--c1:#a16207;--c2:#78350f;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
+            <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('button')){_finView='history';bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('finance')}" style="--c1:#a16207;--c2:#78350f;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
               <div style="display:flex;justify-content:space-between;align-items:start;position:relative">
                 <div style="font-size:22px"><i data-lucide="banknote"></i></div>
@@ -1597,6 +1597,7 @@ function renderFinance() {
   renderFinanceChart(txnsAll);
   if (topCats.length > 0) renderFinancePieChart(topCats);
   renderFinanceTxList();
+  if (typeof _injectFinTabs === 'function') _injectFinTabs();
 }
 
 function renderFinanceChart(txns) {

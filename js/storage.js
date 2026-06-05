@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 286;
+const APP_BUILD = 287;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -24,14 +24,14 @@ const DB = {
       emotionEntries: [],
       tasks: [],
       chatHistory: [],
-      notes: [],               // Google Keep–style notes
+      notes: [],               // Google Keepï¿½style notes
       recurring: [],           // [{ id, type, amount, category, icon, description, source, subcategory, frequency, nextDate }]
       customCategories: [],    // user-created categories
       bankBalanceHistory: [],  // [{ accountId, balance, date, note }]
       bankTransfers: [],       // [{ id, fromId, toId, amount, date, note }]
       creditCards: [],
       creditCardHistory: [],   // [{ id, cardId, outstanding, prevOutstanding, date, note, createdAt }]
-      deletedIds: []           // tombstones: [{ id, at }] — lets deletions sync across devices
+      deletedIds: []           // tombstones: [{ id, at }] ï¿½ lets deletions sync across devices
     };
   },
   load() {
@@ -169,7 +169,7 @@ function filterTxByPeriod(txns, period) {
   return filterTxByAnchor(txns, period, null);
 }
 
-// Local YYYY-MM-DD (no UTC shift — important so an anchored date isn't off by a day).
+// Local YYYY-MM-DD (no UTC shift ï¿½ important so an anchored date isn't off by a day).
 function _ymdLocal(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
@@ -229,8 +229,8 @@ let _pendingSave   = null; // queued when cloud push fails (Render sleeping)
 // Sync dot indicator in sidebar + sync button (mobile top-tools)
 function setSyncDot(status) {
   const cfg = {
-    syncing: { bg: '#f59e0b', title: 'Syncing…',     anim: 'pulse 1s infinite', btnColor: '#f59e0b', spin: true  },
-    ok:      { bg: '#10b981', title: 'Live — synced', anim: 'none',              btnColor: '#10b981', spin: false },
+    syncing: { bg: '#f59e0b', title: 'Syncingï¿½',     anim: 'pulse 1s infinite', btnColor: '#f59e0b', spin: true  },
+    ok:      { bg: '#10b981', title: 'Live ï¿½ synced', anim: 'none',              btnColor: '#10b981', spin: false },
     offline: { bg: '#64748b', title: 'Offline mode',  anim: 'none',              btnColor: '#64748b', spin: false },
     error:   { bg: '#ef4444', title: 'Sync failed',   anim: 'none',              btnColor: '#ef4444', spin: false },
   };
@@ -245,7 +245,7 @@ function setSyncDot(status) {
   if (icon) { icon.style.animation = c.spin ? 'syncSpin 1s linear infinite' : 'none'; }
 }
 
-// Manual sync tap — spin the icon and pull from cloud
+// Manual sync tap ï¿½ spin the icon and pull from cloud
 function _syncBtnTap() {
   const icon = document.getElementById('sync-btn-icon');
   if (icon) icon.style.animation = 'syncSpin 1s linear infinite';
@@ -274,7 +274,7 @@ function _mergeById(local, cloud, deletedSet) {
   const cloudMap = new Map(c.filter(x => x.id).map(x => [x.id, x]));
   // Keep local-only items (created offline, not yet pushed to cloud)
   const localOnly = l.filter(x => x.id && !cloudMap.has(x.id));
-  // Cloud is authoritative for everything it knows about — edits propagate across devices
+  // Cloud is authoritative for everything it knows about ï¿½ edits propagate across devices
   return [...c, ...localOnly];
 }
 
@@ -295,7 +295,7 @@ async function pullFromCloud() {
     const data = await res.json();
     if (!data.state || !Object.keys(data.state).length) { setSyncDot('ok'); return; }
 
-    // Hash based on content checksum — detects edits to existing items, not just length changes
+    // Hash based on content checksum ï¿½ detects edits to existing items, not just length changes
     const hashObj = {};
     LIVE_SYNC_KEYS.forEach(k => {
       if (Array.isArray(data.state[k])) {
@@ -342,7 +342,7 @@ async function pullFromCloud() {
         navigate(currentPage, true);
       }
       if (typeof updateSidebar === 'function') updateSidebar();
-      // Silently refresh — dot flashes green; no toast spam on 3-second polls
+      // Silently refresh ï¿½ dot flashes green; no toast spam on 3-second polls
     }
     setSyncDot('ok');
 
@@ -383,7 +383,7 @@ function startLiveSync() {
     if (!document.hidden) pullFromCloud();
   });
 
-  // Sync when app regains network connection — push pending local changes first, then pull
+  // Sync when app regains network connection ï¿½ push pending local changes first, then pull
   window.addEventListener('online', async () => {
     if (_pendingSave) {
       const tok = localStorage.getItem('lifeos_token');
