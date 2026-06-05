@@ -707,6 +707,9 @@ function _mrFlow(srcTxs) {
   return { incBy, expBy, totalInc, totalExp, savings, invValue };
 }
 
+// Compact INR formatter for live (oninput) updates on the rule cards.
+function _mrINR(n) { return '₹' + Math.round(+n || 0).toLocaleString('en-IN'); }
+
 function renderMoneyRules() {
   const ptx = _mrFilteredTx();                 // transactions in the selected period
   const allTx = STATE.transactions || [];
@@ -719,6 +722,14 @@ function renderMoneyRules() {
   const fh = _mrFinHealth(ptx, m, allTx);
   const strm = _mrIncomeStreams(ptx);
   const flow = _mrFlow(ptx);
+
+  // ---- Extra figures pulled from the user's data (used to PREFILL + SUGGEST) ----
+  const invValue = flow.invValue;                                            // total investments
+  const netSaved = Math.max(0, allTx.reduce((a, t) => a + (t.type === 'income' ? +t.amount : -+t.amount || 0), 0)); // cumulative savings
+  const corpusGuess = Math.round(invValue + netSaved) || 1000000;            // suggested retirement corpus
+  const age = Math.round(+(STATE.settings?.age) || +(STATE.user?.age) || (STATE.user?.dob ? (new Date().getFullYear() - new Date(STATE.user.dob).getFullYear()) : 0) || 30);
+  const emiTx = ptx.filter(t => t.type === 'expense' && /emi|loan|mortgage/i.test((t.category || '') + (t.subcategory || '')));
+  const emiMonthly = Math.round(_mrMonthlyEquiv(emiTx).expense);             // current monthly EMIs
   const f = (n) => fmt(Math.round(n || 0));
   const Si = 'width:100%;padding:12px 14px;font-size:16px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);box-sizing:border-box';
   const Sl = 'display:block;font-size:13px;color:var(--text2);margin-bottom:6px';
@@ -811,33 +822,37 @@ function renderMoneyRules() {
 
         ${card('#6366f1', 'trending-up', 'Rule of 72', 'Years for your money to double.',
           `<div>
-             <label style="${Sl}">Interest rate (%)</label>
-             <input type="number" value="12" style="${Si}" oninput="document.getElementById('mr72').textContent=(this.value>0?(72/this.value).toFixed(1):'—')+' yrs'">
+             <label style="${Sl}">Interest rate (%) — editable</label>
+             <input type="number" value="12" style="${Si}" oninput="var y=this.value>0?(72/this.value):0;document.getElementById('mr72').textContent=(y?y.toFixed(1):'—')+' yrs';if(document.getElementById('mr72inv'))document.getElementById('mr72inv').textContent=(y?y.toFixed(1):'—')+' yrs'">
              <p style="${So}">Doubles in <b style="color:var(--text);font-size:17px" id="mr72">6.0 yrs</b></p>
+             ${invValue>0?`<p style="${So}">💡 Your <b style="color:var(--text)">${f(invValue)}</b> → <b style="color:var(--text)">${f(invValue*2)}</b> in <b style="color:#10b981" id="mr72inv">6.0 yrs</b></p>`:''}
            </div>
            <p style="${Sfo}">Years = 72 ÷ Interest Rate</p>`)}
 
         ${card('#f59e0b', 'trending-down', 'Rule of 70', 'Years for inflation to halve your money.',
           `<div>
-             <label style="${Sl}">Inflation rate (%)</label>
+             <label style="${Sl}">Inflation rate (%) — editable</label>
              <input type="number" value="6" style="${Si}" oninput="document.getElementById('mr70').textContent=(this.value>0?(70/this.value).toFixed(1):'—')+' yrs'">
              <p style="${So}">Value halves in <b style="color:var(--text);font-size:17px" id="mr70">11.7 yrs</b></p>
+             ${exp>0?`<p style="${So}">💡 Today's <b style="color:var(--text)">${f(exp)}</b>/mo spend will feel like <b style="color:var(--text)">${f(exp*2)}</b> then</p>`:''}
            </div>
            <p style="${Sfo}">Years = 70 ÷ Inflation Rate</p>`)}
 
         ${card('#00c9a7', 'clipboard-list', '4% Withdrawal Rule', 'Safe annual retirement withdrawal.',
           `<div>
-             <label style="${Sl}">Retirement corpus (₹)</label>
-             <input type="number" value="10000000" style="${Si}" oninput="document.getElementById('mr4').textContent='${'₹'}'+Math.round(this.value*0.04).toLocaleString('en-IN')+' / yr'">
-             <p style="${So}">Withdraw <b style="color:var(--text);font-size:17px" id="mr4">₹4,00,000 / yr</b></p>
+             <label style="${Sl}">Retirement corpus (₹) — prefilled from your assets, editable</label>
+             <input type="number" value="${corpusGuess}" style="${Si}" oninput="document.getElementById('mr4').textContent=window._mrINR(this.value*0.04)+' / yr';document.getElementById('mr4m').textContent=window._mrINR(this.value*0.04/12)+' / mo'">
+             <p style="${So}">Withdraw <b style="color:var(--text);font-size:17px" id="mr4">${_mrINR(corpusGuess*0.04)} / yr</b> · <b style="color:var(--text)" id="mr4m">${_mrINR(corpusGuess*0.04/12)} / mo</b></p>
+             <p style="${So}">💡 Based on your current assets + savings.</p>
            </div>
            <p style="${Sfo}">Annual Withdrawal = 4% of corpus</p>`)}
 
         ${card('#3b82f6', 'scale', '100 Minus Age Rule', 'Ideal equity vs debt allocation.',
           `<div>
-             <label style="${Sl}">Your age</label>
-             <input type="number" value="30" style="${Si}" oninput="var e=Math.max(0,Math.min(100,100-this.value));document.getElementById('mreq').textContent=e+'% equity / '+(100-e)+'% debt'">
-             <p style="${So}"><b style="color:var(--text);font-size:17px" id="mreq">70% equity / 30% debt</b></p>
+             <label style="${Sl}">Your age — editable</label>
+             <input type="number" value="${age}" style="${Si}" oninput="var e=Math.max(0,Math.min(100,100-this.value));document.getElementById('mreq').textContent=e+'% equity / '+(100-e)+'% debt';if(document.getElementById('mreqe')){document.getElementById('mreqe').textContent=window._mrINR(${invValue}*e/100);document.getElementById('mreqd').textContent=window._mrINR(${invValue}*(100-e)/100)}">
+             <p style="${So}"><b style="color:var(--text);font-size:17px" id="mreq">${100-age}% equity / ${age}% debt</b></p>
+             ${invValue>0?`<p style="${So}">💡 Of your <b style="color:var(--text)">${f(invValue)}</b>: <b style="color:#10b981" id="mreqe">${_mrINR(invValue*(100-age)/100)}</b> equity · <b style="color:#3b82f6" id="mreqd">${_mrINR(invValue*age/100)}</b> debt</p>`:''}
            </div>
            <p style="${Sfo}">Equity % = 100 − Age</p>`)}
 
@@ -846,29 +861,46 @@ function renderMoneyRules() {
              <li style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600"><span style="${Sdot};background:#8b5cf6"></span>10% — Equity / Stocks</li>
              <li style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600"><span style="${Sdot};background:#3b82f6"></span>5% — Debt / Bonds</li>
              <li style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600"><span style="${Sdot};background:#f59e0b"></span>3% — Savings Account</li>
-           </ul>`)}
+           </ul>
+           ${invValue>0?`<p style="${So}">💡 Your <b style="color:var(--text)">${f(invValue)}</b> at 10% ≈ <b style="color:#10b981">${f(invValue*0.1)}</b>/yr in equity</p>`:''}`)}
 
         ${card('#10b981', 'wallet', '50 · 30 · 20 Rule', 'Budget split of your income.',
-          `<div style="display:flex;flex-direction:column;gap:12px">
-             <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600"><span style="${Sdot};background:#3b82f6"></span>Needs 50%<b style="margin-left:auto;font-size:16px;font-weight:800">${f(inc*0.5)}</b></div>
-             <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600"><span style="${Sdot};background:#f59e0b"></span>Wants 30%<b style="margin-left:auto;font-size:16px;font-weight:800">${f(inc*0.3)}</b></div>
-             <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600"><span style="${Sdot};background:#10b981"></span>Savings 20%<b style="margin-left:auto;font-size:16px;font-weight:800">${f(inc*0.2)}</b></div>
+          `<div>
+             <label style="${Sl}">Monthly income (₹) — prefilled, editable</label>
+             <input type="number" value="${inc}" style="${Si}" oninput="document.getElementById('s50n').textContent=window._mrINR(this.value*0.5);document.getElementById('s50w').textContent=window._mrINR(this.value*0.3);document.getElementById('s50s').textContent=window._mrINR(this.value*0.2)">
            </div>
-           <p style="${Sfo}">Based on your avg monthly income</p>`)}
+           <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+             <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600"><span style="${Sdot};background:#3b82f6"></span>Needs 50%<b style="margin-left:auto;font-size:16px;font-weight:800" id="s50n">${_mrINR(inc*0.5)}</b></div>
+             <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600"><span style="${Sdot};background:#f59e0b"></span>Wants 30%<b style="margin-left:auto;font-size:16px;font-weight:800" id="s50w">${_mrINR(inc*0.3)}</b></div>
+             <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600"><span style="${Sdot};background:#10b981"></span>Savings 20%<b style="margin-left:auto;font-size:16px;font-weight:800" id="s50s">${_mrINR(inc*0.2)}</b></div>
+           </div>
+           <p style="${Sfo}">Target split of your monthly income</p>`)}
 
         ${card('#ef4444', 'shield', '6× Emergency Rule', 'Emergency fund you should hold.',
-          `<p style="${Sbig}">${f(exp*6)}</p>
-           <p style="${So}">= 6 × your monthly expenses (${f(exp)})</p>
+          `<div>
+             <label style="${Sl}">Monthly expense (₹) — prefilled, editable</label>
+             <input type="number" value="${exp}" style="${Si}" oninput="var t=this.value*6;document.getElementById('em6').textContent=window._mrINR(t);var g=t-${netSaved};document.getElementById('emgap').textContent=g>0?('Save '+window._mrINR(g)+' more'):'✓ Fully funded';document.getElementById('emgap').style.color=g>0?'#f59e0b':'#10b981'">
+             <p style="${Sbig};margin-top:10px" id="em6">${_mrINR(exp*6)}</p>
+             <p style="${So}">💡 You have <b style="color:var(--text)">${f(netSaved)}</b> saved · <b id="emgap" style="color:${exp*6-netSaved>0?'#f59e0b':'#10b981'}">${exp*6-netSaved>0?('Save '+_mrINR(exp*6-netSaved)+' more'):'✓ Fully funded'}</b></p>
+           </div>
            <p style="${Sfo}">Emergency Fund = 6 × Monthly Expenses</p>`)}
 
         ${card('#ec4899', 'home', '40% EMI Rule', 'Keep loan EMIs stress-free.',
-          `<p style="${Sbig}">${f(inc*0.4)}</p>
-           <p style="${So}">Max total EMIs / month (40% of income)</p>
+          `<div>
+             <label style="${Sl}">Monthly income (₹) — prefilled, editable</label>
+             <input type="number" value="${inc}" style="${Si}" oninput="var mx=this.value*0.4;document.getElementById('emi40').textContent=window._mrINR(mx);var ok=${emiMonthly}<=mx;document.getElementById('emistat').textContent=${emiMonthly}>0?(ok?'✓ Within limit':'⚠ Over limit'):'No EMIs logged';document.getElementById('emistat').style.color=ok?'#10b981':'#ef4444'">
+             <p style="${Sbig};margin-top:10px" id="emi40">${_mrINR(inc*0.4)}</p>
+             <p style="${So}">💡 Your current EMIs: <b style="color:var(--text)">${f(emiMonthly)}</b>/mo · <b id="emistat" style="color:${emiMonthly<=inc*0.4?'#10b981':'#ef4444'}">${emiMonthly>0?(emiMonthly<=inc*0.4?'✓ Within limit':'⚠ Over limit'):'No EMIs logged'}</b></p>
+           </div>
            <p style="${Sfo}">EMI ≤ 40% of Monthly Income</p>`)}
 
         ${card('#06b6d4', 'umbrella', 'Life Insurance Rule', 'Ideal life-cover amount.',
-          `<p style="${Sbig}">${f(annualInc*10)} – ${f(annualInc*15)}</p>
-           <p style="${So}">10–15 × your annual income</p>
+          `<div>
+             <label style="${Sl}">Annual income (₹) — prefilled, editable</label>
+             <input type="number" value="${annualInc}" style="${Si}" oninput="document.getElementById('liclo').textContent=window._mrINR(this.value*10);document.getElementById('lichi').textContent=window._mrINR(this.value*15)">
+             <p style="${Sbig};margin-top:10px"><span id="liclo">${_mrINR(annualInc*10)}</span> – <span id="lichi">${_mrINR(annualInc*15)}</span></p>
+             <p style="${So}">💡 Aim for cover of 10–15× your annual income.</p>
+           </div>
            <p style="${Sfo}">Cover = 10–15 × Annual Income</p>`)}
 
       </div>
