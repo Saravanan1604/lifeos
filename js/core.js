@@ -1,6 +1,6 @@
 // ===== BACKGROUND ANIMATIONS (selectable) =====
 // Modes: network | bubbles | stars | snow | aurora | none
-let _bgMode = 'network';
+let _bgMode = 'aurora';
 let _bgRAF = null;
 let _bgCtx = null, _bgW = 0, _bgH = 0, _bgParts = [];
 
@@ -76,7 +76,7 @@ function initParticles() {
   _bgW = canvas.width = window.innerWidth;
   _bgH = canvas.height = window.innerHeight;
   window.addEventListener('resize', () => { _bgW = canvas.width = window.innerWidth; _bgH = canvas.height = window.innerHeight; });
-  _bgMode = (STATE.settings && STATE.settings.bgAnim) || 'network';
+  _bgMode = (STATE.settings && STATE.settings.bgAnim) || 'aurora';
   _bgSeed();
   if (_bgRAF) cancelAnimationFrame(_bgRAF);
   if (_bgMode === 'none') _bgCtx.clearRect(0, 0, _bgW, _bgH); else _bgDraw();
@@ -150,9 +150,9 @@ function toggleBigMode() {
   if (typeof toast === 'function') toast(on ? '🔎 Big view on' : 'Normal view', 'success');
 }
 function applyBigMode() {
-  const on = (() => { try { return localStorage.getItem('lifeos_big') === '1'; } catch (_) { return false; } })();
-  document.documentElement.classList.toggle('big-mode', on);
-  const b = document.getElementById('bigmode-btn'); if (b) b.classList.toggle('on', on);
+  // Big-mode feature removed — ensure it's off
+  document.documentElement.classList.remove('big-mode');
+  try { localStorage.removeItem('lifeos_big'); } catch (_) {}
 }
 applyBigMode();
 

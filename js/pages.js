@@ -399,9 +399,6 @@ function renderSettings() {
             <button onclick="setTheme('ocean')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
               <span style="font-size:22px">🌊</span><span style="font-size:12px;font-weight:600">Ocean</span>
             </button>
-            <button onclick="setTheme('sunset')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
-              <span style="font-size:22px">🌇</span><span style="font-size:12px;font-weight:600">Sunset</span>
-            </button>
           </div>
           <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:8px">Auto switches theme based on time of day</p>
         </div>

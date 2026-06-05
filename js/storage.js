@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 289;
+const APP_BUILD = 290;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -10,7 +10,7 @@ const DB = {
       user: null,
       xp: 0, level: 1, streak: 0, lastActive: null,
       unlockedAchievements: [],
-      settings: { theme: 'dark', currency: '?', name: 'User' },
+      settings: { theme: 'amoled', currency: '₹', name: 'User', bgAnim: 'aurora' },
       transactions: [],
       accounts: [{ id: '1', name: 'Cash Wallet', type: 'cash', balance: 0 }],
       budgets: [],

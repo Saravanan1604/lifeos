@@ -14,7 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
   STATE = DB.load();
 
   // Apply saved theme (dark | light | auto | amoled | ocean | sunset)
-  if (typeof applyThemeClass === 'function') applyThemeClass(STATE.settings?.theme || 'dark');
+  if (typeof applyThemeClass === 'function') applyThemeClass(STATE.settings?.theme || 'amoled');
   else if (STATE.settings?.theme === 'light') document.body.classList.add('light');
 
   // Inject the floating theme toggle (sun/moon). On web it floats top-right;
