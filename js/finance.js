@@ -137,7 +137,18 @@ function recNav(delta) {
   _recAnchor = d;
   renderRecordsMyMoney();
 }
-function recSetPeriod(p) { _recPeriod = p; STATE.settings = STATE.settings || {}; STATE.settings.recPeriod = p; if (typeof saveState === 'function') saveState(); renderRecordsMyMoney(); }
+function recSetPeriod(p) {
+  _recPeriod = p;
+  STATE.settings = STATE.settings || {};
+  const changed = STATE.settings.recPeriod !== p;
+  STATE.settings.recPeriod = p;
+  if (typeof saveState === 'function') saveState();
+  renderRecordsMyMoney();
+  if (changed && typeof toast === 'function') {
+    const lbl = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' }[p] || p;
+    toast(`📌 Default view: ${lbl}`, 'success');
+  }
+}
 let _recPeriodInit = false;
 
 function _recPeriodLabel() {
