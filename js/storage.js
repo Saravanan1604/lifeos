@@ -10,7 +10,7 @@ const DB = {
       user: null,
       xp: 0, level: 1, streak: 0, lastActive: null,
       unlockedAchievements: [],
-      settings: { theme: 'dark', currency: 'â‚¹', name: 'User' },
+      settings: { theme: 'dark', currency: '?', name: 'User' },
       transactions: [],
       accounts: [{ id: '1', name: 'Cash Wallet', type: 'cash', balance: 0 }],
       budgets: [],
@@ -24,14 +24,14 @@ const DB = {
       emotionEntries: [],
       tasks: [],
       chatHistory: [],
-      notes: [],               // Google Keepâ€“style notes
+      notes: [],               // Google Keep–style notes
       recurring: [],           // [{ id, type, amount, category, icon, description, source, subcategory, frequency, nextDate }]
       customCategories: [],    // user-created categories
       bankBalanceHistory: [],  // [{ accountId, balance, date, note }]
       bankTransfers: [],       // [{ id, fromId, toId, amount, date, note }]
       creditCards: [],
       creditCardHistory: [],   // [{ id, cardId, outstanding, prevOutstanding, date, note, createdAt }]
-      deletedIds: []           // tombstones: [{ id, at }] â€” lets deletions sync across devices
+      deletedIds: []           // tombstones: [{ id, at }] — lets deletions sync across devices
     };
   },
   load() {
@@ -153,7 +153,7 @@ function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-function fmt(n, currency = STATE.settings?.currency || 'â‚¹') {
+function fmt(n, currency = STATE.settings?.currency || '?') {
   return `${currency}${Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
@@ -169,7 +169,7 @@ function filterTxByPeriod(txns, period) {
   return filterTxByAnchor(txns, period, null);
 }
 
-// Local YYYY-MM-DD (no UTC shift â€” important so an anchored date isn't off by a day).
+// Local YYYY-MM-DD (no UTC shift — important so an anchored date isn't off by a day).
 function _ymdLocal(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
@@ -180,7 +180,7 @@ function filterTxByAnchor(txns, period, anchor) {
   const d0   = _ymdLocal(base);
   if (period === 'day') return txns.filter(t => (t.date || '').slice(0, 10) === d0);
   if (period === 'week') {
-    // Monâ†’Sun week that contains the anchor date
+    // Mon?Sun week that contains the anchor date
     const dow = (base.getDay() + 6) % 7; // 0=Mon
     const mon = new Date(base); mon.setDate(base.getDate() - dow);
     const sun = new Date(mon);  sun.setDate(mon.getDate() + 6);
@@ -206,7 +206,7 @@ function periodLabel(period) {
 
 function getGreeting(name) {
   const h = new Date().getHours();
-  const g = h < 12 ? 'ðŸŒ… Good morning' : h < 17 ? 'â˜€ï¸ Good afternoon' : h < 20 ? 'ðŸŒ† Good evening' : 'ðŸŒ™ Good night';
+  const g = h < 12 ? '?? Good morning' : h < 17 ? '?? Good afternoon' : h < 20 ? '?? Good evening' : '?? Good night';
   return `${g}, ${name}!`;
 }
 
@@ -226,20 +226,38 @@ let _syncBusy      = false;
 let _lastCloudHash = '';
 let _pendingSave   = null; // queued when cloud push fails (Render sleeping)
 
-// Sync dot indicator in sidebar
+// Sync dot indicator in sidebar + sync button (mobile top-tools)
 function setSyncDot(status) {
-  const dot = document.getElementById('sync-dot');
-  if (!dot) return;
   const cfg = {
-    syncing: { bg: '#f59e0b', title: 'Syncingâ€¦',       anim: 'pulse 1s infinite' },
-    ok:      { bg: '#10b981', title: 'Live â€” synced',   anim: 'none' },
-    offline: { bg: '#64748b', title: 'Offline mode',    anim: 'none' },
-    error:   { bg: '#ef4444', title: 'Sync failed',     anim: 'none' },
+    syncing: { bg: '#f59e0b', title: 'Syncing…',     anim: 'pulse 1s infinite', btnColor: '#f59e0b', spin: true  },
+    ok:      { bg: '#10b981', title: 'Live — synced', anim: 'none',              btnColor: '#10b981', spin: false },
+    offline: { bg: '#64748b', title: 'Offline mode',  anim: 'none',              btnColor: '#64748b', spin: false },
+    error:   { bg: '#ef4444', title: 'Sync failed',   anim: 'none',              btnColor: '#ef4444', spin: false },
   };
   const c = cfg[status] || cfg.ok;
-  dot.style.background = c.bg;
-  dot.style.animation  = c.anim;
-  dot.title = c.title;
+  // Sidebar dot
+  const dot = document.getElementById('sync-dot');
+  if (dot) { dot.style.background = c.bg; dot.style.animation = c.anim; dot.title = c.title; }
+  // Top-tools sync button (app)
+  const btn  = document.getElementById('sync-btn');
+  const icon = document.getElementById('sync-btn-icon');
+  if (btn)  { btn.style.color = c.btnColor; btn.title = c.title; }
+  if (icon) { icon.style.animation = c.spin ? 'syncSpin 1s linear infinite' : 'none'; }
+}
+
+// Manual sync tap — spin the icon and pull from cloud
+function _syncBtnTap() {
+  const icon = document.getElementById('sync-btn-icon');
+  if (icon) icon.style.animation = 'syncSpin 1s linear infinite';
+  if (typeof pullFromCloud === 'function') {
+    pullFromCloud().then(() => {
+      toast('Synced!', 'success');
+    }).catch(() => {
+      toast('Sync failed', 'error');
+    }).finally(() => {
+      if (icon) icon.style.animation = 'none';
+    });
+  }
 }
 
 // Merge two arrays by id.
@@ -256,7 +274,7 @@ function _mergeById(local, cloud, deletedSet) {
   const cloudMap = new Map(c.filter(x => x.id).map(x => [x.id, x]));
   // Keep local-only items (created offline, not yet pushed to cloud)
   const localOnly = l.filter(x => x.id && !cloudMap.has(x.id));
-  // Cloud is authoritative for everything it knows about â€” edits propagate across devices
+  // Cloud is authoritative for everything it knows about — edits propagate across devices
   return [...c, ...localOnly];
 }
 
@@ -277,7 +295,7 @@ async function pullFromCloud() {
     const data = await res.json();
     if (!data.state || !Object.keys(data.state).length) { setSyncDot('ok'); return; }
 
-    // Hash based on content checksum â€” detects edits to existing items, not just length changes
+    // Hash based on content checksum — detects edits to existing items, not just length changes
     const hashObj = {};
     LIVE_SYNC_KEYS.forEach(k => {
       if (Array.isArray(data.state[k])) {
@@ -324,7 +342,7 @@ async function pullFromCloud() {
         navigate(currentPage, true);
       }
       if (typeof updateSidebar === 'function') updateSidebar();
-      // Silently refresh â€” dot flashes green; no toast spam on 3-second polls
+      // Silently refresh — dot flashes green; no toast spam on 3-second polls
     }
     setSyncDot('ok');
 
@@ -365,7 +383,7 @@ function startLiveSync() {
     if (!document.hidden) pullFromCloud();
   });
 
-  // Sync when app regains network connection â€” push pending local changes first, then pull
+  // Sync when app regains network connection — push pending local changes first, then pull
   window.addEventListener('online', async () => {
     if (_pendingSave) {
       const tok = localStorage.getItem('lifeos_token');

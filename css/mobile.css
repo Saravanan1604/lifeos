@@ -3488,3 +3488,24 @@ html.is-app .page-title svg.lucide { margin-right: 8px; vertical-align: -0.08em;
 html.is-app .section-title svg.lucide { margin-right: 5px; }
 html.is-app .empty-state-icon svg.lucide { width: 2.2rem; height: 2.2rem; }
 html.is-app .btn-secondary svg.lucide, html.is-app .btn-primary svg.lucide { margin-right: 2px; }
+
+/* ============================================================
+   build 186 — Sync button in #top-tools (app only)
+   ============================================================ */
+/* Spin animation for the sync icon while syncing */
+@keyframes syncSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Sync button inherits the same size as other top-tool buttons;
+   colour is set dynamically by setSyncDot() via inline style. */
+html.is-app #sync-btn {
+  color: #64748b; /* default = offline grey */
+  transition: color .3s;
+}
+html.is-app #sync-btn #sync-btn-icon {
+  transition: color .3s;
+  transform-origin: center;
+}
+html.is-app #sync-btn:active { transform: scale(.9) !important; }
