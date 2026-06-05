@@ -353,7 +353,6 @@ function renderRecordsMyMoney() {
         ${hasAccts ? (() => {
           const _net = _bankT + _cashT - _cardT;
           return `<div class="mm-hero mm-hero-page mm-hero-accts" onclick="navigate('bank-tracker')">
-          <p class="mm-hero-lbl">Accounts</p>
           <div class="mm-hero-split mm-accts3">
             <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_bankT)}</span></div>
             <div class="mm-hs-div"></div>
