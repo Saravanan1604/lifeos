@@ -3379,8 +3379,11 @@ html.is-app .mm-total-switch input:checked + span::before { transform: translate
 /* when total is OFF: income/expense become the big focus */
 html.is-app .mm-hero.mm-hero-noTotal { padding-bottom: 24px; }
 html.is-app .mm-split-big .mm-hs-lbl { font-size: 1.25rem; }
-html.is-app .mm-split-big .mm-hs-val { font-size: 2.6rem; font-weight: 900; }
+html.is-app .mm-split-big .mm-hs-val { font-size: 2rem; font-weight: 900; white-space: nowrap; }
 html.is-app .mm-split-big { margin-top: 14px; }
+html.is-app .mm-split-big .mm-hs { min-width: 0; }
+/* keep the +/- sign on the same line as the number (both modes) */
+html.is-app .mm-hs-val { white-space: nowrap; }
 html.is-app .mm-hs[onclick] { cursor: pointer; }
 html.is-app .mm-hs[onclick] .mm-hs-lbl svg.lucide { width: .9rem; height: .9rem; }
 
@@ -3397,8 +3400,9 @@ html.is-app #modal-overlay .cf-switch span { position: absolute; inset: 0; borde
 html.is-app #modal-overlay .cf-switch span::before { content: ''; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px; border-radius: 50%; background: #fff; transition: .2s; }
 html.is-app #modal-overlay .cf-switch input:checked + span { background: linear-gradient(135deg,#00c9a7,#6366f1); }
 html.is-app #modal-overlay .cf-switch input:checked + span::before { transform: translateX(22px); }
-html.is-app #modal-overlay .cf-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-html.is-app #modal-overlay .cf-chip { flex: 1; min-width: 100px; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--glass); color: var(--text); font-size: 1.15rem; font-weight: 700; cursor: pointer; }
+html.is-app #modal-overlay .cf-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+html.is-app #modal-overlay .cf-chip { padding: 18px 12px; border-radius: 14px; border: 1px solid var(--glass-border); background: var(--glass); color: var(--text); font-size: 1.4rem; font-weight: 700; cursor: pointer; }
+html.is-app #modal-overlay .cf-chip:active { background: rgba(0,201,167,0.18); }
 
 /* build 270 — sticky day headers + dimmer meta (emphasise category + amount) */
 html.is-app .mm-day {

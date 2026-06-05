@@ -357,7 +357,7 @@ function renderRecordsMyMoney() {
           </div>
           ${showTotal ? `<p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</p>` : ''}
           <div class="mm-hero-split ${showTotal ? '' : 'mm-split-big'}">
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''}</span><span class="mm-hs-val pos">+${fmt(income)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''} <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val pos">+${fmt(income)}</span></div>
             <div class="mm-hs-div"></div>
             <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val neg">-${fmt(expense)}</span></div>
           </div>
