@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 299;
+const APP_BUILD = 300;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -153,7 +153,7 @@ function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-function fmt(n, currency = STATE.settings?.currency || '?') {
+function fmt(n, currency = STATE.settings?.currency || '₹') {
   return `${currency}${Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 

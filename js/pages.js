@@ -608,15 +608,21 @@ function renderMoneyRules() {
   const inc = Math.round(m.income), exp = Math.round(m.expense);
   const annualInc = inc * 12;
   const f = (n) => fmt(Math.round(n || 0));
+  const Si = 'width:100%;padding:12px 14px;font-size:16px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);box-sizing:border-box';
+  const Sl = 'display:block;font-size:13px;color:var(--text2);margin-bottom:6px';
+  const So = 'font-size:15px;color:var(--text2);margin-top:10px';
+  const Sfo = 'font-size:13px;color:var(--text3);margin-top:12px;padding-top:10px;border-top:1px dashed var(--glass-border);font-style:italic';
+  const Sbig = 'font-size:26px;font-weight:800;color:#00c9a7;margin-bottom:4px';
+  const Sdot = 'width:12px;height:12px;border-radius:50%;flex-shrink:0;display:inline-block';
 
-  // helper: a rule card
+  // helper: a rule card (layout is INLINE so it never depends on cached CSS)
   const card = (accent, icon, title, desc, body) => `
-    <div class="glass-card mr-card">
-      <div class="mr-head" style="background:${accent}1a;border-color:${accent}40">
-        <span class="mr-ic" style="background:${accent}22;color:${accent}"><i data-lucide="${icon}"></i></span>
-        <div><p class="mr-title">${title}</p><p class="mr-desc">${desc}</p></div>
+    <div class="glass-card mr-card" style="padding:0;overflow:hidden;border:1px solid ${accent}40">
+      <div class="mr-head" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid ${accent}33;background:${accent}1a">
+        <span class="mr-ic" style="width:46px;height:46px;border-radius:13px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:${accent}26;color:${accent}"><i data-lucide="${icon}" style="width:26px;height:26px"></i></span>
+        <div style="min-width:0"><p style="font-size:17px;font-weight:800">${title}</p><p style="font-size:13px;color:var(--text3);margin-top:2px">${desc}</p></div>
       </div>
-      <div class="mr-body">${body}</div>
+      <div class="mr-body" style="padding:14px 16px 16px">${body}</div>
     </div>`;
 
   document.getElementById('page-container').innerHTML = `
@@ -624,75 +630,75 @@ function renderMoneyRules() {
       <div class="page-header"><h1 class="page-title"><i data-lucide="scale"></i> Money Rules</h1>
         <p class="page-subtitle">9 personal-finance rules of thumb — auto-filled with your numbers</p></div>
 
-      <div class="glass-card mr-banner">
-        <div><p class="mr-bn-k">Avg Monthly Income</p><p class="mr-bn-v" style="color:#10b981">${f(inc)}</p></div>
-        <div><p class="mr-bn-k">Avg Monthly Expense</p><p class="mr-bn-v" style="color:#ef4444">${f(exp)}</p></div>
-        <div><p class="mr-bn-k">Annual Income</p><p class="mr-bn-v">${f(annualInc)}</p></div>
+      <div class="glass-card mr-banner" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px;margin-bottom:16px;text-align:center">
+        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Avg Monthly Income</p><p style="font-size:17px;font-weight:800;color:#10b981">${f(inc)}</p></div>
+        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Avg Monthly Expense</p><p style="font-size:17px;font-weight:800;color:#ef4444">${f(exp)}</p></div>
+        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Annual Income</p><p style="font-size:17px;font-weight:800">${f(annualInc)}</p></div>
       </div>
 
-      <div class="mr-grid">
+      <div class="mr-grid" style="display:flex;flex-direction:column;gap:14px">
 
         ${card('#6366f1', 'trending-up', 'Rule of 72', 'Years for your money to double.',
-          `<div class="mr-calc">
-             <label>Interest rate (%)</label>
-             <input type="number" value="12" oninput="document.getElementById('mr72').textContent=(this.value>0?(72/this.value).toFixed(1):'—')+' yrs'">
-             <p class="mr-out">Doubles in <b id="mr72">6.0 yrs</b></p>
+          `<div>
+             <label style="${Sl}">Interest rate (%)</label>
+             <input type="number" value="12" style="${Si}" oninput="document.getElementById('mr72').textContent=(this.value>0?(72/this.value).toFixed(1):'—')+' yrs'">
+             <p style="${So}">Doubles in <b style="color:var(--text);font-size:17px" id="mr72">6.0 yrs</b></p>
            </div>
-           <p class="mr-formula">Years = 72 ÷ Interest Rate</p>`)}
+           <p style="${Sfo}">Years = 72 ÷ Interest Rate</p>`)}
 
         ${card('#f59e0b', 'trending-down', 'Rule of 70', 'Years for inflation to halve your money.',
-          `<div class="mr-calc">
-             <label>Inflation rate (%)</label>
-             <input type="number" value="6" oninput="document.getElementById('mr70').textContent=(this.value>0?(70/this.value).toFixed(1):'—')+' yrs'">
-             <p class="mr-out">Value halves in <b id="mr70">11.7 yrs</b></p>
+          `<div>
+             <label style="${Sl}">Inflation rate (%)</label>
+             <input type="number" value="6" style="${Si}" oninput="document.getElementById('mr70').textContent=(this.value>0?(70/this.value).toFixed(1):'—')+' yrs'">
+             <p style="${So}">Value halves in <b style="color:var(--text);font-size:17px" id="mr70">11.7 yrs</b></p>
            </div>
-           <p class="mr-formula">Years = 70 ÷ Inflation Rate</p>`)}
+           <p style="${Sfo}">Years = 70 ÷ Inflation Rate</p>`)}
 
         ${card('#00c9a7', 'clipboard-list', '4% Withdrawal Rule', 'Safe annual retirement withdrawal.',
-          `<div class="mr-calc">
-             <label>Retirement corpus (₹)</label>
-             <input type="number" value="10000000" oninput="document.getElementById('mr4').textContent='${'₹'}'+Math.round(this.value*0.04).toLocaleString('en-IN')+' / yr'">
-             <p class="mr-out">Withdraw <b id="mr4">₹4,00,000 / yr</b></p>
+          `<div>
+             <label style="${Sl}">Retirement corpus (₹)</label>
+             <input type="number" value="10000000" style="${Si}" oninput="document.getElementById('mr4').textContent='${'₹'}'+Math.round(this.value*0.04).toLocaleString('en-IN')+' / yr'">
+             <p style="${So}">Withdraw <b style="color:var(--text);font-size:17px" id="mr4">₹4,00,000 / yr</b></p>
            </div>
-           <p class="mr-formula">Annual Withdrawal = 4% of corpus</p>`)}
+           <p style="${Sfo}">Annual Withdrawal = 4% of corpus</p>`)}
 
         ${card('#3b82f6', 'scale', '100 Minus Age Rule', 'Ideal equity vs debt allocation.',
-          `<div class="mr-calc">
-             <label>Your age</label>
-             <input type="number" value="30" oninput="var e=Math.max(0,Math.min(100,100-this.value));document.getElementById('mreq').textContent=e+'% equity / '+(100-e)+'% debt'">
-             <p class="mr-out"><b id="mreq">70% equity / 30% debt</b></p>
+          `<div>
+             <label style="${Sl}">Your age</label>
+             <input type="number" value="30" style="${Si}" oninput="var e=Math.max(0,Math.min(100,100-this.value));document.getElementById('mreq').textContent=e+'% equity / '+(100-e)+'% debt'">
+             <p style="${So}"><b style="color:var(--text);font-size:17px" id="mreq">70% equity / 30% debt</b></p>
            </div>
-           <p class="mr-formula">Equity % = 100 − Age</p>`)}
+           <p style="${Sfo}">Equity % = 100 − Age</p>`)}
 
         ${card('#8b5cf6', 'pie-chart', '10 · 5 · 3 Rule', 'Expected long-term returns by asset class.',
-          `<ul class="mr-list">
-             <li><span class="mr-dot" style="background:#8b5cf6"></span>10% — Equity / Stocks</li>
-             <li><span class="mr-dot" style="background:#3b82f6"></span>5% — Debt / Bonds</li>
-             <li><span class="mr-dot" style="background:#f59e0b"></span>3% — Savings Account</li>
+          `<ul style="list-style:none;display:flex;flex-direction:column;gap:10px;margin:0;padding:0">
+             <li style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600"><span style="${Sdot};background:#8b5cf6"></span>10% — Equity / Stocks</li>
+             <li style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600"><span style="${Sdot};background:#3b82f6"></span>5% — Debt / Bonds</li>
+             <li style="display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600"><span style="${Sdot};background:#f59e0b"></span>3% — Savings Account</li>
            </ul>`)}
 
         ${card('#10b981', 'wallet', '50 · 30 · 20 Rule', 'Budget split of your income.',
-          `<div class="mr-split">
-             <div><span class="mr-dot" style="background:#3b82f6"></span>Needs 50%<b>${f(inc*0.5)}</b></div>
-             <div><span class="mr-dot" style="background:#f59e0b"></span>Wants 30%<b>${f(inc*0.3)}</b></div>
-             <div><span class="mr-dot" style="background:#10b981"></span>Savings 20%<b>${f(inc*0.2)}</b></div>
+          `<div style="display:flex;flex-direction:column;gap:12px">
+             <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600"><span style="${Sdot};background:#3b82f6"></span>Needs 50%<b style="margin-left:auto;font-size:16px;font-weight:800">${f(inc*0.5)}</b></div>
+             <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600"><span style="${Sdot};background:#f59e0b"></span>Wants 30%<b style="margin-left:auto;font-size:16px;font-weight:800">${f(inc*0.3)}</b></div>
+             <div style="display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600"><span style="${Sdot};background:#10b981"></span>Savings 20%<b style="margin-left:auto;font-size:16px;font-weight:800">${f(inc*0.2)}</b></div>
            </div>
-           <p class="mr-formula">Based on your avg monthly income</p>`)}
+           <p style="${Sfo}">Based on your avg monthly income</p>`)}
 
         ${card('#ef4444', 'shield', '6× Emergency Rule', 'Emergency fund you should hold.',
-          `<p class="mr-big">${f(exp*6)}</p>
-           <p class="mr-out">= 6 × your monthly expenses (${f(exp)})</p>
-           <p class="mr-formula">Emergency Fund = 6 × Monthly Expenses</p>`)}
+          `<p style="${Sbig}">${f(exp*6)}</p>
+           <p style="${So}">= 6 × your monthly expenses (${f(exp)})</p>
+           <p style="${Sfo}">Emergency Fund = 6 × Monthly Expenses</p>`)}
 
         ${card('#ec4899', 'home', '40% EMI Rule', 'Keep loan EMIs stress-free.',
-          `<p class="mr-big">${f(inc*0.4)}</p>
-           <p class="mr-out">Max total EMIs / month (40% of income)</p>
-           <p class="mr-formula">EMI ≤ 40% of Monthly Income</p>`)}
+          `<p style="${Sbig}">${f(inc*0.4)}</p>
+           <p style="${So}">Max total EMIs / month (40% of income)</p>
+           <p style="${Sfo}">EMI ≤ 40% of Monthly Income</p>`)}
 
         ${card('#06b6d4', 'umbrella', 'Life Insurance Rule', 'Ideal life-cover amount.',
-          `<p class="mr-big">${f(annualInc*10)} – ${f(annualInc*15)}</p>
-           <p class="mr-out">10–15 × your annual income</p>
-           <p class="mr-formula">Cover = 10–15 × Annual Income</p>`)}
+          `<p style="${Sbig}">${f(annualInc*10)} – ${f(annualInc*15)}</p>
+           <p style="${So}">10–15 × your annual income</p>
+           <p style="${Sfo}">Cover = 10–15 × Annual Income</p>`)}
 
       </div>
       <p style="text-align:center;color:var(--text3);font-size:12px;margin:18px 0 8px">These are general rules of thumb, not personalised advice.</p>
