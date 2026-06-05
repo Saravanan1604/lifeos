@@ -137,7 +137,8 @@ function recNav(delta) {
   _recAnchor = d;
   renderRecordsMyMoney();
 }
-function recSetPeriod(p) { _recPeriod = p; renderRecordsMyMoney(); }
+function recSetPeriod(p) { _recPeriod = p; STATE.settings = STATE.settings || {}; STATE.settings.recPeriod = p; if (typeof saveState === 'function') saveState(); renderRecordsMyMoney(); }
+let _recPeriodInit = false;
 
 function _recPeriodLabel() {
   const a = _recAnchor;
@@ -178,26 +179,30 @@ function recCarrySettings() {
   STATE.settings = STATE.settings || {};
   const on = STATE.settings.carryForward === true;
   const from = STATE.settings.carryFrom || '';
-  openModal('↪ Carry Forward Balance', `
-    <label style="display:flex;align-items:center;gap:12px;font-size:1.3rem;font-weight:700;margin-bottom:16px;cursor:pointer">
-      <input type="checkbox" id="cf-on" ${on ? 'checked' : ''} style="width:24px;height:24px;accent-color:#00c9a7"/>
-      Carry the running balance forward
-    </label>
-    <p style="font-size:1.05rem;color:#475569;margin:-6px 0 16px">When on, TOTAL becomes a running BALANCE that carries across periods.</p>
-    <div class="form-group"><label class="form-label">Start counting from</label>
-      <input type="date" id="cf-from" class="form-input" value="${from}"/>
-      <p style="font-size:1rem;color:#475569;margin-top:6px">Leave blank to include all transactions.</p>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-      <button class="btn-secondary btn-sm" onclick="_cfQuick('week')">This week</button>
-      <button class="btn-secondary btn-sm" onclick="_cfQuick('month')">This month</button>
-      <button class="btn-secondary btn-sm" onclick="_cfQuick('year')">This year</button>
-      <button class="btn-secondary btn-sm" onclick="_cfQuick('all')">All time</button>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="recCarrySave()">Save</button>
+  openModal('↪ Carry Forward', `
+    <div class="cf-modal">
+      <div class="cf-hero">
+        <span class="cf-hero-ic"><i data-lucide="corner-down-right"></i></span>
+        <div>
+          <p class="cf-hero-title">Running balance</p>
+          <p class="cf-hero-sub">Carry each period's closing balance into the next, so the TOTAL is your true running balance.</p>
+        </div>
+        <label class="cf-switch"><input type="checkbox" id="cf-on" ${on ? 'checked' : ''}/><span></span></label>
+      </div>
+      <div class="form-group"><label class="form-label">Start counting from</label>
+        <input type="date" id="cf-from" class="form-input" value="${from}"/></div>
+      <div class="cf-chips">
+        <button class="cf-chip" onclick="_cfQuick('week')">This week</button>
+        <button class="cf-chip" onclick="_cfQuick('month')">This month</button>
+        <button class="cf-chip" onclick="_cfQuick('year')">This year</button>
+        <button class="cf-chip" onclick="_cfQuick('all')">All time</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn-primary" onclick="recCarrySave()">Save</button>
+      </div>
     </div>`);
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
 }
 function _cfQuick(kind) {
   const el = document.getElementById('cf-from'); if (!el) return;
@@ -224,6 +229,8 @@ function recPickDay(v) {
 }
 
 function renderRecordsMyMoney() {
+  // Restore the user's preferred default period (Day/Week/Month/Year/All) once
+  if (!_recPeriodInit) { _recPeriodInit = true; const sp = STATE.settings && STATE.settings.recPeriod; if (sp) _recPeriod = sp; }
   const anchorYmd = _ymdLocal(_recAnchor);
   const periodTxns = filterTxByAnchor([...(STATE.transactions || [])], _recPeriod, anchorYmd);
   const periodLabelTxt = _recPeriodLabel();
@@ -335,19 +342,24 @@ function renderRecordsMyMoney() {
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="recNav(1)">›</button>`}
         <button class="mm-today" onclick="recToday()" title="Jump to today">Today</button>
       </div>
-      ${showTotal ? (() => {
+      ${(() => {
         const _bankT = (STATE.bankAccounts || []).reduce((s, b) => s + (b.balance || 0), 0);
         const _cashT = (STATE.cashAccounts || []).reduce((s, c) => s + (c.balance || 0), 0);
         const _cardT = (STATE.creditCards || []).reduce((s, c) => s + (c.outstanding || 0), 0);
         const hasAccts = (STATE.bankAccounts || []).length + (STATE.cashAccounts || []).length + (STATE.creditCards || []).length > 0;
         return `<div class="mm-hero-carousel" id="mm-hero-carousel">
-        <div class="mm-hero mm-hero-page">
-          <p class="mm-hero-lbl">${carryForward ? 'Total Balance' : 'Balance'}</p>
-          <p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</p>
-          <div class="mm-hero-split">
+        <div class="mm-hero mm-hero-page ${showTotal ? '' : 'mm-hero-noTotal'}">
+          <div class="mm-hero-top">
+            <p class="mm-hero-lbl">${showTotal ? (carryForward ? 'Total Balance' : 'Balance') : periodLabelTxt}</p>
+            <label class="mm-total-switch" title="Show / hide total balance">
+              <input type="checkbox" ${showTotal ? 'checked' : ''} onclick="event.stopPropagation();recToggleTotal()"/><span></span>
+            </label>
+          </div>
+          ${showTotal ? `<p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</p>` : ''}
+          <div class="mm-hero-split ${showTotal ? '' : 'mm-split-big'}">
             <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''}</span><span class="mm-hs-val pos">+${fmt(income)}</span></div>
             <div class="mm-hs-div"></div>
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense</span><span class="mm-hs-val neg">-${fmt(expense)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val neg">-${fmt(expense)}</span></div>
           </div>
         </div>
         ${hasAccts ? (() => {
@@ -372,7 +384,7 @@ function renderRecordsMyMoney() {
         })() : ''}
       </div>
       ${hasAccts ? `<div class="mm-hero-dots" id="mm-hero-dots"><span class="on"></span><span></span></div>` : ''}`;
-      })() : ''}
+      })()}
       <div class="mm-subhead">
         <span class="mm-subhead-title">Recent Transactions</span>
         <button class="mm-subhead-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter, sort &amp; view options"><i data-lucide="sliders-horizontal"></i></button>
@@ -1008,11 +1020,9 @@ function openRecordsFilter() {
   const anchorYmd = (typeof _ymdLocal === 'function' && typeof _recAnchor !== 'undefined') ? _ymdLocal(_recAnchor) : today();
   openModal('🔍 Filter Records', `
     <div class="rf-modal">
-    <div class="form-group"><label class="form-label">View options</label>
+    <div class="form-group"><label class="form-label">Jump to day</label>
       <div class="rf-views">
-        <label class="rf-view"><i data-lucide="calendar"></i> Jump to day<input type="date" value="${anchorYmd}" onchange="closeModal();recPickDay(this.value)"/></label>
-        <button class="rf-view ${showTotal ? 'on' : ''}" onclick="closeModal();recToggleTotal()"><i data-lucide="sigma"></i> Totals</button>
-        <button class="rf-view ${carryForward ? 'on' : ''}" onclick="closeModal();recCarrySettings()"><i data-lucide="corner-down-right"></i> Carry fwd</button>
+        <label class="rf-view"><i data-lucide="calendar"></i> Pick a date<input type="date" value="${anchorYmd}" onchange="closeModal();recPickDay(this.value)"/></label>
       </div></div>
     <div class="form-group"><label class="form-label">Search</label>
       <input type="text" id="rf-search" class="form-input" value="${esc(_recSearch)}" placeholder="Name, category or note" oninput="_recSearch=this.value; if(typeof renderRecordsMyMoney==='function')renderRecordsMyMoney();"/></div>

@@ -3368,6 +3368,38 @@ html.is-app .mm-netbal-val { font-size: 2.4rem; font-weight: 900; letter-spacing
 html.is-app .mm-netbal-val.pos { color: #10b981; }
 html.is-app .mm-netbal-val.neg { color: #ef4444; }
 
+/* build 275 — Total switch on balance card + big income/expense when off */
+html.is-app .mm-hero-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+html.is-app .mm-total-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; cursor: pointer; }
+html.is-app .mm-total-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+html.is-app .mm-total-switch span { position: absolute; inset: 0; border-radius: 20px; background: rgba(255,255,255,0.18); transition: .2s; }
+html.is-app .mm-total-switch span::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; border-radius: 50%; background: #fff; transition: .2s; }
+html.is-app .mm-total-switch input:checked + span { background: linear-gradient(135deg,#00c9a7,#6366f1); }
+html.is-app .mm-total-switch input:checked + span::before { transform: translateX(20px); }
+/* when total is OFF: income/expense become the big focus */
+html.is-app .mm-hero.mm-hero-noTotal { padding-bottom: 24px; }
+html.is-app .mm-split-big .mm-hs-lbl { font-size: 1.25rem; }
+html.is-app .mm-split-big .mm-hs-val { font-size: 2.6rem; font-weight: 900; }
+html.is-app .mm-split-big { margin-top: 14px; }
+html.is-app .mm-hs[onclick] { cursor: pointer; }
+html.is-app .mm-hs[onclick] .mm-hs-lbl svg.lucide { width: .9rem; height: .9rem; }
+
+/* redesigned Carry Forward popup */
+html.is-app #modal-overlay .cf-modal { display: flex; flex-direction: column; gap: 16px; }
+html.is-app #modal-overlay .cf-hero { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 16px; background: rgba(0,201,167,0.08); border: 1px solid rgba(0,201,167,0.2); }
+html.is-app #modal-overlay .cf-hero-ic { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,201,167,0.18); color: #00c9a7; }
+html.is-app #modal-overlay .cf-hero-ic svg.lucide { width: 24px; height: 24px; }
+html.is-app #modal-overlay .cf-hero-title { font-size: 1.35rem; font-weight: 800; }
+html.is-app #modal-overlay .cf-hero-sub { font-size: 1.05rem; color: var(--text2); margin-top: 4px; line-height: 1.4; }
+html.is-app #modal-overlay .cf-switch { position: relative; width: 52px; height: 30px; flex-shrink: 0; cursor: pointer; }
+html.is-app #modal-overlay .cf-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+html.is-app #modal-overlay .cf-switch span { position: absolute; inset: 0; border-radius: 20px; background: rgba(120,120,140,0.4); transition: .2s; }
+html.is-app #modal-overlay .cf-switch span::before { content: ''; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px; border-radius: 50%; background: #fff; transition: .2s; }
+html.is-app #modal-overlay .cf-switch input:checked + span { background: linear-gradient(135deg,#00c9a7,#6366f1); }
+html.is-app #modal-overlay .cf-switch input:checked + span::before { transform: translateX(22px); }
+html.is-app #modal-overlay .cf-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+html.is-app #modal-overlay .cf-chip { flex: 1; min-width: 100px; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--glass); color: var(--text); font-size: 1.15rem; font-weight: 700; cursor: pointer; }
+
 /* build 270 — sticky day headers + dimmer meta (emphasise category + amount) */
 html.is-app .mm-day {
   position: sticky !important; top: 0 !important; z-index: 6 !important;
