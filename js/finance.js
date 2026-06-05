@@ -1258,10 +1258,6 @@ function renderFinance() {
                 ${b.lastFour ? `<span style="font-size:11px;color:rgba(255,255,255,0.5)">•••• ${b.lastFour}</span>` : ''}
               </div>
             </div>`).join('')}
-          </div>
-          <div style="padding:12px 16px;border-radius:12px;background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.2);display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:13px;font-weight:600;color:var(--teal);display:inline-flex;align-items:center;gap:5px"><i data-lucide="wallet"></i> Total Bank Balance</span>
-            <span style="font-size:20px;font-weight:900;color:var(--teal)">${fmt((STATE.bankAccounts||[]).reduce((s,b)=>s+b.balance,0))}</span>
           </div>`}
       </div>
 
@@ -1314,10 +1310,6 @@ function renderFinance() {
                 </div>
               </div>
             </div>`}).join('')}
-          </div>
-          <div style="padding:12px 16px;border-radius:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:13px;font-weight:600;color:#ef4444;display:inline-flex;align-items:center;gap:5px"><i data-lucide="credit-card"></i> Total Outstanding</span>
-            <span style="font-size:20px;font-weight:900;color:#ef4444">${fmt((STATE.creditCards||[]).reduce((s,c)=>s+(c.outstanding||0),0))}</span>
           </div>`}
       </div>
 
@@ -1346,10 +1338,6 @@ function renderFinance() {
               <p style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin:10px 0 4px">${ca.name}</p>
               <p style="font-size:24px;font-weight:900;color:#fff">${fmt(ca.balance||0)}</p>
             </div>`).join('')}
-          </div>
-          <div style="padding:12px 16px;border-radius:12px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:13px;font-weight:600;color:#f59e0b;display:inline-flex;align-items:center;gap:5px"><i data-lucide="banknote"></i> Total Cash</span>
-            <span style="font-size:20px;font-weight:900;color:#f59e0b">${fmt((STATE.cashAccounts||[]).reduce((s,ca)=>s+(ca.balance||0),0))}</span>
           </div>`}
       </div>
 
