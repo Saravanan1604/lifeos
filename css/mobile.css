@@ -3545,3 +3545,30 @@ html.is-app #bottom-nav .bn-fab-slot { height: 1px; }
 html.is-app #bottom-nav .bn-item svg { width: 62px !important; height: 62px !important; }
 html.is-app #bottom-nav .bn-item span { font-size: 28px !important; }
 html.is-app #bottom-nav .bn-item { gap: 7px !important; padding: 6px 0 !important; }
+
+/* ============================================================
+   build 298 — Goals page: clean card alignment + line icons
+   ============================================================ */
+html.is-app .goal-ic {
+  width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+html.is-app .goal-ic svg { width: 26px; height: 26px; }
+html.is-app .goal-mini-ic { width: 13px; height: 13px; flex-shrink: 0; vertical-align: -2px; }
+/* round red close button, kept compact so it never crowds the title */
+html.is-app .goal-x {
+  flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3);
+  color: #ef4444; display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0;
+}
+html.is-app .goal-x svg { width: 18px; height: 18px; }
+html.is-app .goal-x:active { background: rgba(239,68,68,0.22); }
+/* status / sync chips sit on their own wrapping row → no overlap */
+html.is-app .goal-chip-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  background: transparent; border: 1px solid; cursor: pointer; line-height: 1;
+}
+html.is-app .goal-chip-btn svg { width: 14px; height: 14px; }
+html.is-app .goal-card .tag { font-size: 12px; }

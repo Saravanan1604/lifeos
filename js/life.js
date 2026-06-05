@@ -340,21 +340,21 @@ function renderGoals() {
             const pct = g.target > 0 ? Math.min(100, Math.round((g.current / g.target) * 100)) : 0;
             const daysLeft = g.deadline ? Math.ceil((new Date(g.deadline) - new Date()) / 86400000) : null;
             const done = pct >= 100;
-            return `<div class="glass-card" style="padding:20px${done?';border-color:rgba(16,185,129,0.4)':''}">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-                <div style="display:flex;align-items:center;gap:10px">
-                  <span style="font-size:28px">${g.emoji||'🎯'}</span>
-                  <div>
-                    <p style="font-weight:700;font-size:15px">${g.name}</p>
-                    <p style="font-size:12px;color:var(--text3)">${g.category||'Personal'}${g.autoSync ? ' · <span style="color:#00c9a7">🔗 Auto-synced</span>' : ''}</p>
+            return `<div class="glass-card goal-card" style="padding:18px${done?';border-color:rgba(16,185,129,0.4)':''}">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">
+                <div style="display:flex;align-items:center;gap:11px;flex:1;min-width:0">
+                  <span class="goal-ic" style="background:${done?'rgba(16,185,129,0.15)':'rgba(99,102,241,0.15)'};color:${done?'#10b981':'#8b5cf6'}"><i data-lucide="${done?'check-circle-2':'target'}"></i></span>
+                  <div style="min-width:0">
+                    <p style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.name}</p>
+                    <p style="font-size:12px;color:var(--text3);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.category||'Personal'}${g.autoSync ? ' · <i data-lucide="link" class="goal-mini-ic" style="color:#00c9a7"></i> <span style="color:#00c9a7">Auto-synced</span>' : ''}</p>
                   </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  ${done ? '<span class="tag tag-green">✅ Complete!</span>' : daysLeft !== null ? `<span class="tag ${daysLeft<7?'tag-red':daysLeft<30?'tag-gold':'tag-blue'}">${daysLeft>0?daysLeft+' days left':'Overdue'}</span>` : ''}
-                  ${!g.autoSync && g.type==='savings' ? `<button class="btn-icon btn-sm" title="Sync with net savings" onclick="toggleGoalSync('${g.id}')" style="color:#00c9a7;border-color:rgba(0,201,167,0.3);font-size:11px;padding:4px 8px">🔗 Sync</button>` : ''}
-                  ${g.autoSync ? `<button class="btn-icon btn-sm" title="Disable auto-sync" onclick="toggleGoalSync('${g.id}')" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);font-size:11px;padding:4px 8px">🔓 Manual</button>` : ''}
-                  <button class="btn-icon btn-sm" onclick="deleteGoal('${g.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3)">✕</button>
-                </div>
+                <button class="goal-x" onclick="deleteGoal('${g.id}')" title="Delete goal"><i data-lucide="x"></i></button>
+              </div>
+              <div class="goal-chips" style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:14px">
+                ${done ? '<span class="tag tag-green">Complete</span>' : daysLeft !== null ? `<span class="tag ${daysLeft<7?'tag-red':daysLeft<30?'tag-gold':'tag-blue'}">${daysLeft>0?daysLeft+' days left':'Overdue'}</span>` : ''}
+                ${!g.autoSync && g.type==='savings' ? `<button class="goal-chip-btn" title="Sync with net savings" onclick="toggleGoalSync('${g.id}')" style="color:#00c9a7;border-color:rgba(0,201,167,0.35)"><i data-lucide="link"></i> Sync</button>` : ''}
+                ${g.autoSync ? `<button class="goal-chip-btn" title="Disable auto-sync" onclick="toggleGoalSync('${g.id}')" style="color:#f59e0b;border-color:rgba(245,158,11,0.35)"><i data-lucide="lock"></i> Manual</button>` : ''}
               </div>
               ${g.type === 'savings' ? `
                 <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
@@ -366,7 +366,7 @@ function renderGoals() {
                 <div style="margin-top:12px;display:flex;gap:8px">
                   <input type="number" id="goal-upd-${g.id}" class="form-input" placeholder="Add amount manually" style="flex:1"/>
                   <button class="btn-primary btn-sm" onclick="updateGoalProgress('${g.id}')">+ Add</button>
-                </div>` : `<p style="font-size:11px;color:var(--text3);margin-top:8px">🔗 Automatically updates when you add transactions</p>`}
+                </div>` : `<p style="font-size:11px;color:var(--text3);margin-top:8px;display:flex;align-items:center;gap:5px"><i data-lucide="link" class="goal-mini-ic"></i> Automatically updates when you add transactions</p>`}
               ` : `
                 <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
                   <span style="color:var(--text2)">${g.description||'Milestone goal'}</span>

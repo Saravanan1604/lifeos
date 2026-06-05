@@ -597,8 +597,8 @@ const _QUICK_ACTIONS = {
     {icon:'🔥', label:'View Streak',   color:'#f59e0b', bg:'rgba(245,158,11,0.12)',  bc:'rgba(245,158,11,0.3)',  fn:"navigate('analytics')"},
   ],
   goals: [
-    {icon:'🎯', label:'Add Goal',      color:'#8b5cf6', bg:'rgba(139,92,246,0.12)', bc:'rgba(139,92,246,0.3)', fn:"openAddGoalModal()"},
-    {icon:'💰', label:'Add Income',    color:'#10b981', bg:'rgba(16,185,129,0.12)', bc:'rgba(16,185,129,0.3)', fn:"openAddTxModal('income')"},
+    {lucide:'target',    label:'Add Goal',   color:'#8b5cf6', bg:'rgba(139,92,246,0.12)', bc:'rgba(139,92,246,0.3)', fn:"openAddGoalModal()"},
+    {lucide:'banknote',  label:'Add Income', color:'#10b981', bg:'rgba(16,185,129,0.12)', bc:'rgba(16,185,129,0.3)', fn:"openAddTxModal('income')"},
   ],
   health: [
     {icon:'❤️', label:'Log Today',     color:'#3b82f6', bg:'rgba(59,130,246,0.12)',  bc:'rgba(59,130,246,0.3)',  fn:"document.getElementById('h-sleep')?.focus()"},
@@ -635,7 +635,7 @@ function _appendQuickActions(page) {
       style="display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:24px;background:${a.bg};border:1px solid ${a.bc};color:${a.color};font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0;line-height:1"
       onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 18px ${a.bc}'"
       onmouseout="this.style.transform='';this.style.boxShadow=''">
-      <span style="font-size:15px">${a.icon}</span>${a.label}
+      ${a.lucide ? `<i data-lucide="${a.lucide}" style="width:17px;height:17px"></i>` : `<span style="font-size:15px">${a.icon}</span>`}${a.label}
     </button>`).join('')}
   </div>`;
 
@@ -644,6 +644,8 @@ function _appendQuickActions(page) {
   const header = fadeIn.querySelector('.page-header');
   if (header) header.insertAdjacentHTML('afterend', html);
   else fadeIn.insertAdjacentHTML('afterbegin', html);
+  if (typeof _lucideRefresh === 'function') _lucideRefresh();
+  else if (window.lucide && lucide.createIcons) lucide.createIcons();
 }
 
 // Standalone Transactions page — reuses renderFinance, then strips everything
