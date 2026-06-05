@@ -286,8 +286,8 @@ function openAddCategoryModal() {
     <div class="form-group">
       <label class="form-label">Emoji Icon</label>
       <input type="text" id="cat-icon" class="form-input" placeholder="Paste emoji or pick below" maxlength="4" style="font-size:20px"/>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;max-height:120px;overflow-y:auto">
-        ${EMOJI_PICKER.map(e => `<button onclick="document.getElementById('cat-icon').value='${e}';document.querySelectorAll('.emoji-pick-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="emoji-pick-btn" style="background:none;border:1px solid var(--glass-border);border-radius:8px;padding:6px;font-size:20px;cursor:pointer;transition:.15s;min-width:38px">${e}</button>`).join('')}
+      <div class="emoji-grid">
+        ${EMOJI_PICKER.map(e => `<button type="button" onclick="document.getElementById('cat-icon').value='${e}';document.querySelectorAll('.emoji-pick-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="emoji-pick-btn">${e}</button>`).join('')}
       </div>
     </div>
     <div class="form-group">
@@ -315,8 +315,8 @@ function openEditCategoryModal(id) {
     <div class="form-group">
       <label class="form-label">Emoji Icon</label>
       <input type="text" id="cat-icon" class="form-input" value="${cat.icon}" placeholder="Paste emoji" maxlength="4" style="font-size:20px"/>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;max-height:120px;overflow-y:auto">
-        ${EMOJI_PICKER.map(e => `<button onclick="document.getElementById('cat-icon').value='${e}'" style="background:none;border:1px solid var(--glass-border);border-radius:8px;padding:6px;font-size:20px;cursor:pointer;transition:.15s;min-width:38px">${e}</button>`).join('')}
+      <div class="emoji-grid">
+        ${EMOJI_PICKER.map(e => `<button type="button" onclick="document.getElementById('cat-icon').value='${e}';document.querySelectorAll('.emoji-pick-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="emoji-pick-btn">${e}</button>`).join('')}
       </div>
     </div>
     <div class="form-group">

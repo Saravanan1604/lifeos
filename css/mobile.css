@@ -3270,6 +3270,21 @@ html.is-app #modal-overlay .pad-cat-manage {
 }
 html.is-app #modal-overlay .pad-cat-manage svg.lucide { width: 1.4rem; height: 1.4rem; }
 
+/* build 262 — Add/Edit Custom Category emoji grid: 4 visible rows, scrollable */
+html.is-app #modal-overlay .emoji-grid {
+  display: grid !important; grid-template-columns: repeat(6, 1fr) !important; gap: 8px !important;
+  margin-top: 12px !important; max-height: 264px !important; overflow-y: auto !important;
+  padding: 4px; -webkit-overflow-scrolling: touch;
+}
+html.is-app #modal-overlay .emoji-pick-btn {
+  background: rgba(255,255,255,0.05) !important; border: 1px solid var(--glass-border) !important;
+  border-radius: 14px !important; aspect-ratio: 1 / 1 !important; padding: 0 !important;
+  font-size: 30px !important; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform .1s, background .15s; min-width: 0 !important;
+}
+html.is-app #modal-overlay .emoji-pick-btn:active { transform: scale(.9); }
+html.is-app #modal-overlay .emoji-pick-btn.active { background: rgba(0,201,167,0.22) !important; border-color: #00c9a7 !important; }
+
 /* category line icons on Dashboard / Finance / Budget / detail card */
 html.is-app .tx-ic { display: inline-flex !important; align-items: center; justify-content: center; }
 html.is-app .tx-ic svg.lucide { width: 1.5rem; height: 1.5rem; }
