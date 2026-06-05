@@ -3342,16 +3342,21 @@ html.is-app .mm-hs-val { font-size: 1.6rem; font-weight: 800; }
 html.is-app .mm-hs-val.pos { color: #10b981; }
 html.is-app .mm-hs-val.neg { color: #ef4444; }
 
-/* account breakdowns → horizontal swipeable carousel */
-html.is-app .mm-acct-chips {
-  display: flex !important; gap: 10px !important; overflow-x: auto !important;
-  padding: 0 14px 6px !important; margin: 0 0 6px !important; scroll-snap-type: x proximity;
-  -webkit-overflow-scrolling: touch;
+/* swipeable hero cards: Balance ⇄ Bank|Cash|Card */
+html.is-app .mm-hero-carousel {
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+  margin: 6px 0 0; padding: 0 14px 4px; gap: 12px; -webkit-overflow-scrolling: touch;
 }
-html.is-app .mm-acct-chips::-webkit-scrollbar { height: 0; }
-html.is-app .mm-acct-chips .mm-acct {
-  flex: 0 0 44% !important; min-width: 44% !important; scroll-snap-align: start;
+html.is-app .mm-hero-carousel::-webkit-scrollbar { height: 0; }
+html.is-app .mm-hero-carousel .mm-hero-page {
+  flex: 0 0 100%; min-width: 100%; scroll-snap-align: center; margin: 0 !important; box-sizing: border-box;
 }
+html.is-app .mm-hero-dots { display: flex; justify-content: center; gap: 8px; margin: 2px 0 10px; }
+html.is-app .mm-hero-dots span { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.22); transition: .25s; }
+html.is-app .mm-hero-dots span.on { background: #00c9a7; width: 24px; border-radius: 5px; }
+html.is-app .mm-hero-accts { cursor: pointer; }
+html.is-app .mm-accts3 .mm-hs-lbl { font-size: .95rem; }
+html.is-app .mm-accts3 .mm-hs-val { font-size: 1.35rem; }
 
 /* build 267 — consolidated "Recent Transactions" sub-header + slider filter */
 html.is-app .mm-subhead {

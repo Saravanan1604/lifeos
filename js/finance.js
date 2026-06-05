@@ -335,16 +335,34 @@ function renderRecordsMyMoney() {
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="recNav(1)">›</button>`}
         <button class="mm-today" onclick="recToday()" title="Jump to today">Today</button>
       </div>
-      ${showTotal ? `<div class="mm-hero">
-        <p class="mm-hero-lbl">${carryForward ? 'Total Balance' : 'Balance'}</p>
-        <p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</p>
-        <div class="mm-hero-split">
-          <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''}</span><span class="mm-hs-val pos">+${fmt(income)}</span></div>
-          <div class="mm-hs-div"></div>
-          <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense</span><span class="mm-hs-val neg">-${fmt(expense)}</span></div>
+      ${showTotal ? (() => {
+        const _bankT = (STATE.bankAccounts || []).reduce((s, b) => s + (b.balance || 0), 0);
+        const _cashT = (STATE.cashAccounts || []).reduce((s, c) => s + (c.balance || 0), 0);
+        const _cardT = (STATE.creditCards || []).reduce((s, c) => s + (c.outstanding || 0), 0);
+        const hasAccts = (STATE.bankAccounts || []).length + (STATE.cashAccounts || []).length + (STATE.creditCards || []).length > 0;
+        return `<div class="mm-hero-carousel" id="mm-hero-carousel">
+        <div class="mm-hero mm-hero-page">
+          <p class="mm-hero-lbl">${carryForward ? 'Total Balance' : 'Balance'}</p>
+          <p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</p>
+          <div class="mm-hero-split">
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''}</span><span class="mm-hs-val pos">+${fmt(income)}</span></div>
+            <div class="mm-hs-div"></div>
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense</span><span class="mm-hs-val neg">-${fmt(expense)}</span></div>
+          </div>
         </div>
-      </div>` : ''}
-      ${_recAccountChips()}
+        ${hasAccts ? `<div class="mm-hero mm-hero-page mm-hero-accts" onclick="navigate('bank-tracker')">
+          <p class="mm-hero-lbl">Accounts</p>
+          <div class="mm-hero-split mm-accts3">
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_bankT)}</span></div>
+            <div class="mm-hs-div"></div>
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="banknote"></i> Cash</span><span class="mm-hs-val" style="color:#f59e0b">${fmt(_cashT)}</span></div>
+            <div class="mm-hs-div"></div>
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="credit-card"></i> Card</span><span class="mm-hs-val" style="color:#ef4444">${fmt(_cardT)}</span></div>
+          </div>
+        </div>` : ''}
+      </div>
+      ${hasAccts ? `<div class="mm-hero-dots" id="mm-hero-dots"><span class="on"></span><span></span></div>` : ''}`;
+      })() : ''}
       <div class="mm-subhead">
         <span class="mm-subhead-title">Recent Transactions</span>
         <button class="mm-subhead-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter, sort &amp; view options"><i data-lucide="sliders-horizontal"></i></button>
@@ -356,7 +374,19 @@ function renderRecordsMyMoney() {
       </div>
     </div>`;
   _lucideRefresh();
+  _recHeroDots();
   if (typeof initRecordsGestures === 'function') initRecordsGestures();
+}
+
+// Sync the balance/accounts swipe-card dots
+function _recHeroDots() {
+  const car = document.getElementById('mm-hero-carousel');
+  const dots = document.getElementById('mm-hero-dots');
+  if (!car || !dots) return;
+  car.addEventListener('scroll', () => {
+    const i = Math.round(car.scrollLeft / Math.max(1, car.clientWidth));
+    [...dots.children].forEach((d, j) => d.classList.toggle('on', j === i));
+  }, { passive: true });
 }
 
 // ===== Records row gestures: long-press select, swipe-right delete, swipe-left edit =====
