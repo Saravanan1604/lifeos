@@ -695,6 +695,8 @@ function _renderPage(page) {
     default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
   }
   _appendQuickActions(page);
+  // Append any Money-Rules charts the user pinned to this page (Budget/Goals/Notes)
+  if (typeof _mrRenderPins === 'function') { try { _mrRenderPins(page); } catch (_) {} }
   // Render any Lucide line-icons (<i data-lucide>) injected by the page
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
   if (page === 'finance' && typeof _finSwipeDots === 'function') _finSwipeDots();

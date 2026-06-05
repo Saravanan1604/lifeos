@@ -647,7 +647,9 @@ function _mrFinHealth(flowTxs, monthly, allTxs) {
   const emFundMonths = exp > 0 ? (netSaved / exp) : 0;
   const invValue = (STATE.investments || []).reduce((a, i) => a + (+i.currentValue || +i.amount || +i.value || 0), 0);
   const retireVal = (STATE.investments || []).filter(i => /retire|pension|nps|ppf|epf/i.test((i.name || '') + (i.type || ''))).reduce((a, i) => a + (+i.currentValue || +i.amount || +i.value || 0), 0);
-  const hasInsurance = catHit(/insurance|premium|lic|policy/, 'expense').length > 0;
+  const cover = +(STATE.settings?.mrCover) || 0;
+  const hasInsurance = cover > 0 || catHit(/insurance|premium|lic|policy/, 'expense').length > 0;
+  const insScore = cover > 0 ? Math.round(Math.min(100, (cover / (annualInc * 10 || 1)) * 100)) : (catHit(/insurance|premium|lic|policy/, 'expense').length ? 60 : 20);
   const budgets = STATE.budgets || [];
   let budgetScore = 50;
   if (budgets.length) {
@@ -664,7 +666,7 @@ function _mrFinHealth(flowTxs, monthly, allTxs) {
     { k: 'Emergency Fund',   v: clamp((emFundMonths / 6) * 100),              tip: 'Build 6 months of expenses in cash.' },
     { k: 'Retirement',       v: clamp(annualInc > 0 ? (retireVal / annualInc) * 100 : 0), tip: 'Start a retirement fund (NPS/PPF/EPF).' },
     { k: 'Investments',      v: clamp(annualInc > 0 ? (invValue / annualInc) * 100 : 0),  tip: 'Invest beyond savings to grow wealth.' },
-    { k: 'Insurance',        v: hasInsurance ? 75 : 20,                        tip: 'Get life cover of 10–15× annual income.' },
+    { k: 'Insurance',        v: insScore,                                      tip: 'Get life cover of 10–15× annual income.' },
     { k: 'Budget Adherence', v: clamp(budgetScore),                           tip: 'Set category budgets and stick to them.' },
   ];
   const overall = Math.round(axes.reduce((a, x) => a + x.v, 0) / axes.length);
@@ -710,6 +712,105 @@ function _mrFlow(srcTxs) {
 // Compact INR formatter for live (oninput) updates on the rule cards.
 function _mrINR(n) { return '₹' + Math.round(+n || 0).toLocaleString('en-IN'); }
 
+// Period transactions exposed for node-detail popups.
+let _mrLastTx = [];
+
+// Save one of the personalising inputs (age | mrCorpus | mrCover) and re-render.
+function mrSaveField(key, val) {
+  STATE.settings = STATE.settings || {};
+  const n = parseFloat(val);
+  if (!isFinite(n) || n <= 0) delete STATE.settings[key]; else STATE.settings[key] = Math.round(n);
+  saveState();
+  renderMoneyRules();
+}
+
+// Tap a Sankey node (or chip) → list the matching transactions with dates + total.
+function mrShowNode(name) {
+  if (typeof openModal !== 'function') return;
+  const txs = _mrLastTx || [];
+  if (name === 'Savings') {
+    let inc = 0, exp = 0; txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
+    openModal('💰 Savings', `<p style="font-size:14px;color:var(--text2);line-height:1.9">
+        Income: <b style="color:#10b981">${fmt(inc)}</b><br>Expenses: <b style="color:#ef4444">${fmt(exp)}</b><br>
+        <span style="font-size:18px">Net Saved: <b style="color:#10b981">${fmt(Math.max(0, inc - exp))}</b></span></p>`);
+    return;
+  }
+  const matched = txs.filter(t => (t.category || 'Other') === name).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const total = matched.reduce((a, t) => a + (+t.amount || 0), 0);
+  const pos = matched[0] && matched[0].type === 'income';
+  const rows = matched.length ? matched.map(t => `
+    <div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--glass-border)">
+      <div style="min-width:0"><p style="font-weight:600;font-size:14px">${esc(t.description || t.subcategory || name)}</p>
+        <p style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}${t.source ? ' · ' + esc(t.source) : ''}</p></div>
+      <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'};white-space:nowrap">${t.type === 'income' ? '' : '-'}${fmt(t.amount)}</b>
+    </div>`).join('') : '<p style="color:var(--text3);padding:14px 0">No transactions in this period.</p>';
+  openModal(`${name} — ${matched.length} entr${matched.length === 1 ? 'y' : 'ies'}`, `
+    <div style="display:flex;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--glass);margin-bottom:8px">
+      <span style="font-weight:700">Total</span><b style="font-size:18px;color:${pos ? '#10b981' : '#ef4444'}">${fmt(total)}</b>
+    </div>
+    <div style="max-height:50vh;overflow-y:auto">${rows}</div>`);
+}
+
+// ---- Pin a Money-Rules graph onto another page (live, re-rendering copy) ----
+function mrPinChart(chartKey, title) {
+  if (typeof openModal !== 'function') return;
+  openModal('📌 Pin "' + title + '" to…', `
+    <p style="font-size:13px;color:var(--text3);margin-bottom:14px">A live copy will appear on the page you choose and update with your data.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn-primary" onclick="mrAddPin('${chartKey}','budget','${esc(title)}')">Add to Budget</button>
+      <button class="btn-primary" onclick="mrAddPin('${chartKey}','goals','${esc(title)}')">Add to Goals</button>
+      <button class="btn-primary" onclick="mrAddPin('${chartKey}','notes','${esc(title)}')">Add to Notes</button>
+    </div>`);
+}
+function mrAddPin(chartKey, page, title) {
+  STATE.settings = STATE.settings || {};
+  STATE.settings.mrPins = STATE.settings.mrPins || [];
+  if (!STATE.settings.mrPins.some(p => p.chart === chartKey && p.page === page)) {
+    STATE.settings.mrPins.push({ chart: chartKey, page, title });
+    saveState();
+  }
+  if (typeof closeModal === 'function') closeModal();
+  if (typeof toast === 'function') toast(`📌 Pinned to ${page.charAt(0).toUpperCase() + page.slice(1)}`, 'success');
+}
+function mrUnpin(chartKey, page) {
+  STATE.settings = STATE.settings || {};
+  STATE.settings.mrPins = (STATE.settings.mrPins || []).filter(p => !(p.chart === chartKey && p.page === page));
+  saveState();
+  if (typeof navigate === 'function') navigate(currentPage, true);
+}
+
+// Render pinned Money-Rules charts at the bottom of Budget/Goals/Notes pages.
+// Called from _renderPage after the page's own content is in place.
+function _mrRenderPins(page) {
+  const pins = (STATE.settings?.mrPins || []).filter(p => p.page === page);
+  if (!pins.length) return;
+  const container = document.getElementById('page-container');
+  const fadeIn = container && container.querySelector('.fade-in');
+  if (!fadeIn) return;
+  const ptx = _mrFilteredTx();
+  const fh = _mrFinHealth(ptx, _mrMonthlyEquiv(ptx), STATE.transactions || []);
+  const strm = _mrIncomeStreams(ptx);
+  const flow = _mrFlow(ptx);
+  const titles = { health: 'Financial Health', stream: '7 Income Streams', flow: 'Where Your Money Goes' };
+  const canvasId = { health: 'mr-health-chart', stream: 'mr-stream-chart', flow: 'mr-flow-chart' };
+  const html = `<div style="margin-top:18px">
+    <p style="font-size:13px;color:var(--text3);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i data-lucide="pin" style="width:15px;height:15px"></i> Pinned from Money Rules</p>
+    ${pins.map(p => `
+      <div class="glass-card" style="padding:16px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <p style="font-size:16px;font-weight:800">${esc(p.title || titles[p.chart] || 'Chart')}</p>
+          <button onclick="mrUnpin('${p.chart}','${page}')" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:9px;padding:5px 9px;cursor:pointer;font-size:12px;font-weight:700">Unpin</button>
+        </div>
+        <div style="position:relative;height:300px"><canvas id="${canvasId[p.chart]}"></canvas></div>
+      </div>`).join('')}
+  </div>`;
+  fadeIn.insertAdjacentHTML('beforeend', html);
+  setTimeout(() => {
+    if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+    _mrDrawCharts(fh, strm, flow);
+  }, 30);
+}
+
 function renderMoneyRules() {
   const ptx = _mrFilteredTx();                 // transactions in the selected period
   const allTx = STATE.transactions || [];
@@ -724,12 +825,20 @@ function renderMoneyRules() {
   const flow = _mrFlow(ptx);
 
   // ---- Extra figures pulled from the user's data (used to PREFILL + SUGGEST) ----
+  _mrLastTx = ptx;                                                           // expose for node-detail popups
+  const S = STATE.settings || {};
   const invValue = flow.invValue;                                            // total investments
   const netSaved = Math.max(0, allTx.reduce((a, t) => a + (t.type === 'income' ? +t.amount : -+t.amount || 0), 0)); // cumulative savings
-  const corpusGuess = Math.round(invValue + netSaved) || 1000000;            // suggested retirement corpus
-  const age = Math.round(+(STATE.settings?.age) || +(STATE.user?.age) || (STATE.user?.dob ? (new Date().getFullYear() - new Date(STATE.user.dob).getFullYear()) : 0) || 30);
+  const corpusGuess = Math.round(+S.mrCorpus || (invValue + netSaved)) || 1000000;            // suggested retirement corpus
+  const age = Math.round(+S.mrAge || +(STATE.user?.age) || (STATE.user?.dob ? (new Date().getFullYear() - new Date(STATE.user.dob).getFullYear()) : 0) || 30);
+  const cover = +S.mrCover || 0;                                             // user's current life cover
   const emiTx = ptx.filter(t => t.type === 'expense' && /emi|loan|mortgage/i.test((t.category || '') + (t.subcategory || '')));
   const emiMonthly = Math.round(_mrMonthlyEquiv(emiTx).expense);             // current monthly EMIs
+  // Which of the personalising inputs are still missing?
+  const missing = [];
+  if (!S.mrAge) missing.push('age');
+  if (!S.mrCorpus) missing.push('retirement corpus');
+  if (!S.mrCover) missing.push('insurance cover');
   const f = (n) => fmt(Math.round(n || 0));
   const Si = 'width:100%;padding:12px 14px;font-size:16px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);box-sizing:border-box';
   const Sl = 'display:block;font-size:13px;color:var(--text2);margin-bottom:6px';
@@ -767,9 +876,19 @@ function renderMoneyRules() {
         <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Net Saved</p><p style="font-size:17px;font-weight:800;color:${pNet>=0?'#10b981':'#ef4444'}">${f(pNet)}</p></div>
       </div>
 
+      <div class="glass-card" style="padding:16px;margin-bottom:16px;${missing.length?'border:1px solid rgba(245,158,11,0.45)':''}">
+        <p style="font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:${missing.length?'4px':'12px'}"><i data-lucide="user-cog" style="width:19px;height:19px;color:#f59e0b"></i> Your Details</p>
+        ${missing.length?`<p style="font-size:13px;color:#f59e0b;margin-bottom:12px">Add your ${missing.join(', ')} to personalise the results below.</p>`:''}
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div><label style="${Sl}">Age</label><input type="number" value="${S.mrAge||''}" placeholder="30" style="${Si}" onchange="mrSaveField('mrAge',this.value)"></div>
+          <div><label style="${Sl}">Retirement corpus</label><input type="number" value="${S.mrCorpus||''}" placeholder="${invValue+netSaved||1000000}" style="${Si}" onchange="mrSaveField('mrCorpus',this.value)"></div>
+          <div><label style="${Sl}">Insurance cover</label><input type="number" value="${S.mrCover||''}" placeholder="0" style="${Si}" onchange="mrSaveField('mrCover',this.value)"></div>
+        </div>
+      </div>
+
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px"><i data-lucide="activity" style="width:20px;height:20px;color:#6366f1"></i> Financial Health</p>
+          <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px"><i data-lucide="activity" style="width:20px;height:20px;color:#6366f1"></i> Financial Health <button onclick="mrPinChart('health','Financial Health')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
           <span style="font-size:22px;font-weight:900;color:${fh.overall>=70?'#10b981':fh.overall>=40?'#f59e0b':'#ef4444'}">${fh.overall}<span style="font-size:13px;color:var(--text3)">/100</span></span>
         </div>
         <div style="position:relative;height:300px"><canvas id="mr-health-chart"></canvas></div>
@@ -780,7 +899,7 @@ function renderMoneyRules() {
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px"><i data-lucide="layers" style="width:20px;height:20px;color:#10b981"></i> 7 Income Streams</p>
+          <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px"><i data-lucide="layers" style="width:20px;height:20px;color:#10b981"></i> 7 Income Streams <button onclick="mrPinChart('stream','7 Income Streams')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
           <span style="font-size:15px;font-weight:800;color:var(--text2)">${strm.active}<span style="font-size:13px;color:var(--text3)"> / 7 active</span></span>
         </div>
         <p style="font-size:12px;color:var(--text3);margin-bottom:8px">The average millionaire has 7 streams of income.</p>
@@ -812,10 +931,14 @@ function renderMoneyRules() {
       </div>`; })()}
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
-        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-fork" style="width:20px;height:20px;color:#3b82f6"></i> Where Your Money Goes</p>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">How income sources flow into spending & savings.</p>
+        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-fork" style="width:20px;height:20px;color:#3b82f6"></i> Where Your Money Goes <button onclick="mrPinChart('flow','Where Your Money Goes')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px;margin-left:auto" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Tap any source or category to see its transactions.</p>
         <div style="position:relative;height:340px"><canvas id="mr-flow-chart"></canvas></div>
         <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
+        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
+          ${[...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('')}
+          ${flow.savings>0?`<button onclick="mrShowNode('Savings')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;cursor:pointer">Savings</button>`:''}
+        </div>
       </div>
 
       <div class="mr-grid" style="display:flex;flex-direction:column;gap:14px">
@@ -899,7 +1022,9 @@ function renderMoneyRules() {
              <label style="${Sl}">Annual income (₹) — prefilled, editable</label>
              <input type="number" value="${annualInc}" style="${Si}" oninput="document.getElementById('liclo').textContent=window._mrINR(this.value*10);document.getElementById('lichi').textContent=window._mrINR(this.value*15)">
              <p style="${Sbig};margin-top:10px"><span id="liclo">${_mrINR(annualInc*10)}</span> – <span id="lichi">${_mrINR(annualInc*15)}</span></p>
-             <p style="${So}">💡 Aim for cover of 10–15× your annual income.</p>
+             ${cover>0
+               ? `<p style="${So}">💡 Your cover: <b style="color:var(--text)">${f(cover)}</b> · <b style="color:${cover>=annualInc*10?'#10b981':'#f59e0b'}">${cover>=annualInc*10?'✓ Adequate':'Top up '+_mrINR(annualInc*10-cover)}</b></p>`
+               : `<p style="${So}">💡 Add your current cover in “Your Details” to see the gap.</p>`}
            </div>
            <p style="${Sfo}">Cover = 10–15 × Annual Income</p>`)}
 
@@ -1014,6 +1139,14 @@ function _mrDrawCharts(fh, strm, flow) {
       }] },
       options: {
         responsive: true, maintainAspectRatio: false, animation: false,
+        onClick: (evt, els, chart) => {
+          const pts = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+          if (!pts.length) return;
+          const raw = chart.data.datasets[0].data[pts[0].index];
+          if (!raw) return;
+          const node = raw.from === 'Income' ? raw.to : raw.from;
+          if (typeof mrShowNode === 'function') mrShowNode(node);
+        },
         plugins: { legend: { display: false },
           tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.flow)}` } } },
       }
