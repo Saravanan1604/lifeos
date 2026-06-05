@@ -669,12 +669,28 @@ function _mrIncomeStreams() {
   return { sums, active };
 }
 
+// Money flow — income sources, expense categories, and savings (all-time totals).
+function _mrFlow() {
+  const txs = STATE.transactions || [];
+  const incBy = {}, expBy = {};
+  let totalInc = 0, totalExp = 0;
+  txs.forEach(t => {
+    const amt = +t.amount || 0; const cat = t.category || 'Other';
+    if (t.type === 'income') { incBy[cat] = (incBy[cat] || 0) + amt; totalInc += amt; }
+    else { expBy[cat] = (expBy[cat] || 0) + amt; totalExp += amt; }
+  });
+  const savings = Math.max(0, totalInc - totalExp);
+  const invValue = (STATE.investments || []).reduce((a, i) => a + (+i.currentValue || +i.amount || +i.value || 0), 0);
+  return { incBy, expBy, totalInc, totalExp, savings, invValue };
+}
+
 function renderMoneyRules() {
   const m = _mrMonthly();
   const inc = Math.round(m.income), exp = Math.round(m.expense);
   const annualInc = inc * 12;
   const fh = _mrFinHealth();
   const strm = _mrIncomeStreams();
+  const flow = _mrFlow();
   const f = (n) => fmt(Math.round(n || 0));
   const Si = 'width:100%;padding:12px 14px;font-size:16px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);box-sizing:border-box';
   const Sl = 'display:block;font-size:13px;color:var(--text2);margin-bottom:6px';
@@ -725,6 +741,34 @@ function renderMoneyRules() {
         <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
           ${strm.sums.map(s=>`<div style="display:flex;align-items:center;gap:7px;font-size:13px;padding:7px 10px;border-radius:10px;background:var(--glass);opacity:${s.total>0?1:0.5}"><span style="width:9px;height:9px;border-radius:50%;flex-shrink:0;background:${s.total>0?'#10b981':'#6b7280'}"></span><span style="flex:1;min-width:0;font-weight:600">${s.k}</span>${s.total>0?`<b style="font-size:12px">${f(s.total)}</b>`:'<i data-lucide="plus" style="width:14px;height:14px;color:var(--text3)"></i>'}</div>`).join('')}
         </div>
+      </div>
+
+      ${(()=>{ const steps=[
+          {k:'Income',     v:flow.totalInc, c:'#3b82f6', ic:'arrow-down-circle'},
+          {k:'Expenses',   v:flow.totalExp, c:'#f59e0b', ic:'shopping-cart'},
+          {k:'Savings',    v:flow.savings,  c:'#10b981', ic:'piggy-bank'},
+          {k:'Investment', v:flow.invValue, c:'#8b5cf6', ic:'trending-up'},
+        ]; return `
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:14px"><i data-lucide="refresh-cw" style="width:20px;height:20px;color:#10b981"></i> Money Flow Cycle</p>
+        <div style="display:flex;align-items:stretch;justify-content:space-between;gap:4px">
+          ${steps.map((s,i)=>`
+            <div style="flex:1;text-align:center">
+              <div style="width:54px;height:54px;margin:0 auto 8px;border-radius:50%;background:${s.c}22;color:${s.c};display:flex;align-items:center;justify-content:center"><i data-lucide="${s.ic}" style="width:26px;height:26px"></i></div>
+              <p style="font-size:12px;color:var(--text3);font-weight:600">${s.k}</p>
+              <p style="font-size:13px;font-weight:800;color:${s.c};word-break:break-word">${f(s.v)}</p>
+            </div>
+            ${i<steps.length-1?`<div style="display:flex;align-items:center;color:var(--text3)"><i data-lucide="chevron-right" style="width:18px;height:18px"></i></div>`:''}
+          `).join('')}
+        </div>
+        <p style="${Sfo}">Income → spend → save → invest → repeat</p>
+      </div>`; })()}
+
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-fork" style="width:20px;height:20px;color:#3b82f6"></i> Where Your Money Goes</p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">How income sources flow into spending & savings.</p>
+        <div style="position:relative;height:340px"><canvas id="mr-flow-chart"></canvas></div>
+        <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
       </div>
 
       <div class="mr-grid" style="display:flex;flex-direction:column;gap:14px">
@@ -795,11 +839,11 @@ function renderMoneyRules() {
       <p style="text-align:center;color:var(--text3);font-size:12px;margin:18px 0 8px">These are general rules of thumb, not personalised advice.</p>
     </div>`;
 
-  // Draw the two radar charts once the canvases are in the DOM.
-  setTimeout(() => _mrDrawCharts(fh, strm), 30);
+  // Draw the radar + flow charts once the canvases are in the DOM.
+  setTimeout(() => _mrDrawCharts(fh, strm, flow), 30);
 }
 
-function _mrDrawCharts(fh, strm) {
+function _mrDrawCharts(fh, strm, flow) {
   if (!window.Chart) return;
   const isLight = document.body.classList.contains('light');
   const grid = isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.12)';
@@ -856,6 +900,50 @@ function _mrDrawCharts(fh, strm) {
           grid: { color: grid }, angleLines: { color: grid },
           pointLabels: { color: tick, font: { size: 12, weight: '600' } }
         } }
+      }
+    });
+  }
+
+  // Money-flow Sankey (income sources → Income → expense categories + Savings)
+  const c3 = document.getElementById('mr-flow-chart');
+  if (c3 && flow) {
+    const hasSankey = !!(window.Chart.registry && Chart.registry.controllers && Chart.registry.controllers.items && Chart.registry.controllers.items.sankey);
+    if (!hasSankey || flow.totalInc <= 0) {
+      const fb = document.getElementById('mr-flow-fallback');
+      if (fb) { fb.style.display = 'block'; fb.textContent = flow.totalInc <= 0 ? 'Add some income to see your money flow.' : 'Money-flow chart needs an internet connection the first time. Reopen online to load it.'; }
+      c3.style.display = 'none';
+      return;
+    }
+    try { chartInstances.mrFlow && chartInstances.mrFlow.destroy(); } catch (_) {}
+    const palette = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#ec4899','#6366f1','#14b8a6','#f97316'];
+    let ci = 0; const colorMap = {};
+    const colorOf = (k) => (colorMap[k] = colorMap[k] || palette[(ci++) % palette.length]);
+    const data = [];
+    Object.entries(flow.incBy).forEach(([k, v]) => { if (v > 0) { data.push({ from: k, to: 'Income', flow: Math.round(v) }); colorOf(k); } });
+    // top expense categories (cap at 8, group rest as "Other")
+    const exps = Object.entries(flow.expBy).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+    const top = exps.slice(0, 8); const restSum = exps.slice(8).reduce((a, e) => a + e[1], 0);
+    top.forEach(([k, v]) => { data.push({ from: 'Income', to: k, flow: Math.round(v) }); colorOf(k); });
+    if (restSum > 0) { data.push({ from: 'Income', to: 'Other', flow: Math.round(restSum) }); colorOf('Other'); }
+    if (flow.savings > 0) { data.push({ from: 'Income', to: 'Savings', flow: Math.round(flow.savings) }); }
+    colorMap['Income'] = '#22c55e'; colorMap['Savings'] = '#10b981';
+
+    chartInstances.mrFlow = new Chart(c3.getContext('2d'), {
+      type: 'sankey',
+      data: { datasets: [{
+        data,
+        colorFrom: (c) => colorOf(c.dataset.data[c.dataIndex].from),
+        colorTo: (c) => colorOf(c.dataset.data[c.dataIndex].to),
+        colorMode: 'gradient',
+        labels: {},
+        color: tick,
+        font: { size: 11, weight: '600' },
+        borderWidth: 0,
+      }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.flow)}` } } },
       }
     });
   }

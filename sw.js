@@ -1,5 +1,5 @@
-// LifeOS Service Worker - v302.0
-const CACHE = 'lifeos-v302';
+// LifeOS Service Worker - v303.0
+const CACHE = 'lifeos-v303';
 
 // Allow the page to tell a waiting SW to activate immediately
 self.addEventListener('message', e => {
@@ -41,7 +41,8 @@ const ASSETS = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+  'https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.12.1/dist/chartjs-chart-sankey.min.js'
 ];
 
 // Install — cache all core assets
