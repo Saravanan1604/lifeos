@@ -47,20 +47,20 @@ function _bgDraw() {
       p.x += p.dx; p.y += p.dy; if (p.x < 0 || p.x > W) p.dx *= -1; if (p.y < 0 || p.y > H) p.dy *= -1;
     });
   } else if (_bgMode === 'stars') {
-    P.forEach(p => { p.pulse += 0.03; const b = 0.3 + Math.abs(Math.sin(p.pulse)) * 0.6; const col = colors[p.colorIdx % colors.length];
+    P.forEach(p => { p.pulse += 0.015; const b = 0.3 + Math.abs(Math.sin(p.pulse)) * 0.6; const col = colors[p.colorIdx % colors.length];
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.9, 0, 7); ctx.fillStyle = col + b + ')'; ctx.fill(); });
   } else if (_bgMode === 'bubbles') {
-    P.forEach(p => { p.sway += 0.02; p.y -= p.vy; p.x += Math.sin(p.sway) * 0.4; if (p.y < -20) { p.y = H + 20; p.x = Math.random() * W; }
+    P.forEach(p => { p.sway += 0.01; p.y -= p.vy * 0.5; p.x += Math.sin(p.sway) * 0.2; if (p.y < -20) { p.y = H + 20; p.x = Math.random() * W; }
       const col = colors[p.colorIdx % colors.length]; const rad = p.r * 6;
       const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
       g.addColorStop(0, col + '0.18)'); g.addColorStop(0.8, col + '0.05)'); g.addColorStop(1, col + '0)');
       ctx.beginPath(); ctx.arc(p.x, p.y, rad, 0, 7); ctx.fillStyle = g; ctx.fill();
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 2.2, 0, 7); ctx.strokeStyle = col + '0.25)'; ctx.lineWidth = 1; ctx.stroke(); });
   } else if (_bgMode === 'snow') {
-    P.forEach(p => { p.sway += 0.015; p.y += p.vy; p.x += Math.sin(p.sway) * 0.5; if (p.y > H + 10) { p.y = -10; p.x = Math.random() * W; }
+    P.forEach(p => { p.sway += 0.0075; p.y += p.vy * 0.5; p.x += Math.sin(p.sway) * 0.25; if (p.y > H + 10) { p.y = -10; p.x = Math.random() * W; }
       const col = colors[p.colorIdx % colors.length]; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fillStyle = col + '0.6)'; ctx.fill(); });
   } else if (_bgMode === 'aurora') {
-    P.forEach(p => { p.sway += 0.004; p.x += Math.cos(p.sway) * 0.6; p.y += Math.sin(p.sway * 0.8) * 0.5;
+    P.forEach(p => { p.sway += 0.002; p.x += Math.cos(p.sway) * 0.3; p.y += Math.sin(p.sway * 0.8) * 0.25;
       if (p.x < -p.big) p.x = W + p.big; if (p.x > W + p.big) p.x = -p.big; if (p.y < -p.big) p.y = H + p.big; if (p.y > H + p.big) p.y = -p.big;
       const col = colors[p.colorIdx % colors.length]; const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.big);
       g.addColorStop(0, col + (isLight ? '0.12)' : '0.20)')); g.addColorStop(1, col + '0)');
