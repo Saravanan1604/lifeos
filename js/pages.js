@@ -603,11 +603,34 @@ function _mrMonthly() {
   return { income: sum.income / months.length, expense: sum.expense / months.length };
 }
 
+// Selected period for the Money Rules page (week | month | year | all).
+let _mrPeriod = 'month';
+function mrSetPeriod(p) { _mrPeriod = p; renderMoneyRules(); }
+const _MR_PERIOD_LABEL = { week: 'This Week', month: 'This Month', year: 'This Year', all: 'All Time' };
+
+// Transactions filtered to the selected period.
+function _mrFilteredTx() {
+  return filterTxByPeriod(STATE.transactions || [], _mrPeriod);
+}
+// Monthly-equivalent income/expense from a period's transactions (so the
+// rule-of-thumb cards stay on a consistent monthly basis regardless of period).
+function _mrMonthlyEquiv(txs) {
+  let inc = 0, exp = 0;
+  txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
+  let div = 1;
+  if (_mrPeriod === 'week') div = 7 / 30.44;        // → ×4.35
+  else if (_mrPeriod === 'month') div = 1;
+  else if (_mrPeriod === 'year') div = 12;
+  else { const ms = new Set(txs.map(t => (t.date || '').slice(0, 7))); div = Math.max(1, ms.size); }
+  return { income: inc / div, expense: exp / div };
+}
+
 // Financial Health — 7 axes scored 0–100 from the user's own data (heuristic).
-function _mrFinHealth() {
-  const txs = STATE.transactions || [];
-  const m = _mrMonthly();
-  const inc = m.income, exp = m.expense, annualInc = inc * 12;
+// flowTxs = period-filtered (for rate/DTI/budget); allTxs = all-time (for stock metrics).
+function _mrFinHealth(flowTxs, monthly, allTxs) {
+  const txs = flowTxs || STATE.transactions || [];
+  const allT = allTxs || STATE.transactions || [];
+  const inc = monthly.income, exp = monthly.expense, annualInc = inc * 12;
   const clamp = (n) => Math.max(0, Math.min(100, Math.round(n || 0)));
   const catHit = (re, type) => txs.filter(t => t.type === type && re.test(((t.category || '') + ' ' + (t.subcategory || '')).toLowerCase()));
   const monthlyAvg = (arr) => {
@@ -615,8 +638,8 @@ function _mrFinHealth() {
     const ms = new Set(arr.map(t => (t.date || '').slice(0, 7)));
     return arr.reduce((a, t) => a + (+t.amount || 0), 0) / Math.max(1, ms.size);
   };
-  // Cumulative net saved (rough liquid savings)
-  const netSaved = txs.reduce((a, t) => a + (t.type === 'income' ? +t.amount : -+t.amount || 0), 0);
+  // Cumulative net saved (rough liquid savings) — always all-time (a stock metric)
+  const netSaved = allT.reduce((a, t) => a + (t.type === 'income' ? +t.amount : -+t.amount || 0), 0);
 
   const savingsRate = inc > 0 ? ((inc - exp) / inc) * 100 : 0;
   const emi = monthlyAvg(catHit(/emi|loan|mortgage/, 'expense'));
@@ -649,8 +672,8 @@ function _mrFinHealth() {
 }
 
 // Seven Income Streams — classify income transactions into the 7 wealth streams.
-function _mrIncomeStreams() {
-  const txs = (STATE.transactions || []).filter(t => t.type === 'income');
+function _mrIncomeStreams(srcTxs) {
+  const txs = (srcTxs || STATE.transactions || []).filter(t => t.type === 'income');
   const defs = [
     { k: 'Earned',        re: /salary|wage|job|payroll|stipend/ },
     { k: 'Profit',        re: /business|profit|sale|ecommerce|shop|flip/ },
@@ -669,9 +692,9 @@ function _mrIncomeStreams() {
   return { sums, active };
 }
 
-// Money flow — income sources, expense categories, and savings (all-time totals).
-function _mrFlow() {
-  const txs = STATE.transactions || [];
+// Money flow — income sources, expense categories, and savings (for given txs).
+function _mrFlow(srcTxs) {
+  const txs = srcTxs || STATE.transactions || [];
   const incBy = {}, expBy = {};
   let totalInc = 0, totalExp = 0;
   txs.forEach(t => {
@@ -685,12 +708,17 @@ function _mrFlow() {
 }
 
 function renderMoneyRules() {
-  const m = _mrMonthly();
+  const ptx = _mrFilteredTx();                 // transactions in the selected period
+  const allTx = STATE.transactions || [];
+  const m = _mrMonthlyEquiv(ptx);              // monthly-equivalent for the rule cards
   const inc = Math.round(m.income), exp = Math.round(m.expense);
   const annualInc = inc * 12;
-  const fh = _mrFinHealth();
-  const strm = _mrIncomeStreams();
-  const flow = _mrFlow();
+  // Actual period totals (for the banner)
+  let pInc = 0, pExp = 0; ptx.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') pInc += a; else pExp += a; });
+  const pNet = pInc - pExp;
+  const fh = _mrFinHealth(ptx, m, allTx);
+  const strm = _mrIncomeStreams(ptx);
+  const flow = _mrFlow(ptx);
   const f = (n) => fmt(Math.round(n || 0));
   const Si = 'width:100%;padding:12px 14px;font-size:16px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);box-sizing:border-box';
   const Sl = 'display:block;font-size:13px;color:var(--text2);margin-bottom:6px';
@@ -711,13 +739,21 @@ function renderMoneyRules() {
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
-      <div class="page-header"><h1 class="page-title"><i data-lucide="scale"></i> Money Rules</h1>
-        <p class="page-subtitle">9 personal-finance rules of thumb — auto-filled with your numbers</p></div>
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div><h1 class="page-title"><i data-lucide="scale"></i> Money Rules</h1>
+        <p class="page-subtitle">Personal-finance insights — auto-filled with your numbers</p></div>
+        <select onchange="mrSetPeriod(this.value)" style="padding:10px 14px;font-size:15px;font-weight:700;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);cursor:pointer">
+          <option value="week"${_mrPeriod==='week'?' selected':''}>Week</option>
+          <option value="month"${_mrPeriod==='month'?' selected':''}>Month</option>
+          <option value="year"${_mrPeriod==='year'?' selected':''}>Year</option>
+          <option value="all"${_mrPeriod==='all'?' selected':''}>All</option>
+        </select>
+      </div>
 
       <div class="glass-card mr-banner" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px;margin-bottom:16px;text-align:center">
-        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Avg Monthly Income</p><p style="font-size:17px;font-weight:800;color:#10b981">${f(inc)}</p></div>
-        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Avg Monthly Expense</p><p style="font-size:17px;font-weight:800;color:#ef4444">${f(exp)}</p></div>
-        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Annual Income</p><p style="font-size:17px;font-weight:800">${f(annualInc)}</p></div>
+        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">${_MR_PERIOD_LABEL[_mrPeriod]} Income</p><p style="font-size:17px;font-weight:800;color:#10b981">${f(pInc)}</p></div>
+        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">${_MR_PERIOD_LABEL[_mrPeriod]} Expense</p><p style="font-size:17px;font-weight:800;color:#ef4444">${f(pExp)}</p></div>
+        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Net Saved</p><p style="font-size:17px;font-weight:800;color:${pNet>=0?'#10b981':'#ef4444'}">${f(pNet)}</p></div>
       </div>
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
@@ -839,8 +875,12 @@ function renderMoneyRules() {
       <p style="text-align:center;color:var(--text3);font-size:12px;margin:18px 0 8px">These are general rules of thumb, not personalised advice.</p>
     </div>`;
 
-  // Draw the radar + flow charts once the canvases are in the DOM.
-  setTimeout(() => _mrDrawCharts(fh, strm, flow), 30);
+  // Refresh Lucide icons (needed when re-rendered via the period dropdown,
+  // which bypasses _renderPage's icon pass) and draw the charts.
+  setTimeout(() => {
+    if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+    _mrDrawCharts(fh, strm, flow);
+  }, 30);
 }
 
 function _mrDrawCharts(fh, strm, flow) {
