@@ -828,7 +828,8 @@ function _doExitApp() {
 
 // ===== SWIPE TO CHANGE TABS (installed app, Instagram-style) =====
 (function initSwipeNav() {
-  const ORDER = ['transactions', 'finance', 'investments', 'dashboard', 'budget'];
+  // Bottom-nav order: Records · Finance · Assets · (then More drawer)
+  const ORDER = ['transactions', 'finance', 'investments'];
   let x0 = null, y0 = null, fromScroller = false;
   document.addEventListener('touchstart', e => {
     if (!document.documentElement.classList.contains('is-app')) return;
@@ -852,6 +853,8 @@ function _doExitApp() {
     const cur = ORDER.indexOf(currentPage);
     if (cur < 0) return;
     const next = dx < 0 ? cur + 1 : cur - 1;
+    // Swiping left past Assets (last tab) opens the More drawer
+    if (dx < 0 && next >= ORDER.length) { if (typeof openMobileDrawer === 'function') openMobileDrawer(); return; }
     if (next < 0 || next >= ORDER.length) return;
     navigate(ORDER[next]);
   }, { passive: true });
