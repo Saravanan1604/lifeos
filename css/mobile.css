@@ -3053,6 +3053,19 @@ html.is-app #modal-overlay .gs-empty { text-align: center; padding: 30px 0; colo
 html.is-app #modal-overlay .gs-empty svg.lucide { width: 48px; height: 48px; opacity: .5; }
 html.is-app #modal-overlay .gs-empty p { font-size: 1.2rem; margin-top: 10px; }
 
+/* build 256 — bigger Filter Records popup */
+html.is-app #modal-overlay .rf-modal .form-group { margin-bottom: 18px !important; }
+html.is-app #modal-overlay .rf-modal .form-label { font-size: 1.4rem !important; font-weight: 700 !important; margin-bottom: 10px !important; }
+html.is-app #modal-overlay .rf-modal .form-input,
+html.is-app #modal-overlay .rf-modal select.form-input {
+  font-size: 1.5rem !important; padding: 20px 18px !important; border-radius: 14px !important; min-height: 70px !important;
+}
+html.is-app #modal-overlay .rf-modal .modal-actions { margin-top: 20px !important; gap: 14px !important; }
+html.is-app #modal-overlay .rf-modal .btn-secondary,
+html.is-app #modal-overlay .rf-modal .btn-primary {
+  font-size: 1.5rem !important; padding: 18px 30px !important; border-radius: 14px !important; min-width: 130px !important;
+}
+
 /* #5 — Lucide line icons inside the Add sheet (replaces emoji) */
 #txpad .svg-inline, #txpad svg.lucide { stroke-width: 2; }
 #txpad .pad-field > label svg.lucide { width: 1.25rem; height: 1.25rem; vertical-align: -0.18em; margin-right: 4px; opacity: .85; }

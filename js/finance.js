@@ -946,6 +946,7 @@ function openRecordsFilter() {
     cats.map(c => `<option value="${esc(c)}" ${_finCategory === c ? 'selected' : ''}>${catIcon(c)} ${esc(c)}</option>`).join('');
   const sel = (v, cur) => v === cur ? 'selected' : '';
   openModal('🔍 Filter Records', `
+    <div class="rf-modal">
     <div class="form-group"><label class="form-label">Search</label>
       <input type="text" id="rf-search" class="form-input" value="${esc(_recSearch)}" placeholder="Name, category or note" oninput="_recSearch=this.value; if(typeof renderRecordsMyMoney==='function')renderRecordsMyMoney();"/></div>
     <div class="form-group"><label class="form-label">Type</label>
@@ -966,6 +967,7 @@ function openRecordsFilter() {
     <div class="modal-actions">
       <button class="btn-secondary" onclick="clearRecordsFilter()">Clear all</button>
       <button class="btn-primary" onclick="applyRecordsFilter()">Apply</button>
+    </div>
     </div>`);
 }
 
