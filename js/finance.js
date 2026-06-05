@@ -875,6 +875,16 @@ function padSave() {
       Object.assign(tx, { type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, source: _pad.source, receipt: _pad.receipt });
       _applyTxToAccount(tx);
     }
+    // If the user set a Repeat on an existing transaction, create a recurring rule
+    if (_pad.repeat) {
+      STATE.recurring = STATE.recurring || [];
+      STATE.recurring.push({
+        id: genId(), type: _pad.type, amount, category: _pad.category, icon,
+        description: _pad.notes, source: _pad.source || '', subcategory: _pad.subcategory || '',
+        frequency: _pad.repeat, nextDate: _advanceDate(_pad.date, _pad.repeat), createdAt: new Date().toISOString()
+      });
+      if (typeof toast === 'function') toast(`Set to repeat ${_pad.repeat} 🔁`, 'success');
+    }
   } else {
     const newTx = { id: genId(), type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, source: _pad.source, receipt: _pad.receipt, createdAt: new Date().toISOString() };
     STATE.transactions = STATE.transactions || [];
@@ -925,9 +935,9 @@ function renderTxPad() {
       <div class="pad-field"><label><i data-lucide="shapes"></i> Category</label><button onclick="padPickCategory()"><span class="pad-cat-ic" style="background:${catCol}">${catIconHtml(_pad.category)}</span>${esc(_pad.category)}</button></div>
     </div>
 
-    <div class="pad-pickrow pad-mini ${_pad.mode === 'add' ? '' : 'one'}">
+    <div class="pad-pickrow pad-mini">
       <div class="pad-field"><label><i data-lucide="tag"></i> Subcategory</label><button onclick="padPickSubcat()">${_pad.subcategory ? esc(_pad.subcategory) : '—'}</button></div>
-      ${_pad.mode === 'add' ? `<div class="pad-field"><label><i data-lucide="repeat"></i> Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>` : ''}
+      <div class="pad-field"><label><i data-lucide="repeat"></i> Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>
     </div>
 
     <div class="pad-entry-zone">
