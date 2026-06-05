@@ -141,6 +141,68 @@ function _renderRecurringSection() {
     </div>`;
 }
 
+// ===== Dedicated Recurring Transactions page =====
+function renderRecurring() {
+  const rec = STATE.recurring || [];
+  const freqLabel = f => ({ daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' }[f] || f || '—');
+  const today = new Date().toISOString().slice(0, 10);
+  const dueCount = rec.filter(r => (r.nextDate || '') <= today).length;
+  const cI = typeof catIconHtml === 'function' ? catIconHtml : (n => '');
+  const cC = typeof catColor === 'function' ? catColor : (() => '#6366f1');
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in" style="max-width:900px;margin:0 auto">
+      <div class="page-header">
+        <h1 class="page-title"><i data-lucide="repeat"></i> Recurring</h1>
+        <p class="page-subtitle">Auto-repeating income &amp; expenses${dueCount ? ` · <span style="color:#f59e0b">${dueCount} due</span>` : ''}</p>
+      </div>
+      ${rec.length === 0
+        ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon"><i data-lucide="repeat"></i></span><p>No recurring transactions yet.<br/>Add one from the <b>+</b> button and pick a <b>Repeat</b> (Daily / Weekly / Monthly / Yearly).</p></div></div>`
+        : `<div style="display:flex;flex-direction:column;gap:12px">
+          ${rec.map(r => {
+            const inc = r.type === 'income';
+            const due = (r.nextDate || '') <= today;
+            return `<div class="glass-card" style="padding:16px;display:flex;align-items:center;gap:14px">
+              <div class="mm-ic" style="background:${cC(r.category)}">${cI(r.category)}</div>
+              <div style="flex:1;min-width:0">
+                <p style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.description || r.category)}</p>
+                <p style="font-size:12px;color:var(--text3)">${freqLabel(r.frequency)} · ${esc(r.category)}${r.source && typeof _sourceLabel === 'function' ? ' · ' + esc(_sourceLabel(r.source)) : ''}</p>
+                <p style="font-size:12px;color:${due ? '#f59e0b' : '#00c9a7'};margin-top:2px;display:inline-flex;align-items:center;gap:4px"><i data-lucide="${due ? 'alarm-clock' : 'calendar-clock'}"></i> ${due ? 'Due now' : 'Next'}: ${fmtDate(r.nextDate)}</p>
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                <p style="font-weight:900;font-size:17px;color:${inc ? '#10b981' : '#ef4444'}">${inc ? '+' : '-'}${fmt(r.amount)}</p>
+                <button class="btn-icon btn-sm" onclick="deleteRecurring('${r.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);margin-top:8px" title="Stop recurring"><i data-lucide="x"></i></button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        ${dueCount ? `<button class="btn-primary" style="margin-top:16px;width:100%" onclick="if(typeof processRecurring==='function'){processRecurring();} navigate('recurring',true);">Post ${dueCount} due now</button>` : ''}`}
+      <button class="btn-secondary" style="margin-top:12px;width:100%" onclick="openAddTxModal('expense')">+ Add recurring (set Repeat in the entry)</button>
+    </div>`;
+  if (typeof _lucideRefresh === 'function') _lucideRefresh();
+}
+
+// Process STATE.recurring: post any entries whose nextDate has arrived, advancing nextDate.
+function processRecurring() {
+  const rec = STATE.recurring || [];
+  if (!rec.length) return;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  let posted = 0;
+  rec.forEach(r => {
+    let guard = 0;
+    while (r.nextDate && r.nextDate <= todayStr && guard < 400) {
+      guard++;
+      const tx = { id: genId(), type: r.type, amount: r.amount, date: r.nextDate, category: r.category, icon: r.icon || (typeof catIcon === 'function' ? catIcon(r.category) : '💳'), description: r.description || r.category, subcategory: r.subcategory || '', source: r.source || '', createdAt: new Date().toISOString() };
+      STATE.transactions = STATE.transactions || [];
+      STATE.transactions.unshift(tx);
+      if (typeof _applyTxToAccount === 'function') _applyTxToAccount(tx);
+      r.nextDate = (typeof _advanceDate === 'function') ? _advanceDate(r.nextDate, r.frequency) : r.nextDate;
+      posted++;
+      if (!r.frequency) break;
+    }
+  });
+  if (posted) { if (typeof saveState === 'function') saveState(); if (typeof toast === 'function') toast(`Posted ${posted} recurring transaction${posted > 1 ? 's' : ''}`, 'success'); }
+}
+
 // Popular emojis for quick selection
 const EMOJI_PICKER = ['💰','🍔','🚗','🏠','🛍️','💊','📚','✈️','🎬','💡','🎁','🐶','☕','🍕','🎵','💻','📱','🏋️','⛽','🧾','🏥','🛒','🎮','🌿','🍺','💈','🎓','🏦','🛡️','🎯','🔄','🤝','💆','📦','🌐','🎪','🏖️','🍱','🏃','🔧','🎨','🧴','💎','🚀','🌟','🏆','🎸','📷','🌺','🎭'];
 
