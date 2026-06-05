@@ -133,6 +133,21 @@ function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
 }
 
+// Big / Small view toggle — scales the page content (text + elements) up ~2×
+function toggleBigMode() {
+  const on = !document.documentElement.classList.contains('big-mode');
+  document.documentElement.classList.toggle('big-mode', on);
+  try { localStorage.setItem('lifeos_big', on ? '1' : '0'); } catch (_) {}
+  const b = document.getElementById('bigmode-btn'); if (b) b.classList.toggle('on', on);
+  if (typeof toast === 'function') toast(on ? '🔎 Big view on' : 'Normal view', 'success');
+}
+function applyBigMode() {
+  const on = (() => { try { return localStorage.getItem('lifeos_big') === '1'; } catch (_) { return false; } })();
+  document.documentElement.classList.toggle('big-mode', on);
+  const b = document.getElementById('bigmode-btn'); if (b) b.classList.toggle('on', on);
+}
+applyBigMode();
+
 // Quick App Settings panel — consolidates Theme + Language (and link to full Settings)
 function openAppSettings() {
   const isLight = document.body.classList.contains('light');

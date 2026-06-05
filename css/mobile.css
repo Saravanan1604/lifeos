@@ -3404,6 +3404,10 @@ html.is-app #modal-overlay .cf-chips { display: grid; grid-template-columns: 1fr
 html.is-app #modal-overlay .cf-chip { padding: 18px 12px; border-radius: 14px; border: 1px solid var(--glass-border); background: var(--glass); color: var(--text); font-size: 1.4rem; font-weight: 700; cursor: pointer; }
 html.is-app #modal-overlay .cf-chip:active { background: rgba(0,201,167,0.18); }
 
+/* build 279 — global Big / Small view toggle (scales page content) */
+html.is-app.big-mode .page-container { zoom: 1.5; }
+html.is-app #bigmode-btn.on { background: linear-gradient(135deg,#00c9a7,#6366f1) !important; color: #fff !important; }
+
 /* build 270 — sticky day headers + dimmer meta (emphasise category + amount) */
 html.is-app .mm-day {
   position: sticky !important; top: 0 !important; z-index: 6 !important;
