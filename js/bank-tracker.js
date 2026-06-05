@@ -221,6 +221,8 @@ function renderBankTracker() {
         <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">💵 Cash</button>
       </div>
 
+      ${typeof acctSection === 'function' ? acctSection('bank') : ''}
+
       ${!accounts.length ? `
         <div class="glass-card" style="padding:60px;text-align:center">
           <div style="font-size:60px;margin-bottom:16px">🏦</div>
@@ -730,6 +732,8 @@ function renderCCTracker() {
         <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">💵 Cash</button>
       </div>
 
+      ${typeof acctSection === 'function' ? acctSection('card') : ''}
+
       ${!cards.length ? `
         <div class="glass-card" style="padding:60px;text-align:center">
           <div style="font-size:60px;margin-bottom:16px">💳</div>
@@ -1023,6 +1027,8 @@ function renderCashTracker() {
         <button onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">💳 Credit Cards</button>
         <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid #f59e0b;color:#f59e0b;transition:.2s">💵 Cash</button>
       </div>
+
+      ${typeof acctSection === 'function' ? acctSection('cash') : ''}
 
       ${!accounts.length ? `
         <div class="glass-card" style="padding:60px;text-align:center">

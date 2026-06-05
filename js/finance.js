@@ -1146,6 +1146,102 @@ function _finSwipeDots() {
   });
 }
 
+// Reusable account-card section (same ATM-card model everywhere: Overview + History)
+function acctSection(type) {
+  if (type === 'bank') {
+    const list = STATE.bankAccounts || [];
+    return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:16px">
+          <p class="section-title"><i data-lucide="landmark"></i> Bank Accounts
+            <span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${list.length} accounts</span></p>
+          <button class="btn-primary btn-sm" onclick="addBankAccount()">+ Add Bank</button>
+        </div>
+        ${list.length === 0
+          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="landmark"></i></span><p>No bank accounts yet. Add your first one!</p></div>`
+          : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px" class="fin-bank-grid">
+            ${list.map((b,i) => `
+            <div class="fin-dark-card" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden">
+              <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div style="font-size:22px"><i data-lucide="landmark"></i></div>
+                <div style="display:flex;gap:6px">
+                  <button onclick="updateBankBalance(${i})" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
+                  <button onclick="editBankAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
+                  <button onclick="deleteBankAccount(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
+                </div>
+              </div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin:10px 0 4px">${b.bankName}</p>
+              <p style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px">${fmt(b.balance)}</p>
+              <div style="display:flex;justify-content:space-between;margin-top:8px">
+                <span style="font-size:11px;color:rgba(255,255,255,0.5)">${b.type||'Savings'}</span>
+                ${b.lastFour ? `<span style="font-size:11px;color:rgba(255,255,255,0.5)">•••• ${b.lastFour}</span>` : ''}
+              </div>
+            </div>`).join('')}
+          </div>`}
+      </div>`;
+  }
+  if (type === 'card') {
+    const list = STATE.creditCards || [];
+    return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:16px">
+          <p class="section-title"><i data-lucide="credit-card"></i> Credit Cards
+            <span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${list.length} cards</span></p>
+          <button class="btn-primary btn-sm" onclick="addCreditCard()">+ Add Card</button>
+        </div>
+        ${list.length === 0
+          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="credit-card"></i></span><p>No credit cards yet. Add your first one!</p></div>`
+          : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px" class="fin-card-grid">
+            ${list.map((c,i) => { const used=c.outstanding||0, limit=c.limit||1, pct=Math.min(100,Math.round((used/limit)*100)), utilColor=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981'; return `
+            <div class="fin-dark-card" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};padding:18px;border-radius:16px;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});position:relative;overflow:hidden">
+              <div style="position:absolute;top:-25px;right:-25px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none"></div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div><div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${c.network||'VISA'}</div><div style="font-size:14px;font-weight:800;color:#fff;margin-top:2px">${c.bankName}</div></div>
+                <div style="display:flex;gap:6px">
+                  <button onclick="openUpdateCCModal('${c.id}')" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Pay</button>
+                  <button onclick="editCreditCard(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
+                  <button onclick="deleteCreditCard(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
+                </div>
+              </div>
+              ${c.lastFour?`<div style="font-size:13px;letter-spacing:3px;color:rgba(255,255,255,0.45);margin:10px 0 4px">•••• •••• •••• ${c.lastFour}</div>`:''}
+              <div style="margin-top:10px">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:5px"><span>Outstanding</span><span>Limit</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;color:#fff;margin-bottom:8px"><span style="color:${pct>80?'#fca5a5':'#fff'}">${fmt(used)}</span><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.6)">${fmt(limit)}</span></div>
+                <div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.15)"><div style="height:5px;border-radius:4px;width:${pct}%;background:${utilColor};transition:.3s"></div></div>
+                <div style="display:flex;justify-content:space-between;margin-top:5px"><span style="font-size:10px;color:rgba(255,255,255,0.45)">${pct}% utilised</span>${c.dueDate?`<span style="font-size:10px;color:rgba(255,255,255,0.45)">Due: ${c.dueDate}</span>`:''}</div>
+              </div>
+            </div>`;}).join('')}
+          </div>`}
+      </div>`;
+  }
+  // cash
+  const list = STATE.cashAccounts || [];
+  return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
+      <div class="section-header" style="margin-bottom:16px">
+        <p class="section-title"><i data-lucide="banknote"></i> Cash Accounts
+          <span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${list.length} wallets</span></p>
+        <button class="btn-primary btn-sm" onclick="addCashAccount()">+ Add Cash</button>
+      </div>
+      ${list.length === 0
+        ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="banknote"></i></span><p>No cash wallets yet. Track your physical cash!</p></div>`
+        : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px" class="fin-cash-grid">
+          ${list.map((ca,i) => `
+          <div class="fin-dark-card" style="--c1:#a16207;--c2:#78350f;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3)">
+            <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
+            <div style="display:flex;justify-content:space-between;align-items:start;position:relative">
+              <div style="font-size:22px"><i data-lucide="banknote"></i></div>
+              <div style="display:flex;gap:4px">
+                <button onclick="updateCashBalance(${i})" style="background:rgba(251,191,36,0.3);border:none;color:#fbbf24;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
+                <button onclick="editCashAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
+                <button onclick="deleteCashAccount(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
+              </div>
+            </div>
+            <p style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin:10px 0 4px">${ca.name}</p>
+            <p style="font-size:24px;font-weight:900;color:#fff">${fmt(ca.balance||0)}</p>
+          </div>`).join('')}
+        </div>`}
+    </div>`;
+}
+
 let _finView = 'overview'; // 'overview' (cards/charts/tx) | 'history' (bank-tracker trends)
 // Inject the Overview / History toggle at the top of the merged Finance page
 function _injectFinTabs() {
