@@ -321,15 +321,17 @@ function renderRecordsMyMoney() {
       const seld = _recSel.has(t.id);
       return `
       <div class="mm-rowwrap" data-id="${t.id}">
-        <div class="mm-row-actions">
-          <button class="mm-act mm-act-edit" onclick="event.stopPropagation();_recCloseSwipe();openEditTxModal('${t.id}')"><i data-lucide="pencil"></i></button>
+        <div class="mm-row-actions left">
+          <button class="mm-act mm-act-del" onclick="event.stopPropagation();_recSwipeDelete('${t.id}')"><i data-lucide="trash-2"></i></button>
+        </div>
+        <div class="mm-row-actions right">
           <button class="mm-act mm-act-del" onclick="event.stopPropagation();_recSwipeDelete('${t.id}')"><i data-lucide="trash-2"></i></button>
         </div>
         <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
           ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
           <div class="mm-ic" style="background:${catColor(t.category)}">${catIconHtml(t.category)}</div>
           <div class="mm-mid">
-            <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
+            <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔄' : ''}</p>
             <div class="mm-meta">${chip}${note}${sub}${tm}</div>
           </div>
           <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
@@ -502,9 +504,10 @@ function recBulkCategoryConfirm() {
 }
 
 let _recOpenRow = null;          // currently swiped-open .mm-row
-const _REC_OPEN = 156;           // px of action drawer revealed
+const _REC_OPEN = 84;            // px of action drawer revealed (single delete button)
+let _recOpenDir = 0;             // -1 = right drawer open, +1 = left drawer open
 function _recCloseSwipe() {
-  if (_recOpenRow) { _recOpenRow.style.transition = ''; _recOpenRow.style.transform = ''; _recOpenRow.classList.remove('swiped'); _recOpenRow = null; }
+  if (_recOpenRow) { _recOpenRow.style.transition = ''; _recOpenRow.style.transform = ''; _recOpenRow.classList.remove('swiped','swiped-left'); _recOpenRow = null; _recOpenDir = 0; }
 }
 function _recSwipeDelete(id) { _recCloseSwipe(); if (typeof deleteTx === 'function') deleteTx(id); }
 
@@ -518,7 +521,7 @@ function initRecordsGestures() {
     const r = e.target.closest('.mm-row'); if (!r) return;
     row = r; id = r.dataset.id; const t = e.touches[0];
     startX = t.clientX; startY = t.clientY; moved = false; horiz = false;
-    baseT = (_recOpenRow === r) ? -_REC_OPEN : 0; lastTx = baseT;
+    baseT = (_recOpenRow === r) ? _recOpenDir * _REC_OPEN : 0; lastTx = baseT;
     clearTimeout(lpTimer);
     lpTimer = setTimeout(() => {
       if (!moved) {
@@ -539,7 +542,7 @@ function initRecordsGestures() {
     }
     if (horiz) {
       e.preventDefault();
-      lastTx = Math.max(-_REC_OPEN, Math.min(0, baseT + dx));
+      lastTx = Math.max(-_REC_OPEN, Math.min(_REC_OPEN, baseT + dx));
       row.style.transform = `translateX(${lastTx}px)`;
     }
   }, { passive: false });
@@ -550,10 +553,15 @@ function initRecordsGestures() {
     if (horiz && row) {
       row.style.transition = '';
       if (lastTx < -_REC_OPEN / 2) {
-        row.style.transform = `translateX(${-_REC_OPEN}px)`; row.classList.add('swiped'); _recOpenRow = row;
+        // swiped left → reveal right-side delete
+        row.style.transform = `translateX(${-_REC_OPEN}px)`; row.classList.add('swiped'); row.classList.remove('swiped-left'); _recOpenRow = row; _recOpenDir = -1;
+        _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 350);
+      } else if (lastTx > _REC_OPEN / 2) {
+        // swiped right → reveal left-side delete
+        row.style.transform = `translateX(${_REC_OPEN}px)`; row.classList.add('swiped','swiped-left'); _recOpenRow = row; _recOpenDir = 1;
         _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 350);
       } else {
-        row.style.transform = ''; row.classList.remove('swiped'); if (_recOpenRow === row) _recOpenRow = null;
+        row.style.transform = ''; row.classList.remove('swiped','swiped-left'); if (_recOpenRow === row) { _recOpenRow = null; _recOpenDir = 0; }
       }
     }
     row = null; horiz = false;
@@ -1843,7 +1851,7 @@ function renderFinanceTxList() {
           style="width:16px;height:16px;accent-color:#00c9a7;cursor:pointer;flex-shrink:0"/>
         <div class="tx-ic" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${catColor(tx.category)}26;border:1px solid ${catColor(tx.category)}55;color:${catColor(tx.category)};font-size:18px">${catIconHtml(tx.category)}</div>
         <div>
-          <p style="font-size:13px;font-weight:600">${tx.description || tx.category}${tx.recurringId ? ' <span title="Recurring" style="font-size:11px">🔁</span>' : ''}</p>
+          <p style="font-size:13px;font-weight:600">${tx.description || tx.category}${tx.recurringId ? ' <span title="Recurring" style="font-size:11px">🔄</span>' : ''}</p>
           <p style="font-size:11px;color:var(--text3)">${tx.category}${tx.subcategory ? ' › <span style="color:#a5b4fc">' + esc(tx.subcategory) + '</span>' : ''} · ${fmtDate(tx.date)}${tx.source ? ' · <span style="color:#f59e0b">' + _sourceLabel(tx.source) + '</span>' : ''}</p>
         </div>
       </div>

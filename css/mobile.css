@@ -2203,9 +2203,11 @@ html.is-app .mm-rowwrap .mm-row {
 }
 /* hold-open action drawer revealed on swipe-left (TradingView style) */
 html.is-app .mm-row-actions {
-  position: absolute; top: 0; right: 0; bottom: 0; z-index: 0;
+  position: absolute; top: 0; bottom: 0; z-index: 0;
   display: flex; align-items: stretch;
 }
+html.is-app .mm-row-actions.right { right: 0; }
+html.is-app .mm-row-actions.left  { left: 0; }
 html.is-app .mm-row-actions .mm-act {
   width: 78px; border: none; cursor: pointer; color: #fff;
   display: flex; align-items: center; justify-content: center;
@@ -3490,7 +3492,7 @@ html.is-app .empty-state-icon svg.lucide { width: 2.2rem; height: 2.2rem; }
 html.is-app .btn-secondary svg.lucide, html.is-app .btn-primary svg.lucide { margin-right: 2px; }
 
 /* ============================================================
-   build 186 — Sync button in #top-tools (app only)
+   build 186 ï¿½ Sync button in #top-tools (app only)
    ============================================================ */
 /* Spin animation for the sync icon while syncing */
 @keyframes syncSpin {
