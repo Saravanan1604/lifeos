@@ -58,8 +58,6 @@ function renderCategories() {
         </div>
       </div>
 
-      ${_renderRecurringSection()}
-
       <!-- Custom Categories -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px">
         <div class="section-header">
