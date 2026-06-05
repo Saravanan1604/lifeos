@@ -756,7 +756,7 @@ function openTxPad(type, editId) {
     category: ex ? ex.category : '',
     notes: ex ? (ex.description || '') : '',
     subcategory: ex ? (ex.subcategory || '') : '',
-    repeat: '',
+    repeat: ex && ex.recurringId ? ((STATE.recurring || []).find(r => r.id === ex.recurringId)?.frequency || '') : '',
     date: ex ? ex.date : today(),
     time: ex ? (ex.time || _nowTime()) : _nowTime(),
     receipt: ex ? (ex.receipt || '') : ''
@@ -875,29 +875,38 @@ function padSave() {
       Object.assign(tx, { type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, source: _pad.source, receipt: _pad.receipt });
       _applyTxToAccount(tx);
     }
-    // If the user set a Repeat on an existing transaction, create a recurring rule
+    // Repeat on an existing transaction → create OR update its linked rule (no duplicates)
+    STATE.recurring = STATE.recurring || [];
+    const existingRule = tx && tx.recurringId ? STATE.recurring.find(r => r.id === tx.recurringId) : null;
     if (_pad.repeat) {
-      STATE.recurring = STATE.recurring || [];
-      STATE.recurring.push({
-        id: genId(), type: _pad.type, amount, category: _pad.category, icon,
-        description: _pad.notes, source: _pad.source || '', subcategory: _pad.subcategory || '',
-        frequency: _pad.repeat, nextDate: _advanceDate(_pad.date, _pad.repeat), createdAt: new Date().toISOString()
-      });
-      if (typeof toast === 'function') toast(`Set to repeat ${_pad.repeat} 🔁`, 'success');
+      if (existingRule) {
+        Object.assign(existingRule, { type: _pad.type, amount, category: _pad.category, icon, description: _pad.notes, source: _pad.source || '', subcategory: _pad.subcategory || '', frequency: _pad.repeat });
+      } else {
+        const rule = { id: genId(), type: _pad.type, amount, category: _pad.category, icon, description: _pad.notes, source: _pad.source || '', subcategory: _pad.subcategory || '', frequency: _pad.repeat, nextDate: _advanceDate(_pad.date, _pad.repeat), sourceTxId: tx && tx.id, createdAt: new Date().toISOString() };
+        STATE.recurring.push(rule);
+        if (tx) tx.recurringId = rule.id;
+      }
+      if (typeof toast === 'function') toast(`Repeats ${_pad.repeat} 🔁`, 'success');
+    } else if (existingRule) {
+      // changed to One-time → stop the recurring rule
+      STATE.recurring = STATE.recurring.filter(r => r.id !== existingRule.id);
+      if (tx) tx.recurringId = null;
     }
   } else {
     const newTx = { id: genId(), type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, source: _pad.source, receipt: _pad.receipt, createdAt: new Date().toISOString() };
     STATE.transactions = STATE.transactions || [];
     STATE.transactions.unshift(newTx);
     _applyTxToAccount(newTx);
-    // register a recurring rule if Repeat was chosen
+    // register a recurring rule if Repeat was chosen (linked to this tx)
     if (_pad.repeat) {
       STATE.recurring = STATE.recurring || [];
-      STATE.recurring.push({
+      const rule = {
         id: genId(), type: _pad.type, amount, category: _pad.category, icon,
         description: _pad.notes, source: _pad.source || '', subcategory: _pad.subcategory || '',
-        frequency: _pad.repeat, nextDate: _advanceDate(newTx.date, _pad.repeat), createdAt: new Date().toISOString()
-      });
+        frequency: _pad.repeat, nextDate: _advanceDate(newTx.date, _pad.repeat), sourceTxId: newTx.id, createdAt: new Date().toISOString()
+      };
+      STATE.recurring.push(rule);
+      newTx.recurringId = rule.id;
     }
     if (typeof addXP === 'function') addXP(10, 'Transaction logged');
   }
