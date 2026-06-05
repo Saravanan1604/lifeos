@@ -3293,6 +3293,33 @@ html.is-app .cat-hdr-btn {
 }
 html.is-app .cat-hdr-btn svg.lucide { width: 1.4rem; height: 1.4rem; }
 
+/* build 264 — period tabs as a sleek contained segmented switch */
+html.is-app .mymoney-records .mm-ptabs {
+  background: var(--glass) !important; border: 1px solid var(--glass-border) !important;
+  border-radius: 16px !important; padding: 5px !important; gap: 4px !important; margin: 10px 14px 6px !important;
+}
+html.is-app .mymoney-records .mm-ptab {
+  flex: 1 !important; border: none !important; background: transparent !important;
+  border-radius: 12px !important; padding: 13px 4px !important; color: var(--text2) !important;
+  box-shadow: none !important; transition: background .2s, color .2s !important;
+}
+html.is-app .mymoney-records .mm-ptab.active {
+  background: linear-gradient(135deg,#00c9a7,#6366f1) !important; color: #fff !important;
+  box-shadow: 0 4px 14px rgba(0,201,167,0.35) !important;
+}
+
+/* theme (sun) button folded into App Settings — hide the standalone one */
+html.is-app #top-tools .theme-toggle { display: none !important; }
+
+/* App Settings quick panel */
+html.is-app #modal-overlay .aps { display: flex; flex-direction: column; gap: 18px; }
+html.is-app #modal-overlay .aps-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+html.is-app #modal-overlay .aps-label { display: inline-flex; align-items: center; gap: 8px; font-size: 1.4rem; font-weight: 700; }
+html.is-app #modal-overlay .aps-label svg.lucide { width: 1.4rem; height: 1.4rem; color: #00c9a7; }
+html.is-app #modal-overlay .aps-seg { display: inline-flex; gap: 4px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; padding: 4px; }
+html.is-app #modal-overlay .aps-seg button { border: none; background: transparent; color: var(--text2); font-size: 1.2rem; font-weight: 700; padding: 10px 16px; border-radius: 9px; cursor: pointer; }
+html.is-app #modal-overlay .aps-seg button.on { background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; }
+
 /* category line icons on Dashboard / Finance / Budget / detail card */
 html.is-app .tx-ic { display: inline-flex !important; align-items: center; justify-content: center; }
 html.is-app .tx-ic svg.lucide { width: 1.5rem; height: 1.5rem; }

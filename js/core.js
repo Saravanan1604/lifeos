@@ -133,6 +133,33 @@ function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
 }
 
+// Quick App Settings panel — consolidates Theme + Language (and link to full Settings)
+function openAppSettings() {
+  const isLight = document.body.classList.contains('light');
+  const lang = (typeof getLang === 'function') ? getLang() : 'en';
+  const on = (b) => b ? ' on' : '';
+  openModal('App Settings', `
+    <div class="aps">
+      <div class="aps-row">
+        <span class="aps-label"><i data-lucide="sun-moon"></i> Theme</span>
+        <div class="aps-seg">
+          <button class="${on(!isLight)}" onclick="if(document.body.classList.contains('light'))toggleTheme();openAppSettings()">Dark</button>
+          <button class="${on(isLight)}" onclick="if(!document.body.classList.contains('light'))toggleTheme();openAppSettings()">Light</button>
+        </div>
+      </div>
+      <div class="aps-row">
+        <span class="aps-label"><i data-lucide="globe"></i> Language</span>
+        <div class="aps-seg">
+          <button class="${on(lang==='en')}" onclick="if(typeof setLanguage==='function')setLanguage('en');openAppSettings()">EN</button>
+          <button class="${on(lang==='ta')}" onclick="if(typeof setLanguage==='function')setLanguage('ta');openAppSettings()">தமிழ்</button>
+          <button class="${on(lang==='hi')}" onclick="if(typeof setLanguage==='function')setLanguage('hi');openAppSettings()">हिं</button>
+        </div>
+      </div>
+      <button class="btn-primary" style="width:100%;margin-top:6px" onclick="closeModal();navigate('settings')">Open full Settings</button>
+    </div>`);
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+}
+
 // ===== AUTH =====
 function switchAuthTab(tab) {
   document.getElementById('login-form').style.display = tab === 'login' ? 'flex' : 'none';
