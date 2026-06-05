@@ -3353,6 +3353,29 @@ html.is-app .mm-acct-chips .mm-acct {
   flex: 0 0 44% !important; min-width: 44% !important; scroll-snap-align: start;
 }
 
+/* build 267 — consolidated "Recent Transactions" sub-header + slider filter */
+html.is-app .mm-subhead {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 8px; margin-top: 6px;
+}
+html.is-app .mm-subhead-title { font-size: 1.45rem; font-weight: 800; color: var(--text); letter-spacing: .2px; }
+html.is-app .mm-subhead-filter {
+  width: 52px; height: 52px; border-radius: 14px; border: 1px solid var(--glass-border);
+  background: var(--glass); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+html.is-app .mm-subhead-filter svg.lucide { width: 26px; height: 26px; }
+html.is-app .mm-subhead-filter.on { background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; border-color: transparent; }
+/* view options inside the filter modal */
+html.is-app #modal-overlay .rf-views { display: flex; gap: 10px; flex-wrap: wrap; }
+html.is-app #modal-overlay .rf-view {
+  position: relative; flex: 1; min-width: 90px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 14px 10px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--glass);
+  color: var(--text); font-size: 1.2rem; font-weight: 700; cursor: pointer;
+}
+html.is-app #modal-overlay .rf-view.on { background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; border-color: transparent; }
+html.is-app #modal-overlay .rf-view svg.lucide { width: 1.2rem; height: 1.2rem; }
+html.is-app #modal-overlay .rf-view input[type="date"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
 /* category line icons on Dashboard / Finance / Budget / detail card */
 html.is-app .tx-ic { display: inline-flex !important; align-items: center; justify-content: center; }
 html.is-app .tx-ic svg.lucide { width: 1.5rem; height: 1.5rem; }

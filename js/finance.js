@@ -345,17 +345,10 @@ function renderRecordsMyMoney() {
         </div>
       </div>` : ''}
       ${_recAccountChips()}
-      <div class="mm-ctrls">
-        <label class="mm-cbtn" title="Pick a day"><i data-lucide="calendar"></i> Day
-          <input type="date" value="${anchorYmd}" onchange="recPickDay(this.value)"/>
-        </label>
-        <button class="mm-cbtn ${showTotal ? 'on' : ''}" onclick="recToggleTotal()"><i data-lucide="sigma"></i> Total</button>
-        <button class="mm-cbtn ${carryForward ? 'on' : ''}" onclick="recCarrySettings()"><i data-lucide="corner-down-right"></i> Carry fwd</button>
+      <div class="mm-subhead">
+        <span class="mm-subhead-title">Recent Transactions</span>
+        <button class="mm-subhead-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter, sort &amp; view options"><i data-lucide="sliders-horizontal"></i></button>
       </div>
-      <button class="mm-filterbar ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg>
-        <span>${filterActive ? 'Filters active — tap to edit' : 'Filter & Sort'}</span>
-      </button>
       ${selBar}
       ${_recReminders()}
       <div class="mm-list">
@@ -951,8 +944,17 @@ function openRecordsFilter() {
   const catOpts = `<option value="all">All categories</option>` +
     cats.map(c => `<option value="${esc(c)}" ${_finCategory === c ? 'selected' : ''}>${catIcon(c)} ${esc(c)}</option>`).join('');
   const sel = (v, cur) => v === cur ? 'selected' : '';
+  const showTotal = !(STATE.settings && STATE.settings.showTotal === false);
+  const carryForward = STATE.settings && STATE.settings.carryForward === true;
+  const anchorYmd = (typeof _ymdLocal === 'function' && typeof _recAnchor !== 'undefined') ? _ymdLocal(_recAnchor) : today();
   openModal('🔍 Filter Records', `
     <div class="rf-modal">
+    <div class="form-group"><label class="form-label">View options</label>
+      <div class="rf-views">
+        <label class="rf-view"><i data-lucide="calendar"></i> Jump to day<input type="date" value="${anchorYmd}" onchange="closeModal();recPickDay(this.value)"/></label>
+        <button class="rf-view ${showTotal ? 'on' : ''}" onclick="closeModal();recToggleTotal()"><i data-lucide="sigma"></i> Totals</button>
+        <button class="rf-view ${carryForward ? 'on' : ''}" onclick="closeModal();recCarrySettings()"><i data-lucide="corner-down-right"></i> Carry fwd</button>
+      </div></div>
     <div class="form-group"><label class="form-label">Search</label>
       <input type="text" id="rf-search" class="form-input" value="${esc(_recSearch)}" placeholder="Name, category or note" oninput="_recSearch=this.value; if(typeof renderRecordsMyMoney==='function')renderRecordsMyMoney();"/></div>
     <div class="form-group"><label class="form-label">Type</label>
