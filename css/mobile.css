@@ -3357,6 +3357,16 @@ html.is-app .mm-hero-dots span.on { background: #00c9a7; width: 24px; border-rad
 html.is-app .mm-hero-accts { cursor: pointer; }
 html.is-app .mm-accts3 .mm-hs-lbl { font-size: .95rem; }
 html.is-app .mm-accts3 .mm-hs-val { font-size: 1.35rem; }
+/* Accounts card: top columns + Net Balance bottom section */
+html.is-app .mm-accts-hr { height: 1px; background: var(--glass-border); margin: 16px 4px 12px; }
+html.is-app .mm-netbal { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+html.is-app .mm-netbal-lbl { font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); }
+html.is-app .mm-netbal-main { display: inline-flex; align-items: center; gap: 12px; }
+html.is-app .mm-netbal-ic { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(0,201,167,0.2), rgba(99,102,241,0.2)); }
+html.is-app .mm-netbal-ic svg.lucide { width: 28px; height: 28px; color: #00c9a7; }
+html.is-app .mm-netbal-val { font-size: 2.4rem; font-weight: 900; letter-spacing: -0.5px; }
+html.is-app .mm-netbal-val.pos { color: #10b981; }
+html.is-app .mm-netbal-val.neg { color: #ef4444; }
 
 /* build 270 — sticky day headers + dimmer meta (emphasise category + amount) */
 html.is-app .mm-day {
