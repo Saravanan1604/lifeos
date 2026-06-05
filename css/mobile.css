@@ -2195,9 +2195,25 @@ html.is-app .mm-rowbg {
 html.is-app .mm-rowbg .mm-bg-edit { color: #fff; background: #3b82f6; padding: 8px 16px; border-radius: 12px; font-size: 1.25rem; font-weight: 800; }
 html.is-app .mm-rowbg .mm-bg-del  { color: #fff; background: #ef4444; padding: 8px 16px; border-radius: 12px; font-size: 1.25rem; font-weight: 800; }
 /* the row slides over the reveal; needs an opaque background */
+html.is-app .mm-rowwrap { position: relative; overflow: hidden; }
 html.is-app .mm-rowwrap .mm-row {
   position: relative; z-index: 1; background: var(--bg);
+  transition: transform .22s cubic-bezier(0.25,0.8,0.3,1);
+  will-change: transform;
 }
+/* hold-open action drawer revealed on swipe-left (TradingView style) */
+html.is-app .mm-row-actions {
+  position: absolute; top: 0; right: 0; bottom: 0; z-index: 0;
+  display: flex; align-items: stretch;
+}
+html.is-app .mm-row-actions .mm-act {
+  width: 78px; border: none; cursor: pointer; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+html.is-app .mm-row-actions .mm-act svg.lucide { width: 30px; height: 30px; }
+html.is-app .mm-row-actions .mm-act-edit { background: #f59e0b; }
+html.is-app .mm-row-actions .mm-act-del { background: #ef4444; }
+html.is-app .mm-row-actions .mm-act:active { filter: brightness(1.15); }
 html.is-app.light .mm-rowwrap .mm-row, html.is-app .light .mm-rowwrap .mm-row { background: #ffffff; }
 
 /* build 151 — visual cue when a row is "armed" (held) for swipe edit/delete */

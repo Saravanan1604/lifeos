@@ -320,14 +320,20 @@ function renderRecordsMyMoney() {
       const tm = t.time ? `<span class="mm-note">🕒 ${_fmtTime(t.time)}</span>` : '';
       const seld = _recSel.has(t.id);
       return `
-      <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
-        ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
-        <div class="mm-ic" style="background:${catColor(t.category)}">${catIconHtml(t.category)}</div>
-        <div class="mm-mid">
-          <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
-          <div class="mm-meta">${chip}${note}${sub}${tm}</div>
+      <div class="mm-rowwrap" data-id="${t.id}">
+        <div class="mm-row-actions">
+          <button class="mm-act mm-act-edit" onclick="event.stopPropagation();_recCloseSwipe();openEditTxModal('${t.id}')"><i data-lucide="pencil"></i></button>
+          <button class="mm-act mm-act-del" onclick="event.stopPropagation();_recSwipeDelete('${t.id}')"><i data-lucide="trash-2"></i></button>
         </div>
-        <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
+        <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
+          ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
+          <div class="mm-ic" style="background:${catColor(t.category)}">${catIconHtml(t.category)}</div>
+          <div class="mm-mid">
+            <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' 🔁' : ''}</p>
+            <div class="mm-meta">${chip}${note}${sub}${tm}</div>
+          </div>
+          <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
+        </div>
       </div>`;
     }).join('')}
   `;
@@ -427,6 +433,7 @@ function _recHeroDots() {
 
 // ===== Records row gestures: long-press select, swipe-right delete, swipe-left edit =====
 function recRowTap(id) {
+  if (_recOpenRow) { _recCloseSwipe(); return; }   // a swiped-open row → tap closes it
   if (_recSuppressTap) return;            // ignore the click that follows a long-press
   if (_recSelectMode) { recToggleSel(id); return; }
   openEditTxModal(id);                    // tap → edit
@@ -494,33 +501,65 @@ function recBulkCategoryConfirm() {
   closeModal(); toast('Category updated', 'success'); renderRecordsMyMoney();
 }
 
+let _recOpenRow = null;          // currently swiped-open .mm-row
+const _REC_OPEN = 156;           // px of action drawer revealed
+function _recCloseSwipe() {
+  if (_recOpenRow) { _recOpenRow.style.transition = ''; _recOpenRow.style.transform = ''; _recOpenRow.classList.remove('swiped'); _recOpenRow = null; }
+}
+function _recSwipeDelete(id) { _recCloseSwipe(); if (typeof deleteTx === 'function') deleteTx(id); }
+
 function initRecordsGestures() {
   const list = document.querySelector('.mymoney-records .mm-list');
   if (!list) return;
-  // Tap → edit (handled by onclick). Long-press (hold) → bulk multi-select.
-  // No swipe gestures — plain swipes are left for page navigation / scrolling.
-  let startX = 0, startY = 0, id = null, moved = false, lpTimer = null;
+  // Tap → edit · Long-press → multi-select · Swipe-left → hold-open action drawer
+  let startX = 0, startY = 0, id = null, moved = false, horiz = false, baseT = 0, lastTx = 0, row = null, lpTimer = null;
 
   list.addEventListener('touchstart', e => {
     const r = e.target.closest('.mm-row'); if (!r) return;
-    id = r.dataset.id; const t = e.touches[0];
-    startX = t.clientX; startY = t.clientY; moved = false;
+    row = r; id = r.dataset.id; const t = e.touches[0];
+    startX = t.clientX; startY = t.clientY; moved = false; horiz = false;
+    baseT = (_recOpenRow === r) ? -_REC_OPEN : 0; lastTx = baseT;
     clearTimeout(lpTimer);
     lpTimer = setTimeout(() => {
       if (!moved) {
         _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 450);
+        _recCloseSwipe();
         if (_recSelectMode) recToggleSel(id); else recEnterSelect(id);
       }
     }, 400);
   }, { passive: true });
 
   list.addEventListener('touchmove', e => {
-    const t = e.touches[0];
-    if (Math.abs(t.clientX - startX) > 8 || Math.abs(t.clientY - startY) > 8) { moved = true; clearTimeout(lpTimer); }
-  }, { passive: true });
+    if (!row) return;
+    const t = e.touches[0]; const dx = t.clientX - startX, dy = t.clientY - startY;
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) { moved = true; clearTimeout(lpTimer); }
+    if (!horiz && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+      horiz = true; window.__recGestureActive = true; row.style.transition = 'none';
+      if (_recOpenRow && _recOpenRow !== row) _recCloseSwipe();
+    }
+    if (horiz) {
+      e.preventDefault();
+      lastTx = Math.max(-_REC_OPEN, Math.min(0, baseT + dx));
+      row.style.transform = `translateX(${lastTx}px)`;
+    }
+  }, { passive: false });
 
-  list.addEventListener('touchend', () => { clearTimeout(lpTimer); });
-  list.addEventListener('touchcancel', () => { clearTimeout(lpTimer); });
+  const end = () => {
+    clearTimeout(lpTimer);
+    setTimeout(() => { window.__recGestureActive = false; }, 60);
+    if (horiz && row) {
+      row.style.transition = '';
+      if (lastTx < -_REC_OPEN / 2) {
+        row.style.transform = `translateX(${-_REC_OPEN}px)`; row.classList.add('swiped'); _recOpenRow = row;
+        _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 350);
+      } else {
+        row.style.transform = ''; row.classList.remove('swiped'); if (_recOpenRow === row) _recOpenRow = null;
+      }
+    }
+    row = null; horiz = false;
+  };
+  list.addEventListener('touchend', end);
+  list.addEventListener('touchcancel', end);
 }
 
 // ===================================================================
