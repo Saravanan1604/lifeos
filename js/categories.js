@@ -161,7 +161,7 @@ function renderRecurring() {
           ${rec.map(r => {
             const inc = r.type === 'income';
             const due = (r.nextDate || '') <= today;
-            return `<div class="glass-card" style="padding:16px;display:flex;align-items:center;gap:14px">
+            return `<div class="glass-card" style="padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer" onclick="editRecurring('${r.id}')">
               <div class="mm-ic" style="background:${cC(r.category)}">${cI(r.category)}</div>
               <div style="flex:1;min-width:0">
                 <p style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.description || r.category)}</p>
@@ -170,7 +170,7 @@ function renderRecurring() {
               </div>
               <div style="text-align:right;flex-shrink:0">
                 <p style="font-weight:900;font-size:17px;color:${inc ? '#10b981' : '#ef4444'}">${inc ? '+' : '-'}${fmt(r.amount)}</p>
-                <button class="btn-icon btn-sm" onclick="deleteRecurring('${r.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);margin-top:8px" title="Stop recurring"><i data-lucide="x"></i></button>
+                <button class="btn-icon btn-sm" onclick="event.stopPropagation();deleteRecurring('${r.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);margin-top:8px" title="Stop recurring"><i data-lucide="x"></i></button>
               </div>
             </div>`;
           }).join('')}
@@ -179,6 +179,59 @@ function renderRecurring() {
       <button class="btn-secondary" style="margin-top:12px;width:100%" onclick="openAddTxModal('expense')">+ Add recurring (set Repeat in the entry)</button>
     </div>`;
   if (typeof _lucideRefresh === 'function') _lucideRefresh();
+}
+
+// Edit a recurring rule (amount, type, frequency, next date, description)
+function editRecurring(id) {
+  const r = (STATE.recurring || []).find(x => x.id === id);
+  if (!r) return;
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : (typeof CATEGORIES !== 'undefined' ? CATEGORIES : []);
+  const catOpts = allCats.map(c => `<option value="${esc(c.name)}" ${c.name === r.category ? 'selected' : ''}>${c.icon || ''} ${esc(c.name)}</option>`).join('');
+  const sel = (v, cur) => v === cur ? 'selected' : '';
+  openModal('🔁 Edit Recurring', `
+    <div class="rf-modal">
+      <div class="form-group"><label class="form-label">Description</label>
+        <input type="text" id="er-desc" class="form-input" value="${esc(r.description || '')}" placeholder="e.g. Rent, Salary"/></div>
+      <div class="form-group"><label class="form-label">Type</label>
+        <select id="er-type" class="form-input">
+          <option value="expense" ${sel('expense', r.type)}>❤️ Expense</option>
+          <option value="income" ${sel('income', r.type)}>💚 Income</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Amount</label>
+        <input type="number" id="er-amount" class="form-input" value="${r.amount}" step="0.01" min="0"/></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select id="er-cat" class="form-input">${catOpts}</select></div>
+      <div class="form-group"><label class="form-label">Frequency</label>
+        <select id="er-freq" class="form-input">
+          <option value="daily" ${sel('daily', r.frequency)}>Daily</option>
+          <option value="weekly" ${sel('weekly', r.frequency)}>Weekly</option>
+          <option value="monthly" ${sel('monthly', r.frequency)}>Monthly</option>
+          <option value="yearly" ${sel('yearly', r.frequency)}>Yearly</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Next date</label>
+        <input type="date" id="er-next" class="form-input" value="${r.nextDate || ''}"/></div>
+      <div class="modal-actions">
+        <button class="btn-danger" onclick="closeModal();deleteRecurring('${r.id}')">Delete</button>
+        <button class="btn-primary" onclick="saveRecurringEdit('${r.id}')">Save</button>
+      </div>
+    </div>`);
+}
+function saveRecurringEdit(id) {
+  const r = (STATE.recurring || []).find(x => x.id === id);
+  if (!r) return;
+  const amt = parseFloat(document.getElementById('er-amount')?.value);
+  if (!amt || amt <= 0) { if (typeof toast === 'function') toast('Enter a valid amount', 'error'); return; }
+  r.description = (document.getElementById('er-desc')?.value || '').trim();
+  r.type = document.getElementById('er-type')?.value || r.type;
+  r.amount = amt;
+  r.category = document.getElementById('er-cat')?.value || r.category;
+  r.icon = (typeof catIcon === 'function' ? catIcon(r.category) : r.icon);
+  r.frequency = document.getElementById('er-freq')?.value || r.frequency;
+  r.nextDate = document.getElementById('er-next')?.value || r.nextDate;
+  if (typeof saveState === 'function') saveState();
+  if (typeof closeModal === 'function') closeModal();
+  if (typeof toast === 'function') toast('Recurring updated', 'success');
+  if (typeof navigate === 'function') navigate('recurring', true);
 }
 
 // Process STATE.recurring: post any entries whose nextDate has arrived, advancing nextDate.
