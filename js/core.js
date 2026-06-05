@@ -662,13 +662,7 @@ function _renderPage(page) {
   if (container) container.setAttribute('data-page', page);
   switch (page) {
     case 'dashboard':    renderDashboard();    break;
-    case 'finance':
-      if (typeof _finView !== 'undefined' && _finView === 'history') {
-        renderBankTracker();
-      } else {
-        renderFinance();
-      }
-      break;
+    case 'finance':      renderBankTracker();   break;
     case 'transactions': renderTransactions();  break;
     case 'notes':        renderNotes();         break;
     case 'yearly':       renderYearly();        break;

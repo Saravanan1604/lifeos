@@ -385,44 +385,5 @@ body.light .chat-code{background:rgba(79,70,229,0.08);color:#4f46e5}
   .hero-value{font-size:32px}
   .input-row{grid-template-columns:1fr}
   .fin-charts-row{grid-template-columns:1fr!important}
-}
-
-/* ===== FINANCE VIEW TABS ===== */
-.fin-viewtabs {
-  display: flex;
-  gap: 6px;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 5px;
-  margin: 0 0 14px;
-}
-.fin-viewtabs button {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--text2);
-  border-radius: 12px;
-  padding: 10px 4px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all .2s;
-}
-.fin-viewtabs button svg.lucide {
-  width: 15px;
-  height: 15px;
-}
-.fin-viewtabs button.on {
-  background: linear-gradient(135deg,#00c9a7,#6366f1);
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(0, 201, 167, 0.3);
-}
-.fin-viewtabs button:hover:not(.on) {
-  background: var(--glass-hover);
-  color: var(--text);
+  .dash-charts-row{grid-template-columns:1fr!important}
 }

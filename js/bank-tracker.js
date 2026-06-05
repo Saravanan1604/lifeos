@@ -1,4 +1,4 @@
-// ===== BANK TRACKER PAGE =====
+﻿// ===== BANK TRACKER PAGE =====
 let bankTrackerAccount = null; // currently selected account id
 let bankTrackerTab     = 'banks'; // 'banks' | 'cards' | 'cash'
 let bankTrackerCard    = null;    // currently selected credit card id
@@ -221,6 +221,8 @@ function renderBankTracker() {
         <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">💵 Cash</button>
       </div>
 
+      ${typeof acctSection === 'function' ? acctSection('bank') : ''}
+
       ${!accounts.length ? `
         <div class="glass-card" style="padding:60px;text-align:center">
           <div style="font-size:60px;margin-bottom:16px">🏦</div>
@@ -235,27 +237,7 @@ function renderBankTracker() {
         <div style="position:relative">
           <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,201,167,0.7);margin-bottom:6px">🏦 Total Bank Balance</p>
           <p style="font-size:52px;font-weight:900;color:#00c9a7;letter-spacing:-2px;line-height:1">${fmt(totalBalance)}</p>
-          <!-- Bank selector pills -->
-          <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px">
-            <div onclick="bankTrackerAccount=null;renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${!selId?'rgba(0,201,167,0.25)':'rgba(255,255,255,0.06)'};border:1px solid ${!selId?'rgba(0,201,167,0.6)':'rgba(255,255,255,0.1)'};cursor:pointer;transition:.2s;text-align:center;min-width:70px">
-              <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${!selId?'#00c9a7':'rgba(255,255,255,0.45)'}">ALL</p>
-              <p style="font-size:14px;font-weight:800;color:${!selId?'#00c9a7':'rgba(255,255,255,0.65)'};margin-top:2px">${accounts.length} accounts</p>
-            </div>
-            ${accounts.map(a => {
-              const isActive = selId === a.id;
-              const lastSnap = [...history].filter(h=>h.accountId===a.id).sort((x,y)=>y.date.localeCompare(x.date))[0];
-              const lastDate = lastSnap ? formatRelativeDate(lastSnap.date) : 'No entries';
-              return `
-              <div onclick="bankTrackerAccount='${a.id}';renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${isActive?'rgba(0,201,167,0.2)':'rgba(255,255,255,0.06)'};border:1px solid ${isActive?'rgba(0,201,167,0.5)':'rgba(255,255,255,0.08)'};cursor:pointer;transition:.2s;min-width:120px">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-                  <span style="font-size:16px">${a.icon||'🏦'}</span>
-                  <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${a.bankName}</p>
-                </div>
-                <p style="font-size:18px;font-weight:900;color:#fff">${fmt(a.balance||0)}</p>
-                <p style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px">Updated ${lastDate}</p>
-              </div>`;
-            }).join('')}
-          </div>
+          <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.45);margin-top:10px">${accounts.length} accounts · tap a card in Finance to view individual log</p>
         </div>
       </div>
 
@@ -376,7 +358,6 @@ function renderBankTracker() {
   if (history.filter(h => !selId || h.accountId === selId).length) {
     setTimeout(() => renderBankTrendChart(chartLabels, chartData), 60);
   }
-  if (typeof _injectFinTabs === 'function') _injectFinTabs();
 }
 
 // ── Chart ──────────────────────────────────────────────────────────────────
@@ -730,6 +711,8 @@ function renderCCTracker() {
         <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">💵 Cash</button>
       </div>
 
+      ${typeof acctSection === 'function' ? acctSection('card') : ''}
+
       ${!cards.length ? `
         <div class="glass-card" style="padding:60px;text-align:center">
           <div style="font-size:60px;margin-bottom:16px">💳</div>
@@ -858,7 +841,6 @@ function renderCCTracker() {
   if (history.filter(h => !selId || h.cardId === selId).length) {
     setTimeout(() => renderCCTrendChart(chartLabels, chartData), 60);
   }
-  if (typeof _injectFinTabs === 'function') _injectFinTabs();
 }
 
 function renderCCTrendChart(labels, data) {
@@ -1025,6 +1007,8 @@ function renderCashTracker() {
         <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid #f59e0b;color:#f59e0b;transition:.2s">💵 Cash</button>
       </div>
 
+      ${typeof acctSection === 'function' ? acctSection('cash') : ''}
+
       ${!accounts.length ? `
         <div class="glass-card" style="padding:60px;text-align:center">
           <div style="font-size:60px;margin-bottom:16px">💵</div>
@@ -1141,7 +1125,6 @@ function renderCashTracker() {
   if (history.filter(h => !selId || h.accountId === selId).length) {
     setTimeout(() => renderCashTrendChart(chartLabels, chartData), 60);
   }
-  if (typeof _injectFinTabs === 'function') _injectFinTabs();
 }
 
 function renderCashTrendChart(labels, data) {
