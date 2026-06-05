@@ -3408,6 +3408,12 @@ html.is-app #modal-overlay .cf-chip:active { background: rgba(0,201,167,0.18); }
 html.is-app.big-mode .page-container { zoom: 1.5; }
 html.is-app #bigmode-btn.on { background: linear-gradient(135deg,#00c9a7,#6366f1) !important; color: #fff !important; }
 
+/* build 282 — merged Finance page Overview / History toggle */
+html.is-app .fin-viewtabs { display: flex; gap: 6px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 5px; margin: 0 0 14px; }
+html.is-app .fin-viewtabs button { flex: 1; border: none; background: transparent; color: var(--text2); border-radius: 12px; padding: 13px 4px; font-size: 1.3rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+html.is-app .fin-viewtabs button svg.lucide { width: 1.3rem; height: 1.3rem; }
+html.is-app .fin-viewtabs button.on { background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; }
+
 /* build 270 — sticky day headers + dimmer meta (emphasise category + amount) */
 html.is-app .mm-day {
   position: sticky !important; top: 0 !important; z-index: 6 !important;

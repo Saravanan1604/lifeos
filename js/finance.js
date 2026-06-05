@@ -1146,6 +1146,20 @@ function _finSwipeDots() {
   });
 }
 
+let _finView = 'overview'; // 'overview' (cards/charts/tx) | 'history' (bank-tracker trends)
+// Inject the Overview / History toggle at the top of the merged Finance page
+function _injectFinTabs() {
+  const pc = document.getElementById('page-container'); if (!pc) return;
+  if (pc.querySelector('.fin-viewtabs')) return;
+  const bar = document.createElement('div');
+  bar.className = 'fin-viewtabs';
+  bar.innerHTML =
+    `<button class="${_finView === 'overview' ? 'on' : ''}" onclick="_finView='overview';navigate('finance',true)"><i data-lucide="wallet"></i> Overview</button>
+     <button class="${_finView === 'history' ? 'on' : ''}" onclick="_finView='history';navigate('finance',true)"><i data-lucide="trending-up"></i> History &amp; Trends</button>`;
+  pc.insertBefore(bar, pc.firstChild);
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+}
+
 function renderFinance() {
   if (typeof reconcileCurrentBalances === 'function') reconcileCurrentBalances();
   const txnsAll = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
