@@ -603,10 +603,78 @@ function _mrMonthly() {
   return { income: sum.income / months.length, expense: sum.expense / months.length };
 }
 
+// Financial Health — 7 axes scored 0–100 from the user's own data (heuristic).
+function _mrFinHealth() {
+  const txs = STATE.transactions || [];
+  const m = _mrMonthly();
+  const inc = m.income, exp = m.expense, annualInc = inc * 12;
+  const clamp = (n) => Math.max(0, Math.min(100, Math.round(n || 0)));
+  const catHit = (re, type) => txs.filter(t => t.type === type && re.test(((t.category || '') + ' ' + (t.subcategory || '')).toLowerCase()));
+  const monthlyAvg = (arr) => {
+    if (!arr.length) return 0;
+    const ms = new Set(arr.map(t => (t.date || '').slice(0, 7)));
+    return arr.reduce((a, t) => a + (+t.amount || 0), 0) / Math.max(1, ms.size);
+  };
+  // Cumulative net saved (rough liquid savings)
+  const netSaved = txs.reduce((a, t) => a + (t.type === 'income' ? +t.amount : -+t.amount || 0), 0);
+
+  const savingsRate = inc > 0 ? ((inc - exp) / inc) * 100 : 0;
+  const emi = monthlyAvg(catHit(/emi|loan|mortgage/, 'expense'));
+  const dti = inc > 0 ? (emi / inc) : 1;                       // lower is better; 40% = 0 score
+  const emFundMonths = exp > 0 ? (netSaved / exp) : 0;
+  const invValue = (STATE.investments || []).reduce((a, i) => a + (+i.currentValue || +i.amount || +i.value || 0), 0);
+  const retireVal = (STATE.investments || []).filter(i => /retire|pension|nps|ppf|epf/i.test((i.name || '') + (i.type || ''))).reduce((a, i) => a + (+i.currentValue || +i.amount || +i.value || 0), 0);
+  const hasInsurance = catHit(/insurance|premium|lic|policy/, 'expense').length > 0;
+  const budgets = STATE.budgets || [];
+  let budgetScore = 50;
+  if (budgets.length) {
+    const ok = budgets.filter(b => {
+      const spent = txs.filter(t => t.type === 'expense' && t.category === b.category && (t.date || '').startsWith(today().slice(0, 7))).reduce((a, t) => a + (+t.amount || 0), 0);
+      return spent <= (+b.limit || +b.amount || Infinity);
+    }).length;
+    budgetScore = (ok / budgets.length) * 100;
+  }
+
+  const axes = [
+    { k: 'Savings Rate',     v: clamp(savingsRate / 0.3),                      tip: 'Aim to save 20–30% of income.' },
+    { k: 'Debt-to-Income',   v: clamp(100 - (dti / 0.4) * 100),               tip: 'Keep loan EMIs under 40% of income.' },
+    { k: 'Emergency Fund',   v: clamp((emFundMonths / 6) * 100),              tip: 'Build 6 months of expenses in cash.' },
+    { k: 'Retirement',       v: clamp(annualInc > 0 ? (retireVal / annualInc) * 100 : 0), tip: 'Start a retirement fund (NPS/PPF/EPF).' },
+    { k: 'Investments',      v: clamp(annualInc > 0 ? (invValue / annualInc) * 100 : 0),  tip: 'Invest beyond savings to grow wealth.' },
+    { k: 'Insurance',        v: hasInsurance ? 75 : 20,                        tip: 'Get life cover of 10–15× annual income.' },
+    { k: 'Budget Adherence', v: clamp(budgetScore),                           tip: 'Set category budgets and stick to them.' },
+  ];
+  const overall = Math.round(axes.reduce((a, x) => a + x.v, 0) / axes.length);
+  return { axes, overall };
+}
+
+// Seven Income Streams — classify income transactions into the 7 wealth streams.
+function _mrIncomeStreams() {
+  const txs = (STATE.transactions || []).filter(t => t.type === 'income');
+  const defs = [
+    { k: 'Earned',        re: /salary|wage|job|payroll|stipend/ },
+    { k: 'Profit',        re: /business|profit|sale|ecommerce|shop|flip/ },
+    { k: 'Interest',      re: /interest|fd|deposit|hysa|saving/ },
+    { k: 'Dividends',     re: /dividend/ },
+    { k: 'Rental',        re: /rent/ },
+    { k: 'Capital Gains', re: /capital|stock|share|equity|mutual|trading|gain/ },
+    { k: 'Royalties',     re: /royalt|book|music|patent|license/ },
+  ];
+  const sums = defs.map(d => {
+    const total = txs.filter(t => d.re.test(((t.category || '') + ' ' + (t.subcategory || '') + ' ' + (t.description || '')).toLowerCase()))
+      .reduce((a, t) => a + (+t.amount || 0), 0);
+    return { k: d.k, total };
+  });
+  const active = sums.filter(s => s.total > 0).length;
+  return { sums, active };
+}
+
 function renderMoneyRules() {
   const m = _mrMonthly();
   const inc = Math.round(m.income), exp = Math.round(m.expense);
   const annualInc = inc * 12;
+  const fh = _mrFinHealth();
+  const strm = _mrIncomeStreams();
   const f = (n) => fmt(Math.round(n || 0));
   const Si = 'width:100%;padding:12px 14px;font-size:16px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);box-sizing:border-box';
   const Sl = 'display:block;font-size:13px;color:var(--text2);margin-bottom:6px';
@@ -634,6 +702,29 @@ function renderMoneyRules() {
         <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Avg Monthly Income</p><p style="font-size:17px;font-weight:800;color:#10b981">${f(inc)}</p></div>
         <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Avg Monthly Expense</p><p style="font-size:17px;font-weight:800;color:#ef4444">${f(exp)}</p></div>
         <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Annual Income</p><p style="font-size:17px;font-weight:800">${f(annualInc)}</p></div>
+      </div>
+
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px"><i data-lucide="activity" style="width:20px;height:20px;color:#6366f1"></i> Financial Health</p>
+          <span style="font-size:22px;font-weight:900;color:${fh.overall>=70?'#10b981':fh.overall>=40?'#f59e0b':'#ef4444'}">${fh.overall}<span style="font-size:13px;color:var(--text3)">/100</span></span>
+        </div>
+        <div style="position:relative;height:300px"><canvas id="mr-health-chart"></canvas></div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+          ${fh.axes.filter(a=>a.v<50).slice(0,3).map(a=>`<p style="font-size:12px;color:var(--text3);display:flex;gap:6px"><i data-lucide="alert-circle" style="width:15px;height:15px;color:#f59e0b;flex-shrink:0"></i><span><b style="color:var(--text2)">${a.k} (${a.v}):</b> ${a.tip}</span></p>`).join('') || '<p style="font-size:12px;color:#10b981;display:flex;gap:6px;align-items:center"><i data-lucide="check-circle-2" style="width:15px;height:15px"></i> Strong across the board — keep it up!</p>'}
+        </div>
+      </div>
+
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px"><i data-lucide="layers" style="width:20px;height:20px;color:#10b981"></i> 7 Income Streams</p>
+          <span style="font-size:15px;font-weight:800;color:var(--text2)">${strm.active}<span style="font-size:13px;color:var(--text3)"> / 7 active</span></span>
+        </div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">The average millionaire has 7 streams of income.</p>
+        <div style="position:relative;height:300px"><canvas id="mr-stream-chart"></canvas></div>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${strm.sums.map(s=>`<div style="display:flex;align-items:center;gap:7px;font-size:13px;padding:7px 10px;border-radius:10px;background:var(--glass);opacity:${s.total>0?1:0.5}"><span style="width:9px;height:9px;border-radius:50%;flex-shrink:0;background:${s.total>0?'#10b981':'#6b7280'}"></span><span style="flex:1;min-width:0;font-weight:600">${s.k}</span>${s.total>0?`<b style="font-size:12px">${f(s.total)}</b>`:'<i data-lucide="plus" style="width:14px;height:14px;color:var(--text3)"></i>'}</div>`).join('')}
+        </div>
       </div>
 
       <div class="mr-grid" style="display:flex;flex-direction:column;gap:14px">
@@ -703,4 +794,69 @@ function renderMoneyRules() {
       </div>
       <p style="text-align:center;color:var(--text3);font-size:12px;margin:18px 0 8px">These are general rules of thumb, not personalised advice.</p>
     </div>`;
+
+  // Draw the two radar charts once the canvases are in the DOM.
+  setTimeout(() => _mrDrawCharts(fh, strm), 30);
+}
+
+function _mrDrawCharts(fh, strm) {
+  if (!window.Chart) return;
+  const isLight = document.body.classList.contains('light');
+  const grid = isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.12)';
+  const tick = isLight ? '#64748b' : '#94a3b8';
+  chartInstances = chartInstances || {};
+
+  // Financial Health radar
+  const c1 = document.getElementById('mr-health-chart');
+  if (c1) {
+    try { chartInstances.mrHealth && chartInstances.mrHealth.destroy(); } catch (_) {}
+    chartInstances.mrHealth = new Chart(c1.getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: fh.axes.map(a => a.k),
+        datasets: [{
+          data: fh.axes.map(a => a.v),
+          borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.25)',
+          borderWidth: 2, pointBackgroundColor: '#6366f1', pointRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { display: false } },
+        scales: { r: {
+          min: 0, max: 100, ticks: { stepSize: 20, color: tick, backdropColor: 'transparent', font: { size: 10 } },
+          grid: { color: grid }, angleLines: { color: grid },
+          pointLabels: { color: tick, font: { size: 12, weight: '600' } }
+        } }
+      }
+    });
+  }
+
+  // 7 Income Streams radar (heptagon)
+  const c2 = document.getElementById('mr-stream-chart');
+  if (c2) {
+    try { chartInstances.mrStream && chartInstances.mrStream.destroy(); } catch (_) {}
+    const max = Math.max(1, ...strm.sums.map(s => s.total));
+    chartInstances.mrStream = new Chart(c2.getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: strm.sums.map(s => s.k),
+        datasets: [{
+          data: strm.sums.map(s => Math.round((s.total / max) * 100)),
+          borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.30)',
+          borderWidth: 2, pointBackgroundColor: '#10b981', pointRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => fmt(strm.sums[ctx.dataIndex].total) } } },
+        scales: { r: {
+          min: 0, max: 100, ticks: { display: false, stepSize: 25 },
+          grid: { color: grid }, angleLines: { color: grid },
+          pointLabels: { color: tick, font: { size: 12, weight: '600' } }
+        } }
+      }
+    });
+  }
 }
