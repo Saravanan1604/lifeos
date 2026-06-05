@@ -3320,6 +3320,39 @@ html.is-app #modal-overlay .aps-seg { display: inline-flex; gap: 4px; background
 html.is-app #modal-overlay .aps-seg button { border: none; background: transparent; color: var(--text2); font-size: 1.2rem; font-weight: 700; padding: 10px 16px; border-radius: 9px; cursor: pointer; }
 html.is-app #modal-overlay .aps-seg button.on { background: linear-gradient(135deg,#00c9a7,#6366f1); color: #fff; }
 
+/* ============================================================
+   build 265 — Records hero: big Balance + Income/Expense split,
+   account breakdowns become a swipeable carousel
+   ============================================================ */
+html.is-app .mm-hero {
+  margin: 6px 14px 12px; padding: 22px 18px 18px; border-radius: 20px;
+  background: linear-gradient(160deg, rgba(0,201,167,0.10), rgba(99,102,241,0.08));
+  border: 1px solid var(--glass-border); text-align: center;
+}
+html.is-app .mm-hero-lbl { font-size: 1.2rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); }
+html.is-app .mm-hero-val { font-size: 3.4rem; font-weight: 900; letter-spacing: -1px; line-height: 1.05; margin: 6px 0 16px; }
+html.is-app .mm-hero-val.pos { color: var(--text); }
+html.is-app .mm-hero-val.neg { color: #ef4444; }
+html.is-app .mm-hero-split { display: flex; align-items: center; justify-content: space-around; gap: 10px; }
+html.is-app .mm-hero-split .mm-hs { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+html.is-app .mm-hero-split .mm-hs-div { width: 1px; align-self: stretch; background: var(--glass-border); }
+html.is-app .mm-hs-lbl { font-size: 1.05rem; font-weight: 600; color: var(--text2); display: inline-flex; align-items: center; gap: 5px; }
+html.is-app .mm-hs-lbl svg.lucide { width: 1.05rem; height: 1.05rem; }
+html.is-app .mm-hs-val { font-size: 1.6rem; font-weight: 800; }
+html.is-app .mm-hs-val.pos { color: #10b981; }
+html.is-app .mm-hs-val.neg { color: #ef4444; }
+
+/* account breakdowns → horizontal swipeable carousel */
+html.is-app .mm-acct-chips {
+  display: flex !important; gap: 10px !important; overflow-x: auto !important;
+  padding: 0 14px 6px !important; margin: 0 0 6px !important; scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+html.is-app .mm-acct-chips::-webkit-scrollbar { height: 0; }
+html.is-app .mm-acct-chips .mm-acct {
+  flex: 0 0 44% !important; min-width: 44% !important; scroll-snap-align: start;
+}
+
 /* category line icons on Dashboard / Finance / Budget / detail card */
 html.is-app .tx-ic { display: inline-flex !important; align-items: center; justify-content: center; }
 html.is-app .tx-ic svg.lucide { width: 1.5rem; height: 1.5rem; }

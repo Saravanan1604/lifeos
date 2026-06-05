@@ -335,12 +335,16 @@ function renderRecordsMyMoney() {
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="recNav(1)">›</button>`}
         <button class="mm-today" onclick="recToday()" title="Jump to today">Today</button>
       </div>
-      ${_recAccountChips()}
-      ${showTotal ? `<div class="mm-summary">
-        <div><span class="mm-s-lbl">EXPENSE</span><span class="mm-s-val neg">${fmt(expense)}</span></div>
-        <div><span class="mm-s-lbl">INCOME${incomeCarried ? ' <span style="opacity:.7;font-weight:600">(month)</span>' : ''}</span><span class="mm-s-val pos">${fmt(income)}</span></div>
-        <div><span class="mm-s-lbl">${carryForward ? 'BALANCE' : 'TOTAL'}</span><span class="mm-s-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</span></div>
+      ${showTotal ? `<div class="mm-hero">
+        <p class="mm-hero-lbl">${carryForward ? 'Total Balance' : 'Balance'}</p>
+        <p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</p>
+        <div class="mm-hero-split">
+          <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''}</span><span class="mm-hs-val pos">+${fmt(income)}</span></div>
+          <div class="mm-hs-div"></div>
+          <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense</span><span class="mm-hs-val neg">-${fmt(expense)}</span></div>
+        </div>
       </div>` : ''}
+      ${_recAccountChips()}
       <div class="mm-ctrls">
         <label class="mm-cbtn" title="Pick a day"><i data-lucide="calendar"></i> Day
           <input type="date" value="${anchorYmd}" onchange="recPickDay(this.value)"/>
