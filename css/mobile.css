@@ -240,7 +240,10 @@ html.is-app .sidebar.mobile-open { transform: translateX(0) !important; }
 html.is-app .content { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; }
 
 /* Header transparent so the glass shows through */
-html.is-app .sidebar-header { position: sticky; top: 0; background: transparent !important; z-index: 2; padding: 16px 14px !important; }
+html.is-app .sidebar-header { position: sticky; top: 0; background: transparent !important; z-index: 2; padding: 16px 14px !important; justify-content: center !important; }
+/* center the LifeOS logo at the top of the drawer (clear of the ☰ button) */
+html.is-app .sidebar-header .sidebar-logo { justify-content: center !important; flex: 1 !important; padding-left: 56px !important; }
+html.is-app .sidebar-logo-text { font-size: 28px !important; font-weight: 900 !important; }
 
 /* Backdrop: dim + blur the dashboard behind (premium glass feel) */
 html.is-app #sidebar-backdrop {
