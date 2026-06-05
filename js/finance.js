@@ -246,31 +246,34 @@ function renderRecordsMyMoney() {
   const periodTxns = filterTxByAnchor([...(STATE.transactions || [])], _recPeriod, anchorYmd);
   const periodLabelTxt = _recPeriodLabel();
 
-  // summary reflects the whole period (independent of active filters)
-  const expense = periodTxns.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
-  let income    = periodTxns.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
-  // Carry income forward for the FULL month when viewing a day or week
-  // (e.g. salary credited on the 1st still counts when you look at any day).
-  let incomeCarried = false;
-  if (_recPeriod === 'day' || _recPeriod === 'week') {
-    const ym = `${_recAnchor.getFullYear()}-${String(_recAnchor.getMonth() + 1).padStart(2, '0')}`;
-    income = (STATE.transactions || [])
-      .filter(t => t.type === 'income' && (t.date || '').startsWith(ym))
-      .reduce((s, t) => s + (+t.amount || 0), 0);
-    incomeCarried = true;
-  }
-  let total = income - expense;
-
-  // Carry forward to next month: TOTAL becomes the running balance — the net of
-  // ALL transactions up to the end of the displayed period (so each month opens
-  // with the previous month's closing balance).
   const carryForward = STATE.settings && STATE.settings.carryForward === true;
+  const carryFrom = (STATE.settings && STATE.settings.carryFrom) || '';
+  let income, expense, total, incomeCarried = false;
+
   if (carryForward && _recPeriod !== 'all') {
+    // Running balance mode: Income, Expense and Total all cover the SAME range
+    // (carryFrom → end of displayed period), so they stay consistent.
     const periodEnd = _recPeriodEndYmd();
-    const from = (STATE.settings && STATE.settings.carryFrom) || '';   // optional start date
-    total = (STATE.transactions || [])
-      .filter(t => { const d = (t.date || '').slice(0, 10); return d <= periodEnd && (!from || d >= from); })
-      .reduce((s, t) => s + (t.type === 'income' ? (+t.amount || 0) : -(+t.amount || 0)), 0);
+    const inRange = (STATE.transactions || []).filter(t => {
+      const d = (t.date || '').slice(0, 10); return d <= periodEnd && (!carryFrom || d >= carryFrom);
+    });
+    income  = inRange.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+    expense = inRange.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+    total   = income - expense;
+  } else {
+    // Normal mode: summary reflects the displayed period
+    expense = periodTxns.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+    income  = periodTxns.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+    // Carry income forward for the FULL month when viewing a day or week
+    // (e.g. salary credited on the 1st still counts when you look at any day).
+    if (_recPeriod === 'day' || _recPeriod === 'week') {
+      const ym = `${_recAnchor.getFullYear()}-${String(_recAnchor.getMonth() + 1).padStart(2, '0')}`;
+      income = (STATE.transactions || [])
+        .filter(t => t.type === 'income' && (t.date || '').startsWith(ym))
+        .reduce((s, t) => s + (+t.amount || 0), 0);
+      incomeCarried = true;
+    }
+    total = income - expense;
   }
 
   // apply our existing filters (type / category / search)
