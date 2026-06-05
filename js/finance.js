@@ -1390,7 +1390,7 @@ function renderFinance() {
           : `
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px" class="fin-bank-grid">
             ${(STATE.bankAccounts||[]).map((b,i) => `
-            <div class="fin-dark-card" onclick="if(!event.target.closest('button')){bankTrackerAccount='\';navigate('bank-tracker')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
+            <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('button')){bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
               <div style="display:flex;justify-content:space-between;align-items:flex-start">
                 <div style="font-size:22px"><i data-lucide="landmark"></i></div>
