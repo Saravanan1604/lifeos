@@ -2894,8 +2894,10 @@ html.is-app.light #txpad .pad-tool { background: rgba(0,0,0,0.04); border-color:
    make the sheet transparent and hide #app behind it so the body bg +
    #particles-canvas (both live outside #app) show through. The pad's own
    fields/cards keep their glass backgrounds, so content stays readable. */
-#txpad { background: transparent !important; }
-html.is-app.txpad-open #app { visibility: hidden !important; }
+/* build 293 — keep the sheet OPAQUE (was transparent) so the page behind can't
+   flash through during the open composite. Solid theme bg matches the app. */
+#txpad { background: var(--bg) !important; }
+html.is-app.txpad-open #app { display: none !important; }
 /* segmented Income/Expense → like the Records period tabs */
 #txpad .pad-type-pills { background: var(--glass) !important; border: 1px solid var(--glass-border) !important; }
 #txpad .pad-pill { color: var(--text2) !important; }
