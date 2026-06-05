@@ -28,7 +28,8 @@ const CAT_COLORS = {
   Transport:'#3b82f6', Shopping:'#ec4899', Health:'#ef4444', Bills:'#8b5cf6',
   EMI:'#6366f1', Insurance:'#14b8a6', Investment:'#10b981', Entertainment:'#a855f7',
   Education:'#0ea5e9', Travel:'#06b6d4', Gifts:'#f43f5e', Fuel:'#f97316',
-  Groceries:'#84cc16', Rent:'#eab308', Utilities:'#eab308', Warranties:'#f59e0b', Other:'#94a3b8'
+  Groceries:'#84cc16', Rent:'#eab308', Utilities:'#eab308', Warranties:'#f59e0b', Other:'#94a3b8',
+  OTT:'#ec4899', Subscriptions:'#06b6d4', SIP:'#22c55e', 'Personal Care':'#f472b6'
 };
 function catIcon(name)  { return (CATEGORIES.find(c => c.name === name) || {}).icon || '📦'; }
 function catColor(name) { return CAT_COLORS[name] || '#6366f1'; }
@@ -43,7 +44,7 @@ const CAT_LUCIDE = {
   Health:'stethoscope', Bills:'receipt', Rent:'house', EMI:'landmark', Insurance:'shield',
   Investment:'trending-up', Entertainment:'clapperboard', Education:'book-open',
   Travel:'plane', Gifts:'gift', Utilities:'lightbulb', Subscriptions:'smartphone',
-  SIP:'refresh-cw', 'Personal Care':'sparkles', Warranties:'shield-check', Other:'package'
+  SIP:'refresh-cw', 'Personal Care':'sparkles', Warranties:'shield-check', Other:'package', OTT:'tv'
 };
 const EMOJI_LUCIDE = {
   '💰':'banknote','🏢':'building-2','💻':'laptop','🏦':'landmark','🎁':'gift','💵':'banknote',
@@ -805,7 +806,8 @@ function padSetDefaultAccount(v) {
 function padPickCategory() {
   const cats = getAllCategories().filter(c => c.type === _pad.type || c.type === 'both');
   openModal('Choose Category', `<div class="pad-cats">${cats.map(c =>
-    `<button onclick="_pad.category='${c.name.replace(/'/g, "\\'")}';closeModal();renderTxPad()"><span class="pad-cat-lucide">${catIconHtml(c.name)}</span><span>${esc(c.name)}</span></button>`).join('')}</div>`);
+    `<button onclick="_pad.category='${c.name.replace(/'/g, "\\'")}';closeModal();renderTxPad()"><span class="pad-cat-lucide">${catIconHtml(c.name)}</span><span>${esc(c.name)}</span></button>`).join('')}</div>
+    <button class="pad-cat-manage" onclick="closeModal();padClose();navigate('categories')"><i data-lucide="settings-2"></i> Add / manage categories</button>`);
 }
 function padPickSubcat() {
   openModal('🏷️ Subcategory', `

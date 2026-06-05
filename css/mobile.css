@@ -3261,6 +3261,14 @@ html.is-app .mm-cbtn svg.lucide,
 html.is-app .mm-selact svg.lucide { width: 1.25rem; height: 1.25rem; vertical-align: -0.18em; margin-right: 5px; }
 html.is-app #modal-overlay .pad-cats .pad-cat-lucide svg.lucide { width: 1.9rem; height: 1.9rem; color: #00c9a7; }
 html.is-app #modal-overlay .pad-cats button { gap: 6px; }
+/* "Add / manage categories" link inside the category picker */
+html.is-app #modal-overlay .pad-cat-manage {
+  width: 100%; margin-top: 14px; padding: 16px; border-radius: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-size: 1.3rem; font-weight: 700; color: #00c9a7;
+  background: rgba(0,201,167,0.12); border: 1px solid rgba(0,201,167,0.35);
+}
+html.is-app #modal-overlay .pad-cat-manage svg.lucide { width: 1.4rem; height: 1.4rem; }
 
 /* category line icons on Dashboard / Finance / Budget / detail card */
 html.is-app .tx-ic { display: inline-flex !important; align-items: center; justify-content: center; }

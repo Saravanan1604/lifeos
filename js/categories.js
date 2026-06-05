@@ -25,6 +25,7 @@ function getAllCategories() {
     { name: 'Gifts', icon: '🎁', type: 'expense', isDefault: true },
     { name: 'Utilities', icon: '💡', type: 'expense', isDefault: true },
     { name: 'Subscriptions', icon: '📱', type: 'expense', isDefault: true },
+    { name: 'OTT', icon: '📺', type: 'expense', isDefault: true },
     { name: 'SIP', icon: '🔄', type: 'expense', isDefault: true },
     { name: 'Personal Care', icon: '💆', type: 'expense', isDefault: true },
     { name: 'Other', icon: '📦', type: 'both', isDefault: true },
@@ -257,7 +258,26 @@ function processRecurring() {
 }
 
 // Popular emojis for quick selection
-const EMOJI_PICKER = ['💰','🍔','🚗','🏠','🛍️','💊','📚','✈️','🎬','💡','🎁','🐶','☕','🍕','🎵','💻','📱','🏋️','⛽','🧾','🏥','🛒','🎮','🌿','🍺','💈','🎓','🏦','🛡️','🎯','🔄','🤝','💆','📦','🌐','🎪','🏖️','🍱','🏃','🔧','🎨','🧴','💎','🚀','🌟','🏆','🎸','📷','🌺','🎭'];
+const EMOJI_PICKER = [
+  // money & finance
+  '💰','💵','💴','💶','💷','💳','🪙','🏦','📈','📉','📊','🧾','💸','🤝','🏧','💱',
+  // food & drink
+  '🍔','🍕','🍱','🍜','🍣','🍟','🌮','🥗','🍩','🍪','🎂','☕','🍺','🍷','🥤','🍦','🍎','🥖','🍳','🧁',
+  // shopping & home
+  '🛍️','🛒','🏠','🏡','🛏️','🛋️','🚿','🧹','🧴','🧺','🪑','🔌','💡','🕯️',
+  // transport & travel
+  '🚗','🚕','🛵','🏍️','🚌','🚆','✈️','⛽','🚲','🛴','🚢','🛺','🅿️','🧳','🏖️','🗺️',
+  // health & care
+  '💊','🏥','🩺','💉','🦷','🧠','🩹','💆','💈','🧘','🏋️','🏃','🚴','⚕️',
+  // bills & utilities
+  '📱','📞','🌐','📺','🔧','🛡️','📡','🗞️',
+  // entertainment & hobbies
+  '🎬','🎮','🎵','🎸','🎨','📷','🎭','🎪','🎤','🎧','🎫','🕹️','📚','🎓','✏️','🎲',
+  // people & gifts
+  '🎁','🎉','🐶','🐱','👶','👨‍👩‍👧','💍','❤️','🌟','🏆','🎯',
+  // misc / nature
+  '🔄','📦','🌿','🌺','🌳','☂️','⛱️','🔋','🧰','🪛','💎','🚀','⚡','🔥','🧧','🛕','💼','🧮','📅','⭐'
+];
 
 function openAddCategoryModal() {
   openModal('Add Custom Category', `
