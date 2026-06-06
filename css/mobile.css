@@ -3627,8 +3627,8 @@ html.is-app .mymoney-records.selmode .mm-selbar {
   position: sticky; top: 70px; z-index: 44;
   background: var(--bg); padding-top: 6px; padding-bottom: 6px;
 }
-#rec-top-btn { display: none; }
-html.is-app #rec-top-btn {
+#rec-top-btn {
+  display: none;
   position: fixed; right: 18px;
   bottom: calc(150px + env(safe-area-inset-bottom, 0px));
   width: 56px; height: 56px; border-radius: 50%;
@@ -3639,6 +3639,8 @@ html.is-app #rec-top-btn {
   opacity: 0; transform: translateY(10px) scale(.9);
   transition: opacity .2s, transform .2s; pointer-events: none;
 }
-html.is-app #rec-top-btn.show { display: flex; opacity: 1; transform: none; pointer-events: auto; }
-html.is-app #rec-top-btn svg { width: 30px; height: 30px; }
-html.is-app #rec-top-btn:active { transform: scale(.92); }
+/* web sits the button lower (no bottom-nav) */
+body:not(.is-app) #rec-top-btn { bottom: 28px; }
+#rec-top-btn.show { display: flex; opacity: 1; transform: none; pointer-events: auto; }
+#rec-top-btn svg { width: 30px; height: 30px; }
+#rec-top-btn:active { transform: scale(.92); }

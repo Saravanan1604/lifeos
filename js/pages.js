@@ -383,24 +383,28 @@ function renderSettings() {
 
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🎨 Theme</p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button onclick="setTheme('dark')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
-              <span style="font-size:22px">🌙</span><span style="font-size:12px;font-weight:600">Dark</span>
-            </button>
-            <button onclick="setTheme('light')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
-              <span style="font-size:22px">☀️</span><span style="font-size:12px;font-weight:600">Light</span>
-            </button>
-            <button onclick="setTheme('auto')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
-              <span style="font-size:22px">🌗</span><span style="font-size:12px;font-weight:600">Auto</span>
-            </button>
-            <button onclick="setTheme('amoled')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
-              <span style="font-size:22px">⬛</span><span style="font-size:12px;font-weight:600">AMOLED</span>
-            </button>
-            <button onclick="setTheme('ocean')" class="btn-secondary" style="flex:1;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px">
-              <span style="font-size:22px">🌊</span><span style="font-size:12px;font-weight:600">Ocean</span>
-            </button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            ${[
+              { m:'light',  label:'Light',  bg:'#e9edf2', card:'#ffffff', line:'#d4d9e0' },
+              { m:'dark',   label:'Dark',   bg:'#161b2b', card:'#28304a', line:'#3a425c' },
+              { m:'amoled', label:'AMOLED', bg:'#000000', card:'#101010', line:'#2a2a2a' },
+              { m:'ocean',  label:'Ocean',  bg:'#07172a', card:'#0e2a44', line:'#1d4d6b' },
+              { m:'auto',   label:'Auto',   bg:'linear-gradient(120deg,#e9edf2 0 50%,#161b2b 50% 100%)', card:'rgba(128,128,128,0.5)', line:'rgba(255,255,255,0.4)' },
+            ].map(t => { const active = (STATE.settings?.theme || 'amoled') === t.m; return `
+              <div onclick="setTheme('${t.m}')" style="cursor:pointer">
+                <div style="height:120px;border-radius:16px;background:${t.bg};border:2px solid ${active ? '#3b82f6' : 'rgba(255,255,255,0.10)'};display:flex;align-items:center;justify-content:center;overflow:hidden">
+                  <div style="width:76%;background:${t.card};border-radius:10px;padding:11px;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.25)">
+                    <div style="display:flex;align-items:center;gap:7px"><span style="width:11px;height:11px;border-radius:50%;background:#3b82f6;flex-shrink:0"></span><span style="height:7px;border-radius:4px;background:${t.line};width:66%"></span></div>
+                    <div style="display:flex;align-items:center;gap:7px"><span style="width:11px;height:11px;border-radius:50%;background:#3b82f6;flex-shrink:0"></span><span style="height:7px;border-radius:4px;background:${t.line};width:48%"></span></div>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:8px">
+                  <span style="font-size:15px;font-weight:700;color:${active ? '#3b82f6' : 'var(--text2)'}">${t.label}</span>
+                  <span style="width:22px;height:22px;border-radius:50%;border:2px solid ${active ? '#3b82f6' : 'var(--text3)'};display:flex;align-items:center;justify-content:center">${active ? '<span style="width:11px;height:11px;border-radius:50%;background:#3b82f6"></span>' : ''}</span>
+                </div>
+              </div>`; }).join('')}
           </div>
-          <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:8px">Auto switches theme based on time of day</p>
+          <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:10px">Tap a card to switch · Auto follows time of day</p>
         </div>
 
         <div class="glass-card" style="padding:22px">

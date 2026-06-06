@@ -1572,7 +1572,7 @@ function renderFinance() {
       </div>
 
       <!-- Transactions with period filter -->
-      <div class="glass-card" id="fin-tx-section" style="overflow:hidden;margin-bottom:20px">
+      <div class="glass-card" id="fin-tx-section" style="overflow:visible;margin-bottom:20px">
         <div style="padding:12px 16px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
           <p class="section-title" style="margin:0"><i data-lucide="credit-card"></i> Transactions</p>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -1882,14 +1882,14 @@ function renderFinanceTxList() {
 
   // Select-all header + rows
   container.innerHTML =
-    `<div id="fin-select-all-row" style="display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(0,201,167,0.05);border-bottom:1px solid rgba(0,201,167,0.15)">
+    `<div id="fin-select-all-row" style="display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(14,19,38,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,201,167,0.15);position:sticky;top:0;z-index:30">
        <input type="checkbox" id="chk-select-all" onchange="toggleSelectAll(this.checked)"
          style="width:16px;height:16px;accent-color:#00c9a7;cursor:pointer"/>
        <span style="font-size:12px;color:var(--text3);user-select:none">Select All &nbsp;<span id="sel-count-label"></span></span>
      </div>` +
     txns.map(tx => `
     <div id="txrow-${tx.id}" class="tx-row" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:.2s;cursor:pointer"
-         onclick="if(!event.target.closest('button')&&!event.target.closest('input'))openTxDetail('${tx.id}')"
+         onclick="finTxRowTap('${tx.id}',event)"
          onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="if(!document.getElementById('chk-${tx.id}')?.checked)this.style.background=''">
       <div style="display:flex;align-items:center;gap:12px">
         <input type="checkbox" id="chk-${tx.id}" data-txid="${tx.id}" class="fin-tx-chk"
@@ -1909,6 +1909,25 @@ function renderFinanceTxList() {
     </div>`).join('');
 
   _updateBulkBar();
+  if (typeof _recInitScrollTop === 'function') _recInitScrollTop();
+}
+
+// Web row tap: when one or more rows are already selected, a tap TOGGLES this
+// row's selection (no detail popup). Otherwise it opens the detail card.
+function finTxRowTap(id, e) {
+  if (e && (e.target.closest('button') || e.target.closest('input'))) return;
+  const anyChecked = document.querySelectorAll('.fin-tx-chk:checked').length > 0;
+  if (anyChecked) {
+    const c = document.getElementById('chk-' + id);
+    if (c) {
+      c.checked = !c.checked;
+      if (typeof onTxCheckChange === 'function') onTxCheckChange();
+      const row = document.getElementById('txrow-' + id);
+      if (row) row.style.background = c.checked ? 'rgba(0,201,167,0.10)' : '';
+    }
+    return;
+  }
+  openTxDetail(id);
 }
 
 // ===== BULK SELECT / DELETE =====
