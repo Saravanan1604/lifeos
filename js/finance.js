@@ -416,7 +416,8 @@ function renderRecordsMyMoney() {
       <div class="mm-subhead">
         <span class="mm-subhead-title">Recent Transactions</span>
         <div style="display:flex;gap:8px;align-items:center">
-          <button class="mm-subhead-filter" onclick="openImportMenu()" title="Import transactions"><i data-lucide="download"></i></button>
+          <button class="mm-subhead-filter" onclick="openGeminiCategorize()" title="AI Fix categories" style="color:#8b5cf6"><i data-lucide="sparkles"></i></button>
+          <button class="mm-subhead-filter" onclick="openImportMenu()" title="Import / Scan SMS"><i data-lucide="download"></i></button>
           <button class="mm-subhead-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter, sort &amp; view options"><i data-lucide="sliders-horizontal"></i></button>
         </div>
       </div>
@@ -1590,8 +1591,11 @@ function renderFinance() {
             <span style="font-size:11px;color:var(--text3);font-weight:600">📆 Jump to:</span>
             <span id="fin-period-picker">${_finPickerHTML()}</span>
           </div>
-          <button class="btn-primary btn-sm" onclick="openAddTxModal('expense')"
-            style="background:linear-gradient(135deg,#00c9a7,#6366f1);font-weight:700;padding:7px 16px;white-space:nowrap">+ Add Transaction</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-secondary btn-sm" onclick="openImportMenu()" style="font-weight:700;padding:7px 14px;white-space:nowrap">📥 Import</button>
+            <button class="btn-primary btn-sm" onclick="openAddTxModal('expense')"
+              style="background:linear-gradient(135deg,#00c9a7,#6366f1);font-weight:700;padding:7px 16px;white-space:nowrap">+ Add Transaction</button>
+          </div>
         </div>
 
         <!-- Search + Type / Category / Sort filters -->
