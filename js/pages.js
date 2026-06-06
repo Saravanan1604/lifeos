@@ -800,6 +800,15 @@ function mrShowNode(name) {
       <span style="font-weight:600;font-size:14px">${esc(a[nameKey] || a.name || a.type || 'Account')}</span>
       <b style="white-space:nowrap">${fmt(+a[valKey] || +a.balance || 0)}</b></div>`).join('');
 
+  if (name === 'From Savings / Debt') {
+    let inc = 0, exp = 0; txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
+    const gap = Math.max(0, exp - inc);
+    openModal('⚠️ Spending Over Income', `<p style="font-size:14px;color:var(--text2);line-height:1.9">
+        You spent <b style="color:#ef4444">${fmt(exp)}</b> but earned <b style="color:#10b981">${fmt(inc)}</b> this period.<br>
+        The shortfall of <b style="color:#ef4444;font-size:17px">${fmt(gap)}</b> was covered by drawing down your savings or taking on debt — it reduces your net worth.</p>
+        <p style="font-size:12px;color:var(--text3);margin-top:10px">Tip: aim to keep spending below income so savings (and net worth) keep growing.</p>`);
+    return;
+  }
   if (name === 'Net Worth') {
     const n = _mrNetWorth();
     openModal('🏦 Net Worth', `<p style="font-size:14px;color:var(--text2);line-height:2">
@@ -1045,7 +1054,7 @@ function renderMoneyRules() {
         <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
         <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
           ${[...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('')}
-          ${['Savings','Bank','Cash','Investments','Debt','Net Worth'].map(n=>`<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;cursor:pointer">${n}</button>`).join('')}
+          ${(pExp>pInc?['From Savings / Debt']:['Savings']).concat(['Bank','Cash','Investments','Debt','Net Worth']).map(n=>{const neg=n==='From Savings / Debt';return `<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:${neg?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};border:1px solid ${neg?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)'};color:${neg?'#ef4444':'#10b981'};cursor:pointer">${n}</button>`;}).join('')}
         </div>
       </div>
 
@@ -1244,6 +1253,14 @@ function _mrDrawCharts(fh, strm, flow) {
     // Stage 1 — income sources → Income
     Object.entries(flow.incBy).forEach(([k, v]) => { if (v > 0) { data.push({ from: k, to: 'Income', flow: Math.round(v) }); colorOf(k); column[k] = 0; } });
     column['Income'] = 1;
+
+    // Deficit — spent MORE than earned → the gap is funded by drawing down
+    // savings or taking on debt, so it flows INTO Income to cover spending.
+    const deficit = Math.round(flow.totalExp - flow.totalInc);
+    if (deficit > 0) {
+      data.push({ from: 'From Savings / Debt', to: 'Income', flow: deficit });
+      colorMap['From Savings / Debt'] = '#ef4444'; column['From Savings / Debt'] = 0;
+    }
 
     // Stage 2 — Income → spending categories + Debt Repayment + Savings
     const debtRe = /emi|loan|mortgage|credit\s?card|card\s?payment|debt/i;
