@@ -865,11 +865,11 @@ function mrShowNode(name) {
     const tot = loans.reduce((s, l) => s + (+l.outstanding || 0), 0) + cards.reduce((s, c) => s + (+c.outstanding || 0), 0);
     listCard(rows, '💳 Debt', 'Total owed', tot, '#ef4444'); return;
   }
-  if (name === 'Debt Repayment') {
+  if (name === 'EMI') {
     const re = /emi|loan|mortgage|credit\s?card|card\s?payment|debt/i;
     const matched = txs.filter(t => t.type === 'expense' && re.test((t.category || '') + ' ' + (t.subcategory || ''))).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    const rows = matched.map(t => `<div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--glass-border)"><div><p style="font-weight:600;font-size:14px">${esc(t.description || t.category)}</p><p style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}</p></div><b style="color:#ef4444">-${fmt(t.amount)}</b></div>`).join('');
-    listCard(rows, 'Debt Repayment — ' + matched.length + ' entr' + (matched.length === 1 ? 'y' : 'ies'), 'Total paid', matched.reduce((s, t) => s + (+t.amount || 0), 0), '#ef4444'); return;
+    const rows = matched.map(t => `<div onclick="mrEditTx('${t.id}')" style="display:flex;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--glass-border);cursor:pointer"><div><p style="font-weight:600;font-size:14px">${esc(t.description || t.category)}</p><p style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}</p></div><b style="color:#ef4444">-${fmt(t.amount)}</b></div>`).join('');
+    listCard(rows, 'EMI — ' + matched.length + ' entr' + (matched.length === 1 ? 'y' : 'ies'), 'Total paid', matched.reduce((s, t) => s + (+t.amount || 0), 0), '#ef4444'); return;
   }
   if (name === 'Savings') {
     let inc = 0, exp = 0; txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
@@ -1320,41 +1320,59 @@ function _mrDrawCharts(fh, strm, flow) {
     Object.entries(flow.incBy).forEach(([k, v]) => { if (v > 0) { data.push({ from: k, to: 'Income', flow: Math.round(v) }); colorOf(k); column[k] = 0; } });
     column['Income'] = 1;
 
-    // Deficit — spent MORE than earned → the gap is funded by drawing down
-    // savings or taking on debt, so it flows INTO Income to cover spending.
-    const deficit = Math.round(flow.totalExp - flow.totalInc);
+    // Classify this period's expenses: EMI (debt), Investments (money put into
+    // assets), and everyday spending (consumption).
+    const debtRe = /emi|loan|mortgage|credit\s?card|card\s?payment|debt/i;
+    const invRe = /investment|invest|mutual\s?fund|mutual|sip|stock|equity|shares|nps|ppf|elss/i;
+    let emi = 0, invested = 0; const spend = {};
+    Object.entries(flow.expBy).forEach(([k, v]) => {
+      if (v <= 0) return;
+      if (debtRe.test(k)) emi += v;
+      else if (invRe.test(k)) invested += v;
+      else spend[k] = v;
+    });
+    const consumption = Object.values(spend).reduce((a, b) => a + b, 0);
+    const savings = flow.totalInc - consumption - emi;     // leftover to allocate (incl. invested)
+
+    // Deficit — consumption + EMI exceed income → funded by drawing down savings/debt.
+    const deficit = Math.round((consumption + emi) - flow.totalInc);
     if (deficit > 0) {
       data.push({ from: 'From Savings / Debt', to: 'Income', flow: deficit });
       colorMap['From Savings / Debt'] = '#ef4444'; column['From Savings / Debt'] = 0;
     }
 
-    // Stage 2 — Income → spending categories + Debt Repayment + Savings
-    const debtRe = /emi|loan|mortgage|credit\s?card|card\s?payment|debt/i;
-    let debtPay = 0; const spend = {};
-    Object.entries(flow.expBy).forEach(([k, v]) => { if (v <= 0) return; if (debtRe.test(k)) debtPay += v; else spend[k] = v; });
+    // Stage 2 — Income → spending categories + EMI
     const exps = Object.entries(spend).sort((a, b) => b[1] - a[1]);
     const top = exps.slice(0, 7); const restSum = exps.slice(7).reduce((a, e) => a + e[1], 0);
     top.forEach(([k, v]) => { data.push({ from: 'Income', to: k, flow: Math.round(v) }); colorOf(k); column[k] = 2; });
     if (restSum > 0) { data.push({ from: 'Income', to: 'Other', flow: Math.round(restSum) }); colorOf('Other'); column['Other'] = 2; }
-    if (debtPay > 0) { data.push({ from: 'Income', to: 'Debt Repayment', flow: Math.round(debtPay) }); column['Debt Repayment'] = 2; }
+    if (emi > 0) { data.push({ from: 'Income', to: 'EMI', flow: Math.round(emi) }); column['EMI'] = 2; }
 
-    // Stage 3 — Savings → Bank / Cash / Investments (split by current balances) → Net Worth
-    if (flow.savings > 0) {
-      data.push({ from: 'Income', to: 'Savings', flow: Math.round(flow.savings) }); column['Savings'] = 2;
-      let parts = [['Bank', nw.bank], ['Cash', nw.cash], ['Investments', nw.invest]].filter(p => p[1] > 0);
-      if (!parts.length) parts = [['Bank', 1]];
-      const psum = parts.reduce((a, p) => a + p[1], 0);
-      parts.forEach(([name, w]) => {
-        const amt = Math.round(flow.savings * w / psum);
-        if (amt <= 0) return;
-        data.push({ from: 'Savings', to: name, flow: amt }); column[name] = 3;
-        data.push({ from: name, to: 'Net Worth', flow: amt }); column['Net Worth'] = 4;
-      });
+    // Stage 3 — Savings → Investments (only what you actually invested) + Bank/Cash → Net Worth
+    if (savings > 0) {
+      data.push({ from: 'Income', to: 'Savings', flow: Math.round(savings) }); column['Savings'] = 2;
+      const invAmt = Math.min(savings, invested);            // only this period's real investing
+      const leftover = Math.max(0, savings - invAmt);
+      if (invAmt > 0) {
+        data.push({ from: 'Savings', to: 'Investments', flow: Math.round(invAmt) }); column['Investments'] = 3;
+        data.push({ from: 'Investments', to: 'Net Worth', flow: Math.round(invAmt) }); column['Net Worth'] = 4;
+      }
+      if (leftover > 0) {
+        let parts = [['Bank', nw.bank], ['Cash', nw.cash]].filter(p => p[1] > 0);
+        if (!parts.length) parts = [['Bank', 1]];
+        const psum = parts.reduce((a, p) => a + p[1], 0);
+        parts.forEach(([name, w]) => {
+          const amt = Math.round(leftover * w / psum);
+          if (amt <= 0) return;
+          data.push({ from: 'Savings', to: name, flow: amt }); column[name] = 3;
+          data.push({ from: name, to: 'Net Worth', flow: amt }); column['Net Worth'] = 4;
+        });
+      }
     }
 
     colorMap['Income'] = '#22c55e'; colorMap['Savings'] = '#10b981';
     colorMap['Bank'] = '#3b82f6'; colorMap['Cash'] = '#06b6d4'; colorMap['Investments'] = '#8b5cf6';
-    colorMap['Net Worth'] = '#10b981'; colorMap['Debt Repayment'] = '#ef4444'; colorMap['Other'] = '#64748b';
+    colorMap['Net Worth'] = '#10b981'; colorMap['EMI'] = '#ef4444'; colorMap['Other'] = '#64748b';
 
     _mrScaleFlows(data, 6, 90);                        // keep tiny bands visible
 

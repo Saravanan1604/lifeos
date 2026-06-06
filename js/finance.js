@@ -3138,7 +3138,7 @@ function renderInvestments() {
             <p style="font-weight:700;font-size:13px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">
               ${inv.name}${liveTag}
             </p>
-            <p style="font-size:11px;color:var(--text3)">${inv.type}${liveSub ? ' · '+liveSub : (inv.notes?' · '+inv.notes:'')}${!liveSub&&inv.notes?' · '+inv.notes:''}</p>
+            <p style="font-size:11px;color:var(--text3)">${inv.type}${liveSub ? ' · '+liveSub : (inv.notes?' · '+inv.notes:'')}${!liveSub&&inv.notes?' · '+inv.notes:''}${inv.date?' · 📅 '+fmtDate(inv.date):''}</p>
           </div>
         </div>
       </td>
@@ -3170,7 +3170,7 @@ function renderInvestments() {
           <div style="width:38px;height:38px;border-radius:10px;background:rgba(239,68,68,0.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${loanIcon(loan.type)}</div>
           <div>
             <p style="font-weight:700;font-size:13px">${loan.name}</p>
-            <p style="font-size:11px;color:var(--text3)">${loan.type}${loan.lender?' · '+loan.lender:''}${loan.interestRate?' · '+loan.interestRate+'%':''}</p>
+            <p style="font-size:11px;color:var(--text3)">${loan.type}${loan.lender?' · '+loan.lender:''}${loan.interestRate?' · '+loan.interestRate+'%':''}${loan.startDate?' · 📅 '+fmtDate(loan.startDate):''}</p>
           </div>
         </div>
       </td>
@@ -3530,8 +3530,8 @@ function openAddInvModal() {
     </div>
     <div class="form-group"><label class="form-label">Notes (optional)</label>
       <input type="text" id="inv-notes" class="form-input" placeholder="e.g. pledged, maturity date…"/></div>
-    <div class="form-group"><label class="form-label">Start Date</label>
-      <input type="date" id="inv-date" class="form-input" value="${today()}"/></div>
+    <div class="form-group"><label class="form-label">Date (optional)</label>
+      <input type="date" id="inv-date" class="form-input" value=""/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveInv()">Save Asset</button>
@@ -3549,7 +3549,7 @@ function saveInv() {
   const qty     = parseFloat(document.getElementById('inv-qty')?.value) || 0;
   if (!name || !amount) { toast('Enter name and amount', 'error'); return; }
   STATE.investments = STATE.investments || [];
-  const inv = { id: genId(), name, type, amount, currentValue: current, notes, date: date || today() };
+  const inv = { id: genId(), name, type, amount, currentValue: current, notes, date: date || '' };
   if (ticker) { inv.ticker = ticker; inv.qty = qty; }
   STATE.investments.push(inv);
   saveState(); addXP(25, 'Asset added'); closeModal();
@@ -3576,8 +3576,8 @@ function openEditInvModal(id) {
     </div>
     <div class="form-group"><label class="form-label">Notes</label>
       <input type="text" id="einv-notes" class="form-input" value="${inv.notes||''}"/></div>
-    <div class="form-group"><label class="form-label">Date</label>
-      <input type="date" id="einv-date" class="form-input" value="${inv.date||today()}"/></div>
+    <div class="form-group"><label class="form-label">Date (optional)</label>
+      <input type="date" id="einv-date" class="form-input" value="${inv.date||''}"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveEditInv('${id}')">💾 Save Changes</button>
@@ -3599,7 +3599,7 @@ function saveEditInv(id) {
   inv.amount       = amount;
   inv.currentValue = parseFloat(document.getElementById('einv-current').value) || amount;
   inv.notes        = document.getElementById('einv-notes').value.trim();
-  inv.date         = document.getElementById('einv-date').value || today();
+  inv.date         = document.getElementById('einv-date').value || '';
   if (ticker) { inv.ticker = ticker; inv.qty = qty; }
   else { delete inv.ticker; delete inv.qty; }
   saveState(); closeModal(); toast('Asset updated ✅', 'success'); renderInvestments();
@@ -3720,8 +3720,8 @@ function _loanFormHTML(l) {
       <div class="form-group"><label class="form-label">Tenure (months)</label>
         <input type="number" id="ln-tenure" class="form-input" value="${v('tenure')}" placeholder="e.g. 240"/></div>
     </div>
-    <div class="form-group"><label class="form-label">Start Date</label>
-      <input type="date" id="ln-date" class="form-input" value="${v('startDate', today())}"/></div>
+    <div class="form-group"><label class="form-label">Start Date (optional)</label>
+      <input type="date" id="ln-date" class="form-input" value="${v('startDate', '')}"/></div>
     <div class="form-group"><label class="form-label">Notes (optional)</label>
       <input type="text" id="ln-notes" class="form-input" value="${v('notes')}" placeholder="e.g. property address, co-applicant…"/></div>`;
 }
@@ -3737,7 +3737,7 @@ function _loanFormValues() {
     interestRate:parseFloat(document.getElementById('ln-rate').value) || 0,
     emiDate:     parseInt(document.getElementById('ln-emidate').value) || 0,
     tenure:      parseInt(document.getElementById('ln-tenure').value) || 0,
-    startDate:   document.getElementById('ln-date').value || today(),
+    startDate:   document.getElementById('ln-date').value || '',
     notes:       document.getElementById('ln-notes').value.trim(),
   };
 }
