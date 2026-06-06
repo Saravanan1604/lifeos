@@ -1061,7 +1061,7 @@ function renderMoneyRules() {
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
         <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="landmark" style="width:20px;height:20px;color:#10b981"></i> Net Worth</p>
         <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:6px 0 14px">
-          <span style="font-size:30px;font-weight:900;color:${nw.net>=0?'#10b981':'#ef4444'}">${f(nw.net)}</span>
+          <span style="font-size:30px;font-weight:900;color:${nw.net>=0?'#10b981':'#ef4444'}">${nw.net<0?'-':''}${f(nw.net)}</span>
           ${growthPct!==null?`<span style="font-size:14px;font-weight:700;color:${growthPct>=0?'#10b981':'#ef4444'};display:inline-flex;align-items:center;gap:3px"><i data-lucide="${growthPct>=0?'trending-up':'trending-down'}" style="width:15px;height:15px"></i>${growthPct>=0?'+':''}${growthPct}% <span style="color:var(--text3);font-weight:500">savings vs last ${_mrPeriod}</span></span>`:''}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
@@ -1069,6 +1069,21 @@ function renderMoneyRules() {
           <div style="padding:10px;border-radius:12px;background:rgba(139,92,246,0.12)"><p style="font-size:11px;color:var(--text3);margin-bottom:3px;display:flex;align-items:center;justify-content:center;gap:4px"><i data-lucide="trending-up" style="width:13px;height:13px"></i> Investments</p><p style="font-size:15px;font-weight:800;color:#8b5cf6">${f(nw.invest)}</p></div>
           <div style="padding:10px;border-radius:12px;background:rgba(239,68,68,0.12)"><p style="font-size:11px;color:var(--text3);margin-bottom:3px;display:flex;align-items:center;justify-content:center;gap:4px"><i data-lucide="credit-card" style="width:13px;height:13px"></i> Debt</p><p style="font-size:15px;font-weight:800;color:#ef4444">${f(nw.debt)}</p></div>
         </div>
+        ${(()=>{ const assets=nw.liquid+nw.invest; const mx=Math.max(assets,nw.debt,1);
+          const seg=(val,col)=>val>0?`<div style="width:${(val/mx*100).toFixed(1)}%;background:${col};height:100%" title="${f(val)}"></div>`:'';
+          return `
+        <div style="margin-top:16px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px"><span style="color:#10b981">Assets</span><span style="color:#10b981">${f(assets)}</span></div>
+          <div style="display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--glass)">${seg(nw.bank,'#3b82f6')}${seg(nw.cash,'#06b6d4')}${seg(nw.invest,'#8b5cf6')}</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin:10px 0 5px"><span style="color:#ef4444">Debt</span><span style="color:#ef4444">${f(nw.debt)}</span></div>
+          <div style="display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--glass)">${seg(nw.debt,'#ef4444')}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px">
+            <span style="display:inline-flex;gap:5px;align-items:center"><span style="width:10px;height:10px;border-radius:2px;background:#3b82f6"></span>Bank</span>
+            <span style="display:inline-flex;gap:5px;align-items:center"><span style="width:10px;height:10px;border-radius:2px;background:#06b6d4"></span>Cash</span>
+            <span style="display:inline-flex;gap:5px;align-items:center"><span style="width:10px;height:10px;border-radius:2px;background:#8b5cf6"></span>Investments</span>
+          </div>
+          <p style="font-size:13px;margin-top:10px;font-weight:700;color:${nw.net>=0?'#10b981':'#ef4444'}">${nw.net>=0?'Surplus':'Shortfall'}: ${f(Math.abs(nw.net))} ${nw.net>=0?'(assets exceed debt)':'(debt exceeds assets)'}</p>
+        </div>`; })()}
         <p style="${Sfo}">Net Worth = Bank + Cash + Investments − Debt</p>
       </div>
 
