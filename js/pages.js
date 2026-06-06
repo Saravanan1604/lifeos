@@ -1378,22 +1378,28 @@ function _mrDrawCharts(fh, strm, flow) {
     if (!hasSankey || assets <= 0) {
       if (fb) { fb.style.display = 'block'; fb.textContent = assets <= 0 ? 'Add your bank, cash or investment balances to see your wealth flow.' : 'Wealth chart needs an internet connection the first time.'; }
       if (wrap) wrap.style.display = 'none';
-    } else if (n.net < 0) {
-      // Debt exceeds assets → a flow can't show negative net worth; point to the bar.
-      if (fb) { fb.style.display = 'block'; fb.innerHTML = `Your debt (<b style="color:#ef4444">${fmt(n.debt)}</b>) exceeds your assets (<b style="color:#10b981">${fmt(assets)}</b>) — net worth is negative. See the <b>Assets vs Debt</b> bar above.`; }
-      if (wrap) wrap.style.display = 'none';
     } else {
       if (fb) fb.style.display = 'none';
       if (wrap) wrap.style.display = '';
       try { chartInstances.mrWealth && chartInstances.mrWealth.destroy(); } catch (_) {}
-      const wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Net Worth': 2, Debt: 2 };
-      const wcolor = { Bank: '#3b82f6', Cash: '#06b6d4', Investments: '#8b5cf6', 'Total Assets': '#22c55e', 'Net Worth': '#10b981', Debt: '#ef4444' };
+      const wcolor = { Bank: '#3b82f6', Cash: '#06b6d4', Investments: '#8b5cf6', 'Total Assets': '#22c55e', 'Net Worth': '#10b981', Debt: '#ef4444', 'Shortfall (negative)': '#ef4444' };
       const wdata = [];
       if (n.bank > 0) wdata.push({ from: 'Bank', to: 'Total Assets', flow: Math.round(n.bank) });
       if (n.cash > 0) wdata.push({ from: 'Cash', to: 'Total Assets', flow: Math.round(n.cash) });
       if (n.invest > 0) wdata.push({ from: 'Investments', to: 'Total Assets', flow: Math.round(n.invest) });
-      wdata.push({ from: 'Total Assets', to: 'Net Worth', flow: Math.round(n.net) });
-      if (n.debt > 0) wdata.push({ from: 'Total Assets', to: 'Debt', flow: Math.round(n.debt) });
+      let wcol;
+      if (n.net >= 0) {
+        // Surplus: assets split into Net Worth (owned) + Debt (owed)
+        wdata.push({ from: 'Total Assets', to: 'Net Worth', flow: Math.round(n.net) });
+        if (n.debt > 0) wdata.push({ from: 'Total Assets', to: 'Debt', flow: Math.round(n.debt) });
+        wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Net Worth': 2, Debt: 2 };
+      } else {
+        // Deficit: assets only partly cover debt; the uncovered red "Shortfall"
+        // band IS the negative net worth. Debt = assets + shortfall.
+        wdata.push({ from: 'Total Assets', to: 'Debt', flow: Math.round(assets) });
+        wdata.push({ from: 'Shortfall (negative)', to: 'Debt', flow: Math.round(n.debt - assets) });
+        wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Shortfall (negative)': 1, Debt: 2 };
+      }
       chartInstances.mrWealth = new Chart(c4.getContext('2d'), {
         type: 'sankey',
         data: { datasets: [{
@@ -1408,8 +1414,9 @@ function _mrDrawCharts(fh, strm, flow) {
             const pts = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
             if (!pts.length) return;
             const raw = chart.data.datasets[0].data[pts[0].index];
-            const node = raw.from === 'Total Assets' ? raw.to : raw.from;
-            if (typeof mrShowNode === 'function') mrShowNode(node === 'Total Assets' ? 'Net Worth' : node);
+            let node = raw.from === 'Total Assets' ? raw.to : raw.from;
+            if (node === 'Total Assets' || /Shortfall/.test(node)) node = 'Net Worth';
+            if (typeof mrShowNode === 'function') mrShowNode(node);
           },
           plugins: { legend: { display: false },
             tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.flow)}` } } },
