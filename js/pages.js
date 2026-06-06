@@ -794,11 +794,12 @@ function mrEditNode(name) {
     if (typeof _finType !== 'undefined') _finType = 'all';
     if (typeof _recSearch !== 'undefined') _recSearch = '';
     if (typeof _finCategory !== 'undefined') _finCategory = name;
+    // Show ALL of this category (every period) so the user can find & fix any entry.
     if (typeof _recPeriodInit !== 'undefined') _recPeriodInit = true;   // stop the page resetting our period
-    if (typeof _recPeriod !== 'undefined') _recPeriod = _mrPeriod;
-    if (typeof _recAnchor !== 'undefined') _recAnchor = new Date(_mrAnchor + 'T00:00:00');
+    if (typeof _recPeriod !== 'undefined') _recPeriod = 'all';
+    if (typeof _recAnchor !== 'undefined') _recAnchor = new Date();
   } catch (_) {}
-  if (typeof toast === 'function') toast(`Showing ${name} · ${_mrAnchorLabel()}`, 'info');
+  if (typeof toast === 'function') toast(`Showing all ${name} transactions`, 'info');
   navigate('transactions');
 }
 // Open a single transaction's editor directly from the popup.
@@ -867,10 +868,7 @@ function mrShowNode(name) {
     <div onclick="mrEditTx('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--glass-border);cursor:pointer">
       <div style="min-width:0"><p style="font-weight:600;font-size:14px">${esc(t.description || t.subcategory || name)}</p>
         <p style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}${t.source ? ' · ' + esc(t.source) : ''}</p></div>
-      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-        <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'};white-space:nowrap">${t.type === 'income' ? '' : '-'}${fmt(t.amount)}</b>
-        <i data-lucide="pencil" style="width:15px;height:15px;color:var(--text3)"></i>
-      </div>
+      <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'};white-space:nowrap;flex-shrink:0">${t.type === 'income' ? '' : '-'}${fmt(t.amount)}</b>
     </div>`).join('') : '<p style="color:var(--text3);padding:14px 0">No transactions in this period.</p>';
   const safe = String(name).replace(/'/g, "\\'");
   openModal(`${name} — ${matched.length} entr${matched.length === 1 ? 'y' : 'ies'}`, `
