@@ -750,6 +750,23 @@ function _mrFlow(srcTxs) {
 // Compact INR formatter for live (oninput) updates on the rule cards.
 function _mrINR(n) { return '₹' + Math.round(+n || 0).toLocaleString('en-IN'); }
 
+// Build a width-compression scale for Sankey links so tiny bands stay visible
+// next to huge ones. Uses a sqrt curve mapped into [minW, maxW]. The REAL
+// amounts are kept separately (data[i].real) for tooltips & drill-downs.
+function _mrScaleFlows(data, minW, maxW) {
+  if (!data.length) return;
+  const vals = data.map(d => d.flow);
+  const vmin = Math.min(...vals), vmax = Math.max(...vals);
+  const smin = Math.sqrt(vmin), smax = Math.sqrt(vmax);
+  data.forEach(d => {
+    d.real = d.flow;                                  // keep the true amount
+    let w;
+    if (vmax <= vmin || smax === smin) w = (minW + maxW) / 2;
+    else w = minW + (maxW - minW) * ((Math.sqrt(d.flow) - smin) / (smax - smin));
+    d.flow = Math.max(minW, Math.round(w));           // drawn width (compressed)
+  });
+}
+
 // Net-worth snapshot from bank/cash/investments/loans/cards (current balances).
 function _mrNetWorth() {
   const bank = (STATE.bankAccounts || []).reduce((s, b) => s + (+b.balance || 0), 0);
@@ -1339,6 +1356,8 @@ function _mrDrawCharts(fh, strm, flow) {
     colorMap['Bank'] = '#3b82f6'; colorMap['Cash'] = '#06b6d4'; colorMap['Investments'] = '#8b5cf6';
     colorMap['Net Worth'] = '#10b981'; colorMap['Debt Repayment'] = '#ef4444'; colorMap['Other'] = '#64748b';
 
+    _mrScaleFlows(data, 6, 90);                        // keep tiny bands visible
+
     chartInstances.mrFlow = new Chart(c3.getContext('2d'), {
       type: 'sankey',
       data: { datasets: [{
@@ -1362,7 +1381,7 @@ function _mrDrawCharts(fh, strm, flow) {
           if (typeof mrShowNode === 'function') mrShowNode(node);
         },
         plugins: { legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.flow)}` } } },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.real != null ? ctx.raw.real : ctx.raw.flow)}` } } },
       }
     });
   }
@@ -1400,6 +1419,7 @@ function _mrDrawCharts(fh, strm, flow) {
         wdata.push({ from: 'Shortfall (negative)', to: 'Debt', flow: Math.round(n.debt - assets) });
         wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Shortfall (negative)': 1, Debt: 2 };
       }
+      _mrScaleFlows(wdata, 6, 90);                      // keep tiny bands (Bank/Cash) visible
       chartInstances.mrWealth = new Chart(c4.getContext('2d'), {
         type: 'sankey',
         data: { datasets: [{
@@ -1419,7 +1439,7 @@ function _mrDrawCharts(fh, strm, flow) {
             if (typeof mrShowNode === 'function') mrShowNode(node);
           },
           plugins: { legend: { display: false },
-            tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.flow)}` } } },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.real != null ? ctx.raw.real : ctx.raw.flow)}` } } },
         }
       });
     }
