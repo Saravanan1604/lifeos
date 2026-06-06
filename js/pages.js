@@ -787,6 +787,26 @@ function mrSaveField(key, val) {
   renderMoneyRules();
 }
 
+// Open the All-Transactions page pre-filtered to this category + the same period.
+function mrEditNode(name) {
+  if (typeof closeModal === 'function') closeModal();
+  try {
+    if (typeof _finType !== 'undefined') _finType = 'all';
+    if (typeof _recSearch !== 'undefined') _recSearch = '';
+    if (typeof _finCategory !== 'undefined') _finCategory = name;
+    if (typeof _recPeriodInit !== 'undefined') _recPeriodInit = true;   // stop the page resetting our period
+    if (typeof _recPeriod !== 'undefined') _recPeriod = _mrPeriod;
+    if (typeof _recAnchor !== 'undefined') _recAnchor = new Date(_mrAnchor + 'T00:00:00');
+  } catch (_) {}
+  if (typeof toast === 'function') toast(`Showing ${name} · ${_mrAnchorLabel()}`, 'info');
+  navigate('transactions');
+}
+// Open a single transaction's editor directly from the popup.
+function mrEditTx(id) {
+  if (typeof closeModal === 'function') closeModal();
+  if (typeof openEditTxModal === 'function') openEditTxModal(id);
+}
+
 // Tap a Sankey node (or chip) → list the matching transactions with dates + total.
 function mrShowNode(name) {
   if (typeof openModal !== 'function') return;
@@ -844,16 +864,25 @@ function mrShowNode(name) {
   const total = matched.reduce((a, t) => a + (+t.amount || 0), 0);
   const pos = matched[0] && matched[0].type === 'income';
   const rows = matched.length ? matched.map(t => `
-    <div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--glass-border)">
+    <div onclick="mrEditTx('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--glass-border);cursor:pointer">
       <div style="min-width:0"><p style="font-weight:600;font-size:14px">${esc(t.description || t.subcategory || name)}</p>
         <p style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}${t.source ? ' · ' + esc(t.source) : ''}</p></div>
-      <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'};white-space:nowrap">${t.type === 'income' ? '' : '-'}${fmt(t.amount)}</b>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'};white-space:nowrap">${t.type === 'income' ? '' : '-'}${fmt(t.amount)}</b>
+        <i data-lucide="pencil" style="width:15px;height:15px;color:var(--text3)"></i>
+      </div>
     </div>`).join('') : '<p style="color:var(--text3);padding:14px 0">No transactions in this period.</p>';
+  const safe = String(name).replace(/'/g, "\\'");
   openModal(`${name} — ${matched.length} entr${matched.length === 1 ? 'y' : 'ies'}`, `
-    <div style="display:flex;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--glass);margin-bottom:8px">
-      <span style="font-weight:700">Total</span><b style="font-size:18px;color:${pos ? '#10b981' : '#ef4444'}">${fmt(total)}</b>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--glass);margin-bottom:8px">
+      <span style="font-weight:700">Total</span>
+      <div style="display:flex;align-items:center;gap:12px"><b style="font-size:18px;color:${pos ? '#10b981' : '#ef4444'}">${fmt(total)}</b>
+        <button onclick="mrEditNode('${safe}')" title="Open in Transactions to edit" style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,201,167,0.14);border:1px solid rgba(0,201,167,0.35);color:#00c9a7;border-radius:9px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700"><i data-lucide="pencil" style="width:14px;height:14px"></i> Edit</button>
+      </div>
     </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Tap a row to edit it, or “Edit” to open all in Transactions.</p>
     <div style="max-height:50vh;overflow-y:auto">${rows}</div>`);
+  setTimeout(() => { if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} } }, 20);
 }
 
 // ---- Pin a Money-Rules graph onto another page (live, re-rendering copy) ----
