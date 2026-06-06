@@ -1117,7 +1117,7 @@ function renderMoneyRules() {
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
         <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-merge" style="width:20px;height:20px;color:#8b5cf6"></i> Wealth Flow <button onclick="mrPinChart('wealth','Wealth Flow')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px;margin-left:auto" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
         <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Where your wealth sits: assets gather, then split into what you own (net worth) and what you owe (debt).</p>
-        <div style="position:relative;height:300px"><canvas id="mr-wealth-chart"></canvas></div>
+        <div id="mr-wealth-wrap" style="position:relative;height:300px"><canvas id="mr-wealth-chart"></canvas></div>
         <p id="mr-wealth-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:18px"></p>
       </div>
 
@@ -1374,16 +1374,17 @@ function _mrDrawCharts(fh, strm, flow) {
     const n = _mrNetWorth();
     const assets = n.liquid + n.invest;
     const fb = document.getElementById('mr-wealth-fallback');
+    const wrap = document.getElementById('mr-wealth-wrap');
     if (!hasSankey || assets <= 0) {
       if (fb) { fb.style.display = 'block'; fb.textContent = assets <= 0 ? 'Add your bank, cash or investment balances to see your wealth flow.' : 'Wealth chart needs an internet connection the first time.'; }
-      c4.style.display = 'none';
+      if (wrap) wrap.style.display = 'none';
     } else if (n.net < 0) {
       // Debt exceeds assets → a flow can't show negative net worth; point to the bar.
       if (fb) { fb.style.display = 'block'; fb.innerHTML = `Your debt (<b style="color:#ef4444">${fmt(n.debt)}</b>) exceeds your assets (<b style="color:#10b981">${fmt(assets)}</b>) — net worth is negative. See the <b>Assets vs Debt</b> bar above.`; }
-      c4.style.display = 'none';
+      if (wrap) wrap.style.display = 'none';
     } else {
       if (fb) fb.style.display = 'none';
-      c4.style.display = '';
+      if (wrap) wrap.style.display = '';
       try { chartInstances.mrWealth && chartInstances.mrWealth.destroy(); } catch (_) {}
       const wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Net Worth': 2, Debt: 2 };
       const wcolor = { Bank: '#3b82f6', Cash: '#06b6d4', Investments: '#8b5cf6', 'Total Assets': '#22c55e', 'Net Worth': '#10b981', Debt: '#ef4444' };
