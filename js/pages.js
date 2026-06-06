@@ -750,6 +750,22 @@ function _mrFlow(srcTxs) {
 // Compact INR formatter for live (oninput) updates on the rule cards.
 function _mrINR(n) { return '₹' + Math.round(+n || 0).toLocaleString('en-IN'); }
 
+// Show ₹ amount + % on Sankey node labels (toggled by the eye button).
+let _mrShowFlowAmt = true;
+function mrToggleFlowAmt() { _mrShowFlowAmt = !_mrShowFlowAmt; renderMoneyRules(); }
+
+// Build a node→label map ("Name · ₹X · Y%") from a Sankey link list (real values).
+function _mrNodeLabels(data) {
+  const inSum = {}, outSum = {};
+  data.forEach(d => { const r = d.real != null ? d.real : d.flow; outSum[d.from] = (outSum[d.from] || 0) + r; inSum[d.to] = (inSum[d.to] || 0) + r; });
+  const nodes = [...new Set([...data.map(d => d.from), ...data.map(d => d.to)])];
+  const val = {}; nodes.forEach(n => val[n] = Math.max(inSum[n] || 0, outSum[n] || 0));
+  const base = val['Income'] || val['Total Assets'] || Math.max(1, ...Object.values(val));
+  const labels = {};
+  nodes.forEach(n => { labels[n] = `${n} · ${_mrINR(val[n])} · ${Math.round((val[n] / base) * 100)}%`; });
+  return labels;
+}
+
 // Build a width-compression scale for Sankey links so tiny bands stay visible
 // next to huge ones. Uses a sqrt curve mapped into [minW, maxW]. The REAL
 // amounts are kept separately (data[i].real) for tooltips & drill-downs.
@@ -1092,7 +1108,9 @@ function renderMoneyRules() {
       </div>`; })()}
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
-        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-fork" style="width:20px;height:20px;color:#3b82f6"></i> Where Your Money Goes <button onclick="mrPinChart('flow','Where Your Money Goes')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px;margin-left:auto" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
+        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-fork" style="width:20px;height:20px;color:#3b82f6"></i> Where Your Money Goes
+          <button onclick="mrToggleFlowAmt()" style="background:none;border:none;color:${_mrShowFlowAmt?'#00c9a7':'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %"><i data-lucide="${_mrShowFlowAmt?'eye':'eye-off'}" style="width:18px;height:18px"></i></button>
+          <button onclick="mrPinChart('flow','Where Your Money Goes')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
         <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Your full money lifecycle: income → spending, debt & savings → bank, cash & investments → net worth. Tap any node to drill in.</p>
         <div style="position:relative;height:380px"><canvas id="mr-flow-chart"></canvas></div>
         <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
@@ -1132,7 +1150,9 @@ function renderMoneyRules() {
       </div>
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
-        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-merge" style="width:20px;height:20px;color:#8b5cf6"></i> Wealth Flow <button onclick="mrPinChart('wealth','Wealth Flow')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px;margin-left:auto" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
+        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-merge" style="width:20px;height:20px;color:#8b5cf6"></i> Wealth Flow
+          <button onclick="mrToggleFlowAmt()" style="background:none;border:none;color:${_mrShowFlowAmt?'#00c9a7':'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %"><i data-lucide="${_mrShowFlowAmt?'eye':'eye-off'}" style="width:18px;height:18px"></i></button>
+          <button onclick="mrPinChart('wealth','Wealth Flow')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
         <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Where your wealth sits: assets gather, then split into what you own (net worth) and what you owe (debt).</p>
         <div id="mr-wealth-wrap" style="position:relative;height:300px"><canvas id="mr-wealth-chart"></canvas></div>
         <p id="mr-wealth-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:18px"></p>
@@ -1374,6 +1394,7 @@ function _mrDrawCharts(fh, strm, flow) {
     colorMap['Bank'] = '#3b82f6'; colorMap['Cash'] = '#06b6d4'; colorMap['Investments'] = '#8b5cf6';
     colorMap['Net Worth'] = '#10b981'; colorMap['EMI'] = '#ef4444'; colorMap['Other'] = '#64748b';
 
+    const flowLabels = _mrShowFlowAmt ? _mrNodeLabels(data) : {};
     _mrScaleFlows(data, 6, 90);                        // keep tiny bands visible
 
     chartInstances.mrFlow = new Chart(c3.getContext('2d'), {
@@ -1383,7 +1404,7 @@ function _mrDrawCharts(fh, strm, flow) {
         colorFrom: (c) => colorOf(c.dataset.data[c.dataIndex].from),
         colorTo: (c) => colorOf(c.dataset.data[c.dataIndex].to),
         colorMode: 'gradient',
-        labels: {},
+        labels: flowLabels,
         color: tick,
         font: { size: 11, weight: '600' },
         borderWidth: 0,
@@ -1437,6 +1458,7 @@ function _mrDrawCharts(fh, strm, flow) {
         wdata.push({ from: 'Shortfall (negative)', to: 'Debt', flow: Math.round(n.debt - assets) });
         wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Shortfall (negative)': 1, Debt: 2 };
       }
+      const wLabels = _mrShowFlowAmt ? _mrNodeLabels(wdata) : {};
       _mrScaleFlows(wdata, 6, 90);                      // keep tiny bands (Bank/Cash) visible
       chartInstances.mrWealth = new Chart(c4.getContext('2d'), {
         type: 'sankey',
@@ -1444,7 +1466,7 @@ function _mrDrawCharts(fh, strm, flow) {
           data: wdata, column: wcol,
           colorFrom: (c) => wcolor[c.dataset.data[c.dataIndex].from] || '#64748b',
           colorTo: (c) => wcolor[c.dataset.data[c.dataIndex].to] || '#64748b',
-          colorMode: 'gradient', labels: {}, color: tick, font: { size: 11, weight: '600' }, borderWidth: 0,
+          colorMode: 'gradient', labels: wLabels, color: tick, font: { size: 11, weight: '600' }, borderWidth: 0,
         }] },
         options: {
           responsive: true, maintainAspectRatio: false, animation: false,
