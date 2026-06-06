@@ -1392,11 +1392,21 @@ function _mrDrawCharts(fh, strm, flow) {
           data.push({ from: name, to: 'Net Worth', flow: amt }); column['Net Worth'] = 4;
         });
       }
+
+      // Net Worth → Debt → each loan + credit-card outstanding (what you OWE)
+      const loansO = (STATE.loans || []).filter(l => (+l.outstanding || 0) > 0);
+      const cardsO = (STATE.creditCards || []).filter(c => (+c.outstanding || 0) > 0);
+      const totalDebt = loansO.reduce((a, l) => a + (+l.outstanding || 0), 0) + cardsO.reduce((a, c) => a + (+c.outstanding || 0), 0);
+      if (totalDebt > 0) {
+        data.push({ from: 'Net Worth', to: 'Debt', flow: Math.round(totalDebt) }); column['Debt'] = 5;
+        loansO.forEach(l => { const nm = (l.name || l.type || 'Loan'); data.push({ from: 'Debt', to: nm, flow: Math.round(+l.outstanding) }); column[nm] = 6; colorMap[nm] = '#ef4444'; });
+        cardsO.forEach(c => { const nm = (c.bankName || c.name || 'Card') + ' 💳'; data.push({ from: 'Debt', to: nm, flow: Math.round(+c.outstanding) }); column[nm] = 6; colorMap[nm] = '#f97316'; });
+      }
     }
 
     colorMap['Income'] = '#22c55e'; colorMap['Savings'] = '#10b981';
     colorMap['Bank'] = '#3b82f6'; colorMap['Cash'] = '#06b6d4'; colorMap['Investments'] = '#8b5cf6';
-    colorMap['Net Worth'] = '#10b981'; colorMap['EMI'] = '#ef4444'; colorMap['Other'] = '#64748b';
+    colorMap['Net Worth'] = '#10b981'; colorMap['EMI'] = '#ef4444'; colorMap['Other'] = '#64748b'; colorMap['Debt'] = '#ef4444';
 
     const flowLabels = _mrShowFlowAmt ? _mrNodeLabels(data) : {};
     _mrScaleFlows(data, 6, 90);                        // keep tiny bands visible
