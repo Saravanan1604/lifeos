@@ -750,6 +750,31 @@ function _mrFlow(srcTxs) {
 // Compact INR formatter for live (oninput) updates on the rule cards.
 function _mrINR(n) { return '₹' + Math.round(+n || 0).toLocaleString('en-IN'); }
 
+// Net-worth snapshot from bank/cash/investments/loans/cards (current balances).
+function _mrNetWorth() {
+  const bank = (STATE.bankAccounts || []).reduce((s, b) => s + (+b.balance || 0), 0);
+  const cash = (STATE.cashAccounts || []).reduce((s, c) => s + (+c.balance || 0), 0);
+  const invest = (STATE.investments || []).reduce((s, i) => s + (+i.currentValue || +i.amount || +i.value || 0), 0);
+  const cardDebt = (STATE.creditCards || []).reduce((s, c) => s + (+c.outstanding || 0), 0);
+  const loanDebt = (STATE.loans || []).reduce((s, l) => s + (+l.outstanding || 0), 0);
+  const debt = cardDebt + loanDebt;
+  const liquid = bank + cash;
+  return { bank, cash, liquid, invest, debt, net: liquid + invest - debt };
+}
+
+// Previous comparable period's net savings (for the growth rate).
+function _mrPrevNet() {
+  const d = new Date(_mrAnchor + 'T00:00:00');
+  if (_mrPeriod === 'week') d.setDate(d.getDate() - 7);
+  else if (_mrPeriod === 'month') d.setMonth(d.getMonth() - 1);
+  else if (_mrPeriod === 'year') d.setFullYear(d.getFullYear() - 1);
+  else return null;
+  const anchor = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const prev = filterTxByAnchor(STATE.transactions || [], _mrPeriod, anchor);
+  let inc = 0, exp = 0; prev.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
+  return inc - exp;
+}
+
 // Period transactions exposed for node-detail popups.
 let _mrLastTx = [];
 
@@ -872,6 +897,10 @@ function renderMoneyRules() {
   const cover = +S.mrCover || 0;                                             // user's current life cover
   const emiTx = ptx.filter(t => t.type === 'expense' && /emi|loan|mortgage/i.test((t.category || '') + (t.subcategory || '')));
   const emiMonthly = Math.round(_mrMonthlyEquiv(emiTx).expense);             // current monthly EMIs
+  // Net worth + period-over-period savings growth
+  const nw = _mrNetWorth();
+  const prevNet = _mrPrevNet();
+  const growthPct = (prevNet === null) ? null : (prevNet !== 0 ? Math.round(((pNet - prevNet) / Math.abs(prevNet)) * 100) : (pNet > 0 ? 100 : 0));
   // Which of the personalising inputs are still missing?
   const missing = [];
   if (!S.mrAge) missing.push('age');
@@ -985,6 +1014,20 @@ function renderMoneyRules() {
           ${[...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('')}
           ${flow.savings>0?`<button onclick="mrShowNode('Savings')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;cursor:pointer">Savings</button>`:''}
         </div>
+      </div>
+
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="landmark" style="width:20px;height:20px;color:#10b981"></i> Net Worth</p>
+        <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:6px 0 14px">
+          <span style="font-size:30px;font-weight:900;color:${nw.net>=0?'#10b981':'#ef4444'}">${f(nw.net)}</span>
+          ${growthPct!==null?`<span style="font-size:14px;font-weight:700;color:${growthPct>=0?'#10b981':'#ef4444'};display:inline-flex;align-items:center;gap:3px"><i data-lucide="${growthPct>=0?'trending-up':'trending-down'}" style="width:15px;height:15px"></i>${growthPct>=0?'+':''}${growthPct}% <span style="color:var(--text3);font-weight:500">savings vs last ${_mrPeriod}</span></span>`:''}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+          <div style="padding:10px;border-radius:12px;background:rgba(59,130,246,0.12)"><p style="font-size:11px;color:var(--text3);margin-bottom:3px;display:flex;align-items:center;justify-content:center;gap:4px"><i data-lucide="wallet" style="width:13px;height:13px"></i> Bank + Cash</p><p style="font-size:15px;font-weight:800;color:#3b82f6">${f(nw.liquid)}</p></div>
+          <div style="padding:10px;border-radius:12px;background:rgba(139,92,246,0.12)"><p style="font-size:11px;color:var(--text3);margin-bottom:3px;display:flex;align-items:center;justify-content:center;gap:4px"><i data-lucide="trending-up" style="width:13px;height:13px"></i> Investments</p><p style="font-size:15px;font-weight:800;color:#8b5cf6">${f(nw.invest)}</p></div>
+          <div style="padding:10px;border-radius:12px;background:rgba(239,68,68,0.12)"><p style="font-size:11px;color:var(--text3);margin-bottom:3px;display:flex;align-items:center;justify-content:center;gap:4px"><i data-lucide="credit-card" style="width:13px;height:13px"></i> Debt</p><p style="font-size:15px;font-weight:800;color:#ef4444">${f(nw.debt)}</p></div>
+        </div>
+        <p style="${Sfo}">Net Worth = Bank + Cash + Investments − Debt</p>
       </div>
 
       <div class="mr-grid" style="display:flex;flex-direction:column;gap:14px">
