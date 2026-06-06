@@ -791,6 +791,39 @@ function mrSaveField(key, val) {
 function mrShowNode(name) {
   if (typeof openModal !== 'function') return;
   const txs = _mrLastTx || [];
+  const listCard = (rows, title, totalLabel, total, color) => openModal(title, `
+    <div style="display:flex;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--glass);margin-bottom:8px">
+      <span style="font-weight:700">${totalLabel}</span><b style="font-size:18px;color:${color}">${fmt(total)}</b></div>
+    <div style="max-height:50vh;overflow-y:auto">${rows || '<p style="color:var(--text3);padding:14px 0">Nothing to show.</p>'}</div>`);
+  const acctRows = (arr, nameKey, valKey) => (arr || []).map(a => `
+    <div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--glass-border)">
+      <span style="font-weight:600;font-size:14px">${esc(a[nameKey] || a.name || a.type || 'Account')}</span>
+      <b style="white-space:nowrap">${fmt(+a[valKey] || +a.balance || 0)}</b></div>`).join('');
+
+  if (name === 'Net Worth') {
+    const n = _mrNetWorth();
+    openModal('🏦 Net Worth', `<p style="font-size:14px;color:var(--text2);line-height:2">
+        Bank: <b style="color:var(--text)">${fmt(n.bank)}</b><br>Cash: <b style="color:var(--text)">${fmt(n.cash)}</b><br>
+        Investments: <b style="color:#8b5cf6">${fmt(n.invest)}</b><br>Debt: <b style="color:#ef4444">−${fmt(n.debt)}</b><br>
+        <span style="font-size:18px">Net Worth: <b style="color:#10b981">${fmt(n.net)}</b></span></p>`);
+    return;
+  }
+  if (name === 'Bank') { const a = STATE.bankAccounts || []; listCard(acctRows(a, 'name', 'balance'), '🏦 Bank — ' + a.length + ' account(s)', 'Total', a.reduce((s, b) => s + (+b.balance || 0), 0), '#3b82f6'); return; }
+  if (name === 'Cash') { const a = STATE.cashAccounts || []; listCard(acctRows(a, 'name', 'balance'), '💵 Cash', 'Total', a.reduce((s, b) => s + (+b.balance || 0), 0), '#06b6d4'); return; }
+  if (name === 'Investments') { const a = STATE.investments || []; const rows = a.map(i => `<div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--glass-border)"><span style="font-weight:600;font-size:14px">${esc(i.name || i.type || 'Investment')}</span><b>${fmt(+i.currentValue || +i.amount || +i.value || 0)}</b></div>`).join(''); listCard(rows, '📈 Investments — ' + a.length, 'Total value', a.reduce((s, i) => s + (+i.currentValue || +i.amount || +i.value || 0), 0), '#8b5cf6'); return; }
+  if (name === 'Debt') {
+    const loans = STATE.loans || [], cards = STATE.creditCards || [];
+    const rows = [...loans.map(l => `<div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--glass-border)"><span style="font-weight:600;font-size:14px">${esc(l.name || l.type || 'Loan')}</span><b style="color:#ef4444">${fmt(+l.outstanding || 0)}</b></div>`),
+      ...cards.map(c => `<div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--glass-border)"><span style="font-weight:600;font-size:14px">${esc(c.name || 'Credit Card')}</span><b style="color:#ef4444">${fmt(+c.outstanding || 0)}</b></div>`)].join('');
+    const tot = loans.reduce((s, l) => s + (+l.outstanding || 0), 0) + cards.reduce((s, c) => s + (+c.outstanding || 0), 0);
+    listCard(rows, '💳 Debt', 'Total owed', tot, '#ef4444'); return;
+  }
+  if (name === 'Debt Repayment') {
+    const re = /emi|loan|mortgage|credit\s?card|card\s?payment|debt/i;
+    const matched = txs.filter(t => t.type === 'expense' && re.test((t.category || '') + ' ' + (t.subcategory || ''))).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    const rows = matched.map(t => `<div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--glass-border)"><div><p style="font-weight:600;font-size:14px">${esc(t.description || t.category)}</p><p style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}</p></div><b style="color:#ef4444">-${fmt(t.amount)}</b></div>`).join('');
+    listCard(rows, 'Debt Repayment — ' + matched.length + ' entr' + (matched.length === 1 ? 'y' : 'ies'), 'Total paid', matched.reduce((s, t) => s + (+t.amount || 0), 0), '#ef4444'); return;
+  }
   if (name === 'Savings') {
     let inc = 0, exp = 0; txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
     openModal('💰 Savings', `<p style="font-size:14px;color:var(--text2);line-height:1.9">
@@ -1007,12 +1040,12 @@ function renderMoneyRules() {
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
         <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-fork" style="width:20px;height:20px;color:#3b82f6"></i> Where Your Money Goes <button onclick="mrPinChart('flow','Where Your Money Goes')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px;margin-left:auto" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Tap any source or category to see its transactions.</p>
-        <div style="position:relative;height:340px"><canvas id="mr-flow-chart"></canvas></div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Your full money lifecycle: income → spending, debt & savings → bank, cash & investments → net worth. Tap any node to drill in.</p>
+        <div style="position:relative;height:380px"><canvas id="mr-flow-chart"></canvas></div>
         <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
         <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
           ${[...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('')}
-          ${flow.savings>0?`<button onclick="mrShowNode('Savings')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;cursor:pointer">Savings</button>`:''}
+          ${['Savings','Bank','Cash','Investments','Debt','Net Worth'].map(n=>`<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;cursor:pointer">${n}</button>`).join('')}
         </div>
       </div>
 
@@ -1201,23 +1234,49 @@ function _mrDrawCharts(fh, strm, flow) {
       return;
     }
     try { chartInstances.mrFlow && chartInstances.mrFlow.destroy(); } catch (_) {}
+    const nw = _mrNetWorth();
     const palette = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#ec4899','#6366f1','#14b8a6','#f97316'];
     let ci = 0; const colorMap = {};
     const colorOf = (k) => (colorMap[k] = colorMap[k] || palette[(ci++) % palette.length]);
     const data = [];
-    Object.entries(flow.incBy).forEach(([k, v]) => { if (v > 0) { data.push({ from: k, to: 'Income', flow: Math.round(v) }); colorOf(k); } });
-    // top expense categories (cap at 8, group rest as "Other")
-    const exps = Object.entries(flow.expBy).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
-    const top = exps.slice(0, 8); const restSum = exps.slice(8).reduce((a, e) => a + e[1], 0);
-    top.forEach(([k, v]) => { data.push({ from: 'Income', to: k, flow: Math.round(v) }); colorOf(k); });
-    if (restSum > 0) { data.push({ from: 'Income', to: 'Other', flow: Math.round(restSum) }); colorOf('Other'); }
-    if (flow.savings > 0) { data.push({ from: 'Income', to: 'Savings', flow: Math.round(flow.savings) }); }
+    const column = {};                                  // force a logical left→right layout
+
+    // Stage 1 — income sources → Income
+    Object.entries(flow.incBy).forEach(([k, v]) => { if (v > 0) { data.push({ from: k, to: 'Income', flow: Math.round(v) }); colorOf(k); column[k] = 0; } });
+    column['Income'] = 1;
+
+    // Stage 2 — Income → spending categories + Debt Repayment + Savings
+    const debtRe = /emi|loan|mortgage|credit\s?card|card\s?payment|debt/i;
+    let debtPay = 0; const spend = {};
+    Object.entries(flow.expBy).forEach(([k, v]) => { if (v <= 0) return; if (debtRe.test(k)) debtPay += v; else spend[k] = v; });
+    const exps = Object.entries(spend).sort((a, b) => b[1] - a[1]);
+    const top = exps.slice(0, 7); const restSum = exps.slice(7).reduce((a, e) => a + e[1], 0);
+    top.forEach(([k, v]) => { data.push({ from: 'Income', to: k, flow: Math.round(v) }); colorOf(k); column[k] = 2; });
+    if (restSum > 0) { data.push({ from: 'Income', to: 'Other', flow: Math.round(restSum) }); colorOf('Other'); column['Other'] = 2; }
+    if (debtPay > 0) { data.push({ from: 'Income', to: 'Debt Repayment', flow: Math.round(debtPay) }); column['Debt Repayment'] = 2; }
+
+    // Stage 3 — Savings → Bank / Cash / Investments (split by current balances) → Net Worth
+    if (flow.savings > 0) {
+      data.push({ from: 'Income', to: 'Savings', flow: Math.round(flow.savings) }); column['Savings'] = 2;
+      let parts = [['Bank', nw.bank], ['Cash', nw.cash], ['Investments', nw.invest]].filter(p => p[1] > 0);
+      if (!parts.length) parts = [['Bank', 1]];
+      const psum = parts.reduce((a, p) => a + p[1], 0);
+      parts.forEach(([name, w]) => {
+        const amt = Math.round(flow.savings * w / psum);
+        if (amt <= 0) return;
+        data.push({ from: 'Savings', to: name, flow: amt }); column[name] = 3;
+        data.push({ from: name, to: 'Net Worth', flow: amt }); column['Net Worth'] = 4;
+      });
+    }
+
     colorMap['Income'] = '#22c55e'; colorMap['Savings'] = '#10b981';
+    colorMap['Bank'] = '#3b82f6'; colorMap['Cash'] = '#06b6d4'; colorMap['Investments'] = '#8b5cf6';
+    colorMap['Net Worth'] = '#10b981'; colorMap['Debt Repayment'] = '#ef4444'; colorMap['Other'] = '#64748b';
 
     chartInstances.mrFlow = new Chart(c3.getContext('2d'), {
       type: 'sankey',
       data: { datasets: [{
-        data,
+        data, column,
         colorFrom: (c) => colorOf(c.dataset.data[c.dataIndex].from),
         colorTo: (c) => colorOf(c.dataset.data[c.dataIndex].to),
         colorMode: 'gradient',
