@@ -923,8 +923,8 @@ function _mrRenderPins(page) {
   const fh = _mrFinHealth(ptx, _mrMonthlyEquiv(ptx), STATE.transactions || []);
   const strm = _mrIncomeStreams(ptx);
   const flow = _mrFlow(ptx);
-  const titles = { health: 'Financial Health', stream: '7 Income Streams', flow: 'Where Your Money Goes' };
-  const canvasId = { health: 'mr-health-chart', stream: 'mr-stream-chart', flow: 'mr-flow-chart' };
+  const titles = { health: 'Financial Health', stream: '7 Income Streams', flow: 'Where Your Money Goes', wealth: 'Wealth Flow' };
+  const canvasId = { health: 'mr-health-chart', stream: 'mr-stream-chart', flow: 'mr-flow-chart', wealth: 'mr-wealth-chart' };
   const html = `<div style="margin-top:18px">
     <p style="font-size:13px;color:var(--text3);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i data-lucide="pin" style="width:15px;height:15px"></i> Pinned from Money Rules</p>
     ${pins.map(p => `
@@ -1112,6 +1112,13 @@ function renderMoneyRules() {
           <p style="font-size:13px;margin-top:10px;font-weight:700;color:${nw.net>=0?'#10b981':'#ef4444'}">${nw.net>=0?'Surplus':'Shortfall'}: ${f(Math.abs(nw.net))} ${nw.net>=0?'(assets exceed debt)':'(debt exceeds assets)'}</p>
         </div>`; })()}
         <p style="${Sfo}">Net Worth = Bank + Cash + Investments − Debt</p>
+      </div>
+
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-merge" style="width:20px;height:20px;color:#8b5cf6"></i> Wealth Flow <button onclick="mrPinChart('wealth','Wealth Flow')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px;margin-left:auto" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Where your wealth sits: assets gather, then split into what you own (net worth) and what you owe (debt).</p>
+        <div style="position:relative;height:300px"><canvas id="mr-wealth-chart"></canvas></div>
+        <p id="mr-wealth-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:18px"></p>
       </div>
 
       <div class="mr-grid" style="display:flex;flex-direction:column;gap:14px">
@@ -1358,5 +1365,55 @@ function _mrDrawCharts(fh, strm, flow) {
           tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.flow)}` } } },
       }
     });
+  }
+
+  // Wealth Sankey: Bank/Cash/Investments → Total Assets → Net Worth + Debt
+  const c4 = document.getElementById('mr-wealth-chart');
+  if (c4) {
+    const hasSankey = !!(window.Chart.registry && Chart.registry.controllers && Chart.registry.controllers.items && Chart.registry.controllers.items.sankey);
+    const n = _mrNetWorth();
+    const assets = n.liquid + n.invest;
+    const fb = document.getElementById('mr-wealth-fallback');
+    if (!hasSankey || assets <= 0) {
+      if (fb) { fb.style.display = 'block'; fb.textContent = assets <= 0 ? 'Add your bank, cash or investment balances to see your wealth flow.' : 'Wealth chart needs an internet connection the first time.'; }
+      c4.style.display = 'none';
+    } else if (n.net < 0) {
+      // Debt exceeds assets → a flow can't show negative net worth; point to the bar.
+      if (fb) { fb.style.display = 'block'; fb.innerHTML = `Your debt (<b style="color:#ef4444">${fmt(n.debt)}</b>) exceeds your assets (<b style="color:#10b981">${fmt(assets)}</b>) — net worth is negative. See the <b>Assets vs Debt</b> bar above.`; }
+      c4.style.display = 'none';
+    } else {
+      if (fb) fb.style.display = 'none';
+      c4.style.display = '';
+      try { chartInstances.mrWealth && chartInstances.mrWealth.destroy(); } catch (_) {}
+      const wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Net Worth': 2, Debt: 2 };
+      const wcolor = { Bank: '#3b82f6', Cash: '#06b6d4', Investments: '#8b5cf6', 'Total Assets': '#22c55e', 'Net Worth': '#10b981', Debt: '#ef4444' };
+      const wdata = [];
+      if (n.bank > 0) wdata.push({ from: 'Bank', to: 'Total Assets', flow: Math.round(n.bank) });
+      if (n.cash > 0) wdata.push({ from: 'Cash', to: 'Total Assets', flow: Math.round(n.cash) });
+      if (n.invest > 0) wdata.push({ from: 'Investments', to: 'Total Assets', flow: Math.round(n.invest) });
+      wdata.push({ from: 'Total Assets', to: 'Net Worth', flow: Math.round(n.net) });
+      if (n.debt > 0) wdata.push({ from: 'Total Assets', to: 'Debt', flow: Math.round(n.debt) });
+      chartInstances.mrWealth = new Chart(c4.getContext('2d'), {
+        type: 'sankey',
+        data: { datasets: [{
+          data: wdata, column: wcol,
+          colorFrom: (c) => wcolor[c.dataset.data[c.dataIndex].from] || '#64748b',
+          colorTo: (c) => wcolor[c.dataset.data[c.dataIndex].to] || '#64748b',
+          colorMode: 'gradient', labels: {}, color: tick, font: { size: 11, weight: '600' }, borderWidth: 0,
+        }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: false,
+          onClick: (evt, els, chart) => {
+            const pts = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+            if (!pts.length) return;
+            const raw = chart.data.datasets[0].data[pts[0].index];
+            const node = raw.from === 'Total Assets' ? raw.to : raw.from;
+            if (typeof mrShowNode === 'function') mrShowNode(node === 'Total Assets' ? 'Net Worth' : node);
+          },
+          plugins: { legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.flow)}` } } },
+        }
+      });
+    }
   }
 }
