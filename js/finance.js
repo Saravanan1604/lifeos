@@ -11,6 +11,8 @@ let _recSearch = '';             // Records page search text (app only)
 let _recSelectMode = false;      // Records multi-select (long-press) mode
 let _recSel = new Set();         // selected transaction ids
 let _recSuppressTap = false;     // ignore the tap that follows a gesture
+let _recDateFrom = '';           // custom date-range filter (overrides the period)
+let _recDateTo = '';
 
 const CATEGORIES = [
   { name: 'Salary', icon: '💰' }, { name: 'Business', icon: '🏢' }, { name: 'Freelance', icon: '💻' },
@@ -129,6 +131,7 @@ function processRecurring() {
 
 // ===== MyMoney-style Records page (installed app only) =====
 function recNav(delta) {
+  _recDateFrom = ''; _recDateTo = '';          // navigating periods clears a custom range
   const d = new Date(_recAnchor);
   if (_recPeriod === 'day')   d.setDate(d.getDate() + delta);
   if (_recPeriod === 'week')  d.setDate(d.getDate() + 7 * delta);
@@ -138,6 +141,7 @@ function recNav(delta) {
   renderRecordsMyMoney();
 }
 function recSetPeriod(p) {
+  _recDateFrom = ''; _recDateTo = '';          // switching period clears a custom range
   _recPeriod = p;
   STATE.settings = STATE.settings || {};
   const changed = STATE.settings.recPeriod !== p;
@@ -243,8 +247,13 @@ function renderRecordsMyMoney() {
   // Restore the user's preferred default period (Day/Week/Month/Year/All) once
   if (!_recPeriodInit) { _recPeriodInit = true; const sp = STATE.settings && STATE.settings.recPeriod; if (sp) _recPeriod = sp; }
   const anchorYmd = _ymdLocal(_recAnchor);
-  const periodTxns = filterTxByAnchor([...(STATE.transactions || [])], _recPeriod, anchorYmd);
-  const periodLabelTxt = _recPeriodLabel();
+  const _customRange = !!(_recDateFrom || _recDateTo);
+  const periodTxns = _customRange
+    ? [...(STATE.transactions || [])].filter(t => { const d = (t.date || '').slice(0, 10); return (!_recDateFrom || d >= _recDateFrom) && (!_recDateTo || d <= _recDateTo); })
+    : filterTxByAnchor([...(STATE.transactions || [])], _recPeriod, anchorYmd);
+  const periodLabelTxt = _customRange
+    ? `${_recDateFrom ? fmtDate(_recDateFrom) : '…'} – ${_recDateTo ? fmtDate(_recDateTo) : '…'}`
+    : _recPeriodLabel();
 
   const carryForward = STATE.settings && STATE.settings.carryForward === true;
   const carryFrom = (STATE.settings && STATE.settings.carryFrom) || '';
@@ -286,7 +295,7 @@ function renderRecordsMyMoney() {
     (t.category || '').toLowerCase().includes(q) ||
     (t.subcategory || '').toLowerCase().includes(q));
 
-  const filterActive = _finType !== 'all' || _finCategory !== 'all' || _finSort !== 'date-desc' || !!q;
+  const filterActive = _finType !== 'all' || _finCategory !== 'all' || _finSort !== 'date-desc' || !!q || _customRange;
   const amtSort = _finSort === 'amount-desc' || _finSort === 'amount-asc';
   const tkey = t => `${t.date || ''}T${t.time || '00:00'}`;
   const within = (a, b) => {
@@ -1112,6 +1121,13 @@ function openRecordsFilter() {
       <div class="rf-views">
         <label class="rf-view"><i data-lucide="calendar"></i> Pick a date<input type="date" value="${anchorYmd}" onchange="closeModal();recPickDay(this.value)"/></label>
       </div></div>
+    <div class="form-group"><label class="form-label">Custom date range <span style="font-weight:400;color:var(--text3)">(ignores Day/Week/Month/Year)</span></label>
+      <div class="input-row">
+        <div class="form-group" style="margin:0"><label class="form-label" style="font-size:12px">From</label>
+          <input type="date" id="rf-from" class="form-input" value="${_recDateFrom}"/></div>
+        <div class="form-group" style="margin:0"><label class="form-label" style="font-size:12px">To</label>
+          <input type="date" id="rf-to" class="form-input" value="${_recDateTo}"/></div>
+      </div></div>
     <div class="form-group"><label class="form-label">Search</label>
       <input type="text" id="rf-search" class="form-input" value="${esc(_recSearch)}" placeholder="Name, category or note" oninput="_recSearch=this.value; if(typeof renderRecordsMyMoney==='function')renderRecordsMyMoney();"/></div>
     <div class="form-group"><label class="form-label">Type</label>
@@ -1141,12 +1157,15 @@ function applyRecordsFilter() {
   _finType     = document.getElementById('rf-type')?.value || 'all';
   _finCategory = document.getElementById('rf-cat')?.value || 'all';
   _finSort     = document.getElementById('rf-sort')?.value || 'date-desc';
+  _recDateFrom = document.getElementById('rf-from')?.value || '';
+  _recDateTo   = document.getElementById('rf-to')?.value || '';
   closeModal();
   renderRecordsMyMoney();
 }
 
 function clearRecordsFilter() {
   _recSearch = ''; _finType = 'all'; _finCategory = 'all'; _finSort = 'date-desc';
+  _recDateFrom = ''; _recDateTo = '';
   closeModal();
   renderRecordsMyMoney();
 }
