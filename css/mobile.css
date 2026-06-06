@@ -3614,3 +3614,31 @@ html.is-app .mr-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink
 html.is-app .mr-split { display: flex; flex-direction: column; gap: 12px; }
 html.is-app .mr-split > div { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 600; }
 html.is-app .mr-split b { margin-left: auto; font-size: 16px; font-weight: 800; }
+
+/* ============================================================
+   build 320 — Records: sticky "Recent Transactions" / select bar
+   + floating scroll-to-top button
+   ============================================================ */
+html.is-app .mymoney-records .mm-subhead {
+  position: sticky; top: 70px; z-index: 40;
+  background: var(--bg); padding-top: 8px; padding-bottom: 8px;
+}
+html.is-app .mymoney-records.selmode .mm-selbar {
+  position: sticky; top: 70px; z-index: 44;
+  background: var(--bg); padding-top: 6px; padding-bottom: 6px;
+}
+#rec-top-btn { display: none; }
+html.is-app #rec-top-btn {
+  position: fixed; right: 18px;
+  bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  width: 56px; height: 56px; border-radius: 50%;
+  background: #00c9a7; color: #fff; border: none;
+  align-items: center; justify-content: center;
+  box-shadow: 0 8px 24px rgba(0,201,167,0.5);
+  z-index: 9000; cursor: pointer; padding: 0;
+  opacity: 0; transform: translateY(10px) scale(.9);
+  transition: opacity .2s, transform .2s; pointer-events: none;
+}
+html.is-app #rec-top-btn.show { display: flex; opacity: 1; transform: none; pointer-events: auto; }
+html.is-app #rec-top-btn svg { width: 30px; height: 30px; }
+html.is-app #rec-top-btn:active { transform: scale(.92); }

@@ -417,6 +417,36 @@ function renderRecordsMyMoney() {
   _lucideRefresh();
   _recHeroDots();
   if (typeof initRecordsGestures === 'function') initRecordsGestures();
+  if (typeof _recInitScrollTop === 'function') _recInitScrollTop();
+}
+
+// Floating "scroll to top" (^) button for the Records page.
+function _recScrollY() {
+  const c = document.getElementById('content');
+  return (window.scrollY || document.documentElement.scrollTop || 0) || (c ? c.scrollTop : 0);
+}
+function _recScrollToTop() {
+  try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_) { window.scrollTo(0, 0); }
+  const c = document.getElementById('content'); if (c && c.scrollTo) c.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function _recInitScrollTop() {
+  let b = document.getElementById('rec-top-btn');
+  if (!b) {
+    b = document.createElement('button');
+    b.id = 'rec-top-btn'; b.title = 'Scroll to top';
+    b.innerHTML = '<i data-lucide="chevron-up"></i>';
+    b.onclick = _recScrollToTop;
+    document.body.appendChild(b);
+    const upd = () => {
+      const on = (typeof currentPage !== 'undefined' && currentPage === 'transactions') && _recScrollY() > 350;
+      b.classList.toggle('show', on);
+    };
+    window.addEventListener('scroll', upd, { passive: true });
+    const c = document.getElementById('content'); if (c) c.addEventListener('scroll', upd, { passive: true });
+    b._upd = upd;
+  }
+  if (b._upd) b._upd();
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
 }
 
 // Sync the balance/accounts swipe-card dots
