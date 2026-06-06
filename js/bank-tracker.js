@@ -201,7 +201,7 @@ function renderBankTracker() {
     <div class="fade-in" style="max-width:960px;margin:0 auto">
 
       <!-- Header -->
-      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div class="page-header fin-page-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
           <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">Balance history across all your accounts</p>
@@ -323,16 +323,16 @@ function renderBankTracker() {
         ${[...transfers].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10).map(t=>{
           const from=getAccountById(t.fromId), to=getAccountById(t.toId);
           return `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.04)">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="font-size:20px">⇄</div>
-              <div>
-                <p style="font-size:13px;font-weight:600">${from?.bankName||'?'} → ${to?.bankName||'?'}</p>
-                <p style="font-size:11px;color:var(--text3)">${t.note||''} · ${fmtDate(t.date)}</p>
+          <div class="tlog-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--glass-border)">
+            <div style="display:flex;align-items:center;gap:14px;min-width:0">
+              <div class="tlog-ic" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 3px 8px rgba(0,0,0,0.25)"><i data-lucide="arrow-left-right" style="width:20px;height:20px"></i></div>
+              <div style="min-width:0">
+                <p class="tlog-title" style="font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${from?.bankName||'?'} → ${to?.bankName||'?'}</p>
+                <p class="tlog-meta" style="font-size:12px;color:var(--text3)">${t.note?esc(t.note)+' · ':''}${fmtDate(t.date)}</p>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-weight:800;font-size:15px;color:#f59e0b">${fmt(t.amount)}</span>
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+              <span class="tlog-amt" style="font-weight:800;font-size:15px;color:#f59e0b;white-space:nowrap">${fmt(t.amount)}</span>
               <button class="btn-icon btn-sm" onclick="deleteTransfer('${t.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3)">✕</button>
             </div>
           </div>`;
@@ -692,7 +692,7 @@ function renderCCTracker() {
     <div class="fade-in" style="max-width:960px;margin:0 auto">
 
       <!-- Header -->
-      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div class="page-header fin-page-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
           <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">Credit card outstanding history</p>
@@ -989,7 +989,7 @@ function renderCashTracker() {
     <div class="fade-in" style="max-width:960px;margin:0 auto">
 
       <!-- Header -->
-      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div class="page-header fin-page-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
           <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">Cash wallet balance history</p>

@@ -3683,3 +3683,14 @@ html.is-app .fin-segtabs .fin-segtab.active {
 html.is-app .fin-head-actions .btn-sm {
   font-size: 1.05rem !important; padding: 12px 16px !important; border-radius: 14px !important;
 }
+/* Cleaner app header: drop the big "Finance / Balance history…" title block and
+   the "N accounts / N cards" count sub-labels (keep the action buttons). */
+html.is-app .fin-page-head > div:first-child { display: none !important; }
+html.is-app .fin-page-head { margin-bottom: 10px !important; justify-content: flex-end !important; }
+html.is-app .acct-count { display: none !important; }
+/* Transfer-log rows in Records style (app sizing) */
+html.is-app .tlog-ic { width: 52px !important; height: 52px !important; }
+html.is-app .tlog-ic svg.lucide { width: 26px !important; height: 26px !important; }
+html.is-app .tlog-title { font-size: 1.5rem !important; }
+html.is-app .tlog-meta { font-size: 1.1rem !important; }
+html.is-app .tlog-amt { font-size: 1.55rem !important; }
