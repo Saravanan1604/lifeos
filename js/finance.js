@@ -415,7 +415,10 @@ function renderRecordsMyMoney() {
       })()}
       <div class="mm-subhead">
         <span class="mm-subhead-title">Recent Transactions</span>
-        <button class="mm-subhead-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter, sort &amp; view options"><i data-lucide="sliders-horizontal"></i></button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="mm-subhead-filter" onclick="openImportMenu()" title="Import transactions"><i data-lucide="download"></i></button>
+          <button class="mm-subhead-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter, sort &amp; view options"><i data-lucide="sliders-horizontal"></i></button>
+        </div>
       </div>
       ${selBar}
       ${_recReminders()}
@@ -2766,6 +2769,23 @@ function saveBalanceUpdate(i) {
 // ===== SMS PARSER (multi-SMS) =====
 
 let _smsResults = []; // parsed results for current modal session
+
+// Import chooser shown from the Records page (and reusable elsewhere).
+function openImportMenu() {
+  const opt = (fn, icon, color, title, sub) => `
+    <button onclick="closeModal();${fn}" style="display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 16px;border-radius:14px;background:var(--glass);border:1px solid var(--glass-border);cursor:pointer;margin-bottom:10px">
+      <span style="width:46px;height:46px;border-radius:13px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:${color}22;color:${color}"><i data-lucide="${icon}" style="width:24px;height:24px"></i></span>
+      <span style="min-width:0"><span style="display:block;font-size:15px;font-weight:700;color:var(--text)">${title}</span><span style="display:block;font-size:12px;color:var(--text3)">${sub}</span></span>
+    </button>`;
+  openModal('📥 Import Transactions', `
+    ${opt('openSmsParser()', 'message-square', '#6366f1', 'Scan Bank SMS', 'Paste one or many bank SMS — auto-parsed & de-duplicated')}
+    ${opt('openBulkEntry()', 'list-plus', '#10b981', 'Bulk Entry', 'Type many transactions quickly, one per line')}
+    ${opt('openCsvImport()', 'file-spreadsheet', '#f59e0b', 'Import CSV / Excel', 'Upload a statement exported as CSV or Excel')}
+    ${opt('openPdfImport()', 'file-text', '#ef4444', 'Import PDF Statement', 'Upload a bank/credit-card PDF statement')}
+    ${opt('openGeminiCategorize()', 'sparkles', '#8b5cf6', 'AI Fix Categories', 'Re-categorise “Other” entries with Gemini / ChatGPT')}
+  `);
+  setTimeout(() => { if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} } }, 20);
+}
 
 function openSmsParser() {
   _smsResults = [];
