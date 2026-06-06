@@ -605,12 +605,50 @@ function _mrMonthly() {
 
 // Selected period for the Money Rules page (week | month | year | all).
 let _mrPeriod = 'month';
-function mrSetPeriod(p) { _mrPeriod = p; renderMoneyRules(); }
+let _mrAnchor = today();                    // which week/month/year we're viewing
+function mrSetPeriod(p) { _mrPeriod = p; _mrAnchor = today(); renderMoneyRules(); }
 const _MR_PERIOD_LABEL = { week: 'This Week', month: 'This Month', year: 'This Year', all: 'All Time' };
 
-// Transactions filtered to the selected period.
+// Step the viewing window back (-1) or forward (+1) by one period unit.
+function mrShiftPeriod(dir) {
+  const d = new Date(_mrAnchor + 'T00:00:00');
+  if (_mrPeriod === 'week') d.setDate(d.getDate() + dir * 7);
+  else if (_mrPeriod === 'month') d.setMonth(d.getMonth() + dir);
+  else if (_mrPeriod === 'year') d.setFullYear(d.getFullYear() + dir);
+  else return;                              // 'all' has no navigation
+  const t = new Date();
+  if (d > t) return;                        // don't go into the future
+  _mrAnchor = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  renderMoneyRules();
+}
+
+// Human label for the window currently in view.
+function _mrAnchorLabel() {
+  const d = new Date(_mrAnchor + 'T00:00:00');
+  const now = new Date();
+  if (_mrPeriod === 'all') return 'All Time';
+  if (_mrPeriod === 'year') return String(d.getFullYear());
+  if (_mrPeriod === 'month') {
+    const same = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    return same ? 'This Month' : d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+  }
+  // week → Monday–Sunday range containing the anchor
+  const dow = (d.getDay() + 6) % 7; const mon = new Date(d); mon.setDate(d.getDate() - dow);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  return `${mon.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} – ${sun.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`;
+}
+// True when we can't step forward (already at the current period).
+function _mrAtPresent() {
+  const d = new Date(_mrAnchor + 'T00:00:00'), now = new Date();
+  if (_mrPeriod === 'year') return d.getFullYear() >= now.getFullYear();
+  if (_mrPeriod === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  if (_mrPeriod === 'week') { const a = new Date(d); a.setDate(a.getDate() + 7); return a > now; }
+  return true;
+}
+
+// Transactions filtered to the selected period + anchor.
 function _mrFilteredTx() {
-  return filterTxByPeriod(STATE.transactions || [], _mrPeriod);
+  return filterTxByAnchor(STATE.transactions || [], _mrPeriod === 'all' ? 'all' : _mrPeriod, _mrAnchor);
 }
 // Monthly-equivalent income/expense from a period's transactions (so the
 // rule-of-thumb cards stay on a consistent monthly basis regardless of period).
@@ -862,17 +900,25 @@ function renderMoneyRules() {
       <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
         <div><h1 class="page-title"><i data-lucide="scale"></i> Money Rules</h1>
         <p class="page-subtitle">Personal-finance insights — auto-filled with your numbers</p></div>
-        <select onchange="mrSetPeriod(this.value)" style="padding:10px 14px;font-size:15px;font-weight:700;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);cursor:pointer">
-          <option value="week"${_mrPeriod==='week'?' selected':''}>Week</option>
-          <option value="month"${_mrPeriod==='month'?' selected':''}>Month</option>
-          <option value="year"${_mrPeriod==='year'?' selected':''}>Year</option>
-          <option value="all"${_mrPeriod==='all'?' selected':''}>All</option>
-        </select>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          ${_mrPeriod!=='all'?`
+          <div style="display:flex;align-items:center;gap:6px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:4px">
+            <button onclick="mrShiftPeriod(-1)" style="background:none;border:none;color:var(--text);cursor:pointer;padding:6px 8px;display:flex" title="Previous"><i data-lucide="chevron-left" style="width:20px;height:20px"></i></button>
+            <span style="font-size:14px;font-weight:700;min-width:96px;text-align:center">${_mrAnchorLabel()}</span>
+            <button onclick="mrShiftPeriod(1)" ${_mrAtPresent()?'disabled':''} style="background:none;border:none;color:${_mrAtPresent()?'var(--text3)':'var(--text)'};cursor:${_mrAtPresent()?'default':'pointer'};padding:6px 8px;display:flex;opacity:${_mrAtPresent()?0.4:1}" title="Next"><i data-lucide="chevron-right" style="width:20px;height:20px"></i></button>
+          </div>`:''}
+          <select onchange="mrSetPeriod(this.value)" style="padding:10px 14px;font-size:15px;font-weight:700;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);cursor:pointer">
+            <option value="week"${_mrPeriod==='week'?' selected':''}>Week</option>
+            <option value="month"${_mrPeriod==='month'?' selected':''}>Month</option>
+            <option value="year"${_mrPeriod==='year'?' selected':''}>Year</option>
+            <option value="all"${_mrPeriod==='all'?' selected':''}>All</option>
+          </select>
+        </div>
       </div>
 
       <div class="glass-card mr-banner" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px;margin-bottom:16px;text-align:center">
-        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">${_MR_PERIOD_LABEL[_mrPeriod]} Income</p><p style="font-size:17px;font-weight:800;color:#10b981">${f(pInc)}</p></div>
-        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">${_MR_PERIOD_LABEL[_mrPeriod]} Expense</p><p style="font-size:17px;font-weight:800;color:#ef4444">${f(pExp)}</p></div>
+        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Income · ${_mrAnchorLabel()}</p><p style="font-size:17px;font-weight:800;color:#10b981">${f(pInc)}</p></div>
+        <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Expense · ${_mrAnchorLabel()}</p><p style="font-size:17px;font-weight:800;color:#ef4444">${f(pExp)}</p></div>
         <div><p style="font-size:12px;color:var(--text3);margin-bottom:4px">Net Saved</p><p style="font-size:17px;font-weight:800;color:${pNet>=0?'#10b981':'#ef4444'}">${f(pNet)}</p></div>
       </div>
 
