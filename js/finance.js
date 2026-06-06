@@ -2928,17 +2928,29 @@ function saveAllParsedSms() {
   if (!toSave.length) { toast('No valid transactions to save', 'error'); return; }
 
   STATE.transactions = STATE.transactions || [];
+  // ── De-duplication: skip any parsed tx that already exists (same type + amount
+  //    + date, regardless of description) so re-scanning old SMS won't double-add.
+  const existsAlready = (tx) => (STATE.transactions || []).some(t =>
+    t.type === tx.type &&
+    Math.abs((+t.amount || 0) - (+tx.amount || 0)) < 0.01 &&
+    (t.date || '').slice(0, 10) === tx.date);
+  let dupes = 0;
+  const fresh = toSave.filter(tx => { if (existsAlready(tx)) { dupes++; return false; } return true; });
+
+  if (!fresh.length) { closeModal(); toast(`All ${dupes} transaction${dupes>1?'s':''} already exist — nothing added`, 'info'); return; }
+
   // Prepend newest-first (reverse so the first SMS in the list ends up first in array)
-  [...toSave].reverse().forEach(tx => STATE.transactions.unshift(tx));
+  [...fresh].reverse().forEach(tx => STATE.transactions.unshift(tx));
   saveState();
 
-  if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} SMS transaction${toSave.length>1?'s':''} logged`);
+  if (typeof addXP === 'function') addXP(10 * fresh.length, `${fresh.length} SMS transaction${fresh.length>1?'s':''} logged`);
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
 
   closeModal();
-  const expTotal = toSave.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const incTotal = toSave.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  let summary = `${toSave.length} transaction${toSave.length>1?'s':''} saved!`;
+  const expTotal = fresh.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const incTotal = fresh.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  let summary = `${fresh.length} transaction${fresh.length>1?'s':''} saved!`;
+  if (dupes > 0) summary += ` (${dupes} duplicate${dupes>1?'s':''} skipped)`;
   if (expTotal > 0) summary += ` Expense: ₹${expTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
   if (incTotal > 0) summary += ` Income: ₹${incTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
   toast(summary + ' 🎉', 'success');

@@ -53,6 +53,7 @@ function renderCategories() {
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <div><h1 class="page-title"><i data-lucide="tag"></i> Categories</h1><p class="page-subtitle">Manage your transaction categories</p></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;width:100%">
+          <button class="btn-secondary cat-hdr-btn" onclick="openGeminiCategorize()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none"><i data-lucide="sparkles"></i> AI Fix</button>
           <button class="btn-secondary cat-hdr-btn" onclick="openMergeCategoriesModal()"><i data-lucide="git-merge"></i> Merge</button>
           <button class="btn-primary cat-hdr-btn" onclick="openAddCategoryModal()"><i data-lucide="plus"></i> Custom Category</button>
         </div>
@@ -405,4 +406,95 @@ function deleteRecurring(id) {
 function deleteCategory(id) {
   STATE.customCategories = (STATE.customCategories || []).filter(c => c.id !== id);
   saveState(); toast('Category deleted', 'info'); renderCategories();
+}
+
+// ===================================================================
+//  AI Fix — generate a Gemini/ChatGPT prompt to re-categorise the
+//  transactions that landed in "Other" (or have no category), then
+//  paste the AI's JSON answer back to apply it. Improves categorisation
+//  without any API key.
+// ===================================================================
+function openGeminiCategorize() {
+  const cats = (typeof getAllCategories === 'function' ? getAllCategories() : []).map(c => c.name);
+  const txs = (STATE.transactions || []).filter(t => t.type === 'expense' || t.type === 'income');
+  // descriptions currently uncategorised / dumped in "Other"
+  const weak = txs.filter(t => !t.category || /^other$/i.test(t.category));
+  const items = [...new Set(weak.map(t => (t.description || '').trim()).filter(Boolean))].slice(0, 120);
+
+  const prompt =
+`You are a personal-finance categoriser. Map each transaction description to EXACTLY ONE category from this list:
+${cats.join(', ')}
+
+Rules:
+- Pick the single best-fit category. Use "Other" only if truly nothing fits.
+- Reply with ONLY a JSON object: {"description": "Category", ...}. No explanation, no markdown.
+
+Descriptions:
+${items.length ? items.map(d => '- ' + d).join('\n') : '(no uncategorised descriptions found — paste your own list)'}`;
+
+  openModal('✨ AI Fix Categories', `
+    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px">
+      ${weak.length ? `Found <b>${weak.length}</b> transaction(s) in “Other” / uncategorised.` : 'No “Other” transactions found — you can still paste your own list.'}
+      Copy the prompt → paste into <b>Gemini / ChatGPT</b> → copy its answer → paste it back below.
+    </p>
+
+    <div class="form-group">
+      <label class="form-label">1. Copy this prompt</label>
+      <textarea id="gem-prompt" class="form-input" rows="5" readonly style="font-size:12px;line-height:1.5">${esc(prompt)}</textarea>
+      <button class="btn-secondary btn-sm" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('gem-prompt').value).then(()=>toast('Prompt copied 📋','success'))"><i data-lucide="copy"></i> Copy prompt</button>
+    </div>
+
+    <div class="form-group" style="margin-top:14px">
+      <label class="form-label">2. Paste the AI's JSON answer</label>
+      <textarea id="gem-answer" class="form-input" rows="5" placeholder='{"Swiggy order":"Food","Indian Oil":"Fuel", ...}' style="font-size:12px;line-height:1.5"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="applyGeminiCategories()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">✨ Apply Categories</button>
+    </div>`);
+  setTimeout(() => { if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} } }, 20);
+}
+
+function applyGeminiCategories() {
+  const raw = (document.getElementById('gem-answer')?.value || '').trim();
+  if (!raw) { toast('Paste the AI answer first', 'error'); return; }
+  // tolerate ```json fences / surrounding text — grab the first {...} block
+  let jsonStr = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+  const m = jsonStr.match(/\{[\s\S]*\}/);
+  if (m) jsonStr = m[0];
+  let map;
+  try { map = JSON.parse(jsonStr); } catch (e) { toast('Could not read the JSON — paste exactly what the AI returned', 'error'); return; }
+  if (!map || typeof map !== 'object') { toast('Invalid answer format', 'error'); return; }
+
+  const cats = (typeof getAllCategories === 'function' ? getAllCategories() : []);
+  const catByLower = {}; cats.forEach(c => catByLower[c.name.toLowerCase()] = c);
+  // normalise the map keys for matching
+  const lookup = {};
+  Object.keys(map).forEach(k => { lookup[k.trim().toLowerCase()] = String(map[k]).trim(); });
+
+  let updated = 0;
+  (STATE.transactions || []).forEach(t => {
+    const desc = (t.description || '').trim().toLowerCase();
+    if (!desc) return;
+    // only re-categorise the weak ones
+    if (t.category && !/^other$/i.test(t.category)) return;
+    let newCat = lookup[desc];
+    // fuzzy: a mapping key contained in the description (or vice-versa)
+    if (!newCat) {
+      const hit = Object.keys(lookup).find(k => k && (desc.includes(k) || k.includes(desc)));
+      if (hit) newCat = lookup[hit];
+    }
+    if (!newCat) return;
+    const cat = catByLower[newCat.toLowerCase()];
+    if (!cat || /^other$/i.test(cat.name)) return;     // skip if AI said Other / unknown cat
+    t.category = cat.name; t.icon = cat.icon || t.icon;
+    updated++;
+  });
+
+  if (!updated) { toast('No transactions matched the AI answer', 'warning'); return; }
+  saveState();
+  closeModal();
+  toast(`✨ Re-categorised ${updated} transaction${updated > 1 ? 's' : ''}!`, 'success');
+  renderCategories();
 }
