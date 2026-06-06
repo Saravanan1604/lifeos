@@ -759,14 +759,18 @@ let _mrShowFlowAmt = true;
 function mrToggleFlowAmt() { _mrShowFlowAmt = !_mrShowFlowAmt; renderMoneyRules(); }
 
 // Build a node→label map ("Name · ₹X · Y%") from a Sankey link list (real values).
-function _mrNodeLabels(data) {
+function _mrNodeLabels(data, showPct = true) {
   const inSum = {}, outSum = {};
   data.forEach(d => { const r = d.real != null ? d.real : d.flow; outSum[d.from] = (outSum[d.from] || 0) + r; inSum[d.to] = (inSum[d.to] || 0) + r; });
   const nodes = [...new Set([...data.map(d => d.from), ...data.map(d => d.to)])];
   const val = {}; nodes.forEach(n => val[n] = Math.max(inSum[n] || 0, outSum[n] || 0));
   const base = val['Income'] || val['Total Assets'] || Math.max(1, ...Object.values(val));
   const labels = {};
-  nodes.forEach(n => { labels[n] = `${n} · ${_mrINR(val[n])} · ${Math.round((val[n] / base) * 100)}%`; });
+  nodes.forEach(n => {
+    const pct = Math.round((val[n] / base) * 100);
+    // hide % when it's meaningless (mixed stock vs flow → absurd >150%)
+    labels[n] = (showPct && pct <= 150) ? `${n} · ${_mrINR(val[n])} · ${pct}%` : `${n} · ${_mrINR(val[n])}`;
+  });
   return labels;
 }
 
@@ -1392,16 +1396,6 @@ function _mrDrawCharts(fh, strm, flow) {
           data.push({ from: name, to: 'Net Worth', flow: amt }); column['Net Worth'] = 4;
         });
       }
-
-      // Net Worth → Debt → each loan + credit-card outstanding (what you OWE)
-      const loansO = (STATE.loans || []).filter(l => (+l.outstanding || 0) > 0);
-      const cardsO = (STATE.creditCards || []).filter(c => (+c.outstanding || 0) > 0);
-      const totalDebt = loansO.reduce((a, l) => a + (+l.outstanding || 0), 0) + cardsO.reduce((a, c) => a + (+c.outstanding || 0), 0);
-      if (totalDebt > 0) {
-        data.push({ from: 'Net Worth', to: 'Debt', flow: Math.round(totalDebt) }); column['Debt'] = 5;
-        loansO.forEach(l => { const nm = (l.name || l.type || 'Loan'); data.push({ from: 'Debt', to: nm, flow: Math.round(+l.outstanding) }); column[nm] = 6; colorMap[nm] = '#ef4444'; });
-        cardsO.forEach(c => { const nm = (c.bankName || c.name || 'Card') + ' 💳'; data.push({ from: 'Debt', to: nm, flow: Math.round(+c.outstanding) }); column[nm] = 6; colorMap[nm] = '#f97316'; });
-      }
     }
 
     colorMap['Income'] = '#22c55e'; colorMap['Savings'] = '#10b981';
@@ -1472,7 +1466,16 @@ function _mrDrawCharts(fh, strm, flow) {
         wdata.push({ from: 'Shortfall (negative)', to: 'Debt', flow: Math.round(n.debt - assets) });
         wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Shortfall (negative)': 1, Debt: 2 };
       }
-      const wLabels = _mrShowFlowAmt ? _mrNodeLabels(wdata) : {};
+      // Debt → individual loans + credit-card outstanding (this is the right place
+      // for these large balances, at the wealth chart's own scale)
+      if (n.debt > 0) {
+        const loansO = (STATE.loans || []).filter(l => (+l.outstanding || 0) > 0);
+        const cardsO = (STATE.creditCards || []).filter(c => (+c.outstanding || 0) > 0);
+        const dcol = (wcol['Debt'] || 2) + 1;
+        loansO.forEach(l => { const nm = (l.name || l.type || 'Loan'); wdata.push({ from: 'Debt', to: nm, flow: Math.round(+l.outstanding) }); wcol[nm] = dcol; wcolor[nm] = '#ef4444'; });
+        cardsO.forEach(c => { const nm = (c.bankName || c.name || 'Card') + ' 💳'; wdata.push({ from: 'Debt', to: nm, flow: Math.round(+c.outstanding) }); wcol[nm] = dcol; wcolor[nm] = '#f97316'; });
+      }
+      const wLabels = _mrShowFlowAmt ? _mrNodeLabels(wdata, false) : {};
       _mrScaleFlows(wdata, 6, 90);                      // keep tiny bands (Bank/Cash) visible
       chartInstances.mrWealth = new Chart(c4.getContext('2d'), {
         type: 'sankey',
