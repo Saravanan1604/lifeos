@@ -218,21 +218,21 @@ html.is-app .page-header { padding-left: 60px !important; }
 html.is-app .sidebar {
   position: fixed !important;
   top: 0 !important; left: 0 !important;
-  width: 56vw !important; max-width: 56vw !important; height: 100vh !important;
+  width: 76vw !important; max-width: 320px !important; height: 100vh !important;
   transform: translateX(-100%);
-  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   z-index: 10000 !important;
   overflow-y: auto !important;
-  background: rgba(16, 18, 32, 0.55) !important;
-  -webkit-backdrop-filter: blur(26px) saturate(150%) !important;
-  backdrop-filter: blur(26px) saturate(150%) !important;
-  border-right: 1px solid rgba(255,255,255,0.12) !important;
-  box-shadow: 12px 0 50px rgba(0,0,0,0.55) !important;
+  background: linear-gradient(180deg, rgba(10, 11, 24, 0.94) 0%, rgba(18, 19, 38, 0.98) 100%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 15px 0 50px rgba(0,0,0,0.6) !important;
 }
 html.is-app.light .sidebar,
 html.is-app .light .sidebar {
-  background: rgba(255,255,255,0.6) !important;
-  border-right-color: rgba(15,23,42,0.1) !important;
+  background: rgba(255,255,255,0.95) !important;
+  border-right-color: rgba(15,23,42,0.08) !important;
 }
 html.is-app .sidebar.mobile-open { transform: translateX(0) !important; }
 
@@ -240,25 +240,196 @@ html.is-app .sidebar.mobile-open { transform: translateX(0) !important; }
 html.is-app .content { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; }
 
 /* Header transparent so the glass shows through */
-html.is-app .sidebar-header { position: sticky; top: 0; background: transparent !important; z-index: 2; padding: 16px 14px !important; justify-content: center !important; }
+html.is-app .sidebar-header { 
+  position: sticky !important; 
+  top: 0 !important; 
+  background: transparent !important; 
+  z-index: 2 !important; 
+  padding: 24px 18px 14px !important; 
+  justify-content: space-between !important; 
+  align-items: center !important;
+  display: flex !important;
+}
 /* center the atworth logo at the top of the drawer (clear of the ☰ button) */
-html.is-app .sidebar-header .sidebar-logo { justify-content: center !important; flex: 1 !important; padding-left: 56px !important; }
-html.is-app .sidebar-logo-text { font-size: 28px !important; font-weight: 900 !important; }
+html.is-app .sidebar-header .sidebar-logo { 
+  justify-content: flex-start !important; 
+  flex: 1 !important; 
+  padding-left: 0 !important; 
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+html.is-app .sidebar-logo-text { 
+  font-size: 24px !important; 
+  font-weight: 900 !important; 
+  letter-spacing: -0.5px !important;
+  background: linear-gradient(135deg, #00c9a7, #6366f1) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+/* Close button in header styled nicely */
+html.is-app .sidebar-header .sidebar-toggle {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  border-radius: 8px !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+html.is-app.light .sidebar-header .sidebar-toggle {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+  color: rgba(0, 0, 0, 0.6) !important;
+}
 
 /* Backdrop: dim + blur the dashboard behind (premium glass feel) */
 html.is-app #sidebar-backdrop {
-  background: rgba(0,0,0,0.35) !important;
-  -webkit-backdrop-filter: blur(6px) !important;
-  backdrop-filter: blur(6px) !important;
+  background: rgba(0,0,0,0.45) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
 }
 
-/* Slightly tighter nav rows so they fit the half-width panel cleanly */
-html.is-app .sidebar.mobile-open .nav-item { margin: 7px 12px !important; }
-html.is-app .sidebar-logo-text { font-size: 24px !important; }
-html.is-app .sidebar-user .user-name { font-size: 20px !important; font-weight: 700 !important; }
-html.is-app .sidebar-user .user-level { font-size: 14px !important; }
-html.is-app .sidebar-user .user-avatar { width: 46px !important; height: 46px !important; }
-html.is-app .sidebar-xp .xp-label { font-size: 13px !important; }
+/* User Card and XP styling */
+html.is-app .sidebar-user { 
+  margin: 0 16px 14px !important; 
+  padding: 14px !important; 
+  background: rgba(255, 255, 255, 0.03) !important; 
+  border: 1px solid rgba(255, 255, 255, 0.08) !important; 
+  border-radius: 16px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+html.is-app.light .sidebar-user {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+html.is-app .sidebar-user .user-name { 
+  font-size: 16px !important; 
+  font-weight: 700 !important; 
+  color: #fff !important; 
+}
+html.is-app.light .sidebar-user .user-name {
+  color: #0f172a !important;
+}
+html.is-app .sidebar-user .user-level { 
+  font-size: 12px !important; 
+  color: #ffd700 !important; 
+  font-weight: 600 !important;
+  margin-top: 2px !important;
+}
+html.is-app .sidebar-user .user-avatar { 
+  width: 44px !important; 
+  height: 44px !important; 
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #00c9a7, #6366f1) !important;
+  border: 2px solid rgba(0, 201, 167, 0.3) !important;
+  box-shadow: 0 0 12px rgba(0, 201, 167, 0.2) !important;
+}
+
+html.is-app .sidebar-xp { 
+  margin: 0 16px 20px !important; 
+  padding: 0 4px !important;
+}
+html.is-app .sidebar-xp .xp-bar { 
+  height: 6px !important; 
+  background: rgba(255, 255, 255, 0.08) !important; 
+  border-radius: 3px !important;
+}
+html.is-app.light .sidebar-xp .xp-bar {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+html.is-app .sidebar-xp .xp-fill { 
+  background: linear-gradient(90deg, #00c9a7, #6366f1) !important;
+  box-shadow: 0 0 8px rgba(0, 201, 167, 0.3) !important;
+}
+html.is-app .sidebar-xp .xp-label { 
+  font-size: 11px !important; 
+  color: rgba(255, 255, 255, 0.4) !important;
+  font-weight: 600 !important;
+}
+html.is-app.light .sidebar-xp .xp-label {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Nav Item styling overrides */
+html.is-app .sidebar.mobile-open .nav-item { 
+  margin: 4px 12px !important; 
+  padding: 12px 16px !important;
+  border-radius: 12px !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+}
+html.is-app.light .sidebar.mobile-open .nav-item {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+html.is-app .sidebar.mobile-open .nav-item:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #fff !important;
+}
+html.is-app.light .sidebar.mobile-open .nav-item:hover {
+  background: rgba(0, 0, 0, 0.03) !important;
+  color: #0f172a !important;
+}
+html.is-app .sidebar.mobile-open .nav-item.active {
+  background: linear-gradient(135deg, rgba(0, 201, 167, 0.15) 0%, rgba(99, 102, 241, 0.08) 100%) !important;
+  border: 1px solid rgba(0, 201, 167, 0.25) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 20px rgba(0, 201, 167, 0.12) !important;
+}
+html.is-app.light .sidebar.mobile-open .nav-item.active {
+  background: linear-gradient(135deg, rgba(0, 201, 167, 0.12) 0%, rgba(99, 102, 241, 0.05) 100%) !important;
+  border-color: rgba(0, 201, 167, 0.3) !important;
+  color: #00b09b !important;
+}
+html.is-app .sidebar.mobile-open .nav-item .nav-icon {
+  font-size: 18px !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+html.is-app.light .sidebar.mobile-open .nav-item .nav-icon {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+html.is-app .sidebar.mobile-open .nav-item.active .nav-icon {
+  color: #00c9a7 !important;
+  filter: drop-shadow(0 0 4px rgba(0, 201, 167, 0.4)) !important;
+}
+
+/* Nav Group Header overrides */
+html.is-app .nav-group-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.5px !important;
+  padding: 16px 20px 6px !important;
+  margin: 0 !important;
+}
+html.is-app.light .nav-group-label {
+  color: rgba(15, 23, 42, 0.4) !important;
+}
+
+/* Shortcuts Bottom Panel override */
+html.is-app .sidebar > div[onclick="openShortcutsPanel()"] {
+  margin: 16px !important;
+  padding: 12px 16px !important;
+  border-radius: 12px !important;
+  background: rgba(0, 201, 167, 0.05) !important;
+  border: 1px solid rgba(0, 201, 167, 0.12) !important;
+}
+html.is-app.light .sidebar > div[onclick="openShortcutsPanel()"] {
+  background: rgba(0, 201, 167, 0.03) !important;
+  border-color: rgba(0, 201, 167, 0.1) !important;
+}
 
 /* ============================================================
    DASHBOARD — mobile 2-column layout (Android-style).
@@ -1232,8 +1403,16 @@ html.is-app .toast span { font-size: 30px !important; }
    the same dark colour). */
 html.is-app .glass-card { background: rgba(18,20,34,0.94) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 html.is-app.light .glass-card, html.is-app .light .glass-card { background: #ffffff !important; }
-html.is-app .sidebar { background: rgba(14,16,28,0.97) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; }
-html.is-app.light .sidebar, html.is-app .light .sidebar { background: rgba(255,255,255,0.98) !important; }
+html.is-app .sidebar {
+  background: linear-gradient(180deg, rgba(10, 11, 24, 0.94) 0%, rgba(18, 19, 38, 0.98) 100%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+html.is-app.light .sidebar, html.is-app .light .sidebar {
+  background: rgba(255,255,255,0.95) !important;
+  border-right-color: rgba(15,23,42,0.08) !important;
+}
 
 /* #2 All Assets — Net Worth / Assets / Liabilities cram into 1 row & cut the
    value. Make it 2x2 so ₹58,14,400 (etc.) fits fully. */
