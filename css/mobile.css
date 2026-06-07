@@ -55,6 +55,10 @@ html.is-app input, html.is-app select, html.is-app textarea { font-size: 27px !i
 
 /* ── FIT TO SCREEN: never let the huge text cause sideways scrolling ── */
 html.is-app, html.is-app body, html.is-app .content { overflow-x: hidden !important; }
+/* ── EXCEPTION: card carousels MUST be able to scroll horizontally ── */
+html.is-app .fin-bank-grid,
+html.is-app .fin-card-grid,
+html.is-app .fin-cash-grid { overflow-x: auto !important; overflow-y: visible !important; }
 html.is-app .content { padding-left: 12px !important; padding-right: 12px !important; }
 /* Big numbers/labels wrap only when a single token is too long for the box
    (avoids ugly mid-word breaks while still preventing overflow) */
@@ -1026,7 +1030,8 @@ html.is-app .page-header .btn-secondary { font-size: 20px !important; padding: 1
 
 /* #16 Budget planner — fit to screen (wrap long right-side text, no overflow) */
 html.is-app .content { overflow-x: hidden !important; }
-html.is-app .glass-card { overflow: hidden !important; }
+/* glass-card clips content EXCEPT for carousel grids which need to overflow */
+html.is-app .glass-card:not(:has(.fin-bank-grid, .fin-card-grid, .fin-cash-grid)) { overflow: hidden !important; }
 
 /* #14 Settings — let cards use the full width */
 html.is-app .content > div[style*="max-width"] { max-width: 100% !important; }
@@ -3953,4 +3958,21 @@ html.is-app .fin-segtabs .fin-segtab.active {
   background: #3B82F6 !important;
   color: #ffffff !important;
   box-shadow: 0 4px 14px rgba(59,130,246,0.3) !important;
+}
+
+/* ============================================================
+   CAROUSEL OVERFLOW FIX — must come last to beat all other rules
+   The .content has overflow-x:hidden which kills carousel scroll.
+   We restore it specifically for the carousel grids.
+   ============================================================ */
+html.is-app .fin-bank-grid,
+html.is-app .fin-card-grid,
+html.is-app .fin-cash-grid {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  /* negative margin + padding trick: bleed out of .content's padding */
+  margin-left: -12px !important;
+  margin-right: -12px !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
 }
