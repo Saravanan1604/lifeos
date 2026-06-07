@@ -55,7 +55,7 @@ function obFinish() {
   localStorage.setItem(ONBOARD_KEY, '1');
   const ov = document.getElementById('onboarding'); if (ov) ov.style.display = 'none';
   if (typeof navigate === 'function') navigate('dashboard', true);
-  if (typeof toast === 'function') toast('Welcome to LifeOS! 🎉', 'success');
+  if (typeof toast === 'function') toast('Welcome to atworth! 🎉', 'success');
 }
 function obSkip() {
   localStorage.setItem(ONBOARD_KEY, '1');

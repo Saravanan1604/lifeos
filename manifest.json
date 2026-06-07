@@ -1,8 +1,8 @@
 {
   "id": "com.saravanan.lifeos",
-  "name": "LifeOS — AI Life Operating System",
-  "short_name": "LifeOS",
-  "description": "Your AI-powered personal life operating system for Finance, Health, Goals, Habits and more.",
+  "name": "atworth — Money & Net Worth Tracker",
+  "short_name": "atworth",
+  "description": "atworth — track expenses, budgets, bank, cash, cards, investments and your net worth, all in one clear money dashboard.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -45,7 +45,7 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "LifeOS"
+      "label": "atworth"
     }
   ],
   "shortcuts": [

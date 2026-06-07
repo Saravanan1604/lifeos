@@ -1,5 +1,5 @@
 // ╔══════════════════════════════════════════════════════════╗
-// ║              LIFEOS PREMIUM FEATURES                     ║
+// ║              atworth PREMIUM FEATURES                     ║
 // ║  Command Palette · Heatmap · CSV · Templates · SIP      ║
 // ║  Confetti · Recurring · Subscriptions · Export · More   ║
 // ╚══════════════════════════════════════════════════════════╝
@@ -410,7 +410,7 @@ function exportTransactionsCSV() {
   const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `lifeos-transactions-${today()}.csv`; a.click();
+  a.download = `atworth-transactions-${today()}.csv`; a.click();
   toast('✅ Transactions exported!', 'success');
 }
 

@@ -1,5 +1,5 @@
 // ============================================================
-//  LifeOS — Compare page
+//  atworth — Compare page
 //  Day-to-day, week-to-week, month-to-month, year-to-year
 //  side-by-side comparison of Income / Expense / Savings.
 // ============================================================

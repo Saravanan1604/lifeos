@@ -337,16 +337,16 @@ function renderAnalyticsHealthChart(data) {
 function renderSettings() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
-      <div class="page-header"><h1 class="page-title">⚙️ Settings</h1><p class="page-subtitle">Manage your LifeOS preferences</p></div>
+      <div class="page-header"><h1 class="page-title">⚙️ Settings</h1><p class="page-subtitle">Manage your atworth preferences</p></div>
       <div style="display:flex;flex-direction:column;gap:16px;max-width:500px">
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🌐 Web Version</p>
-          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Open LifeOS in your browser — same account, bigger screen.</p>
-          <button class="btn-primary" onclick="window.open('https://lifeos-psi-roan.vercel.app','_blank')">🌐 Open Web App ↗</button>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Open atworth in your browser — same account, bigger screen.</p>
+          <button class="btn-primary" onclick="window.open('https://atworth-psi-roan.vercel.app','_blank')">🌐 Open Web App ↗</button>
         </div>
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🔒 App Lock</p>
-          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Require a PIN or fingerprint / face to open LifeOS.</p>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Require a PIN or fingerprint / face to open atworth.</p>
           ${(typeof appLockEnabled==='function' && appLockEnabled())
             ? `<p style="font-size:13px;color:#00c9a7;font-weight:700;margin-bottom:12px">✅ Lock ON — ${ (typeof lockType==='function'&&lockType()==='bio') ? 'Biometric' : 'PIN' }</p>
                <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -478,7 +478,7 @@ function renderSettings() {
         <div style="text-align:center;padding:18px 0 8px">
           <div style="display:flex;align-items:center;justify-content:center;gap:7px;opacity:.7">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#00c9a7"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            <span style="font-size:13px;font-weight:700;color:var(--text2)">LifeOS</span>
+            <span style="font-size:13px;font-weight:700;color:var(--text2)">atworth</span>
           </div>
           <p style="font-size:12px;color:var(--text3);margin-top:5px">Version ${APP_VERSION} (build ${APP_BUILD})</p>
         </div>
@@ -520,7 +520,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(STATE, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `LifeOS_Backup_${today()}.json`; a.click();
+  a.href = url; a.download = `atworth_Backup_${today()}.json`; a.click();
   URL.revokeObjectURL(url);
   toast('✅ Full backup downloaded!', 'success');
 }
@@ -536,7 +536,7 @@ function importData(event) {
       STATE = Object.assign(DB.defaults(), imported);
       saveState(); updateSidebar(); navigate('dashboard');
       toast('✅ Data imported!', 'success');
-      setTimeout(() => showCelebration('Data Restored! 🎉', 'Your LifeOS backup has been successfully restored!'), 500);
+      setTimeout(() => showCelebration('Data Restored! 🎉', 'Your atworth backup has been successfully restored!'), 500);
     } catch { toast('❌ Invalid backup file', 'error'); }
   };
   reader.readAsText(file);
@@ -550,13 +550,13 @@ function exportCSV() {
   const blob = new Blob([rows.map(r=>r.join(',')).join('\n')], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `LifeOS_Transactions_${today()}.csv`; a.click();
+  a.href = url; a.download = `atworth_Transactions_${today()}.csv`; a.click();
   URL.revokeObjectURL(url);
   toast(`✅ ${txns.length} transactions exported as CSV!`, 'success');
 }
 
 async function confirmReset() {
-  if (!confirm('Delete ALL LifeOS data? This cannot be undone.')) return;
+  if (!confirm('Delete ALL atworth data? This cannot be undone.')) return;
 
   const token = localStorage.getItem('lifeos_token');
   const wasLoggedIn = token && STATE.user && !STATE.user.offline;

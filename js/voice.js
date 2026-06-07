@@ -1,5 +1,5 @@
 // ============================================================
-//  LifeOS — Multilingual (English / தமிழ் / हिन्दी) + Voice Control
+//  atworth — Multilingual (English / தமிழ் / हिन्दी) + Voice Control
 //  Uses the Web Speech API (SpeechRecognition + SpeechSynthesis).
 //  No external dependencies, fully offline-capable in supporting browsers.
 // ============================================================
@@ -54,7 +54,7 @@ const I18N = {
   'Sign Out':        { ta: 'வெளியேறு',        hi: 'साइन आउट' },
 
   // ---- Page titles / subtitles ----
-  'Manage your LifeOS preferences': { ta: 'உங்கள் LifeOS விருப்பங்களை நிர்வகிக்கவும்', hi: 'अपनी LifeOS प्राथमिकताएँ प्रबंधित करें' },
+  'Manage your atworth preferences': { ta: 'உங்கள் atworth விருப்பங்களை நிர்வகிக்கவும்', hi: 'अपनी atworth प्राथमिकताएँ प्रबंधित करें' },
 
   // ---- Common controls / time filters ----
   'Day':   { ta: 'நாள்',   hi: 'दिन' },

@@ -97,7 +97,7 @@ function generateInsights() {
   const insights = [];
 
   if (income === 0 && txns.length === 0) {
-    insights.push({ emoji: '👋', title: 'Welcome to LifeOS!', msg: 'Start by adding your income and expenses to unlock AI insights.' });
+    insights.push({ emoji: '👋', title: 'Welcome to atworth!', msg: 'Start by adding your income and expenses to unlock AI insights.' });
   } else {
     if (savRate >= 30) insights.push({ emoji: '🚀', title: 'Excellent Savings!', msg: `You're saving ${savRate.toFixed(1)}% of income this month. Outstanding!` });
     else if (savRate >= 10) insights.push({ emoji: '👍', title: 'Good Progress', msg: `${savRate.toFixed(1)}% savings rate. Push it above 30% for financial freedom.` });
@@ -932,14 +932,14 @@ function renderDashboard() {
   }, 50);
 
   } catch(err) {
-    console.error('[LifeOS] renderDashboard crashed:', err);
+    console.error('[atworth] renderDashboard crashed:', err);
     const _pc = document.getElementById('page-container');
     if (_pc) _pc.innerHTML = `
       <div class="fade-in" style="padding:24px">
         <h1 class="page-title">Dashboard</h1>
         <div class="glass-card" style="padding:32px;text-align:center;margin-top:20px">
           <div style="font-size:40px;margin-bottom:12px">⚡</div>
-          <p style="font-size:16px;font-weight:700;color:var(--text)">Welcome to LifeOS!</p>
+          <p style="font-size:16px;font-weight:700;color:var(--text)">Welcome to atworth!</p>
           <p style="font-size:13px;color:var(--text3);margin:10px 0 20px">Get started — tap a button below to begin.</p>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
             <button onclick="navigate('finance')" class="btn-primary">+ Add Transaction</button>

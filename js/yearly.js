@@ -58,8 +58,8 @@ function renderYearly() {
 
 function exportYearlyPDF() {
   const rows = _yearlyRows(_yearSel);
-  const name = (STATE.settings && STATE.settings.name) || 'LifeOS User';
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>LifeOS Yearly Report ${_yearSel}</title>
+  const name = (STATE.settings && STATE.settings.name) || 'atworth User';
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>atworth Yearly Report ${_yearSel}</title>
     <style>
       body{font-family:Arial,Helvetica,sans-serif;padding:28px;color:#111}
       h1{font-size:22px;margin:0 0 4px} .sub{color:#666;font-size:13px;margin:0 0 18px}
@@ -69,7 +69,7 @@ function exportYearlyPDF() {
       thead th{background:#00c9a7;color:#fff}
       tfoot th{background:#f1f5f9;font-weight:800}
     </style></head><body>
-      <h1>LifeOS — Yearly Report ${_yearSel}</h1>
+      <h1>atworth — Yearly Report ${_yearSel}</h1>
       <p class="sub">${name} · Generated ${new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' })}</p>
       ${_yearlyTableHTML(rows)}
       <script>setTimeout(function(){window.print();},350);<\/script>

@@ -37,8 +37,8 @@ async function enableBiometricLock() {
     const cred = await navigator.credentials.create({
       publicKey: {
         challenge: crypto.getRandomValues(new Uint8Array(32)),
-        rp: { name: 'LifeOS', id: location.hostname },
-        user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'lifeos-user', displayName: 'LifeOS User' },
+        rp: { name: 'atworth', id: location.hostname },
+        user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'lifeos-user', displayName: 'atworth User' },
         pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
         authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
         timeout: 60000, attestation: 'none'
@@ -99,7 +99,7 @@ function _showBioScreen() {
   if (pad) pad.style.display = 'none';
   if (bio) bio.style.display = 'flex';
   const t = document.getElementById('app-lock-title');
-  if (t) t.textContent = 'Unlock LifeOS';
+  if (t) t.textContent = 'Unlock atworth';
   ov.style.display = 'flex';
 }
 

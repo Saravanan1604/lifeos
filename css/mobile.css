@@ -1,5 +1,5 @@
 /* ============================================================
-   LifeOS — Mobile font bump ONLY (installed app).
+   atworth — Mobile font bump ONLY (installed app).
    Same web layout — just larger, more readable text on mobile.
    Scoped to html.is-app, so the web app is never affected.
    No layout, card, spacing, or scaling changes.
@@ -241,7 +241,7 @@ html.is-app .content { margin-left: 0 !important; width: 100% !important; max-wi
 
 /* Header transparent so the glass shows through */
 html.is-app .sidebar-header { position: sticky; top: 0; background: transparent !important; z-index: 2; padding: 16px 14px !important; justify-content: center !important; }
-/* center the LifeOS logo at the top of the drawer (clear of the ☰ button) */
+/* center the atworth logo at the top of the drawer (clear of the ☰ button) */
 html.is-app .sidebar-header .sidebar-logo { justify-content: center !important; flex: 1 !important; padding-left: 56px !important; }
 html.is-app .sidebar-logo-text { font-size: 28px !important; font-weight: 900 !important; }
 

@@ -1,6 +1,6 @@
 // ===== DEMO DATA SEEDER =====
 function seedDemoData() {
-  if (!confirm('This will fill your LifeOS with realistic demo data so you can explore all features. Continue?')) return;
+  if (!confirm('This will fill your atworth with realistic demo data so you can explore all features. Continue?')) return;
 
   const now = new Date();
   function daysAgo(n) { const d = new Date(now); d.setDate(d.getDate() - n); return d.toISOString().slice(0,10); }
@@ -145,7 +145,7 @@ function seedDemoData() {
   updateSidebar();
   navigate('dashboard');
   toast('🎉 Demo data loaded! Explore all modules now.', 'success');
-  setTimeout(() => showCelebration('Demo Data Loaded!', 'Your LifeOS is now fully populated with realistic data. Explore every module! 🚀'), 500);
+  setTimeout(() => showCelebration('Demo Data Loaded!', 'Your atworth is now fully populated with realistic data. Explore every module! 🚀'), 500);
 }
 
 // ===== CELEBRATION ANIMATION =====

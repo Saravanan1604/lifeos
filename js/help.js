@@ -57,7 +57,7 @@ function renderHelp() {
     { icon:'🔥', title:'Habits',         page:'habits',       desc:'Create daily habits and check them off to build streaks. Earn XP for completions. Your habit streak and completion rate feed into your Productivity score.' },
     { icon:'🎯', title:'Goals',          page:'goals',        desc:'Set financial and life goals with target amounts and deadlines. Track progress with visual bars. Auto-sync pulls savings data from your transactions.' },
     { icon:'📓', title:'Journal',        page:'journal',      desc:'Write daily entries with mood tags. Your journal mood data feeds into the Emotional score. Use it for reflection, gratitude, or planning.' },
-    { icon:'🤖', title:'AI Coach',       page:'ai-coach',     desc:'Chat with your AI financial assistant. Ask about your spending, get savings advice, budget suggestions, and personalized insights based on your LifeOS data.' },
+    { icon:'🤖', title:'AI Coach',       page:'ai-coach',     desc:'Chat with your AI financial assistant. Ask about your spending, get savings advice, budget suggestions, and personalized insights based on your atworth data.' },
     { icon:'📉', title:'Analytics',      page:'analytics',    desc:'Deep-dive charts: income trends, expense breakdown, savings rate, habit streaks, net worth over time. See your full financial picture in one place.' },
     { icon:'⚙️', title:'Settings',       page:'settings',     desc:'Update your name, currency, theme (dark/light), notifications, and data management options. Export or reset your data from here.' },
   ];
@@ -69,9 +69,9 @@ function renderHelp() {
     { q:'Can I add custom categories?',                  a:'Yes! Go to Settings → Categories (or the Categories page) to add your own custom income and expense categories with custom icons.' },
     { q:'How do I handle double-entry detection?',       a:'When you log a transaction, the app checks for matching amount + date + description combinations. If a potential duplicate is found, you get a warning before saving — you can confirm or cancel.' },
     { q:'How does the 50/30/20 rule work?',              a:'The 50/30/20 rule suggests: 50% of income on Needs (Rent, EMI, Bills), 30% on Wants (Shopping, Entertainment), 20% on Savings. The Budget Planner helps you track this split.' },
-    { q:'Can I use the app offline?',                    a:'Yes! LifeOS works fully offline. All data is stored locally in your browser. If you are connected, data syncs automatically.' },
+    { q:'Can I use the app offline?',                    a:'Yes! atworth works fully offline. All data is stored locally in your browser. If you are connected, data syncs automatically.' },
     { q:'How do I export my data?',                      a:'Go to Settings → scroll to Data Management → tap Export Data. Your full financial history downloads as a JSON file you can keep as a backup.' },
-    { q:'What is XP and Level?',                         a:'XP (Experience Points) are earned for actions like logging transactions (+10), completing habits (+5), and sharing feedback (+5). Accumulate XP to level up from Beginner to LifeOS Pro.' },
+    { q:'What is XP and Level?',                         a:'XP (Experience Points) are earned for actions like logging transactions (+10), completing habits (+5), and sharing feedback (+5). Accumulate XP to level up from Beginner to atworth Pro.' },
     { q:'How do I reset the app?',                       a:'Settings → Data Management → Reset All Data. This permanently clears everything. Export your data first as a backup!' },
   ];
 
@@ -92,7 +92,7 @@ function renderHelp() {
     <div class="fade-in">
       <div class="page-header" style="margin-bottom:24px">
         <h1 class="page-title">❓ Help & Support</h1>
-        <p class="page-subtitle">Guides, tips and answers to get the most out of LifeOS</p>
+        <p class="page-subtitle">Guides, tips and answers to get the most out of atworth</p>
       </div>
 
       <!-- Search -->
@@ -209,7 +209,7 @@ function renderHelp() {
       <!-- ── About ─────────────────────────────────────────────────── -->
       <div class="glass-card" style="padding:20px;margin-bottom:16px;text-align:center">
         <p style="font-size:22px;margin-bottom:8px">⚡</p>
-        <p style="font-size:15px;font-weight:800;color:var(--text1);margin-bottom:4px">LifeOS</p>
+        <p style="font-size:15px;font-weight:800;color:var(--text1);margin-bottom:4px">atworth</p>
         <p style="font-size:11px;color:var(--text3);margin-bottom:12px">Your all-in-one personal finance & life management OS</p>
         <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap">
           <span style="font-size:11px;color:var(--text3)">Level ${STATE.level||1} · ${STATE.xp||0} XP earned</span>

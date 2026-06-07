@@ -36,7 +36,7 @@ function renderAchievements() {
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
-      <div class="page-header"><h1 class="page-title">🏆 Achievements</h1><p class="page-subtitle">Earn XP and unlock badges by using LifeOS</p></div>
+      <div class="page-header"><h1 class="page-title">🏆 Achievements</h1><p class="page-subtitle">Earn XP and unlock badges by using atworth</p></div>
       <div class="stat-grid">
         <div class="stat-card bg-gold"><span class="stat-card-icon">🏆</span><div class="stat-card-value">${unlocked.length}</div><div class="stat-card-label">Badges Earned</div></div>
         <div class="stat-card bg-indigo"><span class="stat-card-icon">⚡</span><div class="stat-card-value">${STATE.xp||0}</div><div class="stat-card-label">Total XP</div></div>
@@ -320,7 +320,7 @@ function renderAICoach() {
               <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
               <span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>
             </div>
-            <span style="font-size:11px;color:var(--text3);font-family:monospace">lifeos://ai-coach ~ data-engine v3</span>
+            <span style="font-size:11px;color:var(--text3);font-family:monospace">atworth://ai-coach ~ data-engine v3</span>
             <span style="margin-left:auto;font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)">● LIVE</span>
           </div>
           <div class="chat-messages" id="chat-messages" style="padding:20px;gap:16px;min-height:360px">
@@ -766,7 +766,7 @@ Avg monthly savings: ${fmt(Math.round(p.avgSav))} (${p.savRate.toFixed(1)}% rate
   if (msg.includes('achiev') || msg.includes('badge') || msg.includes('close') || msg.includes('xp')) {
     const unlocked = STATE.unlockedAchievements || [];
     const next = ACHIEVEMENTS_DEF.filter(a=>!unlocked.includes(a.id)).slice(0,3);
-    if (!next.length) return `🏆 All ${ACHIEVEMENTS_DEF.length} achievements unlocked! You're a LifeOS Master!`;
+    if (!next.length) return `🏆 All ${ACHIEVEMENTS_DEF.length} achievements unlocked! You're a atworth Master!`;
     return `🏆 Next Achievements
 ━━━━━━━━━━━━━━━━━━
 ${next.map(a=>`${a.emoji} ${a.title} (+${a.xp} XP)\n   ${a.desc}`).join('\n\n')}
