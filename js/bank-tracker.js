@@ -206,13 +206,12 @@ function renderBankTracker() {
           <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">Balance history across all your accounts</p>
         </div>
+        ${window.__IS_APP ? '' : `
         <div class="fin-head-actions" style="display:flex;gap:8px;flex-wrap:wrap">
-
           <button class="btn-secondary btn-sm" onclick="openBalanceImport('bank')">📥 Import PDF/Excel</button>
           ${accounts.length >= 2 ? `<button class="btn-primary btn-sm" onclick="openTransferModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706)">⇄ Transfer</button>` : ''}
           <button class="btn-primary btn-sm" onclick="openQuickBalanceModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#00c9a7,#0acf83)">+ Log Balance</button>
         </div>
-      </div>
         `}
       </div>
 
