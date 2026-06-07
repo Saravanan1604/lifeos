@@ -1249,21 +1249,19 @@ function acctSection(type) {
     const list = STATE.bankAccounts || [];
     const innerHTML = list.length === 0
       ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="landmark"></i></span><p>No bank accounts yet. Add your first one!</p></div>`
-      : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px" class="fin-bank-grid">
+      : `<div style="display:flex;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;gap:14px;padding:4px 4px 16px 16px;margin:0 0 16px 0" class="fin-bank-grid">
         ${list.map((b,i) => {
           if (window.__IS_APP) {
             return `
-            <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});">
-              <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%;box-sizing:border-box">
-                <span class="card-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.bankName}</span>
-                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('bank', ${i})" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);cursor:pointer">
-                  <span style="font-size: 14px;">🏛️</span>
+            <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:185px;padding:20px 22px;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});cursor:pointer;flex-shrink:0">
+              <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+                <span class="card-title" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72%">${b.bankName}</span>
+                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('bank', ${i})" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">
+                  🏛️
                 </div>
               </div>
-              <div class="card-balance">${fmt(b.balance)}</div>
-              <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;width:100%">
-                <span>${b.type||'Savings'}${b.lastFour ? ` · •••• ${b.lastFour}` : ''}</span>
-              </div>
+              <div style="font-size:44px;font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1">${fmt(b.balance)}</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.55);letter-spacing:0.3px">${b.type||'Savings'}${b.lastFour ? ` •••• ${b.lastFour}` : ''}</div>
             </div>`;
           } else {
             return `
@@ -1306,24 +1304,24 @@ function acctSection(type) {
     const list = STATE.creditCards || [];
     const innerHTML = list.length === 0
       ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="credit-card"></i></span><p>No credit cards yet. Add your first one!</p></div>`
-      : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px" class="fin-card-grid">
+      : `<div style="display:flex;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;gap:14px;padding:4px 4px 16px 16px;margin:0 0 16px 0" class="fin-card-grid">
         ${list.map((c,i) => { const used=c.outstanding||0, limit=c.limit||1, pct=Math.min(100,Math.round((used/limit)*100)), utilColor=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
           if (window.__IS_APP) {
             return `
-            <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});">
-              <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+            <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:210px;padding:20px 22px;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});cursor:pointer;flex-shrink:0">
+              <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
                 <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1">
-                  <span class="card-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.bankName}</span>
-                  <span class="card-network" style="opacity:0.6;font-size:10px">${c.network||'VISA'}</span>
+                  <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.bankName}</span>
+                  <span style="opacity:0.6;font-size:10px;flex-shrink:0">${c.network||'VISA'}</span>
                 </div>
-                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('card', ${i})" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);cursor:pointer">
-                  <span style="font-size: 14px;">💳</span>
+                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('card', ${i})" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">
+                  💳
                 </div>
               </div>
-              <div class="card-balance">${fmt(used)}</div>
+              <div style="font-size:40px;font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1">${fmt(used)}</div>
               <div style="width:100%">
                 <div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.15);margin-bottom:6px"><div style="height:5px;border-radius:4px;width:${pct}%;background:${utilColor};transition:.3s"></div></div>
-                <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;color:rgba(255,255,255,0.55)">
                   <span>•••• ${c.lastFour || '0000'} · ${pct}%</span>
                   <span>Limit: ${fmt(limit)}</span>
                 </div>
@@ -1371,21 +1369,19 @@ function acctSection(type) {
   const list = STATE.cashAccounts || [];
   const innerHTML = list.length === 0
     ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="banknote"></i></span><p>No cash wallets yet. Track your physical cash!</p></div>`
-    : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px" class="fin-cash-grid">
+    : `<div style="display:flex;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;gap:14px;padding:4px 4px 16px 16px;margin:0 0 16px 0" class="fin-cash-grid">
       ${list.map((ca,i) => {
         if (window.__IS_APP) {
           return `
-          <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:#a16207;--c2:#78350f;background:linear-gradient(135deg,#78350f,#92400e);position:relative;overflow:hidden;cursor:pointer">
-            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%">
-              <span class="card-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ca.name}</span>
-              <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('cash', ${i})" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);cursor:pointer">
-                <span style="font-size: 14px;">💵</span>
+          <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:185px;padding:20px 22px;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(135deg,#78350f,#92400e);cursor:pointer;flex-shrink:0">
+            <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+              <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72%">${ca.name}</span>
+              <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('cash', ${i})" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">
+                💵
               </div>
             </div>
-            <div class="card-balance">${fmt(ca.balance||0)}</div>
-            <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;width:100%">
-              <span>Cash Wallet</span>
-            </div>
+            <div style="font-size:44px;font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1">${fmt(ca.balance||0)}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.55);letter-spacing:0.3px">Cash Wallet</div>
           </div>`;
         } else {
           return `
