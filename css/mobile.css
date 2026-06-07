@@ -9764,3 +9764,32 @@ html.is-app .fin-page-head>div:first-child,
 html.is-app .acct-count {
   display: none !important;
 }
+
+/* ============================================================
+   build 347 — Account Card Layout & Text Wrap Fixes
+   Forbids mid-number wrapping and cleans up text overlaps.
+   ============================================================ */
+
+/* Widen cards slightly so large balances fit comfortably side-by-side */
+html.is-app .fin-bank-grid>*,
+html.is-app .fin-card-grid>*,
+html.is-app .fin-cash-grid>* {
+  flex: 0 0 315px !important;
+  width: 315px !important;
+}
+
+/* Force critical balance figures onto a single high-contrast line */
+html.is-app .fin-dark-card .card-balance {
+  font-size: 2.6rem !important;
+  letter-spacing: -1px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Drop the overlapping raw background text clashing behind the Balance Log title */
+html.is-app #bt-main-grid div[style*="font-size:24px"],
+html.is-app #bt-main-grid h2,
+html.is-app .bt-quicklog {
+  display: none !important;
+}
