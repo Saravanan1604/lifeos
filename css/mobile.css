@@ -889,7 +889,7 @@ html.is-app .period-tab {
   white-space: nowrap !important;
 }
 
-/* ---- Swipeable cards: Bank / Credit / Cash become a horizontal carousel ---- */
+/* ---- Swipeable cards: Bank / Credit / Cash become a horizontal carousel (mockup style) ---- */
 html.is-app .fin-bank-grid,
 html.is-app .fin-card-grid,
 html.is-app .fin-cash-grid {
@@ -897,120 +897,66 @@ html.is-app .fin-cash-grid {
   grid-template-columns: none !important;
   overflow-x: auto !important;
   scroll-snap-type: x mandatory !important;
+  align-items: flex-start !important;
   gap: 14px !important;
-  padding: 4px 2px 12px !important;
-  -webkit-overflow-scrolling: touch;
-}
-html.is-app .fin-bank-grid > *,
-html.is-app .fin-card-grid > *,
-html.is-app .fin-cash-grid > * {
-  flex: 0 0 82% !important;
-  min-width: 82% !important;
-  scroll-snap-align: center !important;
-}
-
-/* ============================================================
-   build 74 — uniform tall swipe cards + bigger "+ Add" buttons
-   ============================================================ */
-
-/* Bank / Credit / Cash carousel cards: same width (82%) + same TALL height */
-html.is-app .fin-bank-grid > *,
-html.is-app .fin-card-grid > *,
-html.is-app .fin-cash-grid > * {
-  flex: 0 0 82% !important;
-  min-width: 82% !important;
-  height: 300px !important;            /* uniform double height */
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-}
-
-/* "+ Add Bank / Card / Cash" header buttons — bigger */
-html.is-app .section-header .btn-primary,
-html.is-app .section-header .btn-sm {
-  font-size: 22px !important;
-  padding: 14px 22px !important;
-  border-radius: 14px !important;
-}
-
-/* ============================================================
-   build 200 — Finance cards: SWIPEABLE carousel sized like a real
-   ATM/credit card (85.6×54mm → 1.586:1 aspect ratio). Text scaled
-   down to fit the card height so nothing overflows or gets cut.
-   ============================================================ */
-html.is-app .fin-bank-grid,
-html.is-app .fin-card-grid,
-html.is-app .fin-cash-grid {
-  display: flex !important;
-  grid-template-columns: none !important;
-  overflow-x: auto !important;
-  scroll-snap-type: x mandatory !important;
-  align-items: flex-start !important;   /* don't stretch cards to row height */
-  gap: 14px !important;
-  padding: 4px 2px 14px !important;
-  margin-bottom: 8px !important;
+  padding: 4px 16px 14px !important;
+  margin-bottom: 12px !important;
   -webkit-overflow-scrolling: touch;
 }
 html.is-app .fin-bank-grid::-webkit-scrollbar,
 html.is-app .fin-card-grid::-webkit-scrollbar,
-html.is-app .fin-cash-grid::-webkit-scrollbar { height: 0; }
+html.is-app .fin-cash-grid::-webkit-scrollbar { height: 0; display: none !important; }
+
 html.is-app .fin-bank-grid > *,
 html.is-app .fin-card-grid > *,
 html.is-app .fin-cash-grid > * {
-  flex: 0 0 86% !important;
-  width: 86% !important;
-  min-width: 86% !important;
-  height: 81vw !important;              /* 54vw × 1.5 — taller card */
-  max-height: 360px !important;
-  min-height: 0 !important;
-  aspect-ratio: auto !important;
-  padding: 27px !important;
-  scroll-snap-align: center !important;
+  flex: 0 0 78vw !important;
+  width: 78vw !important;
+  min-width: 270px !important;
+  max-width: 300px !important;
+  height: 165px !important;
+  box-sizing: border-box !important;
   display: flex !important;
   flex-direction: column !important;
-  justify-content: flex-start !important;
+  justify-content: space-between !important;
+  padding: 20px !important;
+  border-radius: 24px !important;
+  scroll-snap-align: center !important;
+  margin-bottom: 4px !important;
 }
-/* scale inner text to fit the shorter ATM-card height */
-html.is-app .fin-bank-grid .fin-dark-card div[style*="font-size:22px"],
-html.is-app .fin-cash-grid .fin-dark-card div[style*="font-size:22px"] { font-size: 60px !important; }   /* icon */
-html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"],
-html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { font-size: 84px !important; }    /* balance — max big */
-html.is-app .fin-bank-grid .fin-dark-card p[style*="letter-spacing:1.5px"],
-html.is-app .fin-cash-grid .fin-dark-card p[style*="letter-spacing:1px"] { font-size: 45px !important; } /* bank/wallet name */
-html.is-app .fin-bank-grid .fin-dark-card button,
-html.is-app .fin-card-grid .fin-dark-card button,
-html.is-app .fin-cash-grid .fin-dark-card button { font-size: 33px !important; padding: 14px 24px !important; border-radius: 14px !important; }
-html.is-app .fin-bank-grid .fin-dark-card span[style*="font-size:11px"] { font-size: 33px !important; }  /* type · last4 */
-html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:2px"] { font-size: 27px !important; }   /* network */
-html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:14px"]  { font-size: 39px !important; }      /* bank name */
-html.is-app .fin-card-grid .fin-dark-card div[style*="letter-spacing:3px"] { font-size: 33px !important; }   /* •••• number */
-html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:11px"]  { font-size: 26px !important; }      /* Outstanding/Limit labels */
-html.is-app .fin-card-grid .fin-dark-card div[style*="font-size:16px"]  { font-size: 48px !important; }      /* Outstanding value */
-html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:13px"] { font-size: 33px !important; }      /* Limit value */
-html.is-app .fin-card-grid .fin-dark-card span[style*="font-size:10px"] { font-size: 24px !important; }      /* % utilised · Due */
-/* keep ATM proportions + tidy padding (beats earlier 30px padding rule) */
-html.is-app .fin-bank-grid .fin-dark-card,
-html.is-app .fin-card-grid .fin-dark-card,
-html.is-app .fin-cash-grid .fin-dark-card {
-  padding: 24px !important; height: 81vw !important; max-height: 360px !important; aspect-ratio: auto !important;
+html.is-app .fin-card-grid > * {
+  height: 180px !important;
 }
-/* build 201 — tighten card content: group icon/name/balance at the top,
-   pin the meta row (type · last-4 · limit) to the bottom (no big empty middle) */
-html.is-app .fin-bank-grid .fin-dark-card,
-html.is-app .fin-card-grid .fin-dark-card,
-html.is-app .fin-cash-grid .fin-dark-card {
-  justify-content: flex-start !important;
-  gap: 3px !important;
+
+/* Remove decorative card circles on mobile */
+html.is-app .fin-dark-card > div[style*="width:80px"] { display: none !important; }
+html.is-app .fin-dark-card > div[style*="width:100px"] { display: none !important; }
+
+/* Mobile Card inner content typography (mockup scale) */
+html.is-app .fin-dark-card .card-title {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
 }
-html.is-app .fin-bank-grid .fin-dark-card > *:last-child,
-html.is-app .fin-card-grid .fin-dark-card > *:last-child,
-html.is-app .fin-cash-grid .fin-dark-card > *:last-child {
-  margin-top: auto !important;
+html.is-app .fin-dark-card .card-balance {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  letter-spacing: -0.5px !important;
 }
-/* a touch more separation above the big balance number */
-html.is-app .fin-bank-grid .fin-dark-card p[style*="font-weight:900"],
-html.is-app .fin-cash-grid .fin-dark-card p[style*="font-weight:900"] { margin-top: 2px !important; line-height: 1.05 !important; }
+html.is-app .fin-dark-card .card-footer {
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+html.is-app .fin-dark-card .card-act-btn {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+}
+html.is-app .fin-dark-card .card-network {
+  font-size: 10px !important;
+}
 
 /* ============================================================
    build 75 — major dashboard + bottom-nav restructure (app-only)

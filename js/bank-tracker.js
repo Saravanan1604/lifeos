@@ -1,4 +1,4 @@
-﻿// ===== BANK TRACKER PAGE =====
+// ===== BANK TRACKER PAGE =====
 let bankTrackerAccount = null; // currently selected account id
 let bankTrackerTab     = 'banks'; // 'banks' | 'cards' | 'cash'
 let bankTrackerCard    = null;    // currently selected credit card id
@@ -213,6 +213,15 @@ function renderBankTracker() {
           <button class="btn-primary btn-sm" onclick="openQuickBalanceModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#00c9a7,#0acf83)">+ Log Balance</button>
         </div>
       </div>
+        `}
+      </div>
+
+      ${window.__IS_APP ? `
+      <div class="btn-action-row">
+        <button class="btn-action" onclick="openTransferModal()"><span>💸</span> Transfer</button>
+        <button class="btn-action" onclick="openBalanceImport('bank')"><span>📥</span> Import</button>
+      </div>
+      ` : ''}
 
       <!-- Tab Bar -->
       <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
@@ -232,6 +241,16 @@ function renderBankTracker() {
         </div>` : `
 
       <!-- Total Balance Hero + Bank Selector -->
+      ${window.__IS_APP ? `
+      <div class="metric-panel">
+        <div class="metric-header">
+          <span>TOTAL LIQUID BANK BALANCE</span>
+          <span onclick="navigate('finance')" style="color:var(--teal);cursor:pointer;font-size:12px">Manage ➔</span>
+        </div>
+        <div class="metric-value" style="color:var(--teal)">${fmt(totalBalance)}</div>
+        <div class="metric-footer">Consolidated metrics across ${accounts.length} active bank indices</div>
+      </div>
+      ` : `
       <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#1a1a4e,#0d0d2e,#1a1a4e);border:1px solid rgba(0,201,167,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
         <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(0,201,167,0.07)"></div>
         <div style="position:relative">
@@ -240,6 +259,7 @@ function renderBankTracker() {
           <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.45);margin-top:10px">${accounts.length} accounts · tap a card in Finance to view individual log</p>
         </div>
       </div>
+      `}
 
       <!-- Chart + Stats row -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px" id="bt-main-grid">
@@ -697,12 +717,20 @@ function renderCCTracker() {
           <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">Credit card outstanding history</p>
         </div>
+        ${window.__IS_APP ? '' : `
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          
           <button class="btn-secondary btn-sm" onclick="openBalanceImport('card')">📥 Import PDF/Excel</button>
           ${selId ? `<button class="btn-primary btn-sm" onclick="openUpdateCCModal('${selId}')" style="background:linear-gradient(135deg,#ef4444,#b91c1c)">↑ Update Outstanding</button>` : ''}
         </div>
+        `}
       </div>
+
+      ${window.__IS_APP ? `
+      <div class="btn-action-row">
+        <button class="btn-action" onclick="openUpdateCCModal('${selId || (cards[0]?.id || '')}')"><span>💸</span> Pay / Update</button>
+        <button class="btn-action" onclick="openBalanceImport('card')"><span>📥</span> Import</button>
+      </div>
+      ` : ''}
 
       <!-- Tab Bar -->
       <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
@@ -722,6 +750,40 @@ function renderCCTracker() {
         </div>` : `
 
       <!-- Summary Hero -->
+      ${window.__IS_APP ? `
+      <div class="metric-panel">
+        <div class="metric-header">
+          <span>TOTAL OUTSTANDING BALANCE</span>
+          <span onclick="navigate('finance')" style="color:#ef4444;cursor:pointer;font-size:12px">Manage ➔</span>
+        </div>
+        <div class="metric-value" style="color:#ef4444">${fmt(totalOutstanding)}</div>
+        <div class="metric-footer">${overallUtil}% utilised · Total Limit: ${fmt(totalLimit)}</div>
+      </div>
+      <!-- Card selector pills -->
+      <div style="display:flex;gap:10px;margin-top:10px;margin-bottom:20px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px">
+        <div onclick="bankTrackerCard=null;renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${!selId?'rgba(239,68,68,0.2)':'rgba(255,255,255,0.06)'};border:1px solid ${!selId?'rgba(239,68,68,0.5)':'rgba(255,255,255,0.08)'};cursor:pointer;min-width:70px;text-align:center">
+          <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${!selId?'#ef4444':'rgba(255,255,255,0.45)'}">ALL</p>
+          <p style="font-size:14px;font-weight:800;color:${!selId?'#ef4444':'rgba(255,255,255,0.65)'};margin-top:2px">${cards.length} cards</p>
+        </div>
+        ${cards.map(c => {
+          const isActive = selId === c.id;
+          const lastSnap = [...history].filter(h=>h.cardId===c.id).sort((x,y)=>y.date.localeCompare(x.date))[0];
+          const lastDate = lastSnap ? formatRelativeDate(lastSnap.date) : 'No entries';
+          const pct = Math.min(100, Math.round(((c.outstanding||0)/(c.limit||1))*100));
+          const uc  = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#10b981';
+          return `
+          <div onclick="bankTrackerCard='${c.id}';renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${isActive?'rgba(239,68,68,0.15)':'rgba(255,255,255,0.06)'};border:1px solid ${isActive?'rgba(239,68,68,0.4)':'rgba(255,255,255,0.08)'};cursor:pointer;min-width:130px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="font-size:16px">💳</span>
+              <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${c.bankName}</p>
+            </div>
+            <p style="font-size:16px;font-weight:900;color:#ef4444">${fmt(c.outstanding||0)}</p>
+            <div style="height:3px;border-radius:3px;background:rgba(255,255,255,0.1);margin-top:5px"><div style="height:3px;border-radius:3px;width:${pct}%;background:${uc}"></div></div>
+            <p style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px">${pct}% · Updated ${lastDate}</p>
+          </div>`;
+        }).join('')}
+      </div>
+      ` : `
       <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#2d0a0a,#1a0505,#2d0a0a);border:1px solid rgba(239,68,68,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
         <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(239,68,68,0.07)"></div>
         <div style="position:relative">
@@ -757,6 +819,7 @@ function renderCCTracker() {
           </div>
         </div>
       </div>
+      `}
 
       <!-- Chart + Stats -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px" id="cc-main-grid">
@@ -994,11 +1057,19 @@ function renderCashTracker() {
           <h1 class="page-title"><i data-lucide="wallet"></i> Finance</h1>
           <p class="page-subtitle">Cash wallet balance history</p>
         </div>
+        ${window.__IS_APP ? '' : `
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          
           <button class="btn-primary btn-sm" onclick="openQuickCashModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#f59e0b,#d97706)">+ Log Cash</button>
         </div>
+        `}
       </div>
+
+      ${window.__IS_APP ? `
+      <div class="btn-action-row">
+        <button class="btn-action" onclick="openQuickCashModal('${selId || (accounts[0]?.id || '')}')"><span>💸</span> Log Cash</button>
+        <button class="btn-action" onclick="addCashAccount()"><span>📥</span> Add Wallet</button>
+      </div>
+      ` : ''}
 
       <!-- Tab Bar -->
       <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
@@ -1018,6 +1089,37 @@ function renderCashTracker() {
         </div>` : `
 
       <!-- Total Cash Hero + Wallet Selector -->
+      ${window.__IS_APP ? `
+      <div class="metric-panel">
+        <div class="metric-header">
+          <span>TOTAL CASH BALANCE</span>
+          <span onclick="navigate('finance')" style="color:#f59e0b;cursor:pointer;font-size:12px">Manage ➔</span>
+        </div>
+        <div class="metric-value" style="color:#f59e0b">${fmt(totalBalance)}</div>
+        <div class="metric-footer">Consolidated cash metrics across ${accounts.length} wallets</div>
+      </div>
+      <!-- Wallet selector pills -->
+      <div style="display:flex;gap:10px;margin-top:10px;margin-bottom:20px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px">
+        <div onclick="bankTrackerCash=null;renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${!selId?'rgba(245,158,11,0.25)':'rgba(255,255,255,0.06)'};border:1px solid ${!selId?'rgba(245,158,11,0.6)':'rgba(255,255,255,0.1)'};cursor:pointer;transition:.2s;text-align:center;min-width:70px">
+          <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${!selId?'#f59e0b':'rgba(255,255,255,0.45)'}">ALL</p>
+          <p style="font-size:14px;font-weight:800;color:${!selId?'#f59e0b':'rgba(255,255,255,0.65)'};margin-top:2px">${accounts.length} wallets</p>
+        </div>
+        ${accounts.map(a => {
+          const isActive = selId === a.id;
+          const lastSnap = [...history].filter(h=>h.accountId===a.id).sort((x,y)=>y.date.localeCompare(x.date))[0];
+          const lastDate = lastSnap ? formatRelativeDate(lastSnap.date) : 'No entries';
+          return `
+          <div onclick="bankTrackerCash='${a.id}';renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${isActive?'rgba(245,158,11,0.2)':'rgba(255,255,255,0.06)'};border:1px solid ${isActive?'rgba(245,158,11,0.5)':'rgba(255,255,255,0.08)'};cursor:pointer;transition:.2s;min-width:120px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="font-size:16px">💵</span>
+              <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${a.name}</p>
+            </div>
+            <p style="font-size:18px;font-weight:900;color:#fff">${fmt(a.balance||0)}</p>
+            <p style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px">Updated ${lastDate}</p>
+          </div>`;
+        }).join('')}
+      </div>
+      ` : `
       <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#2d1a00,#1a0e00,#2d1a00);border:1px solid rgba(245,158,11,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
         <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(245,158,11,0.07)"></div>
         <div style="position:relative">
@@ -1046,6 +1148,7 @@ function renderCashTracker() {
           </div>
         </div>
       </div>
+      `}
 
       <!-- Chart + Stats -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px" id="cash-main-grid">
