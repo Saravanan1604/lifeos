@@ -1247,167 +1247,218 @@ function _finSwipeDots() {
 function acctSection(type) {
   if (type === 'bank') {
     const list = STATE.bankAccounts || [];
-    return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:16px">
-          <p class="section-title"><i data-lucide="landmark"></i> Bank Accounts
-            <span class="acct-count" style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${list.length} accounts</span></p>
-          <button class="btn-primary btn-sm" onclick="addBankAccount()">+ Add Bank</button>
-        </div>
-        ${list.length === 0
-          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="landmark"></i></span><p>No bank accounts yet. Add your first one!</p></div>`
-          : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px" class="fin-bank-grid">
-            ${list.map((b,i) => {
-              if (window.__IS_APP) {
-                return `
-                <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});">
-                  <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%;box-sizing:border-box">
-                    <span class="card-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.bankName}</span>
-                    <div style="display:flex;align-items:center;gap:6px">
-                      <span style="font-size: 14px;">🏛️</span>
-                      <button onclick="updateBankBalance(${i})" class="card-act-btn" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-weight:700;cursor:pointer">↑ Bal</button>
-                      <button onclick="editBankAccount(${i})" class="card-act-btn" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-weight:700;cursor:pointer">Edit</button>
-                      <button onclick="deleteBankAccount(${i})" class="card-act-btn" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-weight:700;cursor:pointer">✕</button>
-                    </div>
-                  </div>
-                  <div class="card-balance">${fmt(b.balance)}</div>
-                  <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;width:100%">
-                    <span>${b.type||'Savings'}${b.lastFour ? ` · •••• ${b.lastFour}` : ''}</span>
-                    <span style="font-weight:700;opacity:0.8">View Log →</span>
-                  </div>
-                </div>`;
-              } else {
-                return `
-                <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
-                  <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
-                  <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                    <div style="font-size:22px"><i data-lucide="landmark"></i></div>
-                    <div style="display:flex;gap:6px">
-                      <button onclick="updateBankBalance(${i})" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
-                      <button onclick="editBankAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
-                      <button onclick="deleteBankAccount(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
-                    </div>
-                  </div>
-                  <p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin:10px 0 4px">${b.bankName}</p>
-                  <p style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px">${fmt(b.balance)}</p>
-                  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5)">${b.type||'Savings'}${b.lastFour ? ` · •••• ${b.lastFour}` : ''}</span>
-                    <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:.5px">View Log →</span>
-                  </div>
-                </div>`;
-              }
-            }).join('')}
-          </div>`}
+    const innerHTML = list.length === 0
+      ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="landmark"></i></span><p>No bank accounts yet. Add your first one!</p></div>`
+      : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px" class="fin-bank-grid">
+        ${list.map((b,i) => {
+          if (window.__IS_APP) {
+            return `
+            <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});">
+              <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%;box-sizing:border-box">
+                <span class="card-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.bankName}</span>
+                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('bank', ${i})" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);cursor:pointer">
+                  <span style="font-size: 14px;">🏛️</span>
+                </div>
+              </div>
+              <div class="card-balance">${fmt(b.balance)}</div>
+              <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+                <span>${b.type||'Savings'}${b.lastFour ? ` · •••• ${b.lastFour}` : ''}</span>
+              </div>
+            </div>`;
+          } else {
+            return `
+            <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};padding:16px;border-radius:14px;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
+              <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div style="font-size:22px"><i data-lucide="landmark"></i></div>
+                <div style="display:flex;gap:6px">
+                  <button onclick="updateBankBalance(${i})" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
+                  <button onclick="editBankAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
+                  <button onclick="deleteBankAccount(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
+                </div>
+              </div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin:10px 0 4px">${b.bankName}</p>
+              <p style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px">${fmt(b.balance)}</p>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                <span style="font-size:11px;color:rgba(255,255,255,0.5)">${b.type||'Savings'}${b.lastFour ? ` · •••• ${b.lastFour}` : ''}</span>
+                <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:.5px">View Log →</span>
+              </div>
+            </div>`;
+          }
+        }).join('')}
       </div>`;
+
+    if (window.__IS_APP) {
+      return innerHTML;
+    } else {
+      return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
+          <div class="section-header" style="margin-bottom:16px">
+            <p class="section-title"><i data-lucide="landmark"></i> Bank Accounts
+              <span class="acct-count" style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${list.length} accounts</span></p>
+            <button class="btn-primary btn-sm" onclick="addBankAccount()">+ Add Bank</button>
+          </div>
+          ${innerHTML}
+        </div>`;
+    }
   }
+
   if (type === 'card') {
     const list = STATE.creditCards || [];
-    return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:16px">
-          <p class="section-title"><i data-lucide="credit-card"></i> Credit Cards
-            <span class="acct-count" style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${list.length} cards</span></p>
-          <button class="btn-primary btn-sm" onclick="addCreditCard()">+ Add Card</button>
-        </div>
-        ${list.length === 0
-          ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="credit-card"></i></span><p>No credit cards yet. Add your first one!</p></div>`
-          : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px" class="fin-card-grid">
-            ${list.map((c,i) => { const used=c.outstanding||0, limit=c.limit||1, pct=Math.min(100,Math.round((used/limit)*100)), utilColor=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
-              if (window.__IS_APP) {
-                return `
-                <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});">
-                  <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%">
-                    <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1">
-                      <span class="card-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.bankName}</span>
-                      <span class="card-network" style="opacity:0.6;font-size:10px">${c.network||'VISA'}</span>
-                    </div>
-                    <div style="display:flex;gap:6px;align-items:center">
-                      <button onclick="openUpdateCCModal('${c.id}')" class="card-act-btn" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-weight:700;cursor:pointer">↑ Pay</button>
-                      <button onclick="editCreditCard(${i})" class="card-act-btn" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-weight:700;cursor:pointer">Edit</button>
-                      <button onclick="deleteCreditCard(${i})" class="card-act-btn" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-weight:700;cursor:pointer">✕</button>
-                    </div>
-                  </div>
-                  <div class="card-balance">${fmt(used)}</div>
-                  <div style="width:100%">
-                    <div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.15);margin-bottom:6px"><div style="height:5px;border-radius:4px;width:${pct}%;background:${utilColor};transition:.3s"></div></div>
-                    <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;width:100%">
-                      <span>•••• ${c.lastFour || '0000'} · ${pct}%</span>
-                      <span>Limit: ${fmt(limit)}</span>
-                    </div>
-                  </div>
-                </div>`;
-              } else {
-                return `
-                <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};padding:18px;border-radius:16px;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
-                  <div style="position:absolute;top:-25px;right:-25px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none"></div>
-                  <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                    <div><div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${c.network||'VISA'}</div><div style="font-size:14px;font-weight:800;color:#fff;margin-top:2px">${c.bankName}</div></div>
-                    <div style="display:flex;gap:6px">
-                      <button onclick="openUpdateCCModal('${c.id}')" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Pay</button>
-                      <button onclick="editCreditCard(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
-                      <button onclick="deleteCreditCard(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
-                    </div>
-                  </div>
-                  ${c.lastFour?`<div style="font-size:13px;letter-spacing:3px;color:rgba(255,255,255,0.45);margin:10px 0 4px">•••• •••• •••• ${c.lastFour}</div>`:''}
-                  <div style="margin-top:10px">
-                    <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:5px"><span>Outstanding</span><span>Limit</span></div>
-                    <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;color:#fff;margin-bottom:8px"><span style="color:${pct>80?'#fca5a5':'#fff'}">${fmt(used)}</span><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.6)">${fmt(limit)}</span></div>
-                    <div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.15)"><div style="height:5px;border-radius:4px;width:${pct}%;background:${utilColor};transition:.3s"></div></div>
-                    <div style="display:flex;justify-content:space-between;margin-top:5px"><span style="font-size:10px;color:rgba(255,255,255,0.45)">${pct}% utilised</span>${c.dueDate?`<span style="font-size:10px;color:rgba(255,255,255,0.45)">Due: ${c.dueDate}</span>`:''}</div>
-                  </div>
-                </div>`;
-              }
-            }).join('')}
-          </div>`}
+    const innerHTML = list.length === 0
+      ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="credit-card"></i></span><p>No credit cards yet. Add your first one!</p></div>`
+      : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px" class="fin-card-grid">
+        ${list.map((c,i) => { const used=c.outstanding||0, limit=c.limit||1, pct=Math.min(100,Math.round((used/limit)*100)), utilColor=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
+          if (window.__IS_APP) {
+            return `
+            <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});">
+              <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+                <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1">
+                  <span class="card-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.bankName}</span>
+                  <span class="card-network" style="opacity:0.6;font-size:10px">${c.network||'VISA'}</span>
+                </div>
+                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('card', ${i})" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);cursor:pointer">
+                  <span style="font-size: 14px;">💳</span>
+                </div>
+              </div>
+              <div class="card-balance">${fmt(used)}</div>
+              <div style="width:100%">
+                <div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.15);margin-bottom:6px"><div style="height:5px;border-radius:4px;width:${pct}%;background:${utilColor};transition:.3s"></div></div>
+                <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+                  <span>•••• ${c.lastFour || '0000'} · ${pct}%</span>
+                  <span>Limit: ${fmt(limit)}</span>
+                </div>
+              </div>
+            </div>`;
+          } else {
+            return `
+            <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};padding:18px;border-radius:16px;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
+              <div style="position:absolute;top:-25px;right:-25px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none"></div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div><div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${c.network||'VISA'}</div><div style="font-size:14px;font-weight:800;color:#fff;margin-top:2px">${c.bankName}</div></div>
+                <div style="display:flex;gap:6px">
+                  <button onclick="openUpdateCCModal('${c.id}')" style="background:rgba(0,201,167,0.25);border:none;color:#00ffd5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Pay</button>
+                  <button onclick="editCreditCard(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
+                  <button onclick="deleteCreditCard(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
+                </div>
+              </div>
+              ${c.lastFour?`<div style="font-size:13px;letter-spacing:3px;color:rgba(255,255,255,0.45);margin:10px 0 4px">•••• •••• •••• ${c.lastFour}</div>`:''}
+              <div style="margin-top:10px">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:5px"><span>Outstanding</span><span>Limit</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;color:#fff;margin-bottom:8px"><span style="color:${pct>80?'#fca5a5':'#fff'}">${fmt(used)}</span><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.6)">${fmt(limit)}</span></div>
+                <div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.15)"><div style="height:5px;border-radius:4px;width:${pct}%;background:${utilColor};transition:.3s"></div></div>
+                <div style="display:flex;justify-content:space-between;margin-top:5px"><span style="font-size:10px;color:rgba(255,255,255,0.45)">${pct}% utilised</span>${c.dueDate?`<span style="font-size:10px;color:rgba(255,255,255,0.45)">Due: ${c.dueDate}</span>`:''}</div>
+              </div>
+            </div>`;
+          }
+        }).join('')}
       </div>`;
+
+      if (window.__IS_APP) {
+        return innerHTML;
+      } else {
+        return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
+            <div class="section-header" style="margin-bottom:16px">
+              <p class="section-title"><i data-lucide="credit-card"></i> Credit Cards
+                <span class="acct-count" style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${list.length} cards</span></p>
+              <button class="btn-primary btn-sm" onclick="addCreditCard()">+ Add Card</button>
+            </div>
+            ${innerHTML}
+          </div>`;
+      }
   }
+
   // cash
   const list = STATE.cashAccounts || [];
-  return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
-      <div class="section-header" style="margin-bottom:16px">
-        <p class="section-title"><i data-lucide="banknote"></i> Cash Accounts
-          <span class="acct-count" style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${list.length} wallets</span></p>
-        <button class="btn-primary btn-sm" onclick="addCashAccount()">+ Add Cash</button>
-      </div>
-      ${list.length === 0
-        ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="banknote"></i></span><p>No cash wallets yet. Track your physical cash!</p></div>`
-        : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px" class="fin-cash-grid">
-          ${list.map((ca,i) => {
-            if (window.__IS_APP) {
-              return `
-              <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:#a16207;--c2:#78350f;background:linear-gradient(135deg,#78350f,#92400e);position:relative;overflow:hidden;cursor:pointer">
-                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%">
-                  <span class="card-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ca.name}</span>
-                  <div style="display:flex;gap:6px;align-items:center">
-                    <span style="font-size: 14px;">💵</span>
-                    <button onclick="updateCashBalance(${i})" class="card-act-btn" style="background:rgba(251,191,36,0.3);border:none;color:#fbbf24;font-weight:700;cursor:pointer">↑ Bal</button>
-                    <button onclick="editCashAccount(${i})" class="card-act-btn" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-weight:700;cursor:pointer">Edit</button>
-                    <button onclick="deleteCashAccount(${i})" class="card-act-btn" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-weight:700;cursor:pointer">✕</button>
-                  </div>
-                </div>
-                <div class="card-balance">${fmt(ca.balance||0)}</div>
-                <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;width:100%">
-                  <span>Cash Wallet</span>
-                  <span style="font-weight:700;opacity:0.8">View Log →</span>
-                </div>
-              </div>`;
-            } else {
-              return `
-              <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:#a16207;--c2:#78350f;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
-                <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
-                <div style="display:flex;justify-content:space-between;align-items:start;position:relative">
-                  <div style="font-size:22px"><i data-lucide="banknote"></i></div>
-                  <div style="display:flex;gap:4px">
-                    <button onclick="updateCashBalance(${i})" style="background:rgba(251,191,36,0.3);border:none;color:#fbbf24;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
-                    <button onclick="editCashAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
-                    <button onclick="deleteCashAccount(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
-                  </div>
-                </div>
-                <p style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin:10px 0 4px">${ca.name}</p>
-                <p style="font-size:24px;font-weight:900;color:#fff">${fmt(ca.balance||0)}</p>
-              </div>`;
-            }
-          }).join('')}
-        </div>`}
+  const innerHTML = list.length === 0
+    ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="banknote"></i></span><p>No cash wallets yet. Track your physical cash!</p></div>`
+    : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px" class="fin-cash-grid">
+      ${list.map((ca,i) => {
+        if (window.__IS_APP) {
+          return `
+          <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:#a16207;--c2:#78350f;background:linear-gradient(135deg,#78350f,#92400e);position:relative;overflow:hidden;cursor:pointer">
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+              <span class="card-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ca.name}</span>
+              <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('cash', ${i})" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);cursor:pointer">
+                <span style="font-size: 14px;">💵</span>
+              </div>
+            </div>
+            <div class="card-balance">${fmt(ca.balance||0)}</div>
+            <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;width:100%">
+              <span>Cash Wallet</span>
+            </div>
+          </div>`;
+        } else {
+          return `
+          <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:#a16207;--c2:#78350f;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
+            <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
+            <div style="display:flex;justify-content:space-between;align-items:start;position:relative">
+              <div style="font-size:22px"><i data-lucide="banknote"></i></div>
+              <div style="display:flex;gap:4px">
+                <button onclick="updateCashBalance(${i})" style="background:rgba(251,191,36,0.3);border:none;color:#fbbf24;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">↑ Bal</button>
+                <button onclick="editCashAccount(${i})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">Edit</button>
+                <button onclick="deleteCashAccount(${i})" style="background:rgba(239,68,68,0.25);border:none;color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer">✕</button>
+              </div>
+            </div>
+            <p style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin:10px 0 4px">${ca.name}</p>
+            <p style="font-size:24px;font-weight:900;color:#fff">${fmt(ca.balance||0)}</p>
+          </div>`;
+        }
+      }).join('')}
     </div>`;
+
+  if (window.__IS_APP) {
+    return innerHTML;
+  } else {
+    return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:16px">
+          <p class="section-title"><i data-lucide="banknote"></i> Cash Accounts
+            <span class="acct-count" style="font-size:11px;font-weight:500;color:var(--text3);margin-left:8px">${list.length} wallets</span></p>
+          <button class="btn-primary btn-sm" onclick="addCashAccount()">+ Add Cash</button>
+        </div>
+        ${innerHTML}
+      </div>`;
+  }
+}
+
+// Mobile-friendly account options panel for quick actions
+function openAccountOptions(type, i) {
+  if (type === 'bank') {
+    const acct = (STATE.bankAccounts || [])[i];
+    if (!acct) return;
+    openModal('🏛️ Bank Options', `
+      <div class="account-options-menu" style="display:flex;flex-direction:column;gap:12px;padding:10px 0">
+        <button class="btn-action" onclick="closeModal(); updateBankBalance(${i})" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="refresh-cw" style="margin-right:8px"></i> Update Balance</button>
+        <button class="btn-action" onclick="closeModal(); editBankAccount(${i})" style="padding:16px;font-size:1.2rem"><i data-lucide="edit" style="margin-right:8px"></i> Edit Details</button>
+        <button class="btn-action" onclick="closeModal(); deleteBankAccount(${i})" style="padding:16px;font-size:1.2rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444"><i data-lucide="trash-2" style="margin-right:8px"></i> Delete Account</button>
+        <button class="btn-action" onclick="closeModal(); addBankAccount()" style="padding:16px;font-size:1.2rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)"><i data-lucide="plus" style="margin-right:8px"></i> Add New Bank</button>
+        <button class="btn-action" onclick="closeModal()" style="padding:16px;font-size:1.2rem;background:transparent;border:1px solid rgba(255,255,255,0.08)"><i data-lucide="x" style="margin-right:8px"></i> Cancel</button>
+      </div>
+    `);
+  } else if (type === 'card') {
+    const card = (STATE.creditCards || [])[i];
+    if (!card) return;
+    openModal('💳 Card Options', `
+      <div class="account-options-menu" style="display:flex;flex-direction:column;gap:12px;padding:10px 0">
+        <button class="btn-action" onclick="closeModal(); openUpdateCCModal('${card.id}')" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="credit-card" style="margin-right:8px"></i> Pay / Update Outstanding</button>
+        <button class="btn-action" onclick="closeModal(); editCreditCard(${i})" style="padding:16px;font-size:1.2rem"><i data-lucide="edit" style="margin-right:8px"></i> Edit Details</button>
+        <button class="btn-action" onclick="closeModal(); deleteCreditCard(${i})" style="padding:16px;font-size:1.2rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444"><i data-lucide="trash-2" style="margin-right:8px"></i> Delete Card</button>
+        <button class="btn-action" onclick="closeModal(); addCreditCard()" style="padding:16px;font-size:1.2rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)"><i data-lucide="plus" style="margin-right:8px"></i> Add New Card</button>
+        <button class="btn-action" onclick="closeModal()" style="padding:16px;font-size:1.2rem;background:transparent;border:1px solid rgba(255,255,255,0.08)"><i data-lucide="x" style="margin-right:8px"></i> Cancel</button>
+      </div>
+    `);
+  } else if (type === 'cash') {
+    const ca = (STATE.cashAccounts || [])[i];
+    if (!ca) return;
+    openModal('💵 Cash Options', `
+      <div class="account-options-menu" style="display:flex;flex-direction:column;gap:12px;padding:10px 0">
+        <button class="btn-action" onclick="closeModal(); updateCashBalance(${i})" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="refresh-cw" style="margin-right:8px"></i> Log Cash / Update Balance</button>
+        <button class="btn-action" onclick="closeModal(); editCashAccount(${i})" style="padding:16px;font-size:1.2rem"><i data-lucide="edit" style="margin-right:8px"></i> Edit Details</button>
+        <button class="btn-action" onclick="closeModal(); deleteCashAccount(${i})" style="padding:16px;font-size:1.2rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444"><i data-lucide="trash-2" style="margin-right:8px"></i> Delete Wallet</button>
+        <button class="btn-action" onclick="closeModal(); addCashAccount()" style="padding:16px;font-size:1.2rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)"><i data-lucide="plus" style="margin-right:8px"></i> Add New Wallet</button>
+        <button class="btn-action" onclick="closeModal()" style="padding:16px;font-size:1.2rem;background:transparent;border:1px solid rgba(255,255,255,0.08)"><i data-lucide="x" style="margin-right:8px"></i> Cancel</button>
+      </div>
+    `);
+  }
 }
 
 let _finView = 'overview'; // 'overview' (cards/charts/tx) | 'history' (bank-tracker trends)

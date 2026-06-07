@@ -224,9 +224,9 @@ function renderBankTracker() {
 
       <!-- Tab Bar -->
       <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
-        <button class="fin-segtab ${bankTrackerTab==='banks'?'active':''}" onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">🏦 Banks</button>
-        <button class="fin-segtab ${bankTrackerTab==='cards'?'active':''}" onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">💳 Credit Cards</button>
-        <button class="fin-segtab ${bankTrackerTab==='cash'?'active':''}" onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">💵 Cash</button>
+        <button class="fin-segtab ${bankTrackerTab==='banks'?'active':''}" onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Banks' : '🏦 Banks'}</button>
+        <button class="fin-segtab ${bankTrackerTab==='cards'?'active':''}" onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cards' : '💳 Credit Cards'}</button>
+        <button class="fin-segtab ${bankTrackerTab==='cash'?'active':''}" onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cash' : '💵 Cash'}</button>
       </div>
 
       ${typeof acctSection === 'function' ? acctSection('bank') : ''}
@@ -732,10 +732,10 @@ function renderCCTracker() {
       ` : ''}
 
       <!-- Tab Bar -->
-      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
-        <button onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">🏦 Banks</button>
-        <button onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid #ef4444;color:#ef4444;transition:.2s">💳 Credit Cards</button>
-        <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">💵 Cash</button>
+      <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
+        <button class="fin-segtab ${bankTrackerTab==='banks'?'active':''}" onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Banks' : '🏦 Banks'}</button>
+        <button class="fin-segtab ${bankTrackerTab==='cards'?'active':''}" onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cards' : '💳 Credit Cards'}</button>
+        <button class="fin-segtab ${bankTrackerTab==='cash'?'active':''}" onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cash' : '💵 Cash'}</button>
       </div>
 
       ${typeof acctSection === 'function' ? acctSection('card') : ''}
@@ -1071,10 +1071,10 @@ function renderCashTracker() {
       ` : ''}
 
       <!-- Tab Bar -->
-      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
-        <button onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">🏦 Banks</button>
-        <button onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:.2s">💳 Credit Cards</button>
-        <button onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid #f59e0b;color:#f59e0b;transition:.2s">💵 Cash</button>
+      <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
+        <button class="fin-segtab ${bankTrackerTab==='banks'?'active':''}" onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Banks' : '🏦 Banks'}</button>
+        <button class="fin-segtab ${bankTrackerTab==='cards'?'active':''}" onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cards' : '💳 Credit Cards'}</button>
+        <button class="fin-segtab ${bankTrackerTab==='cash'?'active':''}" onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cash' : '💵 Cash'}</button>
       </div>
 
       ${typeof acctSection === 'function' ? acctSection('cash') : ''}

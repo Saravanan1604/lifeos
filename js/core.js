@@ -701,7 +701,7 @@ function _renderPage(page) {
   if (typeof _mrRenderPins === 'function') { try { _mrRenderPins(page); } catch (_) {} }
   // Render any Lucide line-icons (<i data-lucide>) injected by the page
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
-  if (page === 'finance' && typeof _finSwipeDots === 'function') _finSwipeDots();
+  if ((page === 'finance' || page === 'bank-tracker') && typeof _finSwipeDots === 'function') _finSwipeDots();
   if (typeof applyPageLayout === 'function') applyPageLayout(page);
   // Highlight the active bottom-nav tab + slide the indicator line (Instagram-style)
   // Only count visible tabs (the center slot is the Add FAB in the app).
