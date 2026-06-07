@@ -3835,3 +3835,122 @@ html.is-app .tlog-ic svg.lucide { width: 26px !important; height: 26px !importan
 html.is-app .tlog-title { font-size: 1.5rem !important; }
 html.is-app .tlog-meta { font-size: 1.1rem !important; }
 html.is-app .tlog-amt { font-size: 1.55rem !important; }
+
+/* ============================================================
+   FINAL OVERRIDE — Finance carousel + card sizing (Beat old rules)
+   These come LAST so they always win via CSS cascade order.
+   ============================================================ */
+
+/* 1. Force horizontal carousel flex layout */
+html.is-app .fin-bank-grid,
+html.is-app .fin-card-grid,
+html.is-app .fin-cash-grid {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  grid-template-columns: none !important;
+  overflow-x: auto !important;
+  scroll-snap-type: x mandatory !important;
+  -webkit-overflow-scrolling: touch !important;
+  gap: 14px !important;
+  padding: 4px 4px 16px 16px !important;
+  margin: 0 0 16px 0 !important;
+  scrollbar-width: none !important;
+}
+html.is-app .fin-bank-grid::-webkit-scrollbar,
+html.is-app .fin-card-grid::-webkit-scrollbar,
+html.is-app .fin-cash-grid::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+
+/* 2. One card fills screen, next card peeks — using calc so it always works */
+html.is-app .fin-bank-grid > *,
+html.is-app .fin-card-grid > *,
+html.is-app .fin-cash-grid > * {
+  flex: 0 0 calc(100vw - 80px) !important;
+  width: calc(100vw - 80px) !important;
+  min-width: 240px !important;
+  max-width: 400px !important;
+  height: 185px !important;
+  padding: 20px 22px !important;
+  box-sizing: border-box !important;
+  border-radius: 22px !important;
+  scroll-snap-align: start !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+html.is-app .fin-card-grid > * { height: 210px !important; }
+
+/* 3. Card inner typography — matches mockup exactly */
+html.is-app .fin-dark-card .card-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+html.is-app .fin-dark-card .card-title {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(255,255,255,0.6) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 72% !important;
+}
+html.is-app .fin-dark-card .card-balance {
+  font-size: 44px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  letter-spacing: -1.5px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+html.is-app .fin-dark-card .card-footer {
+  font-size: 13px !important;
+  color: rgba(255,255,255,0.55) !important;
+  letter-spacing: 0.3px !important;
+}
+html.is-app .fin-dark-card .card-icon-trigger {
+  flex-shrink: 0 !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,0.18) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  font-size: 16px !important;
+}
+
+/* 4. Segment tab bar — clear pill container */
+html.is-app .fin-segtabs {
+  display: flex !important;
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 14px !important;
+  padding: 5px !important;
+  gap: 4px !important;
+  margin-bottom: 20px !important;
+}
+html.is-app .fin-segtabs .fin-segtab {
+  flex: 1 !important;
+  border: none !important;
+  border-bottom: none !important;
+  background: transparent !important;
+  border-radius: 10px !important;
+  padding: 11px 6px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #8A99AD !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+html.is-app .fin-segtabs .fin-segtab.active {
+  background: #3B82F6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(59,130,246,0.3) !important;
+}
