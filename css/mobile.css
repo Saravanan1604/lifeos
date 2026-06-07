@@ -3874,16 +3874,19 @@ html.is-app .fin-cash-grid > * {
   width: calc(100vw - 80px) !important;
   min-width: 240px !important;
   max-width: 400px !important;
-  height: 185px !important;
-  padding: 20px 22px !important;
+  height: auto !important;
+  padding: 1.2rem 1.3rem !important;
   box-sizing: border-box !important;
   border-radius: 22px !important;
   scroll-snap-align: start !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
+  gap: 0.8rem !important;
 }
-html.is-app .fin-card-grid > * { height: 210px !important; }
+html.is-app .fin-bank-grid > * { min-height: 170px !important; }
+html.is-app .fin-card-grid > * { min-height: 185px !important; }
+html.is-app .fin-cash-grid > * { min-height: 170px !important; }
 
 /* 3. Card inner typography — matches mockup exactly */
 html.is-app .fin-dark-card .card-header {
