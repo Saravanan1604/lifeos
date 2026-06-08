@@ -671,6 +671,16 @@
     });
   })();
 </script>
+  <script>
+  // Detect if running inside a native Capacitor webview wrapper
+  if (window.hasOwnProperty('Capacitor')) {
+    document.documentElement.classList.add('is-app');
+  } else {
+    // Fallback: If your web app uses a different detection logic,
+    // you can force add it here for testing in the emulator
+    document.documentElement.classList.add('is-app');
+  }
+</script>
 </body>
 </html>
 
