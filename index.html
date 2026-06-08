@@ -672,12 +672,8 @@
   })();
 </script>
   <script>
-  // Detect if running inside a native Capacitor webview wrapper
-  if (window.hasOwnProperty('Capacitor')) {
-    document.documentElement.classList.add('is-app');
-  } else {
-    // Fallback: If your web app uses a different detection logic,
-    // you can force add it here for testing in the emulator
+  // Force active mobile view styling if running inside Capacitor's native wrapper
+  if (window.hasOwnProperty('Capacitor') || navigator.userAgent.includes('Capacitor')) {
     document.documentElement.classList.add('is-app');
   }
 </script>
