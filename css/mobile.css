@@ -9920,3 +9920,21 @@ html.is-app .sidebar .nav-item {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
+
+/* ============================================================
+   build 350 — APP-LIKE NAVIGATION FEEL
+   Tab switches swap content instantly (no spinner, core.js) and
+   slide in fast like a native tab change, not a page load.
+   ============================================================ */
+html.is-app .fade-in {
+  animation: fadeInUp .16s ease-out both !important;
+}
+
+/* Immediate touch feedback on the bottom tabs */
+html.is-app #bottom-nav .bn-item {
+  transition: transform .1s ease, opacity .1s ease !important;
+}
+html.is-app #bottom-nav .bn-item:active {
+  transform: scale(.92) !important;
+  opacity: .7 !important;
+}

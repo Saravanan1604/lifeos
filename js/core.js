@@ -761,8 +761,17 @@ function navigate(page, skipHistory = false) {
     return;
   }
 
-  // Genuine navigation to a different page → show transition spinner
+  // Genuine navigation to a different page
   container.classList.remove('no-anim');
+  if (window.__IS_APP) {
+    // Installed app: instant in-place swap — no blank frame, no spinner.
+    // The shortened .fade-in slide (mobile.css) reads as a tab switch,
+    // not a page reload.
+    window.scrollTo(0, 0);
+    _renderPage(page);
+    return;
+  }
+  // Web keeps its transition spinner
   container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:200px;font-size:24px" class="loading-spin">⚡</div>';
   setTimeout(() => _renderPage(page), 80);
 }

@@ -13,6 +13,12 @@ window.addEventListener('DOMContentLoaded', () => {
   initParticles();
   STATE = DB.load();
 
+  // Installed app: charts draw instantly. Re-animating every chart from
+  // zero on each tab switch made navigation feel like a page reload.
+  if (window.__IS_APP && window.Chart) {
+    try { Chart.defaults.animation = false; } catch (_) {}
+  }
+
   // Apply saved theme (dark | light | auto | amoled | ocean | sunset)
   if (typeof applyThemeClass === 'function') applyThemeClass(STATE.settings?.theme || 'amoled');
   else if (STATE.settings?.theme === 'light') document.body.classList.add('light');
