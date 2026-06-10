@@ -10229,3 +10229,35 @@ html.is-app .fade-in {
   from { opacity: 0; transform: translateY(14px) scale(.992); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ============================================================
+   build 353 — DRAWER POLISH: layering, scrollbar, capsule float
+   The fixed chrome (hamburger, top tools, bottom nav) sits at
+   z-index 99999 and was painting OVER the open drawer (z 10000
+   inline). Backdrop and drawer now stack above everything; the
+   hamburger disappears underneath while open (close = backdrop
+   tap, ≡ button, or navigating).
+   ============================================================ */
+html.is-app #sidebar-backdrop {
+  z-index: 100001 !important;
+}
+html.is-app .sidebar.mobile-open {
+  z-index: 100002 !important;
+  /* keep the floating capsule even though JS sets inline top/height */
+  top: 12px !important;
+  height: calc(100vh - 24px) !important;
+}
+
+/* No white scrollbar line on the drawer edge */
+html.is-app .sidebar {
+  scrollbar-width: none !important;
+}
+html.is-app .sidebar::-webkit-scrollbar {
+  width: 0 !important;
+  display: none !important;
+}
+
+/* Hamburger is covered while open → brand returns to normal padding */
+html.is-app .sidebar.mobile-open .sidebar-header {
+  padding: 24px 18px 10px 24px !important;
+}
