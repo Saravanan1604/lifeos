@@ -9938,3 +9938,186 @@ html.is-app #bottom-nav .bn-item:active {
   transform: scale(.92) !important;
   opacity: .7 !important;
 }
+
+/* ============================================================
+   build 351 — DRAWER REDESIGN (pill nav, reference mock style)
+   Floating rounded drawer; every item is a pill row with an
+   icon chip; the active page is a bright white pill. Fixes the
+   cut-off labels ("Yearly Repor…") and inconsistent icons.
+   ============================================================ */
+html.is-app .sidebar {
+  width: 64vw !important;
+  max-width: 400px !important;
+  border-radius: 0 28px 28px 0 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.10) !important;
+  padding-bottom: 24px !important;
+}
+
+/* Header: keep the brand clear of the floating ☰ button */
+html.is-app .sidebar.mobile-open .sidebar-header {
+  padding: 20px 18px 10px 74px !important;
+}
+html.is-app .sidebar-logo-text {
+  font-size: 22px !important;
+}
+
+/* Section labels — quiet, uppercase */
+html.is-app .sidebar .nav-group-label {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(148, 163, 184, 0.55) !important;
+  margin: 18px 22px 8px !important;
+}
+
+/* ── Pill rows ── */
+html.is-app .sidebar .nav-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 13px !important;
+  width: auto !important;
+  margin: 4px 12px !important;
+  padding: 9px 16px 9px 9px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  border: 1px solid rgba(255, 255, 255, 0.055) !important;
+  color: rgba(226, 232, 240, 0.88) !important;
+  font-size: 19px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  transition: background .15s ease, transform .12s ease !important;
+}
+html.is-app .sidebar .nav-item:active {
+  transform: scale(.97) !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+}
+html.is-app .sidebar .nav-item::after {
+  display: none !important;   /* drop old underline/indicator */
+}
+
+/* Label: one line, ellipsis — never clipped mid-letter again */
+html.is-app .sidebar .nav-item .nav-text {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: 19px !important;
+}
+
+/* Icon chip — every item gets the same rounded square */
+html.is-app .sidebar .nav-item .nav-icon {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+}
+html.is-app .sidebar .nav-item .nav-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* ── Active page = bright white pill (reference style) ── */
+html.is-app .sidebar .nav-item.active {
+  background: #f8fafc !important;
+  border-color: transparent !important;
+  color: #0b1220 !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+}
+html.is-app .sidebar .nav-item.active .nav-text {
+  color: #0b1220 !important;
+  font-weight: 800 !important;
+}
+html.is-app .sidebar .nav-item.active .nav-icon {
+  background: rgba(11, 18, 32, 0.10) !important;
+  color: #0b1220 !important;
+}
+html.is-app .sidebar .nav-item.active .nav-icon svg {
+  stroke: #0b1220 !important;
+}
+
+/* Light theme: invert the active pill */
+html.is-app.light .sidebar .nav-item,
+html.is-app .light .sidebar .nav-item {
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: rgba(15, 23, 42, 0.07) !important;
+  color: #1e293b !important;
+}
+html.is-app.light .sidebar .nav-item.active,
+html.is-app .light .sidebar .nav-item.active {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+html.is-app.light .sidebar .nav-item.active .nav-text,
+html.is-app .light .sidebar .nav-item.active .nav-text {
+  color: #f8fafc !important;
+}
+html.is-app.light .sidebar .nav-item.active .nav-icon svg,
+html.is-app .light .sidebar .nav-item.active .nav-icon svg {
+  stroke: #f8fafc !important;
+}
+
+/* Outrank the older .sidebar.mobile-open rules for the active pill */
+html.is-app .sidebar.mobile-open .nav-item {
+  background: rgba(255, 255, 255, 0.045) !important;
+  border: 1px solid rgba(255, 255, 255, 0.055) !important;
+  color: rgba(226, 232, 240, 0.88) !important;
+}
+html.is-app .sidebar.mobile-open .nav-item.active {
+  background: #f8fafc !important;
+  border-color: transparent !important;
+  color: #0b1220 !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+}
+html.is-app .sidebar.mobile-open .nav-item.active .nav-icon {
+  background: rgba(11, 18, 32, 0.10) !important;
+}
+html.is-app .sidebar.mobile-open .nav-item.active .nav-icon svg {
+  stroke: #0b1220 !important;
+}
+html.is-app.light .sidebar.mobile-open .nav-item {
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: rgba(15, 23, 42, 0.07) !important;
+  color: #1e293b !important;
+}
+html.is-app.light .sidebar.mobile-open .nav-item.active {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+html.is-app.light .sidebar.mobile-open .nav-item.active .nav-icon svg {
+  stroke: #f8fafc !important;
+}
+
+/* Specificity insurance: the active pill must win against any legacy rule */
+html.is-app .sidebar .nav-item.active.active,
+html.is-app .sidebar.mobile-open .nav-item.active.active {
+  background: #f8fafc !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  color: #0b1220 !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+}
+html.is-app .sidebar .nav-item.active.active .nav-icon {
+  background: rgba(11, 18, 32, 0.10) !important;
+  color: #0b1220 !important;
+  filter: none !important;
+}
+html.is-app .sidebar .nav-item.active.active .nav-icon svg {
+  stroke: #0b1220 !important;
+}
+html.is-app.light .sidebar .nav-item.active.active {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+html.is-app.light .sidebar .nav-item.active.active .nav-icon svg {
+  stroke: #f8fafc !important;
+}
