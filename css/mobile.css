@@ -10121,3 +10121,111 @@ html.is-app.light .sidebar .nav-item.active.active {
 html.is-app.light .sidebar .nav-item.active.active .nav-icon svg {
   stroke: #f8fafc !important;
 }
+
+/* ============================================================
+   build 352 — DRAWER v2 (closer to reference) + smoother nav
+   1) bigger text  2) drawer = 3/4 screen  3) reference look:
+   floating rounded capsule, brand-green gradient, transparent
+   rows with icon chips, white active pill  4) smoother page
+   transition.
+   ============================================================ */
+
+/* ── Floating capsule panel, 3/4 width ── */
+html.is-app .sidebar {
+  width: 75vw !important;
+  max-width: 560px !important;
+  top: 10px !important;
+  left: 0 !important;
+  height: calc(100vh - 20px) !important;
+  border-radius: 0 32px 32px 0 !important;
+  border: 1px solid rgba(0, 201, 167, 0.16) !important;
+  border-left: none !important;
+  background:
+    radial-gradient(120% 60% at 0% 0%, rgba(0, 201, 167, 0.16) 0%, rgba(0, 201, 167, 0.0) 55%),
+    linear-gradient(170deg, #0b2b24 0%, #07201a 45%, #041511 100%) !important;
+  box-shadow: 18px 0 60px rgba(0, 0, 0, 0.65) !important;
+}
+
+/* ── Rows: transparent like the reference (chips carry the shape) ── */
+html.is-app .sidebar .nav-item,
+html.is-app .sidebar.mobile-open .nav-item {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: none !important;
+  margin: 6px 14px !important;
+  padding: 10px 18px 10px 10px !important;
+  gap: 15px !important;
+  color: rgba(236, 253, 245, 0.92) !important;
+}
+
+/* Bigger labels */
+html.is-app .sidebar .nav-item,
+html.is-app .sidebar.mobile-open .nav-item,
+html.is-app .sidebar .nav-item .nav-text {
+  font-size: 23px !important;
+  font-weight: 600 !important;
+}
+
+/* Icon chips — dark translucent rounded squares (reference) */
+html.is-app .sidebar .nav-item .nav-icon,
+html.is-app .sidebar.mobile-open .nav-item .nav-icon {
+  flex: 0 0 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.09) !important;
+  color: rgba(236, 253, 245, 0.95) !important;
+}
+html.is-app .sidebar .nav-item .nav-icon svg {
+  width: 23px !important;
+  height: 23px !important;
+}
+
+/* Section labels */
+html.is-app .sidebar .nav-group-label {
+  font-size: 13px !important;
+  color: rgba(167, 243, 208, 0.45) !important;
+  margin: 20px 26px 8px !important;
+}
+
+/* ── Active: white pill that reaches the panel edge (reference) ── */
+html.is-app .sidebar .nav-item.active.active,
+html.is-app .sidebar.mobile-open .nav-item.active.active {
+  background: #ffffff !important;
+  background-image: none !important;
+  margin-right: 0 !important;
+  border-radius: 999px 0 0 999px !important;
+  color: #052e24 !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
+}
+html.is-app .sidebar .nav-item.active.active .nav-text {
+  color: #052e24 !important;
+  font-weight: 800 !important;
+}
+html.is-app .sidebar .nav-item.active.active .nav-icon {
+  background: rgba(5, 46, 36, 0.10) !important;
+}
+html.is-app .sidebar .nav-item.active.active .nav-icon svg {
+  stroke: #052e24 !important;
+}
+
+/* Header brand on the green panel */
+html.is-app .sidebar.mobile-open .sidebar-header {
+  padding: 22px 18px 8px 78px !important;
+}
+html.is-app .sidebar-logo-text {
+  font-size: 24px !important;
+}
+
+/* Drawer slide: springy and smooth */
+html.is-app .sidebar {
+  transition: transform .38s cubic-bezier(0.22, 1.2, 0.36, 1) !important;
+}
+
+/* ── Smoother page-to-page transition ── */
+html.is-app .fade-in {
+  animation: appPageIn .26s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+@keyframes appPageIn {
+  from { opacity: 0; transform: translateY(14px) scale(.992); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
