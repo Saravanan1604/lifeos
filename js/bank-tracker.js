@@ -396,7 +396,7 @@ function renderBankTrendChart(labels, data) {
         borderColor: '#00c9a7',
         borderWidth: 2.5,
         pointBackgroundColor: '#00c9a7',
-        pointRadius: 3,
+        pointRadius: window.__IS_APP ? 0 : 3,
         pointHoverRadius: 6,
         tension: 0.4,
         fill: true,
@@ -424,7 +424,7 @@ function renderBankTrendChart(labels, data) {
         }
       },
       scales: {
-        x: { ticks: { color:'#64748b', font:{size:10}, maxRotation:45 }, grid: { color:gridColor } },
+        x: { ticks: { color:'#64748b', font:{size:10}, maxRotation: window.__IS_APP ? 0 : 45, autoSkip: true, maxTicksLimit: window.__IS_APP ? 6 : 24 }, grid: { color: window.__IS_APP ? 'rgba(255,255,255,0.03)' : gridColor } },
         y: {
           ticks: {
             color:'#64748b', font:{size:11},
@@ -949,7 +949,7 @@ function renderCCTrendChart(labels, data) {
         }
       },
       scales: {
-        x: { ticks: { color:'#64748b', font:{size:10}, maxRotation:45 }, grid: { color:gridColor } },
+        x: { ticks: { color:'#64748b', font:{size:10}, maxRotation: window.__IS_APP ? 0 : 45, autoSkip: true, maxTicksLimit: window.__IS_APP ? 6 : 24 }, grid: { color: window.__IS_APP ? 'rgba(255,255,255,0.03)' : gridColor } },
         y: {
           ticks: {
             color:'#64748b', font:{size:11},
@@ -1272,7 +1272,7 @@ function renderCashTrendChart(labels, data) {
         }
       },
       scales: {
-        x: { ticks: { color:'#64748b', font:{size:10}, maxRotation:45 }, grid: { color:gridColor } },
+        x: { ticks: { color:'#64748b', font:{size:10}, maxRotation: window.__IS_APP ? 0 : 45, autoSkip: true, maxTicksLimit: window.__IS_APP ? 6 : 24 }, grid: { color: window.__IS_APP ? 'rgba(255,255,255,0.03)' : gridColor } },
         y: {
           ticks: {
             color:'#64748b', font:{size:11},

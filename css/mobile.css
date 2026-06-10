@@ -10261,3 +10261,83 @@ html.is-app .sidebar::-webkit-scrollbar {
 html.is-app .sidebar.mobile-open .sidebar-header {
   padding: 24px 18px 10px 24px !important;
 }
+
+/* ============================================================
+   build 354 — FINANCE PAGE UX POLISH (from UX review)
+   1) contrast on secondary text  2) flatter cards + calmer
+   carousel dots  3) decluttered toolbar + uniform quiet action
+   pills  4) (charts: fewer x-labels, no point dots — JS)
+   5) subtle bottom-nav active state.
+   ============================================================ */
+
+/* 1 ── Secondary text: readable light gray instead of muted teal */
+html.is-app .metric-footer {
+  color: rgba(203, 213, 225, 0.78) !important;
+}
+html.is-app .stat-card-label {
+  color: rgba(203, 213, 225, 0.85) !important;
+}
+
+/* 2 ── Cards: flat, soft elevation; no busy glow borders */
+html.is-app .fin-dark-card {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35) !important;
+  border: none !important;
+}
+/* icon pill breathing room from the card corner */
+html.is-app .fin-dark-card .card-icon-trigger {
+  margin: 2px 2px 0 0 !important;
+}
+
+/* carousel dots: quiet inactive, small teal pill active */
+html.is-app .swipe-dots {
+  gap: 7px !important;
+  margin: 2px 0 18px !important;
+}
+html.is-app .swipe-dots span {
+  width: 7px !important;
+  height: 7px !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+html.is-app .swipe-dots span.on {
+  width: 20px !important;
+  height: 7px !important;
+  border-radius: 4px !important;
+  background: rgba(0, 201, 167, 0.85) !important;
+}
+
+/* 3 ── Toolbar: undo/redo/layout-edit move out of the app's top bar
+   (still available on web; layout edit lives in Settings) */
+html.is-app #top-tools button[title="Undo"],
+html.is-app #top-tools button[title="Redo"],
+html.is-app #top-tools button[title="Customize layout"] {
+  display: none !important;
+}
+
+/* quick-action pills: uniform quiet outline style, colored text only */
+html.is-app #page-quick-actions button {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow: none !important;
+}
+
+/* 5 ── Bottom nav: no glow block; colored icon/text + small dot */
+html.is-app #bottom-nav .bn-item.active::before {
+  display: none !important;
+}
+html.is-app #bn-indicator {
+  display: none !important;
+}
+html.is-app #bottom-nav .bn-item.active {
+  background: transparent !important;
+}
+html.is-app #bottom-nav .bn-item.active::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #00c9a7;
+}
