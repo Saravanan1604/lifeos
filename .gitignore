@@ -14,5 +14,15 @@ desktop.ini
 *.log
 *.tmp
 
+# Capacitor / native Android (never commit — Vercel serves this repo publicly,
+# so node_modules/android/www would all be downloadable from the website)
+node_modules/
+android/
+www/
+
+# Signing keys — must NEVER reach the repo
+*.keystore
+*.jks
+
 # Don't upload the icon generator (development helper only)
 create-icons.html

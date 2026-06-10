@@ -27,6 +27,8 @@
           window.matchMedia('(display-mode: minimal-ui)').matches))
         || window.navigator.standalone === true
         || (document.referrer || '').indexOf('android-app://') === 0
+        || !!window.Capacitor
+        || (navigator.userAgent || '').indexOf('LifeOSApp') !== -1
         || localStorage.getItem('_isApp') === '1';
     } catch (e) {}
     if (isApp) { try { localStorage.setItem('_isApp', '1'); } catch (e) {} }
@@ -78,11 +80,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=345" />
-  <link rel="stylesheet" href="css/calc.css?v=345" />
-  <link rel="stylesheet" href="css/premium.css?v=345" />
+  <link rel="stylesheet" href="css/styles.css?v=348" />
+  <link rel="stylesheet" href="css/calc.css?v=348" />
+  <link rel="stylesheet" href="css/premium.css?v=348" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=345" />
+  <link rel="stylesheet" href="css/mobile.css?v=348" />
 </head>
 <body>
 
@@ -518,29 +520,29 @@
 
 <!-- (Old floating calculator removed — replaced by the full-screen calc page) -->
 
-<script src="js/storage.js?v=345"></script>
-<script src="js/core.js?v=345"></script>
-<script src="js/dashboard.js?v=345"></script>
-<script src="js/finance.js?v=345"></script>
-<script src="js/bank-tracker.js?v=345"></script>
-<script src="js/life.js?v=345"></script>
-<script src="js/growth.js?v=345"></script>
-<script src="js/ai.js?v=345"></script>
-<script src="js/calculator.js?v=345"></script>
-<script src="js/features.js?v=345"></script>
-<script src="js/premium.js?v=345"></script>
-<script src="js/categories.js?v=345"></script>
-<script src="js/compare.js?v=345"></script>
-<script src="js/pages.js?v=345"></script>
-<script src="js/help.js?v=345"></script>
-<script src="js/voice.js?v=345"></script>
-<script src="js/applock.js?v=345"></script>
-<script src="js/onboarding.js?v=345"></script>
-<script src="js/layout.js?v=345"></script>
-<script src="js/notes.js?v=345"></script>
-<script src="js/widgets.js?v=345"></script>
-<script src="js/yearly.js?v=345"></script>
-<script src="js/init.js?v=345"></script>
+<script src="js/storage.js?v=348"></script>
+<script src="js/core.js?v=348"></script>
+<script src="js/dashboard.js?v=348"></script>
+<script src="js/finance.js?v=348"></script>
+<script src="js/bank-tracker.js?v=348"></script>
+<script src="js/life.js?v=348"></script>
+<script src="js/growth.js?v=348"></script>
+<script src="js/ai.js?v=348"></script>
+<script src="js/calculator.js?v=348"></script>
+<script src="js/features.js?v=348"></script>
+<script src="js/premium.js?v=348"></script>
+<script src="js/categories.js?v=348"></script>
+<script src="js/compare.js?v=348"></script>
+<script src="js/pages.js?v=348"></script>
+<script src="js/help.js?v=348"></script>
+<script src="js/voice.js?v=348"></script>
+<script src="js/applock.js?v=348"></script>
+<script src="js/onboarding.js?v=348"></script>
+<script src="js/layout.js?v=348"></script>
+<script src="js/notes.js?v=348"></script>
+<script src="js/widgets.js?v=348"></script>
+<script src="js/yearly.js?v=348"></script>
+<script src="js/init.js?v=348"></script>
 
 <!-- ===== First-run Onboarding ===== -->
 <div id="onboarding" style="display:none">
@@ -672,9 +674,14 @@
   })();
 </script>
   <script>
-  // Force active mobile view styling if running inside Capacitor's native wrapper
-  if (window.hasOwnProperty('Capacitor') || navigator.userAgent.includes('Capacitor')) {
+  // Capacitor fallback: if the head check ran before the native bridge was
+  // injected, catch it here and persist so every later launch is detected
+  // before first paint (head script reads localStorage._isApp).
+  if (!window.__IS_APP && (window.Capacitor ||
+      (navigator.userAgent || '').indexOf('LifeOSApp') !== -1)) {
+    window.__IS_APP = true;
     document.documentElement.classList.add('is-app');
+    try { localStorage.setItem('_isApp', '1'); } catch (e) {}
   }
 </script>
 </body>

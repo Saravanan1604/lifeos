@@ -33,6 +33,20 @@ $idx = ReadAll 'index.html'
 $idx = $idx -replace '\?v=\d+', "?v=$new"
 WriteAll 'index.html' $idx
 
+# --- keep the Capacitor bundle (www/) in sync with the web source ---
+# www/ is gitignored; it only matters locally when building the Android app.
+if (Test-Path (Join-Path $PSScriptRoot 'www')) {
+  Write-Host "Syncing www/ (Capacitor bundle) ..." -ForegroundColor Cyan
+  robocopy (Join-Path $PSScriptRoot 'css')   (Join-Path $PSScriptRoot 'www\css')   /MIR /NJH /NJS /NDL /NC /NS | Out-Null
+  robocopy (Join-Path $PSScriptRoot 'js')    (Join-Path $PSScriptRoot 'www\js')    /MIR /NJH /NJS /NDL /NC /NS | Out-Null
+  robocopy (Join-Path $PSScriptRoot 'icons') (Join-Path $PSScriptRoot 'www\icons') /MIR /NJH /NJS /NDL /NC /NS | Out-Null
+  foreach ($f in 'index.html','manifest.json','sw.js','privacy.html','terms.html','delete-account.html') {
+    if (Test-Path (Join-Path $PSScriptRoot $f)) {
+      Copy-Item (Join-Path $PSScriptRoot $f) (Join-Path $PSScriptRoot 'www') -Force
+    }
+  }
+}
+
 # --- commit & push ---
 git add -A
 git commit -m "Deploy build $new"

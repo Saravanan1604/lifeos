@@ -1,0 +1,11 @@
+{
+  "appId": "com.saravanan.lifeos",
+  "appName": "LifeOS",
+  "webDir": "www",
+  "server": {
+    "url": "https://lifeos-psi-roan.vercel.app"
+  },
+  "android": {
+    "appendUserAgent": "LifeOSApp"
+  }
+}
