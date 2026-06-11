@@ -4427,7 +4427,7 @@ function renderBudget() {
       <!-- Records-style month bar: [+] ‹ label ▾ › Today -->
       <div class="mm-monthbar" style="margin-bottom:16px">
         <button class="budget-add-btn" onclick="openAddBudgetModal(-1)" title="Add budget">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
         </button>
         ${_budgetPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="budgetNav(-1)">‹</button>`}
         <button class="mm-month" onclick="openBudgetPeriodSheet()" title="Change period / pick a date">${_plbl} <span class="mm-month-chev">▾</span></button>
