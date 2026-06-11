@@ -11048,3 +11048,47 @@ html.is-app .fin-card-grid .fin-dark-card div[style*="1.05rem"] span {
   font-size: 14px !important;
   white-space: nowrap !important;
 }
+
+/* ============================================================
+   build 377 — FINANCE page: 2x text / numbers / icons (app-only)
+   Covers Banks/Cards/Cash via data-page finance + bank-tracker.
+   ============================================================ */
+html.is-app #page-container[data-page="finance"] [style*="font-size:10px"],
+html.is-app #page-container[data-page="bank-tracker"] [style*="font-size:10px"] { font-size: 19px !important; }
+html.is-app #page-container[data-page="finance"] [style*="font-size:11px"],
+html.is-app #page-container[data-page="bank-tracker"] [style*="font-size:11px"] { font-size: 20px !important; }
+html.is-app #page-container[data-page="finance"] [style*="font-size:12px"],
+html.is-app #page-container[data-page="bank-tracker"] [style*="font-size:12px"] { font-size: 22px !important; }
+html.is-app #page-container[data-page="finance"] [style*="font-size:13px"],
+html.is-app #page-container[data-page="bank-tracker"] [style*="font-size:13px"] { font-size: 24px !important; }
+html.is-app #page-container[data-page="finance"] [style*="font-size:14px"],
+html.is-app #page-container[data-page="bank-tracker"] [style*="font-size:14px"] { font-size: 26px !important; }
+html.is-app #page-container[data-page="finance"] [style*="font-size:16px"],
+html.is-app #page-container[data-page="bank-tracker"] [style*="font-size:16px"] { font-size: 28px !important; }
+html.is-app #page-container[data-page="finance"] .section-title,
+html.is-app #page-container[data-page="bank-tracker"] .section-title { font-size: 28px !important; }
+
+/* Total balance metric panel */
+html.is-app .metric-value { font-size: 48px !important; }
+html.is-app .metric-header span { font-size: 19px !important; }
+html.is-app .metric-footer { font-size: 18px !important; }
+
+/* Account cards: bigger bank name, balance, footer */
+html.is-app .fin-dark-card div[style*="2.6rem"] { font-size: 46px !important; }
+html.is-app .fin-dark-card span[style*="0.75rem"] { font-size: 18px !important; }
+html.is-app .fin-dark-card div[style*="1.05rem"] { font-size: 17px !important; }
+html.is-app .fin-card-grid .fin-dark-card div[style*="1.05rem"] span { font-size: 17px !important; }
+html.is-app .fin-dark-card .card-icon-trigger { width: 56px !important; height: 56px !important; font-size: 26px !important; }
+
+/* Balance-log cards bumped */
+html.is-app .blog-ic { width: 64px !important; height: 64px !important; }
+html.is-app .blog-ic svg { width: 32px !important; height: 32px !important; }
+html.is-app .blog-title { font-size: 22px !important; }
+html.is-app .blog-amt { font-size: 36px !important; }
+html.is-app .blog-delta { font-size: 22px !important; }
+html.is-app .blog-from { font-size: 18px !important; }
+html.is-app .blog-del svg { width: 24px !important; height: 24px !important; }
+
+/* Segmented tab labels (Banks/Cards/Cash) */
+html.is-app #page-container[data-page="finance"] .fin-segtab,
+html.is-app #page-container[data-page="bank-tracker"] .fin-segtab { font-size: 24px !important; }
