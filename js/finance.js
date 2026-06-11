@@ -1258,7 +1258,7 @@ function acctSection(type) {
               <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
                 <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">${b.bankName}</span>
                 <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
-                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openQuickBalanceModal('${b.id}')" title="Add log" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
+                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openCardQuickMenu('bank','${b.id}')" title="Add log" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
                   <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('bank', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
                   🏛️
                   </div>
@@ -1321,7 +1321,7 @@ function acctSection(type) {
                   <span style="opacity:0.6;font-size:0.7rem;flex-shrink:0">${c.network||'VISA'}</span>
                 </div>
                 <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
-                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openUpdateCCModal('${c.id}')" title="Pay / update" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
+                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openCardQuickMenu('card','${c.id}')" title="Pay / update" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
                   <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('card', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
                   💳
                   </div>
@@ -1387,7 +1387,7 @@ function acctSection(type) {
             <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
               <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">${ca.name}</span>
               <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
-                <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openQuickCashModal('${ca.id}')" title="Log cash" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
+                <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openCardQuickMenu('cash','${ca.id}')" title="Log cash" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
                 <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('cash', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
                 💵
                 </div>
@@ -1431,6 +1431,25 @@ function acctSection(type) {
 }
 
 // Mobile-friendly account options panel for quick actions
+// Per-card "+" quick menu (app): log a balance, upload (import) or
+// download (export) right from the account card.
+function openCardQuickMenu(type, id) {
+  const logAction = type === 'bank' ? `openQuickBalanceModal('${id}')`
+                  : type === 'card' ? `openUpdateCCModal('${id}')`
+                  : `openQuickCashModal('${id}')`;
+  const logLabel  = type === 'card' ? 'Pay / Update Outstanding' : 'Add Log';
+  const importMode = type === 'card' ? 'card' : 'bank';
+  openModal('＋ Quick Actions', `
+    <div class="account-options-menu" style="display:flex;flex-direction:column;gap:12px;padding:10px 0">
+      <button class="btn-action" onclick="closeModal(); ${logAction}" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="plus-circle" style="margin-right:8px"></i> ${logLabel}</button>
+      <button class="btn-action" onclick="closeModal(); openBalanceImport('${importMode}')" style="padding:16px;font-size:1.2rem"><i data-lucide="upload" style="margin-right:8px"></i> Upload (Import)</button>
+      <button class="btn-action" onclick="closeModal(); if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()" style="padding:16px;font-size:1.2rem"><i data-lucide="download" style="margin-right:8px"></i> Download (Export)</button>
+      <button class="btn-action" onclick="closeModal()" style="padding:16px;font-size:1.2rem;background:transparent;border:1px solid rgba(255,255,255,0.08)"><i data-lucide="x" style="margin-right:8px"></i> Cancel</button>
+    </div>
+  `);
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+}
+
 function openAccountOptions(type, i) {
   if (type === 'bank') {
     const acct = (STATE.bankAccounts || [])[i];

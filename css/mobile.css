@@ -10402,3 +10402,40 @@ html.is-app .fin-add-card p {
   color: rgba(203, 213, 225, 0.85) !important;
   margin: 0 !important;
 }
+
+/* ============================================================
+   build 356 — FINANCE CARDS: bigger cards, no stat chips,
+   actions live in the per-card "+" menu (Download/Upload row
+   removed from the page).
+   ============================================================ */
+
+/* 3 ── cards 125% wider, 150% taller */
+html.is-app .fin-bank-grid>*,
+html.is-app .fin-card-grid>*,
+html.is-app .fin-cash-grid>* {
+  flex: 0 0 min(92vw, 520px) !important;
+  width: min(92vw, 520px) !important;
+  height: 285px !important;
+  padding: 26px !important;
+}
+html.is-app .fin-card-grid>* {
+  height: 315px !important;
+}
+
+/* balance scales up with the bigger card */
+html.is-app .fin-dark-card div[style*="2.6rem"] {
+  font-size: 42px !important;
+}
+
+/* 4 ── Accounts / Entries / Transfers / Days chips removed */
+html.is-app .bt-stats {
+  display: none !important;
+}
+
+/* free the cards from their inline max/min caps so the new size wins */
+html.is-app .fin-bank-grid>*,
+html.is-app .fin-card-grid>*,
+html.is-app .fin-cash-grid>* {
+  max-width: none !important;
+  min-width: 0 !important;
+}

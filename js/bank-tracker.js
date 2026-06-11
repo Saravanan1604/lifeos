@@ -215,12 +215,7 @@ function renderBankTracker() {
         `}
       </div>
 
-      ${window.__IS_APP ? `
-      <div class="btn-action-row">
-        <button class="btn-action" onclick="if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()"><span>⬇️</span> Download</button>
-        <button class="btn-action" onclick="openBalanceImport('bank')"><span>⬆️</span> Upload</button>
-      </div>
-      ` : ''}
+      
 
       <!-- Tab Bar -->
       <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
@@ -723,12 +718,7 @@ function renderCCTracker() {
         `}
       </div>
 
-      ${window.__IS_APP ? `
-      <div class="btn-action-row">
-        <button class="btn-action" onclick="if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()"><span>⬇️</span> Download</button>
-        <button class="btn-action" onclick="openBalanceImport('card')"><span>⬆️</span> Upload</button>
-      </div>
-      ` : ''}
+      
 
       <!-- Tab Bar -->
       <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
@@ -1061,12 +1051,7 @@ function renderCashTracker() {
         `}
       </div>
 
-      ${window.__IS_APP ? `
-      <div class="btn-action-row">
-        <button class="btn-action" onclick="if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()"><span>⬇️</span> Download</button>
-        <button class="btn-action" onclick="openBalanceImport('bank')"><span>⬆️</span> Upload</button>
-      </div>
-      ` : ''}
+      
 
       <!-- Tab Bar -->
       <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
