@@ -1257,6 +1257,16 @@ function renderMoneyRules() {
       <p style="text-align:center;color:var(--text3);font-size:12px;margin:18px 0 8px">These are general rules of thumb, not personalised advice.</p>
     </div>`;
 
+  // App: the 9 thumb-rule cards collapse to their colored header — tap to
+  // expand (progressive disclosure). Chart sections stay expanded so their
+  // canvases size correctly. Web keeps everything expanded.
+  if (window.__IS_APP) {
+    document.querySelectorAll('#page-container .mr-card').forEach(c => {
+      const h = c.querySelector('.mr-head');
+      if (h) h.addEventListener('click', () => c.classList.toggle('mr-open'));
+    });
+  }
+
   // Refresh Lucide icons (needed when re-rendered via the period dropdown,
   // which bypasses _renderPage's icon pass) and draw the charts.
   setTimeout(() => {

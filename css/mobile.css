@@ -10439,3 +10439,34 @@ html.is-app .fin-cash-grid>* {
   max-width: none !important;
   min-width: 0 !important;
 }
+
+/* ============================================================
+   build 357 — MONEY RULES: snackable accordion cards (app-only)
+   The 9 thumb-rule cards collapse to their colored header; tap
+   to expand. Kills the endless-scroll feel of the page.
+   ============================================================ */
+html.is-app .mr-card .mr-head {
+  cursor: pointer !important;
+  user-select: none;
+}
+html.is-app .mr-card .mr-head::after {
+  content: '▾';
+  margin-left: auto;
+  flex-shrink: 0;
+  color: rgba(203, 213, 225, 0.55);
+  font-size: 20px;
+  transition: transform .2s ease;
+}
+html.is-app .mr-card.mr-open .mr-head::after {
+  transform: rotate(180deg);
+}
+html.is-app .mr-card:not(.mr-open) .mr-body {
+  display: none !important;
+}
+html.is-app .mr-card:not(.mr-open) .mr-head {
+  border-bottom: none !important;
+}
+/* tighter collapsed stack */
+html.is-app .mr-card {
+  margin-bottom: 12px !important;
+}
