@@ -364,8 +364,8 @@ function renderRecordsMyMoney() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in mymoney-records ${_recSelectMode ? 'selmode' : ''}">
       <div class="mm-monthbar">
-        <button class="mm-ring-btn" onclick="openRecBudgetSheet()" title="Budget & category spend">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M12 3a9 9 0 0 1 9 9" stroke-linecap="round"/></svg>
+        <button class="mm-ring-btn" onclick="navigate('budget')" title="Budget & category spend">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9" opacity=".35"/><path d="M12 3a9 9 0 0 1 9 9" stroke-linecap="round"/></svg>
         </button>
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="recNav(-1)">‹</button>`}
         <button class="mm-month" onclick="openRecPeriodSheet()" title="Change period / pick a date">${periodLabelTxt} <span class="mm-month-chev">▾</span></button>

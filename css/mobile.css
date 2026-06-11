@@ -10523,3 +10523,28 @@ html.is-app .mm-ring-btn:active {
   transform: scale(.92);
   background: rgba(0, 201, 167, 0.22) !important;
 }
+
+/* ============================================================
+   build 360 — RECORDS ring button: bigger, pinned far left,
+   vivid violet; now opens the Budget page.
+   ============================================================ */
+html.is-app .mm-monthbar {
+  position: relative !important;
+}
+html.is-app .mm-ring-btn {
+  position: absolute !important;
+  left: 6px !important;
+  top: 50% !important;
+  transform: translateY(-50%);
+  width: 50px !important;
+  height: 50px !important;
+  margin-right: 0 !important;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35) !important;
+}
+html.is-app .mm-ring-btn:active {
+  transform: translateY(-50%) scale(.92);
+  background: linear-gradient(135deg, #7c3aed, #5b21b6) !important;
+}
