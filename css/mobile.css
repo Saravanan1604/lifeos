@@ -10619,3 +10619,29 @@ html.is-app .budget-filter-btn svg {
 html.is-app .sidebar .nav-web-only {
   display: none !important;
 }
+
+/* ============================================================
+   build 366 — BUDGET: + button (add budget) pinned left of the
+   month bar, same placement as the Records ring button.
+   ============================================================ */
+html.is-app .budget-add-btn {
+  position: absolute !important;
+  left: 6px !important;
+  top: 50% !important;
+  transform: translateY(-50%);
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #00c9a7, #0acf83) !important;
+  border: none !important;
+  color: #04211a !important;
+  box-shadow: 0 6px 18px rgba(0, 201, 167, 0.35) !important;
+  cursor: pointer !important;
+}
+html.is-app .budget-add-btn:active {
+  transform: translateY(-50%) scale(.92);
+  background: linear-gradient(135deg, #00b496, #09b974) !important;
+}
