@@ -10912,3 +10912,58 @@ html.is-app .ia-chg.pos { color: #10b981; }
 html.is-app .ia-chg.neg { color: #ef4444; }
 html.is-app .ia-chg svg { width: 13px; height: 13px; }
 html.is-app .ia-chev { width: 20px; height: 20px; color: rgba(203,213,225,0.35); flex-shrink: 0; }
+
+/* ============================================================
+   build 373 — ALL ASSETS reference: scale everything up ~2x
+   ============================================================ */
+html.is-app .ia-hero { padding: 28px 24px; }
+html.is-app .ia-hero-lbl { font-size: 22px; }
+html.is-app .ia-hero-lbl svg { width: 22px; height: 22px; }
+html.is-app .ia-hero-val { font-size: 56px; }
+html.is-app .ia-hero-chg { font-size: 24px; margin-top: 14px; }
+html.is-app .ia-hero-chg svg { width: 22px; height: 22px; }
+html.is-app .ia-hero-trend { width: 84px; height: 84px; border-radius: 24px; }
+html.is-app .ia-hero-trend svg { width: 42px; height: 42px; }
+html.is-app .ia-hero-div { margin: 24px 0; }
+html.is-app .ia-hs-ic { width: 60px; height: 60px; border-radius: 17px; }
+html.is-app .ia-hs-ic svg { width: 32px; height: 32px; }
+html.is-app .ia-hs-lbl { font-size: 18px; }
+html.is-app .ia-hs-val { font-size: 30px; }
+
+html.is-app .ia-stats { padding: 22px 12px; gap: 6px; }
+html.is-app .ia-stat-ic svg { width: 36px; height: 36px; }
+html.is-app .ia-stat-lbl { font-size: 17px; }
+html.is-app .ia-stat-val { font-size: 26px; }
+
+html.is-app .ia-tg { padding: 18px; font-size: 27px; }
+
+html.is-app .ia-card { padding: 24px; }
+html.is-app .ia-card-title { font-size: 30px; }
+html.is-app .ia-card-title svg { width: 22px; height: 22px; }
+html.is-app .ia-link { font-size: 22px; }
+html.is-app .ia-link svg { width: 22px; height: 22px; }
+
+html.is-app .ia-alloc { gap: 18px; }
+html.is-app .ia-alloc-legend { gap: 20px; }
+html.is-app .ia-leg-dot { width: 16px; height: 16px; }
+html.is-app .ia-leg-name { font-size: 25px; }
+html.is-app .ia-leg-bar { height: 13px; }
+html.is-app .ia-leg-pct { font-size: 24px; width: 64px; }
+html.is-app .ia-donut { width: 200px; height: 200px; }
+html.is-app .ia-donut-c span { font-size: 17px; }
+html.is-app .ia-donut-c b { font-size: 28px; }
+
+html.is-app .ia-item { padding: 20px 0; gap: 16px; }
+html.is-app .ia-thumb { width: 76px; height: 76px; border-radius: 18px; }
+html.is-app .ia-thumb svg { width: 40px; height: 40px; }
+html.is-app .ia-name { font-size: 28px; }
+html.is-app .ia-sub { font-size: 20px; margin-top: 4px; }
+html.is-app .ia-val { font-size: 27px; }
+html.is-app .ia-chg { font-size: 20px; }
+html.is-app .ia-chg svg { width: 18px; height: 18px; }
+html.is-app .ia-chev { width: 28px; height: 28px; }
+
+html.is-app .inv-add-card { padding: 28px 12px; }
+html.is-app .inv-add-ic { width: 76px; height: 76px; border-radius: 22px; }
+html.is-app .inv-add-ic svg { width: 40px; height: 40px; }
+html.is-app .inv-add-lbl { font-size: 28px; }
