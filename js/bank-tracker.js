@@ -217,8 +217,8 @@ function renderBankTracker() {
 
       ${window.__IS_APP ? `
       <div class="btn-action-row">
-        <button class="btn-action" onclick="openTransferModal()"><span>💸</span> Transfer</button>
-        <button class="btn-action" onclick="openBalanceImport('bank')"><span>📥</span> Import</button>
+        <button class="btn-action" onclick="if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()"><span>⬇️</span> Download</button>
+        <button class="btn-action" onclick="openBalanceImport('bank')"><span>⬆️</span> Upload</button>
       </div>
       ` : ''}
 
@@ -244,7 +244,6 @@ function renderBankTracker() {
       <div class="metric-panel">
         <div class="metric-header">
           <span>TOTAL LIQUID BANK BALANCE</span>
-          <span onclick="navigate('finance')" style="color:var(--teal);cursor:pointer;font-size:12px">Manage ➔</span>
         </div>
         <div class="metric-value" style="color:var(--teal)">${fmt(totalBalance)}</div>
         <div class="metric-footer">Consolidated metrics across ${accounts.length} active bank indices</div>
@@ -726,8 +725,8 @@ function renderCCTracker() {
 
       ${window.__IS_APP ? `
       <div class="btn-action-row">
-        <button class="btn-action" onclick="openUpdateCCModal('${selId || (cards[0]?.id || '')}')"><span>💸</span> Pay / Update</button>
-        <button class="btn-action" onclick="openBalanceImport('card')"><span>📥</span> Import</button>
+        <button class="btn-action" onclick="if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()"><span>⬇️</span> Download</button>
+        <button class="btn-action" onclick="openBalanceImport('card')"><span>⬆️</span> Upload</button>
       </div>
       ` : ''}
 
@@ -753,7 +752,6 @@ function renderCCTracker() {
       <div class="metric-panel">
         <div class="metric-header">
           <span>TOTAL OUTSTANDING BALANCE</span>
-          <span onclick="navigate('finance')" style="color:#ef4444;cursor:pointer;font-size:12px">Manage ➔</span>
         </div>
         <div class="metric-value" style="color:#ef4444">${fmt(totalOutstanding)}</div>
         <div class="metric-footer">${overallUtil}% utilised · Total Limit: ${fmt(totalLimit)}</div>
@@ -1065,8 +1063,8 @@ function renderCashTracker() {
 
       ${window.__IS_APP ? `
       <div class="btn-action-row">
-        <button class="btn-action" onclick="openQuickCashModal('${selId || (accounts[0]?.id || '')}')"><span>💸</span> Log Cash</button>
-        <button class="btn-action" onclick="addCashAccount()"><span>📥</span> Add Wallet</button>
+        <button class="btn-action" onclick="if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()"><span>⬇️</span> Download</button>
+        <button class="btn-action" onclick="openBalanceImport('bank')"><span>⬆️</span> Upload</button>
       </div>
       ` : ''}
 
@@ -1092,7 +1090,6 @@ function renderCashTracker() {
       <div class="metric-panel">
         <div class="metric-header">
           <span>TOTAL CASH BALANCE</span>
-          <span onclick="navigate('finance')" style="color:#f59e0b;cursor:pointer;font-size:12px">Manage ➔</span>
         </div>
         <div class="metric-value" style="color:#f59e0b">${fmt(totalBalance)}</div>
         <div class="metric-footer">Consolidated cash metrics across ${accounts.length} wallets</div>

@@ -10341,3 +10341,64 @@ html.is-app #bottom-nav .bn-item.active::after {
   border-radius: 50%;
   background: #00c9a7;
 }
+
+/* ============================================================
+   build 355 — FINANCE PAGE RESTRUCTURE (app-only)
+   - quick-action pills (Add Income/Expense/All Transactions)
+     hidden on the Finance page (FAB + per-card buttons cover it)
+   - per-card "+" log button (top-right of every account card)
+   - "+" add-account card at the end of each carousel
+   - Transfer lives in the + sheet now; Download/Upload row
+   ============================================================ */
+
+/* 1 ── No quick-action pills on Finance */
+html.is-app #page-container[data-page="finance"] #page-quick-actions,
+html.is-app #page-container[data-page="bank-tracker"] #page-quick-actions {
+  display: none !important;
+}
+
+/* 3 ── per-card add-log chip: accent tint so it reads as primary */
+html.is-app .fin-dark-card .card-log-btn {
+  background: rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+/* 4 ── "+" add-account card: same footprint, dashed ghost style */
+html.is-app .fin-add-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 2px dashed rgba(255, 255, 255, 0.18) !important;
+  border-radius: 24px !important;
+  cursor: pointer !important;
+  transition: background .15s ease, transform .12s ease !important;
+}
+html.is-app .fin-add-card:active {
+  transform: scale(.97) !important;
+  background: rgba(0, 201, 167, 0.08) !important;
+}
+html.is-app .fin-add-card .fin-add-plus {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(0, 201, 167, 0.15);
+  color: #00c9a7;
+  font-size: 30px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+html.is-app .fin-add-card p {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: rgba(203, 213, 225, 0.85) !important;
+  margin: 0 !important;
+}

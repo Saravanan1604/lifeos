@@ -1101,6 +1101,7 @@ ${_pad.mode === 'add' ? `
         <button class="pad-tool" onclick="openBulkEntry()"><span class="pad-tool-ic"><i data-lucide="calendar-days"></i></span><span>Bulk Entry</span></button>
         <button class="pad-tool" onclick="openSmsParser()"><span class="pad-tool-ic"><i data-lucide="message-square-text"></i></span><span>Scan SMS</span></button>
         <button class="pad-tool" onclick="openPdfImport()"><span class="pad-tool-ic"><i data-lucide="file-text"></i></span><span>Import PDF</span></button>
+        ${window.__IS_APP ? `<button class="pad-tool" onclick="padClose();if(typeof openTransferModal==='function')openTransferModal()"><span class="pad-tool-ic"><i data-lucide="arrow-left-right"></i></span><span>Transfer</span></button>` : ''}
       </div>
     </div>` : ''}
 
@@ -1255,9 +1256,12 @@ function acctSection(type) {
             return `
             <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:auto;min-height:170px;padding:1.2rem 1.3rem;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;gap:0.8rem;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});cursor:pointer;flex-shrink:0">
               <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
-                <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72%">${b.bankName}</span>
-                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('bank', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
+                <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">${b.bankName}</span>
+                <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
+                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openQuickBalanceModal('${b.id}')" title="Add log" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
+                  <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('bank', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
                   🏛️
+                  </div>
                 </div>
               </div>
               <div style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(b.balance)}</div>
@@ -1287,7 +1291,9 @@ function acctSection(type) {
       </div>`;
 
     if (window.__IS_APP) {
-      return innerHTML;
+      // Append a same-size "+" card at the end of the carousel to add a bank
+      const addCard = `<div class="fin-add-card" onclick="addBankAccount()"><span class="fin-add-plus">＋</span><p>Add Bank</p></div>`;
+      return list.length ? innerHTML.replace(/<\/div>$/, addCard + '</div>') : innerHTML;
     } else {
       return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
           <div class="section-header" style="margin-bottom:16px">
@@ -1314,8 +1320,11 @@ function acctSection(type) {
                   <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.bankName}</span>
                   <span style="opacity:0.6;font-size:0.7rem;flex-shrink:0">${c.network||'VISA'}</span>
                 </div>
-                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('card', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
+                <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
+                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openUpdateCCModal('${c.id}')" title="Pay / update" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
+                  <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('card', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
                   💳
+                  </div>
                 </div>
               </div>
               <div style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(used)}</div>
@@ -1352,7 +1361,8 @@ function acctSection(type) {
       </div>`;
 
       if (window.__IS_APP) {
-        return innerHTML;
+        const addCard = `<div class="fin-add-card" onclick="addCreditCard()"><span class="fin-add-plus">＋</span><p>Add Card</p></div>`;
+        return list.length ? innerHTML.replace(/<\/div>$/, addCard + '</div>') : innerHTML;
       } else {
         return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
             <div class="section-header" style="margin-bottom:16px">
@@ -1375,9 +1385,12 @@ function acctSection(type) {
           return `
           <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:auto;min-height:170px;padding:1.2rem 1.3rem;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;gap:0.8rem;background:linear-gradient(135deg,#78350f,#92400e);cursor:pointer;flex-shrink:0">
             <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
-              <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72%">${ca.name}</span>
-              <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('cash', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
+              <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">${ca.name}</span>
+              <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
+                <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openQuickCashModal('${ca.id}')" title="Log cash" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
+                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('cash', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
                 💵
+                </div>
               </div>
             </div>
             <div style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(ca.balance||0)}</div>
@@ -1403,7 +1416,8 @@ function acctSection(type) {
     </div>`;
 
   if (window.__IS_APP) {
-    return innerHTML;
+    const addCard = `<div class="fin-add-card" onclick="addCashAccount()"><span class="fin-add-plus">＋</span><p>Add Wallet</p></div>`;
+    return list.length ? innerHTML.replace(/<\/div>$/, addCard + '</div>') : innerHTML;
   } else {
     return `<div class="glass-card" style="padding:20px;margin-bottom:20px">
         <div class="section-header" style="margin-bottom:16px">
