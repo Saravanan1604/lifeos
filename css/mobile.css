@@ -10580,3 +10580,42 @@ html.is-app .budget-legend-row {
 html.is-app .budget-legend-row + .budget-legend-row {
   margin-top: 4px !important;
 }
+
+/* ============================================================
+   build 364 — BUDGET hero (2x ring left, chips right), filter
+   sheet replaces period tabs, quick-action pills hidden; the
+   sidebar "All Transactions" item is web-only.
+   ============================================================ */
+
+/* Add Budget / Add Income / Add Expense pills off the Budget page */
+html.is-app #page-container[data-page="budget"] #page-quick-actions {
+  display: none !important;
+}
+
+/* round filter button in the header */
+html.is-app .budget-filter-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(139, 92, 246, 0.12) !important;
+  border: 1px solid rgba(139, 92, 246, 0.35) !important;
+  color: #8b5cf6 !important;
+  cursor: pointer !important;
+}
+html.is-app .budget-filter-btn:active {
+  transform: scale(.92);
+  background: rgba(139, 92, 246, 0.25) !important;
+}
+html.is-app .budget-filter-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* The app reaches transactions via the Records tab — hide the
+   web-only sidebar entry inside the app drawer */
+html.is-app .sidebar .nav-web-only {
+  display: none !important;
+}

@@ -4223,6 +4223,20 @@ function removeCustomType(kind, idx) {
 let _budgetPeriod = 'month';
 function setBudgetPeriod(p) { _budgetPeriod = p; renderBudget(); }
 
+// App: period filter sheet (replaces the Day/Week/Month/Year/All tab row)
+function openBudgetPeriodSheet() {
+  const tabs = ['day', 'week', 'month', 'year', 'all'];
+  const lbl = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
+  openModal('Filter Period', `
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${tabs.map(p => `<button onclick="closeModal();setBudgetPeriod('${p}')"
+        style="flex:1;min-width:70px;padding:13px 6px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;
+        background:${_budgetPeriod === p ? 'linear-gradient(135deg,#8b5cf6,#6d28d9)' : 'rgba(255,255,255,0.05)'};
+        border:1px solid ${_budgetPeriod === p ? 'transparent' : 'rgba(255,255,255,0.12)'};
+        color:${_budgetPeriod === p ? '#fff' : 'var(--text)'}">${lbl[p]}</button>`).join('')}
+    </div>`);
+}
+
 // Open the add-budget modal with a category preselected (from the
 // "No Budget Set" rows on the Budget page).
 function openAddBudgetModalFor(cat) {
@@ -4340,6 +4354,17 @@ function renderBudget() {
         </div>
       </div>` : '';
 
+  // Shared stat chips (web: 3-across grid; app: stacked beside the ring)
+  const _chip = (label, val, color, rgb) => `
+      <div style="padding:13px;border-radius:12px;background:rgba(${rgb},0.1);border:1px solid rgba(${rgb},0.2);text-align:center">
+        <p style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:${color};margin-bottom:4px">${label}</p>
+        <p style="font-size:17px;font-weight:900;color:${color}">${val}</p>
+      </div>`;
+  const chipsHtml3 =
+    _chip('Total Budget', fmt(totalLimit), '#6366f1', '99,102,241') +
+    _chip('Total Spent', fmt(totalSpent), totalSpent > totalLimit ? '#ef4444' : '#10b981', totalSpent > totalLimit ? '239,68,68' : '16,185,129') +
+    _chip(totalRemaining < 0 ? 'Over Budget' : 'Remaining', fmt(Math.abs(totalRemaining)), totalRemaining < 0 ? '#ef4444' : '#f59e0b', totalRemaining < 0 ? '239,68,68' : '245,158,11');
+
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
@@ -4348,7 +4373,9 @@ function renderBudget() {
           <p class="page-subtitle">${periodLabel(_budgetPeriod)} spending vs budget limits</p>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          ${periodTabsHtml(_budgetPeriod, 'setBudgetPeriod')}
+          ${window.__IS_APP
+            ? `<button class="budget-filter-btn" onclick="openBudgetPeriodSheet()" title="Filter period"><i data-lucide="sliders-horizontal"></i></button>`
+            : periodTabsHtml(_budgetPeriod, 'setBudgetPeriod')}
           <button class="btn-primary btn-sm" onclick="openAddBudgetModal(-1)">+ Add Budget</button>
         </div>
       </div>
@@ -4361,6 +4388,20 @@ function renderBudget() {
           <p class="section-title"><i data-lucide="pie-chart"></i> Total Budget Overview</p>
           <span style="font-size:12px;color:var(--text3)">${periodLabel(_budgetPeriod)}</span>
         </div>
+        ${window.__IS_APP ? `
+        <!-- App: 2x ring on the left, stat chips stacked on the right -->
+        <div class="budget-hero-row" style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
+          <div style="position:relative;height:300px;flex:1.25;min-width:0">
+            <canvas id="budget-donut-chart"></canvas>
+            <div class="budget-donut-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+              <span style="font-size:15px;font-weight:900;color:var(--text1)">${fmt(totalLimit)}</span>
+              <span style="font-size:10px;color:var(--text3);margin-top:2px">total budget</span>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px;min-width:0">${chipsHtml3}</div>
+        </div>
+        <div class="budget-overview-app"><div>
+        ` : `
         <div style="display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:center" class="budget-overview-grid">
 
           <!-- Doughnut -->
@@ -4375,20 +4416,8 @@ function renderBudget() {
           <!-- Right side: stat chips + per-category legend -->
           <div>
             <!-- 3 stat chips -->
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
-              <div style="padding:12px;border-radius:12px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);text-align:center">
-                <p style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#6366f1;margin-bottom:4px">Total Budget</p>
-                <p style="font-size:17px;font-weight:900;color:#6366f1">${fmt(totalLimit)}</p>
-              </div>
-              <div style="padding:12px;border-radius:12px;background:rgba(${totalSpent>totalLimit?'239,68,68':'16,185,129'},0.1);border:1px solid rgba(${totalSpent>totalLimit?'239,68,68':'16,185,129'},0.2);text-align:center">
-                <p style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:${totalSpent>totalLimit?'#ef4444':'#10b981'};margin-bottom:4px">Total Spent</p>
-                <p style="font-size:17px;font-weight:900;color:${totalSpent>totalLimit?'#ef4444':'#10b981'}">${fmt(totalSpent)}</p>
-              </div>
-              <div style="padding:12px;border-radius:12px;background:rgba(${totalRemaining<0?'239,68,68':'245,158,11'},0.1);border:1px solid rgba(${totalRemaining<0?'239,68,68':'245,158,11'},0.2);text-align:center">
-                <p style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:${totalRemaining<0?'#ef4444':'#f59e0b'};margin-bottom:4px">${totalRemaining<0?'Over Budget':'Remaining'}</p>
-                <p style="font-size:17px;font-weight:900;color:${totalRemaining<0?'#ef4444':'#f59e0b'}">${fmt(Math.abs(totalRemaining))}</p>
-              </div>
-            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">${chipsHtml3}</div>
+        `}
 
             <!-- Overall progress bar -->
             <div style="margin-bottom:14px">
