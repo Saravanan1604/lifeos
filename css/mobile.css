@@ -10548,3 +10548,21 @@ html.is-app .mm-ring-btn:active {
   transform: translateY(-50%) scale(.92);
   background: linear-gradient(135deg, #7c3aed, #5b21b6) !important;
 }
+
+/* ============================================================
+   build 362 — BUDGET PAGE: separate budget cards removed (the
+   legend rows in Total Budget Overview now open the edit popup,
+   which includes Delete); month-comparison chart at the end.
+   ============================================================ */
+html.is-app .budget-cards-list {
+  display: none !important;
+}
+html.is-app .budget-legend-row {
+  padding: 6px 8px !important;
+  margin: 0 -8px !important;
+  border-radius: 10px !important;
+  transition: background .12s ease;
+}
+html.is-app .budget-legend-row:active {
+  background: rgba(255, 255, 255, 0.07) !important;
+}

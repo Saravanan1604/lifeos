@@ -4282,6 +4282,47 @@ function renderBudget() {
   });
   const unbudgetedRows = Object.entries(unbudgeted).sort((a, b) => b[1] - a[1]);
   const unbudgetedTotal = unbudgetedRows.reduce((s, r) => s + r[1], 0);
+
+  // App: this-month vs last-month spend per category (grouped bar chart
+  // at the end of the page).
+  let cmpChartHtml = '';
+  let _cmpData = null;
+  if (window.__IS_APP) {
+    const now = new Date();
+    const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const ymOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const sums = ymKey => {
+      const o = {};
+      txns.forEach(t => {
+        if (t.type === 'income') return;
+        if ((t.date || '').slice(0, 7) !== ymKey) return;
+        const c = (t.category || 'Other').trim();
+        o[c] = (o[c] || 0) + (+t.amount || 0);
+      });
+      return o;
+    };
+    const cur = sums(ymOf(now)), prev = sums(ymOf(prevDate));
+    const cmpCats = [...new Set([...Object.keys(cur), ...Object.keys(prev)])]
+      .sort((a, b) => ((cur[b] || 0) + (prev[b] || 0)) - ((cur[a] || 0) + (prev[a] || 0)))
+      .slice(0, 10);
+    if (cmpCats.length) {
+      _cmpData = {
+        cats: cmpCats,
+        cur: cmpCats.map(c => Math.round(cur[c] || 0)),
+        prev: cmpCats.map(c => Math.round(prev[c] || 0)),
+        curLbl: now.toLocaleString('default', { month: 'short', year: '2-digit' }),
+        prevLbl: prevDate.toLocaleString('default', { month: 'short', year: '2-digit' })
+      };
+      cmpChartHtml = `
+      <div class="glass-card" style="padding:18px;margin-top:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px">
+          <p class="section-title" style="margin:0;font-size:16px"><i data-lucide="bar-chart-3"></i> ${_cmpData.curLbl} vs ${_cmpData.prevLbl}</p>
+          <span style="font-size:12px;color:var(--text3);white-space:nowrap">spend per category</span>
+        </div>
+        <div style="height:${cmpCats.length * 54 + 70}px;position:relative"><canvas id="budget-cmp-chart"></canvas></div>
+      </div>`;
+    }
+  }
   const unbudgetedHtml = (window.__IS_APP && unbudgetedRows.length) ? `
       <div class="glass-card" style="padding:18px;margin-top:20px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px">
@@ -4360,14 +4401,14 @@ function renderBudget() {
               </div>
             </div>
 
-            <!-- Per-category legend rows -->
+            <!-- Per-category legend rows (app: tap to edit/delete) -->
             <div style="display:flex;flex-direction:column;gap:7px">
-              ${budgetRows.map(({b, limit, spent}, idx) => {
+              ${budgetRows.map(({b, bi, limit, spent}, idx) => {
                 const cat = CATEGORIES.find(c => c.name === b.category);
                 const pct = limit > 0 ? Math.min(100, (spent/limit)*100) : 0;
                 const color = BUDGET_COLORS[idx % BUDGET_COLORS.length];
                 const over = spent > limit;
-                return `<div style="display:flex;align-items:center;gap:8px">
+                return `<div class="budget-legend-row" ${window.__IS_APP ? `onclick="openAddBudgetModal(${bi})"` : ''} style="display:flex;align-items:center;gap:8px${window.__IS_APP ? ';cursor:pointer' : ''}">
                   <span style="width:10px;height:10px;border-radius:2px;background:${color};flex-shrink:0"></span>
                   <span class="cat-lic" style="color:${color};font-size:13px">${catIconHtml(b.category)}</span>
                   <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.category}</span>
@@ -4380,8 +4421,8 @@ function renderBudget() {
         </div>
       </div>
 
-      <!-- ── CATEGORY CARDS ──────────────────────────────────────────── -->
-      <div style="display:flex;flex-direction:column;gap:12px">
+      <!-- ── CATEGORY CARDS (hidden in app — legend rows edit instead) ── -->
+      <div class="budget-cards-list" style="display:flex;flex-direction:column;gap:12px">
         ${budgetRows.map(({b, bi, limit, spent}) => {
             const pct    = Math.min(100, limit > 0 ? (spent / limit) * 100 : 0);
             const over   = spent > limit;
@@ -4417,7 +4458,38 @@ function renderBudget() {
       </div>
       `}
       ${unbudgetedHtml}
+      ${cmpChartHtml}
     </div>`;
+
+  // Month-comparison chart (app)
+  if (_cmpData) {
+    setTimeout(() => {
+      const cv = document.getElementById('budget-cmp-chart');
+      if (!cv || typeof Chart === 'undefined') return;
+      if (chartInstances['budget-cmp']) { chartInstances['budget-cmp'].destroy(); delete chartInstances['budget-cmp']; }
+      chartInstances['budget-cmp'] = new Chart(cv, {
+        type: 'bar',
+        data: {
+          labels: _cmpData.cats,
+          datasets: [
+            { label: _cmpData.prevLbl, data: _cmpData.prev, backgroundColor: 'rgba(139,92,246,0.75)', borderRadius: 6, barPercentage: .9, categoryPercentage: .68 },
+            { label: _cmpData.curLbl,  data: _cmpData.cur,  backgroundColor: 'rgba(0,201,167,0.9)',   borderRadius: 6, barPercentage: .9, categoryPercentage: .68 }
+          ]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#94a3b8', boxWidth: 12, font: { size: 12 } } },
+            tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ₹${(+c.parsed.x).toLocaleString('en-IN')}` } }
+          },
+          scales: {
+            x: { ticks: { color: '#64748b', callback: v => '₹' + (Math.abs(v) >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: '#cbd5e1', font: { size: 12, weight: '600' } }, grid: { display: false } }
+          }
+        }
+      });
+    }, 60);
+  }
 
   // Render doughnut chart after DOM is ready
   if (budgets.length > 0) {
@@ -4493,6 +4565,7 @@ function openAddBudgetModal(editIndex) {
       <textarea id="b-notes" class="form-input" rows="2" placeholder="e.g. Includes weekend dining, festival months higher…">${b?.notes ? String(b.notes).replace(/</g,'&lt;') : ''}</textarea>
     </div>
     <div class="modal-actions">
+      ${isEdit && window.__IS_APP ? `<button class="btn-secondary" style="background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.35);color:#ef4444" onclick="closeModal();deleteBudget(${editIndex})">Delete</button>` : ''}
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveBudget(${isEdit ? editIndex : -1})">${isEdit ? 'Update' : 'Save Budget'}</button>
     </div>`);
