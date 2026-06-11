@@ -10967,3 +10967,20 @@ html.is-app .inv-add-card { padding: 28px 12px; }
 html.is-app .inv-add-ic { width: 76px; height: 76px; border-radius: 22px; }
 html.is-app .inv-add-ic svg { width: 40px; height: 40px; }
 html.is-app .inv-add-lbl { font-size: 28px; }
+
+/* ============================================================
+   build 374 — ALL ASSETS: center the net-worth block
+   ============================================================ */
+html.is-app .ia-hero-top {
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+html.is-app .ia-hero-lbl { justify-content: center; }
+html.is-app .ia-hero-chg { justify-content: center; }
+html.is-app .ia-hero-trend {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
