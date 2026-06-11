@@ -10645,3 +10645,29 @@ html.is-app .budget-add-btn:active {
   transform: translateY(-50%) scale(.92);
   background: linear-gradient(135deg, #00b496, #09b974) !important;
 }
+
+/* ============================================================
+   build 368 — BUDGET PAGE TYPE SCALE 2x (app-only)
+   Page-scoped remap with higher specificity than the global
+   inline-size table, so everything on Budget reads big.
+   ============================================================ */
+html.is-app #page-container[data-page="budget"] [style*="font-size:10px"] { font-size: 20px !important; }
+html.is-app #page-container[data-page="budget"] [style*="font-size:11px"] { font-size: 21px !important; }
+html.is-app #page-container[data-page="budget"] [style*="font-size:12px"] { font-size: 23px !important; }
+html.is-app #page-container[data-page="budget"] [style*="font-size:13px"] { font-size: 26px !important; }
+html.is-app #page-container[data-page="budget"] [style*="font-size:14px"] { font-size: 28px !important; }
+html.is-app #page-container[data-page="budget"] [style*="font-size:15px"] { font-size: 30px !important; }
+html.is-app #page-container[data-page="budget"] [style*="font-size:16px"] { font-size: 30px !important; }
+html.is-app #page-container[data-page="budget"] [style*="font-size:17px"] { font-size: 32px !important; }
+html.is-app #page-container[data-page="budget"] .section-title { font-size: 30px !important; }
+
+/* load bars grow with the text */
+html.is-app #page-container[data-page="budget"] div[style*="height:9px"] { height: 15px !important; }
+html.is-app #page-container[data-page="budget"] div[style*="height:9px"]>div { height: 15px !important; }
+html.is-app #page-container[data-page="budget"] div[style*="height:8px"] { height: 14px !important; }
+html.is-app #page-container[data-page="budget"] div[style*="height:8px"]>div { height: 14px !important; }
+
+/* roomier chips + legend rows + No Budget Set rows */
+html.is-app #page-container[data-page="budget"] .budget-hero-row div[style*="border-radius:12px"] { padding: 18px 14px !important; }
+html.is-app #page-container[data-page="budget"] .budget-legend-row { padding: 16px 10px !important; }
+html.is-app #page-container[data-page="budget"] .cat-lic { font-size: 30px !important; }

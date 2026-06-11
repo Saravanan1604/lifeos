@@ -4377,7 +4377,7 @@ function renderBudget() {
           <p class="section-title" style="margin:0;font-size:16px"><i data-lucide="bar-chart-3"></i> ${_cmpData.curLbl} vs ${_cmpData.prevLbl}</p>
           <span style="font-size:12px;color:var(--text3);white-space:nowrap">spend per category</span>
         </div>
-        <div style="height:${cmpCats.length * 54 + 70}px;position:relative"><canvas id="budget-cmp-chart"></canvas></div>
+        <div style="height:${cmpCats.length * 88 + 90}px;position:relative"><canvas id="budget-cmp-chart"></canvas></div>
       </div>`;
     }
   }
@@ -4580,12 +4580,12 @@ function renderBudget() {
         options: {
           indexAxis: 'y', responsive: true, maintainAspectRatio: false,
           plugins: {
-            legend: { labels: { color: '#94a3b8', boxWidth: 12, font: { size: 12 } } },
+            legend: { labels: { color: '#94a3b8', boxWidth: 18, font: { size: 20 } } },
             tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ₹${(+c.parsed.x).toLocaleString('en-IN')}` } }
           },
           scales: {
-            x: { ticks: { color: '#64748b', callback: v => '₹' + (Math.abs(v) >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.04)' } },
-            y: { ticks: { color: '#cbd5e1', font: { size: 12, weight: '600' } }, grid: { display: false } }
+            x: { ticks: { color: '#64748b', font: { size: 17 }, callback: v => '₹' + (Math.abs(v) >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: '#cbd5e1', font: { size: 21, weight: '600' } }, grid: { display: false } }
           }
         }
       });
