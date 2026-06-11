@@ -4408,7 +4408,24 @@ function renderBudget() {
                 const pct = limit > 0 ? Math.min(100, (spent/limit)*100) : 0;
                 const color = BUDGET_COLORS[idx % BUDGET_COLORS.length];
                 const over = spent > limit;
-                return `<div class="budget-legend-row" ${window.__IS_APP ? `onclick="openAddBudgetModal(${bi})"` : ''} style="display:flex;align-items:center;gap:8px${window.__IS_APP ? ';cursor:pointer' : ''}">
+                const rawPct = limit > 0 ? (spent / limit) * 100 : 0;
+                if (window.__IS_APP) {
+                  // App: roomy two-line row with its own progress bar
+                  return `<div class="budget-legend-row" onclick="openAddBudgetModal(${bi})" style="cursor:pointer">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <span class="cat-lic" style="color:${color};font-size:18px">${catIconHtml(b.category)}</span>
+                      <span style="font-size:15px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.category}</span>
+                      <span style="font-size:13px;font-weight:700;white-space:nowrap;color:${over?'#ef4444':'var(--text)'}">${fmt(spent)} <span style="color:var(--text3);font-weight:500">/ ${fmt(limit)}</span></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+                      <div style="flex:1;height:9px;border-radius:5px;background:rgba(255,255,255,0.08);overflow:hidden">
+                        <div style="height:100%;width:${pct}%;border-radius:5px;background:${over?'#ef4444':rawPct>80?'#f59e0b':color}"></div>
+                      </div>
+                      <span style="font-size:12px;font-weight:800;width:46px;text-align:right;color:${over?'#ef4444':rawPct>80?'#f59e0b':'#10b981'}">${rawPct.toFixed(0)}%</span>
+                    </div>
+                  </div>`;
+                }
+                return `<div class="budget-legend-row" style="display:flex;align-items:center;gap:8px">
                   <span style="width:10px;height:10px;border-radius:2px;background:${color};flex-shrink:0"></span>
                   <span class="cat-lic" style="color:${color};font-size:13px">${catIconHtml(b.category)}</span>
                   <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.category}</span>

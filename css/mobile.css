@@ -10566,3 +10566,17 @@ html.is-app .budget-legend-row {
 html.is-app .budget-legend-row:active {
   background: rgba(255, 255, 255, 0.07) !important;
 }
+
+/* ============================================================
+   build 363 — BUDGET overview legend: bigger text, roomier rows,
+   per-category progress (load) bars.
+   ============================================================ */
+html.is-app .budget-legend-row {
+  display: block !important;
+  padding: 12px 10px !important;
+  margin: 0 -10px !important;
+  border-radius: 12px !important;
+}
+html.is-app .budget-legend-row + .budget-legend-row {
+  margin-top: 4px !important;
+}
