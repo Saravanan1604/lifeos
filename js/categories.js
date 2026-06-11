@@ -56,6 +56,8 @@ function renderCategories() {
           <button class="btn-secondary cat-hdr-btn" onclick="openGeminiCategorize()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none"><i data-lucide="sparkles"></i> AI Fix</button>
           <button class="btn-secondary cat-hdr-btn" onclick="openMergeCategoriesModal()"><i data-lucide="git-merge"></i> Merge</button>
           <button class="btn-primary cat-hdr-btn" onclick="openAddCategoryModal()"><i data-lucide="plus"></i> Custom Category</button>
+          <button class="btn-secondary cat-hdr-btn" onclick="openManageTypesModal('asset')"><i data-lucide="trending-up"></i> Asset Types</button>
+          <button class="btn-secondary cat-hdr-btn" onclick="openManageTypesModal('loan')"><i data-lucide="landmark"></i> Loan Types</button>
         </div>
       </div>
 

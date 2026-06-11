@@ -3379,6 +3379,76 @@ function assetIcon(t) { return getAssetTypes().find(x => x.key === t)?.icon || '
 function loanIcon(t)  { return getLoanTypes().find(x => x.key === t)?.icon  || '📋'; }
 
 let invFilter = 'All';
+let invSort = 'newest';      // newest | name | invested | current | profit
+let invSearch = '';          // free-text name filter
+
+// Record one net-worth snapshot per day (history starts building from now).
+function _recordNetWorthSnapshot(value) {
+  STATE.netWorthHistory = STATE.netWorthHistory || [];
+  const today = _ymdLocal(new Date());
+  const last = STATE.netWorthHistory[STATE.netWorthHistory.length - 1];
+  if (last && last.date === today) { last.value = value; }
+  else { STATE.netWorthHistory.push({ date: today, value }); }
+  // keep last ~180 points
+  if (STATE.netWorthHistory.length > 180) STATE.netWorthHistory = STATE.netWorthHistory.slice(-180);
+  saveState();
+}
+
+// Sort + search applied to the (already category-filtered) asset list
+function _invApplySort(list) {
+  let out = [...list];
+  if (invSearch) {
+    const q = invSearch.toLowerCase();
+    out = out.filter(i => (i.name || '').toLowerCase().includes(q) || (i.type || '').toLowerCase().includes(q));
+  }
+  const cur = i => (i.currentValue ?? i.amount ?? 0);
+  if (invSort === 'name')     out.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  else if (invSort === 'invested') out.sort((a, b) => (b.amount || 0) - (a.amount || 0));
+  else if (invSort === 'current')  out.sort((a, b) => cur(b) - cur(a));
+  else if (invSort === 'profit')   out.sort((a, b) => (cur(b) - (b.amount || 0)) - (cur(a) - (a.amount || 0)));
+  else if (invSort === 'newest')   out.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  return out;
+}
+
+function openInvFilterSheet() {
+  const types = [{ key: 'All', icon: '🗂️' }, ...getAssetTypes()];
+  const sorts = [
+    { k: 'newest', label: 'Newest first' },
+    { k: 'name', label: 'Name (A–Z)' },
+    { k: 'invested', label: 'Highest invested' },
+    { k: 'current', label: 'Highest current value' },
+    { k: 'profit', label: 'Highest profit' }
+  ];
+  openModal('Filter & Sort', `
+    <div class="form-group">
+      <label class="form-label">Search by name</label>
+      <input type="text" id="inv-search" class="form-input" value="${(invSearch || '').replace(/"/g, '&quot;')}" placeholder="e.g. Singam Land, Infosys…">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select id="inv-cat" class="form-input">
+        ${types.map(t => `<option value="${t.key}"${invFilter === t.key ? ' selected' : ''}>${t.icon} ${t.key}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Sort by</label>
+      <select id="inv-sortby" class="form-input">
+        ${sorts.map(s => `<option value="${s.k}"${invSort === s.k ? ' selected' : ''}>${s.label}</option>`).join('')}
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="invFilter='All';invSort='newest';invSearch='';closeModal();renderInvestments()">Reset</button>
+      <button class="btn-primary" onclick="invApplyFilterSheet()">Apply</button>
+    </div>
+  `);
+}
+function invApplyFilterSheet() {
+  invSearch = (document.getElementById('inv-search')?.value || '').trim();
+  invFilter = document.getElementById('inv-cat')?.value || 'All';
+  invSort = document.getElementById('inv-sortby')?.value || 'newest';
+  closeModal();
+  renderInvestments();
+}
 const ASSET_CAT_COLORS = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6','#00c9a7','#ef4444','#f97316','#14b8a6','#a855f7','#eab308'];
 const LIAB_CAT_COLORS  = ['#ef4444','#f97316','#f59e0b','#ec4899','#dc2626','#ea580c','#e11d48','#b91c1c','#c2410c','#be123c','#9f1239','#7f1d1d'];
 
@@ -3442,7 +3512,9 @@ function renderInvestments() {
 
   // filter tabs include 'All' + asset types
   const allAssetTypes  = [{ key: 'All', icon: '🏦' }, ...getAssetTypes()];
-  const filtered       = invFilter === 'All' ? investments : investments.filter(i => i.type === invFilter);
+  const filtered       = _invApplySort(invFilter === 'All' ? investments : investments.filter(i => i.type === invFilter));
+  if (window.__IS_APP) { try { _recordNetWorthSnapshot(netWorth); } catch (_) {} }
+  const _nwHist = STATE.netWorthHistory || [];
 
   // ── Category allocation (current value grouped by asset type) ──────────
   const catByType = {};
@@ -3557,6 +3629,11 @@ function renderInvestments() {
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div><h1 class="page-title"><i data-lucide="bar-chart-3"></i> All Assets</h1><p class="page-subtitle">Investments, loans & net worth</p></div>
+        ${window.__IS_APP ? `
+        <button class="inv-live-btn" onclick="fetchLivePrices()" title="Fetch live prices for Stocks & Crypto">
+          <i data-lucide="refresh-cw"></i><span>Live Prices</span>
+        </button>
+        ` : `
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <button id="refresh-prices-btn" class="btn-secondary btn-sm" onclick="fetchLivePrices()"
             title="Fetch live prices for Stocks & Crypto with ticker symbols"
@@ -3568,9 +3645,45 @@ function renderInvestments() {
           <button class="btn-primary btn-sm" onclick="openAddLoanModal()" style="background:linear-gradient(135deg,#ef4444,#dc2626)">+ Add Loan</button>
           <button class="btn-primary btn-sm" onclick="openAddInvModal()">+ Add Asset</button>
         </div>
+        `}
       </div>
 
-      <!-- Net Worth Hero -->
+      ${window.__IS_APP ? `
+      <!-- Add Asset / Add Liability action cards (line icons) -->
+      <div class="inv-add-row">
+        <button class="inv-add-card asset" onclick="openAddInvModal()">
+          <span class="inv-add-ic"><i data-lucide="trending-up"></i></span>
+          <span class="inv-add-lbl">Add Asset</span>
+        </button>
+        <button class="inv-add-card liab" onclick="openAddLoanModal()">
+          <span class="inv-add-ic"><i data-lucide="landmark"></i></span>
+          <span class="inv-add-lbl">Add Liability</span>
+        </button>
+      </div>
+      ` : ''}
+
+      ${window.__IS_APP ? `
+      <!-- Net Worth Hero: value top-center, graph, Assets | Liabilities bottom -->
+      <div class="fin-dark-card nw-hero-app" style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#1a1a4e,#0d0d2e);border:1px solid rgba(99,102,241,0.25);padding:26px 22px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+        <div style="text-align:center">
+          <p style="font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px;display:inline-flex;align-items:center;gap:6px;justify-content:center"><i data-lucide="wallet" style="width:18px;height:18px"></i> Net Worth</p>
+          <p class="nw-hero-val" style="font-size:40px;font-weight:900;color:${netWorth>=0?'#00c9a7':'#ef4444'};letter-spacing:-1.5px;line-height:1">${fmt(netWorth)}</p>
+        </div>
+        ${_nwHist.length >= 2 ? `<div style="height:120px;position:relative;margin:18px 0 6px"><canvas id="nw-trend-chart"></canvas></div>`
+          : `<p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.4);margin:18px 0">📈 Net-worth trend builds as you check back over the coming days.</p>`}
+        <div style="display:flex;align-items:stretch;gap:14px;margin-top:14px">
+          <div style="flex:1;text-align:center;padding:14px 8px;border-radius:16px;background:rgba(16,185,129,0.10);border:1px solid rgba(16,185,129,0.22)">
+            <p style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#10b981;margin-bottom:4px;display:inline-flex;align-items:center;gap:5px"><i data-lucide="trending-up" style="width:15px;height:15px"></i> Assets</p>
+            <p style="font-size:22px;font-weight:900;color:#10b981">${fmt(totalCurrent)}</p>
+          </div>
+          <div style="flex:1;text-align:center;padding:14px 8px;border-radius:16px;background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.22)">
+            <p style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:4px;display:inline-flex;align-items:center;gap:5px"><i data-lucide="trending-down" style="width:15px;height:15px"></i> Liabilities</p>
+            <p style="font-size:22px;font-weight:900;color:#ef4444">${fmt(totalLoan)}</p>
+          </div>
+        </div>
+      </div>
+      ` : `
+      <!-- Net Worth Hero (web) -->
       <div class="fin-dark-card" style="position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#1a1a4e,#0d0d2e);border:1px solid rgba(99,102,241,0.25);padding:28px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
         <div style="position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(99,102,241,0.08)"></div>
         <div style="position:relative;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:20px;flex-wrap:wrap" class="nw-grid">
@@ -3595,6 +3708,7 @@ function renderInvestments() {
           </div>
         </div>
       </div>
+      `}
 
       <!-- ── ASSET + LIABILITY CHARTS (side by side) ───────────────── -->
       ${(investments.length === 0 && loans.length === 0) ? '' : `
@@ -3657,21 +3771,26 @@ function renderInvestments() {
 
       <!-- ── INVESTMENTS ─────────────────────────────────────────── -->
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+        <p style="font-size:16px;font-weight:800"><i data-lucide="trending-up" style="width:18px;height:18px;vertical-align:-3px"></i> Investments & Assets</p>
+        ${window.__IS_APP ? `
+        <button class="inv-filter-btn" onclick="openInvFilterSheet()" title="Filter & sort">
+          <i data-lucide="sliders-horizontal"></i>
+          <span>${invFilter === 'All' && invSort === 'newest' && !invSearch ? 'Filter' : 'Filtered'}</span>
+        </button>
+        ` : `
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-          <p style="font-size:16px;font-weight:800">💹 Investments & Assets</p>
           <button id="refresh-prices-btn" onclick="fetchLivePrices()"
             style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;
               border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.12);
-              color:#10b981;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s"
-            onmouseover="this.style.background='rgba(16,185,129,0.22)'"
-            onmouseout="this.style.background='rgba(16,185,129,0.12)'">
+              color:#10b981;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s">
             🔄 Refresh Live Prices
           </button>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${allAssetTypes.map(t => `
+              <button onclick="invFilter='${t.key}';renderInvestments()" style="padding:5px 12px;border-radius:16px;border:1px solid ${invFilter===t.key?'rgba(0,201,167,0.5)':'rgba(255,255,255,0.1)'};background:${invFilter===t.key?'rgba(0,201,167,0.15)':'transparent'};color:${invFilter===t.key?'#00c9a7':'var(--text2)'};font-size:11px;font-weight:${invFilter===t.key?700:400};cursor:pointer;transition:.15s">${t.icon} ${t.key}</button>`).join('')}
+          </div>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          ${allAssetTypes.map(t => `
-            <button onclick="invFilter='${t.key}';renderInvestments()" style="padding:5px 12px;border-radius:16px;border:1px solid ${invFilter===t.key?'rgba(0,201,167,0.5)':'rgba(255,255,255,0.1)'};background:${invFilter===t.key?'rgba(0,201,167,0.15)':'transparent'};color:${invFilter===t.key?'#00c9a7':'var(--text2)'};font-size:11px;font-weight:${invFilter===t.key?700:400};cursor:pointer;transition:.15s">${t.icon} ${t.key}</button>`).join('')}
-        </div>
+        `}
       </div>
 
       <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
@@ -3739,6 +3858,34 @@ function renderInvestments() {
     if (lc && window.innerWidth < 480) lc.style.gridTemplateColumns = '1fr';
     renderAssetCategoryChart(catEntries);
     renderLiabCategoryChart(liabEntries2);
+    // Net-worth trend (app)
+    const nwc = document.getElementById('nw-trend-chart');
+    if (nwc && typeof Chart !== 'undefined' && _nwHist.length >= 2) {
+      if (chartInstances['nw-trend']) { chartInstances['nw-trend'].destroy(); delete chartInstances['nw-trend']; }
+      const ctx = nwc.getContext('2d');
+      chartInstances['nw-trend'] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: _nwHist.map(p => p.date.slice(5)),
+          datasets: [{
+            data: _nwHist.map(p => p.value),
+            borderColor: '#00c9a7', borderWidth: 2.5, tension: 0.4,
+            pointRadius: 0, pointHoverRadius: 5, fill: true,
+            backgroundColor: c => { const a = c.chart.chartArea; if (!a) return 'rgba(0,201,167,0.15)';
+              const g = c.chart.ctx.createLinearGradient(0, a.top, 0, a.bottom);
+              g.addColorStop(0, 'rgba(0,201,167,0.30)'); g.addColorStop(1, 'rgba(0,201,167,0)'); return g; }
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ₹' + (+c.parsed.y).toLocaleString('en-IN') } } },
+          scales: {
+            x: { ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 6 }, grid: { display: false } },
+            y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => '₹' + (Math.abs(v) >= 100000 ? (v/100000).toFixed(1) + 'L' : Math.abs(v) >= 1000 ? (v/1000).toFixed(0) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          }
+        }
+      });
+    }
   }, 40);
 }
 
