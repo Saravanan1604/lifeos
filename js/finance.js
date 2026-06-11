@@ -4221,20 +4221,59 @@ function removeCustomType(kind, idx) {
 
 // ===== BUDGET PAGE =====
 let _budgetPeriod = 'month';
+let _budgetAnchor = new Date();   // app month-bar anchor (mirrors Records)
 function setBudgetPeriod(p) { _budgetPeriod = p; renderBudget(); }
 
-// App: period filter sheet (replaces the Day/Week/Month/Year/All tab row)
+function budgetNav(delta) {
+  const d = new Date(_budgetAnchor);
+  if (_budgetPeriod === 'day')   d.setDate(d.getDate() + delta);
+  if (_budgetPeriod === 'week')  d.setDate(d.getDate() + 7 * delta);
+  if (_budgetPeriod === 'month') d.setMonth(d.getMonth() + delta);
+  if (_budgetPeriod === 'year')  d.setFullYear(d.getFullYear() + delta);
+  _budgetAnchor = d;
+  renderBudget();
+}
+function budgetToday() { _budgetAnchor = new Date(); renderBudget(); }
+function budgetPickDate(v) {
+  if (!v) return;
+  const d = new Date(v + 'T00:00:00');
+  if (isNaN(d)) return;
+  _budgetAnchor = d;
+  closeModal();
+  renderBudget();
+}
+function _budgetPeriodLabel() {
+  const a = _budgetAnchor;
+  if (_budgetPeriod === 'all') return 'All Time';
+  if (_budgetPeriod === 'year') return String(a.getFullYear());
+  if (_budgetPeriod === 'month') return a.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  if (_budgetPeriod === 'day') return a.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+  const dow = (a.getDay() + 6) % 7;
+  const mon = new Date(a); mon.setDate(a.getDate() - dow);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const o = { day: '2-digit', month: 'short' };
+  return `${mon.toLocaleDateString('en-IN', o)} – ${sun.toLocaleDateString('en-IN', o)}`;
+}
+
+// App: period + calendar sheet, opened by tapping the month label
+// (same pattern as the Records page).
 function openBudgetPeriodSheet() {
   const tabs = ['day', 'week', 'month', 'year', 'all'];
   const lbl = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
-  openModal('Filter Period', `
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
+  const d = (_budgetAnchor instanceof Date && !isNaN(_budgetAnchor)) ? _budgetAnchor : new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const iso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  openModal('📅 View Period', `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
       ${tabs.map(p => `<button onclick="closeModal();setBudgetPeriod('${p}')"
         style="flex:1;min-width:70px;padding:13px 6px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;
-        background:${_budgetPeriod === p ? 'linear-gradient(135deg,#8b5cf6,#6d28d9)' : 'rgba(255,255,255,0.05)'};
+        background:${_budgetPeriod === p ? 'linear-gradient(135deg,#00c9a7,#0acf83)' : 'rgba(255,255,255,0.05)'};
         border:1px solid ${_budgetPeriod === p ? 'transparent' : 'rgba(255,255,255,0.12)'};
-        color:${_budgetPeriod === p ? '#fff' : 'var(--text)'}">${lbl[p]}</button>`).join('')}
-    </div>`);
+        color:${_budgetPeriod === p ? '#04211a' : 'var(--text)'}">${lbl[p]}</button>`).join('')}
+    </div>
+    <p style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase">Jump to date</p>
+    <input type="date" class="form-input" value="${iso}" onchange="budgetPickDate(this.value)" style="width:100%">
+  `);
 }
 
 // Open the add-budget modal with a category preselected (from the
@@ -4271,7 +4310,12 @@ function selectBudgetPeriod(p) {
 function renderBudget() {
   const budgets = STATE.budgets || [];
   const txns = STATE.transactions || [];
-  const filteredTxns = filterTxByPeriod(txns, _budgetPeriod).filter(t => t.type === 'expense');
+  // App: anchor-based filtering so ‹ › / calendar can move through history
+  // (anchor = today gives identical results to the web's period filter).
+  const filteredTxns = (window.__IS_APP
+    ? filterTxByAnchor([...txns], _budgetPeriod, _ymdLocal(_budgetAnchor))
+    : filterTxByPeriod(txns, _budgetPeriod)).filter(t => t.type === 'expense');
+  const _plbl = window.__IS_APP ? _budgetPeriodLabel() : periodLabel(_budgetPeriod);
 
   // Compute per-budget totals
   const budgetRows = budgets.map((b, bi) => {
@@ -4302,7 +4346,7 @@ function renderBudget() {
   let cmpChartHtml = '';
   let _cmpData = null;
   if (window.__IS_APP) {
-    const now = new Date();
+    const now = new Date(_budgetAnchor);
     const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const ymOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     const sums = ymKey => {
@@ -4341,7 +4385,7 @@ function renderBudget() {
       <div class="glass-card" style="padding:18px;margin-top:20px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px">
           <p class="section-title" style="margin:0;font-size:16px"><i data-lucide="layers"></i> No Budget Set</p>
-          <span style="font-size:12px;color:var(--text3);white-space:nowrap">${fmt(Math.round(unbudgetedTotal))} · ${periodLabel(_budgetPeriod)}</span>
+          <span style="font-size:12px;color:var(--text3);white-space:nowrap">${fmt(Math.round(unbudgetedTotal))} · ${_plbl}</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:13px">
           ${unbudgetedRows.map(([c, v]) => `
@@ -4370,15 +4414,23 @@ function renderBudget() {
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <div>
           <h1 class="page-title"><i data-lucide="target"></i> Budget Planner</h1>
-          <p class="page-subtitle">${periodLabel(_budgetPeriod)} spending vs budget limits</p>
+          <p class="page-subtitle">${_plbl} spending vs budget limits</p>
         </div>
+        ${window.__IS_APP ? '' : `
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          ${window.__IS_APP
-            ? `<button class="budget-filter-btn" onclick="openBudgetPeriodSheet()" title="Filter period"><i data-lucide="sliders-horizontal"></i></button>`
-            : periodTabsHtml(_budgetPeriod, 'setBudgetPeriod')}
+          ${periodTabsHtml(_budgetPeriod, 'setBudgetPeriod')}
           <button class="btn-primary btn-sm" onclick="openAddBudgetModal(-1)">+ Add Budget</button>
-        </div>
+        </div>`}
       </div>
+
+      ${window.__IS_APP ? `
+      <!-- Records-style month bar: ‹ label ▾ › Today -->
+      <div class="mm-monthbar" style="margin-bottom:16px">
+        ${_budgetPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="budgetNav(-1)">‹</button>`}
+        <button class="mm-month" onclick="openBudgetPeriodSheet()" title="Change period / pick a date">${_plbl} <span class="mm-month-chev">▾</span></button>
+        ${_budgetPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="budgetNav(1)">›</button>`}
+        <button class="mm-today" onclick="budgetToday()" title="Jump to today">Today</button>
+      </div>` : ''}
 
       ${budgets.length === 0 ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon"><i data-lucide="target"></i></span><p>Set budgets for your expense categories to track spending.</p></div></div>` : `
 
@@ -4386,7 +4438,7 @@ function renderBudget() {
       <div class="glass-card" style="padding:22px;margin-bottom:20px">
         <div class="section-header" style="margin-bottom:18px">
           <p class="section-title"><i data-lucide="pie-chart"></i> Total Budget Overview</p>
-          <span style="font-size:12px;color:var(--text3)">${periodLabel(_budgetPeriod)}</span>
+          <span style="font-size:12px;color:var(--text3)">${_plbl}</span>
         </div>
         ${window.__IS_APP ? `
         <!-- App: 2x ring on the left, stat chips stacked on the right -->
