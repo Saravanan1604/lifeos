@@ -4223,6 +4223,16 @@ function removeCustomType(kind, idx) {
 let _budgetPeriod = 'month';
 function setBudgetPeriod(p) { _budgetPeriod = p; renderBudget(); }
 
+// Open the add-budget modal with a category preselected (from the
+// "No Budget Set" rows on the Budget page).
+function openAddBudgetModalFor(cat) {
+  openAddBudgetModal(-1);
+  setTimeout(() => {
+    const el = document.getElementById('b-cat');
+    if (el) el.value = cat;
+  }, 0);
+}
+
 // Convert stored budget to the limit for a given view period
 function getBudgetLimit(b, viewPeriod) {
   const period = b.period || 'month';
@@ -4260,6 +4270,34 @@ function renderBudget() {
   const totalRemaining = totalLimit - totalSpent;
   const totalPct = totalLimit > 0 ? Math.min(100, (totalSpent / totalLimit) * 100) : 0;
   const BUDGET_COLORS = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6','#00c9a7','#ef4444','#f97316','#14b8a6','#a855f7','#eab308'];
+
+  // App: categories with spending but NO budget — listed below the budget
+  // cards so every category is covered. Each row offers "+ Budget".
+  const budgetedSet = new Set(budgets.map(b => (b.category || '').trim().toLowerCase()));
+  const unbudgeted = {};
+  filteredTxns.forEach(t => {
+    const c = (t.category || 'Other').trim();
+    if (budgetedSet.has(c.toLowerCase())) return;
+    unbudgeted[c] = (unbudgeted[c] || 0) + (+t.amount || 0);
+  });
+  const unbudgetedRows = Object.entries(unbudgeted).sort((a, b) => b[1] - a[1]);
+  const unbudgetedTotal = unbudgetedRows.reduce((s, r) => s + r[1], 0);
+  const unbudgetedHtml = (window.__IS_APP && unbudgetedRows.length) ? `
+      <div class="glass-card" style="padding:18px;margin-top:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px">
+          <p class="section-title" style="margin:0;font-size:16px"><i data-lucide="layers"></i> No Budget Set</p>
+          <span style="font-size:12px;color:var(--text3);white-space:nowrap">${fmt(Math.round(unbudgetedTotal))} · ${periodLabel(_budgetPeriod)}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:13px">
+          ${unbudgetedRows.map(([c, v]) => `
+            <div style="display:flex;align-items:center;gap:12px">
+              <span class="cat-lic" style="font-size:20px;color:${catColor(c)}">${catIconHtml(c)}</span>
+              <span style="flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c)}</span>
+              <span style="font-size:14px;font-weight:700;white-space:nowrap">${fmt(Math.round(v))}</span>
+              <button onclick="openAddBudgetModalFor('${c.replace(/'/g, "\\'")}')" style="background:rgba(0,201,167,0.12);border:1px solid rgba(0,201,167,0.3);color:#00c9a7;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0">+ Budget</button>
+            </div>`).join('')}
+        </div>
+      </div>` : '';
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
@@ -4378,6 +4416,7 @@ function renderBudget() {
         }).join('')}
       </div>
       `}
+      ${unbudgetedHtml}
     </div>`;
 
   // Render doughnut chart after DOM is ready
