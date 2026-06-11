@@ -11033,3 +11033,18 @@ html.is-app .blog-util { margin-top: 10px; }
 html.is-app .blog-util-bar { height: 7px; border-radius: 5px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
 html.is-app .blog-util-bar > div { height: 100%; border-radius: 5px; }
 html.is-app .blog-util span { font-size: 14px; color: rgba(203, 213, 225, 0.55); margin-top: 4px; display: block; }
+
+/* ============================================================
+   build 376 — FINANCE cards: shrink the bottom footer text so it
+   fits on one line (was 1.05rem and overflowing the card edge).
+   ============================================================ */
+html.is-app .fin-dark-card div[style*="1.05rem"] {
+  font-size: 14px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+html.is-app .fin-card-grid .fin-dark-card div[style*="1.05rem"] span {
+  font-size: 14px !important;
+  white-space: nowrap !important;
+}
