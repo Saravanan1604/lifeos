@@ -1,5 +1,5 @@
-// atworth Service Worker - v368.0
-const CACHE = 'lifeos-v368';
+// atworth Service Worker - v369.0
+const CACHE = 'lifeos-v369';
 
 // Allow the page to tell a waiting SW to activate immediately
 self.addEventListener('message', e => {

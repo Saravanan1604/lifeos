@@ -4282,7 +4282,17 @@ function openAddBudgetModalFor(cat) {
   openAddBudgetModal(-1);
   setTimeout(() => {
     const el = document.getElementById('b-cat');
-    if (el) el.value = cat;
+    if (!el) return;
+    // If this category isn't an option (a one-off typed on a transaction),
+    // inject it so it can still be budgeted.
+    if (![...el.options].some(o => o.value === cat)) {
+      const ic = (typeof catIconHtml === 'function') ? '' : '';
+      const opt = document.createElement('option');
+      opt.value = cat; opt.textContent = `🏷️ ${cat}`;
+      el.insertBefore(opt, el.firstChild);
+    }
+    el.value = cat;
+    if (typeof _budgetCatChange === 'function') _budgetCatChange(el.value);
   }, 0);
 }
 
@@ -4637,15 +4647,35 @@ function openAddBudgetModal(editIndex) {
   const b       = isEdit ? (STATE.budgets||[])[editIndex] : null;
   const ePeriod = b ? (b.period || 'month') : 'month';
   const eAmount = b ? (b.amount != null ? b.amount : (b.limit || '')) : '';
-  const catOptions = CATEGORIES
-    .filter(c => !['Salary','Business','Freelance'].includes(c.name))
-    .map(c => `<option value="${c.name}"${b?.category===c.name?' selected':''}>${c.icon} ${c.name}</option>`)
+  // Full category list (defaults + Subscriptions/OTT/SIP/Personal Care +
+  // the user's custom ones), expenses only, income excluded.
+  const incomeNames = ['Salary','Business','Freelance','Interest','Gift Received','Other Income'];
+  const allCats = (typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES)
+    .filter(c => !incomeNames.includes(c.name) && (c.type === undefined || c.type === 'expense' || c.type === 'both'));
+  // Make sure a preselected/edited category is always in the list, even if it
+  // was a one-off category typed on a transaction.
+  if (b?.category && !allCats.some(c => c.name === b.category)) {
+    allCats.unshift({ name: b.category, icon: (typeof catIcon === 'function' ? '' : '') || '🏷️' });
+  }
+  const catOptions = allCats
+    .map(c => `<option value="${c.name}"${b?.category===c.name?' selected':''}>${c.icon||'🏷️'} ${c.name}</option>`)
     .join('');
 
   openModal(isEdit ? `Edit Budget — ${b.category}` : 'Set Budget', `
     <div class="form-group">
       <label class="form-label">Category</label>
-      <select id="b-cat" class="form-input"${isEdit?' disabled':''}>${catOptions}</select>
+      <select id="b-cat" class="form-input"${isEdit?' disabled':''} onchange="_budgetCatChange(this.value)">
+        ${catOptions}
+        ${isEdit ? '' : '<option value="__new__">➕ Create new category…</option>'}
+      </select>
+    </div>
+    <div class="form-group" id="b-newcat-wrap" style="display:none">
+      <label class="form-label">New Category</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="b-newcat-icon" class="form-input" placeholder="🏷️" maxlength="2" style="width:64px;text-align:center;font-size:20px"/>
+        <input type="text" id="b-newcat-name" class="form-input" placeholder="e.g. Pet Care, Donations…" style="flex:1"/>
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:6px">Saved as a reusable category you can pick anywhere.</p>
     </div>
     <div class="form-group">
       <label class="form-label">Budget Period</label>
@@ -4672,12 +4702,33 @@ function openAddBudgetModal(editIndex) {
     </div>`);
 }
 
+// Show/hide the "new category" inputs when the dropdown changes
+function _budgetCatChange(v) {
+  const wrap = document.getElementById('b-newcat-wrap');
+  if (wrap) wrap.style.display = (v === '__new__') ? 'block' : 'none';
+}
+
 function saveBudget(editIndex) {
-  const category = document.getElementById('b-cat').value;
+  let category   = document.getElementById('b-cat').value;
   const amount   = parseFloat(document.getElementById('b-limit').value);
   const period   = document.getElementById('b-period').value || 'month';
   const notes    = (document.getElementById('b-notes')?.value || '').trim();
   if (!amount || amount <= 0) { toast('Enter a valid limit', 'error'); return; }
+
+  // Creating a brand-new category from the budget screen
+  if (category === '__new__') {
+    const name = (document.getElementById('b-newcat-name')?.value || '').trim();
+    const icon = (document.getElementById('b-newcat-icon')?.value || '').trim() || '🏷️';
+    if (!name) { toast('Enter a category name', 'error'); return; }
+    const all = (typeof getAllCategories === 'function' ? getAllCategories() : []);
+    const dup = all.find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (dup) { category = dup.name; }   // already exists → just use it
+    else {
+      STATE.customCategories = STATE.customCategories || [];
+      STATE.customCategories.push({ id: genId(), name, icon, type: 'expense', createdAt: new Date().toISOString() });
+      category = name;
+    }
+  }
   STATE.budgets = STATE.budgets || [];
   if (editIndex >= 0) {
     STATE.budgets[editIndex] = { ...STATE.budgets[editIndex], amount, period, notes };
