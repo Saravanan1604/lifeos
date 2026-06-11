@@ -11092,3 +11092,50 @@ html.is-app .blog-del svg { width: 24px !important; height: 24px !important; }
 /* Segmented tab labels (Banks/Cards/Cash) */
 html.is-app #page-container[data-page="finance"] .fin-segtab,
 html.is-app #page-container[data-page="bank-tracker"] .fin-segtab { font-size: 24px !important; }
+
+/* ============================================================
+   build 379 — NOTES: Google-Keep-style masonry (app-only)
+   2-column masonry, cards size to content, clean (no on-card
+   buttons — pin/delete live in the editor), pinned/others split.
+   ============================================================ */
+html.is-app .notes-section-lbl {
+  font-size: 18px; font-weight: 700; letter-spacing: 1px;
+  color: rgba(203,213,225,0.5); text-transform: uppercase;
+  margin: 18px 4px 12px;
+}
+html.is-app .notes-grid {
+  display: block !important;        /* override flex/grid */
+  column-count: 2;
+  column-gap: 12px;
+  grid-template-columns: none !important;
+}
+html.is-app .notes-grid .note-card {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  width: 100% !important;
+  margin: 0 0 12px !important;
+  display: inline-block;
+  border-radius: 16px !important;
+  padding: 16px !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  position: relative;
+  box-sizing: border-box;
+}
+html.is-app .notes-grid .note-card:active { transform: scale(.98); }
+html.is-app .note-card .note-title {
+  font-size: 24px !important; font-weight: 800 !important;
+  margin-bottom: 8px !important; line-height: 1.2 !important;
+}
+html.is-app .note-card .note-body {
+  font-size: 19px !important; line-height: 1.4 !important;
+  white-space: pre-wrap; word-break: break-word;
+  display: -webkit-box; -webkit-line-clamp: 12; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* clean Keep look: no always-visible action buttons */
+html.is-app .note-card .note-actions { display: none !important; }
+html.is-app .note-card .note-pin {
+  position: absolute; top: 12px; right: 12px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;
+}
+html.is-app .note-card .note-pin svg { width: 16px; height: 16px; }

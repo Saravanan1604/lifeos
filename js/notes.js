@@ -9,16 +9,22 @@ function _noteEsc(s) {
 }
 
 function renderNotes() {
-  const notes = (STATE.notes || []).slice()
-    .sort((a, b) => (Number(b.pinned) - Number(a.pinned)) || (b.updatedAt - a.updatedAt));
+  const all = (STATE.notes || []).slice().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  const pinned = all.filter(n => n.pinned);
+  const others = all.filter(n => !n.pinned);
+
+  const section = (label, list) => list.length
+    ? `<p class="notes-section-lbl">${label}</p><div class="notes-grid">${list.map(_noteCard).join('')}</div>`
+    : '';
+
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header">
         <div><h1 class="page-title">🗒️ Notes</h1><p class="page-subtitle">Quick notes & reminders</p></div>
         <button class="btn-primary btn-sm" onclick="openNoteEditor()">+ New Note</button>
       </div>
-      ${notes.length
-        ? `<div class="notes-grid">${notes.map(_noteCard).join('')}</div>`
+      ${all.length
+        ? `${section('Pinned', pinned)}${section(pinned.length ? 'Others' : '', others)}`
         : `<div class="empty-state" style="padding:48px 20px;text-align:center">
              <span class="empty-state-icon" style="font-size:64px">🗒️</span>
              <p>No notes yet. Tap <b>+ New Note</b> to jot something down.</p>
@@ -29,13 +35,9 @@ function renderNotes() {
 
 function _noteCard(n) {
   return `<div class="note-card note-${n.color || 'default'}" onclick="openNoteEditor('${n.id}')">
-    ${n.pinned ? '<span class="note-pin">📌</span>' : ''}
+    ${n.pinned ? '<span class="note-pin"><i data-lucide="pin"></i></span>' : ''}
     ${n.title ? `<div class="note-title">${_noteEsc(n.title)}</div>` : ''}
     ${n.body ? `<div class="note-body">${_noteEsc(n.body)}</div>` : ''}
-    <div class="note-actions" onclick="event.stopPropagation()">
-      <button onclick="togglePinNote('${n.id}')" title="Pin">${n.pinned ? '📌' : '📍'}</button>
-      <button onclick="deleteNote('${n.id}')" title="Delete">🗑️</button>
-    </div>
   </div>`;
 }
 
@@ -51,6 +53,7 @@ function openNoteEditor(id) {
     <textarea id="note-body" class="form-input" rows="6" placeholder="Take a note…">${n ? _noteEsc(n.body) : ''}</textarea>
     <div class="note-swatches">${swatches}</div>
     <div class="modal-actions">
+      ${n ? `<button class="btn-secondary" onclick="togglePinNote('${n.id}');closeModal()">${n.pinned ? '📌 Unpin' : '📍 Pin'}</button>` : ''}
       ${n ? `<button class="btn-secondary" onclick="deleteNote('${n.id}');closeModal()" style="color:#ef4444;border-color:rgba(239,68,68,0.3)">Delete</button>` : ''}
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveNote('${id || ''}')">${n ? 'Update' : 'Save'}</button>
