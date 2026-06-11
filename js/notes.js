@@ -14,7 +14,7 @@ function renderNotes() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div><h1 class="page-title">🗒️ Notes</h1><p class="page-subtitle">Quick notes — Google Keep style</p></div>
+        <div><h1 class="page-title">🗒️ Notes</h1><p class="page-subtitle">Quick notes & reminders</p></div>
         <button class="btn-primary btn-sm" onclick="openNoteEditor()">+ New Note</button>
       </div>
       ${notes.length
