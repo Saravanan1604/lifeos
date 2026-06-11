@@ -10984,3 +10984,52 @@ html.is-app .ia-hero-trend {
   top: 0;
   right: 0;
 }
+
+/* ============================================================
+   build 375 — FINANCE balance-log: fresh full-width card design
+   (app-only; replaces the chat-bubble style)
+   ============================================================ */
+html.is-app #balance-chat { padding: 8px 4px !important; }
+html.is-app .blog-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  transition: background .15s ease;
+}
+html.is-app .blog-card:active { background: rgba(255, 255, 255, 0.06); }
+html.is-app .blog-ic {
+  width: 54px; height: 54px; border-radius: 15px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+html.is-app .blog-ic svg { width: 27px; height: 27px; }
+html.is-app .blog-body { flex: 1; min-width: 0; }
+html.is-app .blog-toprow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+html.is-app .blog-title {
+  font-size: 18px; font-weight: 700; color: rgba(203, 213, 225, 0.7);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+html.is-app .blog-del {
+  background: none; border: none; color: rgba(239, 68, 68, 0.4);
+  cursor: pointer; flex-shrink: 0; padding: 4px; border-radius: 8px;
+}
+html.is-app .blog-del svg { width: 20px; height: 20px; }
+html.is-app .blog-del:active { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+html.is-app .blog-amt { font-size: 30px; font-weight: 900; letter-spacing: -0.5px; margin: 4px 0 6px; }
+html.is-app .blog-delta {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 18px; font-weight: 700; flex-wrap: wrap;
+}
+html.is-app .blog-delta svg { width: 18px; height: 18px; }
+html.is-app .blog-from { color: rgba(203, 213, 225, 0.5); font-weight: 500; font-size: 15px; }
+html.is-app .blog-meta { margin-top: 9px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+html.is-app .blog-tag { font-size: 14px; font-weight: 700; padding: 3px 10px; border-radius: 8px; }
+html.is-app .blog-note { font-size: 15px; color: rgba(203, 213, 225, 0.6); }
+html.is-app .blog-util { margin-top: 10px; }
+html.is-app .blog-util-bar { height: 7px; border-radius: 5px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
+html.is-app .blog-util-bar > div { height: 100%; border-radius: 5px; }
+html.is-app .blog-util span { font-size: 14px; color: rgba(203, 213, 225, 0.55); margin-top: 4px; display: block; }

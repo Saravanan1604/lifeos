@@ -108,6 +108,42 @@ function formatRelativeDate(dateStr) {
   });
 }
 
+// App-only: fresh full-width "card" design for a single balance-log entry
+// (replaces the chat-bubble style). Used by Banks / Cards / Cash logs.
+function _logEntryCardApp(h, acc, date, idx, selId, accentFallback) {
+  const delta = (h.prevBalance !== undefined && h.prevBalance !== null) ? h.balance - h.prevBalance : null;
+  const up = delta !== null && delta > 0;
+  const same = delta === 0;
+  const dc = same ? '#94a3b8' : up ? '#10b981' : '#ef4444';
+  const isIn = (h.note || '').includes('Transfer in ←');
+  const isOut = (h.note || '').includes('Transfer out →');
+  const isTx = isIn || isOut;
+  const accent = acc ? (acc.color || accentFallback || '#6366f1') : (accentFallback || '#6366f1');
+  const entryId = h.id || `${date}-${idx}`;
+  const title = `${!selId && acc ? esc(acc.bankName || acc.name || 'Account') + ' · ' : ''}${isTx ? (isIn ? 'Transfer In' : 'Transfer Out') : 'Balance Update'}`;
+  const tag = isTx
+    ? `<span class="blog-tag" style="color:#f59e0b;background:rgba(245,158,11,0.12)">${isIn ? 'Transfer In' : 'Transfer Out'}</span>`
+    : '';
+  const noteClean = (h.note && h.note !== 'Manual update' && !isTx) ? esc(h.note) : '';
+  return `
+    <div class="blog-card">
+      <span class="blog-ic" style="background:${accent}22;color:${accent}"><i data-lucide="${isTx ? 'arrow-left-right' : 'landmark'}"></i></span>
+      <div class="blog-body">
+        <div class="blog-toprow">
+          <span class="blog-title">${title}</span>
+          <button class="blog-del" onclick="event.stopPropagation();deleteBankHistoryEntry('${entryId}','${date}',${idx})" title="Delete"><i data-lucide="x"></i></button>
+        </div>
+        <div class="blog-amt">${fmt(h.balance)}</div>
+        ${delta !== null ? `<div class="blog-delta" style="color:${dc}">
+            <i data-lucide="${same ? 'minus' : up ? 'arrow-up' : 'arrow-down'}"></i>
+            ${same ? 'No change' : (up ? '+' : '') + fmt(Math.abs(delta))}
+            ${h.prevBalance !== undefined ? `<span class="blog-from">from ${fmt(h.prevBalance)}</span>` : ''}
+          </div>` : ''}
+        ${(tag || noteClean) ? `<div class="blog-meta">${tag}${noteClean ? `<span class="blog-note">${noteClean}</span>` : ''}</div>` : ''}
+      </div>
+    </div>`;
+}
+
 function renderBankTracker() {
   reconcileCurrentBalances();
   if (bankTrackerTab === 'cards') { renderCCTracker(); return; }
@@ -173,6 +209,9 @@ function renderBankTracker() {
         const bubbleBorder = isTx ? (isLight ? 'rgba(245,158,11,0.5)'  : 'rgba(245,158,11,0.3)')  : (isLight ? 'rgba(0,201,167,0.45)' : 'rgba(0,201,167,0.25)');
         const entryId = h.id || `${date}-${idx}`;
 
+        if (window.__IS_APP) {
+          chatHTML += _logEntryCardApp(h, acc, date, idx, selId, '#00c9a7');
+        } else {
         chatHTML += `
           <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:12px;padding:0 4px">
             <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${acc?`linear-gradient(135deg,${acc.color||'#1e293b'},${acc.color2||'#0f172a'})`:'rgba(99,102,241,0.2)'};font-size:17px;flex-shrink:0">${acc?.icon||'🏦'}</div>
@@ -192,6 +231,7 @@ function renderBankTracker() {
               </div>
             </div>
           </div>`;
+        }
       });
     });
   }
@@ -673,6 +713,22 @@ function renderCCTracker() {
         const di    = same ? '→' : up ? '↑ More debt' : '↓ Paid off';
         const pct   = card ? Math.min(100, Math.round((h.outstanding/(card.limit||1))*100)) : 0;
         const uc    = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#10b981';
+        if (window.__IS_APP) {
+          const accent = card ? (card.color || '#ef4444') : '#ef4444';
+          chatHTML += `
+            <div class="blog-card">
+              <span class="blog-ic" style="background:${accent}22;color:${accent}"><i data-lucide="credit-card"></i></span>
+              <div class="blog-body">
+                <div class="blog-toprow">
+                  <span class="blog-title">${!selId && card ? esc(card.bankName || 'Card') + ' · ' : ''}Outstanding Update</span>
+                  <button class="blog-del" onclick="event.stopPropagation();deleteCCHistoryEntry('${h.id||''}','${date}',${idx})" title="Delete"><i data-lucide="x"></i></button>
+                </div>
+                <div class="blog-amt">${fmt(h.outstanding)}</div>
+                ${delta !== null ? `<div class="blog-delta" style="color:${dc}"><i data-lucide="${same ? 'minus' : up ? 'arrow-up' : 'arrow-down'}"></i> ${same ? 'No change' : (up ? 'More debt +' : 'Paid off ') + fmt(Math.abs(delta))}${h.prevOutstanding !== undefined ? `<span class="blog-from">from ${fmt(h.prevOutstanding)}</span>` : ''}</div>` : ''}
+                ${card ? `<div class="blog-util"><div class="blog-util-bar"><div style="width:${pct}%;background:${uc}"></div></div><span>${pct}% of ${fmt(card.limit||0)} limit</span></div>` : ''}
+              </div>
+            </div>`;
+        } else {
         chatHTML += `
           <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:12px;padding:0 4px">
             <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${card?`linear-gradient(135deg,${card.color||'#1e293b'},${card.color2||'#0f172a'})`:'rgba(239,68,68,0.2)'};font-size:17px;flex-shrink:0">💳</div>
@@ -697,6 +753,7 @@ function renderCCTracker() {
               </div>
             </div>
           </div>`;
+        }
       });
     });
   }
@@ -1012,6 +1069,21 @@ function renderCashTracker() {
         const dc    = same ? '#94a3b8' : up ? '#10b981' : '#ef4444';
         const di    = same ? '→' : up ? '↑' : '↓';
         const entryId = h.id || `${date}-${idx}`;
+        if (window.__IS_APP) {
+          chatHTML += `
+            <div class="blog-card">
+              <span class="blog-ic" style="background:rgba(245,158,11,0.16);color:#f59e0b"><i data-lucide="banknote"></i></span>
+              <div class="blog-body">
+                <div class="blog-toprow">
+                  <span class="blog-title">${!selId ? esc(acc?.name || 'Cash') + ' · ' : ''}Cash Update</span>
+                  <button class="blog-del" onclick="event.stopPropagation();deleteCashHistoryEntry('${entryId}','${date}',${idx})" title="Delete"><i data-lucide="x"></i></button>
+                </div>
+                <div class="blog-amt">${fmt(h.balance)}</div>
+                ${delta !== null ? `<div class="blog-delta" style="color:${dc}"><i data-lucide="${same ? 'minus' : up ? 'arrow-up' : 'arrow-down'}"></i> ${same ? 'No change' : (up ? '+' : '') + fmt(Math.abs(delta))}${h.prevBalance !== undefined ? `<span class="blog-from">from ${fmt(h.prevBalance)}</span>` : ''}</div>` : ''}
+                ${h.note && h.note !== 'Manual update' && h.note !== 'Wallet created' ? `<div class="blog-meta"><span class="blog-note">${esc(h.note)}</span></div>` : ''}
+              </div>
+            </div>`;
+        } else {
         chatHTML += `
           <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:12px;padding:0 4px">
             <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#78350f,#92400e);font-size:17px;flex-shrink:0">💵</div>
@@ -1031,6 +1103,7 @@ function renderCashTracker() {
               </div>
             </div>
           </div>`;
+        }
       });
     });
   }
