@@ -364,6 +364,9 @@ function renderRecordsMyMoney() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in mymoney-records ${_recSelectMode ? 'selmode' : ''}">
       <div class="mm-monthbar">
+        <button class="mm-ring-btn" onclick="openRecBudgetSheet()" title="Budget & category spend">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9" opacity=".25"/><path d="M12 3a9 9 0 0 1 9 9" stroke-linecap="round"/></svg>
+        </button>
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="recNav(-1)">‹</button>`}
         <button class="mm-month" onclick="openRecPeriodSheet()" title="Change period / pick a date">${periodLabelTxt} <span class="mm-month-chev">▾</span></button>
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="recNav(1)">›</button>`}
@@ -677,6 +680,78 @@ function recPickDate(v) {
   _recAnchor = d;
   closeModal();
   renderRecordsMyMoney();
+}
+
+// Budget & category-spend sheet — opened by the ring icon in the month bar.
+// Budgets compare against the anchor month; category spend mirrors the
+// period currently shown in the records list.
+function openRecBudgetSheet() {
+  const anchor = (_recAnchor instanceof Date && !isNaN(_recAnchor)) ? _recAnchor : new Date();
+  const anchorYmd = _ymdLocal(anchor);
+  const txAll = STATE.transactions || [];
+
+  // Spend by category for the CURRENT view period
+  const periodTx = filterTxByAnchor([...txAll], _recPeriod, anchorYmd).filter(t => t.type !== 'income');
+  const byCat = {};
+  periodTx.forEach(t => { const c = t.category || 'Other'; byCat[c] = (byCat[c] || 0) + (+t.amount || 0); });
+  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const totalSpend = cats.reduce((s, c) => s + c[1], 0);
+
+  // Budgets vs the anchor month's spend (budgets are monthly-style limits)
+  const monthTx = filterTxByAnchor([...txAll], 'month', anchorYmd).filter(t => t.type !== 'income');
+  const mByCat = {};
+  monthTx.forEach(t => { const c = t.category || 'Other'; mByCat[c] = (mByCat[c] || 0) + (+t.amount || 0); });
+  const monthFactor = { day: 30.44, week: 4.345, month: 1, year: 1 / 12 };
+  const budgets = (STATE.budgets || []).map(b => ({
+    cat: b.category,
+    limit: Math.round((+b.amount || 0) * (monthFactor[b.period || 'month'] || 1)),
+    spent: Math.round(mByCat[b.category] || 0)
+  })).sort((a, b) => (b.limit ? b.spent / b.limit : 0) - (a.limit ? a.spent / a.limit : 0));
+  const totLimit = budgets.reduce((s, b) => s + b.limit, 0);
+  const totSpent = budgets.reduce((s, b) => s + b.spent, 0);
+  const monthLbl = anchor.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+  const bar = (pct, color) => `<div style="height:8px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden;margin-top:6px"><div style="height:100%;width:${Math.min(100, Math.max(0, pct))}%;border-radius:4px;background:${color}"></div></div>`;
+  const pctColor = p => p >= 100 ? '#ef4444' : p >= 75 ? '#f59e0b' : '#10b981';
+  const totPct = totLimit ? totSpent / totLimit * 100 : 0;
+
+  const budgetHtml = budgets.length ? `
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+      <span style="font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)">Budget · ${monthLbl}</span>
+      <span style="font-size:13px;font-weight:700;color:${pctColor(totPct)}">${fmt(totSpent)} <span style="color:var(--text3);font-weight:500">/ ${fmt(totLimit)}</span></span>
+    </div>
+    ${bar(totPct, pctColor(totPct))}
+    <div style="display:flex;flex-direction:column;gap:12px;margin:16px 0 22px">
+      ${budgets.map(b => { const p = b.limit ? b.spent / b.limit * 100 : 0; return `
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;gap:8px">
+            <span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.cat)}</span>
+            <span style="color:${pctColor(p)};font-weight:700;white-space:nowrap">${fmt(b.spent)} <span style="color:var(--text3);font-weight:500">/ ${fmt(b.limit)}</span></span>
+          </div>
+          ${bar(p, pctColor(p))}
+        </div>`; }).join('')}
+    </div>` : `<p style="color:var(--text3);font-size:14px;margin-bottom:18px">No budgets set yet — create them in the Budget page.</p>`;
+
+  const catHtml = cats.length ? cats.map(([c, v]) => { const p = totalSpend ? v / totalSpend * 100 : 0; return `
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:34px;height:34px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:${catColor(c)};color:#fff">${catIconHtml(c)}</span>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;justify-content:space-between;font-size:14px;gap:8px"><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c)}</span><span style="font-weight:700;white-space:nowrap">${fmt(v)}</span></div>
+          ${bar(p, catColor(c))}
+        </div>
+        <span style="font-size:12px;color:var(--text3);width:40px;text-align:right;flex-shrink:0">${p.toFixed(0)}%</span>
+      </div>`; }).join('')
+    : `<p style="color:var(--text3);font-size:14px">No spending in this period.</p>`;
+
+  openModal('◔ Budget & Spending', `
+    ${budgetHtml}
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+      <span style="font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)">Category spend · ${_recPeriodLabel()}</span>
+      <span style="font-size:13px;font-weight:700">${fmt(totalSpend)}</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;max-height:45vh;overflow-y:auto;padding-right:4px">${catHtml}</div>
+  `);
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
 }
 
 // (10) Account balance chips

@@ -10500,3 +10500,26 @@ html.is-app .mm-monthbar {
   margin-top: 6px !important;
   margin-bottom: 14px !important;
 }
+
+/* ============================================================
+   build 359 — RECORDS: ring icon (left of month bar) opens the
+   Budget & Spending sheet.
+   ============================================================ */
+html.is-app .mm-ring-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50% !important;
+  flex-shrink: 0;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 201, 167, 0.10) !important;
+  border: 1px solid rgba(0, 201, 167, 0.30) !important;
+  color: #00c9a7 !important;
+  cursor: pointer !important;
+  margin-right: 2px;
+}
+html.is-app .mm-ring-btn:active {
+  transform: scale(.92);
+  background: rgba(0, 201, 167, 0.22) !important;
+}
