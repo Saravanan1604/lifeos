@@ -10796,3 +10796,119 @@ html.is-app #page-container[data-page="investments"] .nw-hero-app .nw-hero-val {
 /* bigger asset row type-emoji + table cells */
 html.is-app #page-container[data-page="investments"] td { font-size: 22px !important; }
 html.is-app #page-container[data-page="investments"] th { font-size: 18px !important; }
+
+/* ============================================================
+   build 372 — ALL ASSETS reference design (app-only, .ia-*)
+   ============================================================ */
+html.is-app .ia-page { padding-bottom: 24px; }
+
+/* hide quick-action pills here too */
+html.is-app #page-container[data-page="investments"] #page-quick-actions { display: none !important; }
+
+/* ── NET WORTH HERO ── */
+html.is-app .ia-hero {
+  background: linear-gradient(160deg, #161b2e, #0e1220);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 22px; padding: 22px; margin-bottom: 14px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.4);
+}
+html.is-app .ia-hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+html.is-app .ia-hero-lbl {
+  font-size: 17px; font-weight: 700; letter-spacing: 1px; color: rgba(203,213,225,0.65);
+  display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;
+}
+html.is-app .ia-hero-lbl svg { width: 16px; height: 16px; opacity: .6; }
+html.is-app .ia-hero-val { font-size: 46px; font-weight: 900; letter-spacing: -1.5px; line-height: 1; }
+html.is-app .ia-hero-val.neg { color: #ef4444; }
+html.is-app .ia-hero-val.pos { color: #00c9a7; }
+html.is-app .ia-hero-chg {
+  font-size: 18px; font-weight: 700; margin-top: 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+html.is-app .ia-hero-chg.pos { color: #10b981; }
+html.is-app .ia-hero-chg.neg { color: #ef4444; }
+html.is-app .ia-hero-chg svg { width: 17px; height: 17px; }
+html.is-app .ia-hero-chg span { color: rgba(203,213,225,0.5); font-weight: 500; margin-left: 4px; }
+html.is-app .ia-hero-trend {
+  width: 64px; height: 64px; border-radius: 18px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+html.is-app .ia-hero-trend.neg { background: rgba(239,68,68,0.14); color: #ef4444; }
+html.is-app .ia-hero-trend.pos { background: rgba(16,185,129,0.14); color: #10b981; }
+html.is-app .ia-hero-trend svg { width: 30px; height: 30px; }
+html.is-app .ia-hero-div { height: 1px; background: rgba(255,255,255,0.07); margin: 18px 0; }
+html.is-app .ia-hero-split { display: flex; gap: 14px; }
+html.is-app .ia-hs { flex: 1; display: flex; align-items: center; gap: 11px; min-width: 0; }
+html.is-app .ia-hs-ic { width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+html.is-app .ia-hs-ic.asset { background: rgba(16,185,129,0.14); color: #10b981; }
+html.is-app .ia-hs-ic.liab  { background: rgba(139,92,246,0.16); color: #a855f7; }
+html.is-app .ia-hs-ic svg { width: 24px; height: 24px; }
+html.is-app .ia-hs-lbl { font-size: 14px; font-weight: 600; color: rgba(203,213,225,0.6); margin-bottom: 3px; }
+html.is-app .ia-hs-val { font-size: 22px; font-weight: 800; white-space: nowrap; }
+html.is-app .ia-hs-val.pos { color: #10b981; }
+html.is-app .ia-hs-val.neg { color: #f1f5f9; }
+
+/* ── QUICK STATS ── */
+html.is-app .ia-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  background: #12172a; border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px; padding: 16px 10px; margin-bottom: 14px;
+}
+html.is-app .ia-stat { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+html.is-app .ia-stat-ic svg { width: 26px; height: 26px; }
+html.is-app .ia-stat-lbl { font-size: 13px; color: rgba(203,213,225,0.6); font-weight: 600; }
+html.is-app .ia-stat-val { font-size: 19px; font-weight: 800; }
+
+/* ── TOGGLE ── */
+html.is-app .ia-toggle {
+  display: flex; gap: 6px; background: #12172a; border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px; padding: 6px; margin-bottom: 14px;
+}
+html.is-app .ia-tg {
+  flex: 1; padding: 14px; border-radius: 12px; border: none; background: transparent;
+  color: rgba(203,213,225,0.7); font-size: 20px; font-weight: 700; cursor: pointer; transition: .15s;
+}
+html.is-app .ia-tg.on { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+
+/* ── CARDS ── */
+html.is-app .ia-card {
+  background: #12172a; border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 20px; margin-bottom: 14px;
+}
+html.is-app .ia-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+html.is-app .ia-card-title { font-size: 22px; font-weight: 800; display: inline-flex; align-items: center; gap: 7px; }
+html.is-app .ia-card-title svg { width: 17px; height: 17px; opacity: .5; }
+html.is-app .ia-link { background: none; border: none; color: #3b82f6; font-size: 17px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; }
+html.is-app .ia-link svg { width: 17px; height: 17px; }
+
+/* allocation */
+html.is-app .ia-alloc { display: flex; align-items: center; gap: 16px; }
+html.is-app .ia-alloc-legend { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+html.is-app .ia-leg-row { display: flex; align-items: center; gap: 9px; }
+html.is-app .ia-leg-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+html.is-app .ia-leg-name { font-size: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; max-width: 38%; }
+html.is-app .ia-leg-bar { flex: 1; height: 8px; border-radius: 5px; background: rgba(255,255,255,0.08); overflow: hidden; }
+html.is-app .ia-leg-bar > div { height: 100%; border-radius: 5px; }
+html.is-app .ia-leg-pct { font-size: 17px; font-weight: 700; width: 46px; text-align: right; flex-shrink: 0; }
+html.is-app .ia-donut { position: relative; width: 150px; height: 150px; flex-shrink: 0; }
+html.is-app .ia-donut-c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+html.is-app .ia-donut-c span { font-size: 13px; color: rgba(203,213,225,0.6); }
+html.is-app .ia-donut-c b { font-size: 20px; font-weight: 900; }
+
+/* recent list */
+html.is-app .ia-list { display: flex; flex-direction: column; }
+html.is-app .ia-item { display: flex; align-items: center; gap: 13px; padding: 14px 0; border-top: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+html.is-app .ia-item:first-child { border-top: none; }
+html.is-app .ia-thumb { width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(99,102,241,0.14); color: #818cf8; }
+html.is-app .ia-thumb svg { width: 28px; height: 28px; }
+html.is-app .ia-mid { flex: 1; min-width: 0; }
+html.is-app .ia-name { font-size: 21px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app .ia-sub { font-size: 15px; color: rgba(203,213,225,0.55); margin-top: 2px; }
+html.is-app .ia-right { text-align: right; flex-shrink: 0; }
+html.is-app .ia-val { font-size: 20px; font-weight: 800; }
+html.is-app .ia-val.neg { color: #ef4444; }
+html.is-app .ia-chg { font-size: 15px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; margin-top: 2px; }
+html.is-app .ia-chg.pos { color: #10b981; }
+html.is-app .ia-chg.neg { color: #ef4444; }
+html.is-app .ia-chg svg { width: 13px; height: 13px; }
+html.is-app .ia-chev { width: 20px; height: 20px; color: rgba(203,213,225,0.35); flex-shrink: 0; }

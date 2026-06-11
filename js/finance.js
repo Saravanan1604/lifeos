@@ -3498,7 +3498,203 @@ function renderAssetCategoryChart(entries) {
   });
 }
 
+let invView = 'assets';      // app: 'assets' | 'liabilities' toggle
+let invShowAll = false;      // app: recent list vs full list
+
+function invSetView(v) { invView = v; invShowAll = false; renderInvestments(); }
+function invToggleShowAll() { invShowAll = !invShowAll; renderInvestments(); }
+
+// ── App-only All Assets page (matches the reference design) ──────────────────
+function renderInvestmentsApp() {
+  const investments = STATE.investments || [];
+  const loans       = STATE.loans || [];
+  const totalInvested = investments.reduce((s, i) => s + (i.amount || 0), 0);
+  const totalCurrent  = investments.reduce((s, i) => s + (i.currentValue ?? i.amount ?? 0), 0);
+  const totalLoan     = loans.reduce((s, l) => s + (l.outstanding || 0), 0);
+  const netWorth      = totalCurrent - totalLoan;
+  const emiMonth      = loans.reduce((s, l) => s + (+l.emi || 0), 0);
+  const netCash       = (STATE.bankAccounts || []).reduce((s, b) => s + (+b.balance || 0), 0)
+                      + (STATE.cashAccounts || []).reduce((s, c) => s + (+c.balance || 0), 0);
+
+  _recordNetWorthSnapshot(netWorth);
+  const hist = STATE.netWorthHistory || [];
+
+  // Month-to-date change from history
+  const monthStart = _ymdLocal(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const baseSnap = hist.find(p => p.date >= monthStart) || hist[0];
+  const chg = baseSnap ? netWorth - baseSnap.value : 0;
+  const chgPct = baseSnap && baseSnap.value ? (chg / Math.abs(baseSnap.value) * 100) : 0;
+
+  // Short Indian-number formatter (₹2.5L / ₹40K)
+  const shortAmt = n => {
+    const a = Math.abs(n);
+    if (a >= 1e7) return '₹' + (n / 1e7).toFixed(a % 1e7 === 0 ? 0 : 1) + 'Cr';
+    if (a >= 1e5) return '₹' + (n / 1e5).toFixed(a % 1e5 === 0 ? 0 : 1) + 'L';
+    if (a >= 1e3) return '₹' + (n / 1e3).toFixed(a % 1e3 === 0 ? 0 : 0) + 'K';
+    return '₹' + n;
+  };
+
+  // Allocation (current view)
+  const isAssets = invView === 'assets';
+  const allocMap = {};
+  if (isAssets) investments.forEach(i => { const v = i.currentValue ?? i.amount ?? 0; allocMap[i.type] = (allocMap[i.type] || 0) + v; });
+  else loans.forEach(l => { allocMap[l.type] = (allocMap[l.type] || 0) + (l.outstanding || 0); });
+  const allocEntries = Object.entries(allocMap).sort(([, a], [, b]) => b - a);
+  const allocTotal = allocEntries.reduce((s, [, v]) => s + v, 0);
+  const allocColors = isAssets ? ASSET_CAT_COLORS : LIAB_CAT_COLORS;
+
+  // Recent list
+  const listSrc = isAssets
+    ? _invApplySort([...investments])
+    : [...loans].sort((a, b) => (b.outstanding || 0) - (a.outstanding || 0));
+  const listShown = invShowAll ? listSrc : listSrc.slice(0, 4);
+
+  const row = (item) => {
+    if (isAssets) {
+      const cur = item.currentValue ?? item.amount;
+      const pnl = cur - item.amount;
+      const pos = pnl >= 0;
+      const roi = item.amount > 0 ? ((pnl / item.amount) * 100).toFixed(1) : '0.0';
+      const dt = item.date ? new Date(item.date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '';
+      return `<div class="ia-item" onclick="openEditInvModal('${item.id}')">
+        <span class="ia-thumb" style="background:${(catColor ? '' : '')}rgba(99,102,241,0.14)"><i data-lucide="${_assetLucide(item.type)}"></i></span>
+        <div class="ia-mid">
+          <p class="ia-name">${esc(item.name)}</p>
+          <p class="ia-sub">${esc(item.type)}${dt ? ' · ' + dt : ''}</p>
+        </div>
+        <div class="ia-right">
+          <p class="ia-val">${fmt(cur)}</p>
+          <p class="ia-chg ${pos ? 'pos' : 'neg'}"><i data-lucide="${pos ? 'arrow-up' : 'arrow-down'}"></i> ${pos ? '+' : ''}${roi}%</p>
+        </div>
+        <i data-lucide="chevron-right" class="ia-chev"></i>
+      </div>`;
+    }
+    const paid = (item.principal || 0) - (item.outstanding || 0);
+    const pct = item.principal > 0 ? Math.min(100, Math.round(paid / item.principal * 100)) : 0;
+    return `<div class="ia-item" onclick="openEditLoanModal('${item.id}')">
+      <span class="ia-thumb" style="background:rgba(239,68,68,0.14)"><i data-lucide="${_loanLucide(item.type)}"></i></span>
+      <div class="ia-mid">
+        <p class="ia-name">${esc(item.name)}</p>
+        <p class="ia-sub">${esc(item.type)}${item.lender ? ' · ' + esc(item.lender) : ''} · ${pct}% paid</p>
+      </div>
+      <div class="ia-right">
+        <p class="ia-val neg">${fmt(item.outstanding || 0)}</p>
+        <p class="ia-sub">EMI ${fmt(item.emi || 0)}</p>
+      </div>
+      <i data-lucide="chevron-right" class="ia-chev"></i>
+    </div>`;
+  };
+
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in ia-page">
+
+      <div class="page-header" style="margin-bottom:14px">
+        <div><h1 class="page-title"><i data-lucide="bar-chart-3"></i> All Assets</h1>
+        <p class="page-subtitle">Investments, loans & net worth</p></div>
+      </div>
+
+      <!-- NET WORTH HERO -->
+      <div class="ia-hero">
+        <div class="ia-hero-top">
+          <div>
+            <p class="ia-hero-lbl">TOTAL NET WORTH <i data-lucide="info"></i></p>
+            <p class="ia-hero-val ${netWorth < 0 ? 'neg' : 'pos'}">${netWorth < 0 ? '- ' : ''}${fmt(Math.abs(netWorth))}</p>
+            <p class="ia-hero-chg ${chg >= 0 ? 'pos' : 'neg'}"><i data-lucide="${chg >= 0 ? 'arrow-up' : 'arrow-down'}"></i> ${chg >= 0 ? '+' : '-'}${fmt(Math.abs(Math.round(chg)))} (${chg >= 0 ? '+' : ''}${chgPct.toFixed(1)}%) <span>This Month</span></p>
+          </div>
+          <span class="ia-hero-trend ${chg >= 0 ? 'pos' : 'neg'}"><i data-lucide="${chg >= 0 ? 'trending-up' : 'trending-down'}"></i></span>
+        </div>
+        <div class="ia-hero-div"></div>
+        <div class="ia-hero-split">
+          <div class="ia-hs">
+            <span class="ia-hs-ic asset"><i data-lucide="wallet"></i></span>
+            <div><p class="ia-hs-lbl">TOTAL ASSETS</p><p class="ia-hs-val pos">+${fmt(totalCurrent)}</p></div>
+          </div>
+          <div class="ia-hs">
+            <span class="ia-hs-ic liab"><i data-lucide="file-text"></i></span>
+            <div><p class="ia-hs-lbl">TOTAL LIABILITIES</p><p class="ia-hs-val neg">${fmt(totalLoan)}</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK STATS STRIP -->
+      <div class="ia-stats">
+        <div class="ia-stat"><span class="ia-stat-ic" style="color:#10b981"><i data-lucide="wallet"></i></span><div><p class="ia-stat-lbl">Net Cash</p><p class="ia-stat-val">${shortAmt(netCash)}</p></div></div>
+        <div class="ia-stat"><span class="ia-stat-ic" style="color:#3b82f6"><i data-lucide="trending-up"></i></span><div><p class="ia-stat-lbl">Investments</p><p class="ia-stat-val">${shortAmt(totalCurrent)}</p></div></div>
+        <div class="ia-stat"><span class="ia-stat-ic" style="color:#f59e0b"><i data-lucide="landmark"></i></span><div><p class="ia-stat-lbl">Loans</p><p class="ia-stat-val">${shortAmt(totalLoan)}</p></div></div>
+        <div class="ia-stat"><span class="ia-stat-ic" style="color:#a855f7"><i data-lucide="calendar"></i></span><div><p class="ia-stat-lbl">EMI / Month</p><p class="ia-stat-val">${shortAmt(emiMonth)}</p></div></div>
+      </div>
+
+      <!-- ASSETS / LIABILITIES TOGGLE -->
+      <div class="ia-toggle">
+        <button class="ia-tg ${isAssets ? 'on' : ''}" onclick="invSetView('assets')">Assets (${investments.length})</button>
+        <button class="ia-tg ${!isAssets ? 'on' : ''}" onclick="invSetView('liabilities')">Liabilities (${loans.length})</button>
+      </div>
+
+      <!-- ALLOCATION -->
+      ${allocEntries.length ? `
+      <div class="ia-card">
+        <div class="ia-card-head">
+          <p class="ia-card-title">${isAssets ? 'Asset' : 'Liability'} Allocation <i data-lucide="info"></i></p>
+          <button class="ia-link" onclick="openInvFilterSheet()">View Details <i data-lucide="chevron-right"></i></button>
+        </div>
+        <div class="ia-alloc">
+          <div class="ia-alloc-legend">
+            ${allocEntries.map(([type, val], idx) => {
+              const pct = allocTotal > 0 ? Math.round(val / allocTotal * 100) : 0;
+              const color = allocColors[idx % allocColors.length];
+              return `<div class="ia-leg-row">
+                <span class="ia-leg-dot" style="background:${color}"></span>
+                <span class="ia-leg-name">${esc(type)}</span>
+                <div class="ia-leg-bar"><div style="width:${pct}%;background:${color}"></div></div>
+                <span class="ia-leg-pct">${pct}%</span>
+              </div>`;
+            }).join('')}
+          </div>
+          <div class="ia-donut">
+            <canvas id="${isAssets ? 'inv-category-chart' : 'liab-category-chart'}"></canvas>
+            <div class="ia-donut-c"><span>Total ${isAssets ? 'Assets' : 'Liab'}</span><b>${shortAmt(allocTotal)}</b></div>
+          </div>
+        </div>
+      </div>` : ''}
+
+      <!-- RECENT LIST -->
+      <div class="ia-card">
+        <div class="ia-card-head">
+          <p class="ia-card-title">${isAssets ? 'Recent Assets & Investments' : 'Loans & Liabilities'}</p>
+          ${listSrc.length > 4 ? `<button class="ia-link" onclick="invToggleShowAll()">${invShowAll ? 'Show less' : 'View All'} <i data-lucide="chevron-right"></i></button>` : ''}
+        </div>
+        ${listShown.length ? `<div class="ia-list">${listShown.map(row).join('')}</div>`
+          : `<div class="empty-state" style="padding:30px 0"><span class="empty-state-icon"><i data-lucide="${isAssets ? 'trending-up' : 'landmark'}"></i></span><p>${isAssets ? 'No assets yet.' : 'No loans tracked.'}</p></div>`}
+      </div>
+
+      <!-- ADD CARDS -->
+      <div class="inv-add-row">
+        <button class="inv-add-card asset" onclick="openAddInvModal()"><span class="inv-add-ic"><i data-lucide="trending-up"></i></span><span class="inv-add-lbl">Add Asset</span></button>
+        <button class="inv-add-card liab" onclick="openAddLoanModal()"><span class="inv-add-ic"><i data-lucide="landmark"></i></span><span class="inv-add-lbl">Add Liability</span></button>
+      </div>
+    </div>`;
+
+  setTimeout(() => {
+    if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+    if (allocEntries.length) {
+      if (isAssets) renderAssetCategoryChart(allocEntries);
+      else renderLiabCategoryChart(allocEntries);
+    }
+  }, 40);
+}
+
+// Lucide line-icon mapping for asset & loan types (fallbacks included)
+function _assetLucide(type) {
+  const m = { 'Real Estate': 'home', 'Fixed Deposit': 'landmark', 'Gold': 'circle-dollar-sign', 'Stocks': 'trending-up', 'Mutual Fund': 'pie-chart', 'SIP': 'repeat', 'Crypto': 'bitcoin', 'PPF / EPF': 'piggy-bank', 'PPF': 'piggy-bank', 'EPF': 'piggy-bank', 'Insurance': 'shield', 'Other': 'package' };
+  return m[type] || 'trending-up';
+}
+function _loanLucide(type) {
+  const m = { 'Gold Loan': 'circle-dollar-sign', 'Personal Loan': 'user', 'Home Loan': 'home', 'Car Loan': 'car', 'Education Loan': 'graduation-cap', 'Credit Card': 'credit-card', 'Other': 'package' };
+  return m[type] || 'landmark';
+}
+
 function renderInvestments() {
+  if (window.__IS_APP) { try { return renderInvestmentsApp(); } catch (e) { console.log('app assets render error', e); } }
   const investments = STATE.investments || [];
   const loans       = STATE.loans || [];
 
