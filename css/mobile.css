@@ -10671,3 +10671,38 @@ html.is-app #page-container[data-page="budget"] div[style*="height:8px"]>div { h
 html.is-app #page-container[data-page="budget"] .budget-hero-row div[style*="border-radius:12px"] { padding: 18px 14px !important; }
 html.is-app #page-container[data-page="budget"] .budget-legend-row { padding: 16px 10px !important; }
 html.is-app #page-container[data-page="budget"] .cat-lic { font-size: 30px !important; }
+
+/* ============================================================
+   build 370 — DRAWER 2x: bigger labels, icon chips & section
+   headers (overrides build 352 sizing).
+   ============================================================ */
+html.is-app .sidebar .nav-item,
+html.is-app .sidebar.mobile-open .nav-item,
+html.is-app .sidebar .nav-item .nav-text {
+  font-size: 34px !important;
+  font-weight: 700 !important;
+}
+html.is-app .sidebar .nav-item,
+html.is-app .sidebar.mobile-open .nav-item {
+  padding: 14px 20px 14px 12px !important;
+  gap: 18px !important;
+  margin: 8px 14px !important;
+}
+html.is-app .sidebar .nav-item .nav-icon,
+html.is-app .sidebar.mobile-open .nav-item .nav-icon {
+  flex: 0 0 70px !important;
+  width: 70px !important;
+  height: 70px !important;
+  border-radius: 22px !important;
+}
+html.is-app .sidebar .nav-item .nav-icon svg {
+  width: 34px !important;
+  height: 34px !important;
+}
+html.is-app .sidebar .nav-group-label {
+  font-size: 20px !important;
+  margin: 26px 26px 10px !important;
+}
+html.is-app .sidebar-logo-text {
+  font-size: 34px !important;
+}
