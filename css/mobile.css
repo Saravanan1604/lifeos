@@ -10470,3 +10470,33 @@ html.is-app .mr-card:not(.mr-open) .mr-head {
 html.is-app .mr-card {
   margin-bottom: 12px !important;
 }
+
+/* ============================================================
+   build 358 — RECORDS: period tabs row removed; the month label
+   opens a period + calendar sheet. Download icon removed.
+   ============================================================ */
+html.is-app .mm-month {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 14px !important;
+  padding: 8px 18px !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+html.is-app .mm-month:active {
+  transform: scale(.97);
+  background: rgba(0, 201, 167, 0.10) !important;
+}
+html.is-app .mm-month-chev {
+  font-size: 14px;
+  color: rgba(203, 213, 225, 0.6);
+}
+/* a bit more breathing room now that the tab row is gone */
+html.is-app .mm-monthbar {
+  margin-top: 6px !important;
+  margin-bottom: 14px !important;
+}

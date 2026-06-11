@@ -363,10 +363,9 @@ function renderRecordsMyMoney() {
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in mymoney-records ${_recSelectMode ? 'selmode' : ''}">
-      <div class="mm-ptabs">${periodTabs}</div>
       <div class="mm-monthbar">
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="recNav(-1)">‹</button>`}
-        <span class="mm-month">${periodLabelTxt}</span>
+        <button class="mm-month" onclick="openRecPeriodSheet()" title="Change period / pick a date">${periodLabelTxt} <span class="mm-month-chev">▾</span></button>
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="recNav(1)">›</button>`}
         <button class="mm-today" onclick="recToday()" title="Jump to today">Today</button>
       </div>
@@ -417,7 +416,6 @@ function renderRecordsMyMoney() {
         <span class="mm-subhead-title">Recent Transactions</span>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="mm-subhead-filter" onclick="openGeminiCategorize()" title="AI Fix categories" style="color:#8b5cf6"><i data-lucide="sparkles"></i></button>
-          <button class="mm-subhead-filter" onclick="openImportMenu()" title="Import / Scan SMS"><i data-lucide="download"></i></button>
           <button class="mm-subhead-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter, sort &amp; view options"><i data-lucide="sliders-horizontal"></i></button>
         </div>
       </div>
@@ -650,6 +648,36 @@ function showUndoSnack(msg, onUndo) {
 
 // (4) Jump to current period
 function recToday() { _recAnchor = new Date(); renderRecordsMyMoney(); }
+
+// Period + calendar sheet: opened by tapping the month label.
+// Replaces the old always-visible Day/Week/Month/Year/All tab row.
+function openRecPeriodSheet() {
+  const tabs = ['day', 'week', 'month', 'year', 'all'];
+  const lbl = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
+  const d = (_recAnchor instanceof Date && !isNaN(_recAnchor)) ? _recAnchor : new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const iso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  openModal('📅 View Period', `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+      ${tabs.map(p => `<button onclick="closeModal();recSetPeriod('${p}')"
+        style="flex:1;min-width:70px;padding:13px 6px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;
+        background:${_recPeriod === p ? 'linear-gradient(135deg,#00c9a7,#0acf83)' : 'rgba(255,255,255,0.05)'};
+        border:1px solid ${_recPeriod === p ? 'transparent' : 'rgba(255,255,255,0.12)'};
+        color:${_recPeriod === p ? '#04211a' : 'var(--text)'}">${lbl[p]}</button>`).join('')}
+    </div>
+    <p style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase">Jump to date</p>
+    <input type="date" class="form-input" value="${iso}" onchange="recPickDate(this.value)" style="width:100%">
+  `);
+}
+
+function recPickDate(v) {
+  if (!v) return;
+  const d = new Date(v + 'T00:00:00');
+  if (isNaN(d)) return;
+  _recAnchor = d;
+  closeModal();
+  renderRecordsMyMoney();
+}
 
 // (10) Account balance chips
 function _recAccountChips() {
