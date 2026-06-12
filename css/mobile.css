@@ -11253,3 +11253,36 @@ html.is-app .rec-add-ic {
 }
 html.is-app .rec-add-ic svg { width: 28px; height: 28px; }
 html.is-app .rec-add-lbl { font-size: 24px !important; font-weight: 800 !important; color: rgba(203,213,225,0.9) !important; }
+
+/* ============================================================
+   build 387 — REPORT header: force Export PDF onto the right,
+   no wrap (build 384 was wrapping it below the title).
+   ============================================================ */
+html.is-app #page-container[data-page="yearly"] .page-header {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+html.is-app #page-container[data-page="yearly"] .page-header > div:first-child {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+html.is-app .rpt-export-btn {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  align-self: center !important;
+  white-space: nowrap !important;
+}
+
+/* ============================================================
+   build 388 — REPORT header: force full width so Export PDF can
+   sit at the right edge (header had collapsed to content width).
+   ============================================================ */
+html.is-app #page-container[data-page="yearly"] .page-header {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
