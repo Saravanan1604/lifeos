@@ -355,6 +355,63 @@ function renderRecordsMyMoney() {
   `;
   }).join('');
 
+  // ── Today strip: answer "am I okay?" before the user scrolls ──
+  const _todayYmd = _ymdLocal(new Date());
+  const _todaySpent = (STATE.transactions || []).filter(t => t.type !== 'income' && (t.date || '').slice(0, 10) === _todayYmd)
+    .reduce((s, t) => s + (+t.amount || 0), 0);
+  const _mFac = { day: 30.44, week: 4.345, month: 1, year: 1 / 12 };
+  const _budTot = (STATE.budgets || []).reduce((s, b) => s + Math.round((+b.amount || 0) * (_mFac[b.period || 'month'] || 1)), 0);
+  const _mSpent = filterTxByAnchor([...(STATE.transactions || [])], 'month', _todayYmd)
+    .filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+  const _budLeft = _budTot - _mSpent;
+  const todayStripHtml = `
+    <div class="mm-today-strip" onclick="navigate('budget')">
+      <i data-lucide="sun"></i>
+      <span>Today: <b>${fmt(_todaySpent)}</b> spent${_budTot > 0 ? ` · <b style="color:${_budLeft >= 0 ? '#10b981' : '#ef4444'}">${fmt(Math.abs(_budLeft))}</b> ${_budLeft >= 0 ? 'left of' : 'over'} ${fmt(_budTot)} this month` : ''}</span>
+    </div>`;
+
+  // ── Month-end recap (shows on the 1st–3rd, once per month, dismissible) ──
+  let recapHtml = '';
+  try {
+    const now = new Date();
+    if (now.getDate() <= 3) {
+      const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const pYm = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
+      const flag = 'lifeos_recap_' + pYm;
+      if (!localStorage.getItem(flag)) {
+        const pTx = (STATE.transactions || []).filter(t => (t.date || '').slice(0, 7) === pYm);
+        const pInc = pTx.filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+        const pExp = pTx.filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+        if (pInc || pExp) {
+          const byCat = {};
+          pTx.forEach(t => { if (t.type !== 'income') byCat[t.category || 'Other'] = (byCat[t.category || 'Other'] || 0) + (+t.amount || 0); });
+          const topCat = Object.entries(byCat).sort((a, b) => b[1] - a[1])[0];
+          const savedPct = pInc > 0 ? Math.round((pInc - pExp) / pInc * 100) : 0;
+          recapHtml = `
+          <div class="mm-recap-card">
+            <button class="mm-recap-x" onclick="event.stopPropagation();localStorage.setItem('${flag}','1');renderRecordsMyMoney()"><i data-lucide="x"></i></button>
+            <p class="mm-recap-title">📊 ${prev.toLocaleString('default', { month: 'long' })} recap</p>
+            <p class="mm-recap-line">Spent <b style="color:#ef4444">${fmt(pExp)}</b> · earned <b style="color:#10b981">${fmt(pInc)}</b>${pInc > 0 ? ` · saved <b style="color:${savedPct >= 0 ? '#00c9a7' : '#ef4444'}">${savedPct}%</b>` : ''}${topCat ? ` · top: <b>${esc(topCat[0])}</b> ${fmt(topCat[1])}` : ''}</p>
+          </div>`;
+        } else localStorage.setItem(flag, '1');
+      }
+    }
+  } catch (_) {}
+
+  // ── Backup nudge when the last successful cloud sync is > 7 days old ──
+  let backupHtml = '';
+  try {
+    const lastOk = +(localStorage.getItem('lifeos_lastSyncOk') || 0);
+    if (STATE.user && !STATE.user.offline && lastOk && (Date.now() - lastOk) > 7 * 86400000) {
+      backupHtml = `
+      <div class="mm-backup-banner">
+        <i data-lucide="cloud-off"></i>
+        <span>Not backed up in ${Math.floor((Date.now() - lastOk) / 86400000)} days</span>
+        <button onclick="pullFromCloud();toast('Syncing…','info')">Sync now</button>
+      </div>`;
+    }
+  } catch (_) {}
+
   const showTotal = !(STATE.settings && STATE.settings.showTotal === false);
   const tabs = ['day', 'week', 'month', 'year', 'all'];
   const tabLabels = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
@@ -380,6 +437,9 @@ function renderRecordsMyMoney() {
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="recNav(1)">›</button>`}
         <button class="mm-today" onclick="recToday()" title="Jump to today">Today</button>
       </div>
+      ${backupHtml}
+      ${recapHtml}
+      ${todayStripHtml}
       ${(() => {
         const _bankT = (STATE.bankAccounts || []).reduce((s, b) => s + (b.balance || 0), 0);
         const _cashT = (STATE.cashAccounts || []).reduce((s, c) => s + (c.balance || 0), 0);
@@ -559,6 +619,88 @@ function _recCloseSwipe() {
   if (_recOpenRow) { _recOpenRow.style.transition = ''; _recOpenRow.style.transform = ''; _recOpenRow.classList.remove('swiped','swiped-left'); _recOpenRow = null; _recOpenDir = 0; }
 }
 function _recSwipeDelete(id) { _recCloseSwipe(); if (typeof deleteTx === 'function') deleteTx(id); }
+
+// ── Long-press a Records row → duplicate the transaction to today ──
+// Most daily expenses repeat (tea, bus, lunch); this makes re-adding one
+// a single gesture. Cancelled by any movement so swipes/scrolls win.
+function _recDupToToday(id) {
+  const t = (STATE.transactions || []).find(x => x.id === id);
+  if (!t) return;
+  const now = new Date();
+  const copy = { ...t, id: genId(), date: _ymdLocal(now), time: now.toTimeString().slice(0, 5), createdAt: now.toISOString() };
+  STATE.transactions.unshift(copy);
+  if (typeof _applyTxToAccount === 'function') { try { _applyTxToAccount(copy); } catch (_) {} }
+  saveState();
+  renderRecordsMyMoney();
+  showUndoSnack(`Duplicated ${copy.category} ${fmt(copy.amount)} to today`, () => {
+    STATE.transactions = (STATE.transactions || []).filter(x => x.id !== copy.id);
+    if (typeof _reverseTxFromAccount === 'function') { try { _reverseTxFromAccount(copy); } catch (_) {} }
+    saveState();
+    if (currentPage === 'transactions') renderRecordsMyMoney();
+  });
+}
+// ── Pull-to-refresh on Records: drag down from the top to sync ──
+(function _bindPullToRefresh() {
+  if (window._recPTRBound || !window.__IS_APP) return;
+  window._recPTRBound = true;
+  let startY = 0, pulling = false, armed = false;
+  const ind = document.createElement('div');
+  ind.id = 'ptr-indicator';
+  ind.innerHTML = '⟳';
+  document.body.appendChild(ind);
+  document.addEventListener('touchstart', (e) => {
+    if (typeof currentPage === 'undefined' || currentPage !== 'transactions') return;
+    if (window.scrollY > 2) return;
+    startY = e.touches[0].clientY; pulling = true; armed = false;
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!pulling) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 0 || window.scrollY > 2) { ind.style.opacity = '0'; armed = false; return; }
+    const pull = Math.min(dy, 130);
+    ind.style.opacity = String(Math.min(1, pull / 70));
+    ind.style.transform = `translateX(-50%) translateY(${pull * 0.55}px) rotate(${pull * 2.4}deg)`;
+    armed = pull > 70;
+    ind.classList.toggle('ptr-armed', armed);
+  }, { passive: true });
+  const finish = () => {
+    if (!pulling) return;
+    pulling = false;
+    ind.style.opacity = '0';
+    ind.style.transform = 'translateX(-50%) translateY(0) rotate(0)';
+    ind.classList.remove('ptr-armed');
+    if (armed) {
+      armed = false;
+      if (typeof toast === 'function') toast('Syncing…', 'info');
+      if (typeof pullFromCloud === 'function') { try { pullFromCloud(); } catch (_) {} }
+      setTimeout(() => { if (currentPage === 'transactions') renderRecordsMyMoney(); }, 900);
+    }
+  };
+  document.addEventListener('touchend', finish, { passive: true });
+  document.addEventListener('touchcancel', finish, { passive: true });
+})();
+
+(function _bindRecLongPress() {
+  if (window._recLPBound || !window.__IS_APP) return;
+  window._recLPBound = true;
+  let timer = null, sx = 0, sy = 0;
+  const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  document.addEventListener('touchstart', (e) => {
+    if (typeof currentPage === 'undefined' || currentPage !== 'transactions') return;
+    const row = e.target.closest && e.target.closest('.mm-row[data-id]');
+    if (!row) return;
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+    const id = row.dataset.id;
+    timer = setTimeout(() => { timer = null; _recDupToToday(id); }, 550);
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!timer) return;
+    const dx = Math.abs(e.touches[0].clientX - sx), dy = Math.abs(e.touches[0].clientY - sy);
+    if (dx > 10 || dy > 10) cancel();
+  }, { passive: true });
+  document.addEventListener('touchend', cancel, { passive: true });
+  document.addEventListener('touchcancel', cancel, { passive: true });
+})();
 
 function initRecordsGestures() {
   const list = document.querySelector('.mymoney-records .mm-list');
@@ -1024,6 +1166,28 @@ function _padEval(expr) {
   try { const v = Function('"use strict";return (' + (e || '0') + ')')(); return (typeof v === 'number' && isFinite(v)) ? v : NaN; }
   catch (_) { return NaN; }
 }
+// Top-3 amounts the user actually repeats for a category (used >= 2 times),
+// shown as one-tap chips in the add-entry pad.
+function _padTopAmounts(cat, type) {
+  const freq = {};
+  (STATE.transactions || []).forEach(t => {
+    if (t.category !== cat || t.type !== type) return;
+    const a = +t.amount;
+    if (a > 0) freq[a] = (freq[a] || 0) + 1;
+  });
+  return Object.entries(freq)
+    .filter(([, n]) => n >= 2)
+    .sort((a, b) => b[1] - a[1] || (+b[0]) - (+a[0]))
+    .slice(0, 3)
+    .map(([a]) => +a);
+}
+function padChipAmt(a) {
+  _pad.expr = String(a);
+  const inp = document.getElementById('pad-amount-input');
+  if (inp) inp.value = _pad.expr;
+  _padUpdateDisplay();
+}
+
 function _padUpdateDisplay() {
   const d = document.getElementById('pad-amount'); if (d) d.textContent = _pad.expr || '0';
   const r = document.getElementById('pad-result');
@@ -1193,6 +1357,10 @@ function renderTxPad() {
         value="${esc(_pad.expr)}"
         oninput="_pad.expr=this.value" />
     </div>
+    ${(() => { const tops = _padTopAmounts(_pad.category, _pad.type); return tops.length ? `
+    <div class="pad-amt-chips">
+      ${tops.map(a => `<button type="button" onclick="padChipAmt(${a})">₹${a.toLocaleString('en-IN')}</button>`).join('')}
+    </div>` : ''; })()}
 
     <div class="pad-notes-wrap">
       <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
@@ -3629,7 +3797,16 @@ function renderInvestmentsApp() {
         <div class="ia-stat"><span class="ia-stat-ic" style="color:#10b981"><i data-lucide="wallet"></i></span><div><p class="ia-stat-lbl">Net Cash</p><p class="ia-stat-val">${shortAmt(netCash)}</p></div></div>
         <div class="ia-stat"><span class="ia-stat-ic" style="color:#3b82f6"><i data-lucide="trending-up"></i></span><div><p class="ia-stat-lbl">Investments</p><p class="ia-stat-val">${shortAmt(totalCurrent)}</p></div></div>
         <div class="ia-stat"><span class="ia-stat-ic" style="color:#f59e0b"><i data-lucide="landmark"></i></span><div><p class="ia-stat-lbl">Loans</p><p class="ia-stat-val">${shortAmt(totalLoan)}</p></div></div>
-        <div class="ia-stat"><span class="ia-stat-ic" style="color:#a855f7"><i data-lucide="calendar"></i></span><div><p class="ia-stat-lbl">EMI / Month</p><p class="ia-stat-val">${shortAmt(emiMonth)}</p></div></div>
+        ${(() => {
+          // Traffic-light the EMI load vs this month's income (40% rule):
+          // green < 30%, amber 30–40%, red > 40%.
+          const mInc = filterTxByAnchor([...(STATE.transactions || [])], 'month', _ymdLocal(new Date()))
+            .filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
+          const ratio = mInc > 0 ? emiMonth / mInc : 0;
+          const c = ratio > 0.4 ? '#ef4444' : ratio > 0.3 ? '#f59e0b' : '#a855f7';
+          const warn = mInc > 0 && ratio > 0.3 ? ` <span style="font-size:13px;color:${c}">${Math.round(ratio * 100)}%</span>` : '';
+          return `<div class="ia-stat"><span class="ia-stat-ic" style="color:${c}"><i data-lucide="calendar"></i></span><div><p class="ia-stat-lbl">EMI / Month</p><p class="ia-stat-val" style="${ratio > 0.3 && mInc > 0 ? 'color:' + c : ''}">${shortAmt(emiMonth)}${warn}</p></div></div>`;
+        })()}
       </div>
 
       <!-- ASSETS / LIABILITIES TOGGLE -->

@@ -167,6 +167,31 @@ function applyAppScale() {
   if (lvl === 'large') r.classList.add('app-scale-lg');
   else if (lvl === 'xl') r.classList.add('app-scale-xl');
 }
+// ── Hero number count-up (app) — big values tick up to their total in
+// ~450ms on page entry. Skipped on soft refreshes (sync poll) so numbers
+// don't re-animate every few seconds.
+function countUpEl(el, dur = 450) {
+  if (!el) return;
+  const orig = el.textContent;
+  const m = orig.match(/(\d[\d,]*(?:\.\d+)?)/);
+  if (!m) return;
+  const target = parseFloat(m[1].replace(/,/g, ''));
+  if (!isFinite(target) || target === 0) return;
+  const dec = (m[1].split('.')[1] || '').length;
+  const t0 = performance.now();
+  function frame(t) {
+    const p = Math.min(1, (t - t0) / dur);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = orig.replace(m[1], (target * ease).toLocaleString('en-IN', { minimumFractionDigits: dec, maximumFractionDigits: dec }));
+    if (p < 1) requestAnimationFrame(frame); else el.textContent = orig;
+  }
+  requestAnimationFrame(frame);
+}
+function countUpHeroes() {
+  if (!window.__IS_APP) return;
+  document.querySelectorAll('.mm-hero-val, .metric-value, .ia-hero-val, .nw-hero-val').forEach(el => countUpEl(el));
+}
+
 function setAppScale(level) {
   STATE.settings = STATE.settings || {};
   STATE.settings.appScale = level;
@@ -749,6 +774,10 @@ function _renderPage(page) {
   }
   if (typeof _dockThemeToggle === 'function') _dockThemeToggle();
   if (typeof applyTranslations === 'function') applyTranslations();
+  // Hero values count up on genuine navigation only (no-anim = soft refresh)
+  if (window.__IS_APP && container && !container.classList.contains('no-anim')) {
+    try { countUpHeroes(); } catch (_) {}
+  }
   // Re-sync the mobile page-scale (content height changes per page)
   if (typeof window.__applyMobileScale === 'function') {
     requestAnimationFrame(() => window.__applyMobileScale());

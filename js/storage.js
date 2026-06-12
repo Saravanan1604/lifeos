@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 393;
+const APP_BUILD = 394;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -228,6 +228,9 @@ let _pendingSave   = null; // queued when cloud push fails (Render sleeping)
 
 // Sync dot indicator in sidebar + sync button (mobile top-tools)
 function setSyncDot(status) {
+  // Record the last successful sync time (powers the "not backed up in N
+  // days" nudge on the Records page).
+  if (status === 'ok') { try { localStorage.setItem('lifeos_lastSyncOk', String(Date.now())); } catch (_) {} }
   const cfg = {
     syncing: { bg: '#f59e0b', title: 'Syncing�',     anim: 'pulse 1s infinite', btnColor: '#f59e0b', spin: true  },
     ok:      { bg: '#10b981', title: 'Live � synced', anim: 'none',              btnColor: '#10b981', spin: false },

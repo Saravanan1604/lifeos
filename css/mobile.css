@@ -11465,3 +11465,78 @@ html.is-app.app-scale-xl #page-container { zoom: 1.25; }
 /* keep content clear of the bottom nav at larger zooms */
 html.is-app.app-scale-lg #page-container { padding-bottom: 130px !important; }
 html.is-app.app-scale-xl #page-container { padding-bottom: 150px !important; }
+
+/* ============================================================
+   build 394 — UX batch: today strip, amount chips, recap card,
+   backup banner, pull-to-refresh indicator.
+   ============================================================ */
+/* Today strip */
+html.is-app .mm-today-strip {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 14px; padding: 13px 16px;
+  background: rgba(0, 201, 167, 0.07);
+  border: 1px solid rgba(0, 201, 167, 0.18);
+  border-radius: 14px;
+  font-size: 18px; color: rgba(203, 213, 225, 0.85);
+  cursor: pointer;
+}
+html.is-app .mm-today-strip svg { width: 20px; height: 20px; color: #f59e0b; flex-shrink: 0; }
+html.is-app .mm-today-strip b { font-weight: 800; }
+
+/* Smart amount chips in the add pad */
+html.is-app .pad-amt-chips { display: flex; gap: 8px; margin: 10px 0 2px; }
+html.is-app .pad-amt-chips button {
+  flex: 1; padding: 11px 8px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text); font-size: 19px; font-weight: 700; cursor: pointer;
+}
+html.is-app .pad-amt-chips button:active { background: rgba(0, 201, 167, 0.15); border-color: rgba(0, 201, 167, 0.4); }
+
+/* Month recap card */
+html.is-app .mm-recap-card {
+  position: relative; margin: 0 0 14px; padding: 16px 44px 16px 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 16px;
+}
+html.is-app .mm-recap-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+html.is-app .mm-recap-line { font-size: 17px; color: rgba(203, 213, 225, 0.8); line-height: 1.5; }
+html.is-app .mm-recap-x {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(255, 255, 255, 0.07); border: none; border-radius: 50%;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  color: rgba(203, 213, 225, 0.6); cursor: pointer;
+}
+html.is-app .mm-recap-x svg { width: 17px; height: 17px; }
+
+/* Backup nudge banner */
+html.is-app .mm-backup-banner {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 14px; padding: 12px 14px;
+  background: rgba(245, 158, 11, 0.10);
+  border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 14px;
+  font-size: 17px; color: #fbbf24;
+}
+html.is-app .mm-backup-banner svg { width: 20px; height: 20px; flex-shrink: 0; }
+html.is-app .mm-backup-banner span { flex: 1; min-width: 0; }
+html.is-app .mm-backup-banner button {
+  background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24; border-radius: 10px; padding: 8px 14px;
+  font-size: 16px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+}
+
+/* Pull-to-refresh indicator */
+html.is-app #ptr-indicator {
+  position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #12172a; border: 1px solid rgba(0, 201, 167, 0.4);
+  color: #00c9a7; font-size: 24px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; z-index: 9000; pointer-events: none;
+  transition: opacity .15s ease;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+html.is-app #ptr-indicator.ptr-armed { background: rgba(0, 201, 167, 0.2); }
+/* hide it entirely on web */
+#ptr-indicator { display: none; }
+html.is-app #ptr-indicator { display: flex; }
