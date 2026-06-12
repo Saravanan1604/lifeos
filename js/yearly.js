@@ -150,8 +150,9 @@ function _drawReportBar(data) {
     data: {
       labels: data.rows.map(r => r.label),
       datasets: [
-        { label: 'Income', data: data.rows.map(r => r.inc), backgroundColor: 'rgba(16,185,129,0.85)', borderRadius: 5 },
-        { label: 'Expense', data: data.rows.map(r => r.exp), backgroundColor: 'rgba(239,68,68,0.85)', borderRadius: 5 }
+        { type: 'bar', label: 'Income', data: data.rows.map(r => r.inc), backgroundColor: 'rgba(16,185,129,0.85)', borderRadius: 5 },
+        { type: 'bar', label: 'Expense', data: data.rows.map(r => r.exp), backgroundColor: 'rgba(239,68,68,0.85)', borderRadius: 5 },
+        ...(data.useBal ? [{ type: 'line', label: 'Balance', data: data.rows.map(r => r.bal), borderColor: '#00c9a7', borderWidth: 2.5, pointBackgroundColor: '#00c9a7', pointRadius: 3, tension: 0.35 }] : [])
       ]
     },
     options: {
@@ -172,6 +173,12 @@ function _drawReportBar(data) {
 function exportYearlyPDF() {
   const data = _reportData(_rptPeriod, _rptAnchor);
   const name = (STATE.settings && STATE.settings.name) || 'atworth User';
+  // Capture the on-screen bar+line chart as an image to embed in the PDF.
+  let chartImg = '';
+  try {
+    const cv = document.getElementById('yearly-bar-chart');
+    if (cv) chartImg = `<div style="background:#0e1220;border-radius:10px;padding:14px;margin:0 0 20px"><img src="${cv.toDataURL('image/png', 1.0)}" style="width:100%;max-width:760px;display:block"/></div>`;
+  } catch (_) {}
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>atworth Report ${data.title}</title>
     <style>
       body{font-family:Arial,Helvetica,sans-serif;padding:28px;color:#111}
@@ -184,8 +191,9 @@ function exportYearlyPDF() {
     </style></head><body>
       <h1>atworth — Report (${data.title})</h1>
       <p class="sub">${name} · Generated ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      ${chartImg}
       ${_reportTableHTML(data)}
-      <script>setTimeout(function(){window.print();},350);<\/script>
+      <script>setTimeout(function(){window.print();},450);<\/script>
     </body></html>`;
   const w = window.open('', '_blank');
   if (!w) { if (typeof toast === 'function') toast('Allow pop-ups to export the PDF', 'warning'); return; }
