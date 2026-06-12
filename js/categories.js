@@ -175,7 +175,10 @@ function renderRecurring() {
           }).join('')}
         </div>
         ${dueCount ? `<button class="btn-primary" style="margin-top:16px;width:100%" onclick="if(typeof processRecurring==='function'){processRecurring();} navigate('recurring',true);">Post ${dueCount} due now</button>` : ''}`}
-      <button class="btn-secondary" style="margin-top:12px;width:100%" onclick="openAddTxModal('expense')">+ Add recurring (set Repeat in the entry)</button>
+      <button class="glass-card rec-add-card" onclick="openAddTxModal('expense')">
+        <span class="rec-add-ic"><i data-lucide="plus"></i></span>
+        <span class="rec-add-lbl">Add recurring</span>
+      </button>
     </div>`;
   if (typeof _lucideRefresh === 'function') _lucideRefresh();
 }

@@ -11228,3 +11228,28 @@ html.is-app #page-container[data-page="yearly"] .page-header {
   justify-content: space-between !important;
 }
 html.is-app .rpt-export-btn { margin-left: auto !important; align-self: auto !important; }
+
+/* ============================================================
+   build 385 — RECURRING: "+ Add recurring" as a full card,
+   same size as the recurring item cards (e.g. Salary).
+   ============================================================ */
+html.is-app .rec-add-card {
+  width: 100% !important;
+  margin-top: 12px !important;
+  padding: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  border: 2px dashed rgba(255,255,255,0.18) !important;
+  background: rgba(255,255,255,0.03) !important;
+  cursor: pointer !important;
+  text-align: left !important;
+}
+html.is-app .rec-add-card:active { transform: scale(.98); background: rgba(0,201,167,0.08) !important; }
+html.is-app .rec-add-ic {
+  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,201,167,0.15); color: #00c9a7;
+}
+html.is-app .rec-add-ic svg { width: 28px; height: 28px; }
+html.is-app .rec-add-lbl { font-size: 24px !important; font-weight: 800 !important; color: rgba(203,213,225,0.9) !important; }
