@@ -19,9 +19,9 @@ function renderNotes() {
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
-      <div class="page-header">
-        <div><h1 class="page-title">🗒️ Notes</h1><p class="page-subtitle">Quick notes & reminders</p></div>
-        <button class="btn-primary btn-sm" onclick="openNoteEditor()">+ New Note</button>
+      <div class="page-header notes-header">
+        <div><h1 class="page-title"><i data-lucide="notebook-pen"></i> Notes</h1><p class="page-subtitle">Quick notes & reminders</p></div>
+        <button class="btn-primary btn-sm notes-add-btn" onclick="openNoteEditor()"><i data-lucide="plus"></i> New Note</button>
       </div>
       ${all.length
         ? `${section('Pinned', pinned)}${section(pinned.length ? 'Others' : '', others)}`

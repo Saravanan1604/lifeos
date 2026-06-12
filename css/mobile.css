@@ -11139,3 +11139,34 @@ html.is-app .note-card .note-pin {
   background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;
 }
 html.is-app .note-card .note-pin svg { width: 16px; height: 16px; }
+
+/* ============================================================
+   build 380 — NOTES: line icons, New Note on the left, much
+   larger card text (single column so the big text fits).
+   ============================================================ */
+/* New Note button → left, under the title */
+html.is-app .notes-header {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+}
+html.is-app .notes-add-btn {
+  align-self: flex-start !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 22px !important;
+  padding: 12px 22px !important;
+  border-radius: 14px !important;
+}
+html.is-app .notes-add-btn svg { width: 22px !important; height: 22px !important; }
+
+/* single column so the much-larger text has room */
+html.is-app .notes-grid { column-count: 1 !important; }
+html.is-app .notes-section-lbl { font-size: 22px !important; }
+html.is-app .notes-grid .note-card { padding: 22px !important; border-radius: 20px !important; }
+html.is-app .note-card .note-title { font-size: 42px !important; margin-bottom: 12px !important; }
+html.is-app .note-card .note-body { font-size: 30px !important; line-height: 1.4 !important; -webkit-line-clamp: 20 !important; }
+html.is-app .note-card .note-pin { width: 40px !important; height: 40px !important; top: 16px !important; right: 16px !important; }
+html.is-app .note-card .note-pin svg { width: 22px !important; height: 22px !important; }
