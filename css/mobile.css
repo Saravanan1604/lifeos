@@ -11203,3 +11203,18 @@ html.is-app .rpt-navbar {
   gap: 18px; margin-bottom: 14px;
 }
 html.is-app .rpt-title { font-size: 24px; font-weight: 800; color: var(--text); }
+
+/* ============================================================
+   build 383 — REPORT page: 2x text & letters (app-only)
+   ============================================================ */
+html.is-app .rpt-tab { font-size: 26px !important; padding: 18px 6px !important; }
+html.is-app .rpt-title { font-size: 32px !important; }
+html.is-app #page-container[data-page="yearly"] .yearly-tbl { font-size: 24px !important; }
+html.is-app #page-container[data-page="yearly"] .yearly-tbl th,
+html.is-app #page-container[data-page="yearly"] .yearly-tbl td {
+  font-size: 24px !important;
+  padding: 14px 14px !important;
+}
+html.is-app #page-container[data-page="yearly"] .yearly-tbl thead th { font-size: 19px !important; }
+html.is-app #page-container[data-page="yearly"] .page-title { font-size: 34px !important; }
+html.is-app #page-container[data-page="yearly"] .page-subtitle { font-size: 19px !important; }

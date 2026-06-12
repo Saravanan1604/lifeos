@@ -123,7 +123,7 @@ function renderYearly() {
       </div>
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
-        <div style="height:${Math.max(220, Math.min(420, data.rows.length * 26 + 60))}px;position:relative">
+        <div style="height:${window.__IS_APP ? Math.max(320, Math.min(640, data.rows.length * 40 + 80)) : Math.max(220, Math.min(420, data.rows.length * 26 + 60))}px;position:relative">
           <canvas id="yearly-bar-chart"></canvas>
         </div>
       </div>
@@ -158,12 +158,12 @@ function _drawReportBar(data) {
       indexAxis: horizontal ? 'y' : 'x',
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: '#94a3b8', boxWidth: 12, font: { size: 12 } } },
+        legend: { labels: { color: '#94a3b8', boxWidth: 16, font: { size: window.__IS_APP ? 17 : 12 } } },
         tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ₹${(+c.parsed[horizontal ? 'x' : 'y']).toLocaleString('en-IN')}` } }
       },
       scales: {
-        x: { ticks: { color: '#64748b', font: { size: 11 }, callback: function (v) { const val = horizontal ? v : this.getLabelForValue(v); return horizontal ? '₹' + (Math.abs(val) >= 1000 ? (val / 1000).toFixed(0) + 'k' : val) : val; } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: { ticks: { color: '#64748b', font: { size: 11 }, callback: function (v) { const val = horizontal ? this.getLabelForValue(v) : v; return horizontal ? val : '₹' + (Math.abs(val) >= 1000 ? (val / 1000).toFixed(0) + 'k' : val); } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+        x: { ticks: { color: '#94a3b8', font: { size: window.__IS_APP ? 15 : 11 }, callback: function (v) { const val = horizontal ? v : this.getLabelForValue(v); return horizontal ? '₹' + (Math.abs(val) >= 1000 ? (val / 1000).toFixed(0) + 'k' : val) : val; } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#94a3b8', font: { size: window.__IS_APP ? 15 : 11 }, callback: function (v) { const val = horizontal ? this.getLabelForValue(v) : v; return horizontal ? val : '₹' + (Math.abs(val) >= 1000 ? (val / 1000).toFixed(0) + 'k' : val); } }, grid: { color: 'rgba(255,255,255,0.04)' } }
       }
     }
   });
