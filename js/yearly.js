@@ -143,8 +143,8 @@ function _drawReportBar(data) {
   const cv = document.getElementById('yearly-bar-chart');
   if (!cv || typeof Chart === 'undefined') return;
   if (chartInstances['yearly-bar']) { chartInstances['yearly-bar'].destroy(); delete chartInstances['yearly-bar']; }
-  // Horizontal bars when many rows (month/day-by-category); vertical otherwise.
-  const horizontal = data.rows.length > 12;
+  // Horizontal bars (rotated 90°) for all views.
+  const horizontal = true;
   chartInstances['yearly-bar'] = new Chart(cv, {
     type: 'bar',
     data: {
