@@ -1,4 +1,159 @@
 /* ============================================================
+   mobile.css — BUILD BLOCK INDEX  (auto-generated navigation aid)
+   All app styling is scoped html.is-app and appended as dated
+   "build NNN" blocks; later rules win. Jump to a block by its
+   line number below. Regenerate after adding blocks.
+   ------------------------------------------------------------
+   build 73    L1510    center Add FAB, big period tabs, swipeable cards
+   build 75    L1677    major dashboard + bottom-nav restructure (app-only)
+   build 76    L1815    sizing + spacing + modal fit (app-only)
+   build 77    L1932    settings full width, import row one line,
+   build 78    L2001    separate Transactions page, bigger quick pills, bars
+   build 79    L2039    bottom Transactions tab, bigger tx text,
+   build 80    L2109    top tools toolbar (undo/calc/lang/mic/theme/bell),
+   build 82    L2259    single-row toolbar (above), settings text,
+   build 83    L2312    redo, toolbar spread, finance tabs off,
+   build 84    L2382    toolbar tighter/bigger, bottom 1.5x, calc lock,
+   build 86    L2504    less-transparent cards/menu, fix cut liabilities,
+   build 87    L2583    fixed top bar + bottom bar (content scrolls under)
+   build 88    L2611    even bottom-nav spacing + crisper icons
+   build 91    L2656    App Lock screen (PIN keypad)  [not scoped — works everywhere]
+   build 95    L2801    Onboarding + Empty states  [not scoped — web + app]
+   build 96    L3014    Layout Customizer (edit mode)  [web + app]
+   build 102   L3114    Notes (Google Keep style)  [web + app]
+   build 103   L3302    KPI 2x2, bigger Quick Access
+   build 105   L3336    finance stats one line + spending pie left
+   build 106   L3373    Bank Tracker rebuild (graph full width, stats 1 row)
+   build 108   L3405    KPI cards 2x2 (forced) + glassy colour
+   build 110   L3425    no login flash + premium equal-spaced bottom nav
+   build 115   L3491    Transaction detail card (MyMoney style)  [web + app]
+   build 116   L3622    spending hero ring (axio-style) + category row icons
+   build 117   L3718    Yearly Report table
+   build 119   L3762    colourful menu (sidebar) icons
+   build 125   L3850    bottom-nav: white indicator + even premium spacing
+   build 126   L3900    two-tone "double colour" bank/credit/cash cards
+   build 127   L3927    premium dual-tone popup modals (app only)
+   build 128   L4034    make app popup modals ~2x bigger / easier to use
+   build 129   L4099    text scales with the phone's system font size
+   build 130   L4218    make the whole app font 1.25x bigger
+   build 132   L4227    MyMoney-style Records page (app only)
+   build 134   L4392    Records filter button (right side of month bar)
+   build 135   L4438    Records page: theme-aware (matches app + dark mode),
+   build 137   L4658    Records page control buttons (calendar / total / carry-forward)
+   build 138   L4702    bump app to 1.5x (text + elements). Root at 150%
+   build 139   L4716    increase app text/elements further (root 200% = ~2x base)
+   build 140   L4727    reduce app scale a bit (root 175%)
+   build 141   L4738    Records summary (EXPENSE/INCOME/TOTAL) 1.25x bigger than the lis
+   build 142   L4747    fix Records summary spacing so the 3 amounts don't touch
+   build 143   L4769    Records summary as 3 glassy premium cards
+   build 144   L4796    Transaction detail card: 2x text, 3x edit/delete
+   build 145   L4859    Records gestures: long-press select bar + swipe feedback
+   build 147   L4931    per-day expense total on the right of the date header
+   build 148   L4947    2x hamburger (three-line) + 8 top-tool icons.
+   build 149   L4979    calculator popup ~2x bigger (app only)
+   build 150   L5042    swipe reveal: Edit (left) / Delete (right) behind each row
+   build 151   L5149    visual cue when a row is "armed" (held) for swipe edit/delete
+   build 152   L5156    fix select-mode mess: hide swipe reveal + solid selected rows
+   build 153   L5187    disable double-tap-to-zoom inside the app (keeps scroll & swipe)
+   build 155   L5199    UX feature pack styling (app only)
+   build 156   L5425    no text-select menu on long-press, full-screen
+   build 158   L5466    full-screen keypad Add/Edit page (app only)
+   build 159   L5751    hide number keypad while typing notes (device keyboard shows)
+   build 160   L5761    calculator keypad (4 columns, operators, live result)
+   build 161   L5805    fix login/auth screen layout on mobile (stack card + offline ban
+   build 162   L5827    round-button calculator design (app only), like the reference
+   build 163   L5881    subcategory + repeat row on the keypad add/edit page
+   build 164   L5896    premium keypad add/edit page; date & time at the top
+   build 165   L5986    keypad page matches Records page look + tighter sizing
+   build 166   L6038    keypad fills the available space evenly (no big gap)
+   build 167   L6050    iOS-style round calculator buttons on the add/edit keypad
+   build 168   L6114    bigger round keys, centered keypad, fix spacing
+   build 169   L6144    realign top of add page into a tidy 2-column layout
+   build 170   L6193    keypad page covers nav/FAB (removes stray square) + ensure on to
+   build 171   L6205    bigger calculator keys (fill columns, tighter gaps)
+   build 172   L6233    fit calculator keys + fix operator colours in light mode
+   build 173   L6299    maximum-size calculator keys (fill columns) + scroll if tall
+   build 174   L6326    reduce calculator keys ~50%
+   build 176   L6348    ensure helper text is readable on the cream modal body
+   build 178   L6355    balanced subcategory row + Google-style filled keypad
+   build 179   L6386    Samsung One-UI style keypad (rounded squares,
+   build 180   L6452    plain number pad (calculator math removed)
+   build 181   L6480    amount uses the device keyboard (no custom keypad)
+   build 184   L6523    Premium redesign: pill type toggle, custom numpad,
+   build 186   L6796    premium dark frosted-glass Add/Edit page
+   build 187   L6913    Add page blends with app background + bigger elements
+   build 188   L6972    Add page matches Records page (glass cards + teal/indigo accents
+   build 191   L6973    show the SAME particle background as the rest of the app:
+   build 192   L7042    popups: position a bit higher, bigger & readable.
+   build 193   L7152    Records bigger controls (#7), txpad mic (#3),
+   build 206   L946     tidy the Net Worth hero meta: stack rows, left-aligned, even gap
+   build 214   L7808    full-screen Voice Command page (wave + transcript)
+   build 215   L8020    clean full-screen calculator (iOS / Google style)
+   build 234   L7540    notes + mic as one aligned row (mic was overlapping/floating)
+   build 237   L7567    Amount compact, Notes taller (amount height < notes height)
+   build 238   L7587    top CANCEL removed; amount full width; calc + mic = small 18px
+   build 239   L7648    Add-sheet polish: ₹ symbol + emphasised amount,
+   build 240   L7744    group Amount + Notes into one subtle "entry zone" card
+   build 243   L7254    Subcategory popup ~2x bigger (input + buttons)
+   build 244   L7284    reduce the amount number (0.00) by ~25%
+   build 253   L7290    improved global Search (rich results, chips)
+   build 256   L7432    bigger Filter Records popup
+   build 262   L8271    Add/Edit Custom Category emoji grid: 4 visible rows, scrollable
+   build 263   L8307    bigger Merge / + Custom Category buttons
+   build 264   L8326    period tabs as a sleek contained segmented switch
+   build 265   L8412    Records hero: big Balance + Income/Expense split,
+   build 267   L8918    consolidated "Recent Transactions" sub-header + slider filter
+   build 270   L8880    sticky day headers + dimmer meta (emphasise category + amount)
+   build 275   L8610    Total switch on balance card + big income/expense when off
+   build 279   L8808    global Big / Small view toggle (scales page content)
+   build 282   L8818    merged Finance page Overview / History toggle
+   build 285   L8855    extra themes (AMOLED true-black, Ocean, Sunset)
+   build 293   L6977    keep the sheet OPAQUE (was transparent) so the page behind can't
+   build 296   L9096    bottom nav: only Records · Finance · [+] · Assets · More.
+   build 298   L9149    Goals page: clean card alignment + line icons
+   build 299   L9223    Money Rules page (9 finance rules of thumb)
+   build 320   L9381    Records: sticky "Recent Transactions" / select bar
+   build 323   L9447    Global polish pass (match the Records page feel)
+   build 347   L9924    Account Card Layout & Text Wrap Fixes
+   build 349   L9952    ALIGNMENT OVERHAUL (app-only, html.is-app scoped)
+   build 350   L10080   APP-LIKE NAVIGATION FEEL
+   build 351   L10098   DRAWER REDESIGN (pill nav, reference mock style)
+   build 352   L10281   DRAWER v2 (closer to reference) + smoother nav
+   build 353   L10389   DRAWER POLISH: layering, scrollbar, capsule float
+   build 354   L10421   FINANCE PAGE UX POLISH (from UX review)
+   build 355   L10501   FINANCE PAGE RESTRUCTURE (app-only)
+   build 356   L10562   FINANCE CARDS: bigger cards, no stat chips,
+   build 357   L10599   MONEY RULES: snackable accordion cards (app-only)
+   build 358   L10630   RECORDS: period tabs row removed; the month label
+   build 359   L10660   RECORDS: ring icon (left of month bar) opens the
+   build 360   L10683   RECORDS ring button: bigger, pinned far left,
+   build 362   L10708   BUDGET PAGE: separate budget cards removed (the
+   build 363   L10726   BUDGET overview legend: bigger text, roomier rows,
+   build 364   L10740   BUDGET hero (2x ring left, chips right), filter
+   build 366   L10779   BUDGET: + button (add budget) pinned left of the
+   build 368   L10805   BUDGET PAGE TYPE SCALE 2x (app-only)
+   build 370   L10831   DRAWER 2x: bigger labels, icon chips & section
+   build 371   L10866   ALL ASSETS PAGE REDESIGN (app-only)
+   build 372   L10956   ALL ASSETS reference design (app-only, .ia-*)
+   build 373   L11072   ALL ASSETS reference: scale everything up ~2x
+   build 374   L11127   ALL ASSETS: center the net-worth block
+   build 375   L11144   FINANCE balance-log: fresh full-width card design
+   build 376   L11193   FINANCE cards: shrink the bottom footer text so it
+   build 377   L11208   FINANCE page: 2x text / numbers / icons (app-only)
+   build 379   L11252   NOTES: Google-Keep-style masonry (app-only)
+   build 380   L11299   NOTES: line icons, New Note on the left, much
+   build 381   L11330   NOTES: New Note button back on the RIGHT side
+   build 382   L11343   REPORT page: Day/Week/Month/Year tabs + nav + chart
+   build 383   L11363   REPORT page: 2x text & letters (app-only)
+   build 384   L11378   REPORT page: Export PDF button on the right
+   build 385   L11388   RECURRING: "+ Add recurring" as a full card,
+   build 387   L11413   REPORT header: force Export PDF onto the right,
+   build 388   L11435   REPORT header: force full width so Export PDF can
+   build 390   L11446   balance-log entry timestamp chip
+   build 391   L11459   Global Text Size control (#4). Zoom the scrollable
+   ============================================================ */
+
+/* ============================================================
    atworth — Mobile font bump ONLY (installed app).
    Same web layout — just larger, more readable text on mobile.
    Scoped to html.is-app, so the web app is never affected.

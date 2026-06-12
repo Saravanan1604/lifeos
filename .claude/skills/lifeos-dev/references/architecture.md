@@ -52,6 +52,10 @@ html.is-app #page-container[data-page="PAGE"] .section-title { font-size: 28px !
 ```
 For elements styled with `rem` (e.g. account-card balance `2.6rem`), target the inline value directly: `html.is-app .fin-dark-card div[style*="2.6rem"] { font-size: 46px !important; }`. Custom-class pages (e.g. the `.ia-*` Assets layout, `.blog-*` log cards, `.note-*` notes) get explicit per-class sizes instead.
 
+## Navigating mobile.css
+
+The top of `mobile.css` has an auto-generated **BUILD BLOCK INDEX** — a comment listing every `build NNN` block with its line number. Jump there first to find the right place. After appending a new block, regenerate the index (it's comment-only, so stale numbers are harmless but the index is the fast path). Rules are append-only and later-wins; don't hunt for the "right" spot — append at the end.
+
 ## Global is-app font bump (top of mobile.css)
 
 There's a global table that scales inline `font-size:Npx` values up (~1.5x) because the device renders the page scaled down. Page-scoped remaps and explicit class rules override it. Money/number values use `word-break: keep-all` to avoid mid-digit wraps.
