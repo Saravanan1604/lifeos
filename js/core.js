@@ -172,7 +172,7 @@ function setAppScale(level) {
   STATE.settings.appScale = level;
   if (typeof saveState === 'function') saveState();
   applyAppScale();
-  if (typeof openAppSettings === 'function') openAppSettings();
+  if (typeof toast === 'function') toast('Text size: ' + (level === 'xl' ? 'Extra Large' : level === 'large' ? 'Large' : 'Default'), 'success');
 }
 
 // Quick App Settings panel — consolidates Theme + Language (and link to full Settings)
@@ -201,9 +201,9 @@ function openAppSettings() {
       <div class="aps-row">
         <span class="aps-label"><i data-lucide="type"></i> Text Size</span>
         <div class="aps-seg">
-          <button class="${on(sc==='default')}" onclick="setAppScale('default')">Default</button>
-          <button class="${on(sc==='large')}" onclick="setAppScale('large')">Large</button>
-          <button class="${on(sc==='xl')}" onclick="setAppScale('xl')">XL</button>
+          <button class="${on(sc==='default')}" onclick="setAppScale('default');openAppSettings()">Default</button>
+          <button class="${on(sc==='large')}" onclick="setAppScale('large');openAppSettings()">Large</button>
+          <button class="${on(sc==='xl')}" onclick="setAppScale('xl');openAppSettings()">XL</button>
         </div>
       </div>`; })() : ''}
       <button class="btn-primary" style="width:100%;margin-top:6px" onclick="closeModal();navigate('settings')">Open full Settings</button>

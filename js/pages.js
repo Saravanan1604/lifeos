@@ -344,6 +344,12 @@ function renderSettings() {
           <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Open atworth in your browser — same account, bigger screen.</p>
           <button class="btn-primary" onclick="window.open('https://atworth-psi-roan.vercel.app','_blank')">🌐 Open Web App ↗</button>
         </div>
+        ${window.__IS_APP ? (() => { const sc = (STATE.settings && STATE.settings.appScale) || 'default'; const seg = (k, l) => `<button class="btn-${sc===k?'primary':'secondary'}" style="flex:1" onclick="setAppScale('${k}');navigate('settings',true)">${l}</button>`; return `
+        <div class="glass-card" style="padding:22px">
+          <p class="section-title" style="margin-bottom:12px">🔠 Text Size</p>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Make everything in the app bigger. Default keeps the current size.</p>
+          <div style="display:flex;gap:10px">${seg('default','Default')}${seg('large','Large')}${seg('xl','Extra Large')}</div>
+        </div>`; })() : ''}
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🔒 App Lock</p>
           <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Require a PIN or fingerprint / face to open atworth.</p>
