@@ -156,6 +156,25 @@ function applyBigMode() {
 }
 applyBigMode();
 
+// ── Global Text Size (app) — one lever that scales the whole page on top of
+// the per-page sizing, via a zoom multiplier on #page-container only (the
+// fixed chrome — top tools, bottom nav, FAB — stays put). Default = current
+// look; users who want bigger pick Large / Extra-Large.
+function applyAppScale() {
+  const lvl = (typeof STATE !== 'undefined' && STATE.settings && STATE.settings.appScale) || 'default';
+  const r = document.documentElement;
+  r.classList.remove('app-scale-lg', 'app-scale-xl');
+  if (lvl === 'large') r.classList.add('app-scale-lg');
+  else if (lvl === 'xl') r.classList.add('app-scale-xl');
+}
+function setAppScale(level) {
+  STATE.settings = STATE.settings || {};
+  STATE.settings.appScale = level;
+  if (typeof saveState === 'function') saveState();
+  applyAppScale();
+  if (typeof openAppSettings === 'function') openAppSettings();
+}
+
 // Quick App Settings panel — consolidates Theme + Language (and link to full Settings)
 function openAppSettings() {
   const isLight = document.body.classList.contains('light');
@@ -178,6 +197,15 @@ function openAppSettings() {
           <button class="${on(lang==='hi')}" onclick="if(typeof setLanguage==='function')setLanguage('hi');openAppSettings()">हिं</button>
         </div>
       </div>
+      ${window.__IS_APP ? (() => { const sc = (STATE.settings && STATE.settings.appScale) || 'default'; return `
+      <div class="aps-row">
+        <span class="aps-label"><i data-lucide="type"></i> Text Size</span>
+        <div class="aps-seg">
+          <button class="${on(sc==='default')}" onclick="setAppScale('default')">Default</button>
+          <button class="${on(sc==='large')}" onclick="setAppScale('large')">Large</button>
+          <button class="${on(sc==='xl')}" onclick="setAppScale('xl')">XL</button>
+        </div>
+      </div>`; })() : ''}
       <button class="btn-primary" style="width:100%;margin-top:6px" onclick="closeModal();navigate('settings')">Open full Settings</button>
     </div>`);
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }

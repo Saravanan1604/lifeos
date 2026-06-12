@@ -97,6 +97,9 @@ window.addEventListener('DOMContentLoaded', () => {
   //   npx cap sync android
   if (window.__IS_APP) { try { _initNativeBridges(); } catch (e) { console.log('native bridge init skipped', e); } }
 
+  // Apply saved global text-size (Default / Large / XL)
+  if (typeof applyAppScale === 'function') { try { applyAppScale(); } catch (_) {} }
+
   // Apply saved theme (dark | light | auto | amoled | ocean | sunset)
   if (typeof applyThemeClass === 'function') applyThemeClass(STATE.settings?.theme || 'amoled');
   else if (STATE.settings?.theme === 'light') document.body.classList.add('light');

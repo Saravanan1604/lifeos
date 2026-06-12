@@ -11299,3 +11299,14 @@ html.is-app .blog-time {
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* ============================================================
+   build 391 — Global Text Size control (#4). Zoom the scrollable
+   page content only; fixed chrome (top tools, bottom nav, FAB,
+   drawer) stays unscaled. Default = unchanged current look.
+   ============================================================ */
+html.is-app.app-scale-lg #page-container { zoom: 1.12; }
+html.is-app.app-scale-xl #page-container { zoom: 1.25; }
+/* keep content clear of the bottom nav at larger zooms */
+html.is-app.app-scale-lg #page-container { padding-bottom: 130px !important; }
+html.is-app.app-scale-xl #page-container { padding-bottom: 150px !important; }
