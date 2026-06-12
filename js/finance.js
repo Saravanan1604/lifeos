@@ -33,7 +33,15 @@ const CAT_COLORS = {
   Groceries:'#84cc16', Rent:'#eab308', Utilities:'#eab308', Warranties:'#f59e0b', Other:'#94a3b8',
   OTT:'#ec4899', Subscriptions:'#06b6d4', SIP:'#22c55e', 'Personal Care':'#f472b6'
 };
-function catIcon(name)  { return (CATEGORIES.find(c => c.name === name) || {}).icon || '📦'; }
+function catIcon(name)  {
+  // Prefer the full list (defaults + Subscriptions/OTT/SIP/Personal Care +
+  // custom) so icons are correct even for categories not in the legacy array.
+  if (typeof getAllCategories === 'function') {
+    const c = getAllCategories().find(x => x.name === name);
+    if (c && c.icon) return c.icon;
+  }
+  return (CATEGORIES.find(c => c.name === name) || {}).icon || '📦';
+}
 function catColor(name) { return CAT_COLORS[name] || '#6366f1'; }
 
 // ===== Lucide line-icon mapping (display only — stored data stays as emoji) =====
@@ -2845,7 +2853,7 @@ function saveCashBalanceUpdate(i) {
   const oldBal = ca.balance;
   ca.balance = newBal;
   STATE.cashBalanceHistory = STATE.cashBalanceHistory || [];
-  STATE.cashBalanceHistory.push({ accountId: ca.id, balance: newBal, prevBalance: oldBal, date, note });
+  STATE.cashBalanceHistory.push({ accountId: ca.id, balance: newBal, prevBalance: oldBal, date, note, createdAt: new Date().toISOString() });
   saveState();
   closeModal();
   toast(`${ca.name} updated to ${fmt(newBal)} ✅`, 'success');
@@ -3016,7 +3024,7 @@ function saveBalanceUpdate(i) {
 
   // Log history
   STATE.bankBalanceHistory = STATE.bankBalanceHistory || [];
-  STATE.bankBalanceHistory.push({ accountId: b.id, balance: newBal, prevBalance: oldBal, date, note });
+  STATE.bankBalanceHistory.push({ accountId: b.id, balance: newBal, prevBalance: oldBal, date, note, createdAt: new Date().toISOString() });
 
   saveState();
   closeModal();

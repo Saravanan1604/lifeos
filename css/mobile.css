@@ -11286,3 +11286,16 @@ html.is-app #page-container[data-page="yearly"] .page-header {
   padding-left: 4px !important;
   padding-right: 4px !important;
 }
+
+/* ============================================================
+   build 390 — balance-log entry timestamp chip
+   ============================================================ */
+html.is-app .blog-time {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(203,213,225,0.5);
+  margin-left: auto;
+  margin-right: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}

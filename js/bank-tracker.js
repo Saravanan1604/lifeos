@@ -108,6 +108,14 @@ function formatRelativeDate(dateStr) {
   });
 }
 
+// Format a log entry's logged-at time (e.g. "10:45 AM"); '' if not recorded.
+function _logTimeLabel(h) {
+  if (!h || !h.createdAt) return '';
+  const d = new Date(h.createdAt);
+  if (isNaN(d)) return '';
+  return d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
 // App-only: fresh full-width "card" design for a single balance-log entry
 // (replaces the chat-bubble style). Used by Banks / Cards / Cash logs.
 function _logEntryCardApp(h, acc, date, idx, selId, accentFallback) {
@@ -125,12 +133,14 @@ function _logEntryCardApp(h, acc, date, idx, selId, accentFallback) {
     ? `<span class="blog-tag" style="color:#f59e0b;background:rgba(245,158,11,0.12)">${isIn ? 'Transfer In' : 'Transfer Out'}</span>`
     : '';
   const noteClean = (h.note && h.note !== 'Manual update' && !isTx) ? esc(h.note) : '';
+  const tm = _logTimeLabel(h);
   return `
     <div class="blog-card">
       <span class="blog-ic" style="background:${accent}22;color:${accent}"><i data-lucide="${isTx ? 'arrow-left-right' : 'landmark'}"></i></span>
       <div class="blog-body">
         <div class="blog-toprow">
           <span class="blog-title">${title}</span>
+          ${tm ? `<span class="blog-time">${tm}</span>` : ''}
           <button class="blog-del" onclick="event.stopPropagation();deleteBankHistoryEntry('${entryId}','${date}',${idx})" title="Delete"><i data-lucide="x"></i></button>
         </div>
         <div class="blog-amt">${fmt(h.balance)}</div>
@@ -721,6 +731,7 @@ function renderCCTracker() {
               <div class="blog-body">
                 <div class="blog-toprow">
                   <span class="blog-title">${!selId && card ? esc(card.bankName || 'Card') + ' · ' : ''}Outstanding Update</span>
+                  ${_logTimeLabel(h) ? `<span class="blog-time">${_logTimeLabel(h)}</span>` : ''}
                   <button class="blog-del" onclick="event.stopPropagation();deleteCCHistoryEntry('${h.id||''}','${date}',${idx})" title="Delete"><i data-lucide="x"></i></button>
                 </div>
                 <div class="blog-amt">${fmt(h.outstanding)}</div>
@@ -1076,6 +1087,7 @@ function renderCashTracker() {
               <div class="blog-body">
                 <div class="blog-toprow">
                   <span class="blog-title">${!selId ? esc(acc?.name || 'Cash') + ' · ' : ''}Cash Update</span>
+                  ${_logTimeLabel(h) ? `<span class="blog-time">${_logTimeLabel(h)}</span>` : ''}
                   <button class="blog-del" onclick="event.stopPropagation();deleteCashHistoryEntry('${entryId}','${date}',${idx})" title="Delete"><i data-lucide="x"></i></button>
                 </div>
                 <div class="blog-amt">${fmt(h.balance)}</div>

@@ -8,6 +8,78 @@
   }, true);
 })();
 
+// ===== NATIVE (Capacitor) BRIDGES — all optional & guarded =====
+// These only do anything inside the installed Android app once the matching
+// Capacitor plugins are added. Until then every block fails its capability
+// check and silently no-ops, so the web build is unaffected.
+function _initNativeBridges() {
+  const P = (window.Capacitor && window.Capacitor.Plugins) || {};
+
+  // #5 Status bar — tint it to the brand teal with dark icons so the top of
+  // the app looks finished instead of the default black bar.
+  if (P.StatusBar) {
+    try { P.StatusBar.setBackgroundColor({ color: '#00c9a7' }); } catch (_) {}
+    try { P.StatusBar.setStyle({ style: 'DARK' }); } catch (_) {}
+    try { P.StatusBar.setOverlaysWebView({ overlay: false }); } catch (_) {}
+  }
+
+  // #3 Hardware back button — close any open overlay first, then walk back to
+  // the dashboard, and only exit from there. This is far more reliable than
+  // the history-shim and matches what users expect on Android.
+  if (P.App && P.App.addListener) {
+    P.App.addListener('backButton', () => {
+      const lock = document.getElementById('app-lock');
+      if (lock && lock.style.display === 'flex') return;            // can't dismiss lock
+      const modal = document.getElementById('modal-overlay');
+      if (modal && getComputedStyle(modal).display !== 'none') { if (typeof closeModal === 'function') closeModal(); return; }
+      const sb = document.getElementById('sidebar');
+      if (sb && sb.classList.contains('mobile-open')) { if (typeof _closeMobileDrawer === 'function') _closeMobileDrawer(); return; }
+      if (typeof currentPage !== 'undefined' && currentPage && currentPage !== 'dashboard' && currentPage !== 'transactions') {
+        navigate('transactions'); return;
+      }
+      try { P.App.exitApp(); } catch (_) {}
+    });
+  }
+
+  // #9 Recurring due reminders — a local notification when auto-repeating
+  // entries are due, so users don't have to open the app to post them.
+  if (P.LocalNotifications) {
+    (async () => {
+      try {
+        const perm = await P.LocalNotifications.requestPermissions();
+        if (perm && perm.display !== 'granted') return;
+        const today = new Date().toISOString().slice(0, 10);
+        const due = (STATE.recurring || []).filter(r => (r.nextDate || '') <= today);
+        if (!due.length) return;
+        await P.LocalNotifications.schedule({
+          notifications: [{
+            id: 9001,
+            title: 'atworth — Recurring due',
+            body: `${due.length} recurring ${due.length === 1 ? 'entry is' : 'entries are'} due to post.`,
+            schedule: { at: new Date(Date.now() + 4000) }
+          }]
+        });
+      } catch (_) {}
+    })();
+  }
+
+  // #1 Google Sign-In — webviews block Google OAuth. If the native GoogleAuth
+  // plugin is present, route the sign-in button through it. Falls back to the
+  // existing web GIS flow otherwise. (Full activation also needs the plugin's
+  // serverClientId configured — see the lifeos-dev skill notes.)
+  if (P.GoogleAuth) {
+    window.__nativeGoogleSignIn = async function () {
+      try {
+        const res = await P.GoogleAuth.signIn();
+        const email = res && (res.email || (res.authentication && res.email));
+        if (email && typeof handleGoogleSignIn === 'function') {
+          handleGoogleSignIn({ credential: null, _native: res, email: email, name: res.name || res.givenName || email });
+        }
+      } catch (e) { if (typeof toast === 'function') toast('Google sign-in cancelled', 'info'); }
+    };
+  }
+}
+
 // ===== APP INIT =====
 window.addEventListener('DOMContentLoaded', () => {
   initParticles();
@@ -18,6 +90,12 @@ window.addEventListener('DOMContentLoaded', () => {
   if (window.__IS_APP && window.Chart) {
     try { Chart.defaults.animation = false; } catch (_) {}
   }
+
+  // Native Capacitor integrations — each is guarded so it no-ops cleanly when
+  // the plugin isn't installed yet. To activate, in the project run:
+  //   npm i @capacitor/app @capacitor/status-bar @capacitor/local-notifications
+  //   npx cap sync android
+  if (window.__IS_APP) { try { _initNativeBridges(); } catch (e) { console.log('native bridge init skipped', e); } }
 
   // Apply saved theme (dark | light | auto | amoled | ocean | sunset)
   if (typeof applyThemeClass === 'function') applyThemeClass(STATE.settings?.theme || 'amoled');

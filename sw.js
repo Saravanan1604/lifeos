@@ -1,5 +1,5 @@
-// atworth Service Worker - v389.0
-const CACHE = 'lifeos-v389';
+// atworth Service Worker - v390.0
+const CACHE = 'lifeos-v390';
 
 // Allow the page to tell a waiting SW to activate immediately
 self.addEventListener('message', e => {
@@ -8,6 +8,7 @@ self.addEventListener('message', e => {
 const ASSETS = [
   '/',
   '/index.html',
+  '/offline.html',
   '/privacy.html',
   '/terms.html',
   '/css/styles.css',
@@ -81,6 +82,14 @@ self.addEventListener('fetch', e => {
         }
         return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request).then(hit => {
+        if (hit) return hit;
+        // Offline with nothing cached: serve the SPA shell for page loads,
+        // and the offline page as the last resort — never a blank screen.
+        if (e.request.mode === 'navigate') {
+          return caches.match('/index.html').then(idx => idx || caches.match('/offline.html'));
+        }
+        return undefined;
+      }))
   );
 });
