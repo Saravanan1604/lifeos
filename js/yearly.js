@@ -109,7 +109,7 @@ function renderYearly() {
     <div class="fade-in">
       <div class="page-header">
         <div><h1 class="page-title"><i data-lucide="file-bar-chart-2"></i> Report</h1><p class="page-subtitle">Income · Expense · Balance</p></div>
-        <button class="btn-primary btn-sm" onclick="exportYearlyPDF()">⬇ Export PDF</button>
+        <button class="btn-primary btn-sm rpt-export-btn" onclick="exportYearlyPDF()">⬇ Export PDF</button>
       </div>
 
       <div class="rpt-tabs">

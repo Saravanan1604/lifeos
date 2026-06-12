@@ -11218,3 +11218,13 @@ html.is-app #page-container[data-page="yearly"] .yearly-tbl td {
 html.is-app #page-container[data-page="yearly"] .yearly-tbl thead th { font-size: 19px !important; }
 html.is-app #page-container[data-page="yearly"] .page-title { font-size: 34px !important; }
 html.is-app #page-container[data-page="yearly"] .page-subtitle { font-size: 19px !important; }
+
+/* ============================================================
+   build 384 — REPORT page: Export PDF button on the right
+   ============================================================ */
+html.is-app #page-container[data-page="yearly"] .page-header {
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+html.is-app .rpt-export-btn { margin-left: auto !important; align-self: auto !important; }
