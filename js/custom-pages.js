@@ -28,12 +28,17 @@ function renderCustomPagesMenu() {
   if (!host) return;
   var pages = STATE.customPages || [];
 
+  var addPageHtml = '<button class="nav-item create-page-btn" onclick="createCustomPagePrompt()" style="border:1px dashed rgba(0,201,167,0.4) !important;background:rgba(0,201,167,0.08) !important;color:#00c9a7 !important;display:flex !important;align-items:center !important;width:auto !important;justify-content:center !important;margin:8px 14px !important">' +
+    '<span class="nav-icon" style="color:#00c9a7 !important;font-size:14px;margin:0;width:auto;flex:none;display:inline">➕</span>' +
+    '<span class="nav-text" style="color:#00c9a7 !important;font-weight:700">Create Custom Page</span>' +
+  '</button>';
+
   if (pages.length === 0) {
-    host.innerHTML = '<p style="font-size:11px;color:var(--text3);padding:4px 8px;opacity:.6">No custom pages yet. Tap + to create one.</p>';
+    host.innerHTML = '<p style="font-size:11px;color:var(--text3);padding:4px 22px;opacity:.6;margin-bottom:8px">No custom pages yet.</p>' + addPageHtml;
     return;
   }
 
-  host.innerHTML = pages.map(function(pg) {
+  var listHtml = pages.map(function(pg) {
     var ctrls = '';
     if (typeof _loEdit !== 'undefined' && _loEdit) {
       ctrls = '<span class="nav-page-ctrls" style="margin-left:auto;display:flex;gap:4px">' +
@@ -48,6 +53,8 @@ function renderCustomPagesMenu() {
       ctrls +
     '</button>';
   }).join('');
+
+  host.innerHTML = listHtml + addPageHtml;
 }
 
 // ── Create custom page ──
