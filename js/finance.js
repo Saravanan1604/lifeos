@@ -670,16 +670,8 @@ function initRecordsGestures() {
     row = r; id = r.dataset.id; const t = e.touches[0];
     startX = t.clientX; startY = t.clientY; moved = false; horiz = false;
     baseT = (_recOpenRow === r) ? _recOpenDir * _REC_OPEN : 0; lastTx = baseT;
-    // Long-press (400ms, only if the finger hasn't moved) → enter/toggle
-    // multi-select. Tap = edit, swipe = delete/edit reveal.
-    clearTimeout(lpTimer);
-    lpTimer = setTimeout(() => {
-      if (!moved) {
-        _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 450);
-        _recCloseSwipe();
-        if (_recSelectMode) recToggleSel(id); else recEnterSelect(id);
-      }
-    }, 400);
+    // Long-press select removed (used the ✓ button instead). Tap = edit,
+    // swipe = delete/edit reveal. In select mode, tap toggles selection.
   }, { passive: true });
 
   list.addEventListener('touchmove', e => {

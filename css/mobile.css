@@ -12112,3 +12112,29 @@ html.is-app .mymoney-records.selmode .mm-row:not(.sel) {
   background: transparent !important;
   box-shadow: none !important;
 }
+
+/* ============================================================
+   build 426 — fix select-mode red reveal + kill blue press bar
+   build 425 made unselected rows transparent in select mode,
+   which exposed the red swipe-delete layer sitting behind each
+   row. Rows must stay opaque (var(--bg)) so that layer only
+   shows during a real swipe. Also drop the blue :active flash.
+   ============================================================ */
+/* row press: no translucent blue (it let the red/amber layer show) */
+html.is-app .mm-row:active {
+  background: var(--bg) !important;
+}
+/* select mode: hide the swipe action drawer entirely + keep rows opaque */
+html.is-app .mymoney-records.selmode .mm-row-actions {
+  display: none !important;
+}
+html.is-app .mymoney-records.selmode .mm-row:not(.sel),
+html.is-app .mymoney-records.selmode .mm-row:not(.sel):active {
+  background: var(--bg) !important;
+  box-shadow: none !important;
+}
+/* selected row keeps the green highlight */
+html.is-app .mymoney-records.selmode .mm-row.sel {
+  background: rgba(0, 201, 167, 0.14) !important;
+  box-shadow: inset 4px 0 0 #00c9a7 !important;
+}
