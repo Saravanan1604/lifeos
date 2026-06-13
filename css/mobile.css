@@ -12029,5 +12029,43 @@ html.is-app .dash-bg-grid {
   gap: 16px !important;
 }
 
+/* Dashboard Period Tabs & Customize Layout Button Overrides */
+html.is-app .period-tabs {
+  display: flex !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 16px !important;
+  padding: 5px !important;
+  gap: 6px !important;
+  margin-bottom: 0 !important;
+  width: 100% !important; /* Spans full width like record segment tabs */
+}
+
+html.is-app .period-tab {
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  border-radius: 12px !important;
+  padding: 12px 6px !important;
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+  color: #8A99AD !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
+}
+
+html.is-app .period-tab.active {
+  background: #3B82F6 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+}
+
+html.is-app .dash-customize-btn {
+  font-size: 1.15rem !important;
+  padding: 10px 16px !important;
+  border-radius: 24px !important;
+  height: auto !important;
+}
+
 
 

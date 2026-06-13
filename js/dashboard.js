@@ -582,7 +582,7 @@ function renderDashboard() {
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <!-- Customize button -->
-          <button class="btn-secondary btn-sm" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:700" title="Customize layout">
+          <button class="btn-secondary btn-sm dash-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:700" title="Customize layout">
             ✏️ Customize Layout
           </button>
 
