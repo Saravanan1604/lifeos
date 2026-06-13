@@ -11590,3 +11590,60 @@ html.is-app .fin-netbal-hero .mm-accts3 .mm-hs-lbl {
 html.is-app .fin-netbal-hero .mm-accts3 .mm-hs-val {
   font-size: 1.65rem;
 }
+
+/* ============================================================
+   Assets page: Scale up ia-hero by 125% and align progress bars
+   ============================================================ */
+html.is-app .ia-hero {
+  padding: 35px 30px;
+}
+html.is-app .ia-hero-lbl {
+  font-size: 28px;
+}
+html.is-app .ia-hero-lbl svg {
+  width: 28px;
+  height: 28px;
+}
+html.is-app .ia-hero-val {
+  font-size: 70px;
+}
+html.is-app .ia-hero-chg {
+  font-size: 30px;
+  margin-top: 18px;
+}
+html.is-app .ia-hero-chg svg {
+  width: 28px;
+  height: 28px;
+}
+html.is-app .ia-hero-trend {
+  width: 105px;
+  height: 105px;
+  border-radius: 30px;
+}
+html.is-app .ia-hero-trend svg {
+  width: 52px;
+  height: 52px;
+}
+html.is-app .ia-hero-div {
+  margin: 30px 0;
+}
+html.is-app .ia-hs-ic {
+  width: 75px;
+  height: 75px;
+  border-radius: 22px;
+}
+html.is-app .ia-hs-ic svg {
+  width: 40px;
+  height: 40px;
+}
+html.is-app .ia-hs-lbl {
+  font-size: 22px;
+}
+html.is-app .ia-hs-val {
+  font-size: 38px;
+}
+html.is-app .ia-leg-name {
+  width: 140px !important;
+  max-width: 140px !important;
+  flex-shrink: 0 !important;
+}

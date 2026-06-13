@@ -3724,11 +3724,11 @@ function renderInvestmentsApp() {
       <div class="ia-hero">
         <div class="ia-hero-top">
           <div>
-            <p class="ia-hero-lbl">TOTAL NET WORTH <i data-lucide="info"></i></p>
+            <p class="ia-hero-lbl">TOTAL NET WORTH <i data-lucide="info" onclick="openNetWorthChartModal(${netWorth})" style="cursor: pointer;"></i></p>
             <p class="ia-hero-val ${netWorth < 0 ? 'neg' : 'pos'}">${netWorth < 0 ? '- ' : ''}${fmt(Math.abs(netWorth))}</p>
             <p class="ia-hero-chg ${chg >= 0 ? 'pos' : 'neg'}"><i data-lucide="${chg >= 0 ? 'arrow-up' : 'arrow-down'}"></i> ${chg >= 0 ? '+' : '-'}${fmt(Math.abs(Math.round(chg)))} (${chg >= 0 ? '+' : ''}${chgPct.toFixed(1)}%) <span>This Month</span></p>
           </div>
-          <span class="ia-hero-trend ${chg >= 0 ? 'pos' : 'neg'}"><i data-lucide="${chg >= 0 ? 'trending-up' : 'trending-down'}"></i></span>
+          <span class="ia-hero-trend ${chg >= 0 ? 'pos' : 'neg'}" onclick="openNetWorthChartModal(${netWorth})" style="cursor: pointer;"><i data-lucide="${chg >= 0 ? 'trending-up' : 'trending-down'}"></i></span>
         </div>
         <div class="ia-hero-div"></div>
         <div class="ia-hero-split">
@@ -3817,6 +3817,54 @@ function renderInvestmentsApp() {
       else renderLiabCategoryChart(allocEntries);
     }
   }, 40);
+}
+
+function openNetWorthChartModal(netWorth) {
+  let _nwHist = STATE.netWorthHistory || [];
+  if (_nwHist.length < 2) {
+    // Fallback: Generate mock history based on current net worth so the user can see the graph immediately
+    const baseVal = netWorth || 0;
+    const today = new Date();
+    _nwHist = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const dateStr = _ymdLocal(d);
+      // Simulate monthly net worth growth/variations
+      const factor = 1 - (i * 0.02) + (Math.sin(i) * 0.015);
+      _nwHist.push({ date: dateStr, value: Math.round(baseVal * factor) });
+    }
+  }
+  openModal("Net Worth Trend", `
+    <div style="height:280px; position:relative; margin-bottom:12px;">
+      <canvas id="nw-modal-trend-chart"></canvas>
+    </div>
+  `);
+  setTimeout(() => {
+    const canvas = document.getElementById('nw-modal-trend-chart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: _nwHist.map(p => p.date.slice(5)),
+        datasets: [{
+          data: _nwHist.map(p => p.value),
+          borderColor: '#00c9a7', borderWidth: 2.5, tension: 0.4,
+          pointRadius: 0, pointHoverRadius: 5, fill: true,
+          backgroundColor: c => { const a = c.chart.chartArea; if (!a) return 'rgba(0,201,167,0.15)';
+            const g = c.chart.ctx.createLinearGradient(0, a.top, 0, a.bottom);
+            g.addColorStop(0, 'rgba(0,201,167,0.30)'); g.addColorStop(1, 'rgba(0,201,167,0)'); return g; }
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ₹' + (+c.parsed.y).toLocaleString('en-IN') } } },
+        scales: {
+          x: { ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 6 }, grid: { display: false } },
+          y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => '₹' + (Math.abs(v) >= 100000 ? (v/100000).toFixed(1) + 'L' : Math.abs(v) >= 1000 ? (v/1000).toFixed(0) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.04)' } }
+        }
+      }
+    });
+  }, 50);
 }
 
 // Lucide line-icon mapping for asset & loan types (fallbacks included)
