@@ -12098,3 +12098,17 @@ html.is-app .page-customize-btn {
 
 
 
+
+/* ============================================================
+   build 399 — select mode: no lingering blue :active highlight.
+   On touch, .mm-row:active painted var(--glass); after tapping a
+   row to (un)select, that bg stuck on the unselected row. In
+   select mode the only highlight should be the green bar on
+   actually-selected rows (.mm-row.sel).
+   ============================================================ */
+html.is-app .mymoney-records.selmode .mm-row:active,
+html.is-app .mymoney-records.selmode .mm-row:focus,
+html.is-app .mymoney-records.selmode .mm-row:not(.sel) {
+  background: transparent !important;
+  box-shadow: none !important;
+}

@@ -670,8 +670,16 @@ function initRecordsGestures() {
     row = r; id = r.dataset.id; const t = e.touches[0];
     startX = t.clientX; startY = t.clientY; moved = false; horiz = false;
     baseT = (_recOpenRow === r) ? _recOpenDir * _REC_OPEN : 0; lastTx = baseT;
-    // Long-press select intentionally disabled — it triggered accidentally
-    // and confused users. Deleting is via swipe (with undo); tap = edit.
+    // Long-press (400ms, only if the finger hasn't moved) → enter/toggle
+    // multi-select. Tap = edit, swipe = delete/edit reveal.
+    clearTimeout(lpTimer);
+    lpTimer = setTimeout(() => {
+      if (!moved) {
+        _recSuppressTap = true; setTimeout(() => _recSuppressTap = false, 450);
+        _recCloseSwipe();
+        if (_recSelectMode) recToggleSel(id); else recEnterSelect(id);
+      }
+    }, 400);
   }, { passive: true });
 
   list.addEventListener('touchmove', e => {
