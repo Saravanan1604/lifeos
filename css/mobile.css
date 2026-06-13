@@ -8414,27 +8414,27 @@ html.is-app #modal-overlay .aps-seg button.on {
    ============================================================ */
 html.is-app .mm-hero {
   margin: 6px 14px 12px;
-  padding: 22px 18px 18px;
-  border-radius: 20px;
+  padding: 28px 22px 22px;
+  border-radius: 22px;
   background: linear-gradient(160deg, rgba(0, 201, 167, 0.10), rgba(99, 102, 241, 0.08));
   border: 1px solid var(--glass-border);
   text-align: center;
 }
 
 html.is-app .mm-hero-lbl {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
   color: var(--text2);
 }
 
 html.is-app .mm-hero-val {
-  font-size: 3.4rem;
+  font-size: 4.25rem;
   font-weight: 900;
-  letter-spacing: -1px;
+  letter-spacing: -1.5px;
   line-height: 1.05;
-  margin: 6px 0 16px;
+  margin: 10px 0 20px;
 }
 
 html.is-app .mm-hero-val.pos {
@@ -8467,12 +8467,12 @@ html.is-app .mm-hero-split .mm-hs-div {
 }
 
 html.is-app .mm-hs-lbl {
-  font-size: 1.05rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: var(--text2);
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
 html.is-app .mm-hs-lbl svg.lucide {
@@ -8481,7 +8481,7 @@ html.is-app .mm-hs-lbl svg.lucide {
 }
 
 html.is-app .mm-hs-val {
-  font-size: 1.6rem;
+  font-size: 2rem;
   font-weight: 800;
 }
 
@@ -11576,4 +11576,11 @@ html.is-app .gs-input {
   -webkit-user-select: text !important;
   user-select: text !important;
   -webkit-touch-callout: default !important;
+}
+
+/* ============================================================
+   Finance page: Net Balance hero card (moved from Records carousel)
+   ============================================================ */
+html.is-app .fin-netbal-hero {
+  margin: 0 0 16px;
 }

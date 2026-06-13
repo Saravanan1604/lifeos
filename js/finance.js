@@ -451,12 +451,7 @@ function renderRecordsMyMoney() {
       ${recapHtml}
       ${todayStripHtml}
       ${(() => {
-        const _bankT = (STATE.bankAccounts || []).reduce((s, b) => s + (b.balance || 0), 0);
-        const _cashT = (STATE.cashAccounts || []).reduce((s, c) => s + (c.balance || 0), 0);
-        const _cardT = (STATE.creditCards || []).reduce((s, c) => s + (c.outstanding || 0), 0);
-        const hasAccts = (STATE.bankAccounts || []).length + (STATE.cashAccounts || []).length + (STATE.creditCards || []).length > 0;
-        return `<div class="mm-hero-carousel" id="mm-hero-carousel">
-        <div class="mm-hero mm-hero-page ${showTotal ? '' : 'mm-hero-noTotal'}">
+        return `<div class="mm-hero ${showTotal ? '' : 'mm-hero-noTotal'}">
           <div class="mm-hero-top">
             <p class="mm-hero-lbl">${showTotal ? (carryForward ? 'Total Balance' : 'Balance') : periodLabelTxt}</p>
             <label class="mm-total-switch" title="Show / hide total balance">
@@ -469,29 +464,7 @@ function renderRecordsMyMoney() {
             <div class="mm-hs-div"></div>
             <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val neg">-${fmt(expense)}</span></div>
           </div>
-        </div>
-        ${hasAccts ? (() => {
-          const _net = _bankT + _cashT - _cardT;
-          return `<div class="mm-hero mm-hero-page mm-hero-accts" onclick="navigate('bank-tracker')">
-          <div class="mm-hero-split mm-accts3">
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_bankT)}</span></div>
-            <div class="mm-hs-div"></div>
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="banknote"></i> Cash</span><span class="mm-hs-val" style="color:#f59e0b">${fmt(_cashT)}</span></div>
-            <div class="mm-hs-div"></div>
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="credit-card"></i> Card</span><span class="mm-hs-val" style="color:#ef4444">${fmt(_cardT)}</span></div>
-          </div>
-          <div class="mm-accts-hr"></div>
-          <div class="mm-netbal">
-            <span class="mm-netbal-lbl">Net Balance</span>
-            <span class="mm-netbal-main">
-              <span class="mm-netbal-ic"><i data-lucide="wallet"></i></span>
-              <span class="mm-netbal-val ${_net < 0 ? 'neg' : 'pos'}">${_net < 0 ? '-' : ''}${fmt(_net)}</span>
-            </span>
-          </div>
         </div>`;
-        })() : ''}
-      </div>
-      ${hasAccts ? `<div class="mm-hero-dots" id="mm-hero-dots"><span class="on"></span><span></span></div>` : ''}`;
       })()}
       <div class="mm-subhead">
         <span class="mm-subhead-title">Recent Transactions</span>
