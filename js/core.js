@@ -577,6 +577,8 @@ function updateSidebar() {
   const xpPct = Math.min(100, ((STATE.xp % xpForNext) / xpForNext) * 100);
   document.getElementById('sidebar-xp-fill').style.width = xpPct + '%';
   document.getElementById('sidebar-xp-label').textContent = `${STATE.xp % xpForNext} / ${xpForNext} XP`;
+  // Render custom pages in sidebar
+  if (typeof renderCustomPagesMenu === 'function') renderCustomPagesMenu();
 }
 
 // ===== STREAK =====
@@ -736,7 +738,12 @@ function _renderPage(page) {
     case 'rules':        renderMoneyRules();     break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;
-    default: container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
+    default:
+      if (typeof isCustomPage === 'function' && isCustomPage(page) && typeof renderCustomPage === 'function') {
+        renderCustomPage(page);
+      } else {
+        container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
+      }
   }
   _appendQuickActions(page);
   // Hide the Records scroll-to-top button on other pages

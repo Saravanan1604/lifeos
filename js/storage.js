@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 425;
+const APP_BUILD = 426;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -24,14 +24,16 @@ const DB = {
       emotionEntries: [],
       tasks: [],
       chatHistory: [],
-      notes: [],               // Google Keep�style notes
+      notes: [],               // Google Keep-style notes
       recurring: [],           // [{ id, type, amount, category, icon, description, source, subcategory, frequency, nextDate }]
       customCategories: [],    // user-created categories
       bankBalanceHistory: [],  // [{ accountId, balance, date, note }]
       bankTransfers: [],       // [{ id, fromId, toId, amount, date, note }]
       creditCards: [],
       creditCardHistory: [],   // [{ id, cardId, outstanding, prevOutstanding, date, note, createdAt }]
-      deletedIds: []           // tombstones: [{ id, at }] � lets deletions sync across devices
+      deletedIds: [],          // tombstones: [{ id, at }]  lets deletions sync across devices
+      customPages: [],         // [{ id, name, icon, order }]  user-created custom pages
+      customPageLayouts: {}    // { custom_page_xxx: { cardKey: { order, hidden, size } } }
     };
   },
   load() {
@@ -218,7 +220,7 @@ const LIVE_SYNC_KEYS = [
   'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
   'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',
   'unlockedAchievements', 'deletedIds', 'categoryRules', 'notes',
-  'recurring', 'customCategories'
+  'recurring', 'customCategories', 'customPages', 'customPageLayouts'
 ];
 
 let _syncTimer     = null;

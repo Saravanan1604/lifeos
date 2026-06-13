@@ -1,0 +1,334 @@
+
+// ============================================================
+//  Custom Pages — create, rename, delete, reorder, pick cards
+// ============================================================
+
+// ── CARD REGISTRY — all cards/sections a custom page can display ──
+const CUSTOM_PAGE_CARDS = [
+  { key: 'cp-life-score',    label: 'Overall Life Score',        group: 'Dashboard',  build: '_cpBuildLifeScore' },
+  { key: 'cp-kpi',           label: 'KPI Cards (Income/Expense/Savings)', group: 'Dashboard', build: '_cpBuildKpi' },
+  { key: 'cp-insight-bar',   label: 'AI Insight Bar',            group: 'Dashboard',  build: '_cpBuildInsightBar' },
+  { key: 'cp-balances',      label: 'Balances & Portfolios',     group: 'Dashboard',  build: '_cpBuildBalances' },
+  { key: 'cp-budgets-goals', label: 'Budgets & Goals',           group: 'Dashboard',  build: '_cpBuildBudgetsGoals' },
+  { key: 'cp-habits',        label: 'Habits Today',              group: 'Life',       build: '_cpBuildHabits' },
+  { key: 'cp-recent-tx',     label: 'Recent Transactions',       group: 'Finance',    build: '_cpBuildRecentTx' },
+  { key: 'cp-health',        label: 'Health Snapshot (7 day)',    group: 'Life',       build: '_cpBuildHealth' },
+];
+// Also include all WIDGET_REGISTRY charts
+if (typeof WIDGET_REGISTRY !== 'undefined') {
+  Object.entries(WIDGET_REGISTRY).forEach(function(entry) {
+    var k = entry[0], w = entry[1];
+    CUSTOM_PAGE_CARDS.push({ key: 'cp-w-' + k, label: w.label, group: 'Charts - ' + w.group, widgetKey: k });
+  });
+}
+
+// ── Sidebar list builder ──
+function renderCustomPagesMenu() {
+  var host = document.getElementById('sidebar-custom-pages-list');
+  if (!host) return;
+  var pages = STATE.customPages || [];
+
+  if (pages.length === 0) {
+    host.innerHTML = '<p style="font-size:11px;color:var(--text3);padding:4px 8px;opacity:.6">No custom pages yet. Tap + to create one.</p>';
+    return;
+  }
+
+  host.innerHTML = pages.map(function(pg) {
+    var ctrls = '';
+    if (typeof _loEdit !== 'undefined' && _loEdit) {
+      ctrls = '<span class="nav-page-ctrls" style="margin-left:auto;display:flex;gap:4px">' +
+        '<button onclick="event.stopPropagation();moveCustomPage(\'' + pg.id + '\',-1)" style="background:rgba(255,255,255,0.08);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer;padding:2px 6px;border-radius:4px;font-size:9px" title="Move Up">▲</button>' +
+        '<button onclick="event.stopPropagation();moveCustomPage(\'' + pg.id + '\',1)" style="background:rgba(255,255,255,0.08);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer;padding:2px 6px;border-radius:4px;font-size:9px" title="Move Down">▼</button>' +
+      '</span>';
+    }
+
+    return '<button class="nav-item' + (typeof currentPage !== 'undefined' && currentPage === pg.id ? ' active' : '') + '" onclick="navigate(\'' + pg.id + '\')" data-page="' + pg.id + '" style="display:flex;align-items:center;width:100%">' +
+      '<span class="nav-icon" style="font-size:15px">' + (pg.icon || '\u{1F4C4}') + '</span>' +
+      '<span class="nav-text">' + pg.name + '</span>' +
+      ctrls +
+    '</button>';
+  }).join('');
+}
+
+// ── Create custom page ──
+function createCustomPagePrompt() {
+  openModal('\u{1F4C4} Create Custom Page',
+    '<div class="form-group"><label class="form-label">Page Name</label>' +
+    '<input type="text" id="cp-name" class="form-input" placeholder="e.g. Work Dashboard, Fitness Tracker" maxlength="30"/></div>' +
+    '<div class="form-group"><label class="form-label">Icon (emoji)</label>' +
+    '<input type="text" id="cp-icon" class="form-input" placeholder="\u{1F4CA}" maxlength="4" value="\u{1F4CA}"/></div>' +
+    '<div class="modal-actions">' +
+    '<button class="btn-secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn-primary" onclick="handleAddCustomPage()">Create Page</button></div>');
+}
+
+function handleAddCustomPage() {
+  var nameEl = document.getElementById('cp-name');
+  var iconEl = document.getElementById('cp-icon');
+  var name = (nameEl ? nameEl.value : '').trim();
+  var icon = (iconEl ? iconEl.value : '').trim() || '\u{1F4C4}';
+  if (!name) { toast('Enter a page name', 'error'); return; }
+  STATE.customPages = STATE.customPages || [];
+  var id = 'custom_page_' + genId();
+  STATE.customPages.push({ id: id, name: name, icon: icon, order: STATE.customPages.length });
+  STATE.customPageLayouts = STATE.customPageLayouts || {};
+  STATE.customPageLayouts[id] = {};
+  saveState();
+  closeModal();
+  toast('\u{1F4C4} Custom page created!', 'success');
+  if (typeof updateSidebar === 'function') updateSidebar();
+  navigate(id);
+}
+
+// ── Rename custom page ──
+function renameCustomPage(pageId) {
+  var pg = (STATE.customPages || []).find(function(p) { return p.id === pageId; });
+  if (!pg) return;
+  openModal('\u270F\uFE0F Rename Page',
+    '<div class="form-group"><label class="form-label">Page Name</label>' +
+    '<input type="text" id="cp-rename" class="form-input" value="' + pg.name + '" maxlength="30"/></div>' +
+    '<div class="form-group"><label class="form-label">Icon (emoji)</label>' +
+    '<input type="text" id="cp-reicon" class="form-input" value="' + (pg.icon || '\u{1F4C4}') + '" maxlength="4"/></div>' +
+    '<div class="modal-actions">' +
+    '<button class="btn-secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn-primary" onclick="handleRenameCustomPage(\'' + pageId + '\')">Save</button></div>');
+}
+
+function handleRenameCustomPage(pageId) {
+  var pg = (STATE.customPages || []).find(function(p) { return p.id === pageId; });
+  if (!pg) return;
+  var name = (document.getElementById('cp-rename') ? document.getElementById('cp-rename').value : '').trim();
+  var icon = (document.getElementById('cp-reicon') ? document.getElementById('cp-reicon').value : '').trim() || '\u{1F4C4}';
+  if (!name) { toast('Enter a name', 'error'); return; }
+  pg.name = name;
+  pg.icon = icon;
+  saveState();
+  closeModal();
+  toast('Page renamed!', 'success');
+  if (typeof updateSidebar === 'function') updateSidebar();
+  navigate(pageId, true);
+}
+
+// ── Delete custom page ──
+function deleteCustomPage(pageId) {
+  var pg = (STATE.customPages || []).find(function(p) { return p.id === pageId; });
+  if (!pg) return;
+  openModal('\u{1F5D1}\uFE0F Delete Page',
+    '<div style="text-align:center;padding:8px">' +
+    '<p style="font-size:16px;font-weight:600;margin-bottom:18px">Delete "' + pg.name + '"?</p>' +
+    '<p style="font-size:13px;color:var(--text3);margin-bottom:22px">This will permanently remove this custom page and its layout.</p>' +
+    '<div class="modal-actions">' +
+    '<button class="btn-secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn-primary" style="background:linear-gradient(135deg,#ef4444,#dc2626)" onclick="handleDeleteCustomPage(\'' + pageId + '\')">Delete</button></div></div>');
+}
+
+function handleDeleteCustomPage(pageId) {
+  STATE.customPages = (STATE.customPages || []).filter(function(p) { return p.id !== pageId; });
+  if (STATE.customPageLayouts) delete STATE.customPageLayouts[pageId];
+  saveState();
+  closeModal();
+  toast('Page deleted', 'info');
+  if (typeof updateSidebar === 'function') updateSidebar();
+  navigate('dashboard');
+}
+
+// ── Reorder custom pages ──
+function moveCustomPage(pageId, dir) {
+  var pages = STATE.customPages || [];
+  var idx = pages.findIndex(function(p) { return p.id === pageId; });
+  if (idx < 0) return;
+  var j = idx + dir;
+  if (j < 0 || j >= pages.length) return;
+  var temp = pages[idx]; pages[idx] = pages[j]; pages[j] = temp;
+  pages.forEach(function(p, i) { p.order = i; });
+  saveState();
+  if (typeof updateSidebar === 'function') updateSidebar();
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+// ── Card picker for custom pages ──
+function openCustomPagePicker(pageId) {
+  var lo = (typeof _loGet === 'function') ? _loGet(pageId) : {};
+  var groups = {};
+  CUSTOM_PAGE_CARDS.forEach(function(c) {
+    (groups[c.group] = groups[c.group] || []).push(c);
+  });
+
+  var isVisible = function(key) {
+    var w = lo[key];
+    if (!w) return false;
+    return !w.hidden;
+  };
+
+  var html = Object.entries(groups).map(function(entry) {
+    var g = entry[0], items = entry[1];
+    return '<p style="font-weight:800;margin:16px 0 8px;color:var(--text2)">' + g + '</p>' +
+      items.map(function(c) {
+        return '<label style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--glass-border);border-radius:12px;margin-bottom:8px;cursor:pointer">' +
+          '<input type="checkbox" ' + (isVisible(c.key) ? 'checked' : '') + ' onchange="toggleCustomPageCard(\'' + pageId + '\',\'' + c.key + '\',this.checked)" style="width:20px;height:20px;accent-color:#00c9a7"/>' +
+          '<span style="font-size:15px;font-weight:600">' + c.label + '</span></label>';
+      }).join('');
+  }).join('');
+
+  openModal('\u2795 Add Cards to Page', html +
+    '<div class="modal-actions"><button class="btn-primary" onclick="closeModal();navigate(\'' + pageId + '\',true)">Done</button></div>');
+}
+
+function toggleCustomPageCard(pageId, key, show) {
+  var lo = (typeof _loGet === 'function') ? _loGet(pageId) : {};
+  lo[key] = lo[key] || {};
+  lo[key].hidden = !show;
+  if (typeof _loSet === 'function') _loSet(pageId, lo);
+}
+
+// ── Render custom page ──
+function renderCustomPage(pageId) {
+  var pg = (STATE.customPages || []).find(function(p) { return p.id === pageId; });
+  var pageName = pg ? pg.name : 'Custom Page';
+  var pageIcon = pg ? (pg.icon || '\u{1F4C4}') : '\u{1F4C4}';
+
+  var cardHtmls = CUSTOM_PAGE_CARDS.map(function(c) {
+    var inner = '';
+    try {
+      if (c.widgetKey) {
+        var w = WIDGET_REGISTRY[c.widgetKey];
+        if (w) {
+          var cid = 'cp-hwc-' + c.widgetKey;
+          inner = '<div class="section-header" style="margin-bottom:12px"><p class="section-title">' + w.label + '</p></div>' +
+            '<div class="hw-canvas-wrap" style="position:relative;height:' + (w.type === 'stat' ? '160px' : '250px') + '"><canvas id="' + cid + '"></canvas></div>';
+        }
+      } else if (typeof window[c.build] === 'function') {
+        inner = window[c.build]();
+      } else {
+        inner = '<p style="color:var(--text3);padding:20px;text-align:center">' + c.label + '</p>';
+      }
+    } catch (e) {
+      inner = '<p style="color:var(--text3);padding:20px;text-align:center">' + c.label + '</p>';
+    }
+    return '<div class="glass-card" id="' + c.key + '" style="padding:20px;margin-bottom:18px">' + inner + '</div>';
+  }).join('');
+
+  document.getElementById('page-container').innerHTML =
+    '<div class="fade-in">' +
+      '<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">' +
+        '<div><h1 class="page-title">' + pageIcon + ' ' + pageName + '</h1><p class="page-subtitle">Your custom workspace</p></div>' +
+      '</div>' +
+      cardHtmls +
+    '</div>';
+
+  setTimeout(function() {
+    CUSTOM_PAGE_CARDS.forEach(function(c) {
+      if (c.widgetKey) {
+        var w = WIDGET_REGISTRY[c.widgetKey];
+        var cid = 'cp-hwc-' + c.widgetKey;
+        var card = document.getElementById(c.key);
+        if (w && card) { try { w.build(cid, card); } catch (e) {} }
+      }
+    });
+  }, 50);
+}
+
+// ── Card builder helpers for custom pages ──
+function _cpBuildLifeScore() {
+  var scores = calcLifeScore();
+  var sc = function(s) { return s >= 70 ? '#10b981' : s >= 40 ? '#f59e0b' : '#ef4444'; };
+  var dims = [{l:'Wealth',v:scores.wealthScore},{l:'Health',v:scores.healthScore},{l:'Productivity',v:scores.prodScore},{l:'Career',v:scores.careerScore},{l:'Emotional',v:scores.emotionalScore}];
+  return '<div class="section-header" style="margin-bottom:14px"><p class="section-title">\u{1F9EC} Life Score</p></div>' +
+    '<div style="text-align:center;margin-bottom:14px"><span style="font-size:48px;font-weight:900;color:' + sc(scores.overall) + '">' + scores.overall + '</span><span style="font-size:16px;color:var(--text3);margin-left:4px">/ 100</span></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">' +
+    dims.map(function(s) {
+      return '<div style="padding:10px;border-radius:12px;background:' + sc(s.v) + '15;border:1px solid ' + sc(s.v) + '30"><p style="font-size:20px;font-weight:900;color:' + sc(s.v) + '">' + s.v + '</p><p style="font-size:10px;color:var(--text3);margin-top:2px">' + s.l + '</p></div>';
+    }).join('') + '</div>';
+}
+
+function _cpBuildKpi() {
+  var txns = STATE.transactions || [];
+  var totalIncome = txns.filter(function(t) { return t.type === 'income'; }).reduce(function(s, t) { return s + t.amount; }, 0);
+  var totalExpense = txns.filter(function(t) { return t.type === 'expense'; }).reduce(function(s, t) { return s + t.amount; }, 0);
+  var net = totalIncome - totalExpense;
+  return '<div class="section-header" style="margin-bottom:12px"><p class="section-title">\u{1F4CA} Financial Summary</p></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">' +
+      '<div style="text-align:center;padding:14px;border-radius:14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2)"><p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:700">Income</p><p style="font-size:20px;font-weight:900;color:#10b981;margin-top:4px">' + fmt(totalIncome) + '</p></div>' +
+      '<div style="text-align:center;padding:14px;border-radius:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2)"><p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:700">Expenses</p><p style="font-size:20px;font-weight:900;color:#ef4444;margin-top:4px">' + fmt(totalExpense) + '</p></div>' +
+      '<div style="text-align:center;padding:14px;border-radius:14px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2)"><p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:700">Net</p><p style="font-size:20px;font-weight:900;color:' + (net >= 0 ? '#00c9a7' : '#ef4444') + ';margin-top:4px">' + fmt(Math.abs(net)) + '</p></div>' +
+    '</div>';
+}
+
+function _cpBuildInsightBar() {
+  var insights = generateInsights();
+  if (!insights.length) return '<p style="color:var(--text3);text-align:center;padding:12px">No insights yet</p>';
+  return '<div class="section-header" style="margin-bottom:12px"><p class="section-title">\u{1F4A1} AI Insights</p></div>' +
+    insights.map(function(i) {
+      return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:12px;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12);margin-bottom:8px"><span style="font-size:22px;flex-shrink:0">' + i.emoji + '</span><div><p style="font-weight:700;font-size:13px;margin-bottom:2px">' + i.title + '</p><p style="font-size:12px;color:var(--text3)">' + i.msg + '</p></div></div>';
+    }).join('');
+}
+
+function _cpBuildBalances() {
+  var banks = STATE.bankAccounts || [];
+  var cash = STATE.cashAccounts || [];
+  var cards = STATE.creditCards || [];
+  var totalBank = banks.reduce(function(s, b) { return s + (b.balance || 0); }, 0);
+  var totalCash = cash.reduce(function(s, c) { return s + (c.balance || 0); }, 0);
+  var totalDebt = cards.reduce(function(s, c) { return s + (c.outstanding || 0); }, 0);
+  var net = totalBank + totalCash - totalDebt;
+  return '<div class="section-header" style="margin-bottom:12px"><p class="section-title">\u{1F4BC} Net Worth</p></div>' +
+    '<p style="font-size:30px;font-weight:900;color:' + (net >= 0 ? '#00c9a7' : '#ef4444') + ';text-align:center;margin-bottom:14px">' + (net >= 0 ? '+' : '') + fmt(net) + '</p>' +
+    '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">' +
+      '<div style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:#00c9a7"></span><span style="font-size:12px;color:var(--text3)">Banks</span><span style="font-size:12px;font-weight:700;color:#00c9a7">' + fmt(totalBank) + '</span></div>' +
+      '<div style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:#f59e0b"></span><span style="font-size:12px;color:var(--text3)">Cash</span><span style="font-size:12px;font-weight:700;color:#f59e0b">' + fmt(totalCash) + '</span></div>' +
+      '<div style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:#ef4444"></span><span style="font-size:12px;color:var(--text3)">Debt</span><span style="font-size:12px;font-weight:700;color:#ef4444">' + fmt(totalDebt) + '</span></div>' +
+    '</div>';
+}
+
+function _cpBuildBudgetsGoals() {
+  var budgets = STATE.budgets || [];
+  var goals = STATE.goals || [];
+  var goalsDone = goals.filter(function(g) { return g.current >= g.target; }).length;
+  return '<div class="section-header" style="margin-bottom:12px"><p class="section-title">\u{1F3AF} Budgets & Goals</p></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">' +
+      '<div onclick="navigate(\'budget\')" style="cursor:pointer;padding:16px;border-radius:14px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);text-align:center"><p style="font-size:28px;font-weight:900;color:#f59e0b">' + budgets.length + '</p><p style="font-size:11px;color:var(--text3);margin-top:4px">Active Budgets</p></div>' +
+      '<div onclick="navigate(\'goals\')" style="cursor:pointer;padding:16px;border-radius:14px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);text-align:center"><p style="font-size:28px;font-weight:900;color:#8b5cf6">' + goalsDone + '/' + goals.length + '</p><p style="font-size:11px;color:var(--text3);margin-top:4px">Goals Complete</p></div>' +
+    '</div>';
+}
+
+function _cpBuildHabits() {
+  var habits = STATE.habits || [];
+  var comps = STATE.habitCompletions || [];
+  var todayStr = today();
+  var doneCount = habits.filter(function(h) { return comps.some(function(c) { return c.habitId === h.id && c.date === todayStr; }); }).length;
+  var pct = habits.length > 0 ? Math.round(doneCount / habits.length * 100) : 0;
+  var habitList = habits.slice(0, 5).map(function(h) {
+    var done = comps.some(function(c) { return c.habitId === h.id && c.date === todayStr; });
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:' + (done ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)') + '"><span style="font-size:14px">' + (done ? '\u2705' : '\u2B1C') + '</span><span style="font-size:13px;font-weight:600;flex:1">' + (h.emoji || '\u2B55') + ' ' + h.name + '</span></div>';
+  }).join('');
+  return '<div class="section-header" style="margin-bottom:12px"><p class="section-title">\u2705 Habits Today</p></div>' +
+    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">' +
+      '<div style="position:relative;width:60px;height:60px;flex-shrink:0"><svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="5"/><circle cx="30" cy="30" r="26" fill="none" stroke="' + (pct === 100 ? '#10b981' : '#f59e0b') + '" stroke-width="5" stroke-dasharray="' + Math.round(pct * 1.63) + ' 163" stroke-linecap="round" transform="rotate(-90 30 30)"/></svg><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:' + (pct === 100 ? '#10b981' : '#f59e0b') + '">' + pct + '%</span></div>' +
+      '<div><p style="font-size:14px;font-weight:700">' + doneCount + ' of ' + habits.length + ' done</p><p style="font-size:12px;color:var(--text3)">' + (habits.length === 0 ? 'Add habits to track' : pct === 100 ? 'All done!' : 'Keep going!') + '</p></div>' +
+    '</div>' +
+    (habits.length > 0 ? '<div style="display:flex;flex-direction:column;gap:6px">' + habitList + '</div>' : '');
+}
+
+function _cpBuildRecentTx() {
+  var txns = (STATE.transactions || []).slice().sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); }).slice(0, 5);
+  if (!txns.length) return '<div class="section-header"><p class="section-title">\u{1F4C3} Recent Transactions</p></div><p style="color:var(--text3);text-align:center;padding:12px">No transactions yet</p>';
+  return '<div class="section-header" style="margin-bottom:12px"><p class="section-title">\u{1F4C3} Recent Transactions</p></div>' +
+    txns.map(function(t) {
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">' + (t.icon || (t.type === 'income' ? '\u{1F4B0}' : '\u{1F4B8}')) + '</span><div><p style="font-size:13px;font-weight:600">' + (t.category || 'Uncategorized') + '</p><p style="font-size:11px;color:var(--text3)">' + fmtDate(t.date) + '</p></div></div><span style="font-size:14px;font-weight:700;color:' + (t.type === 'income' ? '#10b981' : '#ef4444') + '">' + (t.type === 'income' ? '+' : '-') + fmt(t.amount) + '</span></div>';
+    }).join('');
+}
+
+function _cpBuildHealth() {
+  var entries = (STATE.healthEntries || []).slice().sort(function(a, b) { return b.date.localeCompare(a.date); }).slice(0, 7);
+  var moodEmojis = ['','\u{1F61E}','\u{1F61F}','\u{1F610}','\u{1F642}','\u{1F60A}','\u{1F604}','\u{1F601}','\u{1F929}','\u{1F60D}','\u{1F970}'];
+  if (!entries.length) return '<div class="section-header"><p class="section-title">\u2764\uFE0F Health</p></div><p style="color:var(--text3);text-align:center;padding:12px">No health data yet</p>';
+  var avgSleep = (entries.reduce(function(s, e) { return s + (e.sleep || 0); }, 0) / entries.length).toFixed(1);
+  var avgMood = (entries.reduce(function(s, e) { return s + (e.mood || 5); }, 0) / entries.length).toFixed(1);
+  var avgWater = (entries.reduce(function(s, e) { return s + (e.water || 0); }, 0) / entries.length).toFixed(1);
+  return '<div class="section-header" style="margin-bottom:12px"><p class="section-title">\u2764\uFE0F Health (7-Day Avg)</p></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">' +
+      '<div style="padding:14px;border-radius:14px;background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2)"><p style="font-size:22px">\u{1F634}</p><p style="font-size:18px;font-weight:900;color:#f97316">' + avgSleep + 'h</p><p style="font-size:10px;color:var(--text3)">Sleep</p></div>' +
+      '<div style="padding:14px;border-radius:14px;background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.2)"><p style="font-size:22px">' + (moodEmojis[Math.round(avgMood)] || '\u{1F60A}') + '</p><p style="font-size:18px;font-weight:900;color:#ec4899">' + avgMood + '/10</p><p style="font-size:10px;color:var(--text3)">Mood</p></div>' +
+      '<div style="padding:14px;border-radius:14px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2)"><p style="font-size:22px">\u{1F4A7}</p><p style="font-size:18px;font-weight:900;color:#06b6d4">' + avgWater + 'g</p><p style="font-size:10px;color:var(--text3)">Water</p></div>' +
+    '</div>';
+}
