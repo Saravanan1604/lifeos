@@ -803,7 +803,30 @@ function renderCCTracker() {
         `}
       </div>
 
-      
+      ${window.__IS_APP ? (() => {
+        const _allBanks = STATE.bankAccounts || [];
+        const _allCash  = STATE.cashAccounts || [];
+        const _allCards = STATE.creditCards  || [];
+        const _nbBank = _allBanks.reduce((s, b) => s + (b.balance || 0), 0);
+        const _nbCash = _allCash.reduce((s, c) => s + (c.balance || 0), 0);
+        const _nbCard = _allCards.reduce((s, c) => s + (c.outstanding || 0), 0);
+        const _nbNet  = _nbBank + _nbCash - _nbCard;
+        const _hasNb  = _allBanks.length + _allCash.length + _allCards.length > 0;
+        return _hasNb ? `
+        <div class="mm-hero fin-netbal-hero" onclick="navigate('bank-tracker')">
+          <div class="mm-hero-top" style="justify-content: center;">
+            <p class="mm-hero-lbl">Net Balance</p>
+          </div>
+          <p class="mm-hero-val ${_nbNet < 0 ? 'neg' : 'pos'}">${_nbNet < 0 ? '-' : ''}${fmt(Math.abs(_nbNet))}</p>
+          <div class="mm-hero-split mm-accts3">
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_nbBank)}</span></div>
+            <div class="mm-hs-div"></div>
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="banknote"></i> Cash</span><span class="mm-hs-val" style="color:#f59e0b">${fmt(_nbCash)}</span></div>
+            <div class="mm-hs-div"></div>
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="credit-card"></i> Card</span><span class="mm-hs-val" style="color:#ef4444">${fmt(_nbCard)}</span></div>
+          </div>
+        </div>` : '';
+      })() : ''}
 
       <!-- Tab Bar -->
       <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
@@ -1121,7 +1144,30 @@ function renderCashTracker() {
         `}
       </div>
 
-      
+      ${window.__IS_APP ? (() => {
+        const _allBanks = STATE.bankAccounts || [];
+        const _allCash  = STATE.cashAccounts || [];
+        const _allCards = STATE.creditCards  || [];
+        const _nbBank = _allBanks.reduce((s, b) => s + (b.balance || 0), 0);
+        const _nbCash = _allCash.reduce((s, c) => s + (c.balance || 0), 0);
+        const _nbCard = _allCards.reduce((s, c) => s + (c.outstanding || 0), 0);
+        const _nbNet  = _nbBank + _nbCash - _nbCard;
+        const _hasNb  = _allBanks.length + _allCash.length + _allCards.length > 0;
+        return _hasNb ? `
+        <div class="mm-hero fin-netbal-hero" onclick="navigate('bank-tracker')">
+          <div class="mm-hero-top" style="justify-content: center;">
+            <p class="mm-hero-lbl">Net Balance</p>
+          </div>
+          <p class="mm-hero-val ${_nbNet < 0 ? 'neg' : 'pos'}">${_nbNet < 0 ? '-' : ''}${fmt(Math.abs(_nbNet))}</p>
+          <div class="mm-hero-split mm-accts3">
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_nbBank)}</span></div>
+            <div class="mm-hs-div"></div>
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="banknote"></i> Cash</span><span class="mm-hs-val" style="color:#f59e0b">${fmt(_nbCash)}</span></div>
+            <div class="mm-hs-div"></div>
+            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="credit-card"></i> Card</span><span class="mm-hs-val" style="color:#ef4444">${fmt(_nbCard)}</span></div>
+          </div>
+        </div>` : '';
+      })() : ''}
 
       <!-- Tab Bar -->
       <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
