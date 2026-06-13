@@ -662,8 +662,8 @@ function renderDashboard() {
             <p class="page-subtitle">${getGreeting(STATE.settings?.name || 'there')}</p>
           </div>
           ${window.__IS_APP ? `
-          <button class="btn-secondary btn-sm dash-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:700" title="Customize layout">
-            ✏️ Customize
+          <button class="page-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" title="Customize layout">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Customize
           </button>
           ` : ''}
         </div>
@@ -686,8 +686,8 @@ function renderDashboard() {
           </div>
           ` : `
           <!-- Customize button (Desktop) -->
-          <button class="btn-secondary btn-sm dash-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:700" title="Customize layout">
-            ✏️ Customize Layout
+          <button class="page-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" title="Customize layout">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Customize Layout
           </button>
 
           ${periodTabsHtml(_dashPeriod, 'setDashPeriod')}

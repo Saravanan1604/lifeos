@@ -12089,5 +12089,12 @@ html.is-app .dash-monthbar-wrap .mm-navbtn {
   font-size: 1.65rem !important;
 }
 
+/* Build 424: Mobile scaling for Customize Layout Button */
+html.is-app .page-customize-btn {
+  font-size: 1.15rem !important;
+  padding: 10px 16px !important;
+  border-radius: 24px !important;
+}
+
 
 

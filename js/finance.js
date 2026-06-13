@@ -1770,6 +1770,9 @@ function renderFinance() {
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="page-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" title="Customize layout">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Customize Layout
+            </button>
             ${window.__IS_APP ? '' : periodTabsHtml(_finPeriod, 'setFinPeriod')}
             ${window.__IS_APP ? '' : `<button class="btn-primary btn-sm" onclick="openAddTxModal()">+ Add Transaction</button>`}
           </div>
@@ -3715,9 +3718,12 @@ function renderInvestmentsApp() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in ia-page">
 
-      <div class="page-header" style="margin-bottom:14px">
+      <div class="page-header" style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
         <div><h1 class="page-title"><i data-lucide="bar-chart-3"></i> All Assets</h1>
         <p class="page-subtitle">Investments, loans & net worth</p></div>
+        <button class="page-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" title="Customize layout">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Customize
+        </button>
       </div>
 
       <!-- NET WORTH HERO -->
@@ -3967,6 +3973,9 @@ function renderInvestments() {
         </button>
         ` : `
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="page-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" title="Customize layout">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Customize Layout
+          </button>
           <button id="refresh-prices-btn" class="btn-secondary btn-sm" onclick="fetchLivePrices()"
             title="Fetch live prices for Stocks & Crypto with ticker symbols"
             style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#10b981;font-weight:700">
