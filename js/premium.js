@@ -38,6 +38,58 @@ function seedDemoData() {
     { id: genId(), name: 'HDFC FD 5yr', type: 'Fixed Deposit', amount: 100000, currentValue: 114490, date: daysAgo(500), icon: '🏦' },
   ];
 
+  // Bank accounts
+  const bank1 = { id: genId(), bankName: 'HDFC', type: 'Salary', balance: 145000, lastFour: '4321', icon: '🔴', color: '#b71c1c', color2: '#7f1212' };
+  const bank2 = { id: genId(), bankName: 'SBI', type: 'Savings', balance: 12000, lastFour: '0987', icon: '🏛️', color: '#1a237e', color2: '#0d1757' };
+  const bank3 = { id: genId(), bankName: 'ICICI', type: 'Savings', balance: 28500, lastFour: '8765', icon: '🟠', color: '#e65100', color2: '#bf360c' };
+  STATE.bankAccounts = [bank1, bank2, bank3];
+
+  // Bank balance history
+  STATE.bankBalanceHistory = [
+    { accountId: bank1.id, balance: 145000, date: daysAgo(5), note: 'Account baseline' },
+    { accountId: bank1.id, balance: 145000, date: daysAgo(1), note: 'Salary credit' },
+    { accountId: bank2.id, balance: 12000, date: daysAgo(5), note: 'Account baseline' },
+    { accountId: bank3.id, balance: 28500, date: daysAgo(5), note: 'Account baseline' }
+  ];
+
+  // Cash accounts
+  const cash1 = { id: genId(), name: 'Cash Wallet', balance: 4500 };
+  const cash2 = { id: genId(), name: 'Office Drawer', balance: 1500 };
+  STATE.cashAccounts = [cash1, cash2];
+
+  // Cash balance history
+  STATE.cashBalanceHistory = [
+    { accountId: cash1.id, balance: 4500, date: daysAgo(5), note: 'Wallet baseline' },
+    { accountId: cash2.id, balance: 1500, date: daysAgo(5), note: 'Drawer baseline' }
+  ];
+
+  // Credit cards
+  const card1 = { id: genId(), bankName: 'HDFC', network: 'VISA', limit: 150000, outstanding: 12450, lastFour: '9922', dueDate: 15, color: '#1a237e', color2: '#0d47a1' };
+  const card2 = { id: genId(), bankName: 'AMEX', network: 'AmEx', limit: 300000, outstanding: 34500, lastFour: '1004', dueDate: 25, color: '#006064', color2: '#00363a' };
+  STATE.creditCards = [card1, card2];
+
+  // Credit card history
+  STATE.creditCardHistory = [
+    { id: genId(), cardId: card1.id, outstanding: 12450, prevOutstanding: 10000, date: daysAgo(2), note: 'Fuel & groceries', createdAt: new Date().toISOString() },
+    { id: genId(), cardId: card2.id, outstanding: 34500, prevOutstanding: 20000, date: daysAgo(4), note: 'Flight ticket booking', createdAt: new Date().toISOString() }
+  ];
+
+  // Loans (outstanding, emi, principal, rate, etc.)
+  const loan1 = { id: genId(), name: 'Car Loan', type: 'Car Loan', principal: 600000, outstanding: 420000, rate: 8.5, emi: 8500 };
+  const loan2 = { id: genId(), name: 'HDFC Personal Loan', type: 'Personal Loan', principal: 200000, outstanding: 120000, rate: 11.5, emi: 4500 };
+  STATE.loans = [loan1, loan2];
+
+  // Net Worth History (used for cashflow/networth graph)
+  STATE.netWorthHistory = [];
+  const startVal = -220000;
+  const endVal = -118060;
+  for (let i = 180; i >= 0; i -= 5) {
+    const dateStr = daysAgo(i);
+    const pct = (180 - i) / 180;
+    const value = Math.round(startVal + (endVal - startVal) * pct + (Math.sin(i / 10) * 8000));
+    STATE.netWorthHistory.push({ date: dateStr, value });
+  }
+
   // Budgets
   STATE.budgets = [
     { id: genId(), category: 'Food', limit: 6000 },
