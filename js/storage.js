@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 427;
+const APP_BUILD = 428;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -105,6 +105,13 @@ function saveState() {
         else       { setSyncDot('error'); _pendingSave = payload; }
       })
       .catch(() => { setSyncDot('error'); _pendingSave = payload; });
+  }
+
+  // Auto-refresh custom pages on save so they update in real-time
+  if (typeof currentPage !== 'undefined' && typeof navigate === 'function' && typeof isCustomPage === 'function' && isCustomPage(currentPage)) {
+    if (typeof _loEdit === 'undefined' || !_loEdit) {
+      navigate(currentPage, true);
+    }
   }
 }
 
