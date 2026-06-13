@@ -645,6 +645,17 @@ function renderDashboard() {
         </div>
       </div>
 
+      <!-- ── Balances & Portfolios Card ───────────────────────── -->
+      ${_buildBalancesCard()}
+
+      <!-- ── Core KPIs Grid ───────────────────────── -->
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px" class="kpi-grid" id="dash-kpi-card">
+        ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
+      </div>
+
+      <!-- ── Budgets & Goals Card ───────────────────────── -->
+      ${_buildBudgetsGoalsCard()}
+
       <!-- ── Spending Hero Ring (axio-style) ───────────────────────── -->
       ${(() => {
         const pct = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : (totalExpense > 0 ? 100 : 0);
@@ -666,9 +677,98 @@ function renderDashboard() {
         </div>`;
       })()}
 
-      <!-- ── Core KPIs Grid ───────────────────────── -->
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px" class="kpi-grid" id="dash-kpi-card">
-        ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
+      <!-- ── Financial Overview line chart card ─────────────────────── -->
+      <div class="glass-card" id="dash-fin-overview" style="padding:22px;margin-bottom:20px">
+        <!-- Header row -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div>
+            <p class="section-title" style="margin-bottom:2px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00c9a7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Financial Overview
+            </p>
+            <p style="font-size:11px;color:var(--text3);margin-top:2px">Last 12 months · Income · Expense · Savings · Net Worth</p>
+          </div>
+          <button class="btn-icon btn-sm" onclick="navigate('finance')" style="color:var(--teal);border-color:rgba(0,201,167,0.3)">View All →</button>
+        </div>
+
+        <!-- Two-column: chart | spending list -->
+        <div style="display:grid;grid-template-columns:1fr 220px;gap:20px;align-items:start" class="fin-overview-grid">
+          <!-- Chart -->
+          <div style="height:240px;position:relative">
+            <canvas id="dash-combined-chart"></canvas>
+          </div>
+          <!-- Spending by Category — compact list -->
+          <div>
+            <p style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Top Spending</p>
+            <div id="dash-pie-chart" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Recent Transactions Card ───────────────────────── -->
+      <div class="glass-card" id="dash-recent-tx" style="overflow:hidden;margin-bottom:20px">
+        <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center">
+          <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Recent Transactions</p>
+          <button class="btn-secondary btn-sm" onclick="navigate('finance')">View All →</button>
+        </div>
+        ${recent.length === 0
+          ? `<div class="empty-state"><span class="empty-state-icon"><i data-lucide="receipt"></i></span><p>No transactions yet. <span onclick="navigate('finance')" style="color:#00c9a7;cursor:pointer;text-decoration:underline">Add one now →</span></p></div>`
+          : recent.map(tx => `
+            <div class="tx-row" onclick="if(typeof openTxDetail==='function')openTxDetail('${tx.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.04)'" onmouseout="this.style.background=''">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div class="tx-ic" style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}26;border:1px solid ${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}55;color:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')};font-size:18px;flex-shrink:0">${typeof catIconHtml==='function'?catIconHtml(tx.category):(tx.icon||'')}</div>
+                <div>
+                  <p style="font-size:13px;font-weight:600">${tx.description||tx.category}</p>
+                  <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>
+                </div>
+              </div>
+              <span style="font-weight:700;font-size:14px;color:${tx.type==='income'?'#00c9a7':'#ef4444'}">${tx.type==='income'?'+':'-'}${fmt(tx.amount)}</span>
+            </div>`).join('')}
+      </div>
+
+      <!-- ── AI Rule of the Day Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-rule" style="padding:22px;margin-bottom:20px;border-left:4px solid var(--indigo)">
+        <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">💡 AI RULE OF THE DAY</p>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
+      </div>
+
+      <!-- ── AI 50/30/20 Live Rule Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-503020" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">📐 AI 50/30/20 Live Rule</p>
+        </div>
+        ${_build503020Widget()}
+      </div>
+
+      <!-- ── AI MoM Snapshot Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-snapshot" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">📊 AI MoM Snapshot</p>
+        </div>
+        ${_buildComparisonWidget()}
+      </div>
+
+      <!-- ── AI Category Shift Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-category" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">🔍 AI Category Shift</p>
+        </div>
+        <div style="height:200px;position:relative"><canvas id="ai-category-chart"></canvas></div>
+      </div>
+
+      <!-- ── AI 3-Period Grouped Comparison Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-grouped" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">📊 AI 3-Period Grouped Comparison</p>
+        </div>
+        <div style="height:200px;position:relative"><canvas id="ai-grouped-chart"></canvas></div>
+      </div>
+
+      <!-- ── AI 6-Month Financial Trend Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-trend" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">📈 AI 6-Month Financial Trend</p>
+        </div>
+        <div style="height:150px;position:relative"><canvas id="ai-trend-chart"></canvas></div>
       </div>
 
       <!-- ── Quick Actions ───────────────────────── -->
@@ -700,106 +800,6 @@ function renderDashboard() {
               </div>
             </div>`).join('')}
         </div>
-      </div>
-
-      <!-- ── Financial Overview line chart card ─────────────────────── -->
-      <div class="glass-card" id="dash-fin-overview" style="padding:22px;margin-bottom:20px">
-        <!-- Header row -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div>
-            <p class="section-title" style="margin-bottom:2px">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00c9a7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Financial Overview
-            </p>
-            <p style="font-size:11px;color:var(--text3);margin-top:2px">Last 12 months · Income · Expense · Savings · Net Worth</p>
-          </div>
-          <button class="btn-icon btn-sm" onclick="navigate('finance')" style="color:var(--teal);border-color:rgba(0,201,167,0.3)">View All →</button>
-        </div>
-
-        <!-- Two-column: chart | spending list -->
-        <div style="display:grid;grid-template-columns:1fr 220px;gap:20px;align-items:start" class="fin-overview-grid">
-          <!-- Chart -->
-          <div style="height:240px;position:relative">
-            <canvas id="dash-combined-chart"></canvas>
-          </div>
-          <!-- Spending by Category — compact list -->
-          <div>
-            <p style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Top Spending</p>
-            <div id="dash-pie-chart" style="display:flex;flex-direction:column;gap:6px"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Balances & Portfolios Card ───────────────────────── -->
-      ${_buildBalancesCard()}
-
-      <!-- ── Budgets & Goals Card ───────────────────────── -->
-      ${_buildBudgetsGoalsCard()}
-
-      <!-- ── Recent Transactions Card ───────────────────────── -->
-      <div class="glass-card" id="dash-recent-tx" style="overflow:hidden;margin-bottom:20px">
-        <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center">
-          <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Recent Transactions</p>
-          <button class="btn-secondary btn-sm" onclick="navigate('finance')">View All →</button>
-        </div>
-        ${recent.length === 0
-          ? `<div class="empty-state"><span class="empty-state-icon"><i data-lucide="receipt"></i></span><p>No transactions yet. <span onclick="navigate('finance')" style="color:#00c9a7;cursor:pointer;text-decoration:underline">Add one now →</span></p></div>`
-          : recent.map(tx => `
-            <div class="tx-row" onclick="if(typeof openTxDetail==='function')openTxDetail('${tx.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.04)'" onmouseout="this.style.background=''">
-              <div style="display:flex;align-items:center;gap:12px">
-                <div class="tx-ic" style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}26;border:1px solid ${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}55;color:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')};font-size:18px;flex-shrink:0">${typeof catIconHtml==='function'?catIconHtml(tx.category):(tx.icon||'')}</div>
-                <div>
-                  <p style="font-size:13px;font-weight:600">${tx.description||tx.category}</p>
-                  <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>
-                </div>
-              </div>
-              <span style="font-weight:700;font-size:14px;color:${tx.type==='income'?'#00c9a7':'#ef4444'}">${tx.type==='income'?'+':'-'}${fmt(tx.amount)}</span>
-            </div>`).join('')}
-      </div>
-
-      <!-- ── AI 3-Period Grouped Comparison Card ─────────────────────── -->
-      <div class="glass-card" id="dash-ai-grouped" style="padding:22px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:12px">
-          <p class="section-title">📊 AI 3-Period Grouped Comparison</p>
-        </div>
-        <div style="height:200px;position:relative"><canvas id="ai-grouped-chart"></canvas></div>
-      </div>
-
-      <!-- ── AI Category Shift Card ─────────────────────── -->
-      <div class="glass-card" id="dash-ai-category" style="padding:22px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:12px">
-          <p class="section-title">🔍 AI Category Shift</p>
-        </div>
-        <div style="height:200px;position:relative"><canvas id="ai-category-chart"></canvas></div>
-      </div>
-
-      <!-- ── AI 6-Month Financial Trend Card ─────────────────────── -->
-      <div class="glass-card" id="dash-ai-trend" style="padding:22px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:12px">
-          <p class="section-title">📈 AI 6-Month Financial Trend</p>
-        </div>
-        <div style="height:150px;position:relative"><canvas id="ai-trend-chart"></canvas></div>
-      </div>
-
-      <!-- ── AI MoM Snapshot Card ─────────────────────── -->
-      <div class="glass-card" id="dash-ai-snapshot" style="padding:22px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:12px">
-          <p class="section-title">📊 AI MoM Snapshot</p>
-        </div>
-        ${_buildComparisonWidget()}
-      </div>
-
-      <!-- ── AI 50/30/20 Live Rule Card ─────────────────────── -->
-      <div class="glass-card" id="dash-ai-503020" style="padding:22px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:12px">
-          <p class="section-title">📐 AI 50/30/20 Live Rule</p>
-        </div>
-        ${_build503020Widget()}
-      </div>
-
-      <!-- ── AI Rule of the Day Card ─────────────────────── -->
-      <div class="glass-card" id="dash-ai-rule" style="padding:22px;margin-bottom:20px;border-left:4px solid var(--indigo)">
-        <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">💡 AI RULE OF THE DAY</p>
-        <p style="font-size:13px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
       </div>
 
       <!-- ── Life Score Card ─────────────────────── -->

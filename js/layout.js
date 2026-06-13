@@ -36,6 +36,15 @@ function _loAssignKeys(cards) {
 function applyPageLayout(page) {
   if (!LO_PAGES.includes(page)) return;
   const f = _loFade(); if (!f) return;
+
+  // Auto-reset layout on structural updates (Version Bump) to default template order
+  const currentLayoutVer = 'v2';
+  const verKey = 'lifeos_layout_ver_' + page;
+  if (localStorage.getItem(verKey) !== currentLayoutVer) {
+    localStorage.removeItem(_loKey(page));
+    localStorage.setItem(verKey, currentLayoutVer);
+  }
+
   const lo = _loGet(page);
   let cards = _loCards();
   _loAssignKeys(cards);                       // keys first (template order = stable)

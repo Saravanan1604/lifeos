@@ -12006,7 +12006,28 @@ html.is-app #page-container[data-page="help"] div[style*="text-align:center"] p[
 html.is-app #page-container[data-page="help"] div[style*="text-align:center"] span {
   font-size: 18px !important;
 }
-/* Build 416: Force push cache reload */
+/* Build 419: Force push cache reload */
+/* Dashboard Balances & Budgets Card Mobile Styling Overrides to prevent nested borders */
+html.is-app #dash-balances-card.glass-card,
+html.is-app #dash-budgets-goals.glass-card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+html.is-app #dash-balances-card.glass-card > div:first-child,
+html.is-app #dash-budgets-goals.glass-card > div:first-child {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 12px !important;
+}
+
+html.is-app .dash-acct-grid,
+html.is-app .dash-bg-grid {
+  grid-template-columns: 1fr !important;
+  gap: 16px !important;
+}
 
 
 
