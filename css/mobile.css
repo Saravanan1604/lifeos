@@ -12219,3 +12219,34 @@ html.is-app .catdet-sub-bar { height: 13px !important; }
 html.is-app .catdet-tx-name { font-size: 25px !important; }
 html.is-app .catdet-tx-meta { font-size: 18px !important; }
 html.is-app .catdet-tx-amt { font-size: 25px !important; }
+
+/* ============================================================
+   Visual Polish overrides for spacing & master card breathing room
+   ============================================================ */
+
+/* Net Balance master card internal padding & element spacing */
+html.is-app .fin-netbal-hero {
+  padding: 38px 24px 32px !important;
+  margin: 0 0 24px !important;
+}
+html.is-app .fin-netbal-hero .mm-hero-val {
+  margin: 16px 0 26px !important;
+  font-size: 4.5rem !important; /* Give the large numbers a tiny bit more size & punch */
+}
+
+/* Increase horizontal grid / carousel margins to avoid crowded overlapping appearance */
+html.is-app .fin-bank-grid,
+html.is-app .fin-card-grid,
+html.is-app .fin-cash-grid {
+  margin: 0 0 20px 0 !important;
+}
+
+/* Spacing adjustments for indicators and primary trend layouts */
+html.is-app .swipe-dots {
+  margin: 8px 0 24px !important;
+}
+html.is-app #bt-main-grid,
+html.is-app #cc-main-grid,
+html.is-app #cash-main-grid {
+  margin-bottom: 28px !important;
+}
