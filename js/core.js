@@ -222,15 +222,6 @@ function openAppSettings() {
           <button class="${on(lang==='hi')}" onclick="if(typeof setLanguage==='function')setLanguage('hi');openAppSettings()">हिं</button>
         </div>
       </div>
-      ${window.__IS_APP ? (() => { const sc = (STATE.settings && STATE.settings.appScale) || 'default'; return `
-      <div class="aps-row">
-        <span class="aps-label"><i data-lucide="type"></i> Text Size</span>
-        <div class="aps-seg">
-          <button class="${on(sc==='default')}" onclick="setAppScale('default');openAppSettings()">Default</button>
-          <button class="${on(sc==='large')}" onclick="setAppScale('large');openAppSettings()">Large</button>
-          <button class="${on(sc==='xl')}" onclick="setAppScale('xl');openAppSettings()">XL</button>
-        </div>
-      </div>`; })() : ''}
       <button class="btn-primary" style="width:100%;margin-top:6px" onclick="closeModal();navigate('settings')">Open full Settings</button>
     </div>`);
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
