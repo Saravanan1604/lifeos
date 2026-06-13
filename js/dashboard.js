@@ -812,6 +812,57 @@ function renderDashboard() {
             </div>`).join('')}
       </div>
 
+      <!-- ── AI Financial Insights ────────────────────────────── -->
+      <div id="dash-ai-insights" style="margin-top:20px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
+          <span style="font-size:16px">🧠</span>
+          <h2 style="font-size:16px;font-weight:800;color:var(--text)">AI Financial Insights</h2>
+          <span style="font-size:11px;color:var(--text3);margin-left:4px">— real-time predictive analytics</span>
+        </div>
+
+        <!-- Charts Row: Grouped Bar + Category Comparison -->
+        <div style="display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px" class="ai-charts-row-dash">
+          <div class="glass-card" style="padding:20px">
+            <div class="section-header" style="margin-bottom:12px">
+              <p class="section-title">📊 3-Period Grouped Comparison</p>
+            </div>
+            <div style="height:200px;position:relative"><canvas id="ai-grouped-chart"></canvas></div>
+          </div>
+          <div class="glass-card" style="padding:20px">
+            <div class="section-header" style="margin-bottom:12px">
+              <p class="section-title">🔍 Category Shift</p>
+            </div>
+            <div style="height:200px;position:relative"><canvas id="ai-category-chart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- 6-Month Trend Line -->
+        <div class="glass-card" style="padding:20px;margin-bottom:16px">
+          <div class="section-header" style="margin-bottom:12px">
+            <p class="section-title">📈 6-Month Financial Trend</p>
+          </div>
+          <div style="height:150px;position:relative"><canvas id="ai-trend-chart"></canvas></div>
+        </div>
+
+        <!-- MoM Snapshot + 50/30/20 + Rule of the Day -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="ai-metrics-row-dash">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="glass-card" style="padding:16px;flex:1">
+              <p class="section-title" style="margin-bottom:10px;font-size:12px">📊 MoM Snapshot</p>
+              ${_buildComparisonWidget()}
+            </div>
+            <div class="glass-card" style="padding:14px;border-left:3px solid var(--indigo);display:flex;flex-direction:column;justify-content:center">
+              <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">RULE OF THE DAY</p>
+              <p style="font-size:12px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
+            </div>
+          </div>
+          <div class="glass-card" style="padding:16px">
+            <p class="section-title" style="margin-bottom:10px;font-size:12px">📐 50/30/20 Live</p>
+            ${_build503020Widget()}
+          </div>
+        </div>
+      </div>
+
       <!-- ═══ ANALYTICS SECTION ═══ -->
       <div id="dash-life-analytics" style="margin-top:8px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
@@ -904,6 +955,12 @@ function renderDashboard() {
     const kpi = document.querySelector('.kpi-grid');
     if (kpi) kpi.style.gridTemplateColumns = 'repeat(2,1fr)';
     document.querySelectorAll('.dash-agb-grid, .dash-agb-grid2').forEach(g => g.style.gridTemplateColumns = '1fr');
+    
+    // AI insights grids responsive
+    const acrd = document.querySelector('.ai-charts-row-dash');
+    if (acrd) acrd.style.gridTemplateColumns = '1fr';
+    const amrd = document.querySelector('.ai-metrics-row-dash');
+    if (amrd) amrd.style.gridTemplateColumns = '1fr';
   }
 
   // Render charts after DOM is ready
@@ -913,6 +970,11 @@ function renderDashboard() {
     renderLifeScoreRadar(scores);
     renderDashBankChart();
     renderDashBudgetChart();
+    // Render AI Insights charts
+    if (typeof renderAIGroupedChart === 'function') renderAIGroupedChart();
+    if (typeof renderAICategoryChart === 'function') renderAICategoryChart();
+    if (typeof renderAITrendChart === 'function') renderAITrendChart();
+
     if (window.innerWidth < 700) {
       const fog = document.querySelector('.fin-overview-grid');
       if (fog) fog.style.gridTemplateColumns = '1fr';
@@ -920,6 +982,12 @@ function renderDashboard() {
       if (lsg) lsg.style.gridTemplateColumns = '1fr';
       const wg = document.querySelector('.welcome-grid');
       if (wg) wg.style.gridTemplateColumns = 'repeat(2,1fr)';
+      
+      // AI insights grids responsive
+      const acrd = document.querySelector('.ai-charts-row-dash');
+      if (acrd) acrd.style.gridTemplateColumns = '1fr';
+      const amrd = document.querySelector('.ai-metrics-row-dash');
+      if (amrd) amrd.style.gridTemplateColumns = '1fr';
     }
     // App: move Financial Overview to the bottom — but ONLY if the user hasn't
     // saved a custom layout (otherwise it fights the Layout Customizer).

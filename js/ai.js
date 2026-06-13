@@ -387,6 +387,10 @@ function renderAICoach() {
 function renderAIGroupedChart() {
   const canvas = document.getElementById('ai-grouped-chart');
   if (!canvas) return;
+  if (chartInstances['ai-grouped']) {
+    try { chartInstances['ai-grouped'].destroy(); } catch(e) {}
+    delete chartInstances['ai-grouped'];
+  }
   const m0 = _monthData(0), m1 = _monthData(-1), m2 = _monthData(-2);
   const mn = off => { const d = new Date(); d.setMonth(d.getMonth()+off); return d.toLocaleString('default',{month:'short'}); };
   const isLight = document.body.classList.contains('light');
@@ -423,6 +427,10 @@ function renderAIGroupedChart() {
 function renderAICategoryChart() {
   const canvas = document.getElementById('ai-category-chart');
   if (!canvas) return;
+  if (chartInstances['ai-category']) {
+    try { chartInstances['ai-category'].destroy(); } catch(e) {}
+    delete chartInstances['ai-category'];
+  }
   const cats0 = _catBreakdown(0).slice(0,6);
   const cats1 = _catBreakdown(-1);
   if (!cats0.length) {
@@ -464,6 +472,10 @@ function renderAICategoryChart() {
 function renderAITrendChart() {
   const canvas = document.getElementById('ai-trend-chart');
   if (!canvas) return;
+  if (chartInstances['ai-trend']) {
+    try { chartInstances['ai-trend'].destroy(); } catch(e) {}
+    delete chartInstances['ai-trend'];
+  }
   const pts = Array.from({length:6},(_,i) => {
     const off = i-5;
     const m = _monthData(off);
