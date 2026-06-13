@@ -11833,6 +11833,19 @@ html.is-app .mymoney-records .mm-cbtn {
 html.is-app #page-container[data-page="help"] {
   max-width: 100% !important;
   padding: 10px 4px !important;
+  --text1: var(--text) !important;
+  --text3: var(--text) !important; /* Force all descriptions to be 100% readable */
+}
+
+/* Ensure placeholder text is also readable */
+html.is-app #page-container[data-page="help"] input::placeholder {
+  color: var(--text2) !important;
+  opacity: 0.8 !important;
+}
+
+/* Make low opacity inline colors more visible on dark backgrounds */
+html.is-app #page-container[data-page="help"] [style*="color:rgba(255,255,255,0.2)"] {
+  color: var(--text2) !important;
 }
 
 /* Page Header */

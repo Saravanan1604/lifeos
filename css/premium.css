@@ -6,6 +6,7 @@ body.light {
   --glass-border:rgba(180,185,200,0.35);
   --glass-hover: rgba(248,249,252,1);
   --text:        #1a1f2e;
+  --text1:       #1a1f2e;
   --text2:       rgba(26,31,46,0.70);
   --text3:       rgba(26,31,46,0.50);  /* raised from 0.38 — was too faint */
   --indigo:      #4f46e5;
