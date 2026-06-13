@@ -277,21 +277,17 @@ function renderBankTracker() {
         const _nbNet  = _nbBank + _nbCash - _nbCard;
         const _hasNb  = _allBanks.length + _allCash.length + _allCards.length > 0;
         return _hasNb ? `
-        <div class="mm-hero mm-hero-accts fin-netbal-hero" onclick="navigate('bank-tracker')">
+        <div class="mm-hero fin-netbal-hero" onclick="navigate('bank-tracker')">
+          <div class="mm-hero-top" style="justify-content: center;">
+            <p class="mm-hero-lbl">Net Balance</p>
+          </div>
+          <p class="mm-hero-val ${_nbNet < 0 ? 'neg' : 'pos'}">${_nbNet < 0 ? '-' : ''}${fmt(Math.abs(_nbNet))}</p>
           <div class="mm-hero-split mm-accts3">
             <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_nbBank)}</span></div>
             <div class="mm-hs-div"></div>
             <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="banknote"></i> Cash</span><span class="mm-hs-val" style="color:#f59e0b">${fmt(_nbCash)}</span></div>
             <div class="mm-hs-div"></div>
             <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="credit-card"></i> Card</span><span class="mm-hs-val" style="color:#ef4444">${fmt(_nbCard)}</span></div>
-          </div>
-          <div class="mm-accts-hr"></div>
-          <div class="mm-netbal">
-            <span class="mm-netbal-lbl">Net Balance</span>
-            <span class="mm-netbal-main">
-              <span class="mm-netbal-ic"><i data-lucide="wallet"></i></span>
-              <span class="mm-netbal-val ${_nbNet < 0 ? 'neg' : 'pos'}">${_nbNet < 0 ? '-' : ''}${fmt(Math.abs(_nbNet))}</span>
-            </span>
           </div>
         </div>` : '';
       })() : ''}

@@ -11584,3 +11584,9 @@ html.is-app .gs-input {
 html.is-app .fin-netbal-hero {
   margin: 0 0 16px;
 }
+html.is-app .fin-netbal-hero .mm-accts3 .mm-hs-lbl {
+  font-size: 1.15rem;
+}
+html.is-app .fin-netbal-hero .mm-accts3 .mm-hs-val {
+  font-size: 1.65rem;
+}
