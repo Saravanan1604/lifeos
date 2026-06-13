@@ -353,7 +353,7 @@ function renderRecordsMyMoney() {
         </div>
         <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
           ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
-          <div class="mm-ic" style="background:${catColor(t.category)}">${catIconHtml(t.category)}</div>
+          <div class="mm-ic" style="background:${catColor(t.category)}" onclick="event.stopPropagation();openCategoryDetail('${(t.category||'Other').replace(/'/g,"\\'")}')">${catIconHtml(t.category)}</div>
           <div class="mm-mid">
             <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' <i data-lucide="repeat" class="mm-recur-ic"></i>' : ''}</p>
             <div class="mm-meta">${chip}${note}${sub}${tm}</div>
@@ -559,6 +559,131 @@ function recEnterSelect(id) {
   if (navigator.vibrate) try { navigator.vibrate(25); } catch (e) {}
   renderRecordsMyMoney();
 }
+// ── Category detail page: tap a row's category icon to drill in ──
+// Shows a 7-month spending bar chart for that category (current month
+// highlighted) and the list of its transactions in the anchor month.
+let _catDetailCat = null;
+function openCategoryDetail(cat) {
+  _catDetailCat = cat;
+  renderCategoryDetail();
+}
+function renderCategoryDetail() {
+  const cat = _catDetailCat;
+  if (!cat) { renderRecordsMyMoney(); return; }
+  const tx = (STATE.transactions || []).filter(t => (t.category || 'Other') === cat && t.type !== 'income');
+  const anchor = (_recAnchor instanceof Date && !isNaN(_recAnchor)) ? _recAnchor : new Date();
+
+  // last 7 months of totals for this category
+  const months = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(anchor.getFullYear(), anchor.getMonth() - i, 1);
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const total = tx.filter(t => (t.date || '').slice(0, 7) === ym).reduce((s, t) => s + (+t.amount || 0), 0);
+    months.push({ label: d.toLocaleString('default', { month: 'short' }), ym, total, isAnchor: i === 0 });
+  }
+  const anchorYm = `${anchor.getFullYear()}-${String(anchor.getMonth() + 1).padStart(2, '0')}`;
+  const monthTx = tx.filter(t => (t.date || '').slice(0, 7) === anchorYm)
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const monthTotal = monthTx.reduce((s, t) => s + (+t.amount || 0), 0);
+  const color = catColor(cat);
+
+  // sub-category split for the anchor month
+  const bySub = {};
+  monthTx.forEach(t => { const s = (t.subcategory || '').trim() || '—'; bySub[s] = (bySub[s] || 0) + (+t.amount || 0); });
+  const subRows = Object.entries(bySub).sort((a, b) => b[1] - a[1]);
+
+  const shortK = n => Math.abs(n) >= 1000 ? (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'K' : String(Math.round(n));
+
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in catdet">
+      <div class="catdet-head">
+        <button class="catdet-back" onclick="renderRecordsMyMoney()"><i data-lucide="arrow-left"></i></button>
+        <div class="catdet-title">
+          <span class="catdet-ic" style="background:${color}">${catIconHtml(cat)}</span>
+          <div><p class="catdet-name">${esc(cat)}</p><p class="catdet-sub">${anchor.toLocaleString('default', { month: 'long', year: 'numeric' })}</p></div>
+        </div>
+      </div>
+
+      <div class="glass-card" style="padding:18px;margin-bottom:16px">
+        <div style="height:260px;position:relative"><canvas id="catdet-chart"></canvas></div>
+      </div>
+
+      <div class="catdet-total">
+        <span>Spent in ${anchor.toLocaleString('default', { month: 'short' })}</span>
+        <b style="color:${color}">${fmt(monthTotal)}</b>
+      </div>
+
+      ${subRows.length > 1 || (subRows.length === 1 && subRows[0][0] !== '—') ? `
+      <p class="catdet-section">By subcategory</p>
+      <div class="glass-card" style="padding:8px 16px;margin-bottom:16px">
+        ${subRows.map(([s, v]) => {
+          const pct = monthTotal > 0 ? Math.round(v / monthTotal * 100) : 0;
+          return `<div class="catdet-sub-row">
+            <span class="catdet-sub-name">${esc(s)}</span>
+            <div class="catdet-sub-bar"><div style="width:${pct}%;background:${color}"></div></div>
+            <span class="catdet-sub-amt">${fmt(v)}</span>
+          </div>`;
+        }).join('')}
+      </div>` : ''}
+
+      <p class="catdet-section">Transactions</p>
+      <div class="glass-card" style="overflow:hidden">
+        ${monthTx.length ? monthTx.map(t => `
+          <div class="catdet-tx" onclick="openEditTxModal('${t.id}')">
+            <div class="catdet-tx-mid">
+              <p class="catdet-tx-name">${esc(t.subcategory || t.description || cat)}</p>
+              <p class="catdet-tx-meta">${t.source && typeof _sourceLabel === 'function' ? esc(_sourceLabel(t.source)) + ' · ' : ''}${fmtDate(t.date)}</p>
+            </div>
+            <span class="catdet-tx-amt">-${fmt(t.amount)}</span>
+          </div>`).join('')
+          : `<div class="empty-state" style="padding:30px 0"><p>No ${esc(cat)} spending in ${anchor.toLocaleString('default', { month: 'long' })}.</p></div>`}
+      </div>
+    </div>`;
+
+  _lucideRefresh();
+  setTimeout(() => {
+    const cv = document.getElementById('catdet-chart');
+    if (!cv || typeof Chart === 'undefined') return;
+    if (chartInstances['catdet']) { chartInstances['catdet'].destroy(); delete chartInstances['catdet']; }
+    const max = Math.max(1, ...months.map(m => m.total));
+    chartInstances['catdet'] = new Chart(cv, {
+      type: 'bar',
+      data: {
+        labels: months.map(m => m.label),
+        datasets: [{
+          data: months.map(m => m.total),
+          backgroundColor: months.map(m => m.isAnchor ? color : 'rgba(99,102,241,0.85)'),
+          borderRadius: 10, maxBarThickness: 26
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => ' ₹' + (+c.parsed.y).toLocaleString('en-IN') } },
+          datalabels: false
+        },
+        scales: {
+          x: { ticks: { color: '#94a3b8', font: { size: 14 } }, grid: { display: false } },
+          y: { display: false, suggestedMax: max * 1.2, grid: { display: false } }
+        }
+      },
+      plugins: [{
+        id: 'catdetLabels',
+        afterDatasetsDraw(ch) {
+          const { ctx } = ch; const meta = ch.getDatasetMeta(0);
+          ctx.save(); ctx.fillStyle = '#e2e8f0'; ctx.font = '700 15px Inter, sans-serif'; ctx.textAlign = 'center';
+          meta.data.forEach((bar, i) => {
+            const v = months[i].total;
+            ctx.fillText(v ? shortK(v) : '0', bar.x, bar.y - 10);
+          });
+          ctx.restore();
+        }
+      }]
+    });
+  }, 50);
+}
+
 // Explicit entry point for multi-select (the ✓ button in the header).
 // Toggles select mode on/off; starts with nothing selected.
 function recStartSelect() {

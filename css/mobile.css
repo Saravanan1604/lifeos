@@ -12138,3 +12138,43 @@ html.is-app .mymoney-records.selmode .mm-row.sel {
   background: rgba(0, 201, 167, 0.14) !important;
   box-shadow: inset 4px 0 0 #00c9a7 !important;
 }
+
+/* ============================================================
+   build 430 — Category detail page (tap a row's category icon)
+   ============================================================ */
+html.is-app .catdet { padding-bottom: 24px; }
+html.is-app .catdet-head { display: flex; align-items: center; gap: 14px; margin: 4px 0 18px; }
+html.is-app .catdet-back {
+  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(255,255,255,0.06); border: none; color: var(--text);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+html.is-app .catdet-back svg { width: 24px; height: 24px; }
+html.is-app .catdet-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+html.is-app .catdet-ic {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+}
+html.is-app .catdet-ic svg, html.is-app .catdet-ic i { width: 26px; height: 26px; }
+html.is-app .catdet-name { font-size: 26px; font-weight: 800; }
+html.is-app .catdet-sub { font-size: 17px; color: var(--text3); }
+html.is-app .catdet-total {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 6px 16px; font-size: 19px; color: var(--text2);
+}
+html.is-app .catdet-total b { font-size: 30px; font-weight: 900; }
+html.is-app .catdet-section {
+  font-size: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text3); margin: 6px 4px 10px;
+}
+html.is-app .catdet-sub-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+html.is-app .catdet-sub-row:last-child { border-bottom: none; }
+html.is-app .catdet-sub-name { font-size: 19px; font-weight: 600; flex: 0 0 32%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app .catdet-sub-bar { flex: 1; height: 10px; border-radius: 5px; background: rgba(255,255,255,0.08); overflow: hidden; }
+html.is-app .catdet-sub-bar > div { height: 100%; border-radius: 5px; }
+html.is-app .catdet-sub-amt { font-size: 18px; font-weight: 700; white-space: nowrap; }
+html.is-app .catdet-tx { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+html.is-app .catdet-tx:last-child { border-bottom: none; }
+html.is-app .catdet-tx-name { font-size: 21px; font-weight: 700; }
+html.is-app .catdet-tx-meta { font-size: 15px; color: var(--text3); margin-top: 3px; }
+html.is-app .catdet-tx-amt { font-size: 21px; font-weight: 800; color: #ef4444; white-space: nowrap; }
