@@ -496,6 +496,7 @@ function renderRecordsMyMoney() {
       <div class="mm-subhead">
         <span class="mm-subhead-title">Recent Transactions</span>
         <div style="display:flex;gap:8px;align-items:center">
+          <button class="mm-subhead-filter ${_recSelectMode ? 'on' : ''}" onclick="recStartSelect()" title="Select multiple"><i data-lucide="check-circle"></i></button>
           <button class="mm-subhead-filter" onclick="openGeminiCategorize()" title="AI Fix categories" style="color:#8b5cf6"><i data-lucide="sparkles"></i></button>
           <button class="mm-subhead-filter ${filterActive ? 'on' : ''}" onclick="openRecordsFilter()" title="Filter, sort &amp; view options"><i data-lucide="sliders-horizontal"></i></button>
         </div>
@@ -583,6 +584,13 @@ function recToggleSel(id) {
 function recEnterSelect(id) {
   _recSelectMode = true; _recSel = new Set([id]);
   if (navigator.vibrate) try { navigator.vibrate(25); } catch (e) {}
+  renderRecordsMyMoney();
+}
+// Explicit entry point for multi-select (the ✓ button in the header).
+// Toggles select mode on/off; starts with nothing selected.
+function recStartSelect() {
+  if (_recSelectMode) { recCancelSelect(); return; }
+  _recSelectMode = true; _recSel = new Set();
   renderRecordsMyMoney();
 }
 function recCancelSelect() { _recSelectMode = false; _recSel = new Set(); renderRecordsMyMoney(); }
