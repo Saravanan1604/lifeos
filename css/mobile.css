@@ -11846,4 +11846,182 @@ html.is-app .mymoney-records .mm-cbtn {
   font-size: 0.82rem !important;
 }
 
+/* ============================================================
+   Help & Support page premium redesign & type scaling
+   ============================================================ */
+html.is-app #page-container[data-page="help"] {
+  max-width: 100% !important;
+  padding: 10px 4px !important;
+}
+
+/* Page Header */
+html.is-app #page-container[data-page="help"] .page-header {
+  margin-bottom: 24px !important;
+  padding: 0 10px !important;
+}
+html.is-app #page-container[data-page="help"] .page-title {
+  font-size: 38px !important;
+  font-weight: 900 !important;
+  margin-bottom: 6px !important;
+}
+html.is-app #page-container[data-page="help"] .page-subtitle {
+  font-size: 20px !important;
+  color: var(--text3) !important;
+}
+
+/* Search bar styling */
+html.is-app #page-container[data-page="help"] input[placeholder*="Search"] {
+  font-size: 22px !important;
+}
+html.is-app #page-container[data-page="help"] .glass-card svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+/* Section titles */
+html.is-app #page-container[data-page="help"] .section-title {
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  margin-bottom: 16px !important;
+  color: rgba(241, 245, 249, 0.95) !important;
+}
+
+/* Card layout spacing */
+html.is-app #page-container[data-page="help"] .glass-card {
+  padding: 24px !important;
+  border-radius: 20px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Getting started steps list & items */
+html.is-app #page-container[data-page="help"] .help-steps-grid {
+  gap: 16px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid > div {
+  padding: 18px !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid span[style*="font-size:12px"] {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid span[style*="font-size:16px"] {
+  font-size: 24px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid span[style*="width:22px"] {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid p[style*="font-size:11px"] {
+  font-size: 18px !important;
+  line-height: 1.5 !important;
+  margin-top: 8px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid p[style*="font-size:10px"] {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  margin-top: 10px !important;
+}
+
+/* Feature Guide & FAQs */
+html.is-app #page-container[data-page="help"] div[style*="display:flex;flex-direction:column;gap:6px"] > div {
+  margin-bottom: 8px !important;
+  border-radius: 12px !important;
+}
+html.is-app #page-container[data-page="help"] button[onclick*="toggleHelpAccordion"] {
+  padding: 16px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+html.is-app #page-container[data-page="help"] button[onclick*="toggleHelpAccordion"] span[style*="font-size:13px"],
+html.is-app #page-container[data-page="help"] button[onclick*="toggleHelpAccordion"] span[style*="font-size:18px"] {
+  font-size: 20px !important;
+}
+html.is-app #page-container[data-page="help"] button[onclick*="toggleHelpAccordion"] span[id^="hi-"] {
+  font-size: 24px !important;
+}
+html.is-app #page-container[data-page="help"] div[id^="ha-"] p {
+  font-size: 18px !important;
+  line-height: 1.6 !important;
+  padding: 10px 20px 18px !important;
+}
+html.is-app #page-container[data-page="help"] div[id^="ha-"] button[onclick*="navigate"] {
+  font-size: 18px !important;
+  padding: 8px 18px !important;
+  border-radius: 20px !important;
+}
+
+/* Tips & Tricks */
+html.is-app #page-container[data-page="help"] .help-tips-grid {
+  gap: 14px !important;
+}
+html.is-app #page-container[data-page="help"] .help-tips-grid > div {
+  padding: 16px !important;
+  border-radius: 14px !important;
+  display: flex !important;
+  gap: 12px !important;
+}
+html.is-app #page-container[data-page="help"] .help-tips-grid span {
+  font-size: 24px !important;
+}
+html.is-app #page-container[data-page="help"] .help-tips-grid p {
+  font-size: 18px !important;
+  line-height: 1.5 !important;
+}
+
+/* Send Feedback form styling */
+html.is-app #page-container[data-page="help"] .form-label {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px !important;
+  display: block !important;
+}
+html.is-app #page-container[data-page="help"] .form-input,
+html.is-app #page-container[data-page="help"] select,
+html.is-app #page-container[data-page="help"] textarea {
+  font-size: 22px !important;
+  padding: 14px 18px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--text) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+html.is-app #page-container[data-page="help"] button[onclick*="sendFeedback"] {
+  font-size: 22px !important;
+  padding: 16px 24px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  width: auto !important;
+}
+html.is-app #page-container[data-page="help"] span[style*="Stored locally"] {
+  font-size: 16px !important;
+  color: var(--text3) !important;
+}
+html.is-app #page-container[data-page="help"] div[style*="PREVIOUS FEEDBACK"] p {
+  font-size: 18px !important;
+  line-height: 1.4 !important;
+}
+
+/* About Section */
+html.is-app #page-container[data-page="help"] div[style*="text-align:center"] p[style*="font-size:15px"] {
+  font-size: 22px !important;
+  font-weight: 900 !important;
+}
+html.is-app #page-container[data-page="help"] div[style*="text-align:center"] p[style*="font-size:11px"] {
+  font-size: 18px !important;
+  margin-bottom: 12px !important;
+}
+html.is-app #page-container[data-page="help"] div[style*="text-align:center"] span {
+  font-size: 18px !important;
+}
+
+
 
