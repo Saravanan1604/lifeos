@@ -482,6 +482,7 @@ function renderSettings() {
             <span style="font-size:13px;font-weight:700;color:var(--text2)">atworth</span>
           </div>
           <p style="font-size:12px;color:var(--text3);margin-top:5px">Version ${APP_VERSION} (build ${APP_BUILD})</p>
+          <button onclick="updateAppForce()" style="margin-top:10px;padding:6px 14px;background:rgba(255,255,255,0.06);border:1px solid var(--glass-border);color:var(--text2);font-size:12px;font-weight:700;border-radius:10px;cursor:pointer;transition:.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">🔄 Force Update App</button>
         </div>
       </div>
     </div>`;
@@ -1511,5 +1512,29 @@ function _mrDrawCharts(fh, strm, flow) {
         }
       });
     }
+  }
+}
+
+function updateAppForce() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      for (let r of registrations) {
+        r.unregister();
+      }
+      if (typeof toast === 'function') toast('Clearing cache and updating app...', 'info');
+      setTimeout(() => {
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            for (let name of names) caches.delete(name);
+          });
+        }
+        sessionStorage.clear();
+        window.location.reload(true);
+      }, 600);
+    }).catch(err => {
+      window.location.reload(true);
+    });
+  } else {
+    window.location.reload(true);
   }
 }
