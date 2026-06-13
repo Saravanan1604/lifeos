@@ -11649,7 +11649,7 @@ html.is-app .ia-leg-name {
 }
 
 /* ============================================================
-   Settings page premium redesign & type scaling
+   Settings page premium redesign & type scaling (2x Scale)
    ============================================================ */
 html.is-app #page-container[data-page="settings"] {
   max-width: 100% !important;
@@ -11667,18 +11667,18 @@ html.is-app #page-container[data-page="settings"] .page-header {
   padding: 0 10px !important;
 }
 html.is-app #page-container[data-page="settings"] .page-title {
-  font-size: 38px !important;
+  font-size: 56px !important;
   font-weight: 900 !important;
   margin-bottom: 6px !important;
 }
 html.is-app #page-container[data-page="settings"] .page-subtitle {
-  font-size: 20px !important;
+  font-size: 28px !important;
   color: var(--text3) !important;
 }
 
 /* Style the cards to be sleek with consistent margins & borders */
 html.is-app #page-container[data-page="settings"] .glass-card {
-  padding: 24px !important;
+  padding: 28px !important;
   border-radius: 20px !important;
   background: rgba(255, 255, 255, 0.03) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
@@ -11694,7 +11694,7 @@ html.is-app.light #page-container[data-page="settings"] .glass-card {
 
 /* Card titles */
 html.is-app #page-container[data-page="settings"] .section-title {
-  font-size: 24px !important;
+  font-size: 36px !important;
   font-weight: 700 !important;
   margin-bottom: 12px !important;
   display: flex !important;
@@ -11704,7 +11704,7 @@ html.is-app #page-container[data-page="settings"] .section-title {
 
 /* Descriptions & subtext inside cards */
 html.is-app #page-container[data-page="settings"] .glass-card p {
-  font-size: 20px !important;
+  font-size: 26px !important;
   line-height: 1.5 !important;
   color: var(--text2) !important;
   margin-bottom: 14px !important;
@@ -11715,7 +11715,7 @@ html.is-app.light #page-container[data-page="settings"] .glass-card p {
 
 /* Form fields: input labels and dropdowns */
 html.is-app #page-container[data-page="settings"] .form-label {
-  font-size: 20px !important;
+  font-size: 26px !important;
   font-weight: 600 !important;
   color: var(--text2) !important;
   margin-bottom: 8px !important;
@@ -11723,7 +11723,7 @@ html.is-app #page-container[data-page="settings"] .form-label {
 }
 html.is-app #page-container[data-page="settings"] .form-input,
 html.is-app #page-container[data-page="settings"] select {
-  font-size: 22px !important;
+  font-size: 28px !important;
   padding: 14px 18px !important;
   border-radius: 12px !important;
   background: rgba(255, 255, 255, 0.05) !important;
@@ -11739,7 +11739,7 @@ html.is-app #page-container[data-page="settings"] button,
 html.is-app #page-container[data-page="settings"] .btn-primary,
 html.is-app #page-container[data-page="settings"] .btn-secondary,
 html.is-app #page-container[data-page="settings"] .btn-danger {
-  font-size: 22px !important;
+  font-size: 28px !important;
   font-weight: 600 !important;
   padding: 16px 20px !important;
   border-radius: 12px !important;
@@ -11761,7 +11761,7 @@ html.is-app #page-container[data-page="settings"] div[style*="display: flex"] .b
 
 /* Theme picker labels and subtexts */
 html.is-app #page-container[data-page="settings"] div[onclick*="setTheme"] span {
-  font-size: 20px !important;
+  font-size: 26px !important;
 }
 html.is-app #page-container[data-page="settings"] div[onclick*="setTheme"] span[style*="width:11px"] {
   width: 11px !important;
@@ -11774,7 +11774,7 @@ html.is-app #page-container[data-page="settings"] div[onclick*="setTheme"] span[
 
 /* Background animation button labels */
 html.is-app #page-container[data-page="settings"] button[onclick*="setBgAnim"] span {
-  font-size: 20px !important;
+  font-size: 26px !important;
 }
 
 /* Stats table text scaling */
@@ -11782,7 +11782,7 @@ html.is-app #page-container[data-page="settings"] div[style*="font-size:13px"] d
   padding: 12px 0 !important;
 }
 html.is-app #page-container[data-page="settings"] div[style*="font-size:13px"] span {
-  font-size: 20px !important;
+  font-size: 26px !important;
 }
 
 /* Legal links text scaling */
@@ -11791,18 +11791,18 @@ html.is-app #page-container[data-page="settings"] a.btn-secondary {
   align-items: center !important;
   text-decoration: none !important;
   color: var(--text) !important;
-  font-size: 20px !important;
+  font-size: 26px !important;
   padding: 16px 20px !important;
 }
 html.is-app #page-container[data-page="settings"] a.btn-secondary span {
-  font-size: 20px !important;
+  font-size: 26px !important;
 }
 
 /* Footer credits */
 html.is-app #page-container[data-page="settings"] div[style*="text-align:center"] span {
-  font-size: 20px !important;
+  font-size: 26px !important;
 }
 html.is-app #page-container[data-page="settings"] div[style*="text-align:center"] p {
-  font-size: 18px !important;
+  font-size: 24px !important;
 }
 

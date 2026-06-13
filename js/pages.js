@@ -416,7 +416,7 @@ function renderSettings() {
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🌌 Background Animation</p>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-            ${[['network','🕸️','Network'],['bubbles','🫧','Bubbles'],['stars','✨','Stars'],['snow','❄️','Snow'],['aurora','🌈','Aurora'],['none','⬛','Plain']]
+            ${[['network','🕸️','Network'],['aurora','🌈','Aurora'],['none','⬛','Plain']]
               .map(([m,e,l]) => {
                 const on = ((STATE.settings && STATE.settings.bgAnim) || 'network') === m;
                 return `<button onclick="setBgAnim('${m}')" class="btn-secondary" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;${on?'border:1.5px solid #00c9a7;background:rgba(0,201,167,0.12)':''}">
