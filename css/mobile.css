@@ -12250,3 +12250,13 @@ html.is-app #cc-main-grid,
 html.is-app #cash-main-grid {
   margin-bottom: 28px !important;
 }
+
+/* Dim the background particles/aurora canvas to prevent bright flashlight effects on mobile */
+html.is-app #particles-canvas {
+  opacity: 0.25 !important;
+}
+
+/* For AMOLED true-black theme, disable background canvas entirely to keep the screen purely black */
+html.is-app body.amoled #particles-canvas {
+  display: none !important;
+}
