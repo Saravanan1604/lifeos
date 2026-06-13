@@ -11647,3 +11647,162 @@ html.is-app .ia-leg-name {
   max-width: 140px !important;
   flex-shrink: 0 !important;
 }
+
+/* ============================================================
+   Settings page premium redesign & type scaling
+   ============================================================ */
+html.is-app #page-container[data-page="settings"] {
+  max-width: 100% !important;
+  padding: 10px 4px !important;
+}
+
+/* Let the settings inner container expand to full width of phone screen */
+html.is-app #page-container[data-page="settings"] > div > div[style*="max-width"] {
+  max-width: 100% !important;
+}
+
+/* Make page header look premium and clean */
+html.is-app #page-container[data-page="settings"] .page-header {
+  margin-bottom: 24px !important;
+  padding: 0 10px !important;
+}
+html.is-app #page-container[data-page="settings"] .page-title {
+  font-size: 38px !important;
+  font-weight: 900 !important;
+  margin-bottom: 6px !important;
+}
+html.is-app #page-container[data-page="settings"] .page-subtitle {
+  font-size: 20px !important;
+  color: var(--text3) !important;
+}
+
+/* Style the cards to be sleek with consistent margins & borders */
+html.is-app #page-container[data-page="settings"] .glass-card {
+  padding: 24px !important;
+  border-radius: 20px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+html.is-app.light #page-container[data-page="settings"] .glass-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Card titles */
+html.is-app #page-container[data-page="settings"] .section-title {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  margin-bottom: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* Descriptions & subtext inside cards */
+html.is-app #page-container[data-page="settings"] .glass-card p {
+  font-size: 20px !important;
+  line-height: 1.5 !important;
+  color: var(--text2) !important;
+  margin-bottom: 14px !important;
+}
+html.is-app.light #page-container[data-page="settings"] .glass-card p {
+  color: #4b5563 !important;
+}
+
+/* Form fields: input labels and dropdowns */
+html.is-app #page-container[data-page="settings"] .form-label {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: var(--text2) !important;
+  margin-bottom: 8px !important;
+  display: block !important;
+}
+html.is-app #page-container[data-page="settings"] .form-input,
+html.is-app #page-container[data-page="settings"] select {
+  font-size: 22px !important;
+  padding: 14px 18px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--text) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  height: auto !important;
+}
+
+/* Buttons sizing and text */
+html.is-app #page-container[data-page="settings"] button,
+html.is-app #page-container[data-page="settings"] .btn-primary,
+html.is-app #page-container[data-page="settings"] .btn-secondary,
+html.is-app #page-container[data-page="settings"] .btn-danger {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  padding: 16px 20px !important;
+  border-radius: 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-top: 8px !important;
+  height: auto !important;
+}
+
+/* Let the flex buttons (like Text Size segmented buttons) stay side-by-side */
+html.is-app #page-container[data-page="settings"] div[style*="display:flex"] button,
+html.is-app #page-container[data-page="settings"] div[style*="display: flex"] button,
+html.is-app #page-container[data-page="settings"] div[style*="display:flex"] .btn-secondary,
+html.is-app #page-container[data-page="settings"] div[style*="display: flex"] .btn-secondary {
+  width: auto !important;
+  flex: 1 !important;
+  margin-top: 0 !important;
+}
+
+/* Theme picker labels and subtexts */
+html.is-app #page-container[data-page="settings"] div[onclick*="setTheme"] span {
+  font-size: 20px !important;
+}
+html.is-app #page-container[data-page="settings"] div[onclick*="setTheme"] span[style*="width:11px"] {
+  width: 11px !important;
+  height: 11px !important;
+}
+html.is-app #page-container[data-page="settings"] div[onclick*="setTheme"] span[style*="width:22px"] {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+/* Background animation button labels */
+html.is-app #page-container[data-page="settings"] button[onclick*="setBgAnim"] span {
+  font-size: 20px !important;
+}
+
+/* Stats table text scaling */
+html.is-app #page-container[data-page="settings"] div[style*="font-size:13px"] div {
+  padding: 12px 0 !important;
+}
+html.is-app #page-container[data-page="settings"] div[style*="font-size:13px"] span {
+  font-size: 20px !important;
+}
+
+/* Legal links text scaling */
+html.is-app #page-container[data-page="settings"] a.btn-secondary {
+  display: flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  color: var(--text) !important;
+  font-size: 20px !important;
+  padding: 16px 20px !important;
+}
+html.is-app #page-container[data-page="settings"] a.btn-secondary span {
+  font-size: 20px !important;
+}
+
+/* Footer credits */
+html.is-app #page-container[data-page="settings"] div[style*="text-align:center"] span {
+  font-size: 20px !important;
+}
+html.is-app #page-container[data-page="settings"] div[style*="text-align:center"] p {
+  font-size: 18px !important;
+}
+
