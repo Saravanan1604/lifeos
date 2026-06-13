@@ -11806,3 +11806,44 @@ html.is-app #page-container[data-page="settings"] div[style*="text-align:center"
   font-size: 24px !important;
 }
 
+/* ============================================================
+   Records (mymoney-records) page text size reduction (25% reduction / 0.75x)
+   ============================================================ */
+html.is-app .mymoney-records .mm-ptab {
+  font-size: 0.86rem !important;
+}
+html.is-app .mymoney-records .mm-month {
+  font-size: 1.28rem !important;
+}
+html.is-app .mymoney-records .mm-navbtn {
+  font-size: 1.65rem !important;
+}
+html.is-app .mymoney-records .mm-s-lbl {
+  font-size: 0.78rem !important;
+}
+html.is-app .mymoney-records .mm-s-val {
+  font-size: 1.16rem !important;
+}
+html.is-app .mymoney-records .mm-day {
+  font-size: 0.94rem !important;
+}
+html.is-app .mymoney-records .mm-cat {
+  font-size: 1.12rem !important;
+}
+html.is-app .mymoney-records .mm-chip {
+  font-size: 0.78rem !important;
+}
+html.is-app .mymoney-records .mm-note {
+  font-size: 0.82rem !important;
+}
+html.is-app .mymoney-records .mm-amt {
+  font-size: 1.16rem !important;
+}
+html.is-app .mymoney-records .mm-empty {
+  font-size: 0.94rem !important;
+}
+html.is-app .mymoney-records .mm-cbtn {
+  font-size: 0.82rem !important;
+}
+
+
