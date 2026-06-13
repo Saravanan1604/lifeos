@@ -11673,23 +11673,13 @@ html.is-app #page-container[data-page="settings"] .page-title {
 }
 html.is-app #page-container[data-page="settings"] .page-subtitle {
   font-size: 28px !important;
-  color: var(--text3) !important;
 }
 
 /* Style the cards to be sleek with consistent margins & borders */
 html.is-app #page-container[data-page="settings"] .glass-card {
   padding: 28px !important;
   border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
   margin-bottom: 20px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
-}
-
-html.is-app.light #page-container[data-page="settings"] .glass-card {
-  background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Card titles */
@@ -11706,18 +11696,13 @@ html.is-app #page-container[data-page="settings"] .section-title {
 html.is-app #page-container[data-page="settings"] .glass-card p {
   font-size: 26px !important;
   line-height: 1.5 !important;
-  color: var(--text2) !important;
   margin-bottom: 14px !important;
-}
-html.is-app.light #page-container[data-page="settings"] .glass-card p {
-  color: #4b5563 !important;
 }
 
 /* Form fields: input labels and dropdowns */
 html.is-app #page-container[data-page="settings"] .form-label {
   font-size: 26px !important;
   font-weight: 600 !important;
-  color: var(--text2) !important;
   margin-bottom: 8px !important;
   display: block !important;
 }
@@ -11726,9 +11711,6 @@ html.is-app #page-container[data-page="settings"] select {
   font-size: 28px !important;
   padding: 14px 18px !important;
   border-radius: 12px !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: var(--text) !important;
   width: 100% !important;
   box-sizing: border-box !important;
   height: auto !important;
@@ -11790,7 +11772,6 @@ html.is-app #page-container[data-page="settings"] a.btn-secondary {
   display: flex !important;
   align-items: center !important;
   text-decoration: none !important;
-  color: var(--text) !important;
   font-size: 26px !important;
   padding: 16px 20px !important;
 }
@@ -11866,7 +11847,6 @@ html.is-app #page-container[data-page="help"] .page-title {
 }
 html.is-app #page-container[data-page="help"] .page-subtitle {
   font-size: 20px !important;
-  color: var(--text3) !important;
 }
 
 /* Search bar styling */
@@ -11883,17 +11863,13 @@ html.is-app #page-container[data-page="help"] .section-title {
   font-size: 26px !important;
   font-weight: 700 !important;
   margin-bottom: 16px !important;
-  color: rgba(241, 245, 249, 0.95) !important;
 }
 
 /* Card layout spacing */
 html.is-app #page-container[data-page="help"] .glass-card {
   padding: 24px !important;
   border-radius: 20px !important;
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
   margin-bottom: 20px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Getting started steps list & items */
@@ -11903,7 +11879,6 @@ html.is-app #page-container[data-page="help"] .help-steps-grid {
 html.is-app #page-container[data-page="help"] .help-steps-grid > div {
   padding: 18px !important;
   border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
 }
 html.is-app #page-container[data-page="help"] .help-steps-grid span[style*="font-size:12px"] {
   font-size: 20px !important;
@@ -11988,9 +11963,6 @@ html.is-app #page-container[data-page="help"] textarea {
   font-size: 22px !important;
   padding: 14px 18px !important;
   border-radius: 12px !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: var(--text) !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
@@ -12003,7 +11975,6 @@ html.is-app #page-container[data-page="help"] button[onclick*="sendFeedback"] {
 }
 html.is-app #page-container[data-page="help"] span[style*="Stored locally"] {
   font-size: 16px !important;
-  color: var(--text3) !important;
 }
 html.is-app #page-container[data-page="help"] div[style*="PREVIOUS FEEDBACK"] p {
   font-size: 18px !important;
