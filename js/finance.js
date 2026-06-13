@@ -563,9 +563,78 @@ function recEnterSelect(id) {
 // Shows a 7-month spending bar chart for that category (current month
 // highlighted) and the list of its transactions in the anchor month.
 let _catDetailCat = null;
-function openCategoryDetail(cat) {
+let _catDetailFrom = 'records';   // where back should return to
+let _spendAnchor = new Date();    // month anchor for the spending overview
+
+function openCategoryDetail(cat, from) {
   _catDetailCat = cat;
+  _catDetailFrom = from || 'records';
   renderCategoryDetail();
+}
+
+// ── Spending overview (More → Spending): donut of category spend for the
+// month + tappable category list → drills into the category detail page. ──
+function spendNav(delta) {
+  const d = new Date(_spendAnchor);
+  d.setMonth(d.getMonth() + delta);
+  _spendAnchor = d;
+  renderSpendingOverview();
+}
+function renderSpendingOverview() {
+  const a = (_spendAnchor instanceof Date && !isNaN(_spendAnchor)) ? _spendAnchor : new Date();
+  const ym = `${a.getFullYear()}-${String(a.getMonth() + 1).padStart(2, '0')}`;
+  const tx = (STATE.transactions || []).filter(t => t.type !== 'income' && (t.date || '').slice(0, 7) === ym);
+  const byCat = {};
+  tx.forEach(t => { const c = t.category || 'Other'; if (!byCat[c]) byCat[c] = { total: 0, n: 0 }; byCat[c].total += (+t.amount || 0); byCat[c].n++; });
+  const rows = Object.entries(byCat).map(([c, v]) => ({ cat: c, total: v.total, n: v.n })).sort((x, y) => y.total - x.total);
+  const grand = rows.reduce((s, r) => s + r.total, 0);
+  const monthLbl = a.toLocaleString('default', { month: 'long', year: 'numeric' });
+  const atPresent = ym === `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in spov">
+      <div class="page-header"><div><h1 class="page-title"><i data-lucide="pie-chart"></i> Spending</h1>
+      <p class="page-subtitle">Where your money goes</p></div></div>
+
+      <div class="spov-navbar">
+        <button class="mm-navbtn" onclick="spendNav(-1)">‹</button>
+        <span class="spov-month">${monthLbl}</span>
+        <button class="mm-navbtn" onclick="spendNav(1)" ${atPresent ? 'disabled style="opacity:.35"' : ''}>›</button>
+      </div>
+
+      ${rows.length ? `
+      <div class="glass-card spov-donutcard">
+        <div class="spov-donut"><canvas id="spov-chart"></canvas>
+          <div class="spov-donut-c"><span>Total</span><b>${fmt(grand)}</b></div>
+        </div>
+      </div>
+
+      <div class="spov-list">
+        ${rows.map((r, i) => {
+          const pct = grand > 0 ? Math.round(r.total / grand * 100) : 0;
+          const col = catColor(r.cat);
+          return `<div class="spov-row" onclick="openCategoryDetail('${r.cat.replace(/'/g, "\\'")}','spending')">
+            <span class="spov-ic" style="background:${col}">${catIconHtml(r.cat)}</span>
+            <div class="spov-mid"><p class="spov-name">${esc(r.cat)}</p><p class="spov-n">${r.n} ${r.n === 1 ? 'spend' : 'spends'} · ${pct}%</p></div>
+            <div class="spov-right"><p class="spov-amt">${fmt(r.total)}</p><i data-lucide="chevron-right"></i></div>
+          </div>`;
+        }).join('')}
+      </div>`
+      : `<div class="glass-card" style="padding:48px 20px;text-align:center"><span class="empty-state-icon"><i data-lucide="pie-chart"></i></span><p>No spending in ${monthLbl}.</p></div>`}
+    </div>`;
+
+  _lucideRefresh();
+  if (!rows.length) return;
+  setTimeout(() => {
+    const cv = document.getElementById('spov-chart');
+    if (!cv || typeof Chart === 'undefined') return;
+    if (chartInstances['spov']) { chartInstances['spov'].destroy(); delete chartInstances['spov']; }
+    chartInstances['spov'] = new Chart(cv, {
+      type: 'doughnut',
+      data: { labels: rows.map(r => r.cat), datasets: [{ data: rows.map(r => r.total), backgroundColor: rows.map(r => catColor(r.cat)), borderColor: 'rgba(10,12,25,0.6)', borderWidth: 3 }] },
+      options: { cutout: '66%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.label + ': ₹' + (+c.parsed).toLocaleString('en-IN') } } } }
+    });
+  }, 50);
 }
 function renderCategoryDetail() {
   const cat = _catDetailCat;
@@ -597,7 +666,7 @@ function renderCategoryDetail() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in catdet">
       <div class="catdet-head">
-        <button class="catdet-back" onclick="renderRecordsMyMoney()"><i data-lucide="arrow-left"></i></button>
+        <button class="catdet-back" onclick="${_catDetailFrom === 'spending' ? 'renderSpendingOverview()' : 'renderRecordsMyMoney()'}"><i data-lucide="arrow-left"></i></button>
         <div class="catdet-title">
           <span class="catdet-ic" style="background:${color}">${catIconHtml(cat)}</span>
           <div><p class="catdet-name">${esc(cat)}</p><p class="catdet-sub">${anchor.toLocaleString('default', { month: 'long', year: 'numeric' })}</p></div>

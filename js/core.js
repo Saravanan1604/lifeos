@@ -734,6 +734,7 @@ function _renderPage(page) {
     case 'analytics':    renderAnalytics();     break;
     case 'compare':      renderCompare();       break;
     case 'categories':   renderCategories();    break;
+    case 'spending':     renderSpendingOverview(); break;
     case 'recurring':    renderRecurring();      break;
     case 'rules':        renderMoneyRules();     break;
     case 'settings':     renderSettings();      break;
