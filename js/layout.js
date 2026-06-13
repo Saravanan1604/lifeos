@@ -14,7 +14,8 @@ function _loCards() {
   const f = _loFade(); if (!f) return [];
   return [...f.children].filter(c => c.nodeType === 1
     && !c.classList.contains('page-header')
-    && c.id !== 'page-quick-actions' && c.id !== 'lo-edit-bar' && c.tagName !== 'SCRIPT');
+    && !c.classList.contains('app-search')
+    && c.id !== 'page-quick-actions' && c.id !== 'lo-edit-bar' && c.id !== 'insight-bar' && c.tagName !== 'SCRIPT');
 }
 
 // Stable key: computed in TEMPLATE order (deterministic) using id or heading

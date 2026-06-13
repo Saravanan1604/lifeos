@@ -248,116 +248,15 @@ function _buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday) 
 // Bank balances · credit cards · goals · budget — colorful chart overview
 const DASH_PALETTE = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6','#00c9a7','#ef4444','#f97316','#14b8a6'];
 
-function _buildAccountsGoalsBudget() {
+function _buildBalancesCard() {
   const banks   = STATE.bankAccounts || [];
   const cards   = STATE.creditCards  || [];
   const cash    = STATE.cashAccounts || [];
-  const goals   = STATE.goals        || [];
-  const budgets = STATE.budgets      || [];
   const totalBank  = banks.reduce((s,b)=>s+(b.balance||0),0);
   const totalOut   = cards.reduce((s,c)=>s+(c.outstanding||0),0);
   const totalLimit = cards.reduce((s,c)=>s+(c.limit||0),0);
   const totalCash  = cash.reduce((s,c)=>s+(c.balance||0),0);
   const overallUtil = totalLimit>0?Math.round(totalOut/totalLimit*100):0;
-
-  const empty = (txt) => `<p style="font-size:12px;color:var(--text3);padding:18px 0;text-align:center">${txt}</p>`;
-  const wrap  = (inner) => `<div style="display:flex;flex-direction:column;gap:12px;max-height:230px;overflow-y:auto;padding-right:2px">${inner}</div>`;
-
-  // 🏦 Bank balances → doughnut + colored legend
-  const posBanks = banks.filter(b=>(b.balance||0)>0);
-  const bankLegend = posBanks.map((b,i)=>`
-    <div style="display:flex;align-items:center;gap:7px;font-size:11px">
-      <span style="width:10px;height:10px;border-radius:3px;background:${DASH_PALETTE[i%DASH_PALETTE.length]};flex-shrink:0;box-shadow:0 0 6px ${DASH_PALETTE[i%DASH_PALETTE.length]}88"></span>
-      <span style="color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.bankName}</span>
-      <span style="color:var(--text);margin-left:auto;font-weight:700">${fmt(b.balance||0)}</span>
-    </div>`).join('');
-  const banksCard = `
-    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(0,201,167,0.4)'" onmouseout="this.style.borderColor=''">
-      <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title"><i data-lucide="landmark"></i> Bank Balances</p>
-        <span style="font-size:14px;font-weight:800;color:var(--teal)">${fmt(totalBank)}</span>
-      </div>
-      ${posBanks.length===0 ? empty('No bank balances yet') : `
-      <div style="display:grid;grid-template-columns:140px 1fr;gap:16px;align-items:center">
-        <div style="position:relative;height:140px">
-          <canvas id="dash-bank-chart"></canvas>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
-            <span style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700">Total</span>
-            <span style="font-size:13px;font-weight:900;color:#fff">${fmt(totalBank)}</span>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:9px;max-height:150px;overflow-y:auto">${bankLegend}</div>
-      </div>`}
-    </div>`;
-
-  // 📊 Budget → grouped bar chart (spent vs limit)
-  const budgetCard = `
-    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('budget')" onmouseover="this.style.borderColor='rgba(245,158,11,0.4)'" onmouseout="this.style.borderColor=''">
-      <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title"><i data-lucide="pie-chart"></i> Budget — ${new Date().toLocaleString('default',{month:'short'})}</p>
-        <span style="font-size:11px;color:var(--text3)">spent vs limit</span>
-      </div>
-      ${budgets.length===0 ? empty('No budgets set') : `<div style="height:${Math.max(170, Math.min(8,budgets.length)*36)}px;position:relative"><canvas id="dash-budget-chart"></canvas></div>`}
-    </div>`;
-
-  // 💳 Credit cards → vivid gradient utilisation bars
-  const cardsCard = `
-    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="bankTrackerTab='cards';navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(239,68,68,0.4)'" onmouseout="this.style.borderColor=''">
-      <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title"><i data-lucide="credit-card"></i> Credit Cards</p>
-        <span style="font-size:12px;font-weight:700;color:#ef4444">${fmt(totalOut)} / ${fmt(totalLimit)} · ${overallUtil}%</span>
-      </div>
-      ${cards.length===0 ? empty('No credit cards yet') : wrap(cards.map(c=>{
-        const used=c.outstanding||0, lim=c.limit||1, pct=Math.min(100,Math.round(used/lim*100));
-        const uc=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
-        const grad=pct>80?'linear-gradient(90deg,#f59e0b,#ef4444)':pct>50?'linear-gradient(90deg,#10b981,#f59e0b)':'linear-gradient(90deg,#00c9a7,#10b981)';
-        return `<div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
-            <span style="font-weight:600"><i data-lucide="credit-card"></i> ${c.bankName}</span>
-            <span style="color:var(--text3)">${fmt(used)} / ${fmt(c.limit||0)} · <b style="color:${uc}">${pct}%</b></span>
-          </div>
-          <div style="height:9px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden"><div style="height:9px;border-radius:6px;width:${pct}%;background:${grad};box-shadow:0 0 10px ${uc}77;transition:.5s"></div></div>
-        </div>`;
-      }).join(''))}
-    </div>`;
-
-  // 🎯 Goals → gradient progress bars
-  const goalsDone = goals.filter(g=>g.current>=g.target).length;
-  const goalsCard = `
-    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="navigate('goals')" onmouseover="this.style.borderColor='rgba(139,92,246,0.4)'" onmouseout="this.style.borderColor=''">
-      <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title"><i data-lucide="target"></i> Goals</p>
-        <span style="font-size:12px;color:var(--text3)">${goalsDone}/${goals.length} done</span>
-      </div>
-      ${goals.length===0 ? empty('No goals yet') : wrap(goals.slice(0,6).map(g=>{
-        const pct=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;
-        const done=g.current>=g.target;
-        const grad=done?'linear-gradient(90deg,#10b981,#00c9a7)':'linear-gradient(90deg,#8b5cf6,#6366f1,#3b82f6)';
-        const glow=done?'#10b98177':'#8b5cf677';
-        return `<div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
-            <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px">${g.emoji||'🎯'} ${g.name}</span>
-            <span style="color:${done?'#10b981':'#a5b4fc'};font-weight:700">${pct}%</span>
-          </div>
-          <div style="height:9px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden"><div style="height:9px;border-radius:6px;width:${pct}%;background:${grad};box-shadow:0 0 10px ${glow};transition:.5s"></div></div>
-        </div>`;
-      }).join(''))}
-    </div>`;
-
-  // 💵 Cash wallets card
-  const cashCard = `
-    <div class="glass-card" style="padding:18px;cursor:pointer" onclick="bankTrackerTab='cash';navigate('bank-tracker')" onmouseover="this.style.borderColor='rgba(245,158,11,0.4)'" onmouseout="this.style.borderColor=''">
-      <div class="section-header" style="margin-bottom:12px">
-        <p class="section-title"><i data-lucide="banknote"></i> Cash Wallets</p>
-        <span style="font-size:14px;font-weight:800;color:#f59e0b">${fmt(totalCash)}</span>
-      </div>
-      ${cash.length===0 ? empty('No cash wallets yet') : wrap(cash.map(c=>`
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
-          <span style="font-weight:600"><i data-lucide="banknote"></i> ${c.name}</span>
-          <span style="color:#f59e0b;font-weight:700">${fmt(c.balance||0)}</span>
-        </div>`).join(''))}
-    </div>`;
-
   const hasAccts = banks.length + cash.length + cards.length > 0;
   const netW = totalBank + totalCash - totalOut;
 
@@ -470,7 +369,7 @@ function _buildAccountsGoalsBudget() {
     cardHead('💵','Cash Wallets',fmt(totalCash),'#f59e0b',`${cash.length} wallet${cash.length!==1?'s':''}`) + cashBody);
 
   // ── CARDS card ────────────────────────────────────────────────────
-  const utilC = overallUtil>80?'#ef4444':overallUtil>50?'#f59e0b':'#10b981';
+  const overallUtil = totalLimit>0?Math.round(totalOut/totalLimit*100):0;
   const cardsBody = cards.length===0
     ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px"><i data-lucide="credit-card"></i></span><p style="font-size:11px;color:var(--text3)">No credit cards yet</p></div>`
     : `<div style="display:flex;flex-direction:column;gap:9px;max-height:130px;overflow-y:auto">
@@ -490,7 +389,53 @@ function _buildAccountsGoalsBudget() {
   const newCardsCard = cardWrap('#ef4444',"bankTrackerTab='cards';navigate('bank-tracker')",
     cardHead('💳','Credit Cards',fmt(totalOut),'#ef4444',`${overallUtil}% of ${fmt(totalLimit)} limit`) + cardsBody);
 
-  // ── BUDGET card ───────────────────────────────────────────────────
+  return `
+    <div class="glass-card" id="dash-balances-card" style="padding:22px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--glass-border);flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">💼</span>
+          <h2 style="font-size:15px;font-weight:800;color:var(--text);margin:0">Balances & Portfolios</h2>
+        </div>
+        ${window.__IS_APP ? '' : `<div style="display:flex;gap:8px">
+          <button onclick="navigate('bank-tracker')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.25);color:#00c9a7;cursor:pointer;font-weight:700;transition:.2s">Bank Tracker ↗</button>
+          <button onclick="navigate('finance')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#818cf8;cursor:pointer;font-weight:700;transition:.2s">Finance ↗</button>
+        </div>`}
+      </div>
+      ${nwBar}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" class="dash-acct-grid">
+        ${newBanksCard}${newCashCard}${newCardsCard}
+      </div>
+    </div>`;
+}
+
+function _buildBudgetsGoalsCard() {
+  const budgets = STATE.budgets || [];
+  const goals   = STATE.goals   || [];
+  const goalsDone = goals.filter(g=>g.current>=g.target).length;
+
+  // helper: unified hover card wrapper
+  const cardWrap = (accent, onclick, inner) =>
+    `<div onclick="${onclick}" style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:20px;padding:20px;cursor:pointer;transition:all .2s"
+      onmouseover="this.style.borderColor='${accent}55';this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 36px ${accent}1a'"
+      onmouseout="this.style.borderColor='';this.style.transform='';this.style.boxShadow=''">${inner}</div>`;
+
+  // card header: icon badge + label + big value + "tap →"
+  const cardHead = (icon, label, value, vc, sub) =>
+    `<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+       <div style="display:flex;align-items:center;gap:10px">
+         <div style="width:38px;height:38px;border-radius:11px;background:${vc}22;color:${vc};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0"><i data-lucide="${(typeof EMOJI_LUCIDE!=='undefined'&&EMOJI_LUCIDE[icon])||icon}"></i></div>
+         <div>
+           <p style="font-size:12px;font-weight:700;color:var(--text2)">${label}</p>
+           <p style="font-size:10px;color:var(--text3);margin-top:1px">${sub}</p>
+         </div>
+       </div>
+       <div style="text-align:right">
+         <p style="font-size:17px;font-weight:900;color:${vc};letter-spacing:-0.5px">${value}</p>
+         <p style="font-size:10px;color:var(--text3);margin-top:1px">tap to open ↗</p>
+       </div>
+     </div>`;
+
+  // 📊 Budget → grouped bar chart (spent vs limit)
   const mon = new Date().toLocaleString('default',{month:'long'});
   const budgetBody = budgets.length===0
     ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px"><i data-lucide="pie-chart"></i></span><p style="font-size:11px;color:var(--text3)">No budgets set yet</p></div>`
@@ -498,8 +443,7 @@ function _buildAccountsGoalsBudget() {
   const newBudgetCard = cardWrap('#f59e0b',"navigate('budget')",
     cardHead('📊','Budget',mon,'#f59e0b','spent vs limit this month') + budgetBody);
 
-  // ── GOALS card ────────────────────────────────────────────────────
-  const goalsDone2 = goals.filter(g=>g.current>=g.target).length;
+  // 🎯 Goals → progress bars
   const goalsBody  = goals.length===0
     ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px"><i data-lucide="target"></i></span><p style="font-size:11px;color:var(--text3)">No goals yet</p></div>`
     : `<div style="display:flex;flex-direction:column;gap:9px;max-height:200px;overflow-y:auto">
@@ -518,27 +462,23 @@ function _buildAccountsGoalsBudget() {
         }).join('')}
       </div>`;
   const newGoalsCard = cardWrap('#8b5cf6',"navigate('goals')",
-    cardHead('🎯','Goals',`${goalsDone2}/${goals.length}`,'#8b5cf6',`${goals.length-goalsDone2} in progress`) + goalsBody);
+    cardHead('🎯','Goals',`${goalsDone}/${goals.length}`,'#8b5cf6',`${goals.length-goalsDone} in progress`) + goalsBody);
 
   return `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--glass-border);flex-wrap:wrap;gap:8px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:18px">💼</span>
-        <h2 style="font-size:15px;font-weight:800;color:var(--text)">Financial Overview</h2>
+    <div class="glass-card" id="dash-budgets-goals" style="padding:22px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--glass-border)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">🎯</span>
+          <h2 style="font-size:15px;font-weight:800;color:var(--text);margin:0">Budgets & Goals</h2>
+        </div>
       </div>
-      ${window.__IS_APP ? '' : `<div style="display:flex;gap:8px">
-        <button onclick="navigate('bank-tracker')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.25);color:#00c9a7;cursor:pointer;font-weight:700;transition:.2s">Bank Tracker ↗</button>
-        <button onclick="navigate('finance')" style="font-size:11px;padding:5px 12px;border-radius:9px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#818cf8;cursor:pointer;font-weight:700;transition:.2s">Finance ↗</button>
-      </div>`}
-    </div>
-    ${nwBar}
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px" class="dash-acct-grid">
-      ${newBanksCard}${newCashCard}${newCardsCard}
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px" class="dash-bg-grid">
-      ${newBudgetCard}${newGoalsCard}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" class="dash-bg-grid">
+        ${newBudgetCard}${newGoalsCard}
+      </div>
     </div>`;
 }
+
+
 
 // Doughnut of bank balances per bank
 function renderDashBankChart() {
@@ -642,6 +582,11 @@ function renderDashboard() {
           <p style="font-size:12px;color:rgba(241,245,249,0.4);margin-top:2px">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <!-- Customize button -->
+          <button class="btn-secondary btn-sm" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:700" title="Customize layout">
+            ✏️ Customize Layout
+          </button>
+
           ${periodTabsHtml(_dashPeriod, 'setDashPeriod')}
 
           <!-- Calendar picker -->
@@ -680,12 +625,33 @@ function renderDashboard() {
 
       ${(!window.__IS_APP && typeof buildSpendingPulseHTML === 'function') ? buildSpendingPulseHTML() : ''}
 
-      <!-- ── Spending hero ring (axio-style) ───────────────────────── -->
+      <!-- ── Net Worth Hero Card ───────────────────────── -->
+      <div class="hero-card" id="dash-networth-card" style="margin-bottom:20px;cursor:pointer;background:linear-gradient(135deg,#00b09b 0%,#0acf83 50%,#00c9a7 100%)" onclick="navigate('finance')">
+        <div class="hero-orb" style="background:rgba(255,255,255,0.15)"></div>
+        <p class="hero-label" style="color:rgba(0,40,30,0.7)">NET WORTH <span style="font-size:11px;opacity:0.6;margin-left:8px">tap to view →</span></p>
+        <p class="hero-value" style="color:#003d2e">${fmt(netWorth)}</p>
+        <div class="hero-sub">
+          <div class="hero-sub-item" onclick="event.stopPropagation();navigate('finance')" style="cursor:pointer;padding:6px 10px;border-radius:10px;transition:.2s;background:rgba(0,0,0,0.08)" onmouseover="this.style.background='rgba(0,0,0,0.15)'" onmouseout="this.style.background='rgba(0,0,0,0.08)'">
+            <label style="cursor:pointer;color:rgba(0,40,30,0.65)">Income</label>
+            <span style="color:#003d2e;font-weight:800">+${fmt(totalIncome)}</span>
+          </div>
+          <div class="hero-sub-item" onclick="event.stopPropagation();navigate('finance')" style="cursor:pointer;padding:6px 10px;border-radius:10px;transition:.2s;background:rgba(0,0,0,0.08)" onmouseover="this.style.background='rgba(0,0,0,0.15)'" onmouseout="this.style.background='rgba(0,0,0,0.08)'">
+            <label style="cursor:pointer;color:rgba(0,40,30,0.65)">Expenses</label>
+            <span style="color:#c0392b;font-weight:800">-${fmt(totalExpense)}</span>
+          </div>
+          <div class="hero-sub-item" onclick="event.stopPropagation();navigate('analytics')" style="cursor:pointer;padding:6px 10px;border-radius:10px;transition:.2s;background:rgba(0,0,0,0.08)" onmouseover="this.style.background='rgba(0,0,0,0.15)'" onmouseout="this.style.background='rgba(0,0,0,0.08)'">
+            <label style="cursor:pointer;color:rgba(0,40,30,0.65)">Life Score</label>
+            <span style="color:#003d2e;font-weight:800">${scores.overall}/100</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Spending Hero Ring (axio-style) ───────────────────────── -->
       ${(() => {
         const pct = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : (totalExpense > 0 ? 100 : 0);
         const sav = totalIncome - totalExpense;
         const mon = new Date().toLocaleString('default', { month: 'long' });
-        return `<div class="spend-ring-card glass-card" style="padding:24px 20px;margin-bottom:20px;text-align:center" onclick="navigate('finance')">
+        return `<div class="spend-ring-card glass-card" id="dash-spendring-card" style="padding:24px 20px;margin-bottom:20px;text-align:center" onclick="navigate('finance')">
           <p style="font-size:13px;color:var(--text3);font-weight:600">Spent in <b style="color:var(--text)">${mon}</b></p>
           <div class="spend-ring" style="--pct:${pct};--col:${pct > 85 ? '#ef4444' : pct > 60 ? '#f59e0b' : '#00c9a7'}">
             <div class="spend-ring-inner">
@@ -701,8 +667,13 @@ function renderDashboard() {
         </div>`;
       })()}
 
-      <!-- ── Quick Actions (always visible) ───────────────────────── -->
-      <div class="glass-card" style="padding:20px;margin-bottom:20px;border:1px solid rgba(0,201,167,0.2);background:linear-gradient(135deg,rgba(0,201,167,0.06),rgba(99,102,241,0.06))">
+      <!-- ── Core KPIs Grid ───────────────────────── -->
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px" class="kpi-grid" id="dash-kpi-card">
+        ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
+      </div>
+
+      <!-- ── Quick Actions ───────────────────────── -->
+      <div class="glass-card" id="dash-quickactions-card" style="padding:20px;margin-bottom:20px;border:1px solid rgba(0,201,167,0.2);background:linear-gradient(135deg,rgba(0,201,167,0.06),rgba(99,102,241,0.06))">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#00c9a7,#6366f1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⚡</div>
           <div>
@@ -732,33 +703,7 @@ function renderDashboard() {
         </div>
       </div>
 
-      <!-- Hero Card — teal gradient -->
-      <div class="hero-card" style="margin-bottom:20px;cursor:pointer;background:linear-gradient(135deg,#00b09b 0%,#0acf83 50%,#00c9a7 100%)" onclick="navigate('finance')">
-        <div class="hero-orb" style="background:rgba(255,255,255,0.15)"></div>
-        <p class="hero-label" style="color:rgba(0,40,30,0.7)">NET WORTH <span style="font-size:11px;opacity:0.6;margin-left:8px">tap to view →</span></p>
-        <p class="hero-value" style="color:#003d2e">${fmt(netWorth)}</p>
-        <div class="hero-sub">
-          <div class="hero-sub-item" onclick="event.stopPropagation();navigate('finance')" style="cursor:pointer;padding:6px 10px;border-radius:10px;transition:.2s;background:rgba(0,0,0,0.08)" onmouseover="this.style.background='rgba(0,0,0,0.15)'" onmouseout="this.style.background='rgba(0,0,0,0.08)'">
-            <label style="cursor:pointer;color:rgba(0,40,30,0.65)">Income</label>
-            <span style="color:#003d2e;font-weight:800">+${fmt(totalIncome)}</span>
-          </div>
-          <div class="hero-sub-item" onclick="event.stopPropagation();navigate('finance')" style="cursor:pointer;padding:6px 10px;border-radius:10px;transition:.2s;background:rgba(0,0,0,0.08)" onmouseover="this.style.background='rgba(0,0,0,0.15)'" onmouseout="this.style.background='rgba(0,0,0,0.08)'">
-            <label style="cursor:pointer;color:rgba(0,40,30,0.65)">Expenses</label>
-            <span style="color:#c0392b;font-weight:800">-${fmt(totalExpense)}</span>
-          </div>
-          <div class="hero-sub-item" onclick="event.stopPropagation();navigate('analytics')" style="cursor:pointer;padding:6px 10px;border-radius:10px;transition:.2s;background:rgba(0,0,0,0.08)" onmouseover="this.style.background='rgba(0,0,0,0.15)'" onmouseout="this.style.background='rgba(0,0,0,0.08)'">
-            <label style="cursor:pointer;color:rgba(0,40,30,0.65)">Life Score</label>
-            <span style="color:#003d2e;font-weight:800">${scores.overall}/100</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- KPI Cards with sparklines + delta + alarm states -->
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px" class="kpi-grid">
-        ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
-      </div>
-
-      <!-- ── Financial Overview + Spending side-by-side ─────────────── -->
+      <!-- ── Financial Overview line chart card ─────────────────────── -->
       <div class="glass-card" id="dash-fin-overview" style="padding:22px;margin-bottom:20px">
         <!-- Header row -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -773,26 +718,26 @@ function renderDashboard() {
 
         <!-- Two-column: chart | spending list -->
         <div style="display:grid;grid-template-columns:1fr 220px;gap:20px;align-items:start" class="fin-overview-grid">
-
           <!-- Chart -->
           <div style="height:240px;position:relative">
             <canvas id="dash-combined-chart"></canvas>
           </div>
-
           <!-- Spending by Category — compact list -->
           <div>
             <p style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Top Spending</p>
             <div id="dash-pie-chart" style="display:flex;flex-direction:column;gap:6px"></div>
           </div>
-
         </div>
       </div>
 
-      <!-- Accounts · Cards · Goals · Budget -->
-      ${_buildAccountsGoalsBudget()}
+      <!-- ── Balances & Portfolios Card ───────────────────────── -->
+      ${_buildBalancesCard()}
 
-      <!-- Recent Transactions -->
-      <div class="glass-card" id="dash-recent-tx" style="overflow:hidden">
+      <!-- ── Budgets & Goals Card ───────────────────────── -->
+      ${_buildBudgetsGoalsCard()}
+
+      <!-- ── Recent Transactions Card ───────────────────────── -->
+      <div class="glass-card" id="dash-recent-tx" style="overflow:hidden;margin-bottom:20px">
         <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center">
           <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Recent Transactions</p>
           <button class="btn-secondary btn-sm" onclick="navigate('finance')">View All →</button>
@@ -812,110 +757,55 @@ function renderDashboard() {
             </div>`).join('')}
       </div>
 
-      <!-- ── AI Financial Insights ────────────────────────────── -->
-      <div id="dash-ai-insights" style="margin-top:20px;margin-bottom:20px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
-          <span style="font-size:16px">🧠</span>
-          <h2 style="font-size:16px;font-weight:800;color:var(--text)">AI Financial Insights</h2>
-          <span style="font-size:11px;color:var(--text3);margin-left:4px">— real-time predictive analytics</span>
+      <!-- ── AI 3-Period Grouped Comparison Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-grouped" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">📊 AI 3-Period Grouped Comparison</p>
         </div>
-
-        <!-- Charts Row: Grouped Bar + Category Comparison -->
-        <div style="display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px" class="ai-charts-row-dash">
-          <div class="glass-card" style="padding:20px">
-            <div class="section-header" style="margin-bottom:12px">
-              <p class="section-title">📊 3-Period Grouped Comparison</p>
-            </div>
-            <div style="height:200px;position:relative"><canvas id="ai-grouped-chart"></canvas></div>
-          </div>
-          <div class="glass-card" style="padding:20px">
-            <div class="section-header" style="margin-bottom:12px">
-              <p class="section-title">🔍 Category Shift</p>
-            </div>
-            <div style="height:200px;position:relative"><canvas id="ai-category-chart"></canvas></div>
-          </div>
-        </div>
-
-        <!-- 6-Month Trend Line -->
-        <div class="glass-card" style="padding:20px;margin-bottom:16px">
-          <div class="section-header" style="margin-bottom:12px">
-            <p class="section-title">📈 6-Month Financial Trend</p>
-          </div>
-          <div style="height:150px;position:relative"><canvas id="ai-trend-chart"></canvas></div>
-        </div>
-
-        <!-- MoM Snapshot + 50/30/20 + Rule of the Day -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="ai-metrics-row-dash">
-          <div style="display:flex;flex-direction:column;gap:12px">
-            <div class="glass-card" style="padding:16px;flex:1">
-              <p class="section-title" style="margin-bottom:10px;font-size:12px">📊 MoM Snapshot</p>
-              ${_buildComparisonWidget()}
-            </div>
-            <div class="glass-card" style="padding:14px;border-left:3px solid var(--indigo);display:flex;flex-direction:column;justify-content:center">
-              <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">RULE OF THE DAY</p>
-              <p style="font-size:12px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
-            </div>
-          </div>
-          <div class="glass-card" style="padding:16px">
-            <p class="section-title" style="margin-bottom:10px;font-size:12px">📐 50/30/20 Live</p>
-            ${_build503020Widget()}
-          </div>
-        </div>
+        <div style="height:200px;position:relative"><canvas id="ai-grouped-chart"></canvas></div>
       </div>
 
-      <!-- ═══ ANALYTICS SECTION ═══ -->
-      <div id="dash-life-analytics" style="margin-top:8px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
-          <span style="font-size:16px">📊</span>
-          <h2 style="font-size:16px;font-weight:800;color:var(--text)">Life Analytics</h2>
-          <span style="font-size:11px;color:var(--text3);margin-left:4px">— all insights in one place</span>
+      <!-- ── AI Category Shift Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-category" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">🔍 AI Category Shift</p>
         </div>
-
-        <!-- Analytics Stats -->
-        <div class="stat-grid" style="margin-bottom:20px">
-          <div class="stat-card bg-indigo" onclick="navigate('finance')" style="cursor:pointer">
-            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
-            <div class="stat-card-value">${txns.length}</div><div class="stat-card-label">${periodLabel(_dashPeriod)} Txns</div>
-          </div>
-          <div class="stat-card bg-emerald" onclick="navigate('goals')" style="cursor:pointer">
-            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
-            <div class="stat-card-value">${(STATE.goals||[]).filter(g=>g.current>=g.target).length}</div><div class="stat-card-label">Goals Done</div>
-          </div>
-          <div class="stat-card bg-amber" onclick="navigate('habits')" style="cursor:pointer">
-            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></span>
-            <div class="stat-card-value">${STATE.streak||0}</div><div class="stat-card-label">Day Streak</div>
-          </div>
-          <div class="stat-card bg-gold" onclick="navigate('achievements')" style="cursor:pointer">
-            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>
-            <div class="stat-card-value">${(STATE.unlockedAchievements||[]).length}/${(typeof ACHIEVEMENTS_DEF !== 'undefined' ? ACHIEVEMENTS_DEF.length : '?')}</div><div class="stat-card-label">Achievements</div>
-          </div>
-        </div>
+        <div style="height:200px;position:relative"><canvas id="ai-category-chart"></canvas></div>
       </div>
 
-      <!-- Quick Access -->
-      <div class="section" style="margin-top:20px;margin-bottom:20px">
-        <p class="section-title" style="margin-bottom:14px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Quick Access</p>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" class="qa-grid">
-          ${[
-            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>','Health Hub','health','bg-red'],
-            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>','Habits','habits','bg-amber'],
-            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>','Goals','goals','bg-emerald'],
-            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="8" width="6" height="13" rx="1"/><rect x="16" y="13" width="6" height="8" rx="1"/></svg>','All Assets','investments','bg-teal'],
-            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>','Journal','journal','bg-pink'],
-            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>','Achievements','achievements','bg-gold'],
-            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>','Analytics','analytics','bg-purple'],
-            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="15" x2="8" y2="15"/><line x1="12" y1="15" x2="12" y2="15"/><line x1="16" y1="15" x2="16" y2="15"/></svg>','AI Coach','ai-coach','bg-indigo'],
-          ].map(([icon, label, page, bg]) => `
-            <div class="stat-card ${bg}" onclick="navigate('${page}')" style="cursor:pointer;text-align:center;padding:18px 10px" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
-              <div style="margin-bottom:10px;display:flex;justify-content:center;opacity:0.9">${icon}</div>
-              <div style="font-size:12px;font-weight:600">${label}</div>
-            </div>`).join('')}
+      <!-- ── AI 6-Month Financial Trend Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-trend" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">📈 AI 6-Month Financial Trend</p>
         </div>
+        <div style="height:150px;position:relative"><canvas id="ai-trend-chart"></canvas></div>
       </div>
 
-      <!-- Life Score -->
-      <div style="margin-top:20px">
-        <div class="glass-card" style="padding:20px">
+      <!-- ── AI MoM Snapshot Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-snapshot" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">📊 AI MoM Snapshot</p>
+        </div>
+        ${_buildComparisonWidget()}
+      </div>
+
+      <!-- ── AI 50/30/20 Live Rule Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-503020" style="padding:22px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:12px">
+          <p class="section-title">📐 AI 50/30/20 Live Rule</p>
+        </div>
+        ${_build503020Widget()}
+      </div>
+
+      <!-- ── AI Rule of the Day Card ─────────────────────── -->
+      <div class="glass-card" id="dash-ai-rule" style="padding:22px;margin-bottom:20px;border-left:4px solid var(--indigo)">
+        <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">💡 AI RULE OF THE DAY</p>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
+      </div>
+
+      <!-- ── Life Score Card ─────────────────────── -->
+      <div style="margin-bottom:20px" id="dash-lifescore-card">
+        <div class="glass-card" style="padding:22px">
           <div class="section-header" style="margin-bottom:14px">
             <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Life Score</p>
             <span style="font-size:26px;font-weight:900;color:var(--teal);cursor:pointer" onclick="navigate('analytics')">${scores.overall}<span style="font-size:13px;font-weight:400;color:var(--text3)">/100</span></span>
@@ -942,6 +832,54 @@ function renderDashboard() {
         </div>
       </div>
 
+      <!-- ── Life Analytics Stats Card ─────────────────────── -->
+      <div id="dash-life-analytics" style="margin-bottom:20px" class="glass-card" style="padding:22px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)">
+          <span style="font-size:16px">📊</span>
+          <h2 style="font-size:15px;font-weight:800;color:var(--text);margin:0">Life Analytics</h2>
+          <span style="font-size:11px;color:var(--text3);margin-left:4px">— all insights in one place</span>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card bg-indigo" onclick="navigate('finance')" style="cursor:pointer">
+            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+            <div class="stat-card-value">${txns.length}</div><div class="stat-card-label">${periodLabel(_dashPeriod)} Txns</div>
+          </div>
+          <div class="stat-card bg-emerald" onclick="navigate('goals')" style="cursor:pointer">
+            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+            <div class="stat-card-value">${(STATE.goals||[]).filter(g=>g.current>=g.target).length}</div><div class="stat-card-label">Goals Done</div>
+          </div>
+          <div class="stat-card bg-amber" onclick="navigate('habits')" style="cursor:pointer">
+            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></span>
+            <div class="stat-card-value">${STATE.streak||0}</div><div class="stat-card-label">Day Streak</div>
+          </div>
+          <div class="stat-card bg-gold" onclick="navigate('achievements')" style="cursor:pointer">
+            <span class="stat-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></span>
+            <div class="stat-card-value">${(STATE.unlockedAchievements||[]).length}/${(typeof ACHIEVEMENTS_DEF !== 'undefined' ? ACHIEVEMENTS_DEF.length : '?')}</div><div class="stat-card-label">Achievements</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Quick Access Grid Section Card ─────────────────────── -->
+      <div class="glass-card" style="padding:22px;margin-bottom:20px" id="dash-quick-access">
+        <p class="section-title" style="margin-bottom:14px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Quick Access</p>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" class="qa-grid">
+          ${[
+            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>','Health Hub','health','bg-red'],
+            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>','Habits','habits','bg-amber'],
+            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>','Goals','goals','bg-emerald'],
+            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="8" width="6" height="13" rx="1"/><rect x="16" y="13" width="6" height="8" rx="1"/></svg>','All Assets','investments','bg-teal'],
+            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>','Journal','journal','bg-pink'],
+            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>','Achievements','achievements','bg-gold'],
+            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>','Analytics','analytics','bg-purple'],
+            ['<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="15" x2="8" y2="15"/><line x1="12" y1="15" x2="12" y2="15"/><line x1="16" y1="15" x2="16" y2="15"/></svg>','AI Coach','ai-coach','bg-indigo'],
+          ].map(([icon, label, page, bg]) => `
+            <div class="stat-card ${bg}" onclick="navigate('${page}')" style="cursor:pointer;text-align:center;padding:18px 10px" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+              <div style="margin-bottom:10px;display:flex;justify-content:center;opacity:0.9">${icon}</div>
+              <div style="font-size:12px;font-weight:600">${label}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
       <!-- User-added chart widgets (from the layout customizer) -->
       <div id="home-widgets"></div>
 
@@ -954,13 +892,7 @@ function renderDashboard() {
     if (qa) qa.style.gridTemplateColumns = 'repeat(2,1fr)';
     const kpi = document.querySelector('.kpi-grid');
     if (kpi) kpi.style.gridTemplateColumns = 'repeat(2,1fr)';
-    document.querySelectorAll('.dash-agb-grid, .dash-agb-grid2').forEach(g => g.style.gridTemplateColumns = '1fr');
-    
-    // AI insights grids responsive
-    const acrd = document.querySelector('.ai-charts-row-dash');
-    if (acrd) acrd.style.gridTemplateColumns = '1fr';
-    const amrd = document.querySelector('.ai-metrics-row-dash');
-    if (amrd) amrd.style.gridTemplateColumns = '1fr';
+    document.querySelectorAll('.dash-acct-grid, .dash-bg-grid').forEach(g => g.style.gridTemplateColumns = '1fr');
   }
 
   // Render charts after DOM is ready
@@ -982,12 +914,6 @@ function renderDashboard() {
       if (lsg) lsg.style.gridTemplateColumns = '1fr';
       const wg = document.querySelector('.welcome-grid');
       if (wg) wg.style.gridTemplateColumns = 'repeat(2,1fr)';
-      
-      // AI insights grids responsive
-      const acrd = document.querySelector('.ai-charts-row-dash');
-      if (acrd) acrd.style.gridTemplateColumns = '1fr';
-      const amrd = document.querySelector('.ai-metrics-row-dash');
-      if (amrd) amrd.style.gridTemplateColumns = '1fr';
     }
     // App: move Financial Overview to the bottom — but ONLY if the user hasn't
     // saved a custom layout (otherwise it fights the Layout Customizer).
