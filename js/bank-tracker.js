@@ -787,7 +787,7 @@ function renderCCTracker() {
   }
 
   document.getElementById('page-container').innerHTML = `
-    <div class="fade-in" style="max-width:960px;margin:0 auto">
+    <div class="${window.__IS_APP ? '' : 'fade-in'}" style="max-width:960px;margin:0 auto">
 
       <!-- Header -->
       <div class="page-header fin-page-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
@@ -819,21 +819,22 @@ function renderCCTracker() {
           </div>
           <p class="mm-hero-val ${_nbNet < 0 ? 'neg' : 'pos'}">${_nbNet < 0 ? '-' : ''}${fmt(Math.abs(_nbNet))}</p>
           <div class="mm-hero-split mm-accts3">
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_nbBank)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation(); bankTrackerTab='banks'; renderBankTracker();" style="cursor: pointer;"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_nbBank)}</span></div>
             <div class="mm-hs-div"></div>
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="banknote"></i> Cash</span><span class="mm-hs-val" style="color:#f59e0b">${fmt(_nbCash)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation(); bankTrackerTab='cash'; renderBankTracker();" style="cursor: pointer;"><span class="mm-hs-lbl"><i data-lucide="banknote"></i> Cash</span><span class="mm-hs-val" style="color:#f59e0b">${fmt(_nbCash)}</span></div>
             <div class="mm-hs-div"></div>
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="credit-card"></i> Card</span><span class="mm-hs-val" style="color:#ef4444">${fmt(_nbCard)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation(); bankTrackerTab='cards'; renderBankTracker();" style="cursor: pointer;"><span class="mm-hs-lbl"><i data-lucide="credit-card"></i> Card</span><span class="mm-hs-val" style="color:#ef4444">${fmt(_nbCard)}</span></div>
           </div>
         </div>` : '';
       })() : ''}
 
-      <!-- Tab Bar -->
+      ${window.__IS_APP ? '' : `
       <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
-        <button class="fin-segtab ${bankTrackerTab==='banks'?'active':''}" onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Banks' : '🏦 Banks'}</button>
-        <button class="fin-segtab ${bankTrackerTab==='cards'?'active':''}" onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cards' : '💳 Credit Cards'}</button>
-        <button class="fin-segtab ${bankTrackerTab==='cash'?'active':''}" onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cash' : '💵 Cash'}</button>
+        <button class="fin-segtab ${bankTrackerTab==='banks'?'active':''}" onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">🏦 Banks</button>
+        <button class="fin-segtab ${bankTrackerTab==='cash'?'active':''}" onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">💵 Cash</button>
+        <button class="fin-segtab ${bankTrackerTab==='cards'?'active':''}" onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">💳 Credit Cards</button>
       </div>
+      `}
 
       ${typeof acctSection === 'function' ? acctSection('card') : ''}
 
@@ -1129,7 +1130,7 @@ function renderCashTracker() {
   }
 
   document.getElementById('page-container').innerHTML = `
-    <div class="fade-in" style="max-width:960px;margin:0 auto">
+    <div class="${window.__IS_APP ? '' : 'fade-in'}" style="max-width:960px;margin:0 auto">
 
       <!-- Header -->
       <div class="page-header fin-page-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
@@ -1160,21 +1161,22 @@ function renderCashTracker() {
           </div>
           <p class="mm-hero-val ${_nbNet < 0 ? 'neg' : 'pos'}">${_nbNet < 0 ? '-' : ''}${fmt(Math.abs(_nbNet))}</p>
           <div class="mm-hero-split mm-accts3">
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_nbBank)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation(); bankTrackerTab='banks'; renderBankTracker();" style="cursor: pointer;"><span class="mm-hs-lbl"><i data-lucide="landmark"></i> Bank</span><span class="mm-hs-val" style="color:#3b82f6">${fmt(_nbBank)}</span></div>
             <div class="mm-hs-div"></div>
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="banknote"></i> Cash</span><span class="mm-hs-val" style="color:#f59e0b">${fmt(_nbCash)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation(); bankTrackerTab='cash'; renderBankTracker();" style="cursor: pointer;"><span class="mm-hs-lbl"><i data-lucide="banknote"></i> Cash</span><span class="mm-hs-val" style="color:#f59e0b">${fmt(_nbCash)}</span></div>
             <div class="mm-hs-div"></div>
-            <div class="mm-hs"><span class="mm-hs-lbl"><i data-lucide="credit-card"></i> Card</span><span class="mm-hs-val" style="color:#ef4444">${fmt(_nbCard)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation(); bankTrackerTab='cards'; renderBankTracker();" style="cursor: pointer;"><span class="mm-hs-lbl"><i data-lucide="credit-card"></i> Card</span><span class="mm-hs-val" style="color:#ef4444">${fmt(_nbCard)}</span></div>
           </div>
         </div>` : '';
       })() : ''}
 
-      <!-- Tab Bar -->
+      ${window.__IS_APP ? '' : `
       <div class="fin-segtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0">
-        <button class="fin-segtab ${bankTrackerTab==='banks'?'active':''}" onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Banks' : '🏦 Banks'}</button>
-        <button class="fin-segtab ${bankTrackerTab==='cards'?'active':''}" onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cards' : '💳 Credit Cards'}</button>
-        <button class="fin-segtab ${bankTrackerTab==='cash'?'active':''}" onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">${window.__IS_APP ? 'Cash' : '💵 Cash'}</button>
+        <button class="fin-segtab ${bankTrackerTab==='banks'?'active':''}" onclick="bankTrackerTab='banks';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='banks'?'#00c9a7':'transparent'};color:${bankTrackerTab==='banks'?'#00c9a7':'var(--text3)'};transition:.2s">🏦 Banks</button>
+        <button class="fin-segtab ${bankTrackerTab==='cash'?'active':''}" onclick="bankTrackerTab='cash';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cash'?'#f59e0b':'transparent'};color:${bankTrackerTab==='cash'?'#f59e0b':'var(--text3)'};transition:.2s">💵 Cash</button>
+        <button class="fin-segtab ${bankTrackerTab==='cards'?'active':''}" onclick="bankTrackerTab='cards';renderBankTracker()" style="padding:10px 20px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid ${bankTrackerTab==='cards'?'#ef4444':'transparent'};color:${bankTrackerTab==='cards'?'#ef4444':'var(--text3)'};transition:.2s">💳 Credit Cards</button>
       </div>
+      `}
 
       ${typeof acctSection === 'function' ? acctSection('cash') : ''}
 
