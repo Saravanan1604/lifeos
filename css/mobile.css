@@ -11540,3 +11540,16 @@ html.is-app #ptr-indicator.ptr-armed { background: rgba(0, 201, 167, 0.2); }
 /* hide it entirely on web */
 #ptr-indicator { display: none; }
 html.is-app #ptr-indicator { display: flex; }
+
+/* ============================================================
+   build 395 — kill the "page reloaded" feel: when #page-container
+   carries .no-anim (in-place refresh after add/delete/select or a
+   soft nav refresh), suppress the entrance animation. Higher
+   specificity + later than the app fade-in rules so it actually
+   wins (the old .page-container.no-anim rule never did in-app).
+   ============================================================ */
+html.is-app #page-container.no-anim .fade-in,
+html.is-app #page-container.no-anim > .fade-in,
+html.is-app #page-container.no-anim > div {
+  animation: none !important;
+}

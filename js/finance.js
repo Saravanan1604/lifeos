@@ -252,6 +252,16 @@ function recPickDay(v) {
 }
 
 function renderRecordsMyMoney() {
+  // If the Records page is already on screen, this is an in-place refresh
+  // (after add / delete / select), not a fresh navigation — suppress the
+  // entrance animation and keep the scroll position so it doesn't feel like
+  // the whole page reloaded.
+  const _pcEl = document.getElementById('page-container');
+  const _reRender = !!(_pcEl && _pcEl.querySelector('.mymoney-records'));
+  const _contentEl = document.getElementById('content');
+  const _prevScroll = _reRender ? (window.scrollY || document.documentElement.scrollTop || 0) : 0;
+  const _prevContentScroll = _reRender && _contentEl ? _contentEl.scrollTop : 0;
+  if (_reRender && _pcEl) _pcEl.classList.add('no-anim');
   // Restore the user's preferred default period (Day/Week/Month/Year/All) once
   if (!_recPeriodInit) { _recPeriodInit = true; const sp = STATE.settings && STATE.settings.recPeriod; if (sp) _recPeriod = sp; }
   const anchorYmd = _ymdLocal(_recAnchor);
@@ -500,6 +510,12 @@ function renderRecordsMyMoney() {
   _recHeroDots();
   if (typeof initRecordsGestures === 'function') initRecordsGestures();
   if (typeof _recInitScrollTop === 'function') _recInitScrollTop();
+  // In-place refresh: jump back to where the user was and drop the anim guard.
+  if (_reRender && _pcEl) {
+    if (_prevScroll) window.scrollTo(0, _prevScroll);
+    if (_prevContentScroll && _contentEl) _contentEl.scrollTop = _prevContentScroll;
+    requestAnimationFrame(() => requestAnimationFrame(() => _pcEl.classList.remove('no-anim')));
+  }
 }
 
 // Floating "scroll to top" (^) button for the Records page.
@@ -620,25 +636,6 @@ function _recCloseSwipe() {
 }
 function _recSwipeDelete(id) { _recCloseSwipe(); if (typeof deleteTx === 'function') deleteTx(id); }
 
-// ── Long-press a Records row → duplicate the transaction to today ──
-// Most daily expenses repeat (tea, bus, lunch); this makes re-adding one
-// a single gesture. Cancelled by any movement so swipes/scrolls win.
-function _recDupToToday(id) {
-  const t = (STATE.transactions || []).find(x => x.id === id);
-  if (!t) return;
-  const now = new Date();
-  const copy = { ...t, id: genId(), date: _ymdLocal(now), time: now.toTimeString().slice(0, 5), createdAt: now.toISOString() };
-  STATE.transactions.unshift(copy);
-  if (typeof _applyTxToAccount === 'function') { try { _applyTxToAccount(copy); } catch (_) {} }
-  saveState();
-  renderRecordsMyMoney();
-  showUndoSnack(`Duplicated ${copy.category} ${fmt(copy.amount)} to today`, () => {
-    STATE.transactions = (STATE.transactions || []).filter(x => x.id !== copy.id);
-    if (typeof _reverseTxFromAccount === 'function') { try { _reverseTxFromAccount(copy); } catch (_) {} }
-    saveState();
-    if (currentPage === 'transactions') renderRecordsMyMoney();
-  });
-}
 // ── Pull-to-refresh on Records: drag down from the top to sync ──
 (function _bindPullToRefresh() {
   if (window._recPTRBound || !window.__IS_APP) return;
@@ -680,27 +677,6 @@ function _recDupToToday(id) {
   document.addEventListener('touchcancel', finish, { passive: true });
 })();
 
-(function _bindRecLongPress() {
-  if (window._recLPBound || !window.__IS_APP) return;
-  window._recLPBound = true;
-  let timer = null, sx = 0, sy = 0;
-  const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
-  document.addEventListener('touchstart', (e) => {
-    if (typeof currentPage === 'undefined' || currentPage !== 'transactions') return;
-    const row = e.target.closest && e.target.closest('.mm-row[data-id]');
-    if (!row) return;
-    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
-    const id = row.dataset.id;
-    timer = setTimeout(() => { timer = null; _recDupToToday(id); }, 550);
-  }, { passive: true });
-  document.addEventListener('touchmove', (e) => {
-    if (!timer) return;
-    const dx = Math.abs(e.touches[0].clientX - sx), dy = Math.abs(e.touches[0].clientY - sy);
-    if (dx > 10 || dy > 10) cancel();
-  }, { passive: true });
-  document.addEventListener('touchend', cancel, { passive: true });
-  document.addEventListener('touchcancel', cancel, { passive: true });
-})();
 
 function initRecordsGestures() {
   const list = document.querySelector('.mymoney-records .mm-list');
