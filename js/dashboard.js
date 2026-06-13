@@ -17,6 +17,87 @@ function resetDashAnchor() {
   renderDashboard();
 }
 
+function _dashPeriodLabel() {
+  const anchor = _dashAnchorDate || today();
+  const a = new Date(anchor + 'T00:00:00');
+  if (_dashPeriod === 'all') return 'All Time';
+  if (_dashPeriod === 'year') return String(a.getFullYear());
+  if (_dashPeriod === 'month') return a.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  if (_dashPeriod === 'day') return a.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+  // week → Mon–Sun range containing the anchor
+  const dow = (a.getDay() + 6) % 7;
+  const mon = new Date(a); mon.setDate(a.getDate() - dow);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const o = { day: '2-digit', month: 'short' };
+  return `${mon.toLocaleDateString('en-IN', o)} – ${sun.toLocaleDateString('en-IN', o)}`;
+}
+
+function dashAtPresent() {
+  if (!_dashAnchorDate) return true; // null is today/current period
+  const d = new Date(_dashAnchorDate + 'T00:00:00');
+  const now = new Date();
+  if (_dashPeriod === 'all') return true;
+  if (_dashPeriod === 'year') return d.getFullYear() >= now.getFullYear();
+  if (_dashPeriod === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  if (_dashPeriod === 'week') {
+    const dow = (d.getDay() + 6) % 7;
+    const mon = new Date(d);
+    mon.setDate(d.getDate() - dow);
+    const nextMon = new Date(mon);
+    nextMon.setDate(mon.getDate() + 7);
+    return nextMon > now;
+  }
+  if (_dashPeriod === 'day') {
+    return d.getFullYear() === now.getFullYear() &&
+           d.getMonth() === now.getMonth() &&
+           d.getDate() === now.getDate();
+  }
+  return false;
+}
+
+function shiftDashPeriod(dir) {
+  const anchor = _dashAnchorDate || today();
+  const d = new Date(anchor + 'T00:00:00');
+  if (_dashPeriod === 'day') {
+    d.setDate(d.getDate() + dir);
+  } else if (_dashPeriod === 'week') {
+    d.setDate(d.getDate() + dir * 7);
+  } else if (_dashPeriod === 'month') {
+    d.setMonth(d.getMonth() + dir);
+  } else if (_dashPeriod === 'year') {
+    d.setFullYear(d.getFullYear() + dir);
+  } else {
+    return; // 'all' has no shifting
+  }
+  const now = new Date();
+  if (d > now) {
+    if (dir > 0) {
+      resetDashAnchor();
+      return;
+    }
+    return;
+  }
+  _dashAnchorDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  renderDashboard();
+}
+
+function openDashPeriodSheet() {
+  const tabs = ['day', 'week', 'month', 'year', 'all'];
+  const lbl = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
+  const anchor = _dashAnchorDate || today();
+  openModal('📅 View Period', `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+      ${tabs.map(p => `<button onclick="closeModal();setDashPeriod('${p}')"
+        style="flex:1;min-width:70px;padding:13px 6px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;
+        background:${_dashPeriod === p ? 'linear-gradient(135deg,#00c9a7,#0acf83)' : 'rgba(255,255,255,0.05)'};
+        border:1px solid ${_dashPeriod === p ? 'transparent' : 'rgba(255,255,255,0.12)'};
+        color:${_dashPeriod === p ? '#04211a' : 'var(--text)'}">${lbl[p]}</button>`).join('')}
+    </div>
+    <p style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase">Jump to date</p>
+    <input type="date" class="form-input" value="${anchor}" onchange="closeModal();setDashAnchor(this.value)" style="width:100%">
+  `);
+}
+
 // Returns the display label for the current anchor+period combo
 function dashAnchorLabel() {
   if (!_dashAnchorDate) return null;
@@ -588,12 +669,26 @@ function renderDashboard() {
         </div>
         <p class="dash-date-p" style="font-size:12px;color:rgba(241,245,249,0.4);margin-top:2px">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
         <div class="dash-filter-row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          ${window.__IS_APP ? '' : `
+          ${window.__IS_APP ? `
+          <!-- Mobile-only Monthbar Period Navigator -->
+          <div class="dash-monthbar-wrap" style="width:100%">
+            <div class="mm-monthbar">
+              <button class="mm-ring-btn" onclick="navigate('budget')" title="Budget & category spend">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9" opacity=".35"/><path d="M12 3a9 9 0 0 1 9 9" stroke-linecap="round"/></svg>
+              </button>
+              ${_dashPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="shiftDashPeriod(-1)">‹</button>`}
+              <button class="mm-month" onclick="openDashPeriodSheet()" title="Change period / pick a date">
+                ${_dashPeriodLabel()} <span class="mm-month-chev">▾</span>
+              </button>
+              ${_dashPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="shiftDashPeriod(1)" ${dashAtPresent() ? 'disabled style="opacity: 0.4; cursor: default"' : ''}>›</button>`}
+              <button class="mm-today" onclick="resetDashAnchor()" title="Jump to today">Today</button>
+            </div>
+          </div>
+          ` : `
           <!-- Customize button (Desktop) -->
           <button class="btn-secondary btn-sm dash-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:700" title="Customize layout">
             ✏️ Customize Layout
           </button>
-          `}
 
           ${periodTabsHtml(_dashPeriod, 'setDashPeriod')}
 
@@ -618,7 +713,8 @@ function renderDashboard() {
             <button onclick="resetDashAnchor()" style="background:none;border:none;cursor:pointer;color:#a5b4fc;font-size:13px;line-height:1;padding:0 2px" title="Back to today">✕</button>
           </span>` : ''}
 
-          ${window.__IS_APP ? '' : `<button class="btn-primary btn-sm" onclick="navigate('finance')" style="background:linear-gradient(135deg,#00b09b,#0acf83)">+ Add Transaction</button>`}
+          <button class="btn-primary btn-sm" onclick="navigate('finance')" style="background:linear-gradient(135deg,#00b09b,#0acf83)">+ Add Transaction</button>
+          `}
           <span onclick="navigate('habits')" class="streak-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M12 2c0 0-5 5-5 10a5 5 0 0 0 10 0c0-5-5-10-5-10z"/></svg>${STATE.streak || 0} Day Streak</span>
         </div>
       </div>

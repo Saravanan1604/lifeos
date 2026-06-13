@@ -12080,5 +12080,14 @@ html.is-app .dash-date-p {
   width: 100% !important;
 }
 
+/* Build 423: Dashboard Mobile Period Navigator Font Sizes */
+html.is-app .dash-monthbar-wrap .mm-month {
+  font-size: 1.28rem !important;
+}
+
+html.is-app .dash-monthbar-wrap .mm-navbtn {
+  font-size: 1.65rem !important;
+}
+
 
 
