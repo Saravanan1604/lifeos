@@ -369,7 +369,6 @@ function _buildBalancesCard() {
     cardHead('💵','Cash Wallets',fmt(totalCash),'#f59e0b',`${cash.length} wallet${cash.length!==1?'s':''}`) + cashBody);
 
   // ── CARDS card ────────────────────────────────────────────────────
-  const overallUtil = totalLimit>0?Math.round(totalOut/totalLimit*100):0;
   const cardsBody = cards.length===0
     ? `<div style="display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:5px;opacity:.5"><span style="font-size:28px"><i data-lucide="credit-card"></i></span><p style="font-size:11px;color:var(--text3)">No credit cards yet</p></div>`
     : `<div style="display:flex;flex-direction:column;gap:9px;max-height:130px;overflow-y:auto">
