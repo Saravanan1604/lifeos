@@ -11553,3 +11553,27 @@ html.is-app #page-container.no-anim > .fade-in,
 html.is-app #page-container.no-anim > div {
   animation: none !important;
 }
+
+/* ============================================================
+   build 396 — kill the native long-press Copy/Share/Select menu
+   everywhere in the app (it popped on cards, amounts, list rows…).
+   Inputs/textareas stay selectable so fields still work.
+   ============================================================ */
+html.is-app,
+html.is-app body,
+html.is-app .content,
+html.is-app .content * {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+html.is-app input,
+html.is-app textarea,
+html.is-app select,
+html.is-app [contenteditable="true"],
+html.is-app .note-body,
+html.is-app .gs-input {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
