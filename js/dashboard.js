@@ -575,16 +575,25 @@ function renderDashboard() {
     <div class="fade-in">
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">
-        <div>
-          <h1 class="page-title">Dashboard</h1>
-          <p class="page-subtitle">${getGreeting(STATE.settings?.name || 'there')}</p>
-          <p style="font-size:12px;color:rgba(241,245,249,0.4);margin-top:2px">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+        <div class="dash-title-block">
+          <div>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">${getGreeting(STATE.settings?.name || 'there')}</p>
+          </div>
+          ${window.__IS_APP ? `
+          <button class="btn-secondary btn-sm dash-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:700" title="Customize layout">
+            ✏️ Customize
+          </button>
+          ` : ''}
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <!-- Customize button -->
+        <p class="dash-date-p" style="font-size:12px;color:rgba(241,245,249,0.4);margin-top:2px">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+        <div class="dash-filter-row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          ${window.__IS_APP ? '' : `
+          <!-- Customize button (Desktop) -->
           <button class="btn-secondary btn-sm dash-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:700" title="Customize layout">
             ✏️ Customize Layout
           </button>
+          `}
 
           ${periodTabsHtml(_dashPeriod, 'setDashPeriod')}
 

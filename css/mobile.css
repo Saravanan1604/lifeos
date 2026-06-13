@@ -12067,5 +12067,18 @@ html.is-app .dash-customize-btn {
   height: auto !important;
 }
 
+html.is-app .dash-title-block {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+html.is-app .dash-date-p {
+  margin-top: -6px !important;
+  margin-bottom: 6px !important;
+  width: 100% !important;
+}
+
 
 
