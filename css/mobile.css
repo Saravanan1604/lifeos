@@ -12776,5 +12776,85 @@ html.is-app #insight-bar {
   margin-bottom: 28px !important;
 }
 
+/* ---------- 🗓️ HEATMAP PAGE ---------- */
+html.is-app .hm-page {
+  padding-bottom: 40px !important;
+}
+
+html.is-app .hm-mode-tabs {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html.is-app .hm-tab-btn {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  border: 1px solid transparent !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+html.is-app .hm-tab-btn.expense-btn.active {
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+html.is-app .hm-tab-btn.income-btn.active {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+html.is-app .hm-tab-btn.net-btn.active {
+  background: rgba(99, 102, 241, 0.16) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Day cell styles */
+html.is-app .hm-day-cell {
+  position: relative !important;
+  aspect-ratio: 1 !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  color: #f1f5f9 !important;
+  cursor: pointer !important;
+  transition: transform 0.12s ease, border-color 0.12s ease !important;
+  border: 1.5px solid transparent !important;
+}
+
+html.is-app .hm-day-cell.empty {
+  background: transparent !important;
+  border-color: transparent !important;
+  pointer-events: none !important;
+}
+
+html.is-app .hm-day-cell:not(.empty):active {
+  transform: scale(0.93) !important;
+}
+
+html.is-app .hm-day-cell.selected {
+  border: 2px solid #00c9a7 !important;
+}
+
+html.is-app .hm-day-cell.today {
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Legend items */
+html.is-app .hm-legend-scale span {
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+
 
 

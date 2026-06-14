@@ -943,6 +943,7 @@ function _renderPage(page) {
     case 'category-detail': renderCategoryDetail(); break;
     case 'recurring':    renderRecurring();      break;
     case 'rules':        renderMoneyRules();     break;
+    case 'heatmap':      renderHeatmap();        break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;
     default:
