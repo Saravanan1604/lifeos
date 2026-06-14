@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    mobile.css â€” BUILD BLOCK INDEX  (auto-generated navigation aid)
    All app styling is scoped html.is-app and appended as dated
    "build NNN" blocks; later rules win. Jump to a block by its
@@ -3923,22 +3923,45 @@ html.is-app .fin-dark-card::after {
   border-radius: inherit;
 }
 
+html.is-app #modal-overlay {
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
 html.is-app #modal-overlay .modal-box {
   background: #111428 !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 36px !important;
+  border-radius: 36px 36px 0 0 !important;
   overflow: hidden !important;
   padding: 0 !important;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6) !important;
-  width: 92vw !important;
-  max-width: 580px !important;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.45) !important;
+  width: 100% !important;
+  max-width: 100% !important;
   position: relative !important;
+  margin-bottom: 0 !important;
+  margin-top: auto !important;
+  animation: bottomSheetUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) both !important;
 }
 html.is-app.light #modal-overlay .modal-box,
 html.is-app body.light #modal-overlay .modal-box {
   background: #ffffff !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+@media (min-width: 640px) {
+  html.is-app #modal-overlay {
+    align-items: center !important;
+    padding: 24px !important;
+  }
+  html.is-app #modal-overlay .modal-box {
+    width: 90vw !important;
+    max-width: 600px !important;
+    border-radius: 36px !important;
+    margin-bottom: 24px !important;
+    margin-top: auto !important;
+  }
 }
 
 /* top accent line */
@@ -3952,10 +3975,30 @@ html.is-app .modal-accent-line {
   background: linear-gradient(135deg, #00c9a7, #6366f1) !important;
 }
 
+/* top drag handle capsule */
+html.is-app .modal-drag-handle {
+  width: 54px !important;
+  height: 5px !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-radius: 10px !important;
+  margin: 12px auto 0 !important;
+  z-index: 12 !important;
+  position: relative !important;
+}
+html.is-app.light .modal-drag-handle,
+html.is-app body.light .modal-drag-handle {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+@keyframes bottomSheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 /* transparent header band */
 html.is-app #modal-overlay .modal-header {
   margin: 0 !important;
-  padding: 36px 26px 20px !important;
+  padding: 24px 26px 16px !important;
   border: none !important;
   border-radius: 0 !important;
   position: relative !important;
@@ -12427,3 +12470,116 @@ html.is-app .mm-subhead .mm-subhead-filter:nth-child(3) {
   70% { transform: scale(1.1); }
   100% { opacity: 1; transform: scale(1); }
 }
+
+/* ============================================================
+   build 441 — Premium Bottom Sheet Modals
+   ============================================================ */
+html.is-app #modal-overlay {
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  display: flex !important;
+}
+
+html.is-app #modal-overlay .modal-box {
+  background: #111428 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 36px 36px 0 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.45) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  position: relative !important;
+  margin-bottom: 0 !important;
+  margin-top: auto !important;
+  max-height: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  animation: bottomSheetUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+/* Frosted glass variant in dark theme */
+html.is-app body:not(.light) #modal-overlay .modal-box {
+  background: rgba(16, 21, 40, 0.82) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(150%) !important;
+  backdrop-filter: blur(28px) saturate(150%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.is-app.light #modal-overlay .modal-box,
+html.is-app body.light #modal-overlay .modal-box {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure the modal body can scroll when taller than viewport */
+html.is-app #modal-overlay .modal-body {
+  overflow-y: auto !important;
+  max-height: calc(90vh - 80px) !important; /* Subtract header + handle height */
+}
+
+@media (min-width: 640px) {
+  html.is-app #modal-overlay {
+    align-items: center !important;
+    padding: 24px !important;
+  }
+  html.is-app #modal-overlay .modal-box {
+    width: 90vw !important;
+    max-width: 600px !important;
+    border-radius: 36px !important;
+    margin-bottom: auto !important;
+    margin-top: auto !important;
+    max-height: 85vh !important;
+  }
+  html.is-app #modal-overlay .modal-body {
+    max-height: calc(85vh - 80px) !important;
+  }
+}
+
+/* top accent line */
+html.is-app .modal-accent-line {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 4px !important;
+  z-index: 10 !important;
+  background: linear-gradient(135deg, #00c9a7, #6366f1) !important;
+}
+
+/* top drag handle capsule */
+html.is-app .modal-drag-handle {
+  display: block !important;
+  width: 54px !important;
+  height: 5px !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-radius: 10px !important;
+  margin: 12px auto 0 !important;
+  z-index: 12 !important;
+  position: relative !important;
+  flex-shrink: 0 !important;
+}
+html.is-app.light .modal-drag-handle,
+html.is-app body.light .modal-drag-handle {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+@keyframes bottomSheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* transparent header band */
+html.is-app #modal-overlay .modal-header {
+  margin: 0 !important;
+  padding: 16px 26px 16px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  position: relative !important;
+  background: transparent !important;
+  flex-shrink: 0 !important;
+}
+
