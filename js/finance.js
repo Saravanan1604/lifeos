@@ -3895,6 +3895,43 @@ function getLoanTypes() {
 function assetIcon(t) { return getAssetTypes().find(x => x.key === t)?.icon || '📊'; }
 function loanIcon(t)  { return getLoanTypes().find(x => x.key === t)?.icon  || '📋'; }
 
+// ===== Asset / Loan type Lucide line-icons + colours (like the category chips) =====
+// Display-only mapping; stored data stays as emoji so no migration is needed.
+const ASSET_TYPE_META = {
+  'Mutual Fund':   { lucide:'trending-up',    color:'#10b981' },
+  'Stocks':        { lucide:'bar-chart-3',    color:'#3b82f6' },
+  'SIP':           { lucide:'refresh-cw',     color:'#22c55e' },
+  'Fixed Deposit': { lucide:'landmark',       color:'#8b5cf6' },
+  'Gold':          { lucide:'medal',          color:'#eab308' },
+  'Crypto':        { lucide:'bitcoin',        color:'#f97316' },
+  'Real Estate':   { lucide:'building',       color:'#f59e0b' },
+  'PPF / EPF':     { lucide:'building-2',     color:'#6366f1' },
+  'Insurance':     { lucide:'shield',         color:'#14b8a6' },
+  'Other':         { lucide:'package',        color:'#94a3b8' },
+};
+const LOAN_TYPE_META = {
+  'Home Loan':     { lucide:'house',          color:'#f59e0b' },
+  'Car Loan':      { lucide:'car',            color:'#3b82f6' },
+  'Personal Loan': { lucide:'user',           color:'#8b5cf6' },
+  'Education Loan':{ lucide:'graduation-cap', color:'#0ea5e9' },
+  'Gold Loan':     { lucide:'medal',          color:'#eab308' },
+  'Business Loan': { lucide:'building-2',     color:'#6366f1' },
+  'Credit Card':   { lucide:'credit-card',    color:'#ec4899' },
+  'Other':         { lucide:'file-text',      color:'#94a3b8' },
+};
+function typeMeta(kind, key) {
+  return (kind === 'asset' ? ASSET_TYPE_META : LOAN_TYPE_META)[key] || null;
+}
+function typeColor(kind, key) { return typeMeta(kind, key)?.color || '#8b5cf6'; }
+// <i data-lucide> for a type. Custom types map their emoji → a Lucide icon,
+// falling back to showing the raw emoji if no match. Call lucide.createIcons() after.
+function typeIconHtml(kind, t) {
+  const meta = typeMeta(kind, t.key);
+  if (meta) return `<i data-lucide="${meta.lucide}"></i>`;
+  const lu = (typeof EMOJI_LUCIDE !== 'undefined') ? EMOJI_LUCIDE[t.icon] : null;
+  return lu ? `<i data-lucide="${lu}"></i>` : (t.icon || '📌');
+}
+
 let invFilter = 'All';
 let invSort = 'newest';      // newest | name | invested | current | profit
 let invSearch = '';          // free-text name filter
@@ -5033,11 +5070,17 @@ function openManageTypesModal(kind) {
     if (!el) return;
     el.innerHTML = customs.length === 0
       ? `<p style="font-size:12px;color:var(--text3);text-align:center;padding:12px">No custom types yet</p>`
-      : customs.map((t, i) => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,0.05);margin-bottom:6px">
-          <span style="font-size:14px">${t.icon} <span style="font-size:13px;font-weight:600;margin-left:6px">${t.key}</span></span>
+      : customs.map((t, i) => {
+        const col = typeColor(kind, t.key);
+        return `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid ${col};margin-bottom:6px">
+          <span style="display:inline-flex;align-items:center;gap:8px">
+            <span class="cat-lic" style="color:${col};font-size:16px">${typeIconHtml(kind, t)}</span>
+            <span style="font-size:13px;font-weight:600">${t.key}</span>
+          </span>
           <button onclick="removeCustomType('${kind}',${i})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px;padding:2px 6px">✕</button>
-        </div>`).join('');
+        </div>`; }).join('');
+    _lucideRefresh();
   };
 
   openModal(title, `
@@ -5045,8 +5088,12 @@ function openManageTypesModal(kind) {
 
     <div style="margin-bottom:14px">
       <p style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Built-in</p>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${defaults.map(t=>`<span style="padding:4px 10px;border-radius:16px;background:rgba(255,255,255,0.06);font-size:12px">${t.icon} ${t.key}</span>`).join('')}
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${defaults.map(t=>{
+          const col = typeColor(kind, t.key);
+          return `<span style="display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid ${col};font-size:13px;font-weight:600">
+            <span class="cat-lic" style="color:${col};font-size:15px">${typeIconHtml(kind, t)}</span>${t.key}</span>`;
+        }).join('')}
       </div>
     </div>
 
