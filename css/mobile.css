@@ -13204,3 +13204,39 @@ html.is-app input[type="checkbox"].auto-cb {
   display: inline-block !important;
   vertical-align: middle !important;
 }
+
+/* ============================================================
+   build 464 — Loan Detail page (month-by-month + what-if)
+   ============================================================ */
+html.is-app .ld-page { padding-bottom: 24px; }
+html.is-app .ld-head {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+html.is-app .ld-kpis {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;
+}
+html.is-app .ld-kpi {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
+  border-radius: 14px; padding: 14px;
+}
+html.is-app .ld-kpi p.l { font-size: 11px; color: var(--text3); margin: 0 0 4px; letter-spacing: .5px; }
+html.is-app .ld-kpi p.v { font-size: 19px; font-weight: 800; margin: 0; }
+html.is-app .ld-sec {
+  font-size: 13px; font-weight: 700; color: var(--text2);
+  letter-spacing: .5px; text-transform: uppercase; margin: 0 0 12px;
+}
+html.is-app .ld-sched { max-height: 440px; overflow-y: auto; border-radius: 10px; }
+html.is-app .ld-sch-row {
+  display: grid; grid-template-columns: 1.1fr 1fr 1fr 1.1fr; gap: 6px;
+  padding: 10px 8px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+html.is-app .ld-sch-row span:not(:first-child) { text-align: right; font-weight: 600; }
+html.is-app .ld-sch-hd {
+  position: sticky; top: 0; z-index: 1; background: #12172a;
+  font-size: 11px; color: var(--text3); font-weight: 700; text-transform: uppercase;
+}
+html.is-app .ld-sch-hd span { font-weight: 700 !important; }
+html.is-app .ld-sch-yr {
+  background: rgba(99,102,241,0.12); color: #a5b4fc; font-weight: 700;
+  font-size: 12px; padding: 6px 8px;
+}

@@ -4136,7 +4136,7 @@ function renderInvestmentsApp() {
     const lsub = item.autoCalc && item.interestRate > 0
       ? `${esc(item.type)}${item.lender ? ' · ' + esc(item.lender) : ''} · ${item.interestRate}%/${item.interestPeriod === 'month' ? 'mo' : 'yr'}`
       : `${esc(item.type)}${item.lender ? ' · ' + esc(item.lender) : ''} · ${pct}% paid`;
-    return `<div class="ia-item" onclick="openEditLoanModal('${item.id}')">
+    return `<div class="ia-item" onclick="openLoanDetail('${item.id}')">
       <span class="ia-thumb" style="background:rgba(239,68,68,0.14)"><i data-lucide="${_loanLucide(item.type)}"></i></span>
       <div class="ia-mid">
         <p class="ia-name">${esc(item.name)}</p>
@@ -5416,6 +5416,167 @@ function _renderNetWorthProj() {
         y: { stacked: true, ticks: { color: '#94a3b8', font: { size: 9 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } }
       } }
   });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  LOAN DETAIL PAGE — full-screen month-by-month breakdown + what-if
+// ════════════════════════════════════════════════════════════════════════
+let _loanDetailId = null;
+let _loanDetailChart = null;
+function openLoanDetail(id) {
+  _loanDetailId = id;
+  if (typeof navigate === 'function') navigate('loan-detail'); else renderLoanDetail();
+}
+function renderLoanDetail() {
+  const loan = (STATE.loans || []).find(l => l.id === _loanDetailId);
+  if (!loan) { navigate('investments'); return; }
+  const annual = _loanAnnualRate(loan);
+  const principal = +loan.principal || +loan.outstanding || 0;
+  const defEmi = loan.emi > 0 ? Math.round(loan.emi)
+    : loan.tenure > 0 ? Math.round(_emiFor(principal, annual, loan.tenure))
+    : Math.round(principal * annual / 100 / 12 + principal * 0.01);
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in ld-page">
+      <div class="ld-head">
+        <button class="catdet-back" onclick="navigate('investments')"><i data-lucide="arrow-left"></i></button>
+        <div class="catdet-title" style="flex:1;min-width:0">
+          <span class="catdet-ic" style="background:#ef4444"><i data-lucide="${_loanLucide(loan.type)}"></i></span>
+          <div style="min-width:0"><p class="catdet-name">${esc(loan.name)}</p>
+          <p class="catdet-sub">${esc(loan.type)}${loan.lender ? ' · ' + esc(loan.lender) : ''} · ${loan.interestRate || 0}%/${loan.interestPeriod === 'month' ? 'mo' : 'yr'}</p></div>
+        </div>
+        <button class="catdet-back" onclick="openEditLoanModal('${loan.id}')" title="Edit details"><i data-lucide="pencil"></i></button>
+      </div>
+
+      <div class="ld-kpis" id="ld-kpis"></div>
+
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <p class="ld-sec">Capital vs Interest by year</p>
+        <div style="height:240px;position:relative"><canvas id="ld-chart"></canvas></div>
+      </div>
+
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <p class="ld-sec">What-if — edit to see the impact</p>
+        <div class="input-row">
+          <div class="form-group"><label class="form-label">EMI / month (₹)</label>
+            <input type="number" id="ld-emi" class="form-input" value="${defEmi}" oninput="_renderLoanDetailCalc()"/></div>
+          <div class="form-group"><label class="form-label">Extra / month (₹)</label>
+            <input type="number" id="ld-extra" class="form-input" value="0" placeholder="0" oninput="_renderLoanDetailCalc()"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">One-time lump sum (₹)</label>
+          <input type="number" id="ld-lump" class="form-input" value="0" placeholder="0" oninput="_renderLoanDetailCalc()"/></div>
+        <div id="ld-result"></div>
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="btn-secondary" style="flex:1" onclick="saveLoanEmiFromDetail('${loan.id}')">💾 Save EMI</button>
+          <button class="btn-primary" style="flex:1" onclick="applyLoanLumpSum('${loan.id}')">Apply lump sum</button>
+        </div>
+      </div>
+
+      <div class="glass-card" style="padding:16px">
+        <p class="ld-sec">Month-by-month schedule</p>
+        <div id="ld-sched" class="ld-sched"></div>
+      </div>
+    </div>`;
+  setTimeout(() => {
+    if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+    _renderLoanDetailCalc();
+  }, 40);
+}
+function _kShort(n) {
+  const a = Math.abs(n);
+  if (a >= 1e7) return '₹' + (n / 1e7).toFixed(2) + 'Cr';
+  if (a >= 1e5) return '₹' + (n / 1e5).toFixed(2) + 'L';
+  if (a >= 1e3) return '₹' + (n / 1e3).toFixed(1) + 'k';
+  return '₹' + Math.round(n);
+}
+function _renderLoanDetailCalc() {
+  const loan = (STATE.loans || []).find(l => l.id === _loanDetailId); if (!loan) return;
+  const annual = _loanAnnualRate(loan);
+  const principal = +loan.principal || +loan.outstanding || 0;
+  const emi   = parseFloat(document.getElementById('ld-emi')?.value) || 0;
+  const extra = parseFloat(document.getElementById('ld-extra')?.value) || 0;
+  const lump  = parseFloat(document.getElementById('ld-lump')?.value) || 0;
+  const base = _amortizeSchedule(principal, annual, emi, 0, 0);
+  const plan = _amortizeSchedule(principal, annual, emi, extra, lump);
+  const kpiEl = document.getElementById('ld-kpis');
+  const resEl = document.getElementById('ld-result');
+  const schEl = document.getElementById('ld-sched');
+  if (plan.neverCloses) {
+    if (kpiEl) kpiEl.innerHTML = '';
+    if (resEl) resEl.innerHTML = `<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;font-size:13px;color:#ef4444">⚠️ This EMI is too low to ever clear the loan — it doesn't cover the monthly interest. Raise the EMI.</div>`;
+    if (schEl) schEl.innerHTML = '';
+    if (_loanDetailChart) { _loanDetailChart.destroy(); _loanDetailChart = null; }
+    return;
+  }
+  const monthsSaved   = base.neverCloses ? 0 : base.months - plan.months;
+  const interestSaved = base.neverCloses ? 0 : base.totalInterest - plan.totalInterest;
+  if (kpiEl) kpiEl.innerHTML = `
+    <div class="ld-kpi"><p class="l">OUTSTANDING</p><p class="v" style="color:#ef4444">${fmt(_loanOutstanding(loan))}</p></div>
+    <div class="ld-kpi"><p class="l">EMI / MONTH</p><p class="v">${fmt(emi)}</p></div>
+    <div class="ld-kpi"><p class="l">CLOSES IN</p><p class="v">${_fmtMonths(plan.months)}</p></div>
+    <div class="ld-kpi"><p class="l">TOTAL INTEREST</p><p class="v" style="color:#f0a868">${fmt(Math.round(plan.totalInterest))}</p></div>`;
+  if (resEl) resEl.innerHTML = (extra > 0 || lump > 0) && monthsSaved > 0
+    ? `<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:12px;font-size:13px;color:#22c55e;font-weight:600">✅ Closes <b>${_fmtMonths(monthsSaved)}</b> sooner · saves <b>${fmt(Math.round(interestSaved))}</b> in interest.</div>`
+    : '';
+  // month-by-month table
+  if (schEl) {
+    const start = loan.startDate ? new Date(loan.startDate + 'T00:00:00') : new Date();
+    let html = `<div class="ld-sch-row ld-sch-hd"><span>Month</span><span>Interest</span><span>Principal</span><span>Balance</span></div>`;
+    let curYear = null;
+    plan.rows.forEach(r => {
+      const d = new Date(start); d.setMonth(d.getMonth() + r.m);
+      const y = d.getFullYear();
+      if (y !== curYear) { curYear = y; html += `<div class="ld-sch-yr">${y}</div>`; }
+      html += `<div class="ld-sch-row">
+        <span>${d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' })}</span>
+        <span style="color:#f0a868">${_kShort(r.interest)}</span>
+        <span style="color:#86c06c">${_kShort(r.principal)}</span>
+        <span>${_kShort(r.balance)}</span></div>`;
+    });
+    schEl.innerHTML = html;
+  }
+  // chart
+  const yearly = _amortYearly(plan.rows, loan.startDate);
+  const labels = yearly.map(y => y.year);
+  const princ  = yearly.map(y => Math.round(y.principal));
+  const intr   = yearly.map(y => Math.round(y.interest));
+  const bal    = yearly.map(y => Math.round(y.endBal));
+  const ctx = document.getElementById('ld-chart'); if (!ctx || typeof Chart === 'undefined') return;
+  if (_loanDetailChart) _loanDetailChart.destroy();
+  const kAmt = v => '₹' + (Math.abs(v) >= 1e5 ? (v / 1e5).toFixed(1) + 'L' : Math.abs(v) >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v);
+  _loanDetailChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Principal', data: princ, backgroundColor: '#86c06c', stack: 's', yAxisID: 'y' },
+      { label: 'Interest',  data: intr,  backgroundColor: '#f0a868', stack: 's', yAxisID: 'y' },
+      { type: 'line', label: 'Balance', data: bal, borderColor: '#b45309', backgroundColor: 'rgba(180,83,9,0.18)', tension: .35, pointRadius: 2, yAxisID: 'y1', fill: true }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { boxWidth: 10, font: { size: 10 }, color: '#94a3b8' } },
+        tooltip: { callbacks: { footer: items => { const i = items[0].dataIndex; const paid = principal > 0 ? Math.round((1 - bal[i] / principal) * 100) : 0; return 'Paid to date: ' + paid + '%'; } } } },
+      scales: {
+        x:  { stacked: true, ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
+        y:  { stacked: true, position: 'left',  ticks: { color: '#94a3b8', font: { size: 9 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y1: { position: 'right', ticks: { color: '#b45309', font: { size: 9 }, callback: kAmt }, grid: { display: false } }
+      } }
+  });
+}
+function saveLoanEmiFromDetail(id) {
+  const loan = (STATE.loans || []).find(l => l.id === id); if (!loan) return;
+  const emi = parseFloat(document.getElementById('ld-emi')?.value) || 0;
+  if (emi <= 0) { toast('Enter a valid EMI', 'error'); return; }
+  loan.emi = emi;
+  saveState(); toast('EMI saved ✅', 'success'); renderLoanDetail();
+}
+function applyLoanLumpSum(id) {
+  const loan = (STATE.loans || []).find(l => l.id === id); if (!loan) return;
+  const lump = parseFloat(document.getElementById('ld-lump')?.value) || 0;
+  if (lump <= 0) { toast('Enter a lump sum amount', 'error'); return; }
+  const cur = _loanOutstanding(loan);
+  loan.outstanding = Math.max(0, cur - lump);
+  loan.autoCalc = false; // it's now a real reduced balance
+  saveState();
+  toast(`₹${lump.toLocaleString('en-IN')} prepaid — outstanding now ${fmt(loan.outstanding)}`, 'success');
+  renderLoanDetail();
 }
 
 // ── Custom Type Manager ─────────────────────────────────────────────────────
