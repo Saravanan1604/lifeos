@@ -13271,3 +13271,24 @@ html.is-app .ld-seg-b.on { background: linear-gradient(135deg,#6366f1,#8b5cf6); 
 html.is-app .ld-chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 html.is-app .ld-chart-scroll::-webkit-scrollbar { height: 5px; }
 html.is-app .ld-chart-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+/* ============================================================
+   build 466 — Loan/Asset detail: bigger text, numbers, cards
+   ============================================================ */
+html.is-app .ld-kpi { padding: 18px 16px !important; border-radius: 16px !important; }
+html.is-app .ld-kpi p.l { font-size: 14px !important; margin-bottom: 6px !important; }
+html.is-app .ld-kpi p.v { font-size: 29px !important; }
+html.is-app .ld-kpis { gap: 12px !important; margin-bottom: 18px !important; }
+html.is-app .ld-sec { font-size: 17px !important; margin-bottom: 14px !important; }
+html.is-app .ld-sch-row {
+  padding: 16px 10px !important; font-size: 18px !important;
+}
+html.is-app .ld-sch-hd { font-size: 14px !important; }
+html.is-app .ld-sch-yr { font-size: 16px !important; padding: 10px !important; }
+html.is-app .ld-head .catdet-name { font-size: 30px !important; }
+html.is-app .ld-head .catdet-sub  { font-size: 16px !important; }
+html.is-app .ld-head .catdet-ic { width: 64px !important; height: 64px !important; }
+html.is-app .ld-seg-b { font-size: 15px !important; padding: 9px 18px !important; }
+/* bigger what-if inputs on the detail pages */
+html.is-app .ld-page .form-label { font-size: 15px !important; }
+html.is-app .ld-page .form-input { font-size: 19px !important; }

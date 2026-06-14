@@ -5492,7 +5492,7 @@ function renderLoanDetail() {
             <button class="ld-seg-b ${_ldChartMode === 'month' ? 'on' : ''}" onclick="setLdChartMode('month')">Monthly</button>
           </div>
         </div>
-        <div class="ld-chart-scroll"><div class="ld-chart-inner" id="ld-chart-inner" style="height:260px;position:relative"><canvas id="ld-chart"></canvas></div></div>
+        <div class="ld-chart-scroll"><div class="ld-chart-inner" id="ld-chart-inner" style="height:320px;position:relative"><canvas id="ld-chart"></canvas></div></div>
         ${_ldChartMode === 'month' ? `<p style="font-size:12px;color:var(--text3);margin:8px 0 0;text-align:center">← swipe to scroll through months →</p>` : ''}
       </div>
 
@@ -5585,7 +5585,11 @@ function _renderLoanDetailCalc() {
     princ = plan.rows.map(r => Math.round(r.principal));
     intr  = plan.rows.map(r => Math.round(r.interest));
     bal   = plan.rows.map(r => Math.round(r.balance));
-    if (inner) inner.style.width = Math.max(100, plan.rows.length * 34) + 'px';
+    // Size so ~6 bars fill the viewport initially; the rest are reached by swipe.
+    const scroll = document.querySelector('.ld-chart-scroll');
+    const vw = (scroll && scroll.clientWidth) ? scroll.clientWidth : (window.innerWidth - 64);
+    const slot = vw / 6;
+    if (inner) inner.style.width = Math.max(vw, Math.round(plan.rows.length * slot)) + 'px';
   } else {
     const yearly = _amortYearly(plan.rows, loan.startDate);
     labels = yearly.map(y => y.year);
@@ -5600,17 +5604,17 @@ function _renderLoanDetailCalc() {
   _loanDetailChart = new Chart(ctx, {
     type: 'bar',
     data: { labels, datasets: [
-      { label: 'Principal', data: princ, backgroundColor: '#86c06c', stack: 's', yAxisID: 'y' },
-      { label: 'Interest',  data: intr,  backgroundColor: '#f0a868', stack: 's', yAxisID: 'y' },
+      { label: 'Principal', data: princ, backgroundColor: '#86c06c', stack: 's', yAxisID: 'y', categoryPercentage: 0.6, barPercentage: 0.9 },
+      { label: 'Interest',  data: intr,  backgroundColor: '#f0a868', stack: 's', yAxisID: 'y', categoryPercentage: 0.6, barPercentage: 0.9 },
       { type: 'line', label: 'Balance', data: bal, borderColor: '#b45309', backgroundColor: 'rgba(180,83,9,0.18)', tension: .35, pointRadius: 2, yAxisID: 'y1', fill: true }
     ]},
     options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { labels: { boxWidth: 10, font: { size: 10 }, color: '#94a3b8' } },
-        tooltip: { callbacks: { footer: items => { const i = items[0].dataIndex; const paid = principal > 0 ? Math.round((1 - bal[i] / principal) * 100) : 0; return 'Paid to date: ' + paid + '%'; } } } },
+      plugins: { legend: { labels: { boxWidth: 12, font: { size: 12 }, color: '#94a3b8' } },
+        tooltip: { titleFont: { size: 13 }, bodyFont: { size: 13 }, callbacks: { footer: items => { const i = items[0].dataIndex; const paid = principal > 0 ? Math.round((1 - bal[i] / principal) * 100) : 0; return 'Paid to date: ' + paid + '%'; } } } },
       scales: {
-        x:  { stacked: true, ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
-        y:  { stacked: true, position: 'left',  ticks: { color: '#94a3b8', font: { size: 9 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        y1: { position: 'right', ticks: { color: '#b45309', font: { size: 9 }, callback: kAmt }, grid: { display: false } }
+        x:  { stacked: true, ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } },
+        y:  { stacked: true, position: 'left',  ticks: { color: '#94a3b8', font: { size: 11 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y1: { position: 'right', ticks: { color: '#b45309', font: { size: 11 }, callback: kAmt }, grid: { display: false } }
       } }
   });
 }
