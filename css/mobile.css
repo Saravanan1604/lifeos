@@ -12289,3 +12289,18 @@ html.is-app .spov-name { font-size: 28px; }
 html.is-app .spov-n { font-size: 18px; }
 html.is-app .spov-amt { font-size: 27px; }
 html.is-app .spov-right svg { width: 26px; height: 26px; }
+
+/* ============================================================
+   build 436 — Spending: Records-style month bar + bigger again
+   ============================================================ */
+html.is-app .spov-month { font-size: 30px !important; }
+html.is-app .spov-donut { width: 320px !important; height: 320px !important; }
+html.is-app .spov-donut-c b { font-size: 40px !important; }
+html.is-app .spov-donut-c span { font-size: 22px !important; }
+html.is-app .spov-row { padding: 24px 20px !important; gap: 18px !important; }
+html.is-app .spov-ic { width: 70px !important; height: 70px !important; }
+html.is-app .spov-ic svg, html.is-app .spov-ic i { width: 36px !important; height: 36px !important; }
+html.is-app .spov-name { font-size: 32px !important; }
+html.is-app .spov-n { font-size: 20px !important; }
+html.is-app .spov-amt { font-size: 30px !important; }
+html.is-app .spov-right svg { width: 28px !important; height: 28px !important; }

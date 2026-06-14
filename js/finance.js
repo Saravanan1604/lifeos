@@ -579,6 +579,32 @@ function openCategoryDetail(cat, from) {
 // ── Spending overview (More → Spending): donut of category spend for the
 // month + tappable category list → drills into the category detail page. ──
 function setSpendPeriod(p) { _spendPeriod = p; renderSpendingOverview(); }
+function spendToday() { _spendAnchor = new Date(); renderSpendingOverview(); }
+function spendPickDate(v) {
+  if (!v) return;
+  const d = new Date(v + 'T00:00:00');
+  if (isNaN(d)) return;
+  _spendAnchor = d; closeModal(); renderSpendingOverview();
+}
+// Period + calendar sheet (same model as the Records month label).
+function openSpendPeriodSheet() {
+  const tabs = ['day', 'week', 'month', 'year', 'all'];
+  const lbl = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
+  const d = (_spendAnchor instanceof Date && !isNaN(_spendAnchor)) ? _spendAnchor : new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const iso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  openModal('📅 View Period', `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+      ${tabs.map(p => `<button onclick="closeModal();setSpendPeriod('${p}')"
+        style="flex:1;min-width:70px;padding:13px 6px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;
+        background:${_spendPeriod === p ? 'linear-gradient(135deg,#8b5cf6,#6d28d9)' : 'rgba(255,255,255,0.05)'};
+        border:1px solid ${_spendPeriod === p ? 'transparent' : 'rgba(255,255,255,0.12)'};
+        color:${_spendPeriod === p ? '#fff' : 'var(--text)'}">${lbl[p]}</button>`).join('')}
+    </div>
+    <p style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase">Jump to date</p>
+    <input type="date" class="form-input" value="${iso}" onchange="spendPickDate(this.value)" style="width:100%">
+  `);
+}
 function spendNav(delta) {
   const d = new Date(_spendAnchor);
   if (_spendPeriod === 'day') d.setDate(d.getDate() + delta);
@@ -610,21 +636,18 @@ function renderSpendingOverview() {
   const rows = Object.entries(byCat).map(([c, v]) => ({ cat: c, total: v.total, n: v.n })).sort((x, y) => y.total - x.total);
   const grand = rows.reduce((s, r) => s + r.total, 0);
   const lbl = _spendPeriodLabel();
-  const tabs = [['day', 'Day'], ['week', 'Week'], ['month', 'Month'], ['year', 'Year'], ['all', 'All']];
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in spov">
       <div class="page-header"><div><h1 class="page-title"><i data-lucide="pie-chart"></i> Spending</h1>
       <p class="page-subtitle">Where your money goes</p></div></div>
 
-      <div class="spov-tabs">
-        ${tabs.map(([k, l]) => `<button class="spov-tab ${_spendPeriod === k ? 'on' : ''}" onclick="setSpendPeriod('${k}')">${l}</button>`).join('')}
-      </div>
-
-      <div class="spov-navbar">
+      <!-- Records-style month bar: ‹ Label ▾ › Today -->
+      <div class="mm-monthbar" style="margin-bottom:16px">
         ${_spendPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="spendNav(-1)">‹</button>`}
-        <span class="spov-month">${lbl}</span>
+        <button class="mm-month" onclick="openSpendPeriodSheet()" title="Change period / pick a date">${lbl} <span class="mm-month-chev">▾</span></button>
         ${_spendPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="spendNav(1)">›</button>`}
+        <button class="mm-today" onclick="spendToday()" title="Jump to today">Today</button>
       </div>
 
       ${rows.length ? `
