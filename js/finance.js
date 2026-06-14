@@ -5102,10 +5102,19 @@ function openManageTypesModal(kind) {
       <div id="ctype-list"></div>
     </div>
 
-    <div style="display:flex;gap:8px;margin-bottom:6px">
-      <input type="text" id="ctype-icon" class="form-input" placeholder="Emoji" style="width:70px;text-align:center;font-size:18px"/>
-      <input type="text" id="ctype-name" class="form-input" placeholder="Type name (e.g. NPS, Chit Fund…)" style="flex:1"/>
-      <button class="btn-primary btn-sm" onclick="addCustomType('${kind}')">+ Add</button>
+    <div style="margin-bottom:6px">
+      <p style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Add a custom type</p>
+      <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-end">
+        <div style="flex:0 0 84px;display:flex;flex-direction:column;gap:5px">
+          <label style="font-size:11px;font-weight:600;color:var(--text3)">Icon / Emoji</label>
+          <input type="text" id="ctype-icon" class="form-input" placeholder="😀" maxlength="2" style="width:100%;text-align:center;font-size:20px"/>
+        </div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+          <label style="font-size:11px;font-weight:600;color:var(--text3)">Type name</label>
+          <input type="text" id="ctype-name" class="form-input" placeholder="e.g. NPS, Chit Fund" style="width:100%"/>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="addCustomType('${kind}')" style="width:100%">+ Add type</button>
     </div>
 
     <div class="modal-actions" style="margin-top:14px">
