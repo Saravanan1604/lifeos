@@ -4117,7 +4117,7 @@ function renderInvestmentsApp() {
       const sub = item.type === 'Money Lent'
         ? `Lent${item.person ? ' to ' + esc(item.person) : ''}${(item.interestMode && item.interestMode !== 'none') ? ' · ' + (item.interestRate || 0) + '%/' + (item.interestMode === 'month' ? 'mo' : 'yr') : ' · 0%'}`
         : `${esc(item.type)}${dt ? ' · ' + dt : ''}`;
-      return `<div class="ia-item" onclick="openEditInvModal('${item.id}')">
+      return `<div class="ia-item" onclick="openAssetDetail('${item.id}')">
         <span class="ia-thumb" style="background:${(catColor ? '' : '')}rgba(99,102,241,0.14)"><i data-lucide="${_assetLucide(item.type)}"></i></span>
         <div class="ia-mid">
           <p class="ia-name">${esc(item.name)}</p>
@@ -4830,10 +4830,35 @@ function _assetCur(inv) {
     return _accruedValue(inv.amount, inv.interestRate, inv.interestMode, inv.date);
   return inv.currentValue ?? inv.amount ?? 0;
 }
-// Live outstanding of a loan (auto-grows when auto-calc is on, no EMI).
+// Whole months elapsed between a start date and now.
+function _monthsElapsed(startStr) {
+  if (!startStr) return 0;
+  const start = new Date(startStr + 'T00:00:00');
+  if (isNaN(start)) return 0;
+  return Math.max(0, Math.round((Date.now() - start.getTime()) / 86400000 / 30.4375));
+}
+// Auto outstanding: if the loan has an EMI, return the amortized balance AFTER
+// the EMIs paid since the start date (so it reflects payments already made).
+// Only informal debts with no EMI fall back to principal + simple interest.
+function _loanAutoOutstanding(l) {
+  const principal = +l.principal || +l.outstanding || 0;
+  const annual = _loanAnnualRate(l);
+  const emi = +l.emi || 0;
+  if (emi > 0 && principal > 0) {
+    const sch = _amortizeSchedule(principal, annual, emi, 0, 0);
+    if (!sch.neverCloses) {
+      const m = _monthsElapsed(l.startDate);
+      if (m <= 0) return principal;
+      if (m >= sch.rows.length) return 0;
+      return Math.round(sch.rows[m - 1].balance);
+    }
+    // EMI can't clear → fall through to simple-interest growth
+  }
+  return _accruedValue(principal, l.interestRate, l.interestPeriod, l.startDate);
+}
+// Live outstanding of a loan (auto-calc reflects EMIs paid; else stored value).
 function _loanOutstanding(l) {
-  if (l && l.autoCalc && (l.interestPeriod === 'month' || l.interestPeriod === 'year'))
-    return _accruedValue(l.principal, l.interestRate, l.interestPeriod, l.startDate);
+  if (l && l.autoCalc) return _loanAutoOutstanding(l);
   return l.outstanding || 0;
 }
 
@@ -4856,11 +4881,14 @@ function _loanRecalc() {
   if (!outEl) return;
   const auto = document.getElementById('ln-auto')?.checked;
   if (!auto) { outEl.disabled = false; return; }
-  const p   = parseFloat(document.getElementById('ln-principal')?.value) || 0;
-  const r   = parseFloat(document.getElementById('ln-rate')?.value) || 0;
-  const per = document.getElementById('ln-iperiod')?.value || 'year';
-  const d   = document.getElementById('ln-date')?.value || '';
-  outEl.value = _accruedValue(p, r, per, d);
+  const tmp = {
+    principal: parseFloat(document.getElementById('ln-principal')?.value) || 0,
+    interestRate: parseFloat(document.getElementById('ln-rate')?.value) || 0,
+    interestPeriod: document.getElementById('ln-iperiod')?.value || 'year',
+    startDate: document.getElementById('ln-date')?.value || '',
+    emi: parseFloat(document.getElementById('ln-emi')?.value) || 0,
+  };
+  outEl.value = Math.round(_loanAutoOutstanding(tmp));
   outEl.disabled = true;
 }
 
@@ -5126,7 +5154,7 @@ function _loanFormHTML(l) {
     </label>
     <div class="input-row">
       <div class="form-group"><label class="form-label">EMI / Month (₹)</label>
-        <input type="number" id="ln-emi" class="form-input" value="${v('emi')}" placeholder="blank for informal"/></div>
+        <input type="number" id="ln-emi" class="form-input" value="${v('emi')}" placeholder="blank for informal" oninput="_loanRecalc()"/></div>
       <div class="form-group"><label class="form-label">EMI Date (day of month)</label>
         <input type="number" id="ln-emidate" class="form-input" value="${v('emiDate')}" placeholder="e.g. 5" min="1" max="31"/></div>
     </div>
@@ -5229,6 +5257,15 @@ function _fmtMonths(n) {
   if (y) p.push(y + ' yr'); if (m) p.push(m + ' mo');
   return p.join(' ') || '0 mo';
 }
+// A default EMI that will actually clear the loan. Prefer the stored EMI, but
+// if it can't even cover the monthly interest, derive one from the tenure
+// (or a sane minimum), so the schedule/chart always renders.
+function _workableEmi(loan, principal, annual) {
+  const monthlyInt = principal * annual / 100 / 12;
+  if (loan.emi > monthlyInt + 1) return Math.round(loan.emi);
+  if (loan.tenure > 0)           return Math.round(_emiFor(principal, annual, loan.tenure));
+  return Math.ceil(monthlyInt + principal * 0.01);
+}
 // Month-by-month amortization. lump is applied once up-front.
 function _amortizeSchedule(principal, annualPct, emi, extra, lump) {
   const r = (annualPct || 0) / 100 / 12;
@@ -5276,9 +5313,7 @@ function openLoanPayoffModal(id) {
   if (!loan) { toast('Loan not found', 'error'); return; }
   const annual = _loanAnnualRate(loan);
   const principal = +loan.principal || +loan.outstanding || 0;
-  const defEmi = loan.emi > 0 ? Math.round(loan.emi)
-    : loan.tenure > 0 ? Math.round(_emiFor(principal, annual, loan.tenure))
-    : Math.round(principal * annual / 100 / 12 + principal * 0.01);
+  const defEmi = _workableEmi(loan, principal, annual);
   openModal('📉 Payoff Plan', `
     <p style="font-size:12px;color:var(--text3);margin-bottom:12px">${esc(loan.name)} · ${fmt(principal)} @ ${loan.interestRate || 0}%/${loan.interestPeriod === 'month' ? 'mo' : 'yr'}. Edit any field to see how soon it clears and the interest you save.</p>
     <div class="input-row">
@@ -5423,6 +5458,8 @@ function _renderNetWorthProj() {
 // ════════════════════════════════════════════════════════════════════════
 let _loanDetailId = null;
 let _loanDetailChart = null;
+let _ldChartMode = 'year';   // 'year' | 'month'
+function setLdChartMode(m) { _ldChartMode = m; renderLoanDetail(); }
 function openLoanDetail(id) {
   _loanDetailId = id;
   if (typeof navigate === 'function') navigate('loan-detail'); else renderLoanDetail();
@@ -5432,9 +5469,7 @@ function renderLoanDetail() {
   if (!loan) { navigate('investments'); return; }
   const annual = _loanAnnualRate(loan);
   const principal = +loan.principal || +loan.outstanding || 0;
-  const defEmi = loan.emi > 0 ? Math.round(loan.emi)
-    : loan.tenure > 0 ? Math.round(_emiFor(principal, annual, loan.tenure))
-    : Math.round(principal * annual / 100 / 12 + principal * 0.01);
+  const defEmi = _workableEmi(loan, principal, annual);
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in ld-page">
       <div class="ld-head">
@@ -5450,8 +5485,15 @@ function renderLoanDetail() {
       <div class="ld-kpis" id="ld-kpis"></div>
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
-        <p class="ld-sec">Capital vs Interest by year</p>
-        <div style="height:240px;position:relative"><canvas id="ld-chart"></canvas></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <p class="ld-sec" style="margin:0">Capital vs Interest</p>
+          <div class="ld-seg">
+            <button class="ld-seg-b ${_ldChartMode === 'year' ? 'on' : ''}" onclick="setLdChartMode('year')">Yearly</button>
+            <button class="ld-seg-b ${_ldChartMode === 'month' ? 'on' : ''}" onclick="setLdChartMode('month')">Monthly</button>
+          </div>
+        </div>
+        <div class="ld-chart-scroll"><div class="ld-chart-inner" id="ld-chart-inner" style="height:260px;position:relative"><canvas id="ld-chart"></canvas></div></div>
+        ${_ldChartMode === 'month' ? `<p style="font-size:12px;color:var(--text3);margin:8px 0 0;text-align:center">← swipe to scroll through months →</p>` : ''}
       </div>
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
@@ -5534,12 +5576,24 @@ function _renderLoanDetailCalc() {
     });
     schEl.innerHTML = html;
   }
-  // chart
-  const yearly = _amortYearly(plan.rows, loan.startDate);
-  const labels = yearly.map(y => y.year);
-  const princ  = yearly.map(y => Math.round(y.principal));
-  const intr   = yearly.map(y => Math.round(y.interest));
-  const bal    = yearly.map(y => Math.round(y.endBal));
+  // chart — yearly summary, or monthly bars in a wide, horizontally-scrollable canvas
+  let labels, princ, intr, bal;
+  const inner = document.getElementById('ld-chart-inner');
+  if (_ldChartMode === 'month') {
+    const start = loan.startDate ? new Date(loan.startDate + 'T00:00:00') : new Date();
+    labels = plan.rows.map(r => { const d = new Date(start); d.setMonth(d.getMonth() + r.m); return d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }); });
+    princ = plan.rows.map(r => Math.round(r.principal));
+    intr  = plan.rows.map(r => Math.round(r.interest));
+    bal   = plan.rows.map(r => Math.round(r.balance));
+    if (inner) inner.style.width = Math.max(100, plan.rows.length * 34) + 'px';
+  } else {
+    const yearly = _amortYearly(plan.rows, loan.startDate);
+    labels = yearly.map(y => y.year);
+    princ  = yearly.map(y => Math.round(y.principal));
+    intr   = yearly.map(y => Math.round(y.interest));
+    bal    = yearly.map(y => Math.round(y.endBal));
+    if (inner) inner.style.width = '100%';
+  }
   const ctx = document.getElementById('ld-chart'); if (!ctx || typeof Chart === 'undefined') return;
   if (_loanDetailChart) _loanDetailChart.destroy();
   const kAmt = v => '₹' + (Math.abs(v) >= 1e5 ? (v / 1e5).toFixed(1) + 'L' : Math.abs(v) >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v);
@@ -5577,6 +5631,90 @@ function applyLoanLumpSum(id) {
   saveState();
   toast(`₹${lump.toLocaleString('en-IN')} prepaid — outstanding now ${fmt(loan.outstanding)}`, 'success');
   renderLoanDetail();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  ASSET DETAIL PAGE — full-screen, mirrors the loan detail page
+// ════════════════════════════════════════════════════════════════════════
+let _assetDetailId = null;
+let _assetDetailChart = null;
+function openAssetDetail(id) {
+  _assetDetailId = id;
+  if (typeof navigate === 'function') navigate('asset-detail'); else renderAssetDetail();
+}
+function renderAssetDetail() {
+  const inv = (STATE.investments || []).find(i => i.id === _assetDetailId);
+  if (!inv) { navigate('investments'); return; }
+  const isLent = inv.type === 'Money Lent';
+  const invested = +inv.amount || 0;
+  const current = _assetCur(inv);
+  const pnl = current - invested;
+  const pos = pnl >= 0;
+  const roi = invested > 0 ? ((pnl / invested) * 100).toFixed(1) : '0.0';
+  const defRate = isLent && inv.interestMode === 'month' ? (inv.interestRate || 0) * 12
+    : isLent && inv.interestMode === 'year' ? (inv.interestRate || 0) : 10;
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in ld-page">
+      <div class="ld-head">
+        <button class="catdet-back" onclick="navigate('investments')"><i data-lucide="arrow-left"></i></button>
+        <div class="catdet-title" style="flex:1;min-width:0">
+          <span class="catdet-ic" style="background:#10b981"><i data-lucide="${_assetLucide(inv.type)}"></i></span>
+          <div style="min-width:0"><p class="catdet-name">${esc(inv.name)}</p>
+          <p class="catdet-sub">${esc(inv.type)}${isLent && inv.person ? ' · ' + esc(inv.person) : ''}${inv.date ? ' · ' + new Date(inv.date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : ''}</p></div>
+        </div>
+        <button class="catdet-back" onclick="openEditInvModal('${inv.id}')" title="Edit details"><i data-lucide="pencil"></i></button>
+      </div>
+
+      <div class="ld-kpis">
+        <div class="ld-kpi"><p class="l">${isLent ? 'AMOUNT GIVEN' : 'INVESTED'}</p><p class="v">${fmt(invested)}</p></div>
+        <div class="ld-kpi"><p class="l">${isLent ? 'TO RECEIVE' : 'CURRENT VALUE'}</p><p class="v" style="color:#10b981">${fmt(current)}</p></div>
+        <div class="ld-kpi"><p class="l">${pos ? 'GAIN' : 'LOSS'}</p><p class="v" style="color:${pos ? '#22c55e' : '#ef4444'}">${pos ? '+' : '-'}${fmt(Math.abs(pnl))}</p></div>
+        <div class="ld-kpi"><p class="l">RETURN</p><p class="v" style="color:${pos ? '#22c55e' : '#ef4444'}">${pos ? '+' : ''}${roi}%</p></div>
+      </div>
+
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <p class="ld-sec">Growth projection</p>
+        <div style="height:240px;position:relative"><canvas id="ad-chart"></canvas></div>
+      </div>
+
+      <div class="glass-card" style="padding:16px;margin-bottom:16px">
+        <p class="ld-sec">What-if — edit to project</p>
+        <div class="input-row">
+          <div class="form-group"><label class="form-label">Years</label>
+            <input type="number" id="ad-years" class="form-input" value="10" oninput="_renderAssetDetailCalc()"/></div>
+          <div class="form-group"><label class="form-label">Return %/yr</label>
+            <input type="number" id="ad-rate" class="form-input" value="${defRate}" oninput="_renderAssetDetailCalc()"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Add ₹/month (optional)</label>
+          <input type="number" id="ad-add" class="form-input" value="0" placeholder="0" oninput="_renderAssetDetailCalc()"/></div>
+        <div id="ad-result"></div>
+      </div>
+    </div>`;
+  setTimeout(() => {
+    if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+    _renderAssetDetailCalc();
+  }, 40);
+}
+function _renderAssetDetailCalc() {
+  const inv = (STATE.investments || []).find(i => i.id === _assetDetailId); if (!inv) return;
+  const years = Math.max(1, Math.min(40, parseInt(document.getElementById('ad-years')?.value) || 10));
+  const g = (parseFloat(document.getElementById('ad-rate')?.value) || 0) / 100;
+  const add = parseFloat(document.getElementById('ad-add')?.value) || 0;
+  let val = _assetCur(inv);
+  const labels = [], series = []; const y0 = new Date().getFullYear();
+  for (let k = 0; k <= years; k++) { if (k > 0) { val = val * (1 + g) + add * 12; } labels.push(y0 + k); series.push(Math.round(val)); }
+  const resEl = document.getElementById('ad-result');
+  if (resEl) resEl.innerHTML = `<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:12px;font-size:13px">In <b>${years} years</b> ≈ <b style="color:#34d399">${fmt(series[series.length - 1])}</b> — from ${fmt(series[0])} today.</div>`;
+  const ctx = document.getElementById('ad-chart'); if (!ctx || typeof Chart === 'undefined') return;
+  if (_assetDetailChart) _assetDetailChart.destroy();
+  const kAmt = v => '₹' + (Math.abs(v) >= 1e7 ? (v / 1e7).toFixed(1) + 'Cr' : Math.abs(v) >= 1e5 ? (v / 1e5).toFixed(1) + 'L' : v >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v);
+  _assetDetailChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ label: 'Value', data: series, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.2)', tension: .35, pointRadius: 2, fill: true }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
+        y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+  });
 }
 
 // ── Custom Type Manager ─────────────────────────────────────────────────────

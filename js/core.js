@@ -929,6 +929,7 @@ function _renderPage(page) {
     case 'yearly':       renderYearly();        break;
     case 'investments':  renderInvestments();   break;
     case 'loan-detail':  renderLoanDetail();     break;
+    case 'asset-detail': renderAssetDetail();    break;
     case 'budget':       renderBudget();        break;
     case 'bank-tracker': renderBankTracker();   break;
     case 'health':       renderHealth();        break;

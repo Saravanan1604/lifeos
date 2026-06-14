@@ -13240,3 +13240,34 @@ html.is-app .ld-sch-yr {
   background: rgba(99,102,241,0.12); color: #a5b4fc; font-weight: 700;
   font-size: 12px; padding: 6px 8px;
 }
+
+/* ============================================================
+   build 465 — Loan detail: bigger text, monthly swipe chart
+   ============================================================ */
+html.is-app .ld-kpi p.l { font-size: 13px !important; }
+html.is-app .ld-kpi p.v { font-size: 25px !important; }
+html.is-app .ld-sec { font-size: 15px !important; }
+html.is-app .ld-sch-row {
+  grid-template-columns: 1.1fr 1fr 1fr 1.1fr;
+  padding: 13px 8px !important; font-size: 16px !important;
+}
+html.is-app .ld-sch-hd { font-size: 13px !important; }
+html.is-app .ld-sch-yr { font-size: 15px !important; padding: 8px !important; }
+html.is-app .ld-head .catdet-name { font-size: 26px !important; }
+html.is-app .ld-head .catdet-sub  { font-size: 15px !important; }
+
+/* Year / Month segmented toggle */
+html.is-app .ld-seg {
+  display: inline-flex; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 3px;
+}
+html.is-app .ld-seg-b {
+  border: none; background: transparent; color: var(--text2);
+  font-size: 13px; font-weight: 700; padding: 7px 14px; border-radius: 9px; cursor: pointer;
+}
+html.is-app .ld-seg-b.on { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; }
+
+/* Horizontally scrollable monthly chart (swipe) */
+html.is-app .ld-chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+html.is-app .ld-chart-scroll::-webkit-scrollbar { height: 5px; }
+html.is-app .ld-chart-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
