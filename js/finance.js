@@ -4200,6 +4200,11 @@ function renderInvestmentsApp() {
         })()}
       </div>
 
+      <!-- PROJECTION BUTTON -->
+      <button onclick="openNetWorthProjModal()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.4);border-radius:16px;background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.12));color:#a5b4fc;font-size:15px;font-weight:700;cursor:pointer">
+        <i data-lucide="trending-up"></i> Net-Worth Projection
+      </button>
+
       <!-- ASSETS / LIABILITIES TOGGLE -->
       <div class="ia-toggle">
         <button class="ia-tg ${isAssets ? 'on' : ''}" onclick="invSetView('assets')">Assets (${investments.length})</button>
@@ -5178,6 +5183,7 @@ function openEditLoanModal(id) {
   if (!loan) return;
   openModal('✏️ Edit Loan', `
     ${_loanFormHTML(loan)}
+    <button class="btn-secondary" onclick="openLoanPayoffModal('${id}')" style="width:100%;margin-top:6px">📉 Payoff Plan &amp; What-if</button>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveEditLoan('${id}')" style="background:linear-gradient(135deg,#ef4444,#dc2626)">💾 Save Changes</button>
@@ -5197,6 +5203,219 @@ function saveEditLoan(id) {
 function deleteLoan(id) {
   STATE.loans = (STATE.loans || []).filter(l => l.id !== id);
   saveState(); toast('Loan deleted', 'info'); renderInvestments();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  LOAN PAYOFF PLAN  +  NET-WORTH PROJECTION  (build 463)
+// ════════════════════════════════════════════════════════════════════════
+
+// Annual interest rate (%) for a loan, honouring its interestPeriod.
+function _loanAnnualRate(l) {
+  const r = +l.interestRate || 0;
+  if (l.interestPeriod === 'month') return r * 12;
+  if (l.interestPeriod === 'none')  return 0;
+  return r; // 'year' (default)
+}
+// Standard EMI for a principal at an annual rate over n months.
+function _emiFor(principal, annualPct, months) {
+  if (!months) return 0;
+  const r = annualPct / 100 / 12;
+  if (r === 0) return principal / months;
+  return principal * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+}
+function _fmtMonths(n) {
+  n = Math.max(0, Math.round(n));
+  const y = Math.floor(n / 12), m = n % 12, p = [];
+  if (y) p.push(y + ' yr'); if (m) p.push(m + ' mo');
+  return p.join(' ') || '0 mo';
+}
+// Month-by-month amortization. lump is applied once up-front.
+function _amortizeSchedule(principal, annualPct, emi, extra, lump) {
+  const r = (annualPct || 0) / 100 / 12;
+  let bal = Math.max(0, (+principal || 0) - (+lump || 0));
+  const pay = (+emi || 0) + (+extra || 0);
+  if (bal > 0 && pay <= 0) return { neverCloses: true, totalInterest: 0, months: 0, rows: [] };
+  if (bal > 0 && r > 0 && pay <= bal * r) return { neverCloses: true, totalInterest: 0, months: 0, rows: [] };
+  const rows = []; let totalInterest = 0, m = 0;
+  while (bal > 0.005 && m < 1200) {
+    const interest = bal * r;
+    let principalPaid = pay - interest;
+    if (principalPaid > bal) principalPaid = bal;
+    bal -= principalPaid; totalInterest += interest;
+    rows.push({ m, interest, principal: principalPaid, balance: Math.max(0, bal) });
+    m++;
+  }
+  return { neverCloses: false, totalInterest, months: rows.length, rows };
+}
+// Aggregate a schedule into calendar years for the chart.
+function _amortYearly(rows, startStr) {
+  const start = startStr ? new Date(startStr + 'T00:00:00') : new Date();
+  const by = {};
+  rows.forEach(row => {
+    const d = new Date(start); d.setMonth(d.getMonth() + row.m);
+    const y = d.getFullYear();
+    by[y] = by[y] || { year: y, principal: 0, interest: 0, endBal: row.balance };
+    by[y].principal += row.principal; by[y].interest += row.interest; by[y].endBal = row.balance;
+  });
+  return Object.values(by).sort((a, b) => a.year - b.year);
+}
+// Outstanding balance of a loan after `months` of its own EMI (for projection).
+function _loanBalanceAfterMonths(l, months) {
+  const principal = +l.outstanding || +l.principal || 0;
+  const emi = +l.emi || 0;
+  if (emi <= 0 || months <= 0) return principal;
+  const sch = _amortizeSchedule(principal, _loanAnnualRate(l), emi, 0, 0);
+  if (sch.neverCloses) return principal;
+  if (months >= sch.rows.length) return 0;
+  return sch.rows[months - 1].balance;
+}
+
+let _payoffChartInst = null;
+function openLoanPayoffModal(id) {
+  const loan = (STATE.loans || []).find(l => l.id === id);
+  if (!loan) { toast('Loan not found', 'error'); return; }
+  const annual = _loanAnnualRate(loan);
+  const principal = +loan.principal || +loan.outstanding || 0;
+  const defEmi = loan.emi > 0 ? Math.round(loan.emi)
+    : loan.tenure > 0 ? Math.round(_emiFor(principal, annual, loan.tenure))
+    : Math.round(principal * annual / 100 / 12 + principal * 0.01);
+  openModal('📉 Payoff Plan', `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px">${esc(loan.name)} · ${fmt(principal)} @ ${loan.interestRate || 0}%/${loan.interestPeriod === 'month' ? 'mo' : 'yr'}. Edit any field to see how soon it clears and the interest you save.</p>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">EMI / month (₹)</label>
+        <input type="number" id="pf-emi" class="form-input" value="${defEmi}" oninput="_renderPayoff('${id}')"/></div>
+      <div class="form-group"><label class="form-label">Extra / month (₹)</label>
+        <input type="number" id="pf-extra" class="form-input" value="0" placeholder="0" oninput="_renderPayoff('${id}')"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">One-time lump sum now (₹)</label>
+      <input type="number" id="pf-lump" class="form-input" value="0" placeholder="0" oninput="_renderPayoff('${id}')"/></div>
+    <div id="pf-summary" style="margin:6px 0 12px"></div>
+    <div style="height:240px;position:relative"><canvas id="pf-chart"></canvas></div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn-primary" onclick="closeModal()">Done</button>
+    </div>`);
+  setTimeout(() => _renderPayoff(id), 60);
+}
+function _renderPayoff(id) {
+  const loan = (STATE.loans || []).find(l => l.id === id); if (!loan) return;
+  const annual = _loanAnnualRate(loan);
+  const principal = +loan.principal || +loan.outstanding || 0;
+  const emi   = parseFloat(document.getElementById('pf-emi')?.value) || 0;
+  const extra = parseFloat(document.getElementById('pf-extra')?.value) || 0;
+  const lump  = parseFloat(document.getElementById('pf-lump')?.value) || 0;
+  const base = _amortizeSchedule(principal, annual, emi, 0, 0);
+  const plan = _amortizeSchedule(principal, annual, emi, extra, lump);
+  const sumEl = document.getElementById('pf-summary'); if (!sumEl) return;
+  if (plan.neverCloses) {
+    sumEl.innerHTML = `<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;font-size:13px;color:#ef4444">⚠️ This EMI is too low to ever clear the loan — it doesn't cover the monthly interest. Raise the EMI.</div>`;
+    if (_payoffChartInst) { _payoffChartInst.destroy(); _payoffChartInst = null; }
+    return;
+  }
+  const monthsSaved   = base.neverCloses ? 0 : base.months - plan.months;
+  const interestSaved = base.neverCloses ? 0 : base.totalInterest - plan.totalInterest;
+  sumEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:12px">
+        <p style="font-size:11px;color:var(--text3);margin:0 0 4px">CLOSES IN</p>
+        <p style="font-size:18px;font-weight:800;margin:0">${_fmtMonths(plan.months)}</p></div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:12px">
+        <p style="font-size:11px;color:var(--text3);margin:0 0 4px">TOTAL INTEREST</p>
+        <p style="font-size:18px;font-weight:800;margin:0;color:#f0a868">${fmt(Math.round(plan.totalInterest))}</p></div>
+    </div>
+    ${(extra > 0 || lump > 0) && monthsSaved > 0 ? `<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:12px;margin-top:10px;font-size:13px;color:#22c55e;font-weight:600">✅ Closes <b>${_fmtMonths(monthsSaved)}</b> sooner · saves <b>${fmt(Math.round(interestSaved))}</b> in interest.</div>` : ''}`;
+  const yearly = _amortYearly(plan.rows, loan.startDate);
+  const labels = yearly.map(y => y.year);
+  const princ  = yearly.map(y => Math.round(y.principal));
+  const intr   = yearly.map(y => Math.round(y.interest));
+  const bal    = yearly.map(y => Math.round(y.endBal));
+  const ctx = document.getElementById('pf-chart'); if (!ctx || typeof Chart === 'undefined') return;
+  if (_payoffChartInst) _payoffChartInst.destroy();
+  const kAmt = v => '₹' + (Math.abs(v) >= 1e5 ? (v / 1e5).toFixed(1) + 'L' : Math.abs(v) >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v);
+  _payoffChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Principal', data: princ, backgroundColor: '#86c06c', stack: 's', yAxisID: 'y' },
+      { label: 'Interest',  data: intr,  backgroundColor: '#f0a868', stack: 's', yAxisID: 'y' },
+      { type: 'line', label: 'Balance', data: bal, borderColor: '#b45309', backgroundColor: 'rgba(180,83,9,0.18)', tension: .35, pointRadius: 2, yAxisID: 'y1', fill: true }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { boxWidth: 10, font: { size: 10 }, color: '#94a3b8' } },
+        tooltip: { callbacks: { footer: items => { const i = items[0].dataIndex; const paid = principal > 0 ? Math.round((1 - bal[i] / principal) * 100) : 0; return 'Paid to date: ' + paid + '%'; } } } },
+      scales: {
+        x:  { stacked: true, ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
+        y:  { stacked: true, position: 'left',  ticks: { color: '#94a3b8', font: { size: 9 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y1: { position: 'right', ticks: { color: '#b45309', font: { size: 9 }, callback: kAmt }, grid: { display: false } }
+      } }
+  });
+}
+
+let _nwProjChartInst = null;
+function openNetWorthProjModal() {
+  const assets0 = (STATE.investments || []).reduce((s, i) => s + _assetCur(i), 0);
+  const cash0   = (STATE.bankAccounts || []).reduce((s, b) => s + (+b.balance || 0), 0)
+                + (STATE.cashAccounts || []).reduce((s, c) => s + (+c.balance || 0), 0);
+  const loans0  = (STATE.loans || []).reduce((s, l) => s + _loanOutstanding(l), 0);
+  openModal('📈 Net-Worth Projection', `
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Today: assets ${fmt(Math.round(assets0))} · cash ${fmt(Math.round(cash0))} · loans ${fmt(Math.round(loans0))}. Tune the assumptions to project forward.</p>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Years</label>
+        <input type="number" id="nw-years" class="form-input" value="10" oninput="_renderNetWorthProj()"/></div>
+      <div class="form-group"><label class="form-label">Asset growth %/yr</label>
+        <input type="number" id="nw-grow" class="form-input" value="10" oninput="_renderNetWorthProj()"/></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Monthly invest (SIP ₹)</label>
+        <input type="number" id="nw-sip" class="form-input" value="0" placeholder="0" oninput="_renderNetWorthProj()"/></div>
+      <div class="form-group"><label class="form-label">Monthly savings (₹)</label>
+        <input type="number" id="nw-save" class="form-input" value="0" placeholder="0" oninput="_renderNetWorthProj()"/></div>
+    </div>
+    <div id="nw-summary" style="margin:6px 0 12px"></div>
+    <div style="height:240px;position:relative"><canvas id="nw-chart"></canvas></div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn-primary" onclick="closeModal()">Done</button>
+    </div>`);
+  setTimeout(_renderNetWorthProj, 60);
+}
+function _renderNetWorthProj() {
+  const years = Math.max(1, Math.min(40, parseInt(document.getElementById('nw-years')?.value) || 10));
+  const g   = (parseFloat(document.getElementById('nw-grow')?.value) || 0) / 100;
+  const sip = parseFloat(document.getElementById('nw-sip')?.value) || 0;
+  const sav = parseFloat(document.getElementById('nw-save')?.value) || 0;
+  let assets = (STATE.investments || []).reduce((s, i) => s + _assetCur(i), 0);
+  let cash   = (STATE.bankAccounts || []).reduce((s, b) => s + (+b.balance || 0), 0)
+             + (STATE.cashAccounts || []).reduce((s, c) => s + (+c.balance || 0), 0);
+  const loans = STATE.loans || [];
+  const labels = [], acSeries = [], lSeries = [], nSeries = [];
+  const y0 = new Date().getFullYear();
+  for (let k = 0; k <= years; k++) {
+    if (k > 0) { assets = assets * (1 + g) + sip * 12; cash = cash + sav * 12; }
+    const loanBal = loans.reduce((s, l) => s + _loanBalanceAfterMonths(l, k * 12), 0);
+    labels.push(y0 + k);
+    acSeries.push(Math.round(assets + cash));
+    lSeries.push(-Math.round(loanBal));
+    nSeries.push(Math.round(assets + cash - loanBal));
+  }
+  const sgn = n => (n < 0 ? '-' : '') + fmt(Math.abs(n));
+  const future = nSeries[nSeries.length - 1], todayNw = nSeries[0];
+  const sumEl = document.getElementById('nw-summary');
+  if (sumEl) sumEl.innerHTML = `<div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:12px;font-size:13px">In <b>${years} years</b> your projected net worth is <b style="color:${future < 0 ? '#f87171' : '#a5b4fc'}">${sgn(future)}</b> — from ${sgn(todayNw)} today.</div>`;
+  const ctx = document.getElementById('nw-chart'); if (!ctx || typeof Chart === 'undefined') return;
+  if (_nwProjChartInst) _nwProjChartInst.destroy();
+  const kAmt = v => '₹' + (Math.abs(v) >= 1e7 ? (v / 1e7).toFixed(1) + 'Cr' : Math.abs(v) >= 1e5 ? (v / 1e5).toFixed(1) + 'L' : Math.abs(v) >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v);
+  _nwProjChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Assets + Cash', data: acSeries, backgroundColor: 'rgba(16,185,129,0.35)', stack: 's' },
+      { label: 'Loans',         data: lSeries,  backgroundColor: 'rgba(239,68,68,0.35)',  stack: 's' },
+      { type: 'line', label: 'Net Worth', data: nSeries, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.2)', tension: .35, pointRadius: 2, fill: true }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { boxWidth: 10, font: { size: 10 }, color: '#94a3b8' } } },
+      scales: {
+        x: { stacked: true, ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
+        y: { stacked: true, ticks: { color: '#94a3b8', font: { size: 9 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      } }
+  });
 }
 
 // ── Custom Type Manager ─────────────────────────────────────────────────────
