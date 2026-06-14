@@ -3950,7 +3950,7 @@ html.is-app body.light #modal-overlay .modal-box {
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.1) !important;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   html.is-app #modal-overlay {
     align-items: center !important;
     padding: 24px !important;
@@ -12521,7 +12521,7 @@ html.is-app #modal-overlay .modal-body {
   max-height: calc(90vh - 80px) !important; /* Subtract header + handle height */
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   html.is-app #modal-overlay {
     align-items: center !important;
     padding: 24px !important;
