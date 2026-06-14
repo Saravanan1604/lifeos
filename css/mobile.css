@@ -12739,4 +12739,20 @@ html.is-app #modal-overlay .btn-secondary:active {
   background: rgba(255, 255, 255, 0.12) !important;
 }
 
+/* Lucide outline line SVG styles */
+html.is-app .form-field-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  stroke: var(--text2, #cbd5e1) !important;
+  stroke-width: 2.2 !important;
+  display: block !important;
+}
+
+html.is-app .modal-title-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  stroke-width: 2.4 !important;
+  display: block !important;
+}
+
 

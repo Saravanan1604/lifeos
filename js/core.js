@@ -134,6 +134,71 @@ function _modalThemeColor(title) {
   return '#00c9a7'; // default teal
 }
 
+function _emojiToLucide(val) {
+  const v = String(val || '').toLowerCase();
+  const emojiMap = {
+    '🔍': 'search',
+    '📅': 'calendar',
+    '📂': 'folder',
+    '🏷️': 'tag',
+    '㗊': 'layers',
+    '🏦': 'landmark',
+    '💳': 'credit-card',
+    '💵': 'wallet',
+    '💰': 'coins',
+    '⇅': 'arrow-up-down',
+    '🔁': 'repeat',
+    '📝': 'file-text',
+    '⏰': 'clock',
+    '👤': 'user',
+    '📞': 'phone',
+    '✉️': 'mail',
+    '🔒': 'lock',
+    '🔑': 'key',
+    '＋': 'plus',
+    '➕': 'plus',
+    '✏️': 'edit-3',
+    '🗑️': 'trash-2',
+    'ℹ️': 'info',
+    '⚠️': 'alert-triangle',
+    '✅': 'check',
+    '💥': 'sparkles',
+    '✨': 'sparkles',
+    '⏳': 'hourglass',
+    '⚙️': 'settings',
+    '🔔': 'bell',
+    '📈': 'trending-up',
+    '📉': 'trending-down',
+    '📊': 'bar-chart-2',
+    '🎯': 'target',
+    '💸': 'trending-down',
+    '💡': 'lightbulb'
+  };
+
+  if (emojiMap[val]) return emojiMap[val];
+
+  if (v.includes('account') || v.includes('bank') || v.includes('source') || v.includes('liability')) return 'landmark';
+  if (v.includes('category')) return 'folder';
+  if (v.includes('subcategory')) return 'tag';
+  if (v.includes('repeat') || v.includes('frequency') || v.includes('recurring')) return 'repeat';
+  if (v.includes('search')) return 'search';
+  if (v.includes('settings')) return 'settings';
+  if (v.includes('habit')) return 'check-circle';
+  if (v.includes('goal') || v.includes('target')) return 'target';
+  if (v.includes('note') || v.includes('description') || v.includes('desc') || v.includes('title')) return 'file-text';
+  if (v.includes('asset') || v.includes('invest')) return 'trending-up';
+  if (v.includes('delete') || v.includes('remove')) return 'trash-2';
+  if (v.includes('edit') || v.includes('update')) return 'edit-3';
+  if (v.includes('add') || v.includes('new') || v.includes('create')) return 'plus';
+  if (v.includes('card') || v.includes('cc')) return 'credit-card';
+  if (v.includes('cash') || v.includes('wallet')) return 'wallet';
+  if (v.includes('amount') || v.includes('price') || v.includes('limit') || v.includes('budget') || v.includes('income') || v.includes('expense')) return 'coins';
+  if (v.includes('sort') || v.includes('order')) return 'arrow-up-down';
+  if (v.includes('date') || v.includes('day') || v.includes('time') || v.includes('period')) return 'calendar';
+
+  return 'info';
+}
+
 function _themeModalFields(ov) {
   if (!window.__IS_APP && !document.documentElement.classList.contains('is-app')) return;
   
@@ -153,7 +218,7 @@ function _themeModalFields(ov) {
     if (input && !input.parentNode.classList.contains('form-field-icon-wrap')) {
       if (input.tagName === 'INPUT' && input.getAttribute('list')) return; // skip datalist suggestions
       
-      let icon = '';
+      let iconName = '';
       const labelText = label ? label.textContent.toLowerCase() : '';
       const plc = (input.getAttribute('placeholder') || '').toLowerCase();
       const name = (input.getAttribute('name') || '').toLowerCase();
@@ -161,44 +226,44 @@ function _themeModalFields(ov) {
       const textContext = (labelText + ' ' + plc + ' ' + name + ' ' + id);
 
       if (input.type === 'date' || textContext.includes('date') || textContext.includes('day')) {
-        icon = '📅';
+        iconName = 'calendar';
       } else if (textContext.includes('search')) {
-        icon = '🔍';
+        iconName = 'search';
       } else if (textContext.includes('category')) {
-        icon = '📂';
+        iconName = 'folder';
       } else if (textContext.includes('subcategory')) {
-        icon = '🏷️';
+        iconName = 'tag';
       } else if (textContext.includes('type')) {
-        icon = '㗊';
+        iconName = 'layers';
       } else if (textContext.includes('account') || textContext.includes('bank') || textContext.includes('source')) {
-        icon = '🏦';
+        iconName = 'landmark';
       } else if (textContext.includes('card') || textContext.includes('cc')) {
-        icon = '💳';
+        iconName = 'credit-card';
       } else if (textContext.includes('cash') || textContext.includes('wallet')) {
-        icon = '💵';
+        iconName = 'wallet';
       } else if (textContext.includes('amount') || textContext.includes('price') || textContext.includes('limit') || textContext.includes('budget')) {
-        icon = '💰';
+        iconName = 'coins';
       } else if (textContext.includes('sort')) {
-        icon = '⇅';
+        iconName = 'arrow-up-down';
       } else if (textContext.includes('repeat') || textContext.includes('frequency')) {
-        icon = '🔁';
+        iconName = 'repeat';
       } else if (textContext.includes('notes') || textContext.includes('desc') || textContext.includes('title')) {
-        icon = '📝';
+        iconName = 'file-text';
       } else if (input.type === 'time') {
-        icon = '⏰';
+        iconName = 'clock';
       } else if (textContext.includes('name')) {
-        icon = '👤';
+        iconName = 'user';
       } else if (textContext.includes('phone') || textContext.includes('mobile')) {
-        icon = '📞';
+        iconName = 'phone';
       } else if (textContext.includes('email')) {
-        icon = '✉️';
+        iconName = 'mail';
       } else if (textContext.includes('password')) {
-        icon = '🔒';
+        iconName = 'lock';
       } else if (textContext.includes('pin')) {
-        icon = '🔑';
+        iconName = 'key';
       }
 
-      if (icon) {
+      if (iconName) {
         const wrap = document.createElement('div');
         wrap.className = 'form-field-icon-wrap';
         input.parentNode.insertBefore(wrap, input);
@@ -206,7 +271,7 @@ function _themeModalFields(ov) {
         
         const iconSpan = document.createElement('span');
         iconSpan.className = 'form-field-icon';
-        iconSpan.textContent = icon;
+        iconSpan.innerHTML = `<i data-lucide="${iconName}"></i>`;
         wrap.insertBefore(iconSpan, input);
       }
     }
@@ -226,27 +291,13 @@ function openModal(title, bodyHTML) {
   if (match) {
     emoji = match[1];
     cleanTitle = cleanTitle.replace(emojiRegex, '').trim();
-  } else {
-    // Keyword fallback
-    const t = cleanTitle.toLowerCase();
-    if (t.includes('account')) emoji = '🏦';
-    else if (t.includes('category')) emoji = '🏷️';
-    else if (t.includes('repeat')) emoji = '🔁';
-    else if (t.includes('search')) emoji = '🔍';
-    else if (t.includes('settings')) emoji = '⚙️';
-    else if (t.includes('habit')) emoji = '✅';
-    else if (t.includes('goal')) emoji = '🎯';
-    else if (t.includes('note')) emoji = '📝';
-    else if (t.includes('asset')) emoji = '📈';
-    else if (t.includes('loan')) emoji = '🏦';
-    else if (t.includes('delete') || t.includes('remove')) emoji = '🗑️';
-    else if (t.includes('edit')) emoji = '✏️';
-    else if (t.includes('add') || t.includes('new')) emoji = '➕';
   }
-
+  
   const isApp = window.__IS_APP || document.documentElement.classList.contains('is-app');
-  if (isApp && emoji) {
-    titleEl.innerHTML = `<span class="modal-title-icon">${emoji}</span><span class="modal-title-text">${cleanTitle}</span>`;
+  if (isApp) {
+    const iconName = _emojiToLucide(emoji || cleanTitle);
+    titleEl.innerHTML = `<span class="modal-title-icon"><i data-lucide="${iconName}"></i></span><span class="modal-title-text">${cleanTitle}</span>`;
+    
     // Apply accent dynamic colors to the icon container
     const themeColor = _modalThemeColor(title);
     const iconContainer = titleEl.querySelector('.modal-title-icon');
