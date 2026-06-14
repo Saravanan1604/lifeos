@@ -13152,3 +13152,33 @@ html.is-app body.light #modal-overlay .modal-box {
   -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
+
+/* ============================================================
+   build 456 — Categories action buttons alignment fix.
+   The action row was a horizontal-scroll strip, so the last
+   button (Loan Types) was clipped at the right edge and the
+   injected "Customize" button dangled alone below. Wrap them
+   into a tidy 2-per-row grid and give Customize its own full
+   width row so everything lines up.
+   ============================================================ */
+html.is-app .page-categories .cat-hdr-buttons {
+  flex-wrap: wrap !important;
+  overflow-x: visible !important;
+  align-items: stretch !important;
+  padding: 4px 0 !important;
+}
+
+html.is-app .page-categories .cat-hdr-btn {
+  flex: 1 1 calc(50% - 5px) !important;   /* two per row, equal width */
+  min-width: calc(50% - 5px) !important;
+  padding: 12px 10px !important;          /* a touch tighter so labels fit */
+}
+
+/* Customize button (injected as a header sibling) — full-width row,
+   matching the action buttons' rounding so the group reads as one set. */
+html.is-app .page-categories .page-customize-btn {
+  width: 100% !important;
+  justify-content: center !important;
+  border-radius: 16px !important;
+  margin-top: 0 !important;
+}
