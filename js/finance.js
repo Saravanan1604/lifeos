@@ -566,14 +566,21 @@ let _catDetailCat = null;
 let _catDetailFrom = 'records';   // where back should return to
 let _spendAnchor = new Date();    // anchor for the spending overview
 let _spendPeriod = 'month';       // day | week | month | year | all
+let _catDetYearly = false;
 
 function openCategoryDetail(cat, from) {
+  _catDetYearly = false;
   _catDetailCat = cat;
   _catDetailFrom = from || 'records';
   // Route it as a real page so the 3s cloud-sync poll re-renders the detail
   // (not the parent page) — otherwise the detail flashed and reverted.
   if (typeof navigate === 'function') navigate('category-detail');
   else renderCategoryDetail();
+}
+
+function setCatDetYearly(yearly) {
+  _catDetYearly = yearly;
+  renderCategoryDetail();
 }
 
 // ── Spending overview (More → Spending): donut of category spend for the
@@ -690,26 +697,126 @@ function renderCategoryDetail() {
   const tx = (STATE.transactions || []).filter(t => (t.category || 'Other') === cat && t.type !== 'income');
   const anchor = (_recAnchor instanceof Date && !isNaN(_recAnchor)) ? _recAnchor : new Date();
 
-  // last 7 months of totals for this category
-  const months = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(anchor.getFullYear(), anchor.getMonth() - i, 1);
-    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const total = tx.filter(t => (t.date || '').slice(0, 7) === ym).reduce((s, t) => s + (+t.amount || 0), 0);
-    months.push({ label: d.toLocaleString('default', { month: 'short' }), ym, total, isAnchor: i === 0 });
+  // find earliest transaction month for this category to show data where we started to enter data
+  let minDate = new Date();
+  if (tx.length) {
+    tx.forEach(t => {
+      if (t.date) {
+        const d = new Date(t.date);
+        if (!isNaN(d) && d < minDate) {
+          minDate = d;
+        }
+      }
+    });
+  } else {
+    // fallback: last 6 months
+    minDate.setMonth(minDate.getMonth() - 5);
   }
-  const anchorYm = `${anchor.getFullYear()}-${String(anchor.getMonth() + 1).padStart(2, '0')}`;
-  const monthTx = tx.filter(t => (t.date || '').slice(0, 7) === anchorYm)
-    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-  const monthTotal = monthTx.reduce((s, t) => s + (+t.amount || 0), 0);
+
+  // Generate monthly range
+  const months = [];
+  const start = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+  const end = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+  const today = new Date();
+  const limitDate = end > today ? end : new Date(today.getFullYear(), today.getMonth(), 1);
+
+  let cur = new Date(start);
+  while (cur <= limitDate) {
+    const ym = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`;
+    const total = tx.filter(t => (t.date || '').slice(0, 7) === ym).reduce((s, t) => s + (+t.amount || 0), 0);
+    months.push({
+      label: cur.toLocaleString('default', { month: 'short' }),
+      year: cur.getFullYear(),
+      ym,
+      total,
+      isAnchor: cur.getFullYear() === anchor.getFullYear() && cur.getMonth() === anchor.getMonth()
+    });
+    cur.setMonth(cur.getMonth() + 1);
+  }
+
+  // Generate yearly range
+  const years = [];
+  const startYear = minDate.getFullYear();
+  const endYear = Math.max(anchor.getFullYear(), today.getFullYear());
+  for (let y = startYear; y <= endYear; y++) {
+    const total = tx.filter(t => (t.date || '').slice(0, 4) === String(y)).reduce((s, t) => s + (+t.amount || 0), 0);
+    years.push({
+      label: String(y),
+      year: y,
+      total,
+      isAnchor: y === anchor.getFullYear()
+    });
+  }
+
+  const chartItems = _catDetYearly ? years : months;
+  const containerWidth = chartItems.length > 6 ? `calc((${chartItems.length} / 6) * 100%)` : '100%';
+
+  let displayTx = [];
+  let displayTotal = 0;
+  let spentPeriodText = '';
+
+  if (_catDetYearly) {
+    displayTx = tx.filter(t => (t.date || '').slice(0, 4) === String(anchor.getFullYear()))
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    displayTotal = displayTx.reduce((s, t) => s + (+t.amount || 0), 0);
+    spentPeriodText = `Spent in ${anchor.getFullYear()}`;
+  } else {
+    const anchorYm = `${anchor.getFullYear()}-${String(anchor.getMonth() + 1).padStart(2, '0')}`;
+    displayTx = tx.filter(t => (t.date || '').slice(0, 7) === anchorYm)
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    displayTotal = displayTx.reduce((s, t) => s + (+t.amount || 0), 0);
+    spentPeriodText = `Spent in ${anchor.toLocaleString('default', { month: 'short' })}`;
+  }
+
   const color = catColor(cat);
 
-  // sub-category split for the anchor month
+  // sub-category split for display period
   const bySub = {};
-  monthTx.forEach(t => { const s = (t.subcategory || '').trim() || '—'; bySub[s] = (bySub[s] || 0) + (+t.amount || 0); });
+  displayTx.forEach(t => { const s = (t.subcategory || '').trim() || '—'; bySub[s] = (bySub[s] || 0) + (+t.amount || 0); });
   const subRows = Object.entries(bySub).sort((a, b) => b[1] - a[1]);
 
   const shortK = n => Math.abs(n) >= 1000 ? (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'K' : String(Math.round(n));
+
+  // Category Budget limit calculation and HTML
+  const catBudget = (STATE.budgets || []).find(b => b.category?.trim().toLowerCase() === cat.trim().toLowerCase());
+  const budgetIndex = (STATE.budgets || []).findIndex(b => b.category?.trim().toLowerCase() === cat.trim().toLowerCase());
+  let limit = null;
+  if (catBudget) {
+    limit = getBudgetLimit(catBudget, _catDetYearly ? 'year' : 'month');
+  }
+
+  let budgetHtml = '';
+  if (limit !== null) {
+    const pct = limit > 0 ? Math.min(100, (displayTotal / limit) * 100) : 0;
+    const remaining = limit - displayTotal;
+    const statusColor = remaining >= 0 ? color : '#ef4444';
+    const remainingText = remaining >= 0 ? `Within budget (₹${Math.round(remaining).toLocaleString('en-IN')} remaining)` : `Over budget by ₹${Math.round(Math.abs(remaining)).toLocaleString('en-IN')}!`;
+    budgetHtml = `
+      <div class="glass-card catdet-budget-card" style="padding:18px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:18px;font-weight:700;color:var(--text2)">Budget Limit</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <b style="font-size:22px;font-weight:800;color:var(--text)">${fmt(limit)}</b>
+            <button onclick="openAddBudgetModal(${budgetIndex})" class="catdet-budget-edit-btn" style="background:rgba(255,255,255,0.06);border:none;cursor:pointer;color:var(--text2);font-size:16px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center"><i data-lucide="edit-2" style="width:16px;height:16px"></i></button>
+          </div>
+        </div>
+        <div style="width:100%;height:12px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${statusColor};border-radius:6px"></div>
+        </div>
+        <p style="font-size:15px;font-weight:600;color:${remaining >= 0 ? 'var(--text3)' : '#ef4444'};margin-top:8px">${remainingText}</p>
+      </div>
+    `;
+  } else {
+    budgetHtml = `
+      <div class="glass-card catdet-budget-card" style="padding:18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <span style="font-size:18px;font-weight:700;color:var(--text2)">Budget Limit</span>
+          <p style="font-size:14px;color:var(--text3);margin-top:4px">Set a limit to track your spending</p>
+        </div>
+        <button class="btn-primary" onclick="openAddBudgetModalFor('${cat.replace(/'/g, "\\'")}')" style="padding:8px 16px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;margin:0"><i data-lucide="plus" style="width:16px;height:16px"></i> Set Budget</button>
+      </div>
+    `;
+  }
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in catdet">
@@ -717,24 +824,37 @@ function renderCategoryDetail() {
         <button class="catdet-back" onclick="navigate('${_catDetailFrom === 'spending' ? 'spending' : 'transactions'}')"><i data-lucide="arrow-left"></i></button>
         <div class="catdet-title">
           <span class="catdet-ic" style="background:${color}">${catIconHtml(cat)}</span>
-          <div><p class="catdet-name">${esc(cat)}</p><p class="catdet-sub">${anchor.toLocaleString('default', { month: 'long', year: 'numeric' })}</p></div>
+          <div><p class="catdet-name">${esc(cat)}</p><p class="catdet-sub">${_catDetYearly ? anchor.getFullYear() : anchor.toLocaleString('default', { month: 'long', year: 'numeric' })}</p></div>
         </div>
       </div>
 
       <div class="glass-card" style="padding:18px;margin-bottom:16px">
-        <div style="height:260px;position:relative"><canvas id="catdet-chart"></canvas></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:18px;font-weight:700;color:var(--text2)">Spending History</span>
+          <div class="period-tabs" style="margin:0;display:flex;gap:4px">
+            <button class="period-tab ${!_catDetYearly?'active':''}" onclick="setCatDetYearly(false)" style="padding:6px 12px;font-size:13px;border-radius:6px">Monthly</button>
+            <button class="period-tab ${_catDetYearly?'active':''}" onclick="setCatDetYearly(true)" style="padding:6px 12px;font-size:13px;border-radius:6px">Yearly</button>
+          </div>
+        </div>
+        <div class="catdet-chart-scroll">
+          <div class="catdet-chart-inner" style="position:relative;height:320px;width:${containerWidth}">
+            <canvas id="catdet-chart"></canvas>
+          </div>
+        </div>
       </div>
 
+      ${budgetHtml}
+
       <div class="catdet-total">
-        <span>Spent in ${anchor.toLocaleString('default', { month: 'short' })}</span>
-        <b style="color:${color}">${fmt(monthTotal)}</b>
+        <span>${spentPeriodText}</span>
+        <b style="color:${color}">${fmt(displayTotal)}</b>
       </div>
 
       ${subRows.length > 1 || (subRows.length === 1 && subRows[0][0] !== '—') ? `
       <p class="catdet-section">By subcategory</p>
       <div class="glass-card" style="padding:8px 16px;margin-bottom:16px">
         ${subRows.map(([s, v]) => {
-          const pct = monthTotal > 0 ? Math.round(v / monthTotal * 100) : 0;
+          const pct = displayTotal > 0 ? Math.round(v / displayTotal * 100) : 0;
           return `<div class="catdet-sub-row">
             <span class="catdet-sub-name">${esc(s)}</span>
             <div class="catdet-sub-bar"><div style="width:${pct}%;background:${color}"></div></div>
@@ -745,7 +865,7 @@ function renderCategoryDetail() {
 
       <p class="catdet-section">Transactions</p>
       <div class="glass-card" style="overflow:hidden">
-        ${monthTx.length ? monthTx.map(t => `
+        ${displayTx.length ? displayTx.map(t => `
           <div class="catdet-tx" onclick="openEditTxModal('${t.id}')">
             <div class="catdet-tx-mid">
               <p class="catdet-tx-name">${esc(t.subcategory || t.description || cat)}</p>
@@ -753,7 +873,7 @@ function renderCategoryDetail() {
             </div>
             <span class="catdet-tx-amt">-${fmt(t.amount)}</span>
           </div>`).join('')
-          : `<div class="empty-state" style="padding:30px 0"><p>No ${esc(cat)} spending in ${anchor.toLocaleString('default', { month: 'long' })}.</p></div>`}
+          : `<div class="empty-state" style="padding:30px 0"><p>No ${esc(cat)} spending in this period.</p></div>`}
       </div>
     </div>`;
 
@@ -762,43 +882,68 @@ function renderCategoryDetail() {
     const cv = document.getElementById('catdet-chart');
     if (!cv || typeof Chart === 'undefined') return;
     if (chartInstances['catdet']) { chartInstances['catdet'].destroy(); delete chartInstances['catdet']; }
-    const max = Math.max(1, ...months.map(m => m.total));
+    const max = Math.max(1, ...chartItems.map(m => m.total));
     chartInstances['catdet'] = new Chart(cv, {
       type: 'bar',
       data: {
-        labels: months.map(m => m.label),
+        labels: chartItems.map(m => m.label),
         datasets: [{
-          data: months.map(m => m.total),
-          backgroundColor: months.map(m => m.isAnchor ? color : 'rgba(99,102,241,0.85)'),
+          data: chartItems.map(m => m.total),
+          backgroundColor: chartItems.map(m => m.isAnchor ? color : 'rgba(99,102,241,0.6)'),
           borderRadius: 10, maxBarThickness: 26
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        onClick: (event, elements, chart) => {
+          if (elements.length > 0) {
+            const index = elements[0].index;
+            const selectedItem = chartItems[index];
+            if (_catDetYearly) {
+              _recAnchor = new Date(selectedItem.year, 0, 1);
+              _catDetYearly = false;
+            } else {
+              const [yr, mo] = selectedItem.ym.split('-');
+              _recAnchor = new Date(+yr, +mo - 1, 1);
+            }
+            renderCategoryDetail();
+          }
+        },
         plugins: {
           legend: { display: false },
           tooltip: { callbacks: { label: c => ' ₹' + (+c.parsed.y).toLocaleString('en-IN') } },
           datalabels: false
         },
         scales: {
-          x: { ticks: { color: '#94a3b8', font: { size: 14 } }, grid: { display: false } },
-          y: { display: false, suggestedMax: max * 1.2, grid: { display: false } }
+          x: { ticks: { color: '#94a3b8', font: { size: 16, weight: '600' } }, grid: { display: false } },
+          y: { display: false, suggestedMax: max * 1.25, grid: { display: false } }
         }
       },
       plugins: [{
         id: 'catdetLabels',
         afterDatasetsDraw(ch) {
           const { ctx } = ch; const meta = ch.getDatasetMeta(0);
-          ctx.save(); ctx.fillStyle = '#e2e8f0'; ctx.font = '700 15px Inter, sans-serif'; ctx.textAlign = 'center';
+          ctx.save(); ctx.fillStyle = '#e2e8f0'; ctx.font = '700 16px Inter, sans-serif'; ctx.textAlign = 'center';
           meta.data.forEach((bar, i) => {
-            const v = months[i].total;
+            const v = chartItems[i].total;
             ctx.fillText(v ? shortK(v) : '0', bar.x, bar.y - 10);
           });
           ctx.restore();
         }
       }]
     });
-  }, 50);
+
+    const scrollWrap = document.querySelector('.catdet-chart-scroll');
+    if (scrollWrap) {
+      const activeIdx = chartItems.findIndex(m => m.isAnchor);
+      if (activeIdx >= 0) {
+        const barWidth = scrollWrap.scrollWidth / chartItems.length;
+        scrollWrap.scrollLeft = (activeIdx * barWidth) - (scrollWrap.clientWidth / 2) + (barWidth / 2);
+      } else {
+        scrollWrap.scrollLeft = scrollWrap.scrollWidth;
+      }
+    }
+  }, 100);
 }
 
 // Explicit entry point for multi-select (the ✓ button in the header).
@@ -5369,7 +5514,11 @@ function deleteBudget(index) {
   STATE.budgets = (STATE.budgets||[]).filter((_,i) => i !== index);
   saveState();
   toast('Budget removed', 'info');
-  renderBudget();
+  if (currentPage === 'category-detail') {
+    renderCategoryDetail();
+  } else {
+    renderBudget();
+  }
 }
 
 function openAddBudgetModal(editIndex) {
@@ -5467,7 +5616,12 @@ function saveBudget(editIndex) {
     if (existing >= 0) STATE.budgets[existing] = { ...STATE.budgets[existing], amount, period, notes };
     else STATE.budgets.push({ id: genId(), category, amount, period, notes });
   }
-  saveState(); closeModal(); toast(editIndex >= 0 ? 'Budget updated!' : 'Budget set!', 'success'); renderBudget();
+  saveState(); closeModal(); toast(editIndex >= 0 ? 'Budget updated!' : 'Budget set!', 'success');
+  if (currentPage === 'category-detail') {
+    renderCategoryDetail();
+  } else {
+    renderBudget();
+  }
 }
 
 // ===== CREDIT CARDS =====

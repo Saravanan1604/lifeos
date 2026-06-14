@@ -12203,22 +12203,69 @@ html.is-app .spov-right { display: flex; align-items: center; gap: 8px; flex-shr
 html.is-app .spov-amt { font-size: 24px; font-weight: 900; }
 html.is-app .spov-right svg { width: 22px; height: 22px; color: var(--text3); }
 
-/* Category detail — scale up ~3x for readability */
-html.is-app .catdet-ic { width: 64px !important; height: 64px !important; }
-html.is-app .catdet-ic svg, html.is-app .catdet-ic i { width: 32px !important; height: 32px !important; }
-html.is-app .catdet-name { font-size: 34px !important; }
-html.is-app .catdet-sub { font-size: 20px !important; }
-html.is-app .catdet .glass-card .catdet-chart-wrap, html.is-app #catdet-chart { }
-html.is-app .catdet > .glass-card:first-of-type > div { height: 320px !important; }
-html.is-app .catdet-total { font-size: 24px !important; }
-html.is-app .catdet-total b { font-size: 40px !important; }
-html.is-app .catdet-section { font-size: 19px !important; }
-html.is-app .catdet-sub-name { font-size: 23px !important; }
-html.is-app .catdet-sub-amt { font-size: 22px !important; }
-html.is-app .catdet-sub-bar { height: 13px !important; }
-html.is-app .catdet-tx-name { font-size: 25px !important; }
-html.is-app .catdet-tx-meta { font-size: 18px !important; }
-html.is-app .catdet-tx-amt { font-size: 25px !important; }
+/* Category detail — scale up and add scroll/yearly/budget styling */
+html.is-app .catdet-ic { width: 80px !important; height: 80px !important; }
+html.is-app .catdet-ic svg, html.is-app .catdet-ic i { width: 40px !important; height: 40px !important; }
+html.is-app .catdet-name { font-size: 38px !important; }
+html.is-app .catdet-sub { font-size: 22px !important; }
+html.is-app .catdet > .glass-card:first-of-type > div { height: 380px !important; }
+html.is-app .catdet-total { font-size: 26px !important; }
+html.is-app .catdet-total b { font-size: 46px !important; }
+html.is-app .catdet-section { font-size: 22px !important; }
+html.is-app .catdet-sub-name { font-size: 26px !important; }
+html.is-app .catdet-sub-amt { font-size: 24px !important; }
+html.is-app .catdet-sub-bar { height: 16px !important; }
+html.is-app .catdet-tx-name { font-size: 27px !important; }
+html.is-app .catdet-tx-meta { font-size: 20px !important; }
+html.is-app .catdet-tx-amt { font-size: 27px !important; }
+
+/* Custom Category detail scrollable chart styles */
+html.is-app .catdet-chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: block;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+html.is-app .catdet-chart-scroll::-webkit-scrollbar {
+  display: none;
+}
+html.is-app .catdet .period-tabs {
+  width: auto !important;
+  display: inline-flex !important;
+  flex: none !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+  gap: 4px !important;
+}
+html.is-app .catdet .period-tab {
+  padding: 6px 14px !important;
+  font-size: 0.95rem !important;
+  border-radius: 8px !important;
+}
+
+/* Category Detail Budget integration styling */
+html.is-app .catdet-budget-card {
+  padding: 20px !important;
+  margin-bottom: 20px !important;
+}
+html.is-app .catdet-budget-edit-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text) !important;
+  border-radius: 50% !important;
+  width: 38px !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+}
+html.is-app .catdet-budget-edit-btn:active {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
 
 /* ============================================================
    Visual Polish overrides for spacing & master card breathing room
