@@ -5558,7 +5558,7 @@ function renderLoanDetail() {
           <div style="min-width:0"><p class="catdet-name">${esc(loan.name)}</p>
           <p class="catdet-sub">${esc(loan.type)}${loan.lender ? ' · ' + esc(loan.lender) : ''} · ${loan.interestRate || 0}%/${loan.interestPeriod === 'month' ? 'mo' : 'yr'} · ${repayLbl}</p></div>
         </div>
-        <button class="catdet-back" onclick="openEditLoanModal('${loan.id}')" title="Edit details"><i data-lucide="pencil"></i></button>
+        <button class="ld-edit-btn" onclick="openEditLoanModal('${loan.id}')">Edit</button>
       </div>
 
       <div class="ld-kpis" id="ld-kpis"></div>
@@ -5771,7 +5771,7 @@ function renderAssetDetail() {
           <div style="min-width:0"><p class="catdet-name">${esc(inv.name)}</p>
           <p class="catdet-sub">${esc(inv.type)}${isLent && inv.person ? ' · ' + esc(inv.person) : ''}${inv.date ? ' · ' + new Date(inv.date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : ''}</p></div>
         </div>
-        <button class="catdet-back" onclick="openEditInvModal('${inv.id}')" title="Edit details"><i data-lucide="pencil"></i></button>
+        <button class="ld-edit-btn" onclick="openEditInvModal('${inv.id}')">Edit</button>
       </div>
 
       <div class="ld-kpis">
