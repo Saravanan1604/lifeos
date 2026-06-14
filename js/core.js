@@ -845,7 +845,6 @@ const _QUICK_ACTIONS = {
   ],
   habits: [
     {icon:'✅', label:'Add Habit',     color:'#00c9a7', bg:'rgba(0,201,167,0.12)',   bc:'rgba(0,201,167,0.3)',  fn:"openAddHabitModal()"},
-    {icon:'🔥', label:'View Streak',   color:'#f59e0b', bg:'rgba(245,158,11,0.12)',  bc:'rgba(245,158,11,0.3)',  fn:"navigate('analytics')"},
   ],
   goals: [
     {lucide:'target',    label:'Add Goal',   color:'#8b5cf6', bg:'rgba(139,92,246,0.12)', bc:'rgba(139,92,246,0.3)', fn:"openAddGoalModal()"},
@@ -938,8 +937,7 @@ function _renderPage(page) {
     case 'journal':      renderJournal();       break;
     case 'achievements': renderAchievements();  break;
     case 'ai-coach':     renderAICoach();       break;
-    case 'analytics':    renderAnalytics();     break;
-    case 'compare':      renderCompare();       break;
+
     case 'categories':   renderCategories();    break;
     case 'spending':     renderSpendingOverview(); break;
     case 'category-detail': renderCategoryDetail(); break;

@@ -5,7 +5,7 @@
 const LO_PAGES = [
   'dashboard', 'finance', 'investments', 'transactions', 'notes',
   'yearly', 'budget', 'bank-tracker', 'health', 'habits', 'goals',
-  'journal', 'achievements', 'ai-coach', 'analytics', 'compare',
+  'journal', 'achievements', 'ai-coach',
   'categories', 'recurring', 'rules', 'settings', 'help'
 ];
 let _loEdit = false;

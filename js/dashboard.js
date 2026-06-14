@@ -743,7 +743,7 @@ function renderDashboard() {
             <label style="cursor:pointer;color:rgba(0,40,30,0.65)">Expenses</label>
             <span style="color:#c0392b;font-weight:800">-${fmt(totalExpense)}</span>
           </div>
-          <div class="hero-sub-item" onclick="event.stopPropagation();navigate('analytics')" style="cursor:pointer;padding:6px 10px;border-radius:10px;transition:.2s;background:rgba(0,0,0,0.08)" onmouseover="this.style.background='rgba(0,0,0,0.15)'" onmouseout="this.style.background='rgba(0,0,0,0.08)'">
+          <div class="hero-sub-item" onclick="event.stopPropagation();navigate('achievements')" style="cursor:pointer;padding:6px 10px;border-radius:10px;transition:.2s;background:rgba(0,0,0,0.08)" onmouseover="this.style.background='rgba(0,0,0,0.15)'" onmouseout="this.style.background='rgba(0,0,0,0.08)'">
             <label style="cursor:pointer;color:rgba(0,40,30,0.65)">Life Score</label>
             <span style="color:#003d2e;font-weight:800">${scores.overall}/100</span>
           </div>
@@ -912,7 +912,7 @@ function renderDashboard() {
         <div class="glass-card" style="padding:22px">
           <div class="section-header" style="margin-bottom:14px">
             <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Life Score</p>
-            <span style="font-size:26px;font-weight:900;color:var(--teal);cursor:pointer" onclick="navigate('analytics')">${scores.overall}<span style="font-size:13px;font-weight:400;color:var(--text3)">/100</span></span>
+            <span style="font-size:26px;font-weight:900;color:var(--teal);cursor:pointer" onclick="navigate('achievements')">${scores.overall}<span style="font-size:13px;font-weight:400;color:var(--text3)">/100</span></span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center" class="life-score-grid">
             <div style="height:230px;position:relative"><canvas id="dash-radar-chart"></canvas></div>

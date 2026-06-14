@@ -19,7 +19,6 @@ const PALETTE_COMMANDS = [
   {icon:'❤️',label:'Health Hub',         keys:'health sleep mood steps',group:'Navigate',fn:()=>navigate('health')},
   {icon:'📝',label:'Journal',            keys:'journal emotion diary', group:'Navigate', fn:()=>navigate('journal')},
   {icon:'🏆',label:'Achievements',       keys:'achievements badges xp',group:'Navigate', fn:()=>navigate('achievements')},
-  {icon:'📊',label:'Analytics',          keys:'analytics charts stats',group:'Navigate', fn:()=>navigate('analytics')},
   {icon:'🤖',label:'AI Coach',           keys:'ai coach assistant',    group:'Navigate', fn:()=>navigate('ai-coach')},
   {icon:'⚙️',label:'Settings',           keys:'settings theme name',   group:'Navigate', fn:()=>navigate('settings')},
   {icon:'❓',label:'Help & Support',     keys:'help faq guide support',group:'Navigate', fn:()=>navigate('help')},
