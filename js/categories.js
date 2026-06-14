@@ -49,21 +49,20 @@ function renderCategories() {
   const expenseDefaults = all.filter(c => c.isDefault && (c.type === 'expense' || c.type === 'both'));
 
   document.getElementById('page-container').innerHTML = `
-    <div class="fade-in">
+    <div class="fade-in page-categories">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <div><h1 class="page-title"><i data-lucide="tag"></i> Categories</h1><p class="page-subtitle">Manage your transaction categories</p></div>
         <div class="cat-hdr-buttons" style="display:flex;gap:10px;flex-wrap:wrap;width:100%">
-          <button class="btn-secondary cat-hdr-btn" onclick="openGeminiCategorize()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none"><i data-lucide="sparkles"></i> AI Fix</button>
+          <button class="btn-secondary cat-hdr-btn cat-hdr-btn-aifix" onclick="openGeminiCategorize()"><i data-lucide="sparkles"></i> AI Fix</button>
           <button class="btn-secondary cat-hdr-btn" onclick="openMergeCategoriesModal()"><i data-lucide="git-merge"></i> Merge</button>
-          <button class="btn-primary cat-hdr-btn" onclick="openAddCategoryModal()"><i data-lucide="plus"></i> Custom Category</button>
-          <button class="btn-secondary cat-hdr-btn" onclick="openManageTypesModal('asset')"><i data-lucide="trending-up"></i> Asset Types</button>
+          <button class="btn-secondary cat-hdr-btn" onclick="openManageTypesModal('asset')"><i data-lucide="clock"></i> Asset Types</button>
           <button class="btn-secondary cat-hdr-btn" onclick="openManageTypesModal('loan')"><i data-lucide="landmark"></i> Loan Types</button>
         </div>
       </div>
 
       <!-- Custom Categories -->
       <div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <div class="section-header">
+        <div class="section-header" style="margin-bottom:16px">
           <p class="section-title">✨ My Custom Categories</p>
           <span style="font-size:12px;color:rgba(241,245,249,0.5)">${custom.length} custom</span>
         </div>
@@ -74,17 +73,20 @@ function renderCategories() {
               <button class="btn-primary btn-sm" style="margin-top:12px" onclick="openAddCategoryModal()">+ Create First Category</button>
             </div>`
           : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
-              ${custom.map(c => `
-                <div onclick="openEditCategoryModal('${c.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;transition:.2s;cursor:pointer">
-                  <div style="display:flex;align-items:center;gap:10px">
-                    <span class="cat-lic" style="font-size:24px">${c.icon}</span>
+              ${custom.map(c => {
+                const col = '#8b5cf6';
+                return `
+                <div onclick="openEditCategoryModal('${c.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,0.02);border:1.5px solid var(--glass-border);border-radius:16px;transition:.2s;cursor:pointer">
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <span class="cat-lic" style="font-size:24px;color:${col}">${c.icon}</span>
                     <div>
-                      <p style="font-size:13px;font-weight:600">${c.name}</p>
-                      <span class="tag ${c.type==='income'?'tag-green':c.type==='expense'?'tag-red':'tag-blue'}" style="font-size:10px;padding:2px 7px">${c.type}</span>
+                      <p style="font-size:14px;font-weight:700;color:var(--text)">${c.name}</p>
+                      <span class="tag ${c.type==='income'?'tag-green':c.type==='expense'?'tag-red':'tag-blue'}" style="font-size:10px;padding:2px 7px;border-radius:6px;margin-top:4px">${c.type}</span>
                     </div>
                   </div>
-                  <button class="btn-icon btn-sm" onclick="event.stopPropagation();deleteCategory('${c.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);font-size:15px">✕</button>
-                </div>`).join('')}
+                  <button class="btn-icon btn-sm" onclick="event.stopPropagation();deleteCategory('${c.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);font-size:15px;border-radius:8px">✕</button>
+                </div>`;
+              }).join('')}
             </div>`}
       </div>
 
@@ -92,11 +94,14 @@ function renderCategories() {
       <div class="glass-card" style="padding:20px;margin-bottom:20px">
         <p class="section-title" style="margin-bottom:14px">💚 Default Income Categories</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
-          ${incomeDefaults.map(c => `
-            <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:20px">
-              <span class="cat-lic" style="color:${typeof catColor==='function'?catColor(c.name):'#10b981'};font-size:16px">${typeof catIconHtml==='function'?catIconHtml(c.name):c.icon}</span>
-              <span style="font-size:13px;font-weight:500">${c.name}</span>
-            </div>`).join('')}
+          ${incomeDefaults.map(c => {
+            const col = typeof catColor === 'function' ? catColor(c.name) : '#10b981';
+            return `
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,255,255,0.03);border:1px solid ${col};border-radius:12px">
+              <span class="cat-lic" style="color:${col};font-size:16px">${typeof catIconHtml==='function'?catIconHtml(c.name):c.icon}</span>
+              <span style="font-size:14px;font-weight:600;color:var(--text)">${c.name}</span>
+            </div>`;
+          }).join('')}
         </div>
       </div>
 
@@ -104,11 +109,14 @@ function renderCategories() {
       <div class="glass-card" style="padding:20px">
         <p class="section-title" style="margin-bottom:14px">❤️ Default Expense Categories</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
-          ${expenseDefaults.map(c => `
-            <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:20px">
-              <span class="cat-lic" style="color:${typeof catColor==='function'?catColor(c.name):'#ef4444'};font-size:16px">${typeof catIconHtml==='function'?catIconHtml(c.name):c.icon}</span>
-              <span style="font-size:13px;font-weight:500">${c.name}</span>
-            </div>`).join('')}
+          ${expenseDefaults.map(c => {
+            const col = typeof catColor === 'function' ? catColor(c.name) : '#ef4444';
+            return `
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,255,255,0.03);border:1px solid ${col};border-radius:12px">
+              <span class="cat-lic" style="color:${col};font-size:16px">${typeof catIconHtml==='function'?catIconHtml(c.name):c.icon}</span>
+              <span style="font-size:14px;font-weight:600;color:var(--text)">${c.name}</span>
+            </div>`;
+          }).join('')}
         </div>
       </div>
     </div>`;

@@ -13029,7 +13029,126 @@ html.is-app input[type="range"]::-webkit-slider-thumb:active {
   transform: scale(1.2) !important;
 }
 
+/* Build 455: Categories Page Overrides & Glassmorphism Popups */
 
+/* Header action row styling */
+html.is-app .page-categories .cat-hdr-buttons {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+  padding: 4px 2px !important;
+}
 
+html.is-app .page-categories .cat-hdr-btn {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--text2) !important;
+  border-radius: 16px !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  padding: 12px 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
 
+html.is-app.light .page-categories .cat-hdr-btn {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #374151 !important;
+}
 
+html.is-app .page-categories .cat-hdr-btn:active {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.is-app.light .page-categories .cat-hdr-btn:active {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* AI Fix button glowing style */
+html.is-app .page-categories .cat-hdr-btn-aifix {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15)) !important;
+  border: 1.5px solid rgba(139, 92, 246, 0.6) !important;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.25) !important;
+  color: #a5b4fc !important;
+}
+
+html.is-app.light .page-categories .cat-hdr-btn-aifix {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08)) !important;
+  border-color: rgba(139, 92, 246, 0.5) !important;
+  color: #6366f1 !important;
+}
+
+/* Dashed Add Category button style */
+html.is-app .page-categories #page-quick-actions {
+  width: 100% !important;
+  margin-bottom: 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+html.is-app .page-categories #page-quick-actions button {
+  width: 100% !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  border: 1.5px dashed rgba(255, 255, 255, 0.18) !important;
+  border-radius: 16px !important;
+  font-size: 1.45rem !important;
+  font-weight: 600 !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: #a5b4fc !important;
+  box-shadow: none !important;
+  transition: background 0.2s, border-color 0.2s !important;
+}
+
+html.is-app.light .page-categories #page-quick-actions button {
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  background: rgba(99, 102, 241, 0.02) !important;
+  color: #6366f1 !important;
+}
+
+html.is-app .page-categories #page-quick-actions button:active {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+html.is-app.light .page-categories #page-quick-actions button:active {
+  background: rgba(99, 102, 241, 0.06) !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+}
+
+html.is-app .page-categories #page-quick-actions button svg.lucide {
+  width: 1.7rem !important;
+  height: 1.7rem !important;
+  stroke-width: 2 !important;
+}
+
+/* Glassmorphism Popup/Modal overrides */
+html.is-app #modal-overlay {
+  background: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+html.is-app #modal-overlay .modal-box {
+  background: rgba(17, 20, 40, 0.65) !important;
+  backdrop-filter: blur(30px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.is-app.light #modal-overlay .modal-box,
+html.is-app body.light #modal-overlay .modal-box {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(30px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}

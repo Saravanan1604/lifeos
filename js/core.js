@@ -866,7 +866,7 @@ const _QUICK_ACTIONS = {
     {icon:'🎯', label:'Set Budget',    color:'#f59e0b', bg:'rgba(245,158,11,0.12)', bc:'rgba(245,158,11,0.3)', fn:"navigate('budget')"},
   ],
   categories: [
-    {icon:'➕', label:'Add Category',  color:'#6366f1', bg:'rgba(99,102,241,0.12)', bc:'rgba(99,102,241,0.3)', fn:"openAddCategoryModal()"},
+    {lucide:'plus-circle', label:'Add Category', color:'#a5b4fc', bg:'rgba(255,255,255,0.02)', bc:'rgba(255,255,255,0.18)', fn:"openAddCategoryModal()"},
   ],
   achievements: [],
   'ai-coach': [],
