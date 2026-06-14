@@ -1,5 +1,5 @@
-/* ============================================================
-   mobile.css — BUILD BLOCK INDEX  (auto-generated navigation aid)
+﻿/* ============================================================
+   mobile.css â€” BUILD BLOCK INDEX  (auto-generated navigation aid)
    All app styling is scoped html.is-app and appended as dated
    "build NNN" blocks; later rules win. Jump to a block by its
    line number below. Regenerate after adding blocks.
@@ -17,8 +17,8 @@
    build 86    L2504    less-transparent cards/menu, fix cut liabilities,
    build 87    L2583    fixed top bar + bottom bar (content scrolls under)
    build 88    L2611    even bottom-nav spacing + crisper icons
-   build 91    L2656    App Lock screen (PIN keypad)  [not scoped — works everywhere]
-   build 95    L2801    Onboarding + Empty states  [not scoped — web + app]
+   build 91    L2656    App Lock screen (PIN keypad)  [not scoped â€” works everywhere]
+   build 95    L2801    Onboarding + Empty states  [not scoped â€” web + app]
    build 96    L3014    Layout Customizer (edit mode)  [web + app]
    build 102   L3114    Notes (Google Keep style)  [web + app]
    build 103   L3302    KPI 2x2, bigger Quick Access
@@ -92,7 +92,7 @@
    build 234   L7540    notes + mic as one aligned row (mic was overlapping/floating)
    build 237   L7567    Amount compact, Notes taller (amount height < notes height)
    build 238   L7587    top CANCEL removed; amount full width; calc + mic = small 18px
-   build 239   L7648    Add-sheet polish: ₹ symbol + emphasised amount,
+   build 239   L7648    Add-sheet polish: â‚¹ symbol + emphasised amount,
    build 240   L7744    group Amount + Notes into one subtle "entry zone" card
    build 243   L7254    Subcategory popup ~2x bigger (input + buttons)
    build 244   L7284    reduce the amount number (0.00) by ~25%
@@ -109,7 +109,7 @@
    build 282   L8818    merged Finance page Overview / History toggle
    build 285   L8855    extra themes (AMOLED true-black, Ocean, Sunset)
    build 293   L6977    keep the sheet OPAQUE (was transparent) so the page behind can't
-   build 296   L9096    bottom nav: only Records · Finance · [+] · Assets · More.
+   build 296   L9096    bottom nav: only Records Â· Finance Â· [+] Â· Assets Â· More.
    build 298   L9149    Goals page: clean card alignment + line icons
    build 299   L9223    Money Rules page (9 finance rules of thumb)
    build 320   L9381    Records: sticky "Recent Transactions" / select bar
@@ -154,8 +154,8 @@
    ============================================================ */
 
 /* ============================================================
-   atworth — Mobile font bump ONLY (installed app).
-   Same web layout — just larger, more readable text on mobile.
+   atworth â€” Mobile font bump ONLY (installed app).
+   Same web layout â€” just larger, more readable text on mobile.
    Scoped to html.is-app, so the web app is never affected.
    No layout, card, spacing, or scaling changes.
    ============================================================ */
@@ -169,7 +169,7 @@
 /* NOTE: Apple's real sizes (17/34) render tiny here because this device
    scales the page down from a wider logical width. So we keep Apple's
    HIERARCHY (varied sizes) but scale the whole system up ~1.4x to be
-   physically readable. Ratios are preserved → still looks Apple-like. */
+   physically readable. Ratios are preserved â†’ still looks Apple-like. */
 html.is-app .page-title {
   font-size: 32px !important;
   font-weight: 800 !important;
@@ -204,7 +204,7 @@ html.is-app body.light .section-title {
   color: #1a1f2e !important;
 }
 
-/* Inline hard-coded sizes — Apple hierarchy, scaled up for this device */
+/* Inline hard-coded sizes â€” Apple hierarchy, scaled up for this device */
 html.is-app [style*="font-size:9px"] {
   font-size: 18px !important;
 }
@@ -303,14 +303,14 @@ html.is-app textarea {
   font-size: 27px !important;
 }
 
-/* ── FIT TO SCREEN: never let the huge text cause sideways scrolling ── */
+/* â”€â”€ FIT TO SCREEN: never let the huge text cause sideways scrolling â”€â”€ */
 html.is-app,
 html.is-app body,
 html.is-app .content {
   overflow-x: hidden !important;
 }
 
-/* ── EXCEPTION: card carousels MUST be able to scroll horizontally ── */
+/* â”€â”€ EXCEPTION: card carousels MUST be able to scroll horizontally â”€â”€ */
 html.is-app .fin-bank-grid,
 html.is-app .fin-card-grid,
 html.is-app .fin-cash-grid {
@@ -329,13 +329,13 @@ html.is-app .content * {
   overflow-wrap: break-word !important;
 }
 
-/* ── ELEMENT HEIGHT — taller rows/cards via PADDING (not line-height,
-   which was misaligning icons, pills and badges). Text gets a calm 1.25. ── */
+/* â”€â”€ ELEMENT HEIGHT â€” taller rows/cards via PADDING (not line-height,
+   which was misaligning icons, pills and badges). Text gets a calm 1.25. â”€â”€ */
 html.is-app .content * {
   line-height: 1.25 !important;
 }
 
-/* ── ALIGNMENT FIXES (pre-final polish) ──
+/* â”€â”€ ALIGNMENT FIXES (pre-final polish) â”€â”€
    Keep every icon+text / label+value row vertically centred so nothing
    looks shifted now that the text is large. */
 html.is-app .section-header,
@@ -412,7 +412,7 @@ html.is-app [class*="list-item"] {
 }
 
 /* ============================================================
-   MENU — clean settings-style list (icon · label · chevron)
+   MENU â€” clean settings-style list (icon Â· label Â· chevron)
    Styled like a modern app's menu. App-only (html.is-app).
    ============================================================ */
 
@@ -458,7 +458,7 @@ html.is-app .sidebar-nav {
   align-items: stretch !important;
 }
 
-/* Icon — large and tinted */
+/* Icon â€” large and tinted */
 html.is-app .nav-item .nav-icon {
   flex-shrink: 0 !important;
   opacity: .92 !important;
@@ -487,7 +487,7 @@ html.is-app .nav-item .nav-text {
 
 /* Chevron at the end (like a settings list) */
 html.is-app .nav-item::after {
-  content: '›';
+  content: 'â€º';
   margin-left: auto;
   font-size: 32px;
   line-height: 1;
@@ -517,12 +517,12 @@ html.is-app .sidebar-nav {
 
 /* ============================================================
    NATIVE-APP NAVIGATION (small screen)
-   Sidebar is hidden by default; tap ☰ → full-screen menu;
-   tap an option → navigates and closes. App-only (html.is-app).
+   Sidebar is hidden by default; tap â˜° â†’ full-screen menu;
+   tap an option â†’ navigates and closes. App-only (html.is-app).
    ============================================================ */
 
 /* Always show the hamburger in the app */
-/* Hamburger (☰) menu button — 500% larger icon for easy tapping */
+/* Hamburger (â˜°) menu button â€” 500% larger icon for easy tapping */
 html.is-app .mobile-menu-btn {
   display: flex !important;
   width: 52px !important;
@@ -599,7 +599,7 @@ html.is-app .sidebar-header {
   display: flex !important;
 }
 
-/* center the atworth logo at the top of the drawer (clear of the ☰ button) */
+/* center the atworth logo at the top of the drawer (clear of the â˜° button) */
 html.is-app .sidebar-header .sidebar-logo {
   justify-content: flex-start !important;
   flex: 1 !important;
@@ -804,7 +804,7 @@ html.is-app.light .sidebar>div[onclick="openShortcutsPanel()"] {
 }
 
 /* ============================================================
-   DASHBOARD — mobile 2-column layout (Android-style).
+   DASHBOARD â€” mobile 2-column layout (Android-style).
    App-only (html.is-app). Web/desktop untouched.
    ============================================================ */
 
@@ -822,7 +822,7 @@ html.is-app .qa-grid>* {
   padding: 26px 20px !important;
 }
 
-/* KPI cards (Income · Expenses / Net Saving · Net Worth) → 2×2 */
+/* KPI cards (Income Â· Expenses / Net Saving Â· Net Worth) â†’ 2Ã—2 */
 html.is-app .kpi-grid {
   grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
@@ -839,7 +839,7 @@ html.is-app [class*="hero"][class*="networth"] {
   min-height: auto !important;
 }
 
-/* Net Worth hero card — Apple-style: one big number, quiet chips */
+/* Net Worth hero card â€” Apple-style: one big number, quiet chips */
 html.is-app .hero-card {
   padding: 32px 24px !important;
 }
@@ -883,7 +883,7 @@ html.is-app .hero-sub-item span {
   text-overflow: ellipsis !important;
 }
 
-/* Financial Overview: chart | Top Spending → stack to single column.
+/* Financial Overview: chart | Top Spending â†’ stack to single column.
    Chart fits full screen width, Top Spending ring drops below it. */
 html.is-app .fin-overview-grid {
   grid-template-columns: 1fr !important;
@@ -896,24 +896,24 @@ html.is-app .fin-overview-grid>div:last-child {
   padding-top: 16px !important;
 }
 
-/* Bank Balances · Cash Wallets · Credit Cards → one full-width card each */
+/* Bank Balances Â· Cash Wallets Â· Credit Cards â†’ one full-width card each */
 html.is-app .dash-acct-grid {
   grid-template-columns: 1fr !important;
   gap: 14px !important;
 }
 
-/* Budget + Goals → Goals drops below Budget (one full-width card each) */
+/* Budget + Goals â†’ Goals drops below Budget (one full-width card each) */
 html.is-app .dash-bg-grid {
   grid-template-columns: 1fr !important;
   gap: 14px !important;
 }
 
 /* ============================================================
-   FINANCE PAGE — single full-width cards + clean net-worth hero
+   FINANCE PAGE â€” single full-width cards + clean net-worth hero
    App-only (html.is-app). Web/desktop untouched.
    ============================================================ */
 
-/* Bank Accounts · Credit Cards · Cash Accounts → one full-width card each
+/* Bank Accounts Â· Credit Cards Â· Cash Accounts â†’ one full-width card each
    (the big text was overflowing the narrow cards and getting cut off) */
 html.is-app .fin-bank-grid,
 html.is-app .fin-card-grid,
@@ -922,13 +922,13 @@ html.is-app .fin-cash-grid {
   gap: 14px !important;
 }
 
-/* Income vs Expenses + Spending by Category charts → stack full width */
+/* Income vs Expenses + Spending by Category charts â†’ stack full width */
 html.is-app .fin-charts-row {
   grid-template-columns: 1fr !important;
   gap: 16px !important;
 }
 
-/* Net Worth hero — Income/Expenses/Savings as an even 3-col grid
+/* Net Worth hero â€” Income/Expenses/Savings as an even 3-col grid
    so the value + Lifetime chip never overlap (like the dashboard hero) */
 html.is-app .fin-hero-stats {
   display: grid !important;
@@ -936,14 +936,14 @@ html.is-app .fin-hero-stats {
   gap: 14px !important;
 }
 
-/* Hide the faint inline period/Lifetime chip under the amounts — keeps the
+/* Hide the faint inline period/Lifetime chip under the amounts â€” keeps the
    net-worth hero clean and premium (the period tabs already show the range) */
 html.is-app .fin-hero-stats [id^="fin-"]>span,
 html.is-app .fin-hero-stats [id^="fin-"] .period-chip {
   display: none !important;
 }
 
-/* build 206 — tidy the Net Worth hero meta: stack rows, left-aligned, even gaps
+/* build 206 â€” tidy the Net Worth hero meta: stack rows, left-aligned, even gaps
    (the savings chip, the bank/cash/card totals, and the wallet name each get
    their own line instead of wrapping into a messy block) */
 html.is-app .fin-hero-meta {
@@ -975,7 +975,7 @@ html.is-app .fin-hero-meta #fin-rate svg.lucide {
   height: 1.05em !important;
 }
 
-/* build 206 — swipe dots under each card carousel */
+/* build 206 â€” swipe dots under each card carousel */
 html.is-app .swipe-dots {
   display: flex;
   justify-content: center;
@@ -997,7 +997,7 @@ html.is-app .swipe-dots span.on {
   border-radius: 5px;
 }
 
-/* stat chips — bigger labels + subtle top accent */
+/* stat chips â€” bigger labels + subtle top accent */
 html.is-app .fin-stat-row>* {
   border-top: 3px solid rgba(0, 201, 167, 0.5) !important;
 }
@@ -1012,11 +1012,11 @@ html.is-app .fin-stat-row p[style*="font-size:11px"] {
 }
 
 /* ============================================================
-   PREMIUM CARD POLISH (Finance + everywhere) — app-only
+   PREMIUM CARD POLISH (Finance + everywhere) â€” app-only
    Rounded, layered cards with glassy action buttons.
    ============================================================ */
 
-/* FIX 1 — the theme (moon/sun) button is DOCKED into the page header's
+/* FIX 1 â€” the theme (moon/sun) button is DOCKED into the page header's
    right-side action group (grouped with "+ Add ..." via the header's gap),
    so it never floats over / collides with header buttons. App-only. */
 html.is-app .theme-toggle.theme-toggle-docked {
@@ -1038,7 +1038,7 @@ html.is-app .fin-dark-card {
   /* NOTE: padding is now controlled by .fin-bank-grid > * rule above */
 }
 
-/* Action buttons (↑Bal · Edit · ✕) → clean frosted pills */
+/* Action buttons (â†‘Bal Â· Edit Â· âœ•) â†’ clean frosted pills */
 html.is-app .fin-dark-card button {
   font-size: 16px !important;
   font-weight: 700 !important;
@@ -1052,25 +1052,25 @@ html.is-app .fin-dark-card>div:first-child {
   gap: 10px !important;
 }
 
-/* Old desktop-template inline overrides removed — new cards use class-based selectors above */
+/* Old desktop-template inline overrides removed â€” new cards use class-based selectors above */
 
 /* Premium glass cards: a touch more rounding + breathing room */
 html.is-app .glass-card {
   border-radius: 22px !important;
 }
 
-/* Summary totals (Total Bank Balance / Outstanding / Cash) — pill feel */
+/* Summary totals (Total Bank Balance / Outstanding / Cash) â€” pill feel */
 html.is-app .glass-card>div[style*="border-radius:12px"] {
   border-radius: 16px !important;
   padding: 16px 18px !important;
 }
 
 /* ============================================================
-   ⭐ USER CUSTOM CARD SIZES  (edit these numbers freely)
+   â­ USER CUSTOM CARD SIZES  (edit these numbers freely)
    Scoped per card type so other pages are NOT affected.
    ============================================================ */
 
-/* ---------- 🏦 BANK CARDS — class-based (new template) ---------- */
+/* ---------- ðŸ¦ BANK CARDS â€” class-based (new template) ---------- */
 /* All sizing now handled by .fin-dark-card .card-title/.card-balance/.card-footer rules above */
 html.is-app span[style*="color:var(--teal)"][style*="font-size:20px"] {
   font-size: 40px !important;
@@ -1078,7 +1078,7 @@ html.is-app span[style*="color:var(--teal)"][style*="font-size:20px"] {
 
 /* Total Bank Balance */
 
-/* ---------- 💳 CREDIT CARDS — class-based (new template) ---------- */
+/* ---------- ðŸ’³ CREDIT CARDS â€” class-based (new template) ---------- */
 /* Card title, balance, footer sizes handled by .card-title/.card-balance/.card-footer rules above */
 html.is-app span[style*="color:#ef4444"][style*="font-size:20px"] {
   font-size: 40px !important;
@@ -1101,7 +1101,7 @@ html.is-app span[style*="color:#ef4444"][style*="font-size:20px"] {
 
 /* Total Outstanding */
 
-/* ---------- 💵 CASH CARDS ---------- */
+/* ---------- ðŸ’µ CASH CARDS ---------- */
 html.is-app .fin-cash-grid .fin-dark-card p[style*="font-size:13px"] {
   font-size: 23px !important;
 }
@@ -1118,7 +1118,7 @@ html.is-app span[style*="color:#f59e0b"][style*="font-size:20px"] {
 
 /* Total Cash */
 
-/* ---------- 💰 NET WORTH HERO (top of Finance) ---------- */
+/* ---------- ðŸ’° NET WORTH HERO (top of Finance) ---------- */
 html.is-app #fin-balance {
   font-size: 62px !important;
   font-weight: 800 !important;
@@ -1131,8 +1131,8 @@ html.is-app #fin-rate {
 }
 
 /* savings-rate pill */
-/* FIX 1 — Net Worth summary: 3 equal columns, no collision, no floating +/-.
-   Values sized to fit 3-across and truncate with … if ever too long. */
+/* FIX 1 â€” Net Worth summary: 3 equal columns, no collision, no floating +/-.
+   Values sized to fit 3-across and truncate with â€¦ if ever too long. */
 html.is-app .fin-hero-stats {
   gap: 8px !important;
   align-items: flex-start !important;
@@ -1160,7 +1160,7 @@ html.is-app .fin-hero-stats #fin-savings {
   text-overflow: ellipsis !important;
 }
 
-/* FIX 2 — Chart.js doughnut CENTER label: keep it inside the ring.
+/* FIX 2 â€” Chart.js doughnut CENTER label: keep it inside the ring.
    Targets the absolute pointer-events:none overlay used by every donut. */
 html.is-app [style*="pointer-events:none"][style*="inset:0"] span:first-child {
   font-size: 20px !important;
@@ -1175,7 +1175,7 @@ html.is-app [style*="pointer-events:none"][style*="inset:0"] span:nth-child(2) {
   text-overflow: ellipsis !important;
 }
 
-/* FIX 3 — Top Spending list: stop the amount + % from squishing together. */
+/* FIX 3 â€” Top Spending list: stop the amount + % from squishing together. */
 html.is-app #dash-pie-chart>div:last-child>div {
   gap: 12px !important;
 }
@@ -1194,7 +1194,7 @@ html.is-app #dash-pie-chart>div:last-child>div>span:last-child {
   color: var(--text3) !important;
 }
 
-/* ---------- 📊 LIFE SCORE rows (radar legend) ----------
+/* ---------- ðŸ“Š LIFE SCORE rows (radar legend) ----------
    FIX: "Productivity"/numbers were breaking letter-per-line because the
    label box was too small for the large font. Give labels room + nowrap. */
 html.is-app .life-score-grid>div>div>div {
@@ -1219,9 +1219,9 @@ html.is-app .life-score-grid span[style*="width:34px"] {
   text-align: right !important;
 }
 
-/* ---------- 📈 LIFE ANALYTICS tiles ("12/14" etc.) ----------
-   FIX: 4-across made tiles too narrow → "12/14" and "Achievements" wrapped.
-   Use 2×2 so each tile is wide enough; keep value on one line. */
+/* ---------- ðŸ“ˆ LIFE ANALYTICS tiles ("12/14" etc.) ----------
+   FIX: 4-across made tiles too narrow â†’ "12/14" and "Achievements" wrapped.
+   Use 2Ã—2 so each tile is wide enough; keep value on one line. */
 html.is-app .stat-grid {
   grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
@@ -1437,10 +1437,10 @@ html.is-app .tx-row>div:last-child>span[style*="font-weight:700"] {
 }
 
 /* ============================================================
-   DASHBOARD PhonePe-style adjustments (build 72) — app-only
+   DASHBOARD PhonePe-style adjustments (build 72) â€” app-only
    ============================================================ */
 
-/* Notification bell — top-right, mirrors the menu button */
+/* Notification bell â€” top-right, mirrors the menu button */
 #mobile-notif-btn {
   display: none;
 }
@@ -1480,24 +1480,24 @@ html.is-app .hero-card {
   display: none !important;
 }
 
-/* 9. Quick Access (bottom) → 2 columns */
+/* 9. Quick Access (bottom) â†’ 2 columns */
 html.is-app .qa-grid {
   grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
 }
 
-/* 7. Financial Overview chart — taller */
+/* 7. Financial Overview chart â€” taller */
 html.is-app div[style*="height:240px"] {
   height: 470px !important;
 }
 
-/* 6. Top Spending donut — pull to the left, sized nicely */
+/* 6. Top Spending donut â€” pull to the left, sized nicely */
 html.is-app #dash-pie-chart>div:first-child {
   width: 64% !important;
   margin: 0 auto 14px 0 !important;
 }
 
-/* 8. Dashboard Bank / Cash / Credit cards — taller & more spacious */
+/* 8. Dashboard Bank / Cash / Credit cards â€” taller & more spacious */
 html.is-app .dash-acct-grid>* {
   padding: 26px 20px !important;
 }
@@ -1507,7 +1507,7 @@ html.is-app .dash-bg-grid>* {
 }
 
 /* ============================================================
-   build 73 — center Add FAB, big period tabs, swipeable cards
+   build 73 â€” center Add FAB, big period tabs, swipeable cards
    App-only (html.is-app).
    ============================================================ */
 
@@ -1674,10 +1674,10 @@ html.is-app .fin-dark-card .card-icon-trigger {
 }
 
 /* ============================================================
-   build 75 — major dashboard + bottom-nav restructure (app-only)
+   build 75 â€” major dashboard + bottom-nav restructure (app-only)
    ============================================================ */
 
-/* #1 Bigger menu (☰) + bell */
+/* #1 Bigger menu (â˜°) + bell */
 html.is-app .mobile-menu-btn {
   width: 66px !important;
   height: 66px !important;
@@ -1706,14 +1706,14 @@ html.is-app .content {
 
 /* #2 the dashboard/finance header "+ Add Transaction" is hidden in the JS
    templates (the centre FAB replaces it). We do NOT hide all header primary
-   buttons here, so legitimate ones (Export PDF, New Note, Add Asset…) show. */
+   buttons here, so legitimate ones (Export PDF, New Note, Add Assetâ€¦) show. */
 
 /* #12 remove the search bar */
 html.is-app .app-search {
   display: none !important;
 }
 
-/* #3 KPI cards → 2×2 (Income | Expense / Net Saving | Net Worth) */
+/* #3 KPI cards â†’ 2Ã—2 (Income | Expense / Net Saving | Net Worth) */
 html.is-app .kpi-grid {
   grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
@@ -1749,7 +1749,7 @@ html.is-app #dash-pie-chart>div:last-child {
   flex: 1 !important;
 }
 
-/* #7 Budget + #8 Goals — taller & spacious */
+/* #7 Budget + #8 Goals â€” taller & spacious */
 html.is-app .dash-bg-grid>* {
   padding: 30px 22px !important;
   min-height: 320px !important;
@@ -1759,7 +1759,7 @@ html.is-app .dash-acct-grid>* {
   padding: 28px 22px !important;
 }
 
-/* #11 Bottom nav — 6 tabs in two groups, center gap for the FAB, 3x taller */
+/* #11 Bottom nav â€” 6 tabs in two groups, center gap for the FAB, 3x taller */
 html.is-app #bottom-nav {
   padding: 22px 8px calc(22px + env(safe-area-inset-bottom, 0px)) !important;
   justify-content: space-between !important;
@@ -1795,7 +1795,7 @@ html.is-app #bottom-nav .bn-item span {
   font-size: 18px !important;
 }
 
-/* taller bar → push content & raise the FAB */
+/* taller bar â†’ push content & raise the FAB */
 html.is-app .content {
   padding-bottom: 150px !important;
 }
@@ -1812,10 +1812,10 @@ html.is-app #fab-add svg {
 }
 
 /* ============================================================
-   build 76 — sizing + spacing + modal fit (app-only)
+   build 76 â€” sizing + spacing + modal fit (app-only)
    ============================================================ */
 
-/* #3 Menu (☰) + bell — bigger (≈3x icon) */
+/* #3 Menu (â˜°) + bell â€” bigger (â‰ˆ3x icon) */
 html.is-app .mobile-menu-btn {
   width: 82px !important;
   height: 82px !important;
@@ -1842,14 +1842,14 @@ html.is-app .content {
   padding-top: 110px !important;
 }
 
-/* #2 Day/Night theme toggle (docked in header) — bigger */
+/* #2 Day/Night theme toggle (docked in header) â€” bigger */
 html.is-app .theme-toggle.theme-toggle-docked {
   width: 62px !important;
   height: 62px !important;
   font-size: 34px !important;
 }
 
-/* #4 Floating AI / mic dock — much bigger */
+/* #4 Floating AI / mic dock â€” much bigger */
 html.is-app .float-dock-btn {
   width: 84px !important;
   height: 84px !important;
@@ -1862,13 +1862,13 @@ html.is-app .float-dock.dock-collapsed .float-dock-btn {
   font-size: 28px !important;
 }
 
-/* #5 Dashboard Financial Overview — breathing room */
+/* #5 Dashboard Financial Overview â€” breathing room */
 html.is-app #dash-fin-overview {
   margin-top: 22px !important;
   margin-bottom: 22px !important;
 }
 
-/* #6 Dashboard Credit Cards row — taller & spaced (it's inside the accounts grid) */
+/* #6 Dashboard Credit Cards row â€” taller & spaced (it's inside the accounts grid) */
 html.is-app .dash-acct-grid>* {
   margin-bottom: 6px !important;
   padding: 30px 22px !important;
@@ -1889,7 +1889,7 @@ html.is-app .page-header .btn-secondary {
   padding: 12px 16px !important;
 }
 
-/* #16 Budget planner — fit to screen (wrap long right-side text, no overflow) */
+/* #16 Budget planner â€” fit to screen (wrap long right-side text, no overflow) */
 html.is-app .content {
   overflow-x: hidden !important;
 }
@@ -1899,12 +1899,12 @@ html.is-app .glass-card:not(:has(.fin-bank-grid, .fin-card-grid, .fin-cash-grid)
   overflow: hidden !important;
 }
 
-/* #14 Settings — let cards use the full width */
+/* #14 Settings â€” let cards use the full width */
 html.is-app .content>div[style*="max-width"] {
   max-width: 100% !important;
 }
 
-/* #17 Add Income/Expense/Bank modal — fit the screen + 1.5x readable */
+/* #17 Add Income/Expense/Bank modal â€” fit the screen + 1.5x readable */
 html.is-app .modal-box {
   width: 94vw !important;
   max-width: 94vw !important;
@@ -1929,17 +1929,17 @@ html.is-app #modal-title {
 }
 
 /* ============================================================
-   build 77 — settings full width, import row one line,
+   build 77 â€” settings full width, import row one line,
    bottom nav 2x, sun/moon pinned near bell (app-only)
    ============================================================ */
 
-/* #1 Settings — cards use full screen width (was capped at 500px) */
+/* #1 Settings â€” cards use full screen width (was capped at 500px) */
 html.is-app [style*="max-width:500px"],
 html.is-app [style*="max-width: 500px"] {
   max-width: 100% !important;
 }
 
-/* #3 Finance import row (CSV / Bulk / Paste / SMS / PDF) — keep on ONE line */
+/* #3 Finance import row (CSV / Bulk / Paste / SMS / PDF) â€” keep on ONE line */
 html.is-app .page-header>div:last-child>div:last-child {
   flex-wrap: nowrap !important;
   overflow-x: auto !important;
@@ -1951,7 +1951,7 @@ html.is-app .page-header>div:last-child>div:last-child>button {
   flex: 0 0 auto !important;
 }
 
-/* #2 Bottom nav buttons — 2x bigger */
+/* #2 Bottom nav buttons â€” 2x bigger */
 html.is-app #bottom-nav .bn-item svg {
   width: 52px !important;
   height: 52px !important;
@@ -1980,12 +1980,12 @@ html.is-app #fab-add svg {
   height: 46px !important;
 }
 
-/* #4 Sun/Moon — always pinned top-right, just left of the bell */
+/* #4 Sun/Moon â€” always pinned top-right, just left of the bell */
 html.is-app .theme-toggle {
   position: fixed !important;
   top: 24px !important;
   right: 110px !important;
-  /* bell is at right:14 (82px wide) → sit to its left */
+  /* bell is at right:14 (82px wide) â†’ sit to its left */
   left: auto !important;
   width: 66px !important;
   height: 66px !important;
@@ -1998,10 +1998,10 @@ html.is-app .theme-toggle {
 }
 
 /* ============================================================
-   build 78 — separate Transactions page, bigger quick pills, bars
+   build 78 â€” separate Transactions page, bigger quick pills, bars
    ============================================================ */
 
-/* #11 Transactions live on their own page now — hide the section on Finance,
+/* #11 Transactions live on their own page now â€” hide the section on Finance,
    show it only on the dedicated Transactions page */
 html.is-app #fin-tx-section {
   display: none !important;
@@ -2027,7 +2027,7 @@ html.is-app #page-quick-actions button span {
   font-size: 30px !important;
 }
 
-/* #7 Dashboard progress bars — rounded + soft glow like the Life Score bars */
+/* #7 Dashboard progress bars â€” rounded + soft glow like the Life Score bars */
 html.is-app .dash-acct-grid div[style*="height:5px"],
 html.is-app .dash-bg-grid div[style*="height:5px"],
 html.is-app .dash-acct-grid div[style*="height:6px"] {
@@ -2036,11 +2036,11 @@ html.is-app .dash-acct-grid div[style*="height:6px"] {
 }
 
 /* ============================================================
-   build 79 — bottom Transactions tab, bigger tx text,
+   build 79 â€” bottom Transactions tab, bigger tx text,
    dashboard net-worth focus, budget/goals bars
    ============================================================ */
 
-/* #2 Transactions history — even bigger text */
+/* #2 Transactions history â€” even bigger text */
 html.is-app #fin-tx-section .tx-row p:first-child {
   font-size: 28px !important;
   font-weight: 700 !important;
@@ -2060,7 +2060,7 @@ html.is-app #fin-tx-section .tx-ic {
   font-size: 30px !important;
 }
 
-/* #3 Dashboard — hide Bank/Cash/Credit cards, spotlight the Financial Net Worth */
+/* #3 Dashboard â€” hide Bank/Cash/Credit cards, spotlight the Financial Net Worth */
 html.is-app .dash-acct-grid {
   display: none !important;
 }
@@ -2090,14 +2090,14 @@ html.is-app .dash-nw-bar span[style*="font-weight:900"] {
   font-size: 46px !important;
 }
 
-/* the +₹ value */
+/* the +â‚¹ value */
 html.is-app .dash-nw-bar>div[style*="height:10px"] {
   height: 20px !important;
 }
 
-/* the colour bar — taller */
+/* the colour bar â€” taller */
 
-/* #4 Budget + Goals bars — rounded, glowy */
+/* #4 Budget + Goals bars â€” rounded, glowy */
 html.is-app .dash-bg-grid div[style*="height:5px"],
 html.is-app .dash-bg-grid div[style*="height:6px"],
 html.is-app .dash-bg-grid div[style*="height:8px"] {
@@ -2106,7 +2106,7 @@ html.is-app .dash-bg-grid div[style*="height:8px"] {
 }
 
 /* ============================================================
-   build 80 — top tools toolbar (undo/calc/lang/mic/theme/bell),
+   build 80 â€” top tools toolbar (undo/calc/lang/mic/theme/bell),
    remove floating dock, assets stacked, budget donut text off
    ============================================================ */
 
@@ -2245,22 +2245,22 @@ html.is-app body>.theme-toggle {
   display: none !important;
 }
 
-/* #1 All Assets — stack the two category cards full-width (one above the other) */
+/* #1 All Assets â€” stack the two category cards full-width (one above the other) */
 html.is-app .alloc-charts-row {
   grid-template-columns: 1fr !important;
 }
 
-/* #2 Budget overview donut — remove the centre text */
+/* #2 Budget overview donut â€” remove the centre text */
 html.is-app .budget-donut-center {
   display: none !important;
 }
 
 /* ============================================================
-   build 82 — single-row toolbar (above), settings text,
+   build 82 â€” single-row toolbar (above), settings text,
    assets fit, even bottom-nav spacing
    ============================================================ */
 
-/* #3 Settings — bigger option text */
+/* #3 Settings â€” bigger option text */
 html.is-app .form-label {
   font-size: 22px !important;
   margin-bottom: 8px !important;
@@ -2272,7 +2272,7 @@ html.is-app input {
   font-size: 24px !important;
 }
 
-/* #4 All Assets — stack donut above its legend (kills the big middle gap) */
+/* #4 All Assets â€” stack donut above its legend (kills the big middle gap) */
 html.is-app .asset-cat-grid,
 html.is-app .liab-cat-grid {
   grid-template-columns: 1fr !important;
@@ -2280,7 +2280,7 @@ html.is-app .liab-cat-grid {
   justify-items: center !important;
 }
 
-/* keep each legend row (name … ₹value … %) on one line */
+/* keep each legend row (name â€¦ â‚¹value â€¦ %) on one line */
 html.is-app .asset-cat-grid div[style*="justify-content:space-between"],
 html.is-app .liab-cat-grid div[style*="justify-content:space-between"] {
   flex-wrap: nowrap !important;
@@ -2295,7 +2295,7 @@ html.is-app .content table {
   white-space: nowrap !important;
 }
 
-/* #5 Bottom nav — even spacing around the centre FAB */
+/* #5 Bottom nav â€” even spacing around the centre FAB */
 html.is-app #bottom-nav .bn-group {
   justify-content: space-evenly !important;
 }
@@ -2309,11 +2309,11 @@ html.is-app #bottom-nav .bn-group:last-of-type {
 }
 
 /* ============================================================
-   build 83 — redo, toolbar spread, finance tabs off,
+   build 83 â€” redo, toolbar spread, finance tabs off,
    assets ring-right/text-left, % one line, wider add buttons
    ============================================================ */
 
-/* #5 Top toolbar — spread across the full width (use the left/centre space) */
+/* #5 Top toolbar â€” spread across the full width (use the left/centre space) */
 html.is-app #top-tools {
   left: 70px !important;
   right: 8px !important;
@@ -2332,14 +2332,14 @@ html.is-app #top-tools button svg {
   height: 30px !important;
 }
 
-/* #2 Finance import options → two rows (wrap), centered; period tabs hidden via JS */
+/* #2 Finance import options â†’ two rows (wrap), centered; period tabs hidden via JS */
 html.is-app .page-header>div:last-child>div:last-child {
   flex-wrap: wrap !important;
   overflow: visible !important;
   justify-content: center !important;
 }
 
-/* #3 + #4 All Assets — ring on the RIGHT, text on the LEFT, % on one line */
+/* #3 + #4 All Assets â€” ring on the RIGHT, text on the LEFT, % on one line */
 html.is-app .asset-cat-grid,
 html.is-app .liab-cat-grid {
   grid-template-columns: 1fr 150px !important;
@@ -2353,13 +2353,13 @@ html.is-app .liab-cat-grid>div:first-child {
   order: 2 !important;
 }
 
-/* donut → right */
+/* donut â†’ right */
 html.is-app .asset-cat-grid>div:last-child,
 html.is-app .liab-cat-grid>div:last-child {
   order: 1 !important;
 }
 
-/* legend → left */
+/* legend â†’ left */
 /* percentage label: never break onto a second line */
 html.is-app .asset-cat-grid span[style*="width:40px"],
 html.is-app .liab-cat-grid span[style*="width:40px"] {
@@ -2368,7 +2368,7 @@ html.is-app .liab-cat-grid span[style*="width:40px"] {
   white-space: nowrap !important;
 }
 
-/* #6 Add Asset / Add Liability (and other page pills) — fill the width */
+/* #6 Add Asset / Add Liability (and other page pills) â€” fill the width */
 html.is-app #page-quick-actions {
   flex-wrap: nowrap !important;
 }
@@ -2379,11 +2379,11 @@ html.is-app #page-quick-actions button {
 }
 
 /* ============================================================
-   build 84 — toolbar tighter/bigger, bottom 1.5x, calc lock,
+   build 84 â€” toolbar tighter/bigger, bottom 1.5x, calc lock,
    big toasts, smoothness + launch animation
    ============================================================ */
 
-/* #1 Top toolbar — minimal gaps, as large as fits one row */
+/* #1 Top toolbar â€” minimal gaps, as large as fits one row */
 html.is-app #top-tools {
   left: auto !important;
   right: 8px !important;
@@ -2401,7 +2401,7 @@ html.is-app #top-tools button svg {
   height: 30px !important;
 }
 
-/* #2 Bottom nav — 1.5x bigger */
+/* #2 Bottom nav â€” 1.5x bigger */
 html.is-app #bottom-nav .bn-item svg {
   width: 60px !important;
   height: 60px !important;
@@ -2430,7 +2430,7 @@ html.is-app .content {
   padding-bottom: 200px !important;
 }
 
-/* #3 Calculator open → lock the background so it doesn't scroll */
+/* #3 Calculator open â†’ lock the background so it doesn't scroll */
 body.calc-open {
   overflow: hidden !important;
 }
@@ -2440,7 +2440,7 @@ html.is-app body.calc-open .content {
   touch-action: none !important;
 }
 
-/* #6 Smoothness — gentle transitions + tap feedback + smooth scroll */
+/* #6 Smoothness â€” gentle transitions + tap feedback + smooth scroll */
 html.is-app {
   scroll-behavior: smooth;
 }
@@ -2467,7 +2467,7 @@ html.is-app #fab-add:active {
 }
 
 /* #7 App launch animation */
-/* NOTE: NEVER put transform/animation on #main-app OR #content — both are
+/* NOTE: NEVER put transform/animation on #main-app OR #content â€” both are
    ancestors/containers of the fixed top + bottom bars, and a transformed
    ancestor breaks position:fixed (bars only show at scroll extremes).
    Launch animation lives on the per-page wrapper only (pageIn below). */
@@ -2487,7 +2487,7 @@ html.is-app #page-container .fade-in {
   animation: pageIn .32s ease both;
 }
 
-/* #8 Voice / toast response text — much bigger */
+/* #8 Voice / toast response text â€” much bigger */
 html.is-app .toast {
   font-size: 30px !important;
   padding: 22px 26px !important;
@@ -2501,12 +2501,12 @@ html.is-app .toast span {
 }
 
 /* ============================================================
-   build 86 — less-transparent cards/menu, fix cut liabilities,
+   build 86 â€” less-transparent cards/menu, fix cut liabilities,
    chart + bar load animations
    ============================================================ */
 
-/* #1 Less transparent layer — make the GLASS cards more solid.
-   NOTE: do NOT touch .fin-dark-card here — those bank/credit/cash cards use
+/* #1 Less transparent layer â€” make the GLASS cards more solid.
+   NOTE: do NOT touch .fin-dark-card here â€” those bank/credit/cash cards use
    their own colourful gradient backgrounds (overriding them made them all look
    the same dark colour). */
 html.is-app .glass-card {
@@ -2533,8 +2533,8 @@ html.is-app .light .sidebar {
   border-right-color: rgba(15, 23, 42, 0.08) !important;
 }
 
-/* #2 All Assets — Net Worth / Assets / Liabilities cram into 1 row & cut the
-   value. Make it 2x2 so ₹58,14,400 (etc.) fits fully. */
+/* #2 All Assets â€” Net Worth / Assets / Liabilities cram into 1 row & cut the
+   value. Make it 2x2 so â‚¹58,14,400 (etc.) fits fully. */
 html.is-app .nw-grid {
   grid-template-columns: 1fr 1fr !important;
   gap: 18px !important;
@@ -2544,7 +2544,7 @@ html.is-app .nw-grid p[style*="font-weight:900"] {
   white-space: nowrap !important;
 }
 
-/* #3 Load animations — charts fade/scale in, bars grow in on the dashboard */
+/* #3 Load animations â€” charts fade/scale in, bars grow in on the dashboard */
 @keyframes chartIn {
   from {
     opacity: 0;
@@ -2580,11 +2580,11 @@ html.is-app .life-score-grid div[style*="height:5px"] {
 }
 
 /* ============================================================
-   build 87 — fixed top bar + bottom bar (content scrolls under)
+   build 87 â€” fixed top bar + bottom bar (content scrolls under)
    ============================================================ */
 
 /* The menu, toolbar and bottom nav are all position:fixed and carry their own
-   solid backgrounds — they already stay pinned while content scrolls. Force a
+   solid backgrounds â€” they already stay pinned while content scrolls. Force a
    very high z-index so nothing can ever paint over them. No separate bar
    element (that caused stacking issues that hid them). */
 html.is-app .mobile-menu-btn {
@@ -2608,7 +2608,7 @@ html.is-app .content {
 }
 
 /* ============================================================
-   build 88 — even bottom-nav spacing + crisper icons
+   build 88 â€” even bottom-nav spacing + crisper icons
    ============================================================ */
 
 /* Even distance between all tabs (symmetric halves around the FAB) */
@@ -2653,7 +2653,7 @@ html.is-app #bottom-nav .bn-item {
 }
 
 /* ============================================================
-   build 91 — App Lock screen (PIN keypad)  [not scoped — works everywhere]
+   build 91 â€” App Lock screen (PIN keypad)  [not scoped â€” works everywhere]
    ============================================================ */
 #app-lock {
   position: fixed;
@@ -2772,7 +2772,7 @@ html.is-app #app-lock h2 {
   font-size: 30px;
 }
 
-/* App Lock — biometric button */
+/* App Lock â€” biometric button */
 #app-lock .bio-btn {
   width: 130px;
   height: 130px;
@@ -2798,7 +2798,7 @@ html.is-app #app-lock h2 {
 }
 
 /* ============================================================
-   build 95 — Onboarding + Empty states  [not scoped — web + app]
+   build 95 â€” Onboarding + Empty states  [not scoped â€” web + app]
    ============================================================ */
 #onboarding {
   position: fixed;
@@ -3011,7 +3011,7 @@ html.is-app .empty-state p {
 }
 
 /* ============================================================
-   build 96 — Layout Customizer (edit mode)  [web + app]
+   build 96 â€” Layout Customizer (edit mode)  [web + app]
    ============================================================ */
 #lo-edit-bar {
   display: flex;
@@ -3111,7 +3111,7 @@ html.is-app .lo-ctrls button {
 }
 
 /* ============================================================
-   build 102 — Notes (Google Keep style)  [web + app]
+   build 102 â€” Notes (Google Keep style)  [web + app]
    ============================================================ */
 .notes-grid {
   column-count: 2;
@@ -3299,10 +3299,10 @@ html.is-app .note-swatch {
 }
 
 /* ============================================================
-   build 103 — KPI 2x2, bigger Quick Access
+   build 103 â€” KPI 2x2, bigger Quick Access
    ============================================================ */
 
-/* #4 Income · Expenses / Net Saving · Net Worth → clean even 2x2 */
+/* #4 Income Â· Expenses / Net Saving Â· Net Worth â†’ clean even 2x2 */
 html.is-app .kpi-grid {
   grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
@@ -3316,7 +3316,7 @@ html.is-app .kpi-grid>* {
   padding: 24px 18px !important;
 }
 
-/* #5 Quick Access (bottom of Home) — bigger tiles */
+/* #5 Quick Access (bottom of Home) â€” bigger tiles */
 html.is-app .qa-grid>* {
   min-height: 140px !important;
   padding: 26px 14px !important;
@@ -3333,9 +3333,9 @@ html.is-app .qa-grid>* div {
 }
 
 /* ============================================================
-   build 105 — finance stats one line + spending pie left
+   build 105 â€” finance stats one line + spending pie left
    ============================================================ */
-/* #5 Finance: Total Txns · This Month · Savings Rate → ALWAYS one line */
+/* #5 Finance: Total Txns Â· This Month Â· Savings Rate â†’ ALWAYS one line */
 html.is-app .fin-stat-row {
   display: grid !important;
   grid-template-columns: repeat(3, 1fr) !important;
@@ -3357,7 +3357,7 @@ html.is-app .fin-stat-row p {
   font-size: 16px !important;
 }
 
-/* #5 Spending by Category — bigger ring on the left, legend on the right */
+/* #5 Spending by Category â€” bigger ring on the left, legend on the right */
 html.is-app #finance-pie-chart {
   max-height: none !important;
 }
@@ -3370,9 +3370,9 @@ html.is-app .fin-charts-row .glass-card:last-child .chart-container {
 }
 
 /* ============================================================
-   build 106 — Bank Tracker rebuild (graph full width, stats 1 row)
+   build 106 â€” Bank Tracker rebuild (graph full width, stats 1 row)
    ============================================================ */
-/* #6 Graph full width (stack), taller, premium — Banks, Credit Cards & Cash */
+/* #6 Graph full width (stack), taller, premium â€” Banks, Credit Cards & Cash */
 html.is-app #bt-main-grid,
 html.is-app #cc-main-grid,
 html.is-app #cash-main-grid {
@@ -3386,7 +3386,7 @@ html.is-app #cash-main-grid div[style*="height:180px"] {
   height: 320px !important;
 }
 
-/* Stats Accounts · Entries · Transfers · Days → one line */
+/* Stats Accounts Â· Entries Â· Transfers Â· Days â†’ one line */
 html.is-app .bt-stats {
   grid-template-columns: repeat(4, 1fr) !important;
   gap: 10px !important;
@@ -3402,9 +3402,9 @@ html.is-app .bt-quicklog {
 }
 
 /* ============================================================
-   build 108 — KPI cards 2x2 (forced) + glassy colour
+   build 108 â€” KPI cards 2x2 (forced) + glassy colour
    ============================================================ */
-/* KPI cards 2×2 — let the per-card accent gradient (set inline) show through;
+/* KPI cards 2Ã—2 â€” let the per-card accent gradient (set inline) show through;
    just add the glassy blur + spacing here. */
 html.is-app .kpi-grid {
   grid-template-columns: 1fr 1fr !important;
@@ -3422,7 +3422,7 @@ html.is-app .kpi-grid>* {
 }
 
 /* ============================================================
-   build 110 — no login flash + premium equal-spaced bottom nav
+   build 110 â€” no login flash + premium equal-spaced bottom nav
    ============================================================ */
 /* Hide the auth screen instantly when a session exists (no 1s flash) */
 html.has-session #auth-screen {
@@ -3488,7 +3488,7 @@ html.is-app #bottom-nav .bn-item[data-page="budget"] {
 }
 
 /* ============================================================
-   build 115 — Transaction detail card (MyMoney style)  [web + app]
+   build 115 â€” Transaction detail card (MyMoney style)  [web + app]
    ============================================================ */
 .txd-head {
   border-radius: 16px;
@@ -3619,7 +3619,7 @@ html.is-app .txd-cat-ic {
 /* #3 colourful category circle on transaction rows (tint the round icon) */
 
 /* ============================================================
-   build 116 — spending hero ring (axio-style) + category row icons
+   build 116 â€” spending hero ring (axio-style) + category row icons
    ============================================================ */
 .spend-ring-card {
   cursor: pointer;
@@ -3715,7 +3715,7 @@ html.is-app .spend-ring-foot .srf-v {
 }
 
 /* ============================================================
-   build 117 — Yearly Report table
+   build 117 â€” Yearly Report table
    ============================================================ */
 .yearly-tbl {
   width: 100%;
@@ -3759,7 +3759,7 @@ html.is-app .yearly-tbl thead th {
 }
 
 /* ============================================================
-   build 119 — colourful menu (sidebar) icons
+   build 119 â€” colourful menu (sidebar) icons
    ============================================================ */
 html.is-app .nav-item .nav-icon {
   opacity: 1 !important;
@@ -3847,8 +3847,8 @@ html.is-app .nav-item.active .nav-icon {
 }
 
 /* ============================================================
-   build 125 — bottom-nav: white indicator + even premium spacing
-   (order is Records · Finance · Assets · + · Dashboard · Budget · More)
+   build 125 â€” bottom-nav: white indicator + even premium spacing
+   (order is Records Â· Finance Â· Assets Â· + Â· Dashboard Â· Budget Â· More)
    ============================================================ */
 /* the active-tab indicator: full white, rounded, soft glow */
 html.is-app #bn-indicator {
@@ -3897,7 +3897,7 @@ html.is-app #bottom-nav .bn-item[data-page="budget"] {
 }
 
 /* ============================================================
-   build 126 — two-tone "double colour" bank/credit/cash cards
+   build 126 â€” two-tone "double colour" bank/credit/cash cards
    (app only; web keeps its smooth gradient). Uses the per-card
    --c1 (lighter) / --c2 (darker) vars set inline in finance.js.
    ============================================================ */
@@ -3923,155 +3923,152 @@ html.is-app .fin-dark-card::after {
   border-radius: inherit;
 }
 
-/* ============================================================
-   build 127 — premium dual-tone popup modals (app only)
-   Colourful header band (set per-type in openModal) + cream body,
-   MyMoney-style. Scoped to html.is-app so web modals are untouched.
-   ============================================================ */
 html.is-app #modal-overlay .modal-box {
-  background: #fffdf3 !important;
-  border: none !important;
-  border-radius: 26px !important;
+  background: #111428 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 36px !important;
   overflow: hidden !important;
   padding: 0 !important;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55) !important;
-  max-width: 460px !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6) !important;
+  width: 92vw !important;
+  max-width: 580px !important;
+  position: relative !important;
+}
+html.is-app.light #modal-overlay .modal-box,
+html.is-app body.light #modal-overlay .modal-box {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* coloured header band */
+/* top accent line */
+html.is-app .modal-accent-line {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 6px !important;
+  z-index: 10 !important;
+  background: linear-gradient(135deg, #00c9a7, #6366f1) !important;
+}
+
+/* transparent header band */
 html.is-app #modal-overlay .modal-header {
   margin: 0 !important;
-  padding: 22px 22px 26px !important;
+  padding: 36px 26px 20px !important;
   border: none !important;
   border-radius: 0 !important;
   position: relative !important;
-  /* background gradient is set inline by openModal() per type */
+  background: transparent !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
 
 html.is-app #modal-overlay .modal-header h3 {
-  color: #ffffff !important;
-  font-size: 22px !important;
+  color: var(--text) !important;
+  font-size: 28px !important;
   font-weight: 800 !important;
   letter-spacing: .3px !important;
   margin: 0 !important;
   text-align: center !important;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+}
+html.is-app.light #modal-overlay .modal-header h3,
+html.is-app body.light #modal-overlay .modal-header h3 {
+  color: #111827 !important;
 }
 
 html.is-app #modal-overlay .modal-close {
   position: absolute !important;
-  left: 14px !important;
-  top: 14px !important;
-  width: 38px !important;
-  height: 38px !important;
+  right: 20px !important;
+  left: auto !important;
+  top: 20px !important;
+  width: 44px !important;
+  height: 44px !important;
   border-radius: 50% !important;
-  background: rgba(255, 255, 255, 0.22) !important;
-  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text2) !important;
   border: none !important;
-  font-size: 17px !important;
+  font-size: 18px !important;
   cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  z-index: 11 !important;
+}
+html.is-app #modal-overlay .modal-close:active {
+  transform: scale(0.9) !important;
+}
+html.is-app.light #modal-overlay .modal-close,
+html.is-app body.light #modal-overlay .modal-close {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #4b5563 !important;
 }
 
-/* cream body with dark, readable text */
+/* transparent body with dark/light adaptive text */
 html.is-app #modal-overlay .modal-body {
-  background: #fffdf3 !important;
+  background: transparent !important;
+  color: var(--text) !important;
+  padding: 10px 28px 28px !important;
+}
+html.is-app.light #modal-overlay .modal-body,
+html.is-app body.light #modal-overlay .modal-body {
   color: #1f2937 !important;
-  padding: 22px 20px !important;
 }
 
 html.is-app #modal-overlay .modal-body .form-label,
 html.is-app #modal-overlay .modal-body label {
-  color: #0f4c43 !important;
+  color: var(--text2) !important;
   font-weight: 700 !important;
-}
-
-html.is-app #modal-overlay .modal-body .form-input,
-html.is-app #modal-overlay .modal-body select,
-html.is-app #modal-overlay .modal-body textarea {
-  background: #ffffff !important;
-  color: #111827 !important;
-  border: 1.5px solid #d8d4c0 !important;
-  border-radius: 12px !important;
-  color-scheme: light !important;
-}
-
-html.is-app #modal-overlay .modal-body .form-input::placeholder,
-html.is-app #modal-overlay .modal-body textarea::placeholder {
-  color: #9ca3af !important;
-}
-
-html.is-app #modal-overlay .modal-body select option {
-  background: #ffffff !important;
-  color: #111827 !important;
-}
-
-/* secondary (cancel) button readable on cream */
-html.is-app #modal-overlay .modal-body .btn-secondary {
-  background: #efece0 !important;
-  color: #374151 !important;
-  border: 1px solid #d8d4c0 !important;
-}
-
-html.is-app #modal-overlay .modal-actions {
-  border-top: 1px solid #ece8d8 !important;
-  padding-top: 16px !important;
-  margin-top: 6px !important;
-}
-
-/* generic text inside the body (headings, helper text) stays dark */
-html.is-app #modal-overlay .modal-body h1,
-html.is-app #modal-overlay .modal-body h2,
-html.is-app #modal-overlay .modal-body h3,
-html.is-app #modal-overlay .modal-body h4,
-html.is-app #modal-overlay .modal-body p,
-html.is-app #modal-overlay .modal-body span,
-html.is-app #modal-overlay .modal-body div,
-html.is-app #modal-overlay .modal-body b {
-  color: #1f2937;
-}
-
-/* ============================================================
-   build 128 — make app popup modals ~2x bigger / easier to use
-   ============================================================ */
-html.is-app #modal-overlay .modal-box {
-  width: 94vw !important;
-  max-width: 680px !important;
-  border-radius: 30px !important;
-}
-
-html.is-app #modal-overlay .modal-header {
-  padding: 30px 26px 36px !important;
-}
-
-html.is-app #modal-overlay .modal-header h3 {
-  font-size: 30px !important;
-}
-
-html.is-app #modal-overlay .modal-close {
-  width: 46px !important;
-  height: 46px !important;
-  font-size: 22px !important;
-  left: 18px !important;
-  top: 18px !important;
-}
-
-html.is-app #modal-overlay .modal-body {
-  padding: 28px 24px 26px !important;
-}
-
-html.is-app #modal-overlay .modal-body .form-label,
-html.is-app #modal-overlay .modal-body label {
-  font-size: 19px !important;
+  font-size: 18px !important;
   margin-bottom: 8px !important;
 }
+html.is-app.light #modal-overlay .modal-body .form-label,
+html.is-app body.light #modal-overlay .modal-body label {
+  color: #374151 !important;
+}
 
 html.is-app #modal-overlay .modal-body .form-input,
 html.is-app #modal-overlay .modal-body select,
 html.is-app #modal-overlay .modal-body textarea {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 16px !important;
+  color-scheme: dark !important;
   font-size: 20px !important;
   padding: 16px 16px !important;
-  border-radius: 14px !important;
   min-height: 58px !important;
+  transition: all 0.2s ease !important;
+}
+html.is-app #modal-overlay .modal-body .form-input:focus,
+html.is-app #modal-overlay .modal-body select:focus,
+html.is-app #modal-overlay .modal-body textarea:focus {
+  border-color: #00c9a7 !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.15) !important;
+}
+html.is-app.light #modal-overlay .modal-body .form-input,
+html.is-app.light #modal-overlay .modal-body select,
+html.is-app.light #modal-overlay .modal-body textarea,
+html.is-app body.light #modal-overlay .modal-body .form-input,
+html.is-app body.light #modal-overlay .modal-body select,
+html.is-app body.light #modal-overlay .modal-body textarea {
+  background: #f9fafb !important;
+  color: #111827 !important;
+  border: 1.5px solid #e5e7eb !important;
+  color-scheme: light !important;
+}
+html.is-app.light #modal-overlay .modal-body .form-input:focus,
+html.is-app.light #modal-overlay .modal-body select:focus,
+html.is-app.light #modal-overlay .modal-body textarea:focus,
+html.is-app body.light #modal-overlay .modal-body .form-input:focus,
+html.is-app body.light #modal-overlay .modal-body select:focus,
+html.is-app body.light #modal-overlay .modal-body textarea:focus {
+  border-color: #00c9a7 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.1) !important;
 }
 
 html.is-app #modal-overlay .modal-body textarea {
@@ -4082,22 +4079,59 @@ html.is-app #modal-overlay .modal-body .form-group {
   margin-bottom: 18px !important;
 }
 
-html.is-app #modal-overlay .modal-actions {
-  gap: 14px !important;
-  padding-top: 20px !important;
+html.is-app #modal-overlay .modal-body .form-input::placeholder,
+html.is-app #modal-overlay .modal-body textarea::placeholder {
+  color: #9ca3af !important;
 }
 
-html.is-app #modal-overlay .modal-actions button,
-html.is-app #modal-overlay .modal-body .btn-primary,
+html.is-app #modal-overlay .modal-body select option {
+  background: var(--card-bg) !important;
+  color: var(--text) !important;
+}
+html.is-app.light #modal-overlay .modal-body select option,
+html.is-app body.light #modal-overlay .modal-body select option {
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+
+/* buttons custom styles */
 html.is-app #modal-overlay .modal-body .btn-secondary {
-  font-size: 19px !important;
-  padding: 15px 24px !important;
-  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+html.is-app.light #modal-overlay .modal-body .btn-secondary,
+html.is-app body.light #modal-overlay .modal-body .btn-secondary {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.is-app #modal-overlay .modal-actions {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding-top: 20px !important;
+  margin-top: 10px !important;
+  gap: 14px !important;
+}
+html.is-app.light #modal-overlay .modal-actions,
+html.is-app body.light #modal-overlay .modal-actions {
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* generic typography readable colors */
+html.is-app #modal-overlay .modal-body h1,
+html.is-app #modal-overlay .modal-body h2,
+html.is-app #modal-overlay .modal-body h3,
+html.is-app #modal-overlay .modal-body h4,
+html.is-app #modal-overlay .modal-body p,
+html.is-app #modal-overlay .modal-body span,
+html.is-app #modal-overlay .modal-body div,
+html.is-app #modal-overlay .modal-body b {
 }
 
 /* ============================================================
-   build 129 — text scales with the phone's system font size
-   (Display → Font size). Root font-size is left relative and the
+   build 129 â€” text scales with the phone's system font size
+   (Display â†’ Font size). Root font-size is left relative and the
    mobile type scale is expressed in rem, so raising the Android
    font size enlarges the whole app like native Google apps do.
    Same visual size at the default (1rem = 16px). App-only.
@@ -4215,7 +4249,7 @@ html.is-app textarea {
 }
 
 /* ============================================================
-   build 130 — make the whole app font 1.25x bigger
+   build 130 â€” make the whole app font 1.25x bigger
    (root at 125%; all rem-based text scales up, still follows
    the system font-size setting proportionally). App-only.
    ============================================================ */
@@ -4224,7 +4258,7 @@ html.is-app {
 }
 
 /* ============================================================
-   build 132 — MyMoney-style Records page (app only)
+   build 132 â€” MyMoney-style Records page (app only)
    Cream theme + grouped-by-day rows with colourful round icons.
    Scoped to .mymoney-records inside html.is-app, so nothing else
    (web, other pages) is affected.
@@ -4389,7 +4423,7 @@ html.is-app .mm-empty {
   line-height: 1.6;
 }
 
-/* build 134 — Records filter button (right side of month bar) */
+/* build 134 â€” Records filter button (right side of month bar) */
 html.is-app .mm-monthbar {
   position: relative;
 }
@@ -4435,7 +4469,7 @@ html.is-app .mm-filter .mm-fdot {
 }
 
 /* ============================================================
-   build 135 — Records page: theme-aware (matches app + dark mode),
+   build 135 â€” Records page: theme-aware (matches app + dark mode),
    day/week/month/year/all tabs, big simple filter bar.
    Overrides the earlier cream styling. App-only.
    ============================================================ */
@@ -4655,7 +4689,7 @@ html.is-app .mm-empty {
   line-height: 1.6;
 }
 
-/* build 137 — Records page control buttons (calendar / total / carry-forward) */
+/* build 137 â€” Records page control buttons (calendar / total / carry-forward) */
 html.is-app .mm-ctrls {
   display: flex;
   gap: 8px;
@@ -4699,7 +4733,7 @@ html.is-app .mm-cbtn input[type="date"] {
 }
 
 /* ============================================================
-   build 138 — bump app to 1.5x (text + elements). Root at 150%
+   build 138 â€” bump app to 1.5x (text + elements). Root at 150%
    makes all rem-based text 1.5x; Records icons set in rem so the
    round category icons scale up too. App-only.
    ============================================================ */
@@ -4713,7 +4747,7 @@ html.is-app .mm-ic {
   font-size: 1.7rem !important;
 }
 
-/* build 139 — increase app text/elements further (root 200% = ~2x base) */
+/* build 139 â€” increase app text/elements further (root 200% = ~2x base) */
 html.is-app {
   font-size: 200% !important;
 }
@@ -4724,7 +4758,7 @@ html.is-app .mm-ic {
   font-size: 1.8rem !important;
 }
 
-/* build 140 — reduce app scale a bit (root 175%) */
+/* build 140 â€” reduce app scale a bit (root 175%) */
 html.is-app {
   font-size: 175% !important;
 }
@@ -4735,7 +4769,7 @@ html.is-app .mm-ic {
   font-size: 1.75rem !important;
 }
 
-/* build 141 — Records summary (EXPENSE/INCOME/TOTAL) 1.25x bigger than the list rows */
+/* build 141 â€” Records summary (EXPENSE/INCOME/TOTAL) 1.25x bigger than the list rows */
 html.is-app .mm-summary .mm-s-lbl {
   font-size: 1.35rem !important;
 }
@@ -4744,7 +4778,7 @@ html.is-app .mm-summary .mm-s-val {
   font-size: 1.95rem !important;
 }
 
-/* build 142 — fix Records summary spacing so the 3 amounts don't touch */
+/* build 142 â€” fix Records summary spacing so the 3 amounts don't touch */
 html.is-app .mm-summary {
   column-gap: 12px !important;
   padding-left: 14px !important;
@@ -4766,7 +4800,7 @@ html.is-app .mm-summary .mm-s-val {
   text-overflow: ellipsis !important;
 }
 
-/* build 143 — Records summary as 3 glassy premium cards */
+/* build 143 â€” Records summary as 3 glassy premium cards */
 html.is-app .mm-summary {
   border-bottom: none !important;
   gap: 10px !important;
@@ -4793,7 +4827,7 @@ html.is-app .mm-summary .mm-s-val {
 }
 
 /* ============================================================
-   build 144 — Transaction detail card: 2x text, 3x edit/delete
+   build 144 â€” Transaction detail card: 2x text, 3x edit/delete
    buttons, lighter colours, and hide the redundant modal header.
    ============================================================ */
 /* the detail card supplies its own close + header, so hide the generic one */
@@ -4856,7 +4890,7 @@ html.is-app .txd-head .txd-x {
   top: 16px !important;
 }
 
-/* build 145 — Records gestures: long-press select bar + swipe feedback */
+/* build 145 â€” Records gestures: long-press select bar + swipe feedback */
 html.is-app .mm-row {
   will-change: transform;
 }
@@ -4928,7 +4962,7 @@ html.is-app .mm-selbar .mm-selact.del {
   background: rgba(239, 68, 68, 0.85);
 }
 
-/* build 147 — per-day expense total on the right of the date header */
+/* build 147 â€” per-day expense total on the right of the date header */
 html.is-app .mm-day {
   display: flex !important;
   align-items: baseline !important;
@@ -4944,7 +4978,7 @@ html.is-app .mm-day .mm-day-total {
   margin-left: 12px;
 }
 
-/* build 148 — 2x hamburger (three-line) + 8 top-tool icons.
+/* build 148 â€” 2x hamburger (three-line) + 8 top-tool icons.
    Top tools wrap so all 8 stay visible at the larger size. */
 html.is-app .mobile-menu-btn {
   width: 92px !important;
@@ -4976,7 +5010,7 @@ html.is-app #top-tools button svg {
   height: 34px !important;
 }
 
-/* build 149 — calculator popup ~2x bigger (app only) */
+/* build 149 â€” calculator popup ~2x bigger (app only) */
 html.is-app .calc-window {
   width: calc(100vw - 20px) !important;
   max-width: none !important;
@@ -5039,7 +5073,7 @@ html.is-app .calc-fin-tab {
   padding: 10px 18px !important;
 }
 
-/* build 150 — swipe reveal: Edit (left) / Delete (right) behind each row */
+/* build 150 â€” swipe reveal: Edit (left) / Delete (right) behind each row */
 html.is-app .mm-rowwrap {
   position: relative;
   overflow: hidden;
@@ -5146,14 +5180,14 @@ html.is-app .light .mm-rowwrap .mm-row {
   background: #ffffff;
 }
 
-/* build 151 — visual cue when a row is "armed" (held) for swipe edit/delete */
+/* build 151 â€” visual cue when a row is "armed" (held) for swipe edit/delete */
 html.is-app .mm-row.armed {
   box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
   transform: scale(1.02);
   border-radius: 12px;
 }
 
-/* build 152 — fix select-mode mess: hide swipe reveal + solid selected rows */
+/* build 152 â€” fix select-mode mess: hide swipe reveal + solid selected rows */
 html.is-app .mymoney-records.selmode .mm-rowbg {
   display: none !important;
 }
@@ -5184,7 +5218,7 @@ html.is-app .mm-selbar {
   margin: 4px 14px 6px;
 }
 
-/* build 153 — disable double-tap-to-zoom inside the app (keeps scroll & swipe) */
+/* build 153 â€” disable double-tap-to-zoom inside the app (keeps scroll & swipe) */
 html.is-app,
 html.is-app body,
 html.is-app #app,
@@ -5196,7 +5230,7 @@ html.is-app * {
 }
 
 /* ============================================================
-   build 155 — UX feature pack styling (app only)
+   build 155 â€” UX feature pack styling (app only)
    ============================================================ */
 /* (1) undo snackbar */
 #undo-snack {
@@ -5422,7 +5456,7 @@ html.is-app .mm-preset {
 }
 
 /* ============================================================
-   build 156 — no text-select menu on long-press, full-screen
+   build 156 â€” no text-select menu on long-press, full-screen
    add/edit transaction page.
    ============================================================ */
 /* stop the native Copy/Share/Select-all menu on long-press in the records list */
@@ -5463,7 +5497,7 @@ html.is-app .modal-box.modal-fullscreen .modal-body {
 }
 
 /* ============================================================
-   build 158 — full-screen keypad Add/Edit page (app only)
+   build 158 â€” full-screen keypad Add/Edit page (app only)
    ============================================================ */
 #txpad {
   position: fixed;
@@ -5484,7 +5518,7 @@ html.is-app:not(.light) #txpad {
   color: #e6f4f1;
 }
 
-/* keep pickers above the pad — must beat #txpad's z-index (2147483600) */
+/* keep pickers above the pad â€” must beat #txpad's z-index (2147483600) */
 html.is-app #modal-overlay {
   z-index: 2147483647 !important;
 }
@@ -5719,7 +5753,7 @@ html.is-app:not(.light) #txpad .pad-key {
   cursor: pointer;
 }
 
-/* build 158b — make keypad page follow the app theme (light & dark) */
+/* build 158b â€” make keypad page follow the app theme (light & dark) */
 #txpad {
   background: var(--bg) !important;
   color: var(--text) !important;
@@ -5748,7 +5782,7 @@ html.is-app:not(.light) #txpad .pad-key {
   background: var(--glass-border) !important;
 }
 
-/* build 159 — hide number keypad while typing notes (device keyboard shows) */
+/* build 159 â€” hide number keypad while typing notes (device keyboard shows) */
 #txpad.typing .pad-keys,
 #txpad.typing .pad-foot {
   display: none !important;
@@ -5758,7 +5792,7 @@ html.is-app:not(.light) #txpad .pad-key {
   min-height: 160px !important;
 }
 
-/* build 160 — calculator keypad (4 columns, operators, live result) */
+/* build 160 â€” calculator keypad (4 columns, operators, live result) */
 #txpad .pad-amt-wrap {
   width: 100%;
   text-align: right;
@@ -5802,7 +5836,7 @@ html.is-app:not(.light) #txpad .pad-key.op {
   color: #ef4444;
 }
 
-/* build 161 — fix login/auth screen layout on mobile (stack card + offline banner) */
+/* build 161 â€” fix login/auth screen layout on mobile (stack card + offline banner) */
 html.is-app #auth-screen {
   flex-direction: column !important;
   align-items: center !important;
@@ -5824,7 +5858,7 @@ html.is-app #auth-screen #offline-banner {
   margin: 16px auto 0 !important;
 }
 
-/* build 162 — round-button calculator design (app only), like the reference */
+/* build 162 â€” round-button calculator design (app only), like the reference */
 html.is-app .calc-grid-basic,
 html.is-app .calc-grid-sci {
   gap: 12px !important;
@@ -5853,7 +5887,7 @@ html.is-app .calc-btn:active {
   transform: scale(.93) !important;
 }
 
-/* operators & equals — blue, like the reference */
+/* operators & equals â€” blue, like the reference */
 html.is-app .calc-op {
   background: #2563eb !important;
   color: #fff !important;
@@ -5864,21 +5898,21 @@ html.is-app .calc-eq {
   color: #fff !important;
 }
 
-/* scientific functions — soft blue */
+/* scientific functions â€” soft blue */
 html.is-app .calc-sci {
   background: rgba(37, 99, 235, 0.16) !important;
   color: #60a5fa !important;
   font-size: 22px !important;
 }
 
-/* memory / clear row — green-teal accents */
+/* memory / clear row â€” green-teal accents */
 html.is-app .calc-mem {
   background: rgba(16, 185, 129, 0.16) !important;
   color: #34d399 !important;
   font-size: 20px !important;
 }
 
-/* build 163 — subcategory + repeat row on the keypad add/edit page */
+/* build 163 â€” subcategory + repeat row on the keypad add/edit page */
 #txpad .pad-pickrow.pad-mini {
   margin-top: -4px;
   margin-bottom: 12px;
@@ -5893,7 +5927,7 @@ html.is-app .calc-mem {
   font-size: 1.15rem;
 }
 
-/* build 164 — premium keypad add/edit page; date & time at the top */
+/* build 164 â€” premium keypad add/edit page; date & time at the top */
 /* date/time pills near the top */
 #txpad .pad-dates {
   display: flex;
@@ -5983,7 +6017,7 @@ html.is-app:not(.light) #txpad .pad-key {
   box-shadow: 0 5px 16px rgba(15, 157, 88, 0.45) !important;
 }
 
-/* build 165 — keypad page matches Records page look + tighter sizing */
+/* build 165 â€” keypad page matches Records page look + tighter sizing */
 /* digit tiles: glass like records cards */
 #txpad .pad-key {
   background: var(--glass) !important;
@@ -5995,7 +6029,7 @@ html.is-app:not(.light) #txpad .pad-key {
   font-weight: 600 !important;
 }
 
-/* operators: teal→indigo gradient (same as records tabs / filter bar) */
+/* operators: tealâ†’indigo gradient (same as records tabs / filter bar) */
 #txpad .pad-key.op {
   background: linear-gradient(135deg, #00c9a7, #6366f1) !important;
   color: #fff !important;
@@ -6035,7 +6069,7 @@ html.is-app:not(.light) #txpad .pad-key {
   min-height: 56px !important;
 }
 
-/* build 166 — keypad fills the available space evenly (no big gap) */
+/* build 166 â€” keypad fills the available space evenly (no big gap) */
 #txpad .pad-keys {
   flex: 1 1 auto !important;
   margin-top: 12px !important;
@@ -6047,7 +6081,7 @@ html.is-app:not(.light) #txpad .pad-key {
   font-size: 1.9rem !important;
 }
 
-/* build 167 — iOS-style round calculator buttons on the add/edit keypad */
+/* build 167 â€” iOS-style round calculator buttons on the add/edit keypad */
 #txpad .pad-keys.pad-calc {
   flex: 1 1 auto !important;
   margin-top: 10px !important;
@@ -6085,7 +6119,7 @@ html.is-app .light #txpad .pad-key {
   transform: scale(.95);
 }
 
-/* function keys (C ⌫ %) — slightly lighter dark circle */
+/* function keys (C âŒ« %) â€” slightly lighter dark circle */
 #txpad .pad-key.fn {
   background: #3a3a3c !important;
   color: #fff !important;
@@ -6097,21 +6131,21 @@ html.is-app .light #txpad .pad-key.fn {
   color: #1c1c1e !important;
 }
 
-/* operators — green circles */
+/* operators â€” green circles */
 #txpad .pad-key.oper {
   background: #2e9e44 !important;
   color: #fff !important;
   font-size: 2.3rem !important;
 }
 
-/* equals — blue circle */
+/* equals â€” blue circle */
 #txpad .pad-key.eq {
   background: #2f6bff !important;
   color: #fff !important;
   font-size: 2.4rem !important;
 }
 
-/* build 168 — bigger round keys, centered keypad, fix spacing */
+/* build 168 â€” bigger round keys, centered keypad, fix spacing */
 #txpad .pad-keys.pad-calc {
   flex: 1 1 auto !important;
   grid-template-columns: repeat(4, 1fr) !important;
@@ -6141,7 +6175,7 @@ html.is-app .light #txpad .pad-key.fn {
   color: #fff !important;
 }
 
-/* build 169 — realign top of add page into a tidy 2-column layout */
+/* build 169 â€” realign top of add page into a tidy 2-column layout */
 #txpad .pad-pickrow {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
@@ -6190,7 +6224,7 @@ html.is-app .light #txpad .pad-key.fn {
   position: relative;
 }
 
-/* build 170 — keypad page covers nav/FAB (removes stray square) + ensure on top */
+/* build 170 â€” keypad page covers nav/FAB (removes stray square) + ensure on top */
 html.is-app #txpad {
   z-index: 2147483600 !important;
 }
@@ -6202,7 +6236,7 @@ body:has(#txpad) .mobile-menu-btn {
   display: none !important;
 }
 
-/* build 171 — bigger calculator keys (fill columns, tighter gaps) */
+/* build 171 â€” bigger calculator keys (fill columns, tighter gaps) */
 #txpad {
   padding-left: 10px !important;
   padding-right: 10px !important;
@@ -6230,7 +6264,7 @@ body:has(#txpad) .mobile-menu-btn {
   font-size: 3rem !important;
 }
 
-/* build 172 — fit calculator keys + fix operator colours in light mode */
+/* build 172 â€” fit calculator keys + fix operator colours in light mode */
 /* compact the top section so all 5 key rows fit */
 #txpad .pad-types {
   margin: 8px 0 10px !important;
@@ -6296,7 +6330,7 @@ html.is-app .light #txpad .pad-key.fn {
   background: #d0d0d6 !important;
 }
 
-/* build 173 — maximum-size calculator keys (fill columns) + scroll if tall */
+/* build 173 â€” maximum-size calculator keys (fill columns) + scroll if tall */
 #txpad {
   overflow-y: auto !important;
 }
@@ -6323,7 +6357,7 @@ html.is-app .light #txpad .pad-key.fn {
   font-size: 3.1rem !important;
 }
 
-/* build 174 — reduce calculator keys ~50% */
+/* build 174 â€” reduce calculator keys ~50% */
 #txpad .pad-keys.pad-calc {
   flex: 1 1 auto !important;
   align-content: center !important;
@@ -6345,14 +6379,14 @@ html.is-app .light #txpad .pad-key.fn {
   font-size: 1.7rem !important;
 }
 
-/* build 176 — ensure helper text is readable on the cream modal body */
+/* build 176 â€” ensure helper text is readable on the cream modal body */
 html.is-app #modal-overlay .modal-body p,
 html.is-app #modal-overlay .modal-body small,
 html.is-app #modal-overlay .modal-body li {
   color: #475569 !important;
 }
 
-/* build 178 — balanced subcategory row + Google-style filled keypad */
+/* build 178 â€” balanced subcategory row + Google-style filled keypad */
 /* edit mode: subcategory spans full width (no empty half) */
 #txpad .pad-pickrow.pad-mini.one {
   grid-template-columns: 1fr !important;
@@ -6383,7 +6417,7 @@ html.is-app #modal-overlay .modal-body li {
 }
 
 /* ============================================================
-   build 179 — Samsung One-UI style keypad (rounded squares,
+   build 179 â€” Samsung One-UI style keypad (rounded squares,
    teal operator column, filled teal equals). App only.
    ============================================================ */
 #txpad .pad-keys.pad-calc {
@@ -6417,7 +6451,7 @@ html.is-app .light #txpad .pad-key {
   background: rgba(0, 201, 167, 0.22) !important;
 }
 
-/* function keys: C ⌫ % — teal text */
+/* function keys: C âŒ« % â€” teal text */
 #txpad .pad-key.fn {
   background: rgba(0, 201, 167, 0.12) !important;
   color: #00c9a7 !important;
@@ -6429,7 +6463,7 @@ html.is-app .light #txpad .pad-key.fn {
   color: #009e85 !important;
 }
 
-/* operator column: ÷ × − +  — teal pills */
+/* operator column: Ã· Ã— âˆ’ +  â€” teal pills */
 #txpad .pad-key.oper {
   background: rgba(0, 201, 167, 0.18) !important;
   color: #00c9a7 !important;
@@ -6449,7 +6483,7 @@ html.is-app .light #txpad .pad-key.oper {
   font-size: 2.5rem !important;
 }
 
-/* build 180 — plain number pad (calculator math removed) */
+/* build 180 â€” plain number pad (calculator math removed) */
 #txpad #pad-result {
   display: none !important;
 }
@@ -6477,7 +6511,7 @@ html.is-app .light #txpad .pad-key.oper {
   color: #00c9a7 !important;
 }
 
-/* build 181 — amount uses the device keyboard (no custom keypad) */
+/* build 181 â€” amount uses the device keyboard (no custom keypad) */
 #txpad .pad-amt-label {
   display: block;
   font-size: 1.1rem;
@@ -6520,7 +6554,7 @@ html.is-app .light #txpad .pad-key.oper {
 }
 
 /* ============================================================
-   build 184 — Premium redesign: pill type toggle, custom numpad,
+   build 184 â€” Premium redesign: pill type toggle, custom numpad,
    gradient SAVE button, coloured amount box. App only.
    ============================================================ */
 
@@ -6563,7 +6597,7 @@ html.is-app .light #txpad .pad-key.oper {
   display: none !important;
 }
 
-/* Hide old inline pad-save (header) — SAVE is now at bottom */
+/* Hide old inline pad-save (header) â€” SAVE is now at bottom */
 #txpad .pad-head .pad-save {
   display: none !important;
 }
@@ -6626,7 +6660,7 @@ html.is-app .light #txpad .pad-key.oper {
   margin-left: 10px;
 }
 
-/* --- 3×4 numpad grid --- */
+/* --- 3Ã—4 numpad grid --- */
 #txpad .pad-numgrid {
   display: grid !important;
   grid-template-columns: repeat(3, 1fr) !important;
@@ -6718,7 +6752,7 @@ html.is-app .light #txpad .pad-numgrid .pad-key-fn {
   margin: 14px 0 18px !important;
 }
 
-/* ── Quick-import tools — fills the empty space below SAVE (add mode only) ── */
+/* â”€â”€ Quick-import tools â€” fills the empty space below SAVE (add mode only) â”€â”€ */
 #txpad .pad-tools {
   margin-top: 22px;
 }
@@ -6793,7 +6827,7 @@ html.is-app.light #txpad .pad-tool {
 
 
 /* ============================================================
-   build 186 — premium dark frosted-glass Add/Edit page
+   build 186 â€” premium dark frosted-glass Add/Edit page
    (matches the dark "Themes panel" reference). App only.
    ============================================================ */
 #txpad {
@@ -6910,7 +6944,7 @@ html.is-app.light #txpad .pad-tool {
   box-shadow: 0 12px 28px rgba(239, 68, 68, 0.38) !important;
 }
 
-/* build 187 — Add page blends with app background + bigger elements */
+/* build 187 â€” Add page blends with app background + bigger elements */
 #txpad {
   background: var(--bg) !important;
   /* match the app background */
@@ -6969,12 +7003,12 @@ html.is-app.light #txpad .pad-tool {
   border-radius: 20px !important;
 }
 
-/* build 188 — Add page matches Records page (glass cards + teal/indigo accents) */
-/* build 191 — show the SAME particle background as the rest of the app:
+/* build 188 â€” Add page matches Records page (glass cards + teal/indigo accents) */
+/* build 191 â€” show the SAME particle background as the rest of the app:
    make the sheet transparent and hide #app behind it so the body bg +
    #particles-canvas (both live outside #app) show through. The pad's own
    fields/cards keep their glass backgrounds, so content stays readable. */
-/* build 293 — keep the sheet OPAQUE (was transparent) so the page behind can't
+/* build 293 â€” keep the sheet OPAQUE (was transparent) so the page behind can't
    flash through during the open composite. Solid theme bg matches the app. */
 #txpad {
   background: var(--bg) !important;
@@ -6984,7 +7018,7 @@ html.is-app.txpad-open #app {
   display: none !important;
 }
 
-/* segmented Income/Expense → like the Records period tabs */
+/* segmented Income/Expense â†’ like the Records period tabs */
 #txpad .pad-type-pills {
   background: var(--glass) !important;
   border: 1px solid var(--glass-border) !important;
@@ -7002,7 +7036,7 @@ html.is-app.txpad-open #app {
   box-shadow: 0 6px 18px rgba(0, 201, 167, 0.3) !important;
 }
 
-/* fields → Records glass cards */
+/* fields â†’ Records glass cards */
 #txpad .pad-field>button,
 #txpad .pad-field .pad-dt,
 #txpad .pad-amount-input,
@@ -7029,7 +7063,7 @@ html.is-app.txpad-open #app {
   border-color: #00c9a7 !important;
 }
 
-/* SAVE → teal/indigo gradient like Records active controls */
+/* SAVE â†’ teal/indigo gradient like Records active controls */
 #txpad .pad-save-btn,
 #txpad .pad-save-inc,
 #txpad .pad-save-exp {
@@ -7039,7 +7073,7 @@ html.is-app.txpad-open #app {
 }
 
 /* ============================================================
-   build 192 — popups: position a bit higher, bigger & readable.
+   build 192 â€” popups: position a bit higher, bigger & readable.
    In DARK mode (body without .light) use a frosted DARK-glass body
    with light text so option lists (Account / Category / Repeat /
    Subcategory / Scan SMS / Import PDF) are fully visible.
@@ -7083,7 +7117,7 @@ html.is-app body:not(.light) #modal-overlay .modal-body {
   overflow-y: auto !important;
 }
 
-/* default body text light (no !important → inline accent colours still win) */
+/* default body text light (no !important â†’ inline accent colours still win) */
 html.is-app body:not(.light) #modal-overlay .modal-body h1,
 html.is-app body:not(.light) #modal-overlay .modal-body h2,
 html.is-app body:not(.light) #modal-overlay .modal-body h3,
@@ -7103,7 +7137,7 @@ html.is-app body:not(.light) #modal-overlay .modal-body label {
   color: #5eead4 !important;
 }
 
-/* inputs / textarea / select → dark glass with light text */
+/* inputs / textarea / select â†’ dark glass with light text */
 html.is-app body:not(.light) #modal-overlay .modal-body .form-input,
 html.is-app body:not(.light) #modal-overlay .modal-body input,
 html.is-app body:not(.light) #modal-overlay .modal-body select,
@@ -7124,7 +7158,7 @@ html.is-app body:not(.light) #modal-overlay .modal-body select option {
   color: #f1f5f9 !important;
 }
 
-/* option-list tiles (Account / Category / Repeat) → glass */
+/* option-list tiles (Account / Category / Repeat) â†’ glass */
 html.is-app body:not(.light) #modal-overlay .pad-pick button,
 html.is-app body:not(.light) #modal-overlay .pad-cats button {
   background: rgba(255, 255, 255, 0.06) !important;
@@ -7137,7 +7171,7 @@ html.is-app body:not(.light) #modal-overlay .pad-cats button:active {
   background: rgba(0, 201, 167, 0.20) !important;
 }
 
-/* cancel / secondary button → dark glass */
+/* cancel / secondary button â†’ dark glass */
 html.is-app body:not(.light) #modal-overlay .modal-body .btn-secondary {
   background: rgba(255, 255, 255, 0.08) !important;
   color: #e8eef7 !important;
@@ -7149,10 +7183,10 @@ html.is-app body:not(.light) #modal-overlay .modal-actions {
 }
 
 /* ============================================================
-   build 193 — Records bigger controls (#7), txpad mic (#3),
+   build 193 â€” Records bigger controls (#7), txpad mic (#3),
    bottom Cancel (#4)
    ============================================================ */
-/* #7 — bigger, easier-to-tap Records control buttons */
+/* #7 â€” bigger, easier-to-tap Records control buttons */
 html.is-app .mymoney-records .mm-ptab {
   padding: 15px 4px !important;
   font-size: 1.35rem !important;
@@ -7175,7 +7209,7 @@ html.is-app .mm-today {
   padding: 8px 14px !important;
 }
 
-/* #3 — voice mic inside the Add sheet notes box */
+/* #3 â€” voice mic inside the Add sheet notes box */
 #txpad .pad-notes-wrap {
   position: relative;
 }
@@ -7224,7 +7258,7 @@ html.is-app .mm-today {
   }
 }
 
-/* #4 — full-width Cancel at the bottom of the Add sheet */
+/* #4 â€” full-width Cancel at the bottom of the Add sheet */
 #txpad .pad-cancel-btn {
   width: 100%;
   margin-top: 14px;
@@ -7251,7 +7285,7 @@ html.is-app.light #txpad .pad-cancel-btn {
   border-color: rgba(239, 68, 68, 0.4);
 }
 
-/* build 243 — Subcategory popup ~2x bigger (input + buttons) */
+/* build 243 â€” Subcategory popup ~2x bigger (input + buttons) */
 html.is-app #modal-overlay .subcat-modal {
   padding: 8px 0;
 }
@@ -7281,13 +7315,13 @@ html.is-app #modal-overlay .subcat-modal .btn-primary {
   min-width: 120px !important;
 }
 
-/* build 244 — reduce the amount number (0.00) by ~25% */
+/* build 244 â€” reduce the amount number (0.00) by ~25% */
 #txpad .pad-amount-input {
   font-size: 2.3rem !important;
 }
 
 /* ============================================================
-   build 253 — improved global Search (rich results, chips)
+   build 253 â€” improved global Search (rich results, chips)
    ============================================================ */
 html.is-app #modal-overlay .gs-inputbar {
   position: relative;
@@ -7429,7 +7463,7 @@ html.is-app #modal-overlay .gs-empty p {
   margin-top: 10px;
 }
 
-/* build 256 — bigger Filter Records popup */
+/* build 256 â€” bigger Filter Records popup */
 html.is-app #modal-overlay .rf-modal .form-group {
   margin-bottom: 18px !important;
 }
@@ -7461,7 +7495,7 @@ html.is-app #modal-overlay .rf-modal .btn-primary {
   min-width: 130px !important;
 }
 
-/* #5 — Lucide line icons inside the Add sheet (replaces emoji) */
+/* #5 â€” Lucide line icons inside the Add sheet (replaces emoji) */
 #txpad .svg-inline,
 #txpad svg.lucide {
   stroke-width: 2;
@@ -7537,7 +7571,7 @@ html.is-app #modal-overlay .rf-modal .btn-primary {
   height: 1.9rem;
 }
 
-/* build 234 — notes + mic as one aligned row (mic was overlapping/floating) */
+/* build 234 â€” notes + mic as one aligned row (mic was overlapping/floating) */
 #txpad .pad-notes-wrap {
   display: flex !important;
   flex-direction: row !important;
@@ -7564,7 +7598,7 @@ html.is-app #modal-overlay .rf-modal .btn-primary {
   border-radius: 18px !important;
 }
 
-/* build 237 — Amount compact, Notes taller (amount height < notes height) */
+/* build 237 â€” Amount compact, Notes taller (amount height < notes height) */
 #txpad .pad-amt-wrap {
   flex: 0 0 auto !important;
 }
@@ -7584,7 +7618,7 @@ html.is-app #modal-overlay .rf-modal .btn-primary {
   min-height: 150px !important;
 }
 
-/* build 238 — top CANCEL removed; amount full width; calc + mic = small 18px
+/* build 238 â€” top CANCEL removed; amount full width; calc + mic = small 18px
    icons docked at the bottom-right of the notes box */
 #txpad .pad-head {
   display: none !important;
@@ -7645,10 +7679,10 @@ html.is-app #modal-overlay .rf-modal .btn-primary {
 }
 
 /* ============================================================
-   build 239 — Add-sheet polish: ₹ symbol + emphasised amount,
+   build 239 â€” Add-sheet polish: â‚¹ symbol + emphasised amount,
    bigger calc/mic chips, clearer Quick Import header, even spacing
    ============================================================ */
-/* #1 amount focal point: ₹ on the left, coloured/thicker border */
+/* #1 amount focal point: â‚¹ on the left, coloured/thicker border */
 #txpad .pad-amt-wrap {
   position: relative !important;
 }
@@ -7741,7 +7775,7 @@ html.is-app #modal-overlay .rf-modal .btn-primary {
   margin-top: 20px !important;
 }
 
-/* build 240 — group Amount + Notes into one subtle "entry zone" card */
+/* build 240 â€” group Amount + Notes into one subtle "entry zone" card */
 #txpad .pad-entry-zone {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -7805,7 +7839,7 @@ html.is-app.light #txpad .pad-entry-zone {
 }
 
 /* ============================================================
-   build 214 — full-screen Voice Command page (wave + transcript)
+   build 214 â€” full-screen Voice Command page (wave + transcript)
    ============================================================ */
 #voice-page {
   position: fixed;
@@ -7821,7 +7855,7 @@ html.is-app.light #txpad .pad-entry-zone {
   color: #f1f5f9 !important;
 }
 
-/* voice page bg is always dark → force light text regardless of app theme */
+/* voice page bg is always dark â†’ force light text regardless of app theme */
 #voice-page,
 #voice-page .vp-transcript,
 #voice-page .vp-cmd-txt,
@@ -8017,7 +8051,7 @@ html.is-app.light #txpad .pad-entry-zone {
 }
 
 /* ============================================================
-   build 215 — clean full-screen calculator (iOS / Google style)
+   build 215 â€” clean full-screen calculator (iOS / Google style)
    ============================================================ */
 #calc-page {
   position: fixed;
@@ -8200,7 +8234,7 @@ html.is-app.light #calc-page .cp-key.fn {
   background: rgba(0, 0, 0, 0.12);
 }
 
-/* #5 — category circle + control line icons (Records + pickers) */
+/* #5 â€” category circle + control line icons (Records + pickers) */
 html.is-app .mm-ic {
   display: flex !important;
   align-items: center;
@@ -8268,7 +8302,7 @@ html.is-app #modal-overlay .pad-cat-manage svg.lucide {
   height: 1.4rem;
 }
 
-/* build 262 — Add/Edit Custom Category emoji grid: 4 visible rows, scrollable */
+/* build 262 â€” Add/Edit Custom Category emoji grid: 4 visible rows, scrollable */
 html.is-app #modal-overlay .emoji-grid {
   display: grid !important;
   grid-template-columns: repeat(6, 1fr) !important;
@@ -8304,7 +8338,7 @@ html.is-app #modal-overlay .emoji-pick-btn.active {
   border-color: #00c9a7 !important;
 }
 
-/* build 263 — bigger Merge / + Custom Category buttons */
+/* build 263 â€” bigger Merge / + Custom Category buttons */
 html.is-app .cat-hdr-btn {
   flex: 1 1 0 !important;
   min-width: 140px !important;
@@ -8323,7 +8357,7 @@ html.is-app .cat-hdr-btn svg.lucide {
   height: 1.4rem;
 }
 
-/* build 264 — period tabs as a sleek contained segmented switch */
+/* build 264 â€” period tabs as a sleek contained segmented switch */
 html.is-app .mymoney-records .mm-ptabs {
   background: var(--glass) !important;
   border: 1px solid var(--glass-border) !important;
@@ -8350,7 +8384,7 @@ html.is-app .mymoney-records .mm-ptab.active {
   box-shadow: 0 4px 14px rgba(0, 201, 167, 0.35) !important;
 }
 
-/* theme (sun) button folded into App Settings — hide the standalone one */
+/* theme (sun) button folded into App Settings â€” hide the standalone one */
 html.is-app #top-tools .theme-toggle {
   display: none !important;
 }
@@ -8409,7 +8443,7 @@ html.is-app #modal-overlay .aps-seg button.on {
 }
 
 /* ============================================================
-   build 265 — Records hero: big Balance + Income/Expense split,
+   build 265 â€” Records hero: big Balance + Income/Expense split,
    account breakdowns become a swipeable carousel
    ============================================================ */
 html.is-app .mm-hero {
@@ -8493,7 +8527,7 @@ html.is-app .mm-hs-val.neg {
   color: #ef4444;
 }
 
-/* swipeable hero cards: Balance ⇄ Bank|Cash|Card */
+/* swipeable hero cards: Balance â‡„ Bank|Cash|Card */
 html.is-app .mm-hero-carousel {
   display: flex;
   overflow-x: auto;
@@ -8607,7 +8641,7 @@ html.is-app .mm-netbal-val.neg {
   color: #ef4444;
 }
 
-/* build 275 — Total switch on balance card + big income/expense when off */
+/* build 275 â€” Total switch on balance card + big income/expense when off */
 html.is-app .mm-hero-top {
   display: flex;
   align-items: center;
@@ -8805,7 +8839,7 @@ html.is-app #modal-overlay .cf-chip:active {
   background: rgba(0, 201, 167, 0.18);
 }
 
-/* build 279 — global Big / Small view toggle (scales page content) */
+/* build 279 â€” global Big / Small view toggle (scales page content) */
 html.is-app.big-mode .page-container {
   zoom: 1.5;
 }
@@ -8815,7 +8849,7 @@ html.is-app #bigmode-btn.on {
   color: #fff !important;
 }
 
-/* build 282 — merged Finance page Overview / History toggle */
+/* build 282 â€” merged Finance page Overview / History toggle */
 html.is-app .fin-viewtabs {
   display: flex;
   gap: 6px;
@@ -8852,7 +8886,7 @@ html.is-app .fin-viewtabs button.on {
   color: #fff;
 }
 
-/* build 285 — extra themes (AMOLED true-black, Ocean, Sunset) */
+/* build 285 â€” extra themes (AMOLED true-black, Ocean, Sunset) */
 body.amoled {
   --bg: #000000;
   --bg2: #060606;
@@ -8877,7 +8911,7 @@ body.sunset {
   background: #1b0d16 !important;
 }
 
-/* build 270 — sticky day headers + dimmer meta (emphasise category + amount) */
+/* build 270 â€” sticky day headers + dimmer meta (emphasise category + amount) */
 html.is-app .mm-day {
   position: sticky !important;
   top: 0 !important;
@@ -8915,7 +8949,7 @@ html.is-app .mm-amt {
   font-weight: 800 !important;
 }
 
-/* build 267 — consolidated "Recent Transactions" sub-header + slider filter */
+/* build 267 â€” consolidated "Recent Transactions" sub-header + slider filter */
 html.is-app .mm-subhead {
   display: flex;
   align-items: center;
@@ -9062,7 +9096,7 @@ html.is-app .btn-primary svg.lucide {
 }
 
 /* ============================================================
-   build 186 � Sync button in #top-tools (app only)
+   build 186 ï¿½ Sync button in #top-tools (app only)
    ============================================================ */
 /* Spin animation for the sync icon while syncing */
 @keyframes syncSpin {
@@ -9093,9 +9127,9 @@ html.is-app #sync-btn:active {
 }
 
 /* ============================================================
-   build 296 — bottom nav: only Records · Finance · [+] · Assets · More.
-   5 equal slots (the centre slot holds the FAB) so everything — incl. the
-   + button — is evenly spaced. Tab icons/labels scaled 1.25×.
+   build 296 â€” bottom nav: only Records Â· Finance Â· [+] Â· Assets Â· More.
+   5 equal slots (the centre slot holds the FAB) so everything â€” incl. the
+   + button â€” is evenly spaced. Tab icons/labels scaled 1.25Ã—.
    This block is last in the file so it wins over all earlier nav rules.
    ============================================================ */
 html.is-app #bottom-nav {
@@ -9130,7 +9164,7 @@ html.is-app #bottom-nav .bn-fab-slot {
   height: 1px;
 }
 
-/* 1.25× larger icons + labels (was 50px / 22px) */
+/* 1.25Ã— larger icons + labels (was 50px / 22px) */
 html.is-app #bottom-nav .bn-item svg {
   width: 62px !important;
   height: 62px !important;
@@ -9146,7 +9180,7 @@ html.is-app #bottom-nav .bn-item {
 }
 
 /* ============================================================
-   build 298 — Goals page: clean card alignment + line icons
+   build 298 â€” Goals page: clean card alignment + line icons
    ============================================================ */
 html.is-app .goal-ic {
   width: 46px;
@@ -9195,7 +9229,7 @@ html.is-app .goal-x:active {
   background: rgba(239, 68, 68, 0.22);
 }
 
-/* status / sync chips sit on their own wrapping row → no overlap */
+/* status / sync chips sit on their own wrapping row â†’ no overlap */
 html.is-app .goal-chip-btn {
   display: inline-flex;
   align-items: center;
@@ -9220,7 +9254,7 @@ html.is-app .goal-card .tag {
 }
 
 /* ============================================================
-   build 299 — Money Rules page (9 finance rules of thumb)
+   build 299 â€” Money Rules page (9 finance rules of thumb)
    ============================================================ */
 html.is-app .mr-banner {
   display: grid;
@@ -9378,7 +9412,7 @@ html.is-app .mr-split b {
 }
 
 /* ============================================================
-   build 320 — Records: sticky "Recent Transactions" / select bar
+   build 320 â€” Records: sticky "Recent Transactions" / select bar
    + floating scroll-to-top button
    ============================================================ */
 html.is-app .mymoney-records .mm-subhead {
@@ -9444,9 +9478,9 @@ body:not(.is-app) #rec-top-btn {
 }
 
 /* ============================================================
-   build 323 — Global polish pass (match the Records page feel)
+   build 323 â€” Global polish pass (match the Records page feel)
    ============================================================ */
-/* KPI strips were 3–4 columns on phones → ₹ figures shattered onto 3 lines.
+/* KPI strips were 3â€“4 columns on phones â†’ â‚¹ figures shattered onto 3 lines.
    Use 2 columns so each card is wide enough, and stop money from breaking. */
 html.is-app .cross-kpi-grid,
 html.is-app .ai-kpi-grid {
@@ -9550,7 +9584,7 @@ html.is-app .acct-count {
   display: none !important;
 }
 
-/* Cleaner app header: drop the big "Finance / Balance history…" title block and
+/* Cleaner app header: drop the big "Finance / Balance historyâ€¦" title block and
    the "N accounts / N cards" count sub-labels (keep the action buttons). */
 html.is-app .fin-page-head>div:first-child {
   display: none !important;
@@ -9589,7 +9623,7 @@ html.is-app .tlog-amt {
 }
 
 /* ============================================================
-   FINAL OVERRIDE — Finance carousel + card sizing (Beat old rules)
+   FINAL OVERRIDE â€” Finance carousel + card sizing (Beat old rules)
    These come LAST so they always win via CSS cascade order.
    ============================================================ */
 
@@ -9618,7 +9652,7 @@ html.is-app .fin-cash-grid::-webkit-scrollbar {
   height: 0 !important;
 }
 
-/* 2. One card fills screen, next card peeks — using calc so it always works */
+/* 2. One card fills screen, next card peeks â€” using calc so it always works */
 html.is-app .fin-bank-grid>*,
 html.is-app .fin-card-grid>*,
 html.is-app .fin-cash-grid>* {
@@ -9649,7 +9683,7 @@ html.is-app .fin-cash-grid>* {
   min-height: 170px !important;
 }
 
-/* 3. Card inner typography — matches mockup exactly */
+/* 3. Card inner typography â€” matches mockup exactly */
 html.is-app .fin-dark-card .card-header {
   display: flex !important;
   justify-content: space-between !important;
@@ -9697,7 +9731,7 @@ html.is-app .fin-dark-card .card-icon-trigger {
   font-size: 16px !important;
 }
 
-/* 4. Segment tab bar — clear pill container */
+/* 4. Segment tab bar â€” clear pill container */
 html.is-app .fin-segtabs {
   display: flex !important;
   background: rgba(255, 255, 255, 0.04) !important;
@@ -9731,7 +9765,7 @@ html.is-app .fin-segtabs .fin-segtab.active {
 }
 
 /* ============================================================
-   CAROUSEL OVERFLOW FIX — must come last to beat all other rules
+   CAROUSEL OVERFLOW FIX â€” must come last to beat all other rules
    The .content has overflow-x:hidden which kills carousel scroll.
    We restore it specifically for the carousel grids.
    ============================================================ */
@@ -9748,7 +9782,7 @@ html.is-app .fin-cash-grid {
 }
 
 /* ============================================================
-   PRODUCTION MERGE — DESIGN CODE OVERHAUL INTERFACE
+   PRODUCTION MERGE â€” DESIGN CODE OVERHAUL INTERFACE
    Enforces clean spacing, metric layouts, and layout rhythm
    ============================================================ */
 
@@ -9921,7 +9955,7 @@ html.is-app .acct-count {
 }
 
 /* ============================================================
-   build 347 — Account Card Layout & Text Wrap Fixes
+   build 347 â€” Account Card Layout & Text Wrap Fixes
    Forbids mid-number wrapping and cleans up text overlaps.
    ============================================================ */
 
@@ -9949,18 +9983,18 @@ html.is-app .bt-quicklog {
   display: none !important;
 }
 /* ============================================================
-   build 349 — ALIGNMENT OVERHAUL (app-only, html.is-app scoped)
+   build 349 â€” ALIGNMENT OVERHAUL (app-only, html.is-app scoped)
    Root causes of the broken screens:
    1) The inline font-size bump table (top of this file) inflated
       text up to 2x while every px-sized container stayed 1x, so
       values overflowed their boxes.
    2) ".content * { overflow-wrap:break-word }" then broke the
-      overflowing money figures MID-DIGIT ("₹922.0 0").
+      overflowing money figures MID-DIGIT ("â‚¹922.0 0").
    Fix: gentler bump scale + never break numbers + stack the
    dense grids. Web/desktop untouched.
    ============================================================ */
 
-/* ── 1. Re-mapped type scale (~1.5x small labels, ~1.3x heroes) ── */
+/* â”€â”€ 1. Re-mapped type scale (~1.5x small labels, ~1.3x heroes) â”€â”€ */
 html.is-app [style*="font-size:9px"]  { font-size: 15px !important; }
 html.is-app [style*="font-size:10px"] { font-size: 16px !important; }
 html.is-app [style*="font-size:11px"] { font-size: 17px !important; }
@@ -9992,7 +10026,7 @@ html.is-app input,
 html.is-app select,
 html.is-app textarea         { font-size: 24px !important; }
 
-/* ── 2. Money figures NEVER break mid-digit anywhere ── */
+/* â”€â”€ 2. Money figures NEVER break mid-digit anywhere â”€â”€ */
 html.is-app .content [style*="font-weight:700"],
 html.is-app .content [style*="font-weight:800"],
 html.is-app .content [style*="font-weight:900"],
@@ -10011,8 +10045,8 @@ html.is-app .content [style*="display:grid"]>* {
   min-width: 0 !important;
 }
 
-/* ── 3. Dense layouts stack to one column in the app ── */
-/* Compare page period cards (and any ≥320px auto-fit grid) */
+/* â”€â”€ 3. Dense layouts stack to one column in the app â”€â”€ */
+/* Compare page period cards (and any â‰¥320px auto-fit grid) */
 html.is-app .content div[style*="minmax(320px"] {
   grid-template-columns: 1fr !important;
 }
@@ -10050,7 +10084,7 @@ html.is-app .page-header {
   row-gap: 10px !important;
 }
 
-/* ── 4. Account carousel cards: fluid width + fitted balance ── */
+/* â”€â”€ 4. Account carousel cards: fluid width + fitted balance â”€â”€ */
 html.is-app .fin-bank-grid>*,
 html.is-app .fin-card-grid>*,
 html.is-app .fin-cash-grid>* {
@@ -10059,7 +10093,7 @@ html.is-app .fin-cash-grid>* {
 }
 
 /* The big balance line inside every bank/credit/cash card
-   (inline style="font-size:2.6rem…" in finance.js) */
+   (inline style="font-size:2.6remâ€¦" in finance.js) */
 html.is-app .fin-dark-card div[style*="2.6rem"] {
   font-size: 34px !important;
   letter-spacing: -1px !important;
@@ -10077,7 +10111,7 @@ html.is-app .sidebar .nav-item {
 }
 
 /* ============================================================
-   build 350 — APP-LIKE NAVIGATION FEEL
+   build 350 â€” APP-LIKE NAVIGATION FEEL
    Tab switches swap content instantly (no spinner, core.js) and
    slide in fast like a native tab change, not a page load.
    ============================================================ */
@@ -10095,10 +10129,10 @@ html.is-app #bottom-nav .bn-item:active {
 }
 
 /* ============================================================
-   build 351 — DRAWER REDESIGN (pill nav, reference mock style)
+   build 351 â€” DRAWER REDESIGN (pill nav, reference mock style)
    Floating rounded drawer; every item is a pill row with an
    icon chip; the active page is a bright white pill. Fixes the
-   cut-off labels ("Yearly Repor…") and inconsistent icons.
+   cut-off labels ("Yearly Reporâ€¦") and inconsistent icons.
    ============================================================ */
 html.is-app .sidebar {
   width: 64vw !important;
@@ -10108,7 +10142,7 @@ html.is-app .sidebar {
   padding-bottom: 24px !important;
 }
 
-/* Header: keep the brand clear of the floating ☰ button */
+/* Header: keep the brand clear of the floating â˜° button */
 html.is-app .sidebar.mobile-open .sidebar-header {
   padding: 20px 18px 10px 74px !important;
 }
@@ -10116,7 +10150,7 @@ html.is-app .sidebar-logo-text {
   font-size: 22px !important;
 }
 
-/* Section labels — quiet, uppercase */
+/* Section labels â€” quiet, uppercase */
 html.is-app .sidebar .nav-group-label {
   font-size: 12px !important;
   font-weight: 700 !important;
@@ -10126,7 +10160,7 @@ html.is-app .sidebar .nav-group-label {
   margin: 18px 22px 8px !important;
 }
 
-/* ── Pill rows ── */
+/* â”€â”€ Pill rows â”€â”€ */
 html.is-app .sidebar .nav-item {
   display: flex !important;
   align-items: center !important;
@@ -10153,7 +10187,7 @@ html.is-app .sidebar .nav-item::after {
   display: none !important;   /* drop old underline/indicator */
 }
 
-/* Label: one line, ellipsis — never clipped mid-letter again */
+/* Label: one line, ellipsis â€” never clipped mid-letter again */
 html.is-app .sidebar .nav-item .nav-text {
   flex: 1 1 auto !important;
   min-width: 0 !important;
@@ -10164,7 +10198,7 @@ html.is-app .sidebar .nav-item .nav-text {
   font-size: 19px !important;
 }
 
-/* Icon chip — every item gets the same rounded square */
+/* Icon chip â€” every item gets the same rounded square */
 html.is-app .sidebar .nav-item .nav-icon {
   flex: 0 0 40px !important;
   width: 40px !important;
@@ -10181,7 +10215,7 @@ html.is-app .sidebar .nav-item .nav-icon svg {
   height: 20px !important;
 }
 
-/* ── Active page = bright white pill (reference style) ── */
+/* â”€â”€ Active page = bright white pill (reference style) â”€â”€ */
 html.is-app .sidebar .nav-item.active {
   background: #f8fafc !important;
   border-color: transparent !important;
@@ -10278,14 +10312,14 @@ html.is-app.light .sidebar .nav-item.active.active .nav-icon svg {
 }
 
 /* ============================================================
-   build 352 — DRAWER v2 (closer to reference) + smoother nav
+   build 352 â€” DRAWER v2 (closer to reference) + smoother nav
    1) bigger text  2) drawer = 3/4 screen  3) reference look:
    floating rounded capsule, brand-green gradient, transparent
    rows with icon chips, white active pill  4) smoother page
    transition.
    ============================================================ */
 
-/* ── Floating capsule panel, 3/4 width ── */
+/* â”€â”€ Floating capsule panel, 3/4 width â”€â”€ */
 html.is-app .sidebar {
   width: 75vw !important;
   max-width: 560px !important;
@@ -10301,7 +10335,7 @@ html.is-app .sidebar {
   box-shadow: 18px 0 60px rgba(0, 0, 0, 0.65) !important;
 }
 
-/* ── Rows: transparent like the reference (chips carry the shape) ── */
+/* â”€â”€ Rows: transparent like the reference (chips carry the shape) â”€â”€ */
 html.is-app .sidebar .nav-item,
 html.is-app .sidebar.mobile-open .nav-item {
   background: rgba(255, 255, 255, 0.04) !important;
@@ -10320,7 +10354,7 @@ html.is-app .sidebar .nav-item .nav-text {
   font-weight: 600 !important;
 }
 
-/* Icon chips — dark translucent rounded squares (reference) */
+/* Icon chips â€” dark translucent rounded squares (reference) */
 html.is-app .sidebar .nav-item .nav-icon,
 html.is-app .sidebar.mobile-open .nav-item .nav-icon {
   flex: 0 0 48px !important;
@@ -10342,7 +10376,7 @@ html.is-app .sidebar .nav-group-label {
   margin: 20px 26px 8px !important;
 }
 
-/* ── Active: white pill that reaches the panel edge (reference) ── */
+/* â”€â”€ Active: white pill that reaches the panel edge (reference) â”€â”€ */
 html.is-app .sidebar .nav-item.active.active,
 html.is-app .sidebar.mobile-open .nav-item.active.active {
   background: #ffffff !important;
@@ -10376,7 +10410,7 @@ html.is-app .sidebar {
   transition: transform .38s cubic-bezier(0.22, 1.2, 0.36, 1) !important;
 }
 
-/* ── Smoother page-to-page transition ── */
+/* â”€â”€ Smoother page-to-page transition â”€â”€ */
 html.is-app .fade-in {
   animation: appPageIn .26s cubic-bezier(0.16, 1, 0.3, 1) both !important;
 }
@@ -10386,12 +10420,12 @@ html.is-app .fade-in {
 }
 
 /* ============================================================
-   build 353 — DRAWER POLISH: layering, scrollbar, capsule float
+   build 353 â€” DRAWER POLISH: layering, scrollbar, capsule float
    The fixed chrome (hamburger, top tools, bottom nav) sits at
    z-index 99999 and was painting OVER the open drawer (z 10000
    inline). Backdrop and drawer now stack above everything; the
    hamburger disappears underneath while open (close = backdrop
-   tap, ≡ button, or navigating).
+   tap, â‰¡ button, or navigating).
    ============================================================ */
 html.is-app #sidebar-backdrop {
   z-index: 100001 !important;
@@ -10412,20 +10446,20 @@ html.is-app .sidebar::-webkit-scrollbar {
   display: none !important;
 }
 
-/* Hamburger is covered while open → brand returns to normal padding */
+/* Hamburger is covered while open â†’ brand returns to normal padding */
 html.is-app .sidebar.mobile-open .sidebar-header {
   padding: 24px 18px 10px 24px !important;
 }
 
 /* ============================================================
-   build 354 — FINANCE PAGE UX POLISH (from UX review)
+   build 354 â€” FINANCE PAGE UX POLISH (from UX review)
    1) contrast on secondary text  2) flatter cards + calmer
    carousel dots  3) decluttered toolbar + uniform quiet action
-   pills  4) (charts: fewer x-labels, no point dots — JS)
+   pills  4) (charts: fewer x-labels, no point dots â€” JS)
    5) subtle bottom-nav active state.
    ============================================================ */
 
-/* 1 ── Secondary text: readable light gray instead of muted teal */
+/* 1 â”€â”€ Secondary text: readable light gray instead of muted teal */
 html.is-app .metric-footer {
   color: rgba(203, 213, 225, 0.78) !important;
 }
@@ -10433,7 +10467,7 @@ html.is-app .stat-card-label {
   color: rgba(203, 213, 225, 0.85) !important;
 }
 
-/* 2 ── Cards: flat, soft elevation; no busy glow borders */
+/* 2 â”€â”€ Cards: flat, soft elevation; no busy glow borders */
 html.is-app .fin-dark-card {
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35) !important;
   border: none !important;
@@ -10460,7 +10494,7 @@ html.is-app .swipe-dots span.on {
   background: rgba(0, 201, 167, 0.85) !important;
 }
 
-/* 3 ── Toolbar: undo/redo/layout-edit move out of the app's top bar
+/* 3 â”€â”€ Toolbar: undo/redo/layout-edit move out of the app's top bar
    (still available on web; layout edit lives in Settings) */
 html.is-app #top-tools button[title="Undo"],
 html.is-app #top-tools button[title="Redo"],
@@ -10475,7 +10509,7 @@ html.is-app #page-quick-actions button {
   box-shadow: none !important;
 }
 
-/* 5 ── Bottom nav: no glow block; colored icon/text + small dot */
+/* 5 â”€â”€ Bottom nav: no glow block; colored icon/text + small dot */
 html.is-app #bottom-nav .bn-item.active::before {
   display: none !important;
 }
@@ -10498,7 +10532,7 @@ html.is-app #bottom-nav .bn-item.active::after {
 }
 
 /* ============================================================
-   build 355 — FINANCE PAGE RESTRUCTURE (app-only)
+   build 355 â€” FINANCE PAGE RESTRUCTURE (app-only)
    - quick-action pills (Add Income/Expense/All Transactions)
      hidden on the Finance page (FAB + per-card buttons cover it)
    - per-card "+" log button (top-right of every account card)
@@ -10506,13 +10540,13 @@ html.is-app #bottom-nav .bn-item.active::after {
    - Transfer lives in the + sheet now; Download/Upload row
    ============================================================ */
 
-/* 1 ── No quick-action pills on Finance */
+/* 1 â”€â”€ No quick-action pills on Finance */
 html.is-app #page-container[data-page="finance"] #page-quick-actions,
 html.is-app #page-container[data-page="bank-tracker"] #page-quick-actions {
   display: none !important;
 }
 
-/* 3 ── per-card add-log chip: accent tint so it reads as primary */
+/* 3 â”€â”€ per-card add-log chip: accent tint so it reads as primary */
 html.is-app .fin-dark-card .card-log-btn {
   background: rgba(255, 255, 255, 0.28) !important;
   color: #ffffff !important;
@@ -10521,7 +10555,7 @@ html.is-app .fin-dark-card .card-log-btn {
   line-height: 1 !important;
 }
 
-/* 4 ── "+" add-account card: same footprint, dashed ghost style */
+/* 4 â”€â”€ "+" add-account card: same footprint, dashed ghost style */
 html.is-app .fin-add-card {
   display: flex !important;
   flex-direction: column !important;
@@ -10559,12 +10593,12 @@ html.is-app .fin-add-card p {
 }
 
 /* ============================================================
-   build 356 — FINANCE CARDS: bigger cards, no stat chips,
+   build 356 â€” FINANCE CARDS: bigger cards, no stat chips,
    actions live in the per-card "+" menu (Download/Upload row
    removed from the page).
    ============================================================ */
 
-/* 3 ── cards 125% wider, 150% taller */
+/* 3 â”€â”€ cards 125% wider, 150% taller */
 html.is-app .fin-bank-grid>*,
 html.is-app .fin-card-grid>*,
 html.is-app .fin-cash-grid>* {
@@ -10582,7 +10616,7 @@ html.is-app .fin-dark-card div[style*="2.6rem"] {
   font-size: 42px !important;
 }
 
-/* 4 ── Accounts / Entries / Transfers / Days chips removed */
+/* 4 â”€â”€ Accounts / Entries / Transfers / Days chips removed */
 html.is-app .bt-stats {
   display: none !important;
 }
@@ -10596,7 +10630,7 @@ html.is-app .fin-cash-grid>* {
 }
 
 /* ============================================================
-   build 357 — MONEY RULES: snackable accordion cards (app-only)
+   build 357 â€” MONEY RULES: snackable accordion cards (app-only)
    The 9 thumb-rule cards collapse to their colored header; tap
    to expand. Kills the endless-scroll feel of the page.
    ============================================================ */
@@ -10605,7 +10639,7 @@ html.is-app .mr-card .mr-head {
   user-select: none;
 }
 html.is-app .mr-card .mr-head::after {
-  content: '▾';
+  content: 'â–¾';
   margin-left: auto;
   flex-shrink: 0;
   color: rgba(203, 213, 225, 0.55);
@@ -10627,7 +10661,7 @@ html.is-app .mr-card {
 }
 
 /* ============================================================
-   build 358 — RECORDS: period tabs row removed; the month label
+   build 358 â€” RECORDS: period tabs row removed; the month label
    opens a period + calendar sheet. Download icon removed.
    ============================================================ */
 html.is-app .mm-month {
@@ -10657,7 +10691,7 @@ html.is-app .mm-monthbar {
 }
 
 /* ============================================================
-   build 359 — RECORDS: ring icon (left of month bar) opens the
+   build 359 â€” RECORDS: ring icon (left of month bar) opens the
    Budget & Spending sheet.
    ============================================================ */
 html.is-app .mm-ring-btn {
@@ -10680,7 +10714,7 @@ html.is-app .mm-ring-btn:active {
 }
 
 /* ============================================================
-   build 360 — RECORDS ring button: bigger, pinned far left,
+   build 360 â€” RECORDS ring button: bigger, pinned far left,
    vivid violet; now opens the Budget page.
    ============================================================ */
 html.is-app .mm-monthbar {
@@ -10705,7 +10739,7 @@ html.is-app .mm-ring-btn:active {
 }
 
 /* ============================================================
-   build 362 — BUDGET PAGE: separate budget cards removed (the
+   build 362 â€” BUDGET PAGE: separate budget cards removed (the
    legend rows in Total Budget Overview now open the edit popup,
    which includes Delete); month-comparison chart at the end.
    ============================================================ */
@@ -10723,7 +10757,7 @@ html.is-app .budget-legend-row:active {
 }
 
 /* ============================================================
-   build 363 — BUDGET overview legend: bigger text, roomier rows,
+   build 363 â€” BUDGET overview legend: bigger text, roomier rows,
    per-category progress (load) bars.
    ============================================================ */
 html.is-app .budget-legend-row {
@@ -10737,7 +10771,7 @@ html.is-app .budget-legend-row + .budget-legend-row {
 }
 
 /* ============================================================
-   build 364 — BUDGET hero (2x ring left, chips right), filter
+   build 364 â€” BUDGET hero (2x ring left, chips right), filter
    sheet replaces period tabs, quick-action pills hidden; the
    sidebar "All Transactions" item is web-only.
    ============================================================ */
@@ -10769,14 +10803,14 @@ html.is-app .budget-filter-btn svg {
   height: 22px;
 }
 
-/* The app reaches transactions via the Records tab — hide the
+/* The app reaches transactions via the Records tab â€” hide the
    web-only sidebar entry inside the app drawer */
 html.is-app .sidebar .nav-web-only {
   display: none !important;
 }
 
 /* ============================================================
-   build 366 — BUDGET: + button (add budget) pinned left of the
+   build 366 â€” BUDGET: + button (add budget) pinned left of the
    month bar, same placement as the Records ring button.
    ============================================================ */
 html.is-app .budget-add-btn {
@@ -10802,7 +10836,7 @@ html.is-app .budget-add-btn:active {
 }
 
 /* ============================================================
-   build 368 — BUDGET PAGE TYPE SCALE 2x (app-only)
+   build 368 â€” BUDGET PAGE TYPE SCALE 2x (app-only)
    Page-scoped remap with higher specificity than the global
    inline-size table, so everything on Budget reads big.
    ============================================================ */
@@ -10828,7 +10862,7 @@ html.is-app #page-container[data-page="budget"] .budget-legend-row { padding: 16
 html.is-app #page-container[data-page="budget"] .cat-lic { font-size: 30px !important; }
 
 /* ============================================================
-   build 370 — DRAWER 2x: bigger labels, icon chips & section
+   build 370 â€” DRAWER 2x: bigger labels, icon chips & section
    headers (overrides build 352 sizing).
    ============================================================ */
 html.is-app .sidebar .nav-item,
@@ -10863,7 +10897,7 @@ html.is-app .sidebar-logo-text {
 }
 
 /* ============================================================
-   build 371 — ALL ASSETS PAGE REDESIGN (app-only)
+   build 371 â€” ALL ASSETS PAGE REDESIGN (app-only)
    ============================================================ */
 
 /* hide the quick-action pills (replaced by inv-add-row) */
@@ -10871,7 +10905,7 @@ html.is-app #page-container[data-page="investments"] #page-quick-actions {
   display: none !important;
 }
 
-/* 1 ── professional Live Prices button */
+/* 1 â”€â”€ professional Live Prices button */
 html.is-app .inv-live-btn {
   display: inline-flex !important;
   align-items: center !important;
@@ -10889,7 +10923,7 @@ html.is-app .inv-live-btn {
 html.is-app .inv-live-btn:active { transform: scale(.95); }
 html.is-app .inv-live-btn svg { width: 22px !important; height: 22px !important; }
 
-/* 4 ── Add Asset / Add Liability cards with line icons */
+/* 4 â”€â”€ Add Asset / Add Liability cards with line icons */
 html.is-app .inv-add-row {
   display: flex !important;
   gap: 14px !important;
@@ -10922,7 +10956,7 @@ html.is-app .inv-add-lbl { font-size: 22px !important; font-weight: 800 !importa
 html.is-app .inv-add-card.asset .inv-add-lbl { color: #10b981 !important; }
 html.is-app .inv-add-card.liab  .inv-add-lbl { color: #ef4444 !important; }
 
-/* 7 ── single filter button */
+/* 7 â”€â”€ single filter button */
 html.is-app .inv-filter-btn {
   display: inline-flex !important;
   align-items: center !important;
@@ -10939,7 +10973,7 @@ html.is-app .inv-filter-btn {
 html.is-app .inv-filter-btn:active { transform: scale(.95); }
 html.is-app .inv-filter-btn svg { width: 20px !important; height: 20px !important; }
 
-/* 9 ── 2x type scale for the page (overrides global inline-size table) */
+/* 9 â”€â”€ 2x type scale for the page (overrides global inline-size table) */
 html.is-app #page-container[data-page="investments"] [style*="font-size:10px"] { font-size: 19px !important; }
 html.is-app #page-container[data-page="investments"] [style*="font-size:11px"] { font-size: 20px !important; }
 html.is-app #page-container[data-page="investments"] [style*="font-size:12px"] { font-size: 22px !important; }
@@ -10953,14 +10987,14 @@ html.is-app #page-container[data-page="investments"] td { font-size: 22px !impor
 html.is-app #page-container[data-page="investments"] th { font-size: 18px !important; }
 
 /* ============================================================
-   build 372 — ALL ASSETS reference design (app-only, .ia-*)
+   build 372 â€” ALL ASSETS reference design (app-only, .ia-*)
    ============================================================ */
 html.is-app .ia-page { padding-bottom: 24px; }
 
 /* hide quick-action pills here too */
 html.is-app #page-container[data-page="investments"] #page-quick-actions { display: none !important; }
 
-/* ── NET WORTH HERO ── */
+/* â”€â”€ NET WORTH HERO â”€â”€ */
 html.is-app .ia-hero {
   background: linear-gradient(160deg, #161b2e, #0e1220);
   border: 1px solid rgba(255,255,255,0.06);
@@ -11003,7 +11037,7 @@ html.is-app .ia-hs-val { font-size: 22px; font-weight: 800; white-space: nowrap;
 html.is-app .ia-hs-val.pos { color: #10b981; }
 html.is-app .ia-hs-val.neg { color: #f1f5f9; }
 
-/* ── QUICK STATS ── */
+/* â”€â”€ QUICK STATS â”€â”€ */
 html.is-app .ia-stats {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
   background: #12172a; border: 1px solid rgba(255,255,255,0.06);
@@ -11014,7 +11048,7 @@ html.is-app .ia-stat-ic svg { width: 26px; height: 26px; }
 html.is-app .ia-stat-lbl { font-size: 13px; color: rgba(203,213,225,0.6); font-weight: 600; }
 html.is-app .ia-stat-val { font-size: 19px; font-weight: 800; }
 
-/* ── TOGGLE ── */
+/* â”€â”€ TOGGLE â”€â”€ */
 html.is-app .ia-toggle {
   display: flex; gap: 6px; background: #12172a; border: 1px solid rgba(255,255,255,0.06);
   border-radius: 16px; padding: 6px; margin-bottom: 14px;
@@ -11025,7 +11059,7 @@ html.is-app .ia-tg {
 }
 html.is-app .ia-tg.on { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
 
-/* ── CARDS ── */
+/* â”€â”€ CARDS â”€â”€ */
 html.is-app .ia-card {
   background: #12172a; border: 1px solid rgba(255,255,255,0.06);
   border-radius: 20px; padding: 20px; margin-bottom: 14px;
@@ -11069,7 +11103,7 @@ html.is-app .ia-chg svg { width: 13px; height: 13px; }
 html.is-app .ia-chev { width: 20px; height: 20px; color: rgba(203,213,225,0.35); flex-shrink: 0; }
 
 /* ============================================================
-   build 373 — ALL ASSETS reference: scale everything up ~2x
+   build 373 â€” ALL ASSETS reference: scale everything up ~2x
    ============================================================ */
 html.is-app .ia-hero { padding: 28px 24px; }
 html.is-app .ia-hero-lbl { font-size: 22px; }
@@ -11124,7 +11158,7 @@ html.is-app .inv-add-ic svg { width: 40px; height: 40px; }
 html.is-app .inv-add-lbl { font-size: 28px; }
 
 /* ============================================================
-   build 374 — ALL ASSETS: center the net-worth block
+   build 374 â€” ALL ASSETS: center the net-worth block
    ============================================================ */
 html.is-app .ia-hero-top {
   position: relative;
@@ -11141,7 +11175,7 @@ html.is-app .ia-hero-trend {
 }
 
 /* ============================================================
-   build 375 — FINANCE balance-log: fresh full-width card design
+   build 375 â€” FINANCE balance-log: fresh full-width card design
    (app-only; replaces the chat-bubble style)
    ============================================================ */
 html.is-app #balance-chat { padding: 8px 4px !important; }
@@ -11190,7 +11224,7 @@ html.is-app .blog-util-bar > div { height: 100%; border-radius: 5px; }
 html.is-app .blog-util span { font-size: 14px; color: rgba(203, 213, 225, 0.55); margin-top: 4px; display: block; }
 
 /* ============================================================
-   build 376 — FINANCE cards: shrink the bottom footer text so it
+   build 376 â€” FINANCE cards: shrink the bottom footer text so it
    fits on one line (was 1.05rem and overflowing the card edge).
    ============================================================ */
 html.is-app .fin-dark-card div[style*="1.05rem"] {
@@ -11205,7 +11239,7 @@ html.is-app .fin-card-grid .fin-dark-card div[style*="1.05rem"] span {
 }
 
 /* ============================================================
-   build 377 — FINANCE page: 2x text / numbers / icons (app-only)
+   build 377 â€” FINANCE page: 2x text / numbers / icons (app-only)
    Covers Banks/Cards/Cash via data-page finance + bank-tracker.
    ============================================================ */
 html.is-app #page-container[data-page="finance"] [style*="font-size:10px"],
@@ -11249,9 +11283,9 @@ html.is-app #page-container[data-page="finance"] .fin-segtab,
 html.is-app #page-container[data-page="bank-tracker"] .fin-segtab { font-size: 24px !important; }
 
 /* ============================================================
-   build 379 — NOTES: Google-Keep-style masonry (app-only)
+   build 379 â€” NOTES: Google-Keep-style masonry (app-only)
    2-column masonry, cards size to content, clean (no on-card
-   buttons — pin/delete live in the editor), pinned/others split.
+   buttons â€” pin/delete live in the editor), pinned/others split.
    ============================================================ */
 html.is-app .notes-section-lbl {
   font-size: 18px; font-weight: 700; letter-spacing: 1px;
@@ -11296,10 +11330,10 @@ html.is-app .note-card .note-pin {
 html.is-app .note-card .note-pin svg { width: 16px; height: 16px; }
 
 /* ============================================================
-   build 380 — NOTES: line icons, New Note on the left, much
+   build 380 â€” NOTES: line icons, New Note on the left, much
    larger card text (single column so the big text fits).
    ============================================================ */
-/* New Note button → left, under the title */
+/* New Note button â†’ left, under the title */
 html.is-app .notes-header {
   display: flex !important;
   flex-direction: column !important;
@@ -11327,7 +11361,7 @@ html.is-app .note-card .note-pin { width: 40px !important; height: 40px !importa
 html.is-app .note-card .note-pin svg { width: 22px !important; height: 22px !important; }
 
 /* ============================================================
-   build 381 — NOTES: New Note button back on the RIGHT side
+   build 381 â€” NOTES: New Note button back on the RIGHT side
    ============================================================ */
 html.is-app .notes-header {
   flex-direction: row !important;
@@ -11340,7 +11374,7 @@ html.is-app .notes-add-btn {
 }
 
 /* ============================================================
-   build 382 — REPORT page: Day/Week/Month/Year tabs + nav + chart
+   build 382 â€” REPORT page: Day/Week/Month/Year tabs + nav + chart
    ============================================================ */
 html.is-app .rpt-tabs {
   display: flex; gap: 6px; background: #12172a;
@@ -11360,7 +11394,7 @@ html.is-app .rpt-navbar {
 html.is-app .rpt-title { font-size: 24px; font-weight: 800; color: var(--text); }
 
 /* ============================================================
-   build 383 — REPORT page: 2x text & letters (app-only)
+   build 383 â€” REPORT page: 2x text & letters (app-only)
    ============================================================ */
 html.is-app .rpt-tab { font-size: 26px !important; padding: 18px 6px !important; }
 html.is-app .rpt-title { font-size: 32px !important; }
@@ -11375,7 +11409,7 @@ html.is-app #page-container[data-page="yearly"] .page-title { font-size: 34px !i
 html.is-app #page-container[data-page="yearly"] .page-subtitle { font-size: 19px !important; }
 
 /* ============================================================
-   build 384 — REPORT page: Export PDF button on the right
+   build 384 â€” REPORT page: Export PDF button on the right
    ============================================================ */
 html.is-app #page-container[data-page="yearly"] .page-header {
   flex-direction: row !important;
@@ -11385,7 +11419,7 @@ html.is-app #page-container[data-page="yearly"] .page-header {
 html.is-app .rpt-export-btn { margin-left: auto !important; align-self: auto !important; }
 
 /* ============================================================
-   build 385 — RECURRING: "+ Add recurring" as a full card,
+   build 385 â€” RECURRING: "+ Add recurring" as a full card,
    same size as the recurring item cards (e.g. Salary).
    ============================================================ */
 html.is-app .rec-add-card {
@@ -11410,7 +11444,7 @@ html.is-app .rec-add-ic svg { width: 28px; height: 28px; }
 html.is-app .rec-add-lbl { font-size: 24px !important; font-weight: 800 !important; color: rgba(203,213,225,0.9) !important; }
 
 /* ============================================================
-   build 387 — REPORT header: force Export PDF onto the right,
+   build 387 â€” REPORT header: force Export PDF onto the right,
    no wrap (build 384 was wrapping it below the title).
    ============================================================ */
 html.is-app #page-container[data-page="yearly"] .page-header {
@@ -11432,7 +11466,7 @@ html.is-app .rpt-export-btn {
 }
 
 /* ============================================================
-   build 388 — REPORT header: force full width so Export PDF can
+   build 388 â€” REPORT header: force full width so Export PDF can
    sit at the right edge (header had collapsed to content width).
    ============================================================ */
 html.is-app #page-container[data-page="yearly"] .page-header {
@@ -11443,7 +11477,7 @@ html.is-app #page-container[data-page="yearly"] .page-header {
 }
 
 /* ============================================================
-   build 390 — balance-log entry timestamp chip
+   build 390 â€” balance-log entry timestamp chip
    ============================================================ */
 html.is-app .blog-time {
   font-size: 15px;
@@ -11456,7 +11490,7 @@ html.is-app .blog-time {
 }
 
 /* ============================================================
-   build 391 — Global Text Size control (#4). Zoom the scrollable
+   build 391 â€” Global Text Size control (#4). Zoom the scrollable
    page content only; fixed chrome (top tools, bottom nav, FAB,
    drawer) stays unscaled. Default = unchanged current look.
    ============================================================ */
@@ -11467,7 +11501,7 @@ html.is-app.app-scale-lg #page-container { padding-bottom: 130px !important; }
 html.is-app.app-scale-xl #page-container { padding-bottom: 150px !important; }
 
 /* ============================================================
-   build 394 — UX batch: today strip, amount chips, recap card,
+   build 394 â€” UX batch: today strip, amount chips, recap card,
    backup banner, pull-to-refresh indicator.
    ============================================================ */
 /* Today strip */
@@ -11542,7 +11576,7 @@ html.is-app #ptr-indicator.ptr-armed { background: rgba(0, 201, 167, 0.2); }
 html.is-app #ptr-indicator { display: flex; }
 
 /* ============================================================
-   build 395 — kill the "page reloaded" feel: when #page-container
+   build 395 â€” kill the "page reloaded" feel: when #page-container
    carries .no-anim (in-place refresh after add/delete/select or a
    soft nav refresh), suppress the entrance animation. Higher
    specificity + later than the app fade-in rules so it actually
@@ -11555,8 +11589,8 @@ html.is-app #page-container.no-anim > div {
 }
 
 /* ============================================================
-   build 396 — kill the native long-press Copy/Share/Select menu
-   everywhere in the app (it popped on cards, amounts, list rows…).
+   build 396 â€” kill the native long-press Copy/Share/Select menu
+   everywhere in the app (it popped on cards, amounts, list rowsâ€¦).
    Inputs/textareas stay selectable so fields still work.
    ============================================================ */
 html.is-app,
@@ -12100,7 +12134,7 @@ html.is-app .page-customize-btn {
 
 
 /* ============================================================
-   build 399 — select mode: no lingering blue :active highlight.
+   build 399 â€” select mode: no lingering blue :active highlight.
    On touch, .mm-row:active painted var(--glass); after tapping a
    row to (un)select, that bg stuck on the unselected row. In
    select mode the only highlight should be the green bar on
@@ -12114,7 +12148,7 @@ html.is-app .mymoney-records.selmode .mm-row:not(.sel) {
 }
 
 /* ============================================================
-   build 426 — fix select-mode red reveal + kill blue press bar
+   build 426 â€” fix select-mode red reveal + kill blue press bar
    build 425 made unselected rows transparent in select mode,
    which exposed the red swipe-delete layer sitting behind each
    row. Rows must stay opaque (var(--bg)) so that layer only
@@ -12140,7 +12174,7 @@ html.is-app .mymoney-records.selmode .mm-row.sel {
 }
 
 /* ============================================================
-   build 430 — Category detail page (tap a row's category icon)
+   build 430 â€” Category detail page (tap a row's category icon)
    ============================================================ */
 html.is-app .catdet { padding-bottom: 24px; }
 html.is-app .catdet-head { display: flex; align-items: center; gap: 14px; margin: 4px 0 18px; }
@@ -12180,8 +12214,8 @@ html.is-app .catdet-tx-meta { font-size: 15px; color: var(--text3); margin-top: 
 html.is-app .catdet-tx-amt { font-size: 21px; font-weight: 800; color: #ef4444; white-space: nowrap; }
 
 /* ============================================================
-   build 431 — Spending overview page (More → Spending) + bigger
-   category detail (≈3x readability).
+   build 431 â€” Spending overview page (More â†’ Spending) + bigger
+   category detail (â‰ˆ3x readability).
    ============================================================ */
 /* Spending overview */
 html.is-app .spov-navbar { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 4px 0 16px; }
@@ -12203,7 +12237,7 @@ html.is-app .spov-right { display: flex; align-items: center; gap: 8px; flex-shr
 html.is-app .spov-amt { font-size: 24px; font-weight: 900; }
 html.is-app .spov-right svg { width: 22px; height: 22px; color: var(--text3); }
 
-/* Category detail — scale up and add scroll/yearly/budget styling */
+/* Category detail â€” scale up and add scroll/yearly/budget styling */
 html.is-app .catdet-ic { width: 90px !important; height: 90px !important; }
 html.is-app .catdet-ic svg, html.is-app .catdet-ic i { width: 46px !important; height: 46px !important; }
 html.is-app .catdet-name { font-size: 42px !important; }
@@ -12318,7 +12352,7 @@ html.is-app body.amoled #particles-canvas {
 }
 
 /* ============================================================
-   build 432 — Spending page: Day/Week/Month/Year/All tabs +
+   build 432 â€” Spending page: Day/Week/Month/Year/All tabs +
    larger rows/donut.
    ============================================================ */
 html.is-app .spov-tabs {
@@ -12347,7 +12381,7 @@ html.is-app .spov-amt { font-size: 27px; }
 html.is-app .spov-right svg { width: 26px; height: 26px; }
 
 /* ============================================================
-   build 436 — Spending: Records-style month bar + bigger again
+   build 436 â€” Spending: Records-style month bar + bigger again
    ============================================================ */
 html.is-app .spov-month { font-size: 30px !important; }
 html.is-app .spov-donut { width: 320px !important; height: 320px !important; }

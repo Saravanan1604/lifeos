@@ -131,8 +131,17 @@ function openModal(title, bodyHTML) {
   const hd = ov.querySelector('.modal-header');
   if (hd) {
     hd.style.display = '';   // reset (detail card hides it after open)
-    if (window.__IS_APP) hd.style.background = _modalAccent(title);
-    else hd.style.background = '';
+    hd.style.background = '';
+  }
+  const accLine = document.getElementById('modal-accent-line');
+  if (accLine) {
+    if (window.__IS_APP) {
+      accLine.style.background = _modalAccent(title);
+      accLine.style.display = 'block';
+    } else {
+      accLine.style.background = '';
+      accLine.style.display = 'none';
+    }
   }
   ov.style.display = 'flex';
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
