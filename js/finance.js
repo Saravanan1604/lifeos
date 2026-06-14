@@ -4841,13 +4841,15 @@ function _monthsElapsed(startStr) {
 // the EMIs paid since the start date (so it reflects payments already made).
 // Only informal debts with no EMI fall back to principal + simple interest.
 function _loanAutoOutstanding(l) {
+  const type = l.repayType || 'emi';
   const principal = +l.principal || +l.outstanding || 0;
+  const m = _monthsElapsed(l.startDate);
+  if (type === 'bullet' || type === 'interest-only') return Math.round(_loanBalanceAt(l, m));
   const annual = _loanAnnualRate(l);
   const emi = +l.emi || 0;
   if (emi > 0 && principal > 0) {
     const sch = _amortizeSchedule(principal, annual, emi, 0, 0);
     if (!sch.neverCloses) {
-      const m = _monthsElapsed(l.startDate);
       if (m <= 0) return principal;
       if (m >= sch.rows.length) return 0;
       return Math.round(sch.rows[m - 1].balance);
@@ -5148,9 +5150,15 @@ function _loanFormHTML(l) {
           ${['year','month','none'].map(p => `<option value="${p}" ${((v('interestPeriod','year')||'year')===p)?'selected':''}>${({year:'Per year',month:'Per month',none:'No interest'})[p]}</option>`).join('')}
         </select></div>
     </div>
+    <div class="form-group"><label class="form-label">Repayment Type</label>
+      <select id="ln-repay" class="form-input" onchange="_loanRepayHint()">
+        ${[['emi','EMI — monthly installments'],['bullet','Bullet — pay principal + interest at end'],['interest-only','Interest monthly + principal at end']]
+          .map(([val,lbl]) => `<option value="${val}" ${((v('repayType','emi')||'emi')===val)?'selected':''}>${lbl}</option>`).join('')}
+      </select></div>
+    <p id="ln-repay-hint" style="font-size:12px;color:var(--text3);margin:-4px 0 10px;line-height:1.5"></p>
     <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px">
       <input type="checkbox" class="auto-cb" id="ln-auto" ${(l&&l.autoCalc)?'checked':''} onchange="_loanRecalc()"/>
-      <span style="font-weight:600">⚡ Auto-calculate outstanding (principal + interest, informal / no EMI)</span>
+      <span style="font-weight:600">⚡ Auto-calculate outstanding (principal + interest)</span>
     </label>
     <div class="input-row">
       <div class="form-group"><label class="form-label">EMI / Month (₹)</label>
@@ -5178,6 +5186,7 @@ function _loanFormValues() {
     emi:         parseFloat(document.getElementById('ln-emi').value) || 0,
     interestRate:parseFloat(document.getElementById('ln-rate').value) || 0,
     interestPeriod: document.getElementById('ln-iperiod')?.value || 'year',
+    repayType:   document.getElementById('ln-repay')?.value || 'emi',
     autoCalc:    !!document.getElementById('ln-auto')?.checked,
     emiDate:     parseInt(document.getElementById('ln-emidate').value) || 0,
     tenure:      parseInt(document.getElementById('ln-tenure').value) || 0,
@@ -5193,7 +5202,7 @@ function openAddLoanModal() {
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveLoan()" style="background:linear-gradient(135deg,#ef4444,#dc2626)">Save Loan</button>
     </div>`);
-  setTimeout(_loanRecalc, 30);
+  setTimeout(() => { _loanRecalc(); _loanRepayHint(); }, 30);
 }
 
 function saveLoan() {
@@ -5211,12 +5220,35 @@ function openEditLoanModal(id) {
   if (!loan) return;
   openModal('✏️ Edit Loan', `
     ${_loanFormHTML(loan)}
-    <button class="btn-secondary" onclick="openLoanPayoffModal('${id}')" style="width:100%;margin-top:6px">📉 Payoff Plan &amp; What-if</button>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn-secondary" onclick="markLoanPaid('${id}')" style="flex:1">✓ Mark fully paid</button>
+      <button class="btn-secondary" onclick="confirmDeleteLoan('${id}')" style="flex:1;color:#ef4444;border-color:rgba(239,68,68,0.35)">🗑️ Delete loan</button>
+    </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveEditLoan('${id}')" style="background:linear-gradient(135deg,#ef4444,#dc2626)">💾 Save Changes</button>
     </div>`);
-  setTimeout(_loanRecalc, 30);
+  setTimeout(() => { _loanRecalc(); _loanRepayHint(); }, 30);
+}
+function markLoanPaid(id) {
+  const loan = (STATE.loans || []).find(l => l.id === id); if (!loan) return;
+  loan.outstanding = 0; loan.autoCalc = false;
+  saveState(); closeModal(); toast('Loan marked fully paid 🎉', 'success'); renderInvestments();
+}
+function confirmDeleteLoan(id) {
+  const loan = (STATE.loans || []).find(l => l.id === id); if (!loan) return;
+  if (typeof confirm === 'function' && !confirm(`Delete "${loan.name}"? This can't be undone.`)) return;
+  deleteLoan(id); closeModal(); navigate('investments');
+}
+// Contextual hint under the Repayment Type select.
+function _loanRepayHint() {
+  const el = document.getElementById('ln-repay-hint'); if (!el) return;
+  const t = document.getElementById('ln-repay')?.value || 'emi';
+  el.textContent = t === 'bullet'
+    ? '💡 No monthly EMI. You repay the full principal + accrued interest in one shot at the end of the tenure (e.g. SBI gold loan). Set the Tenure (months). You can prepay anytime.'
+    : t === 'interest-only'
+    ? '💡 Pay only the interest each month; the full principal is paid as a lump at the end of the tenure. Set the Tenure (months).'
+    : '💡 Equated monthly installments until the loan clears. Set EMI (or a Tenure to auto-derive it).';
 }
 
 function saveEditLoan(id) {
@@ -5296,16 +5328,60 @@ function _amortYearly(rows, startStr) {
   });
   return Object.values(by).sort((a, b) => a.year - b.year);
 }
-// Outstanding balance of a loan after `months` of its own EMI (for projection).
-function _loanBalanceAfterMonths(l, months) {
-  const principal = +l.outstanding || +l.principal || 0;
-  const emi = +l.emi || 0;
-  if (emi <= 0 || months <= 0) return principal;
-  const sch = _amortizeSchedule(principal, _loanAnnualRate(l), emi, 0, 0);
-  if (sch.neverCloses) return principal;
-  if (months >= sch.rows.length) return 0;
-  return sch.rows[months - 1].balance;
+// Unified schedule for any repayment type.
+//   emi           — equated monthly installment (classic).
+//   bullet        — pay nothing till maturity, then principal + all accrued
+//                   interest in one shot (e.g. SBI gold loan bullet scheme).
+//   interest-only — pay interest every month, principal as a bullet at the end.
+// opts: { emi, extra, lump, tenure }. lump is an up-front prepayment.
+function _buildSchedule(loan, opts = {}) {
+  const type = loan.repayType || 'emi';
+  const annual = _loanAnnualRate(loan);
+  const r = annual / 100 / 12;
+  const principal = Math.max(0, (+loan.principal || +loan.outstanding || 0) - (+opts.lump || 0));
+  if (type === 'emi') {
+    return _amortizeSchedule(+loan.principal || +loan.outstanding || 0, annual, opts.emi, opts.extra, opts.lump);
+  }
+  const tenure = Math.max(0, Math.round(+opts.tenure || +loan.tenure || 0));
+  if (!tenure || principal <= 0) return { neverCloses: false, special: true, totalInterest: 0, months: 0, rows: [] };
+  const rows = []; let totalInterest = 0; let bal = principal;
+  for (let m = 0; m < tenure; m++) {
+    const last = m === tenure - 1;
+    let interest, principalPaid;
+    if (type === 'interest-only') {
+      interest = principal * r;                 // interest serviced monthly
+      principalPaid = last ? principal : 0;
+      bal = last ? 0 : principal;
+    } else {                                     // bullet
+      interest = bal * r;                        // accrues on the growing balance
+      if (last) { principalPaid = principal; bal = 0; }
+      else { principalPaid = 0; bal += interest; }
+    }
+    totalInterest += interest;
+    rows.push({ m, interest, principal: principalPaid, balance: Math.max(0, bal) });
+  }
+  return { neverCloses: false, totalInterest, months: tenure, rows };
 }
+// Outstanding balance of a loan after `months`, respecting its repayment type.
+function _loanBalanceAt(l, months) {
+  const type = l.repayType || 'emi';
+  const annual = _loanAnnualRate(l);
+  const r = annual / 100 / 12;
+  const principal = +l.principal || +l.outstanding || 0;
+  const tenure = Math.max(0, Math.round(+l.tenure || 0));
+  if (type === 'emi') {
+    const emi = +l.emi || 0;
+    if (emi <= 0 || months <= 0) return principal;
+    const sch = _amortizeSchedule(principal, annual, emi, 0, 0);
+    if (sch.neverCloses) return principal;
+    if (months >= sch.rows.length) return 0;
+    return sch.rows[months - 1].balance;
+  }
+  if (tenure > 0 && months >= tenure) return 0;
+  if (type === 'interest-only') return principal;        // flat till maturity
+  return Math.round(principal * (1 + r * Math.max(0, months))); // bullet: principal + accrued
+}
+function _loanBalanceAfterMonths(l, months) { return _loanBalanceAt(l, months); }
 
 let _payoffChartInst = null;
 function openLoanPayoffModal(id) {
@@ -5469,7 +5545,10 @@ function renderLoanDetail() {
   if (!loan) { navigate('investments'); return; }
   const annual = _loanAnnualRate(loan);
   const principal = +loan.principal || +loan.outstanding || 0;
+  const repay = loan.repayType || 'emi';
   const defEmi = _workableEmi(loan, principal, annual);
+  const defTenure = loan.tenure > 0 ? loan.tenure : 12;
+  const repayLbl = { emi: 'EMI', bullet: 'Bullet — pay all at end', 'interest-only': 'Interest-only + bullet' }[repay];
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in ld-page">
       <div class="ld-head">
@@ -5477,7 +5556,7 @@ function renderLoanDetail() {
         <div class="catdet-title" style="flex:1;min-width:0">
           <span class="catdet-ic" style="background:#ef4444"><i data-lucide="${_loanLucide(loan.type)}"></i></span>
           <div style="min-width:0"><p class="catdet-name">${esc(loan.name)}</p>
-          <p class="catdet-sub">${esc(loan.type)}${loan.lender ? ' · ' + esc(loan.lender) : ''} · ${loan.interestRate || 0}%/${loan.interestPeriod === 'month' ? 'mo' : 'yr'}</p></div>
+          <p class="catdet-sub">${esc(loan.type)}${loan.lender ? ' · ' + esc(loan.lender) : ''} · ${loan.interestRate || 0}%/${loan.interestPeriod === 'month' ? 'mo' : 'yr'} · ${repayLbl}</p></div>
         </div>
         <button class="catdet-back" onclick="openEditLoanModal('${loan.id}')" title="Edit details"><i data-lucide="pencil"></i></button>
       </div>
@@ -5498,18 +5577,23 @@ function renderLoanDetail() {
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
         <p class="ld-sec">What-if — edit to see the impact</p>
+        ${repay === 'emi' ? `
         <div class="input-row">
           <div class="form-group"><label class="form-label">EMI / month (₹)</label>
             <input type="number" id="ld-emi" class="form-input" value="${defEmi}" oninput="_renderLoanDetailCalc()"/></div>
           <div class="form-group"><label class="form-label">Extra / month (₹)</label>
             <input type="number" id="ld-extra" class="form-input" value="0" placeholder="0" oninput="_renderLoanDetailCalc()"/></div>
-        </div>
-        <div class="form-group"><label class="form-label">One-time lump sum (₹)</label>
+        </div>` : `
+        <div class="form-group"><label class="form-label">Pay off in (months)</label>
+          <input type="number" id="ld-tenure" class="form-input" value="${defTenure}" oninput="_renderLoanDetailCalc()"/></div>`}
+        <div class="form-group"><label class="form-label">${repay === 'emi' ? 'One-time lump sum (₹)' : 'Prepay now (₹)'}</label>
           <input type="number" id="ld-lump" class="form-input" value="0" placeholder="0" oninput="_renderLoanDetailCalc()"/></div>
         <div id="ld-result"></div>
         <div style="display:flex;gap:10px;margin-top:12px">
-          <button class="btn-secondary" style="flex:1" onclick="saveLoanEmiFromDetail('${loan.id}')">💾 Save EMI</button>
-          <button class="btn-primary" style="flex:1" onclick="applyLoanLumpSum('${loan.id}')">Apply lump sum</button>
+          ${repay === 'emi'
+            ? `<button class="btn-secondary" style="flex:1" onclick="saveLoanEmiFromDetail('${loan.id}')">💾 Save EMI</button>`
+            : `<button class="btn-secondary" style="flex:1" onclick="saveLoanTenureFromDetail('${loan.id}')">💾 Save tenure</button>`}
+          <button class="btn-primary" style="flex:1" onclick="applyLoanLumpSum('${loan.id}')">${repay === 'emi' ? 'Apply lump sum' : 'Apply prepay'}</button>
         </div>
       </div>
 
@@ -5537,32 +5621,41 @@ function _fmt0(n) {
 }
 function _renderLoanDetailCalc() {
   const loan = (STATE.loans || []).find(l => l.id === _loanDetailId); if (!loan) return;
+  const repay = loan.repayType || 'emi';
   const annual = _loanAnnualRate(loan);
   const principal = +loan.principal || +loan.outstanding || 0;
-  const emi   = parseFloat(document.getElementById('ld-emi')?.value) || 0;
-  const extra = parseFloat(document.getElementById('ld-extra')?.value) || 0;
-  const lump  = parseFloat(document.getElementById('ld-lump')?.value) || 0;
-  const base = _amortizeSchedule(principal, annual, emi, 0, 0);
-  const plan = _amortizeSchedule(principal, annual, emi, extra, lump);
+  const emi    = parseFloat(document.getElementById('ld-emi')?.value) || 0;
+  const extra  = parseFloat(document.getElementById('ld-extra')?.value) || 0;
+  const lump   = parseFloat(document.getElementById('ld-lump')?.value) || 0;
+  const tenure = parseInt(document.getElementById('ld-tenure')?.value) || loan.tenure || 0;
+  const base = _buildSchedule(loan, { emi, extra: 0, lump: 0, tenure });
+  const plan = _buildSchedule(loan, { emi, extra, lump, tenure });
   const kpiEl = document.getElementById('ld-kpis');
   const resEl = document.getElementById('ld-result');
   const schEl = document.getElementById('ld-sched');
-  if (plan.neverCloses) {
+  const fail = (msg) => {
     if (kpiEl) kpiEl.innerHTML = '';
-    if (resEl) resEl.innerHTML = `<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;font-size:13px;color:#ef4444">⚠️ This EMI is too low to ever clear the loan — it doesn't cover the monthly interest. Raise the EMI.</div>`;
+    if (resEl) resEl.innerHTML = `<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;font-size:13px;color:#ef4444">${msg}</div>`;
     if (schEl) schEl.innerHTML = '';
     if (_loanDetailChart) { _loanDetailChart.destroy(); _loanDetailChart = null; }
-    return;
-  }
-  const monthsSaved   = base.neverCloses ? 0 : base.months - plan.months;
-  const interestSaved = base.neverCloses ? 0 : base.totalInterest - plan.totalInterest;
+  };
+  if (plan.neverCloses) { fail("⚠️ This EMI is too low to ever clear the loan — it doesn't cover the monthly interest. Raise the EMI."); return; }
+  if (plan.special)     { fail("ℹ️ Enter the pay-off tenure (months) above to see the schedule."); return; }
+  const monthlyInt = principal * annual / 100 / 12;
+  const maturity   = principal + plan.totalInterest;
+  let kpi2;
+  if (repay === 'bullet')         kpi2 = `<div class="ld-kpi"><p class="l">PAY AT MATURITY</p><p class="v">${_fmt0(maturity)}</p></div>`;
+  else if (repay === 'interest-only') kpi2 = `<div class="ld-kpi"><p class="l">INTEREST / MONTH</p><p class="v">${_fmt0(monthlyInt)}</p></div>`;
+  else                            kpi2 = `<div class="ld-kpi"><p class="l">EMI / MONTH</p><p class="v">${_fmt0(emi)}</p></div>`;
   if (kpiEl) kpiEl.innerHTML = `
     <div class="ld-kpi"><p class="l">OUTSTANDING</p><p class="v" style="color:#ef4444">${_fmt0(_loanOutstanding(loan))}</p></div>
-    <div class="ld-kpi"><p class="l">EMI / MONTH</p><p class="v">${_fmt0(emi)}</p></div>
+    ${kpi2}
     <div class="ld-kpi"><p class="l">CLOSES IN</p><p class="v">${_fmtMonths(plan.months)}</p></div>
     <div class="ld-kpi"><p class="l">TOTAL INTEREST</p><p class="v" style="color:#f0a868">${_fmt0(Math.round(plan.totalInterest))}</p></div>`;
-  if (resEl) resEl.innerHTML = (extra > 0 || lump > 0) && monthsSaved > 0
-    ? `<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:12px;font-size:13px;color:#22c55e;font-weight:600">✅ Closes <b>${_fmtMonths(monthsSaved)}</b> sooner · saves <b>${fmt(Math.round(interestSaved))}</b> in interest.</div>`
+  const monthsSaved   = base.neverCloses ? 0 : base.months - plan.months;
+  const interestSaved = base.neverCloses ? 0 : base.totalInterest - plan.totalInterest;
+  if (resEl) resEl.innerHTML = (extra > 0 || lump > 0) && (interestSaved > 1 || monthsSaved > 0)
+    ? `<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:12px;font-size:13px;color:#22c55e;font-weight:600">✅ ${monthsSaved > 0 ? `Closes <b>${_fmtMonths(monthsSaved)}</b> sooner · ` : ''}saves <b>${fmt(Math.round(interestSaved))}</b> in interest.</div>`
     : '';
   // month-by-month table
   if (schEl) {
@@ -5629,6 +5722,13 @@ function saveLoanEmiFromDetail(id) {
   if (emi <= 0) { toast('Enter a valid EMI', 'error'); return; }
   loan.emi = emi;
   saveState(); toast('EMI saved ✅', 'success'); renderLoanDetail();
+}
+function saveLoanTenureFromDetail(id) {
+  const loan = (STATE.loans || []).find(l => l.id === id); if (!loan) return;
+  const tenure = parseInt(document.getElementById('ld-tenure')?.value) || 0;
+  if (tenure <= 0) { toast('Enter the pay-off months', 'error'); return; }
+  loan.tenure = tenure;
+  saveState(); toast('Tenure saved ✅', 'success'); renderLoanDetail();
 }
 function applyLoanLumpSum(id) {
   const loan = (STATE.loans || []).find(l => l.id === id); if (!loan) return;
