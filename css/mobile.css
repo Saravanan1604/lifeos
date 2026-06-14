@@ -8345,38 +8345,42 @@ html.is-app #modal-overlay .pad-cat-manage svg.lucide {
   height: 1.4rem;
 }
 
-/* build 263 — bigger Merge / + Custom Category buttons */
+/* build 263 — horizontal scrollable Category action buttons */
 html.is-app .cat-hdr-buttons {
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
   gap: 10px !important;
   width: 100% !important;
   margin-top: 10px !important;
+  padding: 4px 0 !important;
+  scrollbar-width: none !important; /* Hide scrollbar Firefox */
+  -ms-overflow-style: none !important; /* Hide scrollbar IE 10+ */
+}
+
+html.is-app .cat-hdr-buttons::-webkit-scrollbar {
+  display: none !important; /* Hide scrollbar Chrome/Safari */
 }
 
 html.is-app .cat-hdr-btn {
-  flex: none !important;
-  width: 100% !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
   min-width: 0 !important;
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
-  font-size: 1.3rem !important;
+  font-size: 1.35rem !important;
   font-weight: 700 !important;
-  padding: 12px 10px !important;
-  border-radius: 12px !important;
-}
-
-html.is-app .cat-hdr-btn.btn-primary {
-  grid-column: span 2 !important;
-  font-size: 1.4rem !important;
-  padding: 14px 12px !important;
+  padding: 12px 18px !important;
+  border-radius: 14px !important;
+  white-space: nowrap !important;
 }
 
 html.is-app .cat-hdr-btn svg.lucide {
-  width: 1.3rem !important;
-  height: 1.3rem !important;
+  width: 1.35rem !important;
+  height: 1.35rem !important;
 }
 
 /* Category list icons scale-up */
