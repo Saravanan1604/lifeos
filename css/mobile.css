@@ -12855,6 +12855,130 @@ html.is-app .hm-legend-scale span {
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
+/* ===== build 451 ===== */
+/* Habit Tracker consistency grid mobile styling */
+html.is-app .habit-heatmap-card {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+html.is-app .habit-heatmap-grid {
+  display: grid !important;
+  grid-template-rows: repeat(7, 1fr) !important;
+  grid-auto-flow: column !important;
+  gap: 3px !important;
+}
+html.is-app .habit-grid-cell {
+  width: 13px !important;
+  height: 13px !important;
+  border-radius: 3px !important;
+  transition: background-color 0.2s ease !important;
+}
+html.is-app .habit-grid-cell.level-0 { background-color: rgba(255, 255, 255, 0.05) !important; }
+html.is-app .habit-grid-cell.level-1 { background-color: rgba(16, 185, 129, 0.20) !important; }
+html.is-app .habit-grid-cell.level-2 { background-color: rgba(16, 185, 129, 0.45) !important; }
+html.is-app .habit-grid-cell.level-3 { background-color: rgba(16, 185, 129, 0.70) !important; }
+html.is-app .habit-grid-cell.level-4 { background-color: rgba(16, 185, 129, 1.00) !important; }
+
+html.is-app.light .habit-grid-cell.level-0 { background-color: rgba(0, 0, 0, 0.05) !important; }
+html.is-app.light .habit-grid-cell.level-1 { background-color: rgba(16, 185, 129, 0.15) !important; }
+html.is-app.light .habit-grid-cell.level-2 { background-color: rgba(16, 185, 129, 0.38) !important; }
+html.is-app.light .habit-grid-cell.level-3 { background-color: rgba(16, 185, 129, 0.65) !important; }
+html.is-app.light .habit-grid-cell.level-4 { background-color: rgba(16, 185, 129, 0.95) !important; }
+
+html.is-app .heatmap-legend-cell {
+  display: inline-block !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 2px !important;
+}
+html.is-app .heatmap-legend-cell.level-0 { background-color: rgba(255, 255, 255, 0.05) !important; }
+html.is-app .heatmap-legend-cell.level-1 { background-color: rgba(16, 185, 129, 0.20) !important; }
+html.is-app .heatmap-legend-cell.level-2 { background-color: rgba(16, 185, 129, 0.45) !important; }
+html.is-app .heatmap-legend-cell.level-3 { background-color: rgba(16, 185, 129, 0.70) !important; }
+html.is-app .heatmap-legend-cell.level-4 { background-color: rgba(16, 185, 129, 1.00) !important; }
+
+html.is-app.light .heatmap-legend-cell.level-0 { background-color: rgba(0, 0, 0, 0.05) !important; }
+html.is-app.light .heatmap-legend-cell.level-1 { background-color: rgba(16, 185, 129, 0.15) !important; }
+html.is-app.light .heatmap-legend-cell.level-2 { background-color: rgba(16, 185, 129, 0.38) !important; }
+html.is-app.light .heatmap-legend-cell.level-3 { background-color: rgba(16, 185, 129, 0.65) !important; }
+html.is-app.light .heatmap-legend-cell.level-4 { background-color: rgba(16, 185, 129, 0.95) !important; }
+
+/* Achievements Circular Progress Ring mobile styling */
+html.is-app .ring-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  margin: 0 auto !important;
+}
+html.is-app .ring-svg {
+  transform: rotate(-90deg) !important;
+}
+html.is-app .ring-track {
+  fill: none !important;
+  stroke: rgba(255, 255, 255, 0.06) !important;
+  stroke-width: 10 !important;
+}
+html.is-app.light .ring-track {
+  stroke: rgba(0, 0, 0, 0.06) !important;
+}
+html.is-app .ring-fill {
+  fill: none !important;
+  stroke-width: 10 !important;
+  stroke-linecap: round !important;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+html.is-app .ring-label {
+  position: absolute !important;
+  text-align: center !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+html.is-app .ring-value {
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  display: block !important;
+  color: #fff !important;
+}
+html.is-app.light .ring-value {
+  color: #1a1f2e !important;
+}
+html.is-app .ring-sub {
+  font-size: 11px !important;
+  color: var(--text2) !important;
+  display: block !important;
+  margin-top: 2px !important;
+}
+
+/* Custom slider style for Wealth Projection simulator */
+html.is-app input[type="range"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  height: 8px !important;
+  border-radius: 4px !important;
+  outline: none !important;
+}
+html.is-app.light input[type="range"] {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+html.is-app input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #00c9a7, #6366f1) !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.1s ease !important;
+}
+html.is-app input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.2) !important;
+}
+
+
 
 
 

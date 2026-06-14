@@ -33,6 +33,13 @@ function checkAchievements() {
 function renderAchievements() {
   const unlocked = STATE.unlockedAchievements || [];
   const totalXP = ACHIEVEMENTS_DEF.filter(a => unlocked.includes(a.id)).reduce((s, a) => s + a.xp, 0);
+  const L = STATE.level || 1;
+  const xpProgress = (STATE.xp || 0) - (L - 1) * 1000;
+  const pct = Math.min(100, Math.max(0, Math.round((xpProgress / 1000) * 100)));
+  const offset = 376.99 - (376.99 * pct / 100);
+
+  const ranks = ['Beginner','Explorer','Achiever','Warrior','Champion','Legend','Master','Grandmaster','Elite','Life OS Pro'];
+  const rankName = ranks[Math.min(ranks.length - 1, Math.floor(L - 1))];
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
@@ -40,19 +47,51 @@ function renderAchievements() {
       <div class="stat-grid">
         <div class="stat-card bg-gold"><span class="stat-card-icon">🏆</span><div class="stat-card-value">${unlocked.length}</div><div class="stat-card-label">Badges Earned</div></div>
         <div class="stat-card bg-indigo"><span class="stat-card-icon">⚡</span><div class="stat-card-value">${STATE.xp||0}</div><div class="stat-card-label">Total XP</div></div>
-        <div class="stat-card bg-purple"><span class="stat-card-icon">🎮</span><div class="stat-card-value">Level ${STATE.level||1}</div><div class="stat-card-label">Current Level</div></div>
+        <div class="stat-card bg-purple"><span class="stat-card-icon">🎮</span><div class="stat-card-value">Level ${L}</div><div class="stat-card-label">Current Level</div></div>
         <div class="stat-card bg-amber"><span class="stat-card-icon">🔥</span><div class="stat-card-value">${STATE.streak||0}</div><div class="stat-card-label">Day Streak</div></div>
       </div>
 
       <!-- XP Progress -->
-      <div class="glass-card" style="padding:20px;margin-bottom:20px">
-        <div class="section-header"><p class="section-title">⚡ XP Progress</p><span style="font-weight:700;color:#fbbf24">Level ${STATE.level||1}</span></div>
-        ${['Beginner','Explorer','Achiever','Warrior','Champion','Legend','Master','Grandmaster','Elite','Life OS Pro'].map((n,i)=>`
-          <div style="display:flex;align-items:center;gap:12px;padding:7px 8px;border-radius:10px;background:${(STATE.level||1)>i?'rgba(99,102,241,0.1)':'transparent'}">
-            <span style="width:22px;height:22px;border-radius:50%;background:${(STATE.level||1)>i?'linear-gradient(135deg,#6366f1,#8b5cf6)':'rgba(148,163,184,0.2)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:${(STATE.level||1)>i?'#fff':'var(--text3)'}">${(STATE.level||1)>i?'✓':i+1}</span>
-            <span style="font-size:13px;font-weight:${(STATE.level||1)>i?'600':'400'};color:${(STATE.level||1)>i?'var(--text)':'var(--text3)'}">${n}</span>
-            <span style="font-size:11px;color:var(--text3);margin-left:auto">${(i+1)*1000} XP</span>
-          </div>`).join('')}
+      <div class="glass-card" style="padding:24px;margin-bottom:20px">
+        <div class="section-header" style="margin-bottom:20px">
+          <p class="section-title"><i data-lucide="zap"></i> XP Progress</p>
+          <span style="font-weight:700;color:#fbbf24;font-size:14px">Level ${L}</span>
+        </div>
+        
+        <div class="xp-ring-flex-container" style="display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap;margin-bottom:24px">
+          <!-- Circular Progress Ring -->
+          <div class="ring-container" style="position:relative;width:140px;height:140px">
+            <svg class="ring-svg" width="140" height="140" viewBox="0 0 140 140" style="transform:rotate(-90deg)">
+              <circle class="ring-track" cx="70" cy="70" r="60" style="fill:none;stroke:rgba(255,255,255,0.06);stroke-width:10"/>
+              <circle class="ring-fill" cx="70" cy="70" r="60" stroke="url(#xpGrad)" stroke-dasharray="376.99" stroke-dashoffset="${offset}" style="fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)"/>
+              <defs>
+                <linearGradient id="xpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00c9a7" />
+                  <stop offset="100%" stop-color="#6366f1" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="ring-label" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+              <span class="ring-value" style="font-size:22px;font-weight:900;display:block;color:#fff">Lvl ${L}</span>
+              <span class="ring-sub" style="font-size:11px;color:var(--text2);display:block;margin-top:2px">${xpProgress} / 1000 XP</span>
+            </div>
+          </div>
+          
+          <!-- XP Details Text -->
+          <div style="flex:1;min-width:200px">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:6px">Rank: ${rankName}</h3>
+            <p style="font-size:13px;color:var(--text2);line-height:1.5">You have earned <strong>${STATE.xp || 0} XP</strong> in total. Complete habits, achieve goals, and log transactions to unlock more XP and level up!</p>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${ranks.map((n,i)=>`
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:10px;background:${L>i?'rgba(0,201,167,0.06)':'transparent'};border:1px solid ${L>i?'rgba(0,201,167,0.12)':'transparent'}">
+              <span style="width:24px;height:24px;border-radius:50%;background:${L>i?'linear-gradient(135deg,#00c9a7,#6366f1)':'rgba(255,255,255,0.06)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:${L>i?'#fff':'var(--text3)'}">${L>i?'✓':i+1}</span>
+              <span style="font-size:14px;font-weight:${L>i?'600':'400'};color:${L>i?'var(--text)':'var(--text3)'}">${n}</span>
+              <span style="font-size:12px;color:var(--text3);margin-left:auto">${(i+1)*1000} XP</span>
+            </div>`).join('')}
+        </div>
       </div>
 
       <!-- Badges -->

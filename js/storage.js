@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 450;
+const APP_BUILD = 452;
 
 // ===== STORAGE UTILITIES =====
 const DB = {

@@ -118,6 +118,57 @@ function renderHealthChart(data) {
   });
 }
 
+function getHabitGridHTML(habits, comps) {
+  const cells = [];
+  const todayObj = new Date();
+  const currentDayOfWeek = todayObj.getDay(); // 0 is Sunday, 6 is Saturday
+  
+  // Align grid to end on Saturday of the current week
+  const endDate = new Date(todayObj);
+  endDate.setDate(todayObj.getDate() + (6 - currentDayOfWeek));
+  
+  const startDate = new Date(endDate);
+  startDate.setDate(endDate.getDate() - 139); // 20 weeks * 7 days = 140 days
+  
+  const todayStr = today();
+  
+  for (let i = 0; i < 140; i++) {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i);
+    const ds = d.toISOString().slice(0, 10);
+    const isFuture = ds > todayStr;
+    
+    if (isFuture) {
+      cells.push(`<div class="habit-grid-cell future" title="Future" style="width:12px;height:12px;border-radius:2px;background:transparent;border:1.5px dashed rgba(255,255,255,0.04)"></div>`);
+    } else {
+      const completedCount = habits.filter(h => {
+        if (!h.target) {
+          return comps.some(c => c.habitId === h.id && c.date === ds);
+        } else {
+          return ((STATE.habitLogs?.[h.id]?.[ds]) || 0) >= h.target;
+        }
+      }).length;
+      
+      const activeCount = habits.length;
+      let level = 0;
+      if (activeCount > 0 && completedCount > 0) {
+        const ratio = completedCount / activeCount;
+        if (ratio <= 0.25) level = 1;
+        else if (ratio <= 0.50) level = 2;
+        else if (ratio <= 0.75) level = 3;
+        else level = 4;
+      }
+      
+      const formattedDate = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      const completionText = completedCount === 1 ? '1 habit completed' : `${completedCount} habits completed`;
+      const title = `${completionText} on ${formattedDate}`;
+      
+      cells.push(`<div class="habit-grid-cell level-${level}" title="${title}" style="width:12px;height:12px;border-radius:2px;"></div>`);
+    }
+  }
+  return cells.join('');
+}
+
 // ===== HABITS PAGE =====
 function renderHabits() {
   const habits = STATE.habits || [];
@@ -166,6 +217,30 @@ function renderHabits() {
         <div class="section-header"><p class="section-title">Today's Progress</p><span style="font-size:22px;font-weight:900;color:${completionPct===100?'#10b981':'#fbbf24'}">${completionPct}%</span></div>
         <div class="progress-bar" style="height:12px;margin-bottom:8px"><div class="progress-fill" style="width:${completionPct}%;background:${completionPct===100?'linear-gradient(90deg,#10b981,#059669)':'linear-gradient(90deg,#f59e0b,#f97316)'}"></div></div>
         <p style="font-size:12px;color:var(--text3)">${doneCount} of ${habits.length} habits completed today</p>
+      </div>
+
+      <!-- Habits Contribution Heatmap -->
+      <div class="glass-card habit-heatmap-card" style="padding:20px;margin-bottom:20px;overflow-x:auto">
+        <div class="section-header" style="margin-bottom:10px">
+          <p class="section-title" style="font-size:16px"><i data-lucide="calendar"></i> Consistency Grid</p>
+          <span style="font-size:12px;color:var(--text3)">Last 140 days</span>
+        </div>
+        <div class="habit-heatmap-container" style="display:flex;flex-direction:column;gap:8px">
+          <div class="habit-heatmap-grid" style="display:grid;grid-template-rows:repeat(7, 1fr);grid-auto-flow:column;gap:4px;width:max-content;margin:0 auto">
+            ${getHabitGridHTML(habits, comps)}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--text3);margin-top:4px">
+            <span>Less</span>
+            <div style="display:flex;gap:3px;align-items:center">
+              <span class="heatmap-legend-cell level-0" style="width:10px;height:10px;border-radius:2px;"></span>
+              <span class="heatmap-legend-cell level-1" style="width:10px;height:10px;border-radius:2px;"></span>
+              <span class="heatmap-legend-cell level-2" style="width:10px;height:10px;border-radius:2px;"></span>
+              <span class="heatmap-legend-cell level-3" style="width:10px;height:10px;border-radius:2px;"></span>
+              <span class="heatmap-legend-cell level-4" style="width:10px;height:10px;border-radius:2px;"></span>
+            </div>
+            <span>More</span>
+          </div>
+        </div>
       </div>
 
       <!-- Habits List -->
