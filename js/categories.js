@@ -52,7 +52,7 @@ function renderCategories() {
     <div class="fade-in">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <div><h1 class="page-title"><i data-lucide="tag"></i> Categories</h1><p class="page-subtitle">Manage your transaction categories</p></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;width:100%">
+        <div class="cat-hdr-buttons" style="display:flex;gap:10px;flex-wrap:wrap;width:100%">
           <button class="btn-secondary cat-hdr-btn" onclick="openGeminiCategorize()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none"><i data-lucide="sparkles"></i> AI Fix</button>
           <button class="btn-secondary cat-hdr-btn" onclick="openMergeCategoriesModal()"><i data-lucide="git-merge"></i> Merge</button>
           <button class="btn-primary cat-hdr-btn" onclick="openAddCategoryModal()"><i data-lucide="plus"></i> Custom Category</button>

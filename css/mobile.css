@@ -8345,7 +8345,54 @@ html.is-app #modal-overlay .pad-cat-manage svg.lucide {
   height: 1.4rem;
 }
 
-/* build 262 â€” Add/Edit Custom Category emoji grid: 4 visible rows, scrollable */
+/* build 263 — bigger Merge / + Custom Category buttons */
+html.is-app .cat-hdr-buttons {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+}
+
+html.is-app .cat-hdr-btn {
+  flex: none !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  padding: 12px 10px !important;
+  border-radius: 12px !important;
+}
+
+html.is-app .cat-hdr-btn.btn-primary {
+  grid-column: span 2 !important;
+  font-size: 1.4rem !important;
+  padding: 14px 12px !important;
+}
+
+html.is-app .cat-hdr-btn svg.lucide {
+  width: 1.3rem !important;
+  height: 1.3rem !important;
+}
+
+/* Category list icons scale-up */
+html.is-app .cat-lic {
+  font-size: 2.2rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+html.is-app .cat-lic svg.lucide {
+  width: 2.2rem !important;
+  height: 2.2rem !important;
+}
+
+/* build 262 — Add/Edit Custom Category emoji grid: 4 visible rows, scrollable */
 html.is-app #modal-overlay .emoji-grid {
   display: grid !important;
   grid-template-columns: repeat(6, 1fr) !important;
