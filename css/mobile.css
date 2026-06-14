@@ -13179,3 +13179,28 @@ html.is-app .page-categories .page-customize-btn {
   border-radius: 16px !important;
   margin-top: 0 !important;
 }
+
+/* ============================================================
+   build 462 — make the ⚡ auto-calculate checkboxes visible.
+   The broad `html.is-app input` rules stretched every input,
+   incl. type=checkbox, into a full-width 60px glass block with
+   no visible tick. Restore a real, tappable checkbox.
+   ============================================================ */
+html.is-app input[type="checkbox"].auto-cb {
+  -webkit-appearance: auto !important;
+  appearance: auto !important;
+  width: 22px !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  min-height: 0 !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  accent-color: #22c55e !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}

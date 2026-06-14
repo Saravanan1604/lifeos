@@ -4793,7 +4793,7 @@ function _lendFieldsHtml(prefix, inv) {
           <input type="number" id="${prefix}-irate" class="form-input" value="${v('interestRate', '')}" placeholder="e.g. 2" step="0.01" oninput="_lendRecalc('${prefix}')"/></div>
       </div>
       <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px">
-        <input type="checkbox" id="${prefix}-auto" ${v('autoCalc') ? 'checked' : ''} onchange="_lendRecalc('${prefix}')" style="width:auto;margin:0;flex:none"/>
+        <input type="checkbox" class="auto-cb" id="${prefix}-auto" ${v('autoCalc') ? 'checked' : ''} onchange="_lendRecalc('${prefix}')"/>
         <span style="font-weight:600">⚡ Auto-calculate amount owed (principal + interest to the date given)</span>
       </label>
       <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:8px 12px;margin-bottom:4px">
@@ -5116,7 +5116,7 @@ function _loanFormHTML(l) {
         </select></div>
     </div>
     <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px">
-      <input type="checkbox" id="ln-auto" ${(l&&l.autoCalc)?'checked':''} onchange="_loanRecalc()" style="width:auto;margin:0;flex:none"/>
+      <input type="checkbox" class="auto-cb" id="ln-auto" ${(l&&l.autoCalc)?'checked':''} onchange="_loanRecalc()"/>
       <span style="font-weight:600">⚡ Auto-calculate outstanding (principal + interest, informal / no EMI)</span>
     </label>
     <div class="input-row">
