@@ -13313,3 +13313,19 @@ html.is-app .ld-page .form-label { font-size: 18px !important; }
 html.is-app .ld-page .form-input { font-size: 23px !important; }
 html.is-app .ld-page .btn-primary,
 html.is-app .ld-page .btn-secondary { font-size: 18px !important; }
+
+/* ============================================================
+   build 469 — Loan/Asset detail: even bigger text & numbers,
+   cap the chart bar width (single-year bar was too wide).
+   ============================================================ */
+html.is-app .ld-kpi p.l { font-size: 19px !important; }
+html.is-app .ld-kpi p.v { font-size: 46px !important; }
+html.is-app .ld-sec { font-size: 24px !important; }
+html.is-app .ld-sch-row { font-size: 24px !important; padding: 19px 10px !important; }
+html.is-app .ld-sch-hd { font-size: 16px !important; }
+html.is-app .ld-sch-yr { font-size: 21px !important; }
+html.is-app .ld-head .catdet-name { font-size: 46px !important; }
+html.is-app .ld-head .catdet-sub  { font-size: 19px !important; }
+html.is-app .ld-seg-b { font-size: 18px !important; }
+html.is-app .ld-page .form-label { font-size: 19px !important; }
+html.is-app .ld-page .form-input { font-size: 25px !important; }

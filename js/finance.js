@@ -5702,17 +5702,17 @@ function _renderLoanDetailCalc() {
   _loanDetailChart = new Chart(ctx, {
     type: 'bar',
     data: { labels, datasets: [
-      { label: 'Principal', data: princ, backgroundColor: '#86c06c', stack: 's', yAxisID: 'y', categoryPercentage: 0.45, barPercentage: 0.9 },
-      { label: 'Interest',  data: intr,  backgroundColor: '#f0a868', stack: 's', yAxisID: 'y', categoryPercentage: 0.45, barPercentage: 0.9 },
+      { label: 'Principal', data: princ, backgroundColor: '#86c06c', stack: 's', yAxisID: 'y', categoryPercentage: 0.4, barPercentage: 0.85, maxBarThickness: 64 },
+      { label: 'Interest',  data: intr,  backgroundColor: '#f0a868', stack: 's', yAxisID: 'y', categoryPercentage: 0.4, barPercentage: 0.85, maxBarThickness: 64 },
       { type: 'line', label: 'Balance', data: bal, borderColor: '#b45309', backgroundColor: 'rgba(180,83,9,0.18)', tension: .35, pointRadius: 2, yAxisID: 'y1', fill: true }
     ]},
     options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { labels: { boxWidth: 12, font: { size: 12 }, color: '#94a3b8' } },
-        tooltip: { titleFont: { size: 13 }, bodyFont: { size: 13 }, callbacks: { footer: items => { const i = items[0].dataIndex; const paid = principal > 0 ? Math.round((1 - bal[i] / principal) * 100) : 0; return 'Paid to date: ' + paid + '%'; } } } },
+      plugins: { legend: { labels: { boxWidth: 14, font: { size: 14 }, color: '#94a3b8' } },
+        tooltip: { titleFont: { size: 15 }, bodyFont: { size: 15 }, callbacks: { footer: items => { const i = items[0].dataIndex; const paid = principal > 0 ? Math.round((1 - bal[i] / principal) * 100) : 0; return 'Paid to date: ' + paid + '%'; } } } },
       scales: {
-        x:  { stacked: true, ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } },
-        y:  { stacked: true, position: 'left',  ticks: { color: '#94a3b8', font: { size: 11 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        y1: { position: 'right', ticks: { color: '#b45309', font: { size: 11 }, callback: kAmt }, grid: { display: false } }
+        x:  { stacked: true, ticks: { color: '#94a3b8', font: { size: 14 } }, grid: { display: false } },
+        y:  { stacked: true, position: 'left',  ticks: { color: '#94a3b8', font: { size: 14 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y1: { position: 'right', ticks: { color: '#b45309', font: { size: 14 }, callback: kAmt }, grid: { display: false } }
       } }
   });
 }
