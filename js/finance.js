@@ -3870,6 +3870,7 @@ const DEFAULT_ASSET_TYPES = [
   { key: 'Real Estate',   icon: '🏠' },
   { key: 'PPF / EPF',     icon: '🏢' },
   { key: 'Insurance',     icon: '🛡️' },
+  { key: 'Money Lent',    icon: '🤝' },
   { key: 'Other',         icon: '🗃️' },
 ];
 
@@ -3881,6 +3882,7 @@ const DEFAULT_LOAN_TYPES = [
   { key: 'Gold Loan',      icon: '🥇' },
   { key: 'Business Loan',  icon: '🏢' },
   { key: 'Credit Card',    icon: '💳' },
+  { key: 'Money Borrowed', icon: '🤝' },
   { key: 'Other',          icon: '📋' },
 ];
 
@@ -3907,6 +3909,7 @@ const ASSET_TYPE_META = {
   'Real Estate':   { lucide:'building',       color:'#f59e0b' },
   'PPF / EPF':     { lucide:'building-2',     color:'#6366f1' },
   'Insurance':     { lucide:'shield',         color:'#14b8a6' },
+  'Money Lent':    { lucide:'hand-coins',     color:'#22c55e' },
   'Other':         { lucide:'package',        color:'#94a3b8' },
 };
 const LOAN_TYPE_META = {
@@ -3917,6 +3920,7 @@ const LOAN_TYPE_META = {
   'Gold Loan':     { lucide:'medal',          color:'#eab308' },
   'Business Loan': { lucide:'building-2',     color:'#6366f1' },
   'Credit Card':   { lucide:'credit-card',    color:'#ec4899' },
+  'Money Borrowed':{ lucide:'hand-coins',     color:'#f43f5e' },
   'Other':         { lucide:'file-text',      color:'#94a3b8' },
 };
 function typeMeta(kind, key) {
@@ -4110,11 +4114,14 @@ function renderInvestmentsApp() {
       const pos = pnl >= 0;
       const roi = item.amount > 0 ? ((pnl / item.amount) * 100).toFixed(1) : '0.0';
       const dt = item.date ? new Date(item.date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '';
+      const sub = item.type === 'Money Lent'
+        ? `Lent${item.person ? ' to ' + esc(item.person) : ''}${(item.interestMode && item.interestMode !== 'none') ? ' · ' + (item.interestRate || 0) + '%/' + (item.interestMode === 'month' ? 'mo' : 'yr') : ' · 0%'}`
+        : `${esc(item.type)}${dt ? ' · ' + dt : ''}`;
       return `<div class="ia-item" onclick="openEditInvModal('${item.id}')">
         <span class="ia-thumb" style="background:${(catColor ? '' : '')}rgba(99,102,241,0.14)"><i data-lucide="${_assetLucide(item.type)}"></i></span>
         <div class="ia-mid">
           <p class="ia-name">${esc(item.name)}</p>
-          <p class="ia-sub">${esc(item.type)}${dt ? ' · ' + dt : ''}</p>
+          <p class="ia-sub">${sub}</p>
         </div>
         <div class="ia-right">
           <p class="ia-val">${fmt(cur)}</p>
@@ -4251,11 +4258,11 @@ function renderInvestmentsApp() {
 
 // Lucide line-icon mapping for asset & loan types (fallbacks included)
 function _assetLucide(type) {
-  const m = { 'Real Estate': 'home', 'Fixed Deposit': 'landmark', 'Gold': 'circle-dollar-sign', 'Stocks': 'trending-up', 'Mutual Fund': 'pie-chart', 'SIP': 'repeat', 'Crypto': 'bitcoin', 'PPF / EPF': 'piggy-bank', 'PPF': 'piggy-bank', 'EPF': 'piggy-bank', 'Insurance': 'shield', 'Other': 'package' };
+  const m = { 'Real Estate': 'home', 'Fixed Deposit': 'landmark', 'Gold': 'circle-dollar-sign', 'Stocks': 'trending-up', 'Mutual Fund': 'pie-chart', 'SIP': 'repeat', 'Crypto': 'bitcoin', 'PPF / EPF': 'piggy-bank', 'PPF': 'piggy-bank', 'EPF': 'piggy-bank', 'Insurance': 'shield', 'Money Lent': 'hand-coins', 'Other': 'package' };
   return m[type] || 'trending-up';
 }
 function _loanLucide(type) {
-  const m = { 'Gold Loan': 'circle-dollar-sign', 'Personal Loan': 'user', 'Home Loan': 'home', 'Car Loan': 'car', 'Education Loan': 'graduation-cap', 'Credit Card': 'credit-card', 'Other': 'package' };
+  const m = { 'Gold Loan': 'circle-dollar-sign', 'Personal Loan': 'user', 'Home Loan': 'home', 'Car Loan': 'car', 'Education Loan': 'graduation-cap', 'Credit Card': 'credit-card', 'Money Borrowed': 'hand-coins', 'Other': 'package' };
   return m[type] || 'landmark';
 }
 
@@ -4745,6 +4752,48 @@ function toggleTickerFields(prefix) {
   if (qtyLabel) qtyLabel.textContent = isGold ? 'Qty (grams / ETF units)' : 'Qty (shares / units)';
   if (goldHint) goldHint.style.display = isGold ? 'block' : 'none';
   if (stdHint)  stdHint.style.display  = isGold ? 'none'  : 'block';
+
+  // Lending fields + contextual labels for "Money Lent"
+  const isLent  = type === 'Money Lent';
+  const lendEl  = document.getElementById(`${prefix}-lend-fields`);
+  if (lendEl) lendEl.style.display = isLent ? 'block' : 'none';
+  if (isLent) _toggleRate(prefix);
+  const amtLbl = document.getElementById(`${prefix}-amount-label`);
+  const curLbl = document.getElementById(`${prefix}-current-label`);
+  if (amtLbl) amtLbl.textContent = isLent ? 'Amount Given (₹)'     : 'Invested Amount (₹)';
+  if (curLbl) curLbl.textContent = isLent ? 'Amount to Receive (₹)' : 'Current Value (₹)';
+}
+
+// Lending-specific fields, shown when Asset Type = "Money Lent".
+// Person you lent to + interest mode (none / per month / per year) + rate.
+// Values are reference only — amounts are entered manually (no accrual math).
+function _lendFieldsHtml(prefix, inv) {
+  const v = (k, d = '') => inv ? (inv[k] ?? d) : d;
+  const mode = v('interestMode', 'none');
+  const opt = (val, label) => `<option value="${val}" ${mode === val ? 'selected' : ''}>${label}</option>`;
+  return `
+    <div id="${prefix}-lend-fields" style="display:none">
+      <div class="form-group"><label class="form-label">Person (who you lent to)</label>
+        <input type="text" id="${prefix}-person" class="form-input" value="${esc(v('person'))}" placeholder="e.g. Ramesh, cousin Arun…"/></div>
+      <div class="input-row">
+        <div class="form-group"><label class="form-label">Interest</label>
+          <select id="${prefix}-imode" class="form-input" onchange="_toggleRate('${prefix}')">
+            ${opt('none', 'None (non-profit / help)')}
+            ${opt('month', '% per month')}
+            ${opt('year', '% per year')}
+          </select></div>
+        <div class="form-group" id="${prefix}-rate-wrap" style="display:none"><label class="form-label">Rate (%)</label>
+          <input type="number" id="${prefix}-irate" class="form-input" value="${v('interestRate', '')}" placeholder="e.g. 2" step="0.01"/></div>
+      </div>
+      <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:8px 12px;margin-bottom:4px">
+        <p style="font-size:11px;color:#22c55e;margin:0;line-height:1.6">🤝 Money you lent out. Enter what you gave as <b>Amount Given</b> and what's still owed back as <b>Amount to Receive</b>. The interest rate is saved for your reference.</p>
+      </div>
+    </div>`;
+}
+function _toggleRate(prefix) {
+  const mode = document.getElementById(`${prefix}-imode`)?.value;
+  const w = document.getElementById(`${prefix}-rate-wrap`);
+  if (w) w.style.display = (mode && mode !== 'none') ? 'block' : 'none';
 }
 
 function _tickerFieldsHtml(prefix, ticker = '', qty = '') {
@@ -4791,11 +4840,12 @@ function openAddInvModal() {
       <select id="inv-type" class="form-input" onchange="toggleTickerFields('inv')">${_invTypeOptions('')}</select></div>
 
     ${_tickerFieldsHtml('inv')}
+    ${_lendFieldsHtml('inv', null)}
 
     <div class="input-row">
-      <div class="form-group"><label class="form-label">Invested Amount (₹)</label>
+      <div class="form-group"><label class="form-label" id="inv-amount-label">Invested Amount (₹)</label>
         <input type="number" id="inv-amount" class="form-input" placeholder="0"/></div>
-      <div class="form-group"><label class="form-label">Current Value (₹)</label>
+      <div class="form-group"><label class="form-label" id="inv-current-label">Current Value (₹)</label>
         <input type="number" id="inv-current" class="form-input" placeholder="auto from ticker or enter manually"/></div>
     </div>
     <div class="form-group"><label class="form-label">Notes (optional)</label>
@@ -4806,6 +4856,7 @@ function openAddInvModal() {
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveInv()">Save Asset</button>
     </div>`);
+  setTimeout(() => toggleTickerFields('inv'), 30);
 }
 
 function saveInv() {
@@ -4821,6 +4872,11 @@ function saveInv() {
   STATE.investments = STATE.investments || [];
   const inv = { id: genId(), name, type, amount, currentValue: current, notes, date: date || '' };
   if (ticker) { inv.ticker = ticker; inv.qty = qty; }
+  if (type === 'Money Lent') {
+    inv.person       = document.getElementById('inv-person')?.value.trim() || '';
+    inv.interestMode = document.getElementById('inv-imode')?.value || 'none';
+    inv.interestRate = parseFloat(document.getElementById('inv-irate')?.value) || 0;
+  }
   STATE.investments.push(inv);
   saveState(); addXP(25, 'Asset added'); closeModal();
   toast('Asset tracked! +25 XP', 'success'); renderInvestments();
@@ -4837,11 +4893,12 @@ function openEditInvModal(id) {
       <select id="einv-type" class="form-input" onchange="toggleTickerFields('einv')">${_invTypeOptions(inv.type)}</select></div>
 
     ${_tickerFieldsHtml('einv', inv.ticker || '', inv.qty || '')}
+    ${_lendFieldsHtml('einv', inv)}
 
     <div class="input-row">
-      <div class="form-group"><label class="form-label">Invested Amount (₹)</label>
+      <div class="form-group"><label class="form-label" id="einv-amount-label">Invested Amount (₹)</label>
         <input type="number" id="einv-amount" class="form-input" value="${inv.amount}"/></div>
-      <div class="form-group"><label class="form-label">Current Value (₹)</label>
+      <div class="form-group"><label class="form-label" id="einv-current-label">Current Value (₹)</label>
         <input type="number" id="einv-current" class="form-input" value="${inv.currentValue ?? inv.amount}"/></div>
     </div>
     <div class="form-group"><label class="form-label">Notes</label>
@@ -4852,8 +4909,8 @@ function openEditInvModal(id) {
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveEditInv('${id}')">💾 Save Changes</button>
     </div>`);
-  // Show ticker fields if needed
-  if (hasTicker) setTimeout(() => toggleTickerFields('einv'), 30);
+  // Show ticker / lending fields + contextual labels for the current type
+  setTimeout(() => toggleTickerFields('einv'), 30);
 }
 
 function saveEditInv(id) {
@@ -4872,6 +4929,13 @@ function saveEditInv(id) {
   inv.date         = document.getElementById('einv-date').value || '';
   if (ticker) { inv.ticker = ticker; inv.qty = qty; }
   else { delete inv.ticker; delete inv.qty; }
+  if (inv.type === 'Money Lent') {
+    inv.person       = document.getElementById('einv-person')?.value.trim() || '';
+    inv.interestMode = document.getElementById('einv-imode')?.value || 'none';
+    inv.interestRate = parseFloat(document.getElementById('einv-irate')?.value) || 0;
+  } else {
+    delete inv.person; delete inv.interestMode; delete inv.interestRate;
+  }
   saveState(); closeModal(); toast('Asset updated ✅', 'success'); renderInvestments();
 }
 
@@ -4979,19 +5043,25 @@ function _loanFormHTML(l) {
         <input type="number" id="ln-outstanding" class="form-input" value="${v('outstanding')}" placeholder="Remaining balance"/></div>
     </div>
     <div class="input-row">
-      <div class="form-group"><label class="form-label">EMI / Month (₹)</label>
-        <input type="number" id="ln-emi" class="form-input" value="${v('emi')}" placeholder="Monthly EMI"/></div>
       <div class="form-group"><label class="form-label">Interest Rate (%)</label>
-        <input type="number" id="ln-rate" class="form-input" value="${v('interestRate')}" placeholder="e.g. 8.5" step="0.01"/></div>
+        <input type="number" id="ln-rate" class="form-input" value="${v('interestRate')}" placeholder="e.g. 8.5 or 2" step="0.01"/></div>
+      <div class="form-group"><label class="form-label">Interest Period</label>
+        <select id="ln-iperiod" class="form-input">
+          ${['year','month','none'].map(p => `<option value="${p}" ${((v('interestPeriod','year')||'year')===p)?'selected':''}>${({year:'Per year',month:'Per month',none:'No interest'})[p]}</option>`).join('')}
+        </select></div>
     </div>
     <div class="input-row">
+      <div class="form-group"><label class="form-label">EMI / Month (₹)</label>
+        <input type="number" id="ln-emi" class="form-input" value="${v('emi')}" placeholder="blank for informal"/></div>
       <div class="form-group"><label class="form-label">EMI Date (day of month)</label>
         <input type="number" id="ln-emidate" class="form-input" value="${v('emiDate')}" placeholder="e.g. 5" min="1" max="31"/></div>
+    </div>
+    <div class="input-row">
       <div class="form-group"><label class="form-label">Tenure (months)</label>
         <input type="number" id="ln-tenure" class="form-input" value="${v('tenure')}" placeholder="e.g. 240"/></div>
+      <div class="form-group"><label class="form-label">Start Date (optional)</label>
+        <input type="date" id="ln-date" class="form-input" value="${v('startDate', '')}"/></div>
     </div>
-    <div class="form-group"><label class="form-label">Start Date (optional)</label>
-      <input type="date" id="ln-date" class="form-input" value="${v('startDate', '')}"/></div>
     <div class="form-group"><label class="form-label">Notes (optional)</label>
       <input type="text" id="ln-notes" class="form-input" value="${v('notes')}" placeholder="e.g. property address, co-applicant…"/></div>`;
 }
@@ -5005,6 +5075,7 @@ function _loanFormValues() {
     outstanding: parseFloat(document.getElementById('ln-outstanding').value) || 0,
     emi:         parseFloat(document.getElementById('ln-emi').value) || 0,
     interestRate:parseFloat(document.getElementById('ln-rate').value) || 0,
+    interestPeriod: document.getElementById('ln-iperiod')?.value || 'year',
     emiDate:     parseInt(document.getElementById('ln-emidate').value) || 0,
     tenure:      parseInt(document.getElementById('ln-tenure').value) || 0,
     startDate:   document.getElementById('ln-date').value || '',
