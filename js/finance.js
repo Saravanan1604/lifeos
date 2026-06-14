@@ -4067,8 +4067,8 @@ function renderInvestmentsApp() {
   const investments = STATE.investments || [];
   const loans       = STATE.loans || [];
   const totalInvested = investments.reduce((s, i) => s + (i.amount || 0), 0);
-  const totalCurrent  = investments.reduce((s, i) => s + (i.currentValue ?? i.amount ?? 0), 0);
-  const totalLoan     = loans.reduce((s, l) => s + (l.outstanding || 0), 0);
+  const totalCurrent  = investments.reduce((s, i) => s + _assetCur(i), 0);
+  const totalLoan     = loans.reduce((s, l) => s + _loanOutstanding(l), 0);
   const netWorth      = totalCurrent - totalLoan;
   const emiMonth      = loans.reduce((s, l) => s + (+l.emi || 0), 0);
   const netCash       = (STATE.bankAccounts || []).reduce((s, b) => s + (+b.balance || 0), 0)
@@ -4095,8 +4095,8 @@ function renderInvestmentsApp() {
   // Allocation (current view)
   const isAssets = invView === 'assets';
   const allocMap = {};
-  if (isAssets) investments.forEach(i => { const v = i.currentValue ?? i.amount ?? 0; allocMap[i.type] = (allocMap[i.type] || 0) + v; });
-  else loans.forEach(l => { allocMap[l.type] = (allocMap[l.type] || 0) + (l.outstanding || 0); });
+  if (isAssets) investments.forEach(i => { allocMap[i.type] = (allocMap[i.type] || 0) + _assetCur(i); });
+  else loans.forEach(l => { allocMap[l.type] = (allocMap[l.type] || 0) + _loanOutstanding(l); });
   const allocEntries = Object.entries(allocMap).sort(([, a], [, b]) => b - a);
   const allocTotal = allocEntries.reduce((s, [, v]) => s + v, 0);
   const allocColors = isAssets ? ASSET_CAT_COLORS : LIAB_CAT_COLORS;
@@ -4104,12 +4104,12 @@ function renderInvestmentsApp() {
   // Recent list
   const listSrc = isAssets
     ? _invApplySort([...investments])
-    : [...loans].sort((a, b) => (b.outstanding || 0) - (a.outstanding || 0));
+    : [...loans].sort((a, b) => _loanOutstanding(b) - _loanOutstanding(a));
   const listShown = invShowAll ? listSrc : listSrc.slice(0, 4);
 
   const row = (item) => {
     if (isAssets) {
-      const cur = item.currentValue ?? item.amount;
+      const cur = _assetCur(item);
       const pnl = cur - item.amount;
       const pos = pnl >= 0;
       const roi = item.amount > 0 ? ((pnl / item.amount) * 100).toFixed(1) : '0.0';
@@ -4130,17 +4130,21 @@ function renderInvestmentsApp() {
         <i data-lucide="chevron-right" class="ia-chev"></i>
       </div>`;
     }
-    const paid = (item.principal || 0) - (item.outstanding || 0);
+    const out = _loanOutstanding(item);
+    const paid = (item.principal || 0) - out;
     const pct = item.principal > 0 ? Math.min(100, Math.round(paid / item.principal * 100)) : 0;
+    const lsub = item.autoCalc && item.interestRate > 0
+      ? `${esc(item.type)}${item.lender ? ' · ' + esc(item.lender) : ''} · ${item.interestRate}%/${item.interestPeriod === 'month' ? 'mo' : 'yr'}`
+      : `${esc(item.type)}${item.lender ? ' · ' + esc(item.lender) : ''} · ${pct}% paid`;
     return `<div class="ia-item" onclick="openEditLoanModal('${item.id}')">
       <span class="ia-thumb" style="background:rgba(239,68,68,0.14)"><i data-lucide="${_loanLucide(item.type)}"></i></span>
       <div class="ia-mid">
         <p class="ia-name">${esc(item.name)}</p>
-        <p class="ia-sub">${esc(item.type)}${item.lender ? ' · ' + esc(item.lender) : ''} · ${pct}% paid</p>
+        <p class="ia-sub">${lsub}</p>
       </div>
       <div class="ia-right">
-        <p class="ia-val neg">${fmt(item.outstanding || 0)}</p>
-        <p class="ia-sub">EMI ${fmt(item.emi || 0)}</p>
+        <p class="ia-val neg">${fmt(out)}</p>
+        <p class="ia-sub">${item.autoCalc ? 'auto' : 'EMI ' + fmt(item.emi || 0)}</p>
       </div>
       <i data-lucide="chevron-right" class="ia-chev"></i>
     </div>`;
@@ -4757,11 +4761,14 @@ function toggleTickerFields(prefix) {
   const isLent  = type === 'Money Lent';
   const lendEl  = document.getElementById(`${prefix}-lend-fields`);
   if (lendEl) lendEl.style.display = isLent ? 'block' : 'none';
-  if (isLent) _toggleRate(prefix);
-  const amtLbl = document.getElementById(`${prefix}-amount-label`);
-  const curLbl = document.getElementById(`${prefix}-current-label`);
-  if (amtLbl) amtLbl.textContent = isLent ? 'Amount Given (₹)'     : 'Invested Amount (₹)';
-  if (curLbl) curLbl.textContent = isLent ? 'Amount to Receive (₹)' : 'Current Value (₹)';
+  const amtLbl  = document.getElementById(`${prefix}-amount-label`);
+  const curLbl  = document.getElementById(`${prefix}-current-label`);
+  const dateLbl = document.getElementById(`${prefix}-date-label`);
+  if (amtLbl)  amtLbl.textContent  = isLent ? 'Amount Given (₹)'      : 'Invested Amount (₹)';
+  if (curLbl)  curLbl.textContent  = isLent ? 'Amount to Receive (₹)' : 'Current Value (₹)';
+  if (dateLbl) dateLbl.textContent = isLent ? 'Date given'            : 'Date (optional)';
+  if (isLent) { _toggleRate(prefix); _lendRecalc(prefix); }
+  else { const c = document.getElementById(`${prefix}-current`); if (c) c.disabled = false; }
 }
 
 // Lending-specific fields, shown when Asset Type = "Money Lent".
@@ -4777,16 +4784,20 @@ function _lendFieldsHtml(prefix, inv) {
         <input type="text" id="${prefix}-person" class="form-input" value="${esc(v('person'))}" placeholder="e.g. Ramesh, cousin Arun…"/></div>
       <div class="input-row">
         <div class="form-group"><label class="form-label">Interest</label>
-          <select id="${prefix}-imode" class="form-input" onchange="_toggleRate('${prefix}')">
+          <select id="${prefix}-imode" class="form-input" onchange="_toggleRate('${prefix}');_lendRecalc('${prefix}')">
             ${opt('none', 'None (non-profit / help)')}
             ${opt('month', '% per month')}
             ${opt('year', '% per year')}
           </select></div>
         <div class="form-group" id="${prefix}-rate-wrap" style="display:none"><label class="form-label">Rate (%)</label>
-          <input type="number" id="${prefix}-irate" class="form-input" value="${v('interestRate', '')}" placeholder="e.g. 2" step="0.01"/></div>
+          <input type="number" id="${prefix}-irate" class="form-input" value="${v('interestRate', '')}" placeholder="e.g. 2" step="0.01" oninput="_lendRecalc('${prefix}')"/></div>
       </div>
+      <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px">
+        <input type="checkbox" id="${prefix}-auto" ${v('autoCalc') ? 'checked' : ''} onchange="_lendRecalc('${prefix}')" style="width:auto;margin:0;flex:none"/>
+        <span style="font-weight:600">⚡ Auto-calculate amount owed (principal + interest to the date given)</span>
+      </label>
       <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:8px 12px;margin-bottom:4px">
-        <p style="font-size:11px;color:#22c55e;margin:0;line-height:1.6">🤝 Money you lent out. Enter what you gave as <b>Amount Given</b> and what's still owed back as <b>Amount to Receive</b>. The interest rate is saved for your reference.</p>
+        <p style="font-size:11px;color:#22c55e;margin:0;line-height:1.6">🤝 Money you lent out. Enter what you gave as <b>Amount Given</b>; <b>Amount to Receive</b> is what's owed back. Tick <b>Auto-calculate</b> to grow it automatically from the rate + <b>Date given</b> (simple interest).</p>
       </div>
     </div>`;
 }
@@ -4794,6 +4805,58 @@ function _toggleRate(prefix) {
   const mode = document.getElementById(`${prefix}-imode`)?.value;
   const w = document.getElementById(`${prefix}-rate-wrap`);
   if (w) w.style.display = (mode && mode !== 'none') ? 'block' : 'none';
+}
+
+// Simple-interest accrual: principal + principal × rate% × periods elapsed
+// since startStr. mode = 'month' | 'year'. Used for auto-calc lent/borrowed.
+function _accruedValue(principal, ratePct, mode, startStr) {
+  const p = +principal || 0;
+  const r = +ratePct || 0;
+  if (!r || (mode !== 'month' && mode !== 'year') || !startStr) return p;
+  const start = new Date(startStr + 'T00:00:00');
+  if (isNaN(start)) return p;
+  const days = Math.max(0, (Date.now() - start.getTime()) / 86400000);
+  const periods = mode === 'month' ? days / 30.4375 : days / 365.25;
+  return Math.round(p + p * (r / 100) * periods);
+}
+// Live current value of an asset (auto-grows for "Money Lent" with auto-calc on).
+function _assetCur(inv) {
+  if (inv && inv.type === 'Money Lent' && inv.autoCalc)
+    return _accruedValue(inv.amount, inv.interestRate, inv.interestMode, inv.date);
+  return inv.currentValue ?? inv.amount ?? 0;
+}
+// Live outstanding of a loan (auto-grows when auto-calc is on, no EMI).
+function _loanOutstanding(l) {
+  if (l && l.autoCalc && (l.interestPeriod === 'month' || l.interestPeriod === 'year'))
+    return _accruedValue(l.principal, l.interestRate, l.interestPeriod, l.startDate);
+  return l.outstanding || 0;
+}
+
+// Form helpers: when auto-calc is ticked, fill + lock the manual amount field
+// with the live computed value as the user types principal / rate / date.
+function _lendRecalc(prefix) {
+  const curEl = document.getElementById(`${prefix}-current`);
+  if (!curEl) return;
+  const auto = document.getElementById(`${prefix}-auto`)?.checked;
+  if (!auto) { curEl.disabled = false; return; }
+  const amount = parseFloat(document.getElementById(`${prefix}-amount`)?.value) || 0;
+  const rate   = parseFloat(document.getElementById(`${prefix}-irate`)?.value) || 0;
+  const mode   = document.getElementById(`${prefix}-imode`)?.value || 'none';
+  const date   = document.getElementById(`${prefix}-date`)?.value || '';
+  curEl.value = _accruedValue(amount, rate, mode, date);
+  curEl.disabled = true;
+}
+function _loanRecalc() {
+  const outEl = document.getElementById('ln-outstanding');
+  if (!outEl) return;
+  const auto = document.getElementById('ln-auto')?.checked;
+  if (!auto) { outEl.disabled = false; return; }
+  const p   = parseFloat(document.getElementById('ln-principal')?.value) || 0;
+  const r   = parseFloat(document.getElementById('ln-rate')?.value) || 0;
+  const per = document.getElementById('ln-iperiod')?.value || 'year';
+  const d   = document.getElementById('ln-date')?.value || '';
+  outEl.value = _accruedValue(p, r, per, d);
+  outEl.disabled = true;
 }
 
 function _tickerFieldsHtml(prefix, ticker = '', qty = '') {
@@ -4844,14 +4907,14 @@ function openAddInvModal() {
 
     <div class="input-row">
       <div class="form-group"><label class="form-label" id="inv-amount-label">Invested Amount (₹)</label>
-        <input type="number" id="inv-amount" class="form-input" placeholder="0"/></div>
+        <input type="number" id="inv-amount" class="form-input" placeholder="0" oninput="_lendRecalc('inv')"/></div>
       <div class="form-group"><label class="form-label" id="inv-current-label">Current Value (₹)</label>
         <input type="number" id="inv-current" class="form-input" placeholder="auto from ticker or enter manually"/></div>
     </div>
     <div class="form-group"><label class="form-label">Notes (optional)</label>
       <input type="text" id="inv-notes" class="form-input" placeholder="e.g. pledged, maturity date…"/></div>
-    <div class="form-group"><label class="form-label">Date (optional)</label>
-      <input type="date" id="inv-date" class="form-input" value=""/></div>
+    <div class="form-group"><label class="form-label" id="inv-date-label">Date (optional)</label>
+      <input type="date" id="inv-date" class="form-input" value="" oninput="_lendRecalc('inv')"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveInv()">Save Asset</button>
@@ -4876,6 +4939,7 @@ function saveInv() {
     inv.person       = document.getElementById('inv-person')?.value.trim() || '';
     inv.interestMode = document.getElementById('inv-imode')?.value || 'none';
     inv.interestRate = parseFloat(document.getElementById('inv-irate')?.value) || 0;
+    inv.autoCalc     = !!document.getElementById('inv-auto')?.checked;
   }
   STATE.investments.push(inv);
   saveState(); addXP(25, 'Asset added'); closeModal();
@@ -4897,14 +4961,14 @@ function openEditInvModal(id) {
 
     <div class="input-row">
       <div class="form-group"><label class="form-label" id="einv-amount-label">Invested Amount (₹)</label>
-        <input type="number" id="einv-amount" class="form-input" value="${inv.amount}"/></div>
+        <input type="number" id="einv-amount" class="form-input" value="${inv.amount}" oninput="_lendRecalc('einv')"/></div>
       <div class="form-group"><label class="form-label" id="einv-current-label">Current Value (₹)</label>
         <input type="number" id="einv-current" class="form-input" value="${inv.currentValue ?? inv.amount}"/></div>
     </div>
     <div class="form-group"><label class="form-label">Notes</label>
       <input type="text" id="einv-notes" class="form-input" value="${inv.notes||''}"/></div>
-    <div class="form-group"><label class="form-label">Date (optional)</label>
-      <input type="date" id="einv-date" class="form-input" value="${inv.date||''}"/></div>
+    <div class="form-group"><label class="form-label" id="einv-date-label">Date (optional)</label>
+      <input type="date" id="einv-date" class="form-input" value="${inv.date||''}" oninput="_lendRecalc('einv')"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveEditInv('${id}')">💾 Save Changes</button>
@@ -4933,8 +4997,9 @@ function saveEditInv(id) {
     inv.person       = document.getElementById('einv-person')?.value.trim() || '';
     inv.interestMode = document.getElementById('einv-imode')?.value || 'none';
     inv.interestRate = parseFloat(document.getElementById('einv-irate')?.value) || 0;
+    inv.autoCalc     = !!document.getElementById('einv-auto')?.checked;
   } else {
-    delete inv.person; delete inv.interestMode; delete inv.interestRate;
+    delete inv.person; delete inv.interestMode; delete inv.interestRate; delete inv.autoCalc;
   }
   saveState(); closeModal(); toast('Asset updated ✅', 'success'); renderInvestments();
 }
@@ -5038,18 +5103,22 @@ function _loanFormHTML(l) {
     </div>
     <div class="input-row">
       <div class="form-group"><label class="form-label">Principal Amount (₹)</label>
-        <input type="number" id="ln-principal" class="form-input" value="${v('principal')}" placeholder="Original loan amount"/></div>
+        <input type="number" id="ln-principal" class="form-input" value="${v('principal')}" placeholder="Original loan amount" oninput="_loanRecalc()"/></div>
       <div class="form-group"><label class="form-label">Outstanding (₹)</label>
         <input type="number" id="ln-outstanding" class="form-input" value="${v('outstanding')}" placeholder="Remaining balance"/></div>
     </div>
     <div class="input-row">
       <div class="form-group"><label class="form-label">Interest Rate (%)</label>
-        <input type="number" id="ln-rate" class="form-input" value="${v('interestRate')}" placeholder="e.g. 8.5 or 2" step="0.01"/></div>
+        <input type="number" id="ln-rate" class="form-input" value="${v('interestRate')}" placeholder="e.g. 8.5 or 2" step="0.01" oninput="_loanRecalc()"/></div>
       <div class="form-group"><label class="form-label">Interest Period</label>
-        <select id="ln-iperiod" class="form-input">
+        <select id="ln-iperiod" class="form-input" onchange="_loanRecalc()">
           ${['year','month','none'].map(p => `<option value="${p}" ${((v('interestPeriod','year')||'year')===p)?'selected':''}>${({year:'Per year',month:'Per month',none:'No interest'})[p]}</option>`).join('')}
         </select></div>
     </div>
+    <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px">
+      <input type="checkbox" id="ln-auto" ${(l&&l.autoCalc)?'checked':''} onchange="_loanRecalc()" style="width:auto;margin:0;flex:none"/>
+      <span style="font-weight:600">⚡ Auto-calculate outstanding (principal + interest, informal / no EMI)</span>
+    </label>
     <div class="input-row">
       <div class="form-group"><label class="form-label">EMI / Month (₹)</label>
         <input type="number" id="ln-emi" class="form-input" value="${v('emi')}" placeholder="blank for informal"/></div>
@@ -5060,7 +5129,7 @@ function _loanFormHTML(l) {
       <div class="form-group"><label class="form-label">Tenure (months)</label>
         <input type="number" id="ln-tenure" class="form-input" value="${v('tenure')}" placeholder="e.g. 240"/></div>
       <div class="form-group"><label class="form-label">Start Date (optional)</label>
-        <input type="date" id="ln-date" class="form-input" value="${v('startDate', '')}"/></div>
+        <input type="date" id="ln-date" class="form-input" value="${v('startDate', '')}" oninput="_loanRecalc()"/></div>
     </div>
     <div class="form-group"><label class="form-label">Notes (optional)</label>
       <input type="text" id="ln-notes" class="form-input" value="${v('notes')}" placeholder="e.g. property address, co-applicant…"/></div>`;
@@ -5076,6 +5145,7 @@ function _loanFormValues() {
     emi:         parseFloat(document.getElementById('ln-emi').value) || 0,
     interestRate:parseFloat(document.getElementById('ln-rate').value) || 0,
     interestPeriod: document.getElementById('ln-iperiod')?.value || 'year',
+    autoCalc:    !!document.getElementById('ln-auto')?.checked,
     emiDate:     parseInt(document.getElementById('ln-emidate').value) || 0,
     tenure:      parseInt(document.getElementById('ln-tenure').value) || 0,
     startDate:   document.getElementById('ln-date').value || '',
@@ -5090,6 +5160,7 @@ function openAddLoanModal() {
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveLoan()" style="background:linear-gradient(135deg,#ef4444,#dc2626)">Save Loan</button>
     </div>`);
+  setTimeout(_loanRecalc, 30);
 }
 
 function saveLoan() {
@@ -5111,6 +5182,7 @@ function openEditLoanModal(id) {
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveEditLoan('${id}')" style="background:linear-gradient(135deg,#ef4444,#dc2626)">💾 Save Changes</button>
     </div>`);
+  setTimeout(_loanRecalc, 30);
 }
 
 function saveEditLoan(id) {
