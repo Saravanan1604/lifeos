@@ -564,42 +564,67 @@ function recEnterSelect(id) {
 // highlighted) and the list of its transactions in the anchor month.
 let _catDetailCat = null;
 let _catDetailFrom = 'records';   // where back should return to
-let _spendAnchor = new Date();    // month anchor for the spending overview
+let _spendAnchor = new Date();    // anchor for the spending overview
+let _spendPeriod = 'month';       // day | week | month | year | all
 
 function openCategoryDetail(cat, from) {
   _catDetailCat = cat;
   _catDetailFrom = from || 'records';
-  renderCategoryDetail();
+  // Route it as a real page so the 3s cloud-sync poll re-renders the detail
+  // (not the parent page) — otherwise the detail flashed and reverted.
+  if (typeof navigate === 'function') navigate('category-detail');
+  else renderCategoryDetail();
 }
 
 // ── Spending overview (More → Spending): donut of category spend for the
 // month + tappable category list → drills into the category detail page. ──
+function setSpendPeriod(p) { _spendPeriod = p; renderSpendingOverview(); }
 function spendNav(delta) {
   const d = new Date(_spendAnchor);
-  d.setMonth(d.getMonth() + delta);
+  if (_spendPeriod === 'day') d.setDate(d.getDate() + delta);
+  else if (_spendPeriod === 'week') d.setDate(d.getDate() + 7 * delta);
+  else if (_spendPeriod === 'year') d.setFullYear(d.getFullYear() + delta);
+  else d.setMonth(d.getMonth() + delta);
   _spendAnchor = d;
   renderSpendingOverview();
 }
+function _spendPeriodLabel() {
+  const a = _spendAnchor;
+  if (_spendPeriod === 'all') return 'All Time';
+  if (_spendPeriod === 'year') return String(a.getFullYear());
+  if (_spendPeriod === 'month') return a.toLocaleString('default', { month: 'long', year: 'numeric' });
+  if (_spendPeriod === 'day') return a.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+  const dow = (a.getDay() + 6) % 7, mon = new Date(a); mon.setDate(a.getDate() - dow);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const o = { day: '2-digit', month: 'short' };
+  return `${mon.toLocaleDateString('en-IN', o)} – ${sun.toLocaleDateString('en-IN', o)}`;
+}
 function renderSpendingOverview() {
   const a = (_spendAnchor instanceof Date && !isNaN(_spendAnchor)) ? _spendAnchor : new Date();
-  const ym = `${a.getFullYear()}-${String(a.getMonth() + 1).padStart(2, '0')}`;
-  const tx = (STATE.transactions || []).filter(t => t.type !== 'income' && (t.date || '').slice(0, 7) === ym);
+  const tx = (_spendPeriod === 'all'
+    ? [...(STATE.transactions || [])]
+    : filterTxByAnchor([...(STATE.transactions || [])], _spendPeriod, _ymdLocal(a))
+  ).filter(t => t.type !== 'income');
   const byCat = {};
   tx.forEach(t => { const c = t.category || 'Other'; if (!byCat[c]) byCat[c] = { total: 0, n: 0 }; byCat[c].total += (+t.amount || 0); byCat[c].n++; });
   const rows = Object.entries(byCat).map(([c, v]) => ({ cat: c, total: v.total, n: v.n })).sort((x, y) => y.total - x.total);
   const grand = rows.reduce((s, r) => s + r.total, 0);
-  const monthLbl = a.toLocaleString('default', { month: 'long', year: 'numeric' });
-  const atPresent = ym === `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+  const lbl = _spendPeriodLabel();
+  const tabs = [['day', 'Day'], ['week', 'Week'], ['month', 'Month'], ['year', 'Year'], ['all', 'All']];
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in spov">
       <div class="page-header"><div><h1 class="page-title"><i data-lucide="pie-chart"></i> Spending</h1>
       <p class="page-subtitle">Where your money goes</p></div></div>
 
+      <div class="spov-tabs">
+        ${tabs.map(([k, l]) => `<button class="spov-tab ${_spendPeriod === k ? 'on' : ''}" onclick="setSpendPeriod('${k}')">${l}</button>`).join('')}
+      </div>
+
       <div class="spov-navbar">
-        <button class="mm-navbtn" onclick="spendNav(-1)">‹</button>
-        <span class="spov-month">${monthLbl}</span>
-        <button class="mm-navbtn" onclick="spendNav(1)" ${atPresent ? 'disabled style="opacity:.35"' : ''}>›</button>
+        ${_spendPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="spendNav(-1)">‹</button>`}
+        <span class="spov-month">${lbl}</span>
+        ${_spendPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="spendNav(1)">›</button>`}
       </div>
 
       ${rows.length ? `
@@ -620,7 +645,7 @@ function renderSpendingOverview() {
           </div>`;
         }).join('')}
       </div>`
-      : `<div class="glass-card" style="padding:48px 20px;text-align:center"><span class="empty-state-icon"><i data-lucide="pie-chart"></i></span><p>No spending in ${monthLbl}.</p></div>`}
+      : `<div class="glass-card" style="padding:48px 20px;text-align:center"><span class="empty-state-icon"><i data-lucide="pie-chart"></i></span><p>No spending in ${lbl}.</p></div>`}
     </div>`;
 
   _lucideRefresh();
@@ -666,7 +691,7 @@ function renderCategoryDetail() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in catdet">
       <div class="catdet-head">
-        <button class="catdet-back" onclick="${_catDetailFrom === 'spending' ? 'renderSpendingOverview()' : 'renderRecordsMyMoney()'}"><i data-lucide="arrow-left"></i></button>
+        <button class="catdet-back" onclick="navigate('${_catDetailFrom === 'spending' ? 'spending' : 'transactions'}')"><i data-lucide="arrow-left"></i></button>
         <div class="catdet-title">
           <span class="catdet-ic" style="background:${color}">${catIconHtml(cat)}</span>
           <div><p class="catdet-name">${esc(cat)}</p><p class="catdet-sub">${anchor.toLocaleString('default', { month: 'long', year: 'numeric' })}</p></div>

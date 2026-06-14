@@ -55,4 +55,4 @@ git push origin main
 Write-Host ""
 Write-Host "DONE - build $new pushed. Live on Vercel in ~1 minute." -ForegroundColor Green
 Write-Host "On your phone: fully close LifeOS, reopen, check Settings shows build $new." -ForegroundColor Green
-# Read-Host "`nPress Enter to close"
+Read-Host "`nPress Enter to close"

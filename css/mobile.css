@@ -12260,3 +12260,32 @@ html.is-app #particles-canvas {
 html.is-app body.amoled #particles-canvas {
   display: none !important;
 }
+
+/* ============================================================
+   build 432 — Spending page: Day/Week/Month/Year/All tabs +
+   larger rows/donut.
+   ============================================================ */
+html.is-app .spov-tabs {
+  display: flex; gap: 6px; background: #12172a;
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 16px;
+  padding: 6px; margin-bottom: 14px;
+}
+html.is-app .spov-tab {
+  flex: 1; padding: 14px 4px; border-radius: 12px; border: none;
+  background: transparent; color: rgba(203,213,225,0.7);
+  font-size: 19px; font-weight: 700; cursor: pointer; transition: .15s;
+}
+html.is-app .spov-tab.on { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; }
+
+/* bigger overview */
+html.is-app .spov-month { font-size: 28px; }
+html.is-app .spov-donut { width: 290px; height: 290px; }
+html.is-app .spov-donut-c b { font-size: 34px; }
+html.is-app .spov-donut-c span { font-size: 19px; }
+html.is-app .spov-row { padding: 20px; gap: 16px; }
+html.is-app .spov-ic { width: 62px; height: 62px; }
+html.is-app .spov-ic svg, html.is-app .spov-ic i { width: 31px; height: 31px; }
+html.is-app .spov-name { font-size: 28px; }
+html.is-app .spov-n { font-size: 18px; }
+html.is-app .spov-amt { font-size: 27px; }
+html.is-app .spov-right svg { width: 26px; height: 26px; }
