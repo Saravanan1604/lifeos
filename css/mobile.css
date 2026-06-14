@@ -12478,7 +12478,6 @@ html.is-app #modal-overlay {
   align-items: flex-end !important;
   justify-content: center !important;
   padding: 0 !important;
-  display: flex !important;
 }
 
 html.is-app #modal-overlay .modal-box {
