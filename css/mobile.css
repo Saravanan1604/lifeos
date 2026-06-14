@@ -12759,4 +12759,22 @@ html.is-app .modal-title-icon svg {
   display: block !important;
 }
 
+/* build 449 — Increased margin/spacing after cards on all pages for better readability and focus */
+html.is-app .glass-card {
+  margin-bottom: 28px !important;
+}
+html.is-app .glass-card:not(:has(.fin-bank-grid, .fin-card-grid, .fin-cash-grid)) {
+  margin-bottom: 28px !important;
+}
+html.is-app .fin-dark-card {
+  margin-bottom: 28px !important;
+}
+html.is-app .kpi-grid {
+  margin-bottom: 28px !important;
+}
+html.is-app #insight-bar {
+  margin-bottom: 28px !important;
+}
+
+
 
