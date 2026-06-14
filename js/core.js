@@ -122,10 +122,145 @@ function _modalAccent(title) {
   if (/transaction|add/.test(t))                      return 'linear-gradient(135deg,#00c9a7,#6366f1)';
   return 'linear-gradient(135deg,#00c9a7,#6366f1)';
 }
+function _modalThemeColor(title) {
+  const t = (title || '').toLowerCase();
+  if (/expense|spend|debit|delete|remove/.test(t)) return '#ef4444';
+  if (/income|salary|credit balance|deposit/.test(t)) return '#10b981';
+  if (/bank|balance|account/.test(t))               return '#3b82f6';
+  if (/card|credit/.test(t))                          return '#8b5cf6';
+  if (/cash|wallet/.test(t))                          return '#f59e0b';
+  if (/goal|target|save/.test(t))                     return '#14b8a6';
+  if (/budget|limit/.test(t))                         return '#6366f1';
+  return '#00c9a7'; // default teal
+}
+
+function _themeModalFields(ov) {
+  if (!window.__IS_APP && !document.documentElement.classList.contains('is-app')) return;
+  
+  // Style form group labels
+  ov.querySelectorAll('.form-group').forEach(g => {
+    const label = g.querySelector('.form-label, label:not(.rf-view)');
+    if (label) {
+      label.style.color = '#5eead4'; // light teal matching the screenshot
+      label.style.fontWeight = '700';
+      label.style.fontSize = '1.3rem';
+      label.style.marginBottom = '10px';
+      label.style.display = 'block';
+    }
+    
+    // Find form fields inside the group
+    const input = g.querySelector('input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea, button.rf-view-btn');
+    if (input && !input.parentNode.classList.contains('form-field-icon-wrap')) {
+      if (input.tagName === 'INPUT' && input.getAttribute('list')) return; // skip datalist suggestions
+      
+      let icon = '';
+      const labelText = label ? label.textContent.toLowerCase() : '';
+      const plc = (input.getAttribute('placeholder') || '').toLowerCase();
+      const name = (input.getAttribute('name') || '').toLowerCase();
+      const id = (input.getAttribute('id') || '').toLowerCase();
+      const textContext = (labelText + ' ' + plc + ' ' + name + ' ' + id);
+
+      if (input.type === 'date' || textContext.includes('date') || textContext.includes('day')) {
+        icon = '📅';
+      } else if (textContext.includes('search')) {
+        icon = '🔍';
+      } else if (textContext.includes('category')) {
+        icon = '📂';
+      } else if (textContext.includes('subcategory')) {
+        icon = '🏷️';
+      } else if (textContext.includes('type')) {
+        icon = '㗊';
+      } else if (textContext.includes('account') || textContext.includes('bank') || textContext.includes('source')) {
+        icon = '🏦';
+      } else if (textContext.includes('card') || textContext.includes('cc')) {
+        icon = '💳';
+      } else if (textContext.includes('cash') || textContext.includes('wallet')) {
+        icon = '💵';
+      } else if (textContext.includes('amount') || textContext.includes('price') || textContext.includes('limit') || textContext.includes('budget')) {
+        icon = '💰';
+      } else if (textContext.includes('sort')) {
+        icon = '⇅';
+      } else if (textContext.includes('repeat') || textContext.includes('frequency')) {
+        icon = '🔁';
+      } else if (textContext.includes('notes') || textContext.includes('desc') || textContext.includes('title')) {
+        icon = '📝';
+      } else if (input.type === 'time') {
+        icon = '⏰';
+      } else if (textContext.includes('name')) {
+        icon = '👤';
+      } else if (textContext.includes('phone') || textContext.includes('mobile')) {
+        icon = '📞';
+      } else if (textContext.includes('email')) {
+        icon = '✉️';
+      } else if (textContext.includes('password')) {
+        icon = '🔒';
+      } else if (textContext.includes('pin')) {
+        icon = '🔑';
+      }
+
+      if (icon) {
+        const wrap = document.createElement('div');
+        wrap.className = 'form-field-icon-wrap';
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+        
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'form-field-icon';
+        iconSpan.textContent = icon;
+        wrap.insertBefore(iconSpan, input);
+      }
+    }
+  });
+}
+
 function openModal(title, bodyHTML) {
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-body').innerHTML = bodyHTML;
   const ov = document.getElementById('modal-overlay');
+  const titleEl = document.getElementById('modal-title');
+  
+  let emoji = '';
+  let cleanTitle = title || '';
+  
+  // Clean emoji from beginning of title
+  const emojiRegex = /^([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDC00-\uDFFF]|\uff0b|\u2795|[\u2b50\u2605\u2705\u270b\u270a\u2709\u261d\u270c\u270f\u2712\u2714\u2716\u271d\u2721\u2728\u2733\u2734\u2744\u2747\u274c\u274e\u2753\u2754\u2755\u2757\u2763\u2764\u27a1\u2934\u2935\u2b05\u2b06\u2b07\u3030\u303d\u3297\u3299]|\u2699)\s*/;
+  const match = cleanTitle.match(emojiRegex);
+  if (match) {
+    emoji = match[1];
+    cleanTitle = cleanTitle.replace(emojiRegex, '').trim();
+  } else {
+    // Keyword fallback
+    const t = cleanTitle.toLowerCase();
+    if (t.includes('account')) emoji = '🏦';
+    else if (t.includes('category')) emoji = '🏷️';
+    else if (t.includes('repeat')) emoji = '🔁';
+    else if (t.includes('search')) emoji = '🔍';
+    else if (t.includes('settings')) emoji = '⚙️';
+    else if (t.includes('habit')) emoji = '✅';
+    else if (t.includes('goal')) emoji = '🎯';
+    else if (t.includes('note')) emoji = '📝';
+    else if (t.includes('asset')) emoji = '📈';
+    else if (t.includes('loan')) emoji = '🏦';
+    else if (t.includes('delete') || t.includes('remove')) emoji = '🗑️';
+    else if (t.includes('edit')) emoji = '✏️';
+    else if (t.includes('add') || t.includes('new')) emoji = '➕';
+  }
+
+  const isApp = window.__IS_APP || document.documentElement.classList.contains('is-app');
+  if (isApp && emoji) {
+    titleEl.innerHTML = `<span class="modal-title-icon">${emoji}</span><span class="modal-title-text">${cleanTitle}</span>`;
+    // Apply accent dynamic colors to the icon container
+    const themeColor = _modalThemeColor(title);
+    const iconContainer = titleEl.querySelector('.modal-title-icon');
+    if (iconContainer) {
+      iconContainer.style.borderColor = themeColor + '40';
+      iconContainer.style.background = themeColor + '1c';
+      iconContainer.style.color = themeColor;
+      iconContainer.style.boxShadow = `0 0 12px ${themeColor}1a`;
+    }
+  } else {
+    titleEl.textContent = title;
+  }
+
+  document.getElementById('modal-body').innerHTML = bodyHTML;
   const _box = ov.querySelector('.modal-box');
   if (_box) _box.classList.remove('modal-fullscreen');   // reset (tx form makes it fullscreen)
   const hd = ov.querySelector('.modal-header');
@@ -135,7 +270,7 @@ function openModal(title, bodyHTML) {
   }
   const accLine = document.getElementById('modal-accent-line');
   if (accLine) {
-    if (window.__IS_APP) {
+    if (isApp) {
       accLine.style.background = _modalAccent(title);
       accLine.style.display = 'block';
     } else {
@@ -143,6 +278,10 @@ function openModal(title, bodyHTML) {
       accLine.style.display = 'none';
     }
   }
+  
+  // Style form inputs & inject icons
+  _themeModalFields(ov);
+  
   ov.style.display = 'flex';
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
 }

@@ -12573,12 +12573,170 @@ html.is-app body.light .modal-drag-handle {
 
 /* transparent header band */
 html.is-app #modal-overlay .modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
   margin: 0 !important;
-  padding: 16px 26px 16px !important;
+  padding: 24px 26px 16px !important;
   border: none !important;
   border-radius: 0 !important;
   position: relative !important;
   background: transparent !important;
   flex-shrink: 0 !important;
 }
+
+html.is-app #modal-overlay .modal-header h3 {
+  display: flex !important;
+  align-items: center !important;
+  font-size: 1.75rem !important;
+  font-weight: 800 !important;
+  color: var(--text, #f1f5f9) !important;
+  margin: 0 !important;
+  line-height: 1.25 !important;
+}
+
+/* ============================================================
+   build 445 — Premium modal controls, dynamic header icons
+   ============================================================ */
+/* Header Icon container */
+html.is-app .modal-title-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid rgba(0, 201, 167, 0.25) !important;
+  background: rgba(0, 201, 167, 0.12) !important;
+  font-size: 1.3rem !important;
+  margin-right: 12px !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 0 12px rgba(0, 201, 167, 0.15) !important;
+}
+html.is-app.light .modal-title-icon,
+html.is-app body.light .modal-title-icon {
+  box-shadow: none !important;
+}
+
+/* Input Icon wrap container */
+html.is-app .form-field-icon-wrap {
+  position: relative !important;
+  width: 100% !important;
+}
+
+html.is-app .form-field-icon-wrap .form-field-icon {
+  position: absolute !important;
+  left: 18px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 1.4rem !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Modal Body elements - form fields */
+html.is-app #modal-overlay .form-input,
+html.is-app #modal-overlay .modal-body input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html.is-app #modal-overlay .modal-body select,
+html.is-app #modal-overlay .modal-body textarea,
+html.is-app #modal-overlay .modal-body button.rf-view-btn {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 18px !important;
+  font-size: 1.35rem !important;
+  padding: 16px 18px !important;
+  color: var(--text, #f1f5f9) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s, background 0.2s !important;
+}
+
+html.is-app #modal-overlay .form-field-icon-wrap .form-input,
+html.is-app #modal-overlay .form-field-icon-wrap input,
+html.is-app #modal-overlay .form-field-icon-wrap select,
+html.is-app #modal-overlay .form-field-icon-wrap textarea {
+  padding-left: 48px !important;
+}
+
+html.is-app.light #modal-overlay .form-input,
+html.is-app body.light #modal-overlay .modal-body input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html.is-app body.light #modal-overlay .modal-body select,
+html.is-app body.light #modal-overlay .modal-body textarea,
+html.is-app body.light #modal-overlay .modal-body button.rf-view-btn {
+  background: rgba(15, 23, 42, 0.04) !important;
+  border: 1.5px solid rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+
+html.is-app #modal-overlay .form-input:focus,
+html.is-app #modal-overlay .modal-body input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):focus,
+html.is-app #modal-overlay .modal-body select:focus,
+html.is-app #modal-overlay .modal-body textarea:focus {
+  border-color: #00c9a7 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.is-app body.light #modal-overlay .form-input:focus,
+html.is-app body.light #modal-overlay .modal-body input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):focus,
+html.is-app body.light #modal-overlay .modal-body select:focus,
+html.is-app body.light #modal-overlay .modal-body textarea:focus {
+  border-color: #00c9a7 !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Modal action buttons */
+html.is-app #modal-overlay .modal-actions .btn-primary,
+html.is-app #modal-overlay .modal-body .btn-primary,
+html.is-app #modal-overlay .btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 1.4rem !important;
+  padding: 16px 24px !important;
+  border-radius: 16px !important;
+  border: none !important;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35) !important;
+  cursor: pointer !important;
+  transition: transform 0.1s !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+html.is-app #modal-overlay .modal-actions .btn-primary:active,
+html.is-app #modal-overlay .modal-body .btn-primary:active,
+html.is-app #modal-overlay .btn-primary:active {
+  transform: scale(0.97) !important;
+}
+
+html.is-app #modal-overlay .modal-actions .btn-secondary,
+html.is-app #modal-overlay .modal-body .btn-secondary,
+html.is-app #modal-overlay .btn-secondary {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--text2, #cbd5e1) !important;
+  font-weight: 600 !important;
+  font-size: 1.4rem !important;
+  padding: 16px 24px !important;
+  border-radius: 16px !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  transition: transform 0.1s, background 0.2s !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+html.is-app #modal-overlay .modal-actions .btn-secondary:active,
+html.is-app #modal-overlay .modal-body .btn-secondary:active,
+html.is-app #modal-overlay .btn-secondary:active {
+  transform: scale(0.97) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
 
