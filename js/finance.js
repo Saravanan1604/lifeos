@@ -5114,6 +5114,37 @@ async function fetchLivePrices() {
   if (typeof softRefresh === 'function') softRefresh(); else renderInvestments();
 }
 
+async function updateSingleAssetLivePrice(id) {
+  const inv = (STATE.investments || []).find(i => i.id === id);
+  if (!inv) return;
+  if (!inv.ticker || !(inv.qty > 0)) {
+    toast('Please set a ticker and quantity first (via Edit).', 'warning');
+    return;
+  }
+  const btn = document.getElementById('live-update-asset-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Fetching…';
+  }
+  try {
+    const price = await _fetchTickerPrice(inv.ticker);
+    inv.livePrice = price;
+    inv.currentValue = Math.round(price * inv.qty * 100) / 100;
+    inv.lastUpdated = new Date().toISOString();
+    saveState();
+    toast(`✅ Updated live price for ${inv.ticker}: ₹${price.toLocaleString('en-IN')}`, 'success');
+    renderAssetDetail();
+  } catch (e) {
+    console.warn(`[LivePrice] ${inv.ticker}:`, e.message);
+    toast(`⚠️ Failed to fetch price for ticker "${inv.ticker}"`, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Live Update';
+    }
+  }
+}
+
 function deleteInv(id) {
   STATE.investments = (STATE.investments || []).filter(i => i.id !== id);
   saveState(); toast('Asset deleted', 'info'); renderInvestments();
@@ -5771,7 +5802,10 @@ function renderAssetDetail() {
           <div style="min-width:0"><p class="catdet-name">${esc(inv.name)}</p>
           <p class="catdet-sub">${esc(inv.type)}${isLent && inv.person ? ' · ' + esc(inv.person) : ''}${inv.date ? ' · ' + new Date(inv.date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : ''}</p></div>
         </div>
-        <button class="ld-edit-btn" onclick="openEditInvModal('${inv.id}')">Edit</button>
+        <div style="display:flex;gap:8px;margin-left:auto">
+          ${(inv.type === 'Stocks' || inv.type === 'Crypto' || inv.type === 'Gold' || inv.ticker) ? `<button class="ld-edit-btn" id="live-update-asset-btn" onclick="updateSingleAssetLivePrice('${inv.id}')" style="margin-left:0 !important">Live Update</button>` : ''}
+          <button class="ld-edit-btn" onclick="openEditInvModal('${inv.id}')" style="margin-left:0 !important">Edit</button>
+        </div>
       </div>
 
       <div class="ld-kpis">
@@ -5782,21 +5816,8 @@ function renderAssetDetail() {
       </div>
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
-        <p class="ld-sec">Growth projection</p>
+        <p class="ld-sec">Asset Performance</p>
         <div style="height:240px;position:relative"><canvas id="ad-chart"></canvas></div>
-      </div>
-
-      <div class="glass-card" style="padding:16px;margin-bottom:16px">
-        <p class="ld-sec">What-if — edit to project</p>
-        <div class="input-row">
-          <div class="form-group"><label class="form-label">Years</label>
-            <input type="number" id="ad-years" class="form-input" value="10" oninput="_renderAssetDetailCalc()"/></div>
-          <div class="form-group"><label class="form-label">Return %/yr</label>
-            <input type="number" id="ad-rate" class="form-input" value="${defRate}" oninput="_renderAssetDetailCalc()"/></div>
-        </div>
-        <div class="form-group"><label class="form-label">Add ₹/month (optional)</label>
-          <input type="number" id="ad-add" class="form-input" value="0" placeholder="0" oninput="_renderAssetDetailCalc()"/></div>
-        <div id="ad-result"></div>
       </div>
     </div>`;
   setTimeout(() => {
@@ -5806,23 +5827,53 @@ function renderAssetDetail() {
 }
 function _renderAssetDetailCalc() {
   const inv = (STATE.investments || []).find(i => i.id === _assetDetailId); if (!inv) return;
-  const years = Math.max(1, Math.min(40, parseInt(document.getElementById('ad-years')?.value) || 10));
-  const g = (parseFloat(document.getElementById('ad-rate')?.value) || 0) / 100;
-  const add = parseFloat(document.getElementById('ad-add')?.value) || 0;
-  let val = _assetCur(inv);
-  const labels = [], series = []; const y0 = new Date().getFullYear();
-  for (let k = 0; k <= years; k++) { if (k > 0) { val = val * (1 + g) + add * 12; } labels.push(y0 + k); series.push(Math.round(val)); }
-  const resEl = document.getElementById('ad-result');
-  if (resEl) resEl.innerHTML = `<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:12px;font-size:13px">In <b>${years} years</b> ≈ <b style="color:#34d399">${fmt(series[series.length - 1])}</b> — from ${fmt(series[0])} today.</div>`;
+  const invested = +inv.amount || 0;
+  const current = _assetCur(inv);
+  const isLoss = current < invested;
+  const lineColor = isLoss ? '#ef4444' : '#10b981';
+  const bgColor = isLoss ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+  const pointColor = isLoss ? '#f87171' : '#34d399';
+
+  const startDateLabel = inv.date ? new Date(inv.date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'Purchase';
+  const labels = [startDateLabel, 'Today'];
+  const series = [invested, current];
+
   const ctx = document.getElementById('ad-chart'); if (!ctx || typeof Chart === 'undefined') return;
   if (_assetDetailChart) _assetDetailChart.destroy();
-  const kAmt = v => '₹' + (Math.abs(v) >= 1e7 ? (v / 1e7).toFixed(1) + 'Cr' : Math.abs(v) >= 1e5 ? (v / 1e5).toFixed(1) + 'L' : v >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v);
+  const kAmt = v => '₹' + (Math.abs(v) >= 1e7 ? (v / 1e7).toFixed(1) + 'Cr' : Math.abs(v) >= 1e5 ? (v / 1e5).toFixed(1) + 'L' : Math.abs(v) >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v);
   _assetDetailChart = new Chart(ctx, {
     type: 'line',
-    data: { labels, datasets: [{ label: 'Value', data: series, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.2)', tension: .35, pointRadius: 2, fill: true }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-      scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
-        y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+    data: { 
+      labels, 
+      datasets: [{ 
+        label: 'Value', 
+        data: series, 
+        borderColor: lineColor, 
+        backgroundColor: bgColor, 
+        tension: .2, 
+        pointRadius: 6, 
+        pointBackgroundColor: pointColor,
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        fill: true 
+      }] 
+    },
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false, 
+      plugins: { 
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => 'Value: ₹' + context.raw.toLocaleString('en-IN')
+          }
+        }
+      },
+      scales: { 
+        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: '#94a3b8', font: { size: 10 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } } 
+      } 
+    }
   });
 }
 
