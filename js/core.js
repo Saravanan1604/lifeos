@@ -202,6 +202,12 @@ function _emojiToLucide(val) {
 function _themeModalFields(ov) {
   if (!window.__IS_APP && !document.documentElement.classList.contains('is-app')) return;
   
+  // Strip emojis from select options inside the modal overlay to prevent double-icons
+  const emojiRegex = /^([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDC00-\uDFFF]|\uff0b|\u2795|[\u2b50\u2605\u2705\u270b\u270a\u2709\u261d\u270c\u270f\u2712\u2714\u2716\u271d\u2721\u2728\u2733\u2734\u2744\u2747\u274c\u274e\u2753\u2754\u2755\u2757\u2763\u2764\u27a1\u2934\u2935\u2b05\u2b06\u2b07\u3030\u303d\u3297\u3299]|\u2699)\s*/;
+  ov.querySelectorAll('select option').forEach(opt => {
+    opt.textContent = opt.textContent.replace(emojiRegex, '').trim();
+  });
+  
   // Style form group labels
   ov.querySelectorAll('.form-group').forEach(g => {
     const label = g.querySelector('.form-label, label:not(.rf-view)');

@@ -12656,6 +12656,10 @@ html.is-app #modal-overlay .modal-body button.rf-view-btn {
   transition: border-color 0.2s, background 0.2s !important;
 }
 
+html.is-app #modal-overlay .modal-body .form-field-icon-wrap .form-input,
+html.is-app #modal-overlay .modal-body .form-field-icon-wrap input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html.is-app #modal-overlay .modal-body .form-field-icon-wrap select,
+html.is-app #modal-overlay .modal-body .form-field-icon-wrap textarea,
 html.is-app #modal-overlay .form-field-icon-wrap .form-input,
 html.is-app #modal-overlay .form-field-icon-wrap input,
 html.is-app #modal-overlay .form-field-icon-wrap select,
