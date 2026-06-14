@@ -13292,3 +13292,24 @@ html.is-app .ld-seg-b { font-size: 15px !important; padding: 9px 18px !important
 /* bigger what-if inputs on the detail pages */
 html.is-app .ld-page .form-label { font-size: 15px !important; }
 html.is-app .ld-page .form-input { font-size: 19px !important; }
+
+/* ============================================================
+   build 467 — Loan/Asset detail: ~2x text & numbers.
+   KPIs go full-width single column so the big exact numbers fit.
+   ============================================================ */
+html.is-app .ld-kpis { grid-template-columns: 1fr !important; gap: 12px !important; }
+html.is-app .ld-kpi { padding: 18px 20px !important; }
+html.is-app .ld-kpi p.l { font-size: 17px !important; margin-bottom: 6px !important; }
+html.is-app .ld-kpi p.v { font-size: 38px !important; line-height: 1.1 !important; }
+html.is-app .ld-sec { font-size: 21px !important; margin-bottom: 16px !important; }
+html.is-app .ld-sch-row { padding: 18px 10px !important; font-size: 22px !important; }
+html.is-app .ld-sch-hd { font-size: 15px !important; }
+html.is-app .ld-sch-yr { font-size: 19px !important; padding: 12px 10px !important; }
+html.is-app .ld-head .catdet-name { font-size: 40px !important; }
+html.is-app .ld-head .catdet-sub  { font-size: 18px !important; }
+html.is-app .ld-head .catdet-ic { width: 72px !important; height: 72px !important; }
+html.is-app .ld-seg-b { font-size: 17px !important; padding: 11px 20px !important; }
+html.is-app .ld-page .form-label { font-size: 18px !important; }
+html.is-app .ld-page .form-input { font-size: 23px !important; }
+html.is-app .ld-page .btn-primary,
+html.is-app .ld-page .btn-secondary { font-size: 18px !important; }

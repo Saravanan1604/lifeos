@@ -5492,7 +5492,7 @@ function renderLoanDetail() {
             <button class="ld-seg-b ${_ldChartMode === 'month' ? 'on' : ''}" onclick="setLdChartMode('month')">Monthly</button>
           </div>
         </div>
-        <div class="ld-chart-scroll"><div class="ld-chart-inner" id="ld-chart-inner" style="height:320px;position:relative"><canvas id="ld-chart"></canvas></div></div>
+        <div class="ld-chart-scroll"><div class="ld-chart-inner" id="ld-chart-inner" style="height:380px;position:relative"><canvas id="ld-chart"></canvas></div></div>
         ${_ldChartMode === 'month' ? `<p style="font-size:12px;color:var(--text3);margin:8px 0 0;text-align:center">← swipe to scroll through months →</p>` : ''}
       </div>
 
@@ -5530,6 +5530,11 @@ function _kShort(n) {
   if (a >= 1e3) return '₹' + (n / 1e3).toFixed(1) + 'k';
   return '₹' + Math.round(n);
 }
+// Exact whole-rupee (no paise) — used for the big KPI numbers.
+function _fmt0(n) {
+  const c = (STATE.settings && STATE.settings.currency) || '₹';
+  return c + Math.round(Math.abs(n)).toLocaleString('en-IN');
+}
 function _renderLoanDetailCalc() {
   const loan = (STATE.loans || []).find(l => l.id === _loanDetailId); if (!loan) return;
   const annual = _loanAnnualRate(loan);
@@ -5552,10 +5557,10 @@ function _renderLoanDetailCalc() {
   const monthsSaved   = base.neverCloses ? 0 : base.months - plan.months;
   const interestSaved = base.neverCloses ? 0 : base.totalInterest - plan.totalInterest;
   if (kpiEl) kpiEl.innerHTML = `
-    <div class="ld-kpi"><p class="l">OUTSTANDING</p><p class="v" style="color:#ef4444">${fmt(_loanOutstanding(loan))}</p></div>
-    <div class="ld-kpi"><p class="l">EMI / MONTH</p><p class="v">${fmt(emi)}</p></div>
+    <div class="ld-kpi"><p class="l">OUTSTANDING</p><p class="v" style="color:#ef4444">${_fmt0(_loanOutstanding(loan))}</p></div>
+    <div class="ld-kpi"><p class="l">EMI / MONTH</p><p class="v">${_fmt0(emi)}</p></div>
     <div class="ld-kpi"><p class="l">CLOSES IN</p><p class="v">${_fmtMonths(plan.months)}</p></div>
-    <div class="ld-kpi"><p class="l">TOTAL INTEREST</p><p class="v" style="color:#f0a868">${fmt(Math.round(plan.totalInterest))}</p></div>`;
+    <div class="ld-kpi"><p class="l">TOTAL INTEREST</p><p class="v" style="color:#f0a868">${_fmt0(Math.round(plan.totalInterest))}</p></div>`;
   if (resEl) resEl.innerHTML = (extra > 0 || lump > 0) && monthsSaved > 0
     ? `<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:12px;font-size:13px;color:#22c55e;font-weight:600">✅ Closes <b>${_fmtMonths(monthsSaved)}</b> sooner · saves <b>${fmt(Math.round(interestSaved))}</b> in interest.</div>`
     : '';
@@ -5585,10 +5590,10 @@ function _renderLoanDetailCalc() {
     princ = plan.rows.map(r => Math.round(r.principal));
     intr  = plan.rows.map(r => Math.round(r.interest));
     bal   = plan.rows.map(r => Math.round(r.balance));
-    // Size so ~6 bars fill the viewport initially; the rest are reached by swipe.
+    // Size so ~8 bars fill the viewport initially; the rest are reached by swipe.
     const scroll = document.querySelector('.ld-chart-scroll');
     const vw = (scroll && scroll.clientWidth) ? scroll.clientWidth : (window.innerWidth - 64);
-    const slot = vw / 6;
+    const slot = vw / 8;
     if (inner) inner.style.width = Math.max(vw, Math.round(plan.rows.length * slot)) + 'px';
   } else {
     const yearly = _amortYearly(plan.rows, loan.startDate);
@@ -5604,8 +5609,8 @@ function _renderLoanDetailCalc() {
   _loanDetailChart = new Chart(ctx, {
     type: 'bar',
     data: { labels, datasets: [
-      { label: 'Principal', data: princ, backgroundColor: '#86c06c', stack: 's', yAxisID: 'y', categoryPercentage: 0.6, barPercentage: 0.9 },
-      { label: 'Interest',  data: intr,  backgroundColor: '#f0a868', stack: 's', yAxisID: 'y', categoryPercentage: 0.6, barPercentage: 0.9 },
+      { label: 'Principal', data: princ, backgroundColor: '#86c06c', stack: 's', yAxisID: 'y', categoryPercentage: 0.45, barPercentage: 0.9 },
+      { label: 'Interest',  data: intr,  backgroundColor: '#f0a868', stack: 's', yAxisID: 'y', categoryPercentage: 0.45, barPercentage: 0.9 },
       { type: 'line', label: 'Balance', data: bal, borderColor: '#b45309', backgroundColor: 'rgba(180,83,9,0.18)', tension: .35, pointRadius: 2, yAxisID: 'y1', fill: true }
     ]},
     options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
@@ -5670,9 +5675,9 @@ function renderAssetDetail() {
       </div>
 
       <div class="ld-kpis">
-        <div class="ld-kpi"><p class="l">${isLent ? 'AMOUNT GIVEN' : 'INVESTED'}</p><p class="v">${fmt(invested)}</p></div>
-        <div class="ld-kpi"><p class="l">${isLent ? 'TO RECEIVE' : 'CURRENT VALUE'}</p><p class="v" style="color:#10b981">${fmt(current)}</p></div>
-        <div class="ld-kpi"><p class="l">${pos ? 'GAIN' : 'LOSS'}</p><p class="v" style="color:${pos ? '#22c55e' : '#ef4444'}">${pos ? '+' : '-'}${fmt(Math.abs(pnl))}</p></div>
+        <div class="ld-kpi"><p class="l">${isLent ? 'AMOUNT GIVEN' : 'INVESTED'}</p><p class="v">${_fmt0(invested)}</p></div>
+        <div class="ld-kpi"><p class="l">${isLent ? 'TO RECEIVE' : 'CURRENT VALUE'}</p><p class="v" style="color:#10b981">${_fmt0(current)}</p></div>
+        <div class="ld-kpi"><p class="l">${pos ? 'GAIN' : 'LOSS'}</p><p class="v" style="color:${pos ? '#22c55e' : '#ef4444'}">${pos ? '+' : '-'}${_fmt0(Math.abs(pnl))}</p></div>
         <div class="ld-kpi"><p class="l">RETURN</p><p class="v" style="color:${pos ? '#22c55e' : '#ef4444'}">${pos ? '+' : ''}${roi}%</p></div>
       </div>
 
