@@ -12435,13 +12435,10 @@ html.is-app #cash-main-grid {
   margin-bottom: 28px !important;
 }
 
-/* Dim the background particles/aurora canvas to prevent bright flashlight effects on mobile */
+/* build 459 — remove the animated aurora "flash" beam in the app entirely.
+   The background canvas swept a bright diagonal light band across the cards;
+   hide it so the app keeps a clean, solid theme background (matches AMOLED). */
 html.is-app #particles-canvas {
-  opacity: 0.25 !important;
-}
-
-/* For AMOLED true-black theme, disable background canvas entirely to keep the screen purely black */
-html.is-app body.amoled #particles-canvas {
   display: none !important;
 }
 
