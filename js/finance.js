@@ -837,7 +837,7 @@ function renderCategoryDetail() {
           </div>
         </div>
         <div class="catdet-chart-scroll">
-          <div class="catdet-chart-inner" style="position:relative;height:320px;width:${containerWidth}">
+          <div class="catdet-chart-inner" style="position:relative;height:420px;width:${containerWidth}">
             <canvas id="catdet-chart"></canvas>
           </div>
         </div>
@@ -890,7 +890,7 @@ function renderCategoryDetail() {
         datasets: [{
           data: chartItems.map(m => m.total),
           backgroundColor: chartItems.map(m => m.isAnchor ? color : 'rgba(99,102,241,0.6)'),
-          borderRadius: 10, maxBarThickness: 26
+          borderRadius: 10, maxBarThickness: 34
         }]
       },
       options: {
@@ -915,7 +915,7 @@ function renderCategoryDetail() {
           datalabels: false
         },
         scales: {
-          x: { ticks: { color: '#94a3b8', font: { size: 16, weight: '600' } }, grid: { display: false } },
+          x: { ticks: { color: '#94a3b8', font: { size: 18, weight: '700' } }, grid: { display: false } },
           y: { display: false, suggestedMax: max * 1.25, grid: { display: false } }
         }
       },
@@ -923,7 +923,7 @@ function renderCategoryDetail() {
         id: 'catdetLabels',
         afterDatasetsDraw(ch) {
           const { ctx } = ch; const meta = ch.getDatasetMeta(0);
-          ctx.save(); ctx.fillStyle = '#e2e8f0'; ctx.font = '700 16px Inter, sans-serif'; ctx.textAlign = 'center';
+          ctx.save(); ctx.fillStyle = '#e2e8f0'; ctx.font = '700 19px Inter, sans-serif'; ctx.textAlign = 'center';
           meta.data.forEach((bar, i) => {
             const v = chartItems[i].total;
             ctx.fillText(v ? shortK(v) : '0', bar.x, bar.y - 10);
