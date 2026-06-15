@@ -13524,3 +13524,152 @@ html.is-app #modal-overlay .account-options-menu .btn-action i {
   flex: 0 0 auto !important;
   margin-right: 12px !important;
 }
+
+/* ============================================================
+   build 481 — Give breathing space between cards and increase text/font size
+   - Scales the root font size from 175% to 190% for app elements.
+   - Increases margins of all card/container elements in app views.
+   - Adjusts specific absolute font sizes in All Assets page and Loan detail page.
+   ============================================================ */
+
+/* 1. Root scale font size increase */
+html.is-app {
+  font-size: 190% !important;
+}
+
+/* 2. Spacing between cards and panels (increased margins) */
+html.is-app .glass-card {
+  margin-bottom: 38px !important;
+}
+html.is-app .glass-card:not(:has(.fin-bank-grid, .fin-card-grid, .fin-cash-grid)) {
+  margin-bottom: 38px !important;
+}
+html.is-app .fin-dark-card {
+  margin-bottom: 38px !important;
+}
+html.is-app .kpi-grid {
+  margin-bottom: 38px !important;
+}
+html.is-app #insight-bar {
+  margin-bottom: 38px !important;
+}
+
+/* 3. All Assets layout elements spacing (breathing space) */
+html.is-app .ia-hero {
+  margin-bottom: 34px !important;
+}
+html.is-app .ia-stats {
+  margin-bottom: 34px !important;
+}
+html.is-app .ia-toggle {
+  margin-bottom: 34px !important;
+}
+html.is-app .ia-card {
+  margin-bottom: 34px !important;
+}
+html.is-app .inv-add-row {
+  margin-top: 14px !important;
+}
+html.is-app button[onclick*="openNetWorthProjModal"] {
+  margin-bottom: 34px !important;
+}
+
+/* 4. Text sizes scaling for absolute pixel values on All Assets page */
+html.is-app .ia-hero-lbl {
+  font-size: 30px !important;
+}
+html.is-app .ia-hero-val {
+  font-size: 76px !important;
+}
+html.is-app .ia-hero-chg {
+  font-size: 32px !important;
+}
+html.is-app .ia-hs-lbl {
+  font-size: 24px !important;
+}
+html.is-app .ia-hs-val {
+  font-size: 40px !important;
+}
+html.is-app .ia-stat-lbl {
+  font-size: 19px !important;
+}
+html.is-app .ia-stat-val {
+  font-size: 28px !important;
+}
+html.is-app .ia-card-title {
+  font-size: 33px !important;
+}
+html.is-app .ia-link {
+  font-size: 24px !important;
+}
+html.is-app .ia-leg-name {
+  font-size: 27px !important;
+}
+html.is-app .ia-leg-pct {
+  font-size: 26px !important;
+}
+html.is-app .ia-donut-c span {
+  font-size: 19px !important;
+}
+html.is-app .ia-donut-c b {
+  font-size: 30px !important;
+}
+html.is-app .ia-name {
+  font-size: 30px !important;
+}
+html.is-app .ia-sub {
+  font-size: 22px !important;
+}
+html.is-app .ia-val {
+  font-size: 29px !important;
+}
+html.is-app .ia-chg {
+  font-size: 22px !important;
+}
+html.is-app .inv-add-lbl {
+  font-size: 30px !important;
+}
+
+/* 5. Loan & Asset Detail view typography scaling */
+html.is-app .ld-kpi p.l {
+  font-size: 21px !important;
+}
+html.is-app .ld-kpi p.v {
+  font-size: 50px !important;
+}
+html.is-app .ld-sec {
+  font-size: 26px !important;
+}
+html.is-app .ld-sch-row {
+  font-size: 26px !important;
+}
+html.is-app .ld-sch-hd {
+  font-size: 18px !important;
+}
+html.is-app .ld-sch-yr {
+  font-size: 23px !important;
+}
+html.is-app .ld-head .catdet-name {
+  font-size: 50px !important;
+}
+html.is-app .ld-head .catdet-sub {
+  font-size: 21px !important;
+}
+html.is-app .ld-seg-b {
+  font-size: 20px !important;
+}
+html.is-app .ld-page .form-label {
+  font-size: 21px !important;
+}
+html.is-app .ld-page .form-input {
+  font-size: 27px !important;
+}
+html.is-app .ld-page .btn-primary,
+html.is-app .ld-page .btn-secondary {
+  font-size: 20px !important;
+}
+
+/* 6. List items padding increase for extra breathing room */
+html.is-app .mm-row {
+  padding: 18px 20px !important;
+}
