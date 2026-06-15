@@ -13499,3 +13499,28 @@ html.is-app #page-container[data-page="bank-tracker"] .fin-card-grid > .fin-dark
 html.is-app #page-container[data-page="bank-tracker"] .fin-cash-grid > .fin-dark-card {
   background: linear-gradient(135deg, var(--c1, #1e293b) 0%, var(--c2, #0f172a) 100%) !important;
 }
+
+/* ============================================================
+   build 477 — bigger account options sheet (Bank/Cash/Card menu).
+   Taller rows + larger text so it's easy to tap. App only;
+   the inline padding/font on each .btn-action is overridden here.
+   ============================================================ */
+html.is-app #modal-overlay .account-options-menu {
+  gap: 14px !important;
+  padding: 10px 2px 6px !important;
+}
+html.is-app #modal-overlay .account-options-menu .btn-action {
+  padding: 24px 18px !important;
+  font-size: 1.6rem !important;
+  font-weight: 700 !important;
+  border-radius: 16px !important;
+  min-height: 70px !important;
+}
+html.is-app #modal-overlay .account-options-menu .btn-action svg,
+html.is-app #modal-overlay .account-options-menu .btn-action i {
+  width: 1.55rem !important;
+  height: 1.55rem !important;
+  min-width: 1.55rem !important;   /* SVG is a flex item — stop it collapsing */
+  flex: 0 0 auto !important;
+  margin-right: 12px !important;
+}
