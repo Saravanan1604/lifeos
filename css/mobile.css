@@ -14541,3 +14541,25 @@ html.is-app #spending-page .category-row {
   padding: 24px 0 !important;
   gap: 16px !important;
 }
+
+/* ============================================================
+   build 494 — bigger "June 2026" period button on the ring pages.
+   ============================================================ */
+html.is-app #budget-page .section-filter-btn,
+html.is-app #spending-page .section-filter-btn {
+  font-size: 20px !important;
+  padding: 12px 22px !important;
+  border-radius: 16px !important;
+  gap: 8px !important;
+}
+/* bump the little ▼ chevron (it has an inline 8px size) */
+html.is-app #budget-page .section-filter-btn span[style*="font-size:8px"],
+html.is-app #spending-page .section-filter-btn span[style*="font-size:8px"] {
+  font-size: 15px !important;
+}
+
+/* slightly smaller sub-text so the longer "100% · ₹50,000" fits the row */
+html.is-app #budget-page .category-values span,
+html.is-app #spending-page .category-values span {
+  font-size: 18px !important;
+}

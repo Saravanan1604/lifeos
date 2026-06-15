@@ -57,11 +57,8 @@ function _drawSegmentedRing(canvas, items, colors) {
   
   const cx = rect.width / 2;
   const cy = rect.height / 2;
-  const RING_W = 36;                  // slimmer band so the icons can sit OUTSIDE it
-  const BADGE_R = 26;
-  // badges live in a ring just OUTSIDE the band; reserve room for them
-  const radius = rect.width / 2 - (RING_W / 2 + 2 + 2 * BADGE_R + 2);
-  const badgeRadius = radius + RING_W / 2 + 2 + BADGE_R; // centre of the outer icon ring
+  const RING_W = 56;                  // bold clean band (category icons removed)
+  const radius = rect.width / 2 - (RING_W / 2 + 6); // small margin, nothing outside the band
   
   ctx.clearRect(0, 0, rect.width, rect.height);
   
@@ -83,13 +80,8 @@ function _drawSegmentedRing(canvas, items, colors) {
   const availableRad = (2 * Math.PI) - totalGapsRad;
   
   let currentAngle = -Math.PI / 2;
-  const badgePositions = [];
 
-  // Only badge a category when its slice is wide enough (at the OUTER icon
-  // radius) to hold a non-overlapping icon — the "minimum size" rule. Smaller
-  // categories still show in the list below.
-  const minBadgeSweep = 2 * Math.asin(Math.min(1, BADGE_R / badgeRadius));
-
+  // Category icons removed from the ring — just draw the coloured arcs.
   items.forEach((item, idx) => {
     const share = item.value / totalVal;
     const sweep = share * availableRad;
@@ -103,20 +95,10 @@ function _drawSegmentedRing(canvas, items, colors) {
     ctx.strokeStyle = colors[idx % colors.length];
     ctx.stroke();
 
-    if (sweep >= minBadgeSweep) {
-      const midAngle = startAngle + sweep / 2;
-      badgePositions.push({
-        x: cx + badgeRadius * Math.cos(midAngle),
-        y: cy + badgeRadius * Math.sin(midAngle),
-        category: item.category,
-        color: colors[idx % colors.length]
-      });
-    }
-
     currentAngle = endAngle + gapRad;
   });
 
-  return badgePositions;
+  return [];
 }
 
 // ===== Lucide line-icon mapping (display only — stored data stays as emoji) =====
@@ -754,9 +736,8 @@ function renderSpendingOverview() {
     }
     const assistantAction = (buttonText === "Let's discuss") ? "navigate('ai-coach')" : "navigate('budget')";
     const displayTotalText = grand > 0 ? fmt(Math.round(grand)) : '₹0';
-    // Sized to fill — but stay inside — the ring hole (smaller now the icons
-    // sit outside the band). Longer amounts shrink so they never touch the ring.
-    const scoreFontSize = displayTotalText.length > 8 ? '28px' : (displayTotalText.length > 6 ? '36px' : (displayTotalText.length > 4 ? '46px' : '58px'));
+    // Sized to fill — but stay inside — the ring hole. Longer amounts shrink.
+    const scoreFontSize = displayTotalText.length > 8 ? '40px' : (displayTotalText.length > 6 ? '52px' : (displayTotalText.length > 4 ? '64px' : '76px'));
 
     document.getElementById('page-container').innerHTML = `
       <div class="fade-in" id="spending-page" style="padding:16px 20px">
@@ -6420,7 +6401,7 @@ function renderBudget() {
     // Centre shows how much of the budget is used (spend ÷ budget), not the
     // old 0–10 health score which wasn't clear.
     const displayScore = totalLimit > 0 ? Math.round(totalSpent / totalLimit * 100) + '%' : '0%';
-    const scoreFontSize = displayScore.length > 4 ? '52px' : (displayScore.length > 3 ? '64px' : '74px');
+    const scoreFontSize = displayScore.length > 4 ? '64px' : (displayScore.length > 3 ? '80px' : '92px');
 
     let adviceText = "You haven't set any budgets yet. Tap the button to start planning.";
     let buttonText = "Let's discuss";
@@ -6497,7 +6478,7 @@ function renderBudget() {
                   </div>
                   <div class="category-name">${b.category}</div>
                   <div class="category-values">
-                    ${spentFormatted}<span>of ${limitFormatted}</span>
+                    ${spentFormatted}<span>${Math.round(pct)}% · ${limitFormatted}</span>
                   </div>
                 </div>
                 <div class="category-progress-bg">
@@ -6509,7 +6490,6 @@ function renderBudget() {
         </div>
 
         ${unbudgetedHtml}
-        ${cmpChartHtml}
       </div>
     `;
 
