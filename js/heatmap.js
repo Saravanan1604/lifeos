@@ -201,9 +201,9 @@ function renderHeatmap() {
 
       <!-- Segment Tabs (Mode selection) -->
       <div class="hm-mode-tabs glass-card" style="margin-bottom: 20px; display: flex; padding: 6px; border-radius: 14px; gap: 4px;">
-        <button onclick="setHeatmapMode('expense')" class="hm-tab-btn expense-btn ${act('expense')}" style="flex: 1; text-align: center; font-weight: 700; padding: 10px; border-radius: 10px; border: none; font-size: 1.25rem;">💸 Expense</button>
-        <button onclick="setHeatmapMode('income')" class="hm-tab-btn income-btn ${act('income')}" style="flex: 1; text-align: center; font-weight: 700; padding: 10px; border-radius: 10px; border: none; font-size: 1.25rem;">💰 Income</button>
-        <button onclick="setHeatmapMode('net')" class="hm-tab-btn net-btn ${act('net')}" style="flex: 1; text-align: center; font-weight: 700; padding: 10px; border-radius: 10px; border: none; font-size: 1.25rem;">⚖️ Net</button>
+        <button onclick="setHeatmapMode('expense')" class="hm-tab-btn expense-btn ${act('expense')}" style="flex: 1; display:flex; align-items:center; justify-content:center; gap:8px; font-weight: 700; padding: 10px; border-radius: 10px; border: none; font-size: 1.25rem;"><i data-lucide="trending-down"></i> Expense</button>
+        <button onclick="setHeatmapMode('income')" class="hm-tab-btn income-btn ${act('income')}" style="flex: 1; display:flex; align-items:center; justify-content:center; gap:8px; font-weight: 700; padding: 10px; border-radius: 10px; border: none; font-size: 1.25rem;"><i data-lucide="trending-up"></i> Income</button>
+        <button onclick="setHeatmapMode('net')" class="hm-tab-btn net-btn ${act('net')}" style="flex: 1; display:flex; align-items:center; justify-content:center; gap:8px; font-weight: 700; padding: 10px; border-radius: 10px; border: none; font-size: 1.25rem;"><i data-lucide="scale"></i> Net</button>
       </div>
 
       <!-- Calendar Heatmap Grid Card -->

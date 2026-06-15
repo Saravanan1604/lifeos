@@ -14616,3 +14616,24 @@ html.is-app body:not(.light) #modal-overlay .pad-pick button {
   background: rgba(255, 255, 255, 0.07) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
 }
+
+/* ============================================================
+   build 499 — Dashboard: remove everything above the Money Heatmap
+   (the title/greeting/date + month nav + streak header block), so the
+   Heatmap is the first thing on the dashboard. Line-icon sizing for
+   the Expense / Income / Net tabs. App only.
+   ============================================================ */
+html.is-app #page-container[data-page="dashboard"] .page-header {
+  display: none !important;
+}
+/* the Money Heatmap card should now sit flush at the top */
+html.is-app #page-container[data-page="dashboard"] #dash-heatmap-card {
+  margin-top: 4px !important;
+}
+/* size the line icons on the Expense/Income/Net tabs */
+html.is-app .hm-mode-tabs .hm-tab-btn svg.lucide,
+html.is-app .hm-mode-tabs .hm-tab-btn i {
+  width: 1.2em !important;
+  height: 1.2em !important;
+  flex: 0 0 auto !important;
+}
