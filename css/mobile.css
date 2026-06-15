@@ -14458,11 +14458,86 @@ html.is-app #spending-page .category-progress-fill {
    build 493 — Sankey Charts: horizontally scrollable on mobile
    ============================================================ */
 html.is-app .sankey-scroll-wrap {
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-  margin-bottom: 12px !important;
   width: 100% !important;
+  height: 680px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  margin-bottom: 12px !important;
 }
 html.is-app .sankey-inner {
   width: 680px !important;
+  height: 380px !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) rotate(90deg) !important;
+  transform-origin: center !important;
+}
+html.is-app .wealth-scroll-wrap .sankey-inner {
+  height: 300px !important;
+}
+
+/* ============================================================
+   build 493 — ring redesign: icons OUTSIDE the band, no centre
+   label, % budget used; and a bigger category list below.
+   ============================================================ */
+
+/* badges are now 52px and ride OUTSIDE the slimmer band */
+html.is-app #budget-page .category-badge-btn,
+html.is-app #spending-page .category-badge-btn {
+  width: 52px !important;
+  height: 52px !important;
+  font-size: 24px !important;
+}
+html.is-app #budget-page .category-badge-btn svg,
+html.is-app #spending-page .category-badge-btn svg,
+html.is-app #budget-page .category-badge-btn i,
+html.is-app #spending-page .category-badge-btn i {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* centre holds just the number now (label removed); keep it inside the
+   smaller hole */
+html.is-app #budget-page .ring-center-text,
+html.is-app #spending-page .ring-center-text {
+  width: 170px !important;
+}
+html.is-app #budget-page .ring-score,
+html.is-app #spending-page .ring-score {
+  letter-spacing: -1px !important;
+}
+
+/* bigger list below the circle */
+html.is-app #budget-page .category-icon-wrap,
+html.is-app #spending-page .category-icon-wrap {
+  width: 60px !important;
+  height: 60px !important;
+  font-size: 30px !important;
+}
+html.is-app #budget-page .category-name,
+html.is-app #spending-page .category-name {
+  font-size: 40px !important;
+}
+html.is-app #budget-page .category-values,
+html.is-app #spending-page .category-values {
+  font-size: 34px !important;
+}
+html.is-app #budget-page .category-values span,
+html.is-app #spending-page .category-values span {
+  font-size: 21px !important;
+}
+html.is-app #budget-page .category-progress-bg,
+html.is-app #spending-page .category-progress-bg {
+  height: 30px !important;
+  border-radius: 15px !important;
+}
+html.is-app #budget-page .category-progress-fill,
+html.is-app #spending-page .category-progress-fill {
+  border-radius: 15px !important;
+}
+html.is-app #budget-page .category-row,
+html.is-app #spending-page .category-row {
+  padding: 24px 0 !important;
+  gap: 16px !important;
 }

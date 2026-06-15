@@ -57,8 +57,11 @@ function _drawSegmentedRing(canvas, items, colors) {
   
   const cx = rect.width / 2;
   const cy = rect.height / 2;
-  const RING_W = 66;                  // thicker band (was 42)
-  const radius = rect.width / 2 - 44; // leaving space for the thicker band + bigger badges
+  const RING_W = 36;                  // slimmer band so the icons can sit OUTSIDE it
+  const BADGE_R = 26;
+  // badges live in a ring just OUTSIDE the band; reserve room for them
+  const radius = rect.width / 2 - (RING_W / 2 + 2 + 2 * BADGE_R + 2);
+  const badgeRadius = radius + RING_W / 2 + 2 + BADGE_R; // centre of the outer icon ring
   
   ctx.clearRect(0, 0, rect.width, rect.height);
   
@@ -82,12 +85,10 @@ function _drawSegmentedRing(canvas, items, colors) {
   let currentAngle = -Math.PI / 2;
   const badgePositions = [];
 
-  // A badge is ~54px wide; only show one when the category's slice is wide
-  // enough to actually hold it. That keeps every icon a readable, separate
-  // badge (no more piles of overlapping icons on tiny categories) — the
-  // "minimum size" rule. Smaller categories still show in the list below.
-  const BADGE_R = 27;
-  const minBadgeSweep = 2 * Math.asin(Math.min(1, BADGE_R / radius));
+  // Only badge a category when its slice is wide enough (at the OUTER icon
+  // radius) to hold a non-overlapping icon — the "minimum size" rule. Smaller
+  // categories still show in the list below.
+  const minBadgeSweep = 2 * Math.asin(Math.min(1, BADGE_R / badgeRadius));
 
   items.forEach((item, idx) => {
     const share = item.value / totalVal;
@@ -105,8 +106,8 @@ function _drawSegmentedRing(canvas, items, colors) {
     if (sweep >= minBadgeSweep) {
       const midAngle = startAngle + sweep / 2;
       badgePositions.push({
-        x: cx + radius * Math.cos(midAngle),
-        y: cy + radius * Math.sin(midAngle),
+        x: cx + badgeRadius * Math.cos(midAngle),
+        y: cy + badgeRadius * Math.sin(midAngle),
         category: item.category,
         color: colors[idx % colors.length]
       });
@@ -753,9 +754,9 @@ function renderSpendingOverview() {
     }
     const assistantAction = (buttonText === "Let's discuss") ? "navigate('ai-coach')" : "navigate('budget')";
     const displayTotalText = grand > 0 ? fmt(Math.round(grand)) : '₹0';
-    // Sized to fill — but stay inside — the ring hole (which is smaller now the
-    // band is thicker). Longer amounts shrink so they never touch the ring.
-    const scoreFontSize = displayTotalText.length > 8 ? '42px' : (displayTotalText.length > 6 ? '54px' : (displayTotalText.length > 4 ? '66px' : '80px'));
+    // Sized to fill — but stay inside — the ring hole (smaller now the icons
+    // sit outside the band). Longer amounts shrink so they never touch the ring.
+    const scoreFontSize = displayTotalText.length > 8 ? '28px' : (displayTotalText.length > 6 ? '36px' : (displayTotalText.length > 4 ? '46px' : '58px'));
 
     document.getElementById('page-container').innerHTML = `
       <div class="fade-in" id="spending-page" style="padding:16px 20px">
@@ -770,7 +771,6 @@ function renderSpendingOverview() {
           <canvas id="spov-chart" style="width:100%;height:100%;display:block"></canvas>
           <div class="ring-center-text">
             <span class="ring-score" style="font-size:${scoreFontSize} !important">${displayTotalText}</span>
-            <span class="ring-label">total spent</span>
           </div>
           <div id="ring-badges-wrap"></div>
         </div>
@@ -833,8 +833,8 @@ function renderSpendingOverview() {
       const badgesWrap = document.getElementById('ring-badges-wrap');
       if (badgesWrap) {
         badgesWrap.innerHTML = badgePositions.map(pos => {
-          const left = pos.x - 27;
-          const top = pos.y - 27;
+          const left = pos.x - 26;
+          const top = pos.y - 26;
           return `
             <div class="category-badge-btn"
                  onclick="openCategoryDetail('${pos.category.replace(/'/g, "\\'")}','spending')"
@@ -6417,9 +6417,11 @@ function renderBudget() {
     _chip(totalRemaining < 0 ? 'Over Budget' : 'Remaining', fmt(Math.abs(totalRemaining)), totalRemaining < 0 ? '#ef4444' : '#f59e0b', totalRemaining < 0 ? '239,68,68' : '245,158,11');
 
   if (window.__IS_APP) {
-    const usageRatio = totalLimit > 0 ? (totalSpent / totalLimit * 10) : 0;
-    const displayScore = Math.max(0, Math.min(10, 10 - (totalSpent / totalLimit * 10))).toFixed(1);
-    
+    // Centre shows how much of the budget is used (spend ÷ budget), not the
+    // old 0–10 health score which wasn't clear.
+    const displayScore = totalLimit > 0 ? Math.round(totalSpent / totalLimit * 100) + '%' : '0%';
+    const scoreFontSize = displayScore.length > 4 ? '52px' : (displayScore.length > 3 ? '64px' : '74px');
+
     let adviceText = "You haven't set any budgets yet. Tap the button to start planning.";
     let buttonText = "Let's discuss";
     if (budgets.length > 0) {
@@ -6446,8 +6448,7 @@ function renderBudget() {
         <div class="ring-container">
           <canvas id="budget-donut-chart" style="width:100%;height:100%;display:block"></canvas>
           <div class="ring-center-text">
-            <span class="ring-score">${displayScore}</span>
-            <span class="ring-label">budget health score</span>
+            <span class="ring-score" style="font-size:${scoreFontSize} !important">${displayScore}</span>
           </div>
           <div id="ring-badges-wrap"></div>
         </div>
@@ -6526,8 +6527,8 @@ function renderBudget() {
       const badgesWrap = document.getElementById('ring-badges-wrap');
       if (badgesWrap) {
         badgesWrap.innerHTML = badgePositions.map(pos => {
-          const left = pos.x - 27;
-          const top = pos.y - 27;
+          const left = pos.x - 26;
+          const top = pos.y - 26;
           return `
             <div class="category-badge-btn"
                  onclick="openAddBudgetModal(${budgetRows.findIndex(r => r.b.category === pos.category)})"
