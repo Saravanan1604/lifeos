@@ -13706,10 +13706,10 @@ html.is-app #spending-page .model-back-btn {
 html.is-app #budget-page .ring-container,
 html.is-app #spending-page .ring-container {
   position: relative !important;
-  width: 330px !important;
-  height: 330px !important;
-  max-width: calc(100vw - 40px) !important;
-  max-height: calc(100vw - 40px) !important;
+  width: 92vw !important;
+  height: 92vw !important;
+  max-width: 380px !important;
+  max-height: 380px !important;
   margin: 0 auto 28px !important;
 }
 

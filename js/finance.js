@@ -57,7 +57,7 @@ function _drawSegmentedRing(canvas, items, colors) {
   
   const cx = rect.width / 2;
   const cy = rect.height / 2;
-  const radius = rect.width / 2 - 20; // leaving space for badges
+  const radius = rect.width / 2 - 26; // leaving space for badges
   
   ctx.clearRect(0, 0, rect.width, rect.height);
   
@@ -68,7 +68,7 @@ function _drawSegmentedRing(canvas, items, colors) {
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
     const isLight = document.body.classList.contains('light');
-    ctx.lineWidth = 32;
+    ctx.lineWidth = 42;
     ctx.strokeStyle = isLight ? 'rgba(18, 20, 32, 0.06)' : 'rgba(255, 255, 255, 0.08)';
     ctx.stroke();
     return [];
@@ -89,7 +89,7 @@ function _drawSegmentedRing(canvas, items, colors) {
     
     ctx.beginPath();
     ctx.arc(cx, cy, radius, startAngle, endAngle);
-    ctx.lineWidth = 32;
+    ctx.lineWidth = 42;
     ctx.lineCap = 'round';
     ctx.strokeStyle = colors[idx % colors.length];
     ctx.stroke();
@@ -735,7 +735,7 @@ function renderSpendingOverview() {
     }
     const assistantAction = (buttonText === "Let's discuss") ? "navigate('ai-coach')" : "navigate('budget')";
     const displayTotalText = grand > 0 ? fmt(Math.round(grand)) : '₹0';
-    const scoreFontSize = displayTotalText.length > 6 ? '32px' : (displayTotalText.length > 4 ? '38px' : '48px');
+    const scoreFontSize = displayTotalText.length > 6 ? '38px' : (displayTotalText.length > 4 ? '48px' : '58px');
 
     document.getElementById('page-container').innerHTML = `
       <div class="fade-in" id="spending-page" style="padding:16px 20px">
