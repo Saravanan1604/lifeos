@@ -57,7 +57,7 @@ function _drawSegmentedRing(canvas, items, colors) {
   
   const cx = rect.width / 2;
   const cy = rect.height / 2;
-  const radius = rect.width / 2 - 22; // leaving space for badges
+  const radius = rect.width / 2 - 20; // leaving space for badges
   
   ctx.clearRect(0, 0, rect.width, rect.height);
   
@@ -67,8 +67,9 @@ function _drawSegmentedRing(canvas, items, colors) {
   if (totalVal === 0 || N === 0) {
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-    ctx.lineWidth = 18;
-    ctx.strokeStyle = 'rgba(18, 20, 32, 0.06)';
+    const isLight = document.body.classList.contains('light');
+    ctx.lineWidth = 32;
+    ctx.strokeStyle = isLight ? 'rgba(18, 20, 32, 0.06)' : 'rgba(255, 255, 255, 0.08)';
     ctx.stroke();
     return [];
   }
@@ -88,7 +89,7 @@ function _drawSegmentedRing(canvas, items, colors) {
     
     ctx.beginPath();
     ctx.arc(cx, cy, radius, startAngle, endAngle);
-    ctx.lineWidth = 18;
+    ctx.lineWidth = 32;
     ctx.lineCap = 'round';
     ctx.strokeStyle = colors[idx % colors.length];
     ctx.stroke();

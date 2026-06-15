@@ -13678,8 +13678,6 @@ html.is-app .mm-row {
    build 484 — premium mockup model budget & spending pages
    ============================================================ */
 html.is-app #page-container:has(#budget-page, #spending-page) {
-  background: #FAF6EE !important;
-  color: #121420 !important;
   min-height: 100vh !important;
   padding-bottom: 90px !important;
 }
@@ -14003,22 +14001,160 @@ html.is-app #spending-page .glass-card p {
   color: #121420 !important;
 }
 
-/* Light mode overrides for text color when light is forced */
-html.is-app.light #budget-page .ring-score,
-html.is-app .light #budget-page .ring-score,
-html.is-app.light #spending-page .ring-score,
-html.is-app .light #spending-page .ring-score,
-html.is-app.light #budget-page .section-heading,
-html.is-app .light #budget-page .section-heading,
-html.is-app.light #spending-page .section-heading,
-html.is-app .light #spending-page .section-heading,
-html.is-app.light #budget-page .category-name,
-html.is-app .light #budget-page .category-name,
-html.is-app.light #spending-page .category-name,
-html.is-app .light #spending-page .category-name,
-html.is-app.light #budget-page .category-values,
-html.is-app .light #budget-page .category-values,
-html.is-app.light #spending-page .category-values,
-html.is-app .light #spending-page .category-values {
+/* ==========================================
+   THEME OVERRIDES FOR BUDGET & SPENDING PAGES 
+   ========================================== */
+
+/* Light Theme (body.light) */
+html.is-app body.light #page-container:has(#budget-page, #spending-page) {
+  background: #FAF6EE !important;
+  color: #121420 !important;
+}
+html.is-app body.light #budget-page .model-back-btn,
+html.is-app body.light #spending-page .model-back-btn {
+  border: 1px dashed rgba(18, 20, 32, 0.2) !important;
+  color: #121420 !important;
+}
+html.is-app body.light #budget-page .ring-score,
+html.is-app body.light #spending-page .ring-score {
+  color: #121420 !important;
+}
+html.is-app body.light #budget-page .ring-label,
+html.is-app body.light #spending-page .ring-label {
+  color: #7A7A85 !important;
+}
+html.is-app body.light #budget-page .category-badge-btn,
+html.is-app body.light #spending-page .category-badge-btn {
+  border: 1.5px solid #FAF6EE !important;
+  background: #ffffff !important;
+}
+html.is-app body.light #budget-page .glass-card,
+html.is-app body.light #spending-page .glass-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(18, 20, 32, 0.08) !important;
+  box-shadow: 0 4px 14px rgba(18, 20, 32, 0.04) !important;
+  color: #121420 !important;
+}
+html.is-app body.light #budget-page .glass-card .section-title,
+html.is-app body.light #spending-page .glass-card .section-title {
+  color: #121420 !important;
+}
+html.is-app body.light #budget-page .glass-card span:not([style*="rgba"]),
+html.is-app body.light #spending-page .glass-card span:not([style*="rgba"]) {
+  color: #121420 !important;
+}
+html.is-app body.light #budget-page .glass-card span[style*="var(--text3)"],
+html.is-app body.light #spending-page .glass-card span[style*="var(--text3)"],
+html.is-app body.light #budget-page .glass-card span[style*="color:var(--text3)"],
+html.is-app body.light #spending-page .glass-card span[style*="color:var(--text3)"] {
+  color: #7A7A85 !important;
+}
+html.is-app body.light #budget-page .category-row,
+html.is-app body.light #spending-page .category-row {
+  border-bottom: 1px solid rgba(18, 20, 32, 0.05) !important;
+}
+html.is-app body.light #budget-page .category-name,
+html.is-app body.light #spending-page .category-name {
+  color: #121420 !important;
+}
+html.is-app body.light #budget-page .category-values,
+html.is-app body.light #spending-page .category-values {
+  color: #121420 !important;
+}
+html.is-app body.light #budget-page .category-values span,
+html.is-app body.light #spending-page .category-values span {
+  color: #7A7A85 !important;
+}
+html.is-app body.light #budget-page .assistant-card,
+html.is-app body.light #spending-page .assistant-card {
+  background: #FCE7F3 !important;
+  border: none !important;
+}
+html.is-app body.light #budget-page .assistant-text,
+html.is-app body.light #spending-page .assistant-text {
+  color: #DB2777 !important;
+}
+html.is-app body.light #budget-page .assistant-btn,
+html.is-app body.light #spending-page .assistant-btn {
+  background: #121420 !important;
+  color: #ffffff !important;
+}
+
+/* Dark Theme (body without .light) */
+html.is-app body:not(.light) #page-container:has(#budget-page, #spending-page) {
+  background: #0a0c16 !important;
+  color: #ffffff !important;
+}
+html.is-app body:not(.light) #budget-page .model-back-btn,
+html.is-app body:not(.light) #spending-page .model-back-btn {
+  border: 1px dashed rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+html.is-app body:not(.light) #budget-page .ring-score,
+html.is-app body:not(.light) #spending-page .ring-score {
+  color: #ffffff !important;
+}
+html.is-app body:not(.light) #budget-page .ring-label,
+html.is-app body:not(.light) #spending-page .ring-label {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+html.is-app body:not(.light) #budget-page .category-badge-btn,
+html.is-app body:not(.light) #spending-page .category-badge-btn {
+  border: 1.5px solid #0a0c16 !important;
+  background: #1e2030 !important;
+}
+html.is-app body:not(.light) #budget-page .glass-card,
+html.is-app body:not(.light) #spending-page .glass-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  color: #ffffff !important;
+}
+html.is-app body:not(.light) #budget-page .glass-card .section-title,
+html.is-app body:not(.light) #spending-page .glass-card .section-title {
+  color: #ffffff !important;
+}
+html.is-app body:not(.light) #budget-page .glass-card span,
+html.is-app body:not(.light) #spending-page .glass-card span {
+  color: #ffffff !important;
+}
+html.is-app body:not(.light) #budget-page .glass-card span[style*="var(--text3)"],
+html.is-app body:not(.light) #spending-page .glass-card span[style*="var(--text3)"],
+html.is-app body:not(.light) #budget-page .glass-card span[style*="color:var(--text3)"],
+html.is-app body:not(.light) #spending-page .glass-card span[style*="color:var(--text3)"] {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+html.is-app body:not(.light) #budget-page .category-row,
+html.is-app body:not(.light) #spending-page .category-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+html.is-app body:not(.light) #budget-page .category-name,
+html.is-app body:not(.light) #spending-page .category-name {
+  color: #ffffff !important;
+}
+html.is-app body:not(.light) #budget-page .category-values,
+html.is-app body:not(.light) #spending-page .category-values {
+  color: #ffffff !important;
+}
+html.is-app body:not(.light) #budget-page .category-values span,
+html.is-app body:not(.light) #spending-page .category-values span {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+html.is-app body:not(.light) #budget-page .category-progress-bg,
+html.is-app body:not(.light) #spending-page .category-progress-bg {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+html.is-app body:not(.light) #budget-page .assistant-card,
+html.is-app body:not(.light) #spending-page .assistant-card {
+  background: #2D1B28 !important;
+  border: 1px solid rgba(219, 39, 119, 0.25) !important;
+}
+html.is-app body:not(.light) #budget-page .assistant-text,
+html.is-app body:not(.light) #spending-page .assistant-text {
+  color: #FCE7F3 !important;
+}
+html.is-app body:not(.light) #budget-page .assistant-btn,
+html.is-app body:not(.light) #spending-page .assistant-btn {
+  background: #ffffff !important;
   color: #121420 !important;
 }
