@@ -14563,3 +14563,56 @@ html.is-app #budget-page .category-values span,
 html.is-app #spending-page .category-values span {
   font-size: 18px !important;
 }
+
+/* ============================================================
+   build 498 — GLASSMORPHISM for every app popup.
+   The backdrop behind any popup becomes translucent + blurred (you
+   see the app frosted through it), and the popup card itself is
+   frosted glass with a translucent fill, soft border and top sheen.
+   Applies to all modals/sheets (they all use #modal-overlay).
+   ============================================================ */
+
+/* 1 — the popup backdrop: see-through, blurred, lightly tinted */
+html.is-app #modal-overlay {
+  background: rgba(8, 10, 22, 0.34) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(135%) !important;
+  backdrop-filter: blur(20px) saturate(135%) !important;
+}
+
+/* 2 — the popup card: frosted glass (dark theme) */
+html.is-app body:not(.light) #modal-overlay .modal-box {
+  background: rgba(30, 35, 62, 0.46) !important;
+  -webkit-backdrop-filter: blur(34px) saturate(170%) !important;
+  backdrop-filter: blur(34px) saturate(170%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55),
+              inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+/* 2b — frosted glass (light theme) */
+html.is-app.light #modal-overlay .modal-box,
+html.is-app body.light #modal-overlay .modal-box {
+  background: rgba(255, 255, 255, 0.55) !important;
+  -webkit-backdrop-filter: blur(34px) saturate(170%) !important;
+  backdrop-filter: blur(34px) saturate(170%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18),
+              inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+/* 3 — keep header/body see-through so the frost reads as one sheet of glass */
+html.is-app #modal-overlay .modal-header,
+html.is-app #modal-overlay .modal-body,
+html.is-app #modal-overlay .modal-footer {
+  background: transparent !important;
+}
+
+/* 4 — inputs/option buttons get a faint glass tint instead of solid fills */
+html.is-app body:not(.light) #modal-overlay .form-input,
+html.is-app body:not(.light) #modal-overlay select,
+html.is-app body:not(.light) #modal-overlay textarea,
+html.is-app body:not(.light) #modal-overlay .btn-action,
+html.is-app body:not(.light) #modal-overlay .pad-pick button {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
