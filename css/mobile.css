@@ -14238,3 +14238,55 @@ html.is-app body:not(.light) #spending-page .assistant-btn {
   background: #ffffff !important;
   color: #121420 !important;
 }
+
+/* ============================================================
+   build 490 — Budget & Spending ring: bigger circle + 2x text.
+   The ring is already ~full screen width, so the diameter is
+   maxed out (≈98vw) and the band/centre text/badges are enlarged
+   to read much bigger. Pairs with the thicker band (RING_W=58)
+   and larger badge offset in _drawSegmentedRing (finance.js).
+   ============================================================ */
+html.is-app #budget-page .ring-container,
+html.is-app #spending-page .ring-container {
+  width: 98vw !important;
+  height: 98vw !important;
+  max-width: 460px !important;
+  max-height: 460px !important;
+  margin: 4px auto 30px !important;
+}
+
+/* centre text holder a touch wider for the bigger number */
+html.is-app #budget-page .ring-center-text,
+html.is-app #spending-page .ring-center-text {
+  width: 220px !important;
+}
+
+/* big centre number — budget score (short) can go large; spending
+   keeps its inline length-based size which is already bumped in JS */
+html.is-app #budget-page .ring-score {
+  font-size: 104px !important;
+  letter-spacing: -2px !important;
+}
+
+/* much more visible label under the number */
+html.is-app #budget-page .ring-label,
+html.is-app #spending-page .ring-label {
+  font-size: 19px !important;
+  margin-top: 10px !important;
+}
+
+/* bigger category badges riding the ring */
+html.is-app #budget-page .category-badge-btn,
+html.is-app #spending-page .category-badge-btn {
+  width: 54px !important;
+  height: 54px !important;
+  font-size: 26px !important;
+  border-width: 2px !important;
+}
+html.is-app #budget-page .category-badge-btn svg,
+html.is-app #spending-page .category-badge-btn svg,
+html.is-app #budget-page .category-badge-btn i,
+html.is-app #spending-page .category-badge-btn i {
+  width: 26px !important;
+  height: 26px !important;
+}
