@@ -81,34 +81,40 @@ function _drawSegmentedRing(canvas, items, colors) {
   
   let currentAngle = -Math.PI / 2;
   const badgePositions = [];
-  
+
+  // A badge is ~54px wide; only show one when the category's slice is wide
+  // enough to actually hold it. That keeps every icon a readable, separate
+  // badge (no more piles of overlapping icons on tiny categories) — the
+  // "minimum size" rule. Smaller categories still show in the list below.
+  const BADGE_R = 27;
+  const minBadgeSweep = 2 * Math.asin(Math.min(1, BADGE_R / radius));
+
   items.forEach((item, idx) => {
     const share = item.value / totalVal;
     const sweep = share * availableRad;
     const startAngle = currentAngle;
     const endAngle = currentAngle + sweep;
-    
+
     ctx.beginPath();
     ctx.arc(cx, cy, radius, startAngle, endAngle);
     ctx.lineWidth = RING_W;
     ctx.lineCap = 'round';
     ctx.strokeStyle = colors[idx % colors.length];
     ctx.stroke();
-    
-    const midAngle = startAngle + sweep / 2;
-    const bx = cx + radius * Math.cos(midAngle);
-    const by = cy + radius * Math.sin(midAngle);
-    
-    badgePositions.push({
-      x: bx,
-      y: by,
-      category: item.category,
-      color: colors[idx % colors.length]
-    });
-    
+
+    if (sweep >= minBadgeSweep) {
+      const midAngle = startAngle + sweep / 2;
+      badgePositions.push({
+        x: cx + radius * Math.cos(midAngle),
+        y: cy + radius * Math.sin(midAngle),
+        category: item.category,
+        color: colors[idx % colors.length]
+      });
+    }
+
     currentAngle = endAngle + gapRad;
   });
-  
+
   return badgePositions;
 }
 
@@ -753,10 +759,13 @@ function renderSpendingOverview() {
 
     document.getElementById('page-container').innerHTML = `
       <div class="fade-in" id="spending-page" style="padding:16px 20px">
-        <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        </button>
-        
+        <div class="ring-page-head">
+          <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </button>
+          <h1 class="ring-page-title">Spending</h1>
+        </div>
+
         <div class="ring-container">
           <canvas id="spov-chart" style="width:100%;height:100%;display:block"></canvas>
           <div class="ring-center-text">
@@ -779,12 +788,6 @@ function renderSpendingOverview() {
           </button>
         </div>
 
-        <div class="assistant-card">
-          <div class="assistant-title">LifeOS Assistant</div>
-          <div class="assistant-text">${adviceText}</div>
-          <button class="assistant-btn" onclick="${assistantAction}">${buttonText}</button>
-        </div>
-
         <div class="section-heading-row">
           <span class="section-heading">Spending Categories</span>
           <button class="section-filter-btn" onclick="openSpendPeriodSheet()">
@@ -803,17 +806,17 @@ function renderSpendingOverview() {
             const spentFormatted = fmt(Math.round(r.total));
             return `
               <div class="category-row" onclick="openCategoryDetail('${r.cat.replace(/'/g, "\\'")}','spending')">
-                <div class="category-icon-wrap" style="background:${color}15;color:${color}">
-                  ${catIconHtml(r.cat)}
-                </div>
-                <div class="category-info">
+                <div class="cat-head">
+                  <div class="category-icon-wrap" style="background:${color}15;color:${color}">
+                    ${catIconHtml(r.cat)}
+                  </div>
                   <div class="category-name">${r.cat}</div>
-                  <div class="category-progress-bg">
-                    <div class="category-progress-fill" style="width:${pct}%;background:${color}"></div>
+                  <div class="category-values">
+                    ${spentFormatted}<span>${pct}% · ${r.n} ${r.n === 1 ? 'spend' : 'spends'}</span>
                   </div>
                 </div>
-                <div class="category-values">
-                  ${spentFormatted} <br/> <span>${pct}% · ${r.n} ${r.n === 1 ? 'spend' : 'spends'}</span>
+                <div class="category-progress-bg">
+                  <div class="category-progress-fill" style="width:${pct}%;background:${color}"></div>
                 </div>
               </div>
             `;
@@ -6432,10 +6435,13 @@ function renderBudget() {
     document.getElementById('page-container').innerHTML = `
       <div class="fade-in" id="budget-page" style="padding:16px 20px">
         <!-- Header -->
-        <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        </button>
-        
+        <div class="ring-page-head">
+          <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </button>
+          <h1 class="ring-page-title">Budget</h1>
+        </div>
+
         <!-- Segmented Donut Ring -->
         <div class="ring-container">
           <canvas id="budget-donut-chart" style="width:100%;height:100%;display:block"></canvas>
@@ -6458,13 +6464,6 @@ function renderBudget() {
           <button class="model-circle-btn" onclick="openAddTxModal('expense')" title="Add Transaction">
             ➕
           </button>
-        </div>
-
-        <!-- Assistant Card -->
-        <div class="assistant-card">
-          <div class="assistant-title">LifeOS Assistant</div>
-          <div class="assistant-text">${adviceText}</div>
-          <button class="assistant-btn" onclick="navigate('ai-coach')">${buttonText}</button>
         </div>
 
         <!-- Budget Categories Section -->
@@ -6491,17 +6490,17 @@ function renderBudget() {
             
             return `
               <div class="category-row" onclick="openAddBudgetModal(${bi})">
-                <div class="category-icon-wrap" style="background:${color}15;color:${color}">
-                  ${catIconHtml(b.category)}
-                </div>
-                <div class="category-info">
+                <div class="cat-head">
+                  <div class="category-icon-wrap" style="background:${color}15;color:${color}">
+                    ${catIconHtml(b.category)}
+                  </div>
                   <div class="category-name">${b.category}</div>
-                  <div class="category-progress-bg">
-                    <div class="category-progress-fill" style="width:${pct}%;background:${over ? '#ef4444' : color}"></div>
+                  <div class="category-values">
+                    ${spentFormatted}<span>of ${limitFormatted}</span>
                   </div>
                 </div>
-                <div class="category-values">
-                  ${spentFormatted} <br/> <span>of ${limitFormatted}</span>
+                <div class="category-progress-bg">
+                  <div class="category-progress-fill" style="width:${pct}%;background:${over ? '#ef4444' : color}"></div>
                 </div>
               </div>
             `;

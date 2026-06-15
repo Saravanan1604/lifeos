@@ -14371,3 +14371,85 @@ html.is-app #spending-page .category-icon-wrap i {
   width: 30px !important;
   height: 30px !important;
 }
+
+/* ============================================================
+   build 492 — Budget/Spending: page title, removed the assistant
+   ("AI") card, and re-laid the category rows as a vertical stack
+   (icon + name + amount on one line, full-width tall bar below) so
+   the text can be much bigger. Ring badges are de-clustered in JS.
+   ============================================================ */
+
+/* page title beside the back button */
+html.is-app #budget-page .ring-page-head,
+html.is-app #spending-page .ring-page-head {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin-bottom: 4px !important;
+}
+html.is-app #budget-page .ring-page-title,
+html.is-app #spending-page .ring-page-title {
+  font-size: 34px !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+html.is-app body:not(.light) #budget-page .ring-page-title,
+html.is-app body:not(.light) #spending-page .ring-page-title { color: #ffffff !important; }
+html.is-app body.light #budget-page .ring-page-title,
+html.is-app body.light #spending-page .ring-page-title { color: #121420 !important; }
+
+/* row becomes a vertical stack */
+html.is-app #budget-page .category-row,
+html.is-app #spending-page .category-row {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+  padding: 22px 0 !important;
+}
+html.is-app #budget-page .cat-head,
+html.is-app #spending-page .cat-head {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+html.is-app #budget-page .category-icon-wrap,
+html.is-app #spending-page .category-icon-wrap {
+  width: 64px !important;
+  height: 64px !important;
+  font-size: 32px !important;
+}
+html.is-app #budget-page .category-name,
+html.is-app #spending-page .category-name {
+  flex: 1 !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  overflow-wrap: normal !important;
+  font-size: 36px !important;
+  margin-bottom: 0 !important;
+}
+html.is-app #budget-page .category-values,
+html.is-app #spending-page .category-values {
+  font-size: 36px !important;
+  flex-shrink: 0 !important;
+  text-align: right !important;
+  line-height: 1.05 !important;
+}
+html.is-app #budget-page .category-values span,
+html.is-app #spending-page .category-values span {
+  display: block !important;
+  font-size: 20px !important;
+  margin-top: 3px !important;
+}
+html.is-app #budget-page .category-progress-bg,
+html.is-app #spending-page .category-progress-bg {
+  height: 26px !important;
+  border-radius: 13px !important;
+  width: 100% !important;
+}
+html.is-app #budget-page .category-progress-fill,
+html.is-app #spending-page .category-progress-fill {
+  border-radius: 13px !important;
+}
