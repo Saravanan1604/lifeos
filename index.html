@@ -80,11 +80,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=482" />
-  <link rel="stylesheet" href="css/calc.css?v=482" />
-  <link rel="stylesheet" href="css/premium.css?v=482" />
+  <link rel="stylesheet" href="css/styles.css?v=483" />
+  <link rel="stylesheet" href="css/calc.css?v=483" />
+  <link rel="stylesheet" href="css/premium.css?v=483" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=482" />
+  <link rel="stylesheet" href="css/mobile.css?v=483" />
 </head>
 <body>
 
@@ -516,30 +516,30 @@
 
 <!-- (Old floating calculator removed — replaced by the full-screen calc page) -->
 
-<script src="js/storage.js?v=482"></script>
-<script src="js/core.js?v=482"></script>
-<script src="js/ai.js?v=482"></script>
-<script src="js/dashboard.js?v=482"></script>
-<script src="js/finance.js?v=482"></script>
-<script src="js/bank-tracker.js?v=482"></script>
-<script src="js/life.js?v=482"></script>
-<script src="js/growth.js?v=482"></script>
-<script src="js/calculator.js?v=482"></script>
-<script src="js/features.js?v=482"></script>
-<script src="js/premium.js?v=482"></script>
-<script src="js/categories.js?v=482"></script>
-<script src="js/pages.js?v=482"></script>
-<script src="js/help.js?v=482"></script>
-<script src="js/voice.js?v=482"></script>
-<script src="js/applock.js?v=482"></script>
-<script src="js/onboarding.js?v=482"></script>
-<script src="js/layout.js?v=482"></script>
-<script src="js/notes.js?v=482"></script>
-<script src="js/widgets.js?v=482"></script>
-<script src="js/custom-pages.js?v=482"></script>
-<script src="js/yearly.js?v=482"></script>
-<script src="js/heatmap.js?v=482"></script>
-<script src="js/init.js?v=482"></script>
+<script src="js/storage.js?v=483"></script>
+<script src="js/core.js?v=483"></script>
+<script src="js/ai.js?v=483"></script>
+<script src="js/dashboard.js?v=483"></script>
+<script src="js/finance.js?v=483"></script>
+<script src="js/bank-tracker.js?v=483"></script>
+<script src="js/life.js?v=483"></script>
+<script src="js/growth.js?v=483"></script>
+<script src="js/calculator.js?v=483"></script>
+<script src="js/features.js?v=483"></script>
+<script src="js/premium.js?v=483"></script>
+<script src="js/categories.js?v=483"></script>
+<script src="js/pages.js?v=483"></script>
+<script src="js/help.js?v=483"></script>
+<script src="js/voice.js?v=483"></script>
+<script src="js/applock.js?v=483"></script>
+<script src="js/onboarding.js?v=483"></script>
+<script src="js/layout.js?v=483"></script>
+<script src="js/notes.js?v=483"></script>
+<script src="js/widgets.js?v=483"></script>
+<script src="js/custom-pages.js?v=483"></script>
+<script src="js/yearly.js?v=483"></script>
+<script src="js/heatmap.js?v=483"></script>
+<script src="js/init.js?v=483"></script>
 
 <!-- ===== First-run Onboarding ===== -->
 <div id="onboarding" style="display:none">
@@ -680,7 +680,22 @@
     document.documentElement.classList.add('is-app');
     try { localStorage.setItem('_isApp', '1'); } catch (e) {}
   }
-</script>
+<!-- Chart Detail Modal Overlay for Mobile (html.is-app) -->
+<div id="chart-detail-modal" class="chart-detail-modal">
+  <div class="cd-header">
+    <span id="cd-title">Chart Detail</span>
+    <button class="cd-close-btn" onclick="closeChartDetail()">✕</button>
+  </div>
+  <div class="cd-body">
+    <div class="cd-canvas-wrap">
+      <canvas id="cd-chart-canvas"></canvas>
+    </div>
+    <div id="cd-meta" class="cd-meta">
+      <!-- Dynamic detailed details render here -->
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
 
