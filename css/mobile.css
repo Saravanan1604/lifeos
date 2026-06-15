@@ -13673,3 +13673,318 @@ html.is-app .ld-page .btn-secondary {
 html.is-app .mm-row {
   padding: 18px 20px !important;
 }
+
+/* ============================================================
+   build 484 — premium mockup model budget & spending pages
+   ============================================================ */
+html.is-app #page-container:has(#budget-page, #spending-page) {
+  background: #FAF6EE !important;
+  color: #121420 !important;
+  min-height: 100vh !important;
+  padding-bottom: 90px !important;
+}
+
+html.is-app #budget-page,
+html.is-app #spending-page {
+  font-family: 'Outfit', 'Inter', sans-serif !important;
+}
+
+html.is-app #budget-page .model-back-btn,
+html.is-app #spending-page .model-back-btn {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  border: 1px dashed rgba(18, 20, 32, 0.2) !important;
+  background: transparent !important;
+  color: #121420 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  margin-bottom: 24px !important;
+  margin-top: 10px !important;
+}
+
+html.is-app #budget-page .ring-container,
+html.is-app #spending-page .ring-container {
+  position: relative !important;
+  width: 260px !important;
+  height: 260px !important;
+  margin: 0 auto 28px !important;
+}
+
+html.is-app #budget-page #budget-donut-chart,
+html.is-app #spending-page #spov-chart {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 260px !important;
+  height: 260px !important;
+}
+
+html.is-app #budget-page #ring-badges-wrap,
+html.is-app #spending-page #ring-badges-wrap {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 260px !important;
+  height: 260px !important;
+  pointer-events: none !important;
+}
+
+html.is-app #budget-page .ring-center-text,
+html.is-app #spending-page .ring-center-text {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+}
+
+html.is-app #budget-page .ring-score,
+html.is-app #spending-page .ring-score {
+  font-size: 58px !important;
+  font-weight: 800 !important;
+  color: #121420 !important;
+  line-height: 1 !important;
+  letter-spacing: -1px !important;
+}
+
+html.is-app #budget-page .ring-label,
+html.is-app #spending-page .ring-label {
+  font-size: 11px !important;
+  color: #7A7A85 !important;
+  margin-top: 6px !important;
+  font-weight: 600 !important;
+}
+
+html.is-app #budget-page .category-badge-btn,
+html.is-app #spending-page .category-badge-btn {
+  position: absolute !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #FAF6EE !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+  font-size: 18px !important;
+  z-index: 10 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: transform 0.2s !important;
+}
+
+html.is-app #budget-page .category-badge-btn:active,
+html.is-app #spending-page .category-badge-btn:active {
+  transform: scale(1.15) !important;
+}
+
+html.is-app #budget-page .actions-row,
+html.is-app #spending-page .actions-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin-bottom: 32px !important;
+}
+
+html.is-app #budget-page .model-primary-btn,
+html.is-app #spending-page .model-primary-btn {
+  background: #121420 !important;
+  color: #ffffff !important;
+  border-radius: 24px !important;
+  padding: 12px 28px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(18, 20, 32, 0.15) !important;
+}
+
+html.is-app #budget-page .model-circle-btn,
+html.is-app #spending-page .model-circle-btn {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(18, 20, 32, 0.1) !important;
+  background: #ffffff !important;
+  color: #121420 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.is-app #budget-page .assistant-card,
+html.is-app #spending-page .assistant-card {
+  background: #FCE7F3 !important;
+  border-radius: 20px !important;
+  padding: 20px !important;
+  margin-bottom: 34px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border: none !important;
+}
+
+html.is-app #budget-page .assistant-title,
+html.is-app #spending-page .assistant-title {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: #DB2777 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 6px !important;
+}
+
+html.is-app #budget-page .assistant-text,
+html.is-app #spending-page .assistant-text {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #121420 !important;
+  line-height: 1.5 !important;
+  margin-bottom: 12px !important;
+}
+
+html.is-app #budget-page .assistant-btn,
+html.is-app #spending-page .assistant-btn {
+  background: #121420 !important;
+  color: #ffffff !important;
+  border-radius: 18px !important;
+  padding: 8px 18px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+html.is-app #budget-page .section-heading-row,
+html.is-app #spending-page .section-heading-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 16px !important;
+}
+
+html.is-app #budget-page .section-heading,
+html.is-app #spending-page .section-heading {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #121420 !important;
+}
+
+html.is-app #budget-page .section-filter-btn,
+html.is-app #spending-page .section-filter-btn {
+  background: #121420 !important;
+  color: #ffffff !important;
+  border-radius: 16px !important;
+  padding: 6px 14px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+html.is-app #budget-page .category-row,
+html.is-app #spending-page .category-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 16px 0 !important;
+  border-bottom: 1px solid rgba(18, 20, 32, 0.05) !important;
+  cursor: pointer !important;
+}
+
+html.is-app #budget-page .category-row:last-child,
+html.is-app #spending-page .category-row:last-child {
+  border-bottom: none !important;
+}
+
+html.is-app #budget-page .category-icon-wrap,
+html.is-app #spending-page .category-icon-wrap {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  flex-shrink: 0 !important;
+}
+
+html.is-app #budget-page .category-info,
+html.is-app #spending-page .category-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+html.is-app #budget-page .category-name,
+html.is-app #spending-page .category-name {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #121420 !important;
+  margin-bottom: 6px !important;
+}
+
+html.is-app #budget-page .category-progress-bg,
+html.is-app #spending-page .category-progress-bg {
+  height: 6px !important;
+  border-radius: 3px !important;
+  background: rgba(18, 20, 32, 0.06) !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+html.is-app #budget-page .category-progress-fill,
+html.is-app #spending-page .category-progress-fill {
+  height: 100% !important;
+  border-radius: 3px !important;
+}
+
+html.is-app #budget-page .category-values,
+html.is-app #spending-page .category-values {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #121420 !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  text-align: right !important;
+}
+
+html.is-app #budget-page .category-values span,
+html.is-app #spending-page .category-values span {
+  color: #7A7A85 !important;
+  font-weight: 500 !important;
+  font-size: 11px !important;
+}
+
+/* Light mode overrides for text color when light is forced */
+html.is-app.light #budget-page .ring-score,
+html.is-app .light #budget-page .ring-score,
+html.is-app.light #spending-page .ring-score,
+html.is-app .light #spending-page .ring-score,
+html.is-app.light #budget-page .section-heading,
+html.is-app .light #budget-page .section-heading,
+html.is-app.light #spending-page .section-heading,
+html.is-app .light #spending-page .section-heading,
+html.is-app.light #budget-page .category-name,
+html.is-app .light #budget-page .category-name,
+html.is-app.light #spending-page .category-name,
+html.is-app .light #spending-page .category-name,
+html.is-app.light #budget-page .category-values,
+html.is-app .light #budget-page .category-values,
+html.is-app.light #spending-page .category-values,
+html.is-app .light #spending-page .category-values {
+  color: #121420 !important;
+}

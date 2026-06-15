@@ -44,6 +44,72 @@ function catIcon(name)  {
 }
 function catColor(name) { return CAT_COLORS[name] || '#6366f1'; }
 
+// Drawing segmented donut ring on canvas with rounded cap segments & gap spacing
+function _drawSegmentedRing(canvas, items, colors) {
+  if (!canvas) return [];
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  const radius = rect.width / 2 - 22; // leaving space for badges
+  
+  ctx.clearRect(0, 0, rect.width, rect.height);
+  
+  const totalVal = items.reduce((s, r) => s + r.value, 0);
+  const N = items.length;
+  
+  if (totalVal === 0 || N === 0) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+    ctx.lineWidth = 18;
+    ctx.strokeStyle = 'rgba(18, 20, 32, 0.06)';
+    ctx.stroke();
+    return [];
+  }
+  
+  const gapRad = (6 * Math.PI) / 180; // 6 degree gaps
+  const totalGapsRad = N * gapRad;
+  const availableRad = (2 * Math.PI) - totalGapsRad;
+  
+  let currentAngle = -Math.PI / 2;
+  const badgePositions = [];
+  
+  items.forEach((item, idx) => {
+    const share = item.value / totalVal;
+    const sweep = share * availableRad;
+    const startAngle = currentAngle;
+    const endAngle = currentAngle + sweep;
+    
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, startAngle, endAngle);
+    ctx.lineWidth = 18;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = colors[idx % colors.length];
+    ctx.stroke();
+    
+    const midAngle = startAngle + sweep / 2;
+    const bx = cx + radius * Math.cos(midAngle);
+    const by = cy + radius * Math.sin(midAngle);
+    
+    badgePositions.push({
+      x: bx,
+      y: by,
+      category: item.category,
+      color: colors[idx % colors.length]
+    });
+    
+    currentAngle = endAngle + gapRad;
+  });
+  
+  return badgePositions;
+}
+
 // ===== Lucide line-icon mapping (display only — stored data stays as emoji) =====
 // Maps a category NAME to a Lucide icon. Falls back to an emoji→icon table,
 // then a neutral 'circle'. Render-time only, so no data migration is needed.
@@ -644,43 +710,165 @@ function renderSpendingOverview() {
   const grand = rows.reduce((s, r) => s + r.total, 0);
   const lbl = _spendPeriodLabel();
 
-  document.getElementById('page-container').innerHTML = `
-    <div class="fade-in spov">
-      <div class="page-header"><div><h1 class="page-title"><i data-lucide="pie-chart"></i> Spending</h1>
-      <p class="page-subtitle">Where your money goes</p></div></div>
+  if (window.__IS_APP) {
+    const colors = rows.map(r => catColor(r.cat));
+    const budgets = STATE.budgets || [];
+    const totalBudgetLimit = budgets.reduce((sum, b) => sum + getBudgetLimit(b, _spendPeriod), 0);
+    
+    let adviceText = "You haven't recorded any spending yet for this period. Keep track of your expenses to build good habits.";
+    let buttonText = "Let's discuss";
+    if (rows.length > 0) {
+      if (totalBudgetLimit > 0) {
+        const pct = (grand / totalBudgetLimit) * 100;
+        if (grand > totalBudgetLimit) {
+          adviceText = `Warning! Your spending has exceeded your total budget limit of ${fmt(Math.round(totalBudgetLimit))} by ${fmt(Math.round(grand - totalBudgetLimit))}!`;
+          buttonText = "View budgets";
+        } else {
+          adviceText = `Awesome! You have used ${pct.toFixed(0)}% of your total budget (${fmt(Math.round(grand))} spent out of ${fmt(Math.round(totalBudgetLimit))}).`;
+          buttonText = "View budgets";
+        }
+      } else {
+        adviceText = `You have spent a total of ${fmt(Math.round(grand))} across ${rows.length} categories this period. Consider setting up budgets to keep things in check.`;
+        buttonText = "Set up budget";
+      }
+    }
+    const assistantAction = (buttonText === "Let's discuss") ? "navigate('ai-coach')" : "navigate('budget')";
+    const displayTotalText = grand > 0 ? fmt(Math.round(grand)) : '₹0';
+    const scoreFontSize = displayTotalText.length > 6 ? '32px' : (displayTotalText.length > 4 ? '38px' : '48px');
 
-      <!-- Records-style month bar: ‹ Label ▾ › Today -->
-      <div class="mm-monthbar" style="margin-bottom:16px">
-        ${_spendPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="spendNav(-1)">‹</button>`}
-        <button class="mm-month" onclick="openSpendPeriodSheet()" title="Change period / pick a date">${lbl} <span class="mm-month-chev">▾</span></button>
-        ${_spendPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="spendNav(1)">›</button>`}
-        <button class="mm-today" onclick="spendToday()" title="Jump to today">Today</button>
-      </div>
+    document.getElementById('page-container').innerHTML = `
+      <div class="fade-in" id="spending-page" style="padding:16px 20px">
+        <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        
+        <div class="ring-container">
+          <canvas id="spov-chart" style="width:260px;height:260px;display:block"></canvas>
+          <div class="ring-center-text">
+            <span class="ring-score" style="font-size:${scoreFontSize}">${displayTotalText}</span>
+            <span class="ring-label">total spent</span>
+          </div>
+          <div id="ring-badges-wrap"></div>
+        </div>
 
-      ${rows.length ? `
-      <div class="glass-card spov-donutcard">
-        <div class="spov-donut"><canvas id="spov-chart"></canvas>
-          <div class="spov-donut-c"><span>Total</span><b>${fmt(grand)}</b></div>
+        <div class="actions-row">
+          <button class="model-primary-btn" onclick="openAddTxModal('expense')">+ Add Expense</button>
+          <button class="model-circle-btn" onclick="openSpendPeriodSheet()" title="Spend Period">
+            📅
+          </button>
+          <button class="model-circle-btn" onclick="navigate('ai-coach')" title="Ask AI Coach">
+            💬
+          </button>
+          <button class="model-circle-btn" onclick="navigate('budget')" title="Budget Planner">
+            🎯
+          </button>
+        </div>
+
+        <div class="assistant-card">
+          <div class="assistant-title">LifeOS Assistant</div>
+          <div class="assistant-text">${adviceText}</div>
+          <button class="assistant-btn" onclick="${assistantAction}">${buttonText}</button>
+        </div>
+
+        <div class="section-heading-row">
+          <span class="section-heading">Spending Categories</span>
+          <button class="section-filter-btn" onclick="openSpendPeriodSheet()">
+            <span>${lbl}</span> <span style="font-size:8px">▼</span>
+          </button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;margin-bottom:28px">
+          ${rows.length === 0 ? `
+            <div style="text-align:center;padding:32px 0;color:var(--text3)">
+              No spending in ${lbl}.
+            </div>
+          ` : rows.map((r, idx) => {
+            const pct = grand > 0 ? Math.round(r.total / grand * 100) : 0;
+            const color = colors[idx % colors.length];
+            const spentFormatted = fmt(Math.round(r.total));
+            return `
+              <div class="category-row" onclick="openCategoryDetail('${r.cat.replace(/'/g, "\\'")}','spending')">
+                <div class="category-icon-wrap" style="background:${color}15;color:${color}">
+                  ${catIconHtml(r.cat)}
+                </div>
+                <div class="category-info">
+                  <div class="category-name">${r.cat}</div>
+                  <div class="category-progress-bg">
+                    <div class="category-progress-fill" style="width:${pct}%;background:${color}"></div>
+                  </div>
+                </div>
+                <div class="category-values">
+                  ${spentFormatted} <br/> <span>${pct}% · ${r.n} ${r.n === 1 ? 'spend' : 'spends'}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
+    `;
 
-      <div class="spov-list">
-        ${rows.map((r, i) => {
-          const pct = grand > 0 ? Math.round(r.total / grand * 100) : 0;
-          const col = catColor(r.cat);
-          return `<div class="spov-row" onclick="openCategoryDetail('${r.cat.replace(/'/g, "\\'")}','spending')">
-            <span class="spov-ic" style="background:${col}">${catIconHtml(r.cat)}</span>
-            <div class="spov-mid"><p class="spov-name">${esc(r.cat)}</p><p class="spov-n">${r.n} ${r.n === 1 ? 'spend' : 'spends'} · ${pct}%</p></div>
-            <div class="spov-right"><p class="spov-amt">${fmt(r.total)}</p><i data-lucide="chevron-right"></i></div>
-          </div>`;
-        }).join('')}
-      </div>`
-      : `<div class="glass-card" style="padding:48px 20px;text-align:center"><span class="empty-state-icon"><i data-lucide="pie-chart"></i></span><p>No spending in ${lbl}.</p></div>`}
-    </div>`;
+    setTimeout(() => {
+      const canvas = document.getElementById('spov-chart');
+      if (!canvas) return;
+      const segmentItems = rows.map(r => ({ category: r.cat, value: r.total }));
+      const badgePositions = _drawSegmentedRing(canvas, segmentItems, colors);
+      const badgesWrap = document.getElementById('ring-badges-wrap');
+      if (badgesWrap) {
+        badgesWrap.innerHTML = badgePositions.map(pos => {
+          const left = pos.x - 19;
+          const top = pos.y - 19;
+          return `
+            <div class="category-badge-btn" 
+                 onclick="openCategoryDetail('${pos.category.replace(/'/g, "\\'")}','spending')"
+                 style="left:${left}px;top:${top}px;background:#ffffff;color:${pos.color}">
+              ${catIconHtml(pos.category)}
+            </div>
+          `;
+        }).join('');
+      }
+      _lucideRefresh();
+    }, 40);
+
+  } else {
+    document.getElementById('page-container').innerHTML = `
+      <div class="fade-in spov">
+        <div class="page-header"><div><h1 class="page-title"><i data-lucide="pie-chart"></i> Spending</h1>
+        <p class="page-subtitle">Where your money goes</p></div></div>
+
+        <!-- Records-style month bar: ‹ Label ▾ › Today -->
+        <div class="mm-monthbar" style="margin-bottom:16px">
+          ${_spendPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="spendNav(-1)">‹</button>`}
+          <button class="mm-month" onclick="openSpendPeriodSheet()" title="Change period / pick a date">${lbl} <span class="mm-month-chev">▾</span></button>
+          ${_spendPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="spendNav(1)">›</button>`}
+          <button class="mm-today" onclick="spendToday()" title="Jump to today">Today</button>
+        </div>
+
+        ${rows.length ? `
+        <div class="glass-card spov-donutcard">
+          <div class="spov-donut"><canvas id="spov-chart"></canvas>
+            <div class="spov-donut-c"><span>Total</span><b>${fmt(grand)}</b></div>
+          </div>
+        </div>
+
+        <div class="spov-list">
+          ${rows.map((r, i) => {
+            const pct = grand > 0 ? Math.round(r.total / grand * 100) : 0;
+            const col = catColor(r.cat);
+            return `<div class="spov-row" onclick="openCategoryDetail('${r.cat.replace(/'/g, "\\'")}','spending')">
+              <span class="spov-ic" style="background:${col}">${catIconHtml(r.cat)}</span>
+              <div class="spov-mid"><p class="spov-name">${esc(r.cat)}</p><p class="spov-n">${r.n} ${r.n === 1 ? 'spend' : 'spends'} · ${pct}%</p></div>
+              <div class="spov-right"><p class="spov-amt">${fmt(r.total)}</p><i data-lucide="chevron-right"></i></div>
+            </div>`;
+          }).join('')}
+        </div>`
+        : `<div class="glass-card" style="padding:48px 20px;text-align:center"><span class="empty-state-icon"><i data-lucide="pie-chart"></i></span><p>No spending in ${lbl}.</p></div>`}
+      </div>`;
+  }
 
   _lucideRefresh();
   if (!rows.length) return;
   setTimeout(() => {
+    if (window.__IS_APP) return;
     const cv = document.getElementById('spov-chart');
     if (!cv || typeof Chart === 'undefined') return;
     if (chartInstances['spov']) { chartInstances['spov'].destroy(); delete chartInstances['spov']; }
@@ -6208,158 +6396,240 @@ function renderBudget() {
     _chip('Total Spent', fmt(totalSpent), totalSpent > totalLimit ? '#ef4444' : '#10b981', totalSpent > totalLimit ? '239,68,68' : '16,185,129') +
     _chip(totalRemaining < 0 ? 'Over Budget' : 'Remaining', fmt(Math.abs(totalRemaining)), totalRemaining < 0 ? '#ef4444' : '#f59e0b', totalRemaining < 0 ? '239,68,68' : '245,158,11');
 
-  document.getElementById('page-container').innerHTML = `
-    <div class="fade-in">
-      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div>
-          <h1 class="page-title"><i data-lucide="target"></i> Budget Planner</h1>
-          <p class="page-subtitle">${_plbl} spending vs budget limits</p>
-        </div>
-        ${window.__IS_APP ? '' : `
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          ${periodTabsHtml(_budgetPeriod, 'setBudgetPeriod')}
-          <button class="btn-primary btn-sm" onclick="openAddBudgetModal(-1)">+ Add Budget</button>
-        </div>`}
-      </div>
+  if (window.__IS_APP) {
+    const usageRatio = totalLimit > 0 ? (totalSpent / totalLimit * 10) : 0;
+    const displayScore = Math.max(0, Math.min(10, 10 - (totalSpent / totalLimit * 10))).toFixed(1);
+    
+    let adviceText = "You haven't set any budgets yet. Tap the button to start planning.";
+    let buttonText = "Let's discuss";
+    if (budgets.length > 0) {
+      if (totalSpent > totalLimit) {
+        adviceText = `Warning! Your total spending has exceeded your budget limit by ${fmt(Math.round(totalSpent - totalLimit))}!`;
+        buttonText = "View breakdown";
+      } else {
+        adviceText = `Awesome! You have used ${totalPct.toFixed(0)}% of your budget, leaving ${fmt(Math.round(totalRemaining))} remaining.`;
+        buttonText = "Keep it up";
+      }
+    }
 
-      ${window.__IS_APP ? `
-      <!-- Records-style month bar: [+] ‹ label ▾ › Today -->
-      <div class="mm-monthbar" style="margin-bottom:16px">
-        <button class="budget-add-btn" onclick="openAddBudgetModal(-1)" title="Add budget">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    document.getElementById('page-container').innerHTML = `
+      <div class="fade-in" id="budget-page" style="padding:16px 20px">
+        <!-- Header -->
+        <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
-        ${_budgetPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="budgetNav(-1)">‹</button>`}
-        <button class="mm-month" onclick="openBudgetPeriodSheet()" title="Change period / pick a date">${_plbl} <span class="mm-month-chev">▾</span></button>
-        ${_budgetPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">›</span>' : `<button class="mm-navbtn" onclick="budgetNav(1)">›</button>`}
-        <button class="mm-today" onclick="budgetToday()" title="Jump to today">Today</button>
-      </div>` : ''}
-
-      ${budgets.length === 0 ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon"><i data-lucide="target"></i></span><p>Set budgets for your expense categories to track spending.</p></div></div>` : `
-
-      <!-- ── BUDGET SUMMARY + CHART ─────────────────────────────────── -->
-      <div class="glass-card" style="padding:22px;margin-bottom:20px">
-        <div class="section-header" style="margin-bottom:18px">
-          <p class="section-title"><i data-lucide="pie-chart"></i> Total Budget Overview</p>
-          <span style="font-size:12px;color:var(--text3)">${_plbl}</span>
-        </div>
-        ${window.__IS_APP ? `
-        <!-- App: 2x ring on the left, stat chips stacked on the right -->
-        <div class="budget-hero-row" style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
-          <div style="position:relative;height:300px;flex:1.25;min-width:0">
-            <canvas id="budget-donut-chart"></canvas>
-            <div class="budget-donut-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
-              <span style="font-size:15px;font-weight:900;color:var(--text1)">${fmt(totalLimit)}</span>
-              <span style="font-size:10px;color:var(--text3);margin-top:2px">total budget</span>
-            </div>
+        
+        <!-- Segmented Donut Ring -->
+        <div class="ring-container">
+          <canvas id="budget-donut-chart" style="width:260px;height:260px;display:block"></canvas>
+          <div class="ring-center-text">
+            <span class="ring-score">${displayScore}</span>
+            <span class="ring-label">budget health score</span>
           </div>
-          <div style="flex:1;display:flex;flex-direction:column;gap:10px;min-width:0">${chipsHtml3}</div>
+          <div id="ring-badges-wrap"></div>
         </div>
-        <div class="budget-overview-app"><div>
-        ` : `
-        <div style="display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:center" class="budget-overview-grid">
 
-          <!-- Doughnut -->
-          <div style="position:relative;height:190px">
-            <canvas id="budget-donut-chart"></canvas>
-            <div class="budget-donut-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
-              <span style="font-size:13px;font-weight:900;color:var(--text1)">${fmt(totalLimit)}</span>
-              <span style="font-size:10px;color:var(--text3);margin-top:2px">total budget</span>
-            </div>
-          </div>
-
-          <!-- Right side: stat chips + per-category legend -->
-          <div>
-            <!-- 3 stat chips -->
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">${chipsHtml3}</div>
-        `}
-
-            <!-- Overall progress bar -->
-            <div style="margin-bottom:14px">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-                <span style="font-size:11px;color:var(--text3)">Overall usage</span>
-                <span style="font-size:11px;font-weight:700;color:${totalPct>=100?'#ef4444':totalPct>80?'#f59e0b':'#10b981'}">${totalPct.toFixed(1)}%</span>
-              </div>
-              <div style="height:8px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden">
-                <div style="height:100%;border-radius:4px;width:${totalPct}%;background:${totalPct>=100?'#ef4444':totalPct>80?'#f59e0b':'#10b981'};transition:width .4s"></div>
-              </div>
-            </div>
-
-            <!-- Per-category legend rows (app: tap to edit/delete) -->
-            <div style="display:flex;flex-direction:column;gap:7px">
-              ${budgetRows.map(({b, bi, limit, spent}, idx) => {
-                const cat = CATEGORIES.find(c => c.name === b.category);
-                const pct = limit > 0 ? Math.min(100, (spent/limit)*100) : 0;
-                const color = BUDGET_COLORS[idx % BUDGET_COLORS.length];
-                const over = spent > limit;
-                const rawPct = limit > 0 ? (spent / limit) * 100 : 0;
-                if (window.__IS_APP) {
-                  // App: roomy two-line row with its own progress bar
-                  return `<div class="budget-legend-row" onclick="openAddBudgetModal(${bi})" style="cursor:pointer">
-                    <div style="display:flex;align-items:center;gap:10px">
-                      <span class="cat-lic" style="color:${color};font-size:18px">${catIconHtml(b.category)}</span>
-                      <span style="font-size:15px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.category}</span>
-                      <span style="font-size:13px;font-weight:700;white-space:nowrap;color:${over?'#ef4444':'var(--text)'}">${fmt(spent)} <span style="color:var(--text3);font-weight:500">/ ${fmt(limit)}</span></span>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-                      <div style="flex:1;height:9px;border-radius:5px;background:rgba(255,255,255,0.08);overflow:hidden">
-                        <div style="height:100%;width:${pct}%;border-radius:5px;background:${over?'#ef4444':rawPct>80?'#f59e0b':color}"></div>
-                      </div>
-                      <span style="font-size:12px;font-weight:800;width:46px;text-align:right;color:${over?'#ef4444':rawPct>80?'#f59e0b':'#10b981'}">${rawPct.toFixed(0)}%</span>
-                    </div>
-                  </div>`;
-                }
-                return `<div class="budget-legend-row" style="display:flex;align-items:center;gap:8px">
-                  <span style="width:10px;height:10px;border-radius:2px;background:${color};flex-shrink:0"></span>
-                  <span class="cat-lic" style="color:${color};font-size:13px">${catIconHtml(b.category)}</span>
-                  <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.category}</span>
-                  <span style="font-size:11px;color:${over?'#ef4444':'var(--text3)'};font-weight:${over?700:400}">${fmt(spent)}<span style="color:var(--text3);font-weight:400"> / ${fmt(limit)}</span></span>
-                  <span style="font-size:10px;width:36px;text-align:right;color:${over?'#ef4444':pct>80?'#f59e0b':'#10b981'};font-weight:700">${pct.toFixed(0)}%</span>
-                </div>`;
-              }).join('')}
-            </div>
-          </div>
+        <!-- Action row -->
+        <div class="actions-row">
+          <button class="model-primary-btn" onclick="openAddBudgetModal(-1)">+ Add Budget</button>
+          <button class="model-circle-btn" onclick="openBudgetPeriodSheet()" title="Budget Period">
+            📅
+          </button>
+          <button class="model-circle-btn" onclick="navigate('ai-coach')" title="Ask AI Coach">
+            💬
+          </button>
+          <button class="model-circle-btn" onclick="openAddTxModal('expense')" title="Add Transaction">
+            ➕
+          </button>
         </div>
-      </div>
 
-      <!-- ── CATEGORY CARDS (hidden in app — legend rows edit instead) ── -->
-      <div class="budget-cards-list" style="display:flex;flex-direction:column;gap:12px">
-        ${budgetRows.map(({b, bi, limit, spent}) => {
-            const pct    = Math.min(100, limit > 0 ? (spent / limit) * 100 : 0);
-            const over   = spent > limit;
-            const cat    = CATEGORIES.find(c => c.name === b.category);
-            const bPeriod = b.period || 'month';
-            const bAmount = b.amount != null ? b.amount : (b.limit || 0);
-            const bDaily  = bPeriod === 'day' ? bAmount : bPeriod === 'month' ? bAmount / 30 : bAmount / 365;
-            const breakdown = `${fmt(Math.round(bDaily))}/day · ${fmt(Math.round(bDaily*30))}/mo · ${fmt(Math.round(bDaily*365))}/yr`;
-            return `<div class="glass-card" style="padding:18px">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                <div style="display:flex;align-items:center;gap:10px">
-                  <span class="cat-lic" style="color:${BUDGET_COLORS[bi % BUDGET_COLORS.length]};font-size:22px">${catIconHtml(b.category)}</span>
-                  <div>
-                    <div style="font-weight:600;font-size:14px">${b.category}</div>
-                    <div style="font-size:11px;color:var(--text3)">Set: ${fmt(bAmount)}/${bPeriod}</div>
+        <!-- Assistant Card -->
+        <div class="assistant-card">
+          <div class="assistant-title">LifeOS Assistant</div>
+          <div class="assistant-text">${adviceText}</div>
+          <button class="assistant-btn" onclick="navigate('ai-coach')">${buttonText}</button>
+        </div>
+
+        <!-- Budget Categories Section -->
+        <div class="section-heading-row">
+          <span class="section-heading">Budget Categories</span>
+          <button class="section-filter-btn" onclick="openBudgetPeriodSheet()">
+            <span>${_plbl}</span> <span style="font-size:8px">▼</span>
+          </button>
+        </div>
+
+        <!-- Categories List -->
+        <div style="display:flex;flex-direction:column;margin-bottom:28px">
+          ${budgets.length === 0 ? `
+            <div style="text-align:center;padding:32px 0;color:var(--text3)">
+              No budgets active. Tap '+ Add Budget' above to create one.
+            </div>
+          ` : budgetRows.map(({b, bi, limit, spent}, idx) => {
+            const pct = limit > 0 ? Math.min(100, (spent / limit) * 100) : 0;
+            const color = BUDGET_COLORS[idx % BUDGET_COLORS.length];
+            const over = spent > limit;
+            
+            const spentFormatted = fmt(Math.round(spent));
+            const limitFormatted = fmt(Math.round(limit));
+            
+            return `
+              <div class="category-row" onclick="openAddBudgetModal(${bi})">
+                <div class="category-icon-wrap" style="background:${color}15;color:${color}">
+                  ${catIconHtml(b.category)}
+                </div>
+                <div class="category-info">
+                  <div class="category-name">${b.category}</div>
+                  <div class="category-progress-bg">
+                    <div class="category-progress-fill" style="width:${pct}%;background:${over ? '#ef4444' : color}"></div>
                   </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <span style="font-size:13px;color:${over?'#ef4444':'#10b981'};font-weight:700">${fmt(spent)} / ${fmt(limit)}</span>
-                  ${over ? '<span class="tag tag-red" style="font-size:11px">Over!</span>' : ''}
-                  <button onclick="openAddBudgetModal(${bi})" style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#6366f1;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px">✏️</button>
-                  <button onclick="deleteBudget(${bi})" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px">✕</button>
+                <div class="category-values">
+                  ${spentFormatted} <br/> <span>of ${limitFormatted}</span>
                 </div>
               </div>
-              <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${over?'#ef4444':pct>80?'#f59e0b':'#10b981'}"></div></div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-                <p style="font-size:11px;color:var(--text3)">${over ? `₹${(spent-limit).toLocaleString('en-IN')} over budget` : `₹${(limit-spent).toLocaleString('en-IN')} remaining · ${pct.toFixed(0)}% used`}</p>
-                <p style="font-size:10px;color:var(--text3);opacity:0.7">₹${breakdown}</p>
-              </div>
-              ${b.notes ? `<p style="font-size:11px;color:var(--text2);margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.04);border-left:3px solid rgba(99,102,241,0.5);border-radius:6px">📝 ${String(b.notes).replace(/</g,'&lt;')}</p>` : ''}
-            </div>`;
-        }).join('')}
+            `;
+          }).join('')}
+        </div>
+
+        ${unbudgetedHtml}
+        ${cmpChartHtml}
       </div>
-      `}
-      ${unbudgetedHtml}
-      ${cmpChartHtml}
-    </div>`;
+    `;
+
+    // Dynamic placement of badges on the ring
+    setTimeout(() => {
+      const canvas = document.getElementById('budget-donut-chart');
+      if (!canvas) return;
+      
+      const segmentItems = budgetRows.map(r => ({
+        category: r.b.category,
+        value: r.limit
+      }));
+      
+      const badgePositions = _drawSegmentedRing(canvas, segmentItems, BUDGET_COLORS);
+      const badgesWrap = document.getElementById('ring-badges-wrap');
+      if (badgesWrap) {
+        badgesWrap.innerHTML = badgePositions.map(pos => {
+          const left = pos.x - 19;
+          const top = pos.y - 19;
+          return `
+            <div class="category-badge-btn" 
+                 onclick="openAddBudgetModal(${budgetRows.findIndex(r => r.b.category === pos.category)})"
+                 style="left:${left}px;top:${top}px;background:#ffffff;color:${pos.color}">
+              ${catIconHtml(pos.category)}
+            </div>
+          `;
+        }).join('');
+      }
+    }, 40);
+
+  } else {
+    document.getElementById('page-container').innerHTML = `
+      <div class="fade-in">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+          <div>
+            <h1 class="page-title"><i data-lucide="target"></i> Budget Planner</h1>
+            <p class="page-subtitle">${_plbl} spending vs budget limits</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            ${periodTabsHtml(_budgetPeriod, 'setBudgetPeriod')}
+            <button class="btn-primary btn-sm" onclick="openAddBudgetModal(-1)">+ Add Budget</button>
+          </div>
+        </div>
+
+        ${budgets.length === 0 ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon"><i data-lucide="target"></i></span><p>Set budgets for your expense categories to track spending.</p></div></div>` : `
+
+        <!-- ── BUDGET SUMMARY + CHART ─────────────────────────────────── -->
+        <div class="glass-card" style="padding:22px;margin-bottom:20px">
+          <div class="section-header" style="margin-bottom:18px">
+            <p class="section-title"><i data-lucide="pie-chart"></i> Total Budget Overview</p>
+            <span style="font-size:12px;color:var(--text3)">${_plbl}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:center" class="budget-overview-grid">
+
+            <!-- Doughnut -->
+            <div style="position:relative;height:190px">
+              <canvas id="budget-donut-chart"></canvas>
+              <div class="budget-donut-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+                <span style="font-size:13px;font-weight:900;color:var(--text1)">${fmt(totalLimit)}</span>
+                <span style="font-size:10px;color:var(--text3);margin-top:2px">total budget</span>
+              </div>
+            </div>
+
+            <!-- Right side: stat chips + per-category legend -->
+            <div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">${chipsHtml3}</div>
+
+              <!-- Overall progress bar -->
+              <div style="margin-bottom:14px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+                  <span style="font-size:11px;color:var(--text3)">Overall usage</span>
+                  <span style="font-size:11px;font-weight:700;color:${totalPct>=100?'#ef4444':totalPct>80?'#f59e0b':'#10b981'}">${totalPct.toFixed(1)}%</span>
+                </div>
+                <div style="height:8px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden">
+                  <div style="height:100%;border-radius:4px;width:${totalPct}%;background:${totalPct>=100?'#ef4444':totalPct>80?'#f59e0b':'#10b981'};transition:width .4s"></div>
+                </div>
+              </div>
+
+              <!-- Per-category legend rows -->
+              <div style="display:flex;flex-direction:column;gap:7px">
+                ${budgetRows.map(({b, bi, limit, spent}, idx) => {
+                  const pct = limit > 0 ? Math.min(100, (spent/limit)*100) : 0;
+                  const color = BUDGET_COLORS[idx % BUDGET_COLORS.length];
+                  const over = spent > limit;
+                  return `<div class="budget-legend-row" style="display:flex;align-items:center;gap:8px">
+                    <span style="width:10px;height:10px;border-radius:2px;background:${color};flex-shrink:0"></span>
+                    <span class="cat-lic" style="color:${color};font-size:13px">${catIconHtml(b.category)}</span>
+                    <span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.category}</span>
+                    <span style="font-size:11px;color:${over?'#ef4444':'var(--text3)'};font-weight:${over?700:400}">${fmt(spent)}<span style="color:var(--text3);font-weight:400"> / ${fmt(limit)}</span></span>
+                    <span style="font-size:10px;width:36px;text-align:right;color:${over?'#ef4444':pct>80?'#f59e0b':'#10b981'};font-weight:700">${pct.toFixed(0)}%</span>
+                  </div>`;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CATEGORY CARDS -->
+        <div class="budget-cards-list" style="display:flex;flex-direction:column;gap:12px">
+          ${budgetRows.map(({b, bi, limit, spent}) => {
+              const pct    = Math.min(100, limit > 0 ? (spent / limit) * 100 : 0);
+              const over   = spent > limit;
+              const bPeriod = b.period || 'month';
+              const bAmount = b.amount != null ? b.amount : (b.limit || 0);
+              const bDaily  = bPeriod === 'day' ? bAmount : bPeriod === 'month' ? bAmount / 30 : bAmount / 365;
+              const breakdown = `${fmt(Math.round(bDaily))}/day · ${fmt(Math.round(bDaily*30))}/mo · ${fmt(Math.round(bDaily*365))}/yr`;
+              return `<div class="glass-card" style="padding:18px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span class="cat-lic" style="color:${BUDGET_COLORS[bi % BUDGET_COLORS.length]};font-size:22px">${catIconHtml(b.category)}</span>
+                    <div>
+                      <div style="font-weight:600;font-size:14px">${b.category}</div>
+                      <div style="font-size:11px;color:var(--text3)">Set: ${fmt(bAmount)}/${bPeriod}</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:13px;color:${over?'#ef4444':'#10b981'};font-weight:700">${fmt(spent)} / ${fmt(limit)}</span>
+                    ${over ? '<span class="tag tag-red" style="font-size:11px">Over!</span>' : ''}
+                    <button onclick="openAddBudgetModal(${bi})" style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#6366f1;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px">✏️</button>
+                    <button onclick="deleteBudget(${bi})" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12px">✕</button>
+                  </div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${over?'#ef4444':pct>80?'#f59e0b':'#10b981'}"></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+                  <p style="font-size:11px;color:var(--text3)">${over ? `₹${(spent-limit).toLocaleString('en-IN')} over budget` : `₹${(limit-spent).toLocaleString('en-IN')} remaining · ${pct.toFixed(0)}% used`}</p>
+                  <p style="font-size:10px;color:var(--text3);opacity:0.7">₹${breakdown}</p>
+                </div>
+                ${b.notes ? `<p style="font-size:11px;color:var(--text2);margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.04);border-left:3px solid rgba(99,102,241,0.5);border-radius:6px">📝 ${String(b.notes).replace(/</g,'&lt;')}</p>` : ''}
+              </div>`;
+          }).join('')}
+        </div>
+        `}
+        ${unbudgetedHtml}
+        ${cmpChartHtml}
+      </div>
+    `;
+  }
 
   // Month-comparison chart (app)
   if (_cmpData) {
@@ -6394,6 +6664,7 @@ function renderBudget() {
   // Render doughnut chart after DOM is ready
   if (budgets.length > 0) {
     setTimeout(() => {
+      if (window.__IS_APP) return; // Custom segmented donut ring is drawn instead
       const bg = document.querySelector('.budget-overview-grid');
       if (bg && window.innerWidth < 640) bg.style.gridTemplateColumns = '1fr';
       const canvas = document.getElementById('budget-donut-chart');
