@@ -13360,3 +13360,31 @@ html.is-app .ld-edit-btn:active {
 html.is-app.light .ld-edit-btn:active {
   background: rgba(0, 0, 0, 0.06) !important;
 }
+
+/* ============================================================
+   build 473 — two long-standing fixes
+   1) Background "flashlight": kill the animated aurora canvas for good
+      (JS guard in core.js + this belt-and-suspenders CSS).
+   2) Blue tap box: remove the WebView's default blue tap-highlight that
+      flashed on the bottom-nav items (and everything else) when tapped.
+   ============================================================ */
+
+/* 1 — canvas stays gone even if an older rule is cached */
+html.is-app #particles-canvas {
+  display: none !important;
+}
+
+/* 2 — no blue tap-flash anywhere in the app */
+html.is-app,
+html.is-app * {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* the bottom-nav items specifically: no tap box / outline, keep them clean */
+html.is-app #bottom-nav .bn-item,
+html.is-app #bottom-nav .bn-item:focus,
+html.is-app #bottom-nav .bn-item:active {
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+  background: transparent !important;
+}

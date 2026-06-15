@@ -72,6 +72,15 @@ function _bgDraw() {
 function initParticles() {
   const canvas = document.getElementById('particles-canvas');
   if (!canvas) return;
+  // Installed app: never run the animated aurora/flash background. Hiding it
+  // via CSS alone could come back if the stylesheet was cached stale — this
+  // hard-stops the canvas in JS so the app keeps a clean solid background.
+  if (window.__IS_APP) {
+    canvas.style.display = 'none';
+    const c = canvas.getContext('2d');
+    if (c) c.clearRect(0, 0, canvas.width, canvas.height);
+    return;
+  }
   _bgCtx = canvas.getContext('2d');
   _bgW = canvas.width = window.innerWidth;
   _bgH = canvas.height = window.innerHeight;
