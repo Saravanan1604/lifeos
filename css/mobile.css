@@ -14453,3 +14453,16 @@ html.is-app #budget-page .category-progress-fill,
 html.is-app #spending-page .category-progress-fill {
   border-radius: 13px !important;
 }
+
+/* ============================================================
+   build 493 — Sankey Charts: horizontally scrollable on mobile
+   ============================================================ */
+html.is-app .sankey-scroll-wrap {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  margin-bottom: 12px !important;
+  width: 100% !important;
+}
+html.is-app .sankey-inner {
+  width: 680px !important;
+}

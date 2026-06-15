@@ -855,7 +855,11 @@ function renderDashboard() {
           </button>
         </p>
         <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Your full money lifecycle: income → spending, debt & savings → bank, cash & investments → net worth. Tap any node to drill in.</p>
-        <div style="position:relative;height:380px"><canvas id="mr-flow-chart"></canvas></div>
+        <div class="sankey-scroll-wrap">
+          <div style="position:relative;height:380px" class="sankey-inner">
+            <canvas id="mr-flow-chart"></canvas>
+          </div>
+        </div>
         <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
         <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
           ${flow.incBy && flow.expBy ? [...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('') : ''}
@@ -876,7 +880,11 @@ function renderDashboard() {
           </button>
         </p>
         <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Where your wealth sits: assets gather, then split into what you own (net worth) and what you owe (debt).</p>
-        <div id="mr-wealth-wrap" style="position:relative;height:300px"><canvas id="mr-wealth-chart"></canvas></div>
+        <div id="mr-wealth-wrap" class="sankey-scroll-wrap">
+          <div style="position:relative;height:300px" class="sankey-inner">
+            <canvas id="mr-wealth-chart"></canvas>
+          </div>
+        </div>
         <p id="mr-wealth-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:18px"></p>
       </div>
 
