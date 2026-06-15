@@ -57,8 +57,8 @@ function _drawSegmentedRing(canvas, items, colors) {
   
   const cx = rect.width / 2;
   const cy = rect.height / 2;
-  const RING_W = 58;                  // thicker band (was 42)
-  const radius = rect.width / 2 - 42; // leaving space for the thicker band + bigger badges
+  const RING_W = 66;                  // thicker band (was 42)
+  const radius = rect.width / 2 - 44; // leaving space for the thicker band + bigger badges
   
   ctx.clearRect(0, 0, rect.width, rect.height);
   

@@ -14290,3 +14290,84 @@ html.is-app #spending-page .category-badge-btn i {
   width: 26px !important;
   height: 26px !important;
 }
+
+/* ============================================================
+   build 491 — ring to full screen width + much bigger category
+   list (name, amount, sub-text, progress bar, icon). The circle
+   can't literally be 5x on a phone (already full width), so it's
+   pushed to 100vw with a thicker band; the list rows below — which
+   live in a single column — are genuinely scaled up big.
+   ============================================================ */
+html.is-app #budget-page .ring-container,
+html.is-app #spending-page .ring-container {
+  width: 98vw !important;
+  height: 98vw !important;
+  max-width: 600px !important;
+  max-height: 600px !important;
+  margin: 0 auto 26px !important;
+}
+
+/* category list — big rows */
+html.is-app #budget-page .category-row,
+html.is-app #spending-page .category-row {
+  gap: 18px !important;
+  padding: 24px 0 !important;
+}
+html.is-app #budget-page .category-icon-wrap,
+html.is-app #spending-page .category-icon-wrap {
+  width: 70px !important;
+  height: 70px !important;
+  font-size: 34px !important;
+}
+html.is-app #budget-page .category-icon-wrap svg,
+html.is-app #spending-page .category-icon-wrap svg,
+html.is-app #budget-page .category-icon-wrap i,
+html.is-app #spending-page .category-icon-wrap i {
+  width: 34px !important;
+  height: 34px !important;
+}
+html.is-app #budget-page .category-name,
+html.is-app #spending-page .category-name {
+  font-size: 30px !important;
+  margin-bottom: 12px !important;
+  line-height: 1.15 !important;
+  overflow-wrap: anywhere !important;   /* long names wrap instead of overflowing */
+}
+html.is-app #budget-page .category-progress-bg,
+html.is-app #spending-page .category-progress-bg {
+  height: 22px !important;
+  border-radius: 11px !important;
+}
+html.is-app #budget-page .category-progress-fill,
+html.is-app #spending-page .category-progress-fill {
+  border-radius: 11px !important;
+}
+html.is-app #budget-page .category-values,
+html.is-app #spending-page .category-values {
+  font-size: 28px !important;
+}
+html.is-app #budget-page .category-values span,
+html.is-app #spending-page .category-values span {
+  font-size: 17px !important;
+}
+
+/* section heading above the list, bigger to match */
+html.is-app #budget-page .section-heading,
+html.is-app #spending-page .section-heading {
+  font-size: 30px !important;
+}
+
+/* a touch smaller icon so the row breathes on narrow phones */
+html.is-app #budget-page .category-icon-wrap,
+html.is-app #spending-page .category-icon-wrap {
+  width: 62px !important;
+  height: 62px !important;
+  font-size: 30px !important;
+}
+html.is-app #budget-page .category-icon-wrap svg,
+html.is-app #spending-page .category-icon-wrap svg,
+html.is-app #budget-page .category-icon-wrap i,
+html.is-app #spending-page .category-icon-wrap i {
+  width: 30px !important;
+  height: 30px !important;
+}
