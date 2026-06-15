@@ -483,7 +483,7 @@ function renderBankTrendChart(labels, data) {
           backgroundColor: 'rgba(15,23,42,0.95)', titleColor: '#94a3b8',
           bodyColor: '#fff', padding: 12,
           borderColor: 'rgba(0,201,167,0.3)', borderWidth: 1,
-          callbacks: { label: ctx => ` ₹${ctx.parsed.y.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}` }
+          callbacks: { label: ctx => ` ${fmt(ctx.parsed.y)}` }
         }
       },
       scales: {
@@ -1012,7 +1012,7 @@ function renderCCTrendChart(labels, data) {
           backgroundColor: 'rgba(15,23,42,0.95)', titleColor: '#94a3b8',
           bodyColor: '#fff', padding: 12,
           borderColor: 'rgba(239,68,68,0.3)', borderWidth: 1,
-          callbacks: { label: ctx => ` ₹${ctx.parsed.y.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}` }
+          callbacks: { label: ctx => ` ${fmt(ctx.parsed.y)}` }
         }
       },
       scales: {
@@ -1341,7 +1341,7 @@ function renderCashTrendChart(labels, data) {
           backgroundColor: 'rgba(15,23,42,0.95)', titleColor: '#94a3b8',
           bodyColor: '#fff', padding: 12,
           borderColor: 'rgba(245,158,11,0.3)', borderWidth: 1,
-          callbacks: { label: ctx => ` ₹${ctx.parsed.y.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}` }
+          callbacks: { label: ctx => ` ${fmt(ctx.parsed.y)}` }
         }
       },
       scales: {

@@ -3693,7 +3693,7 @@ function renderSmsResults() {
         <input type="text" class="form-input" id="sr-desc-${i}" value="${r.description}" placeholder="Description" style="font-size:12px;padding:4px 8px"/>
       </div>
 
-      ${r.balance !== null ? `<div style="font-size:11px;color:var(--text3);margin-top:6px">💰 Bal after: ₹${r.balance.toLocaleString('en-IN', {minimumFractionDigits:2})}</div>` : ''}
+      ${r.balance !== null ? `<div style="font-size:11px;color:var(--text3);margin-top:6px">💰 Bal after: ${fmt(r.balance)}</div>` : ''}
     </div>
   `).join('');
 
@@ -3724,8 +3724,8 @@ function updateSmsSummary() {
   if (!count) { el.innerHTML = '<span style="color:var(--text3)">No transactions selected</span>'; return; }
 
   const parts = [];
-  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Total Expense: ₹${totalExpense.toLocaleString('en-IN', {minimumFractionDigits:2})}</span>`);
-  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Total Income: ₹${totalIncome.toLocaleString('en-IN', {minimumFractionDigits:2})}</span>`);
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Total Expense: ${fmt(totalExpense)}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Total Income: ${fmt(totalIncome)}</span>`);
   el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} transaction${count>1?'s':''}</span>`;
 }
 
@@ -3783,8 +3783,8 @@ function saveAllParsedSms() {
   const incTotal = fresh.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   let summary = `${fresh.length} transaction${fresh.length>1?'s':''} saved!`;
   if (dupes > 0) summary += ` (${dupes} duplicate${dupes>1?'s':''} skipped)`;
-  if (expTotal > 0) summary += ` Expense: ₹${expTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
-  if (incTotal > 0) summary += ` Income: ₹${incTotal.toLocaleString('en-IN',{minimumFractionDigits:2})}`;
+  if (expTotal > 0) summary += ` Expense: ${fmt(expTotal)}`;
+  if (incTotal > 0) summary += ` Income: ${fmt(incTotal)}`;
   toast(summary + ' 🎉', 'success');
   refreshFinancePage();
 }
@@ -7076,8 +7076,8 @@ function updateCsvSummary() {
   if (!el) return;
   if (!count) { el.innerHTML = '<span style="color:var(--text3)">No transactions selected</span>'; return; }
   const parts = [];
-  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ₹${totalExpense.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
-  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ₹${totalIncome.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ${fmt(totalExpense)}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ${fmt(totalIncome)}</span>`);
   el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} transaction${count>1?'s':''}</span>`;
 }
 
@@ -7185,8 +7185,8 @@ function updateBulkSummary() {
   if (!count) { el.style.display = 'none'; return; }
   el.style.display = '';
   const parts = [];
-  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ₹${totalExpense.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
-  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ₹${totalIncome.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ${fmt(totalExpense)}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ${fmt(totalIncome)}</span>`);
   el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} entr${count>1?'ies':'y'}</span>`;
 }
 
@@ -7407,8 +7407,8 @@ function updateStmtSummary() {
   if (!el) return;
   if (!count) { el.innerHTML = '<span style="color:var(--text3)">No transactions selected</span>'; return; }
   const parts = [];
-  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ₹${totalExpense.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
-  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ₹${totalIncome.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ${fmt(totalExpense)}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ${fmt(totalIncome)}</span>`);
   el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} transaction${count>1?'s':''}</span>`;
 }
 
@@ -7789,8 +7789,8 @@ function updatePdfSummary() {
   if (!el) return;
   if (!count) { el.innerHTML = '<span style="color:var(--text3)">No transactions selected</span>'; return; }
   const parts = [];
-  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ₹${totalExpense.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
-  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ₹${totalIncome.toLocaleString('en-IN',{minimumFractionDigits:2})}</span>`);
+  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ${fmt(totalExpense)}</span>`);
+  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ${fmt(totalIncome)}</span>`);
   el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} transaction${count>1?'s':''}</span>`;
 }
 

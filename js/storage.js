@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 481;
+const APP_BUILD = 482;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -163,7 +163,9 @@ function genId() {
 }
 
 function fmt(n, currency = STATE.settings?.currency || '₹') {
-  return `${currency}${Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatted = Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const clean = formatted.endsWith('.00') ? formatted.slice(0, -3) : formatted;
+  return `${currency}${clean}`;
 }
 
 function fmtDate(d) {
