@@ -13972,6 +13972,37 @@ html.is-app #spending-page .category-values span {
   font-size: 11px !important;
 }
 
+html.is-app #budget-page .glass-card,
+html.is-app #spending-page .glass-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(18, 20, 32, 0.08) !important;
+  box-shadow: 0 4px 14px rgba(18, 20, 32, 0.04) !important;
+  border-radius: 20px !important;
+  color: #121420 !important;
+}
+
+html.is-app #budget-page .glass-card .section-title,
+html.is-app #spending-page .glass-card .section-title {
+  color: #121420 !important;
+}
+
+html.is-app #budget-page .glass-card span,
+html.is-app #spending-page .glass-card span {
+  color: #121420 !important;
+}
+
+html.is-app #budget-page .glass-card span[style*="var(--text3)"],
+html.is-app #spending-page .glass-card span[style*="var(--text3)"],
+html.is-app #budget-page .glass-card span[style*="color:var(--text3)"],
+html.is-app #spending-page .glass-card span[style*="color:var(--text3)"] {
+  color: #7A7A85 !important;
+}
+
+html.is-app #budget-page .glass-card p,
+html.is-app #spending-page .glass-card p {
+  color: #121420 !important;
+}
+
 /* Light mode overrides for text color when light is forced */
 html.is-app.light #budget-page .ring-score,
 html.is-app .light #budget-page .ring-score,

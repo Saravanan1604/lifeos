@@ -6649,12 +6649,12 @@ function renderBudget() {
         options: {
           indexAxis: 'y', responsive: true, maintainAspectRatio: false,
           plugins: {
-            legend: { labels: { color: '#94a3b8', boxWidth: 18, font: { size: 20 } } },
+            legend: { labels: { color: '#7A7A85', boxWidth: 18, font: { size: 20 } } },
             tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ₹${(+c.parsed.x).toLocaleString('en-IN')}` } }
           },
           scales: {
-            x: { ticks: { color: '#64748b', font: { size: 17 }, callback: v => '₹' + (Math.abs(v) >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.04)' } },
-            y: { ticks: { color: '#cbd5e1', font: { size: 21, weight: '600' } }, grid: { display: false } }
+            x: { ticks: { color: '#7A7A85', font: { size: 17 }, callback: v => '₹' + (Math.abs(v) >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) }, grid: { color: 'rgba(18, 20, 32, 0.06)' } },
+            y: { ticks: { color: '#121420', font: { size: 21, weight: '600' } }, grid: { display: false } }
           }
         }
       });
