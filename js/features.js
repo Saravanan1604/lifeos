@@ -582,11 +582,21 @@ function processRecurringTransactions() {
 
 function _advanceDate(dateStr, freq) {
   const d = new Date(dateStr + 'T00:00:00');
-  if (freq==='daily')   d.setDate(d.getDate()+1);
-  if (freq==='weekly')  d.setDate(d.getDate()+7);
-  if (freq==='monthly') d.setMonth(d.getMonth()+1);
-  if (freq==='yearly')  d.setFullYear(d.getFullYear()+1);
-  return d.toISOString().slice(0,10);
+  switch (freq) {
+    case 'daily':     d.setDate(d.getDate() + 1); break;
+    case 'weekly':    d.setDate(d.getDate() + 7); break;
+    case 'monthly':   d.setMonth(d.getMonth() + 1); break;
+    case '2monthly':  d.setMonth(d.getMonth() + 2); break;
+    case '3monthly':  d.setMonth(d.getMonth() + 3); break;
+    case '6monthly':  d.setMonth(d.getMonth() + 6); break;
+    case 'yearly':    d.setFullYear(d.getFullYear() + 1); break;
+    case '2yearly':   d.setFullYear(d.getFullYear() + 2); break;
+    case '3yearly':   d.setFullYear(d.getFullYear() + 3); break;
+    case '5yearly':   d.setFullYear(d.getFullYear() + 5); break;
+    case '10yearly':  d.setFullYear(d.getFullYear() + 10); break;
+    default: return dateStr;
+  }
+  return d.toISOString().slice(0, 10);
 }
 
 

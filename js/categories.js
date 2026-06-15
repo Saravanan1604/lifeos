@@ -148,10 +148,111 @@ function _renderRecurringSection() {
     </div>`;
 }
 
+// ===== Recurring frequency options (shared: Recurring page, edit modal,
+// and the + Add "Repeat" picker) =====
+const RECUR_FREQS = [
+  ['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'],
+  ['2monthly', 'Every 2 months'], ['3monthly', 'Every 3 months'], ['6monthly', 'Every 6 months'],
+  ['yearly', 'Yearly'], ['2yearly', 'Every 2 years'], ['3yearly', 'Every 3 years'],
+  ['5yearly', 'Every 5 years'], ['10yearly', 'Every 10 years'],
+];
+function recurFreqLabel(f) {
+  const hit = RECUR_FREQS.find(([v]) => v === f);
+  return hit ? hit[1] : (f ? f.charAt(0).toUpperCase() + f.slice(1) : 'One-time');
+}
+function recurFreqOptionsHtml(sel, includeOneTime) {
+  const opts = (includeOneTime ? [['', 'One-time']] : []).concat(RECUR_FREQS);
+  return opts.map(([v, l]) => `<option value="${v}" ${v === sel ? 'selected' : ''}>${l}</option>`).join('');
+}
+
+// Pause / resume a recurring rule (on/off) without deleting it.
+function toggleRecurring(id) {
+  const r = (STATE.recurring || []).find(x => x.id === id);
+  if (!r) return;
+  r.enabled = r.enabled === false ? true : false;
+  if (typeof saveState === 'function') saveState();
+  if (typeof toast === 'function') toast(r.enabled ? 'Recurring resumed ▶' : 'Recurring paused ⏸', r.enabled ? 'success' : 'info');
+  if (window.__IS_APP && typeof renderRecurringApp === 'function') renderRecurringApp();
+  else renderRecurring();
+}
+
+// App-only redesigned Recurring page: Income / Expense split with totals,
+// per-item on/off switch, larger cards. Web layout is left untouched.
+function renderRecurringApp() {
+  const rec = STATE.recurring || [];
+  const today = new Date().toISOString().slice(0, 10);
+  const cI = typeof catIconHtml === 'function' ? catIconHtml : (() => '');
+  const cC = typeof catColor === 'function' ? catColor : (() => '#6366f1');
+  const income  = rec.filter(r => r.type === 'income');
+  const expense = rec.filter(r => r.type !== 'income');
+  const sumOn = arr => arr.filter(r => r.enabled !== false).reduce((s, r) => s + (r.amount || 0), 0);
+  const incTotal = sumOn(income), expTotal = sumOn(expense);
+  const net = incTotal - expTotal;
+  const dueCount = rec.filter(r => r.enabled !== false && (r.nextDate || '') <= today).length;
+
+  const card = r => {
+    const inc = r.type === 'income';
+    const on  = r.enabled !== false;
+    const due = on && (r.nextDate || '') <= today;
+    return `
+      <div class="rec-item${on ? '' : ' rec-off'}">
+        <div class="rec-ic" style="background:${cC(r.category)}">${cI(r.category)}</div>
+        <div class="rec-body" onclick="editRecurring('${r.id}')">
+          <p class="rec-name">${esc(r.description || r.category)}</p>
+          <p class="rec-meta">${recurFreqLabel(r.frequency)} · ${esc(r.category)}</p>
+          <p class="rec-next${due ? ' due' : ''}"><i data-lucide="${on ? (due ? 'alarm-clock' : 'calendar-clock') : 'pause'}"></i> ${on ? (due ? 'Due now' : 'Next') + ': ' + fmtDate(r.nextDate) : 'Paused'}</p>
+        </div>
+        <div class="rec-right">
+          <p class="rec-amt" style="color:${inc ? '#10b981' : '#ef4444'}">${inc ? '+' : '-'}${fmt(r.amount)}</p>
+          <label class="rec-switch" title="${on ? 'Turn off' : 'Turn on'}" onclick="event.stopPropagation()">
+            <input type="checkbox" ${on ? 'checked' : ''} onchange="toggleRecurring('${r.id}')">
+            <span class="rec-switch-track"></span>
+          </label>
+        </div>
+      </div>`;
+  };
+
+  const section = (title, items, total, color, icon, sign) => `
+    <div class="rec-sec">
+      <div class="rec-sec-head">
+        <span class="rec-sec-title"><i data-lucide="${icon}"></i> ${title} <span class="rec-sec-count">${items.length}</span></span>
+        <span class="rec-sec-total" style="color:${color}">${sign}${fmt(total)}</span>
+      </div>
+      ${items.length ? items.map(card).join('') : `<p class="rec-empty">No recurring ${title.toLowerCase()} yet</p>`}
+    </div>`;
+
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in rec-page">
+      <div class="page-header">
+        <h1 class="page-title"><i data-lucide="repeat"></i> Recurring</h1>
+        <p class="page-subtitle">Auto-repeating income &amp; expenses${dueCount ? ` · <span style="color:#f59e0b">${dueCount} due</span>` : ''}</p>
+      </div>
+
+      <div class="rec-summary">
+        <div class="rec-sum-box"><span>Income</span><b style="color:#10b981">+${fmt(incTotal)}</b></div>
+        <div class="rec-sum-box"><span>Expense</span><b style="color:#ef4444">-${fmt(expTotal)}</b></div>
+        <div class="rec-sum-box"><span>Net</span><b style="color:${net >= 0 ? '#10b981' : '#ef4444'}">${net >= 0 ? '+' : '-'}${fmt(Math.abs(net))}</b></div>
+      </div>
+
+      ${section('Income', income, incTotal, '#10b981', 'arrow-down-left', '+')}
+      ${section('Expense', expense, expTotal, '#ef4444', 'arrow-up-right', '-')}
+
+      ${dueCount ? `<button class="btn-primary rec-post-btn" onclick="if(typeof processRecurring==='function'){processRecurring();}navigate('recurring',true);">Post ${dueCount} due now</button>` : ''}
+      <button class="glass-card rec-add-card" onclick="openAddTxModal('expense')">
+        <span class="rec-add-ic"><i data-lucide="plus"></i></span>
+        <span class="rec-add-lbl">Add recurring</span>
+      </button>
+    </div>`;
+  if (typeof _lucideRefresh === 'function') _lucideRefresh();
+}
+
 // ===== Dedicated Recurring Transactions page =====
 function renderRecurring() {
+  if (window.__IS_APP && typeof renderRecurringApp === 'function') {
+    try { return renderRecurringApp(); } catch (e) { console.log(e); }
+  }
   const rec = STATE.recurring || [];
-  const freqLabel = f => ({ daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' }[f] || f || '—');
+  const freqLabel = f => recurFreqLabel(f);
   const today = new Date().toISOString().slice(0, 10);
   const dueCount = rec.filter(r => (r.nextDate || '') <= today).length;
   const cI = typeof catIconHtml === 'function' ? catIconHtml : (n => '');
@@ -212,12 +313,7 @@ function editRecurring(id) {
       <div class="form-group"><label class="form-label">Category</label>
         <select id="er-cat" class="form-input">${catOpts}</select></div>
       <div class="form-group"><label class="form-label">Frequency</label>
-        <select id="er-freq" class="form-input">
-          <option value="daily" ${sel('daily', r.frequency)}>Daily</option>
-          <option value="weekly" ${sel('weekly', r.frequency)}>Weekly</option>
-          <option value="monthly" ${sel('monthly', r.frequency)}>Monthly</option>
-          <option value="yearly" ${sel('yearly', r.frequency)}>Yearly</option>
-        </select></div>
+        <select id="er-freq" class="form-input">${recurFreqOptionsHtml(r.frequency, false)}</select></div>
       <div class="form-group"><label class="form-label">Next date</label>
         <input type="date" id="er-next" class="form-input" value="${r.nextDate || ''}"/></div>
       <div class="modal-actions">
@@ -251,6 +347,7 @@ function processRecurring() {
   const todayStr = new Date().toISOString().slice(0, 10);
   let posted = 0;
   rec.forEach(r => {
+    if (r.enabled === false) return;   // paused rule — skip (on/off)
     let guard = 0;
     while (r.nextDate && r.nextDate <= todayStr && guard < 400) {
       guard++;

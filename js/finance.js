@@ -169,10 +169,20 @@ function _subcatSuggestions() {
 // Advance a date string by a recurring frequency
 function _advanceDate(dateStr, freq) {
   const d = new Date(dateStr + 'T00:00:00');
-  if (freq === 'daily')   d.setDate(d.getDate() + 1);
-  if (freq === 'weekly')  d.setDate(d.getDate() + 7);
-  if (freq === 'monthly') d.setMonth(d.getMonth() + 1);
-  if (freq === 'yearly')  d.setFullYear(d.getFullYear() + 1);
+  switch (freq) {
+    case 'daily':     d.setDate(d.getDate() + 1); break;
+    case 'weekly':    d.setDate(d.getDate() + 7); break;
+    case 'monthly':   d.setMonth(d.getMonth() + 1); break;
+    case '2monthly':  d.setMonth(d.getMonth() + 2); break;
+    case '3monthly':  d.setMonth(d.getMonth() + 3); break;
+    case '6monthly':  d.setMonth(d.getMonth() + 6); break;
+    case 'yearly':    d.setFullYear(d.getFullYear() + 1); break;
+    case '2yearly':   d.setFullYear(d.getFullYear() + 2); break;
+    case '3yearly':   d.setFullYear(d.getFullYear() + 3); break;
+    case '5yearly':   d.setFullYear(d.getFullYear() + 5); break;
+    case '10yearly':  d.setFullYear(d.getFullYear() + 10); break;
+    default: return dateStr; // unknown/one-time: don't advance
+  }
   return d.toISOString().slice(0, 10);
 }
 
@@ -183,6 +193,7 @@ function processRecurring() {
   const todayStr = today();
   let created = 0;
   STATE.recurring.forEach(r => {
+    if (r.enabled === false) return;   // paused rule — skip (on/off)
     let guard = 0;
     while (r.nextDate && r.nextDate <= todayStr && guard < 400) {
       const tx = {
@@ -1775,7 +1786,8 @@ function padPickSubcat() {
   setTimeout(() => document.getElementById('pad-subcat-in')?.focus(), 100);
 }
 function padPickRepeat() {
-  const opts = [['', 'One-time'], ['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'], ['yearly', 'Yearly']];
+  const opts = [['', 'One-time']].concat(typeof RECUR_FREQS !== 'undefined' ? RECUR_FREQS
+    : [['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'], ['yearly', 'Yearly']]);
   openModal('🔁 Repeat', `<div class="pad-pick">${opts.map(([v, l]) =>
     `<button onclick="_pad.repeat='${v}';closeModal();renderTxPad()">${_pad.repeat === v ? '✓ ' : ''}${l}</button>`).join('')}</div>`);
 }
@@ -1871,7 +1883,7 @@ function renderTxPad() {
 
     <div class="pad-pickrow pad-mini">
       <div class="pad-field"><label><i data-lucide="tag"></i> Subcategory</label><button onclick="padPickSubcat()">${_pad.subcategory ? esc(_pad.subcategory) : '—'}</button></div>
-      <div class="pad-field"><label><i data-lucide="repeat"></i> Repeat</label><button onclick="padPickRepeat()">${_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time'}</button></div>
+      <div class="pad-field"><label><i data-lucide="repeat"></i> Repeat</label><button onclick="padPickRepeat()">${typeof recurFreqLabel === 'function' ? recurFreqLabel(_pad.repeat) : (_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time')}</button></div>
     </div>
 
     <div class="pad-entry-zone">
@@ -3087,10 +3099,11 @@ function openAddTxModal(defaultType) {
     <div class="form-group"><label class="form-label">🔁 Repeat</label>
       <select id="tx-repeat" class="form-input">
         <option value="">None (one-time)</option>
+        ${typeof recurFreqOptionsHtml === 'function' ? recurFreqOptionsHtml('', false) : `
         <option value="daily">Daily</option>
         <option value="weekly">Weekly</option>
         <option value="monthly">Monthly</option>
-        <option value="yearly">Yearly</option>
+        <option value="yearly">Yearly</option>`}
       </select></div>
     <div class="form-group"><label class="form-label">Description</label><input type="text" id="tx-desc" class="form-input" placeholder="What was this for?" oninput="recAutoCategory(this.value)"/></div>
     <div class="form-group"><label class="form-label">📎 Receipt <span style="opacity:.6;font-weight:400">(optional)</span></label>

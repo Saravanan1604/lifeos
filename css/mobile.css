@@ -13526,6 +13526,86 @@ html.is-app #modal-overlay .account-options-menu .btn-action i {
 }
 
 /* ============================================================
+   build 489 — Recurring page redesign (app-only).
+   Income / Expense split with totals, per-item on/off switch,
+   larger clean cards. All scoped to data-page="recurring".
+   ============================================================ */
+html.is-app #page-container[data-page="recurring"] .rec-page { max-width: 960px; margin: 0 auto; }
+
+/* summary: Income / Expense / Net */
+html.is-app #page-container[data-page="recurring"] .rec-summary {
+  display: flex; gap: 10px; margin: 4px 0 20px;
+}
+html.is-app #page-container[data-page="recurring"] .rec-sum-box {
+  flex: 1; background: #0e1422; border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px; padding: 14px 8px; text-align: center;
+  display: flex; flex-direction: column; gap: 4px; min-width: 0;
+}
+html.is-app #page-container[data-page="recurring"] .rec-sum-box span { font-size: 14px; color: var(--text3); font-weight: 600; }
+html.is-app #page-container[data-page="recurring"] .rec-sum-box b { font-size: 22px; font-weight: 800; white-space: nowrap; }
+
+/* section header */
+html.is-app #page-container[data-page="recurring"] .rec-sec { margin-bottom: 24px; }
+html.is-app #page-container[data-page="recurring"] .rec-sec-head {
+  display: flex; justify-content: space-between; align-items: center; margin: 0 4px 12px;
+}
+html.is-app #page-container[data-page="recurring"] .rec-sec-title {
+  font-size: 21px; font-weight: 800; display: inline-flex; align-items: center; gap: 8px;
+}
+html.is-app #page-container[data-page="recurring"] .rec-sec-title svg { width: 20px; height: 20px; }
+html.is-app #page-container[data-page="recurring"] .rec-sec-count {
+  font-size: 13px; font-weight: 700; color: var(--text3);
+  background: rgba(255, 255, 255, 0.06); padding: 2px 10px; border-radius: 20px;
+}
+html.is-app #page-container[data-page="recurring"] .rec-sec-total { font-size: 22px; font-weight: 900; }
+
+/* item card */
+html.is-app #page-container[data-page="recurring"] .rec-item {
+  display: flex; align-items: center; gap: 14px;
+  background: #0e1422; border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px; padding: 16px; margin-bottom: 12px; transition: opacity .2s;
+}
+html.is-app #page-container[data-page="recurring"] .rec-item.rec-off { opacity: .45; }
+html.is-app #page-container[data-page="recurring"] .rec-ic {
+  width: 56px; height: 56px; border-radius: 16px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 27px; color: #fff;
+}
+html.is-app #page-container[data-page="recurring"] .rec-ic svg { width: 27px; height: 27px; }
+html.is-app #page-container[data-page="recurring"] .rec-body { flex: 1; min-width: 0; cursor: pointer; }
+html.is-app #page-container[data-page="recurring"] .rec-name {
+  font-weight: 700; font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+html.is-app #page-container[data-page="recurring"] .rec-meta { font-size: 14px; color: var(--text3); margin-top: 3px; }
+html.is-app #page-container[data-page="recurring"] .rec-next {
+  font-size: 14px; color: #00c9a7; margin-top: 5px; display: inline-flex; align-items: center; gap: 5px;
+}
+html.is-app #page-container[data-page="recurring"] .rec-next svg { width: 15px; height: 15px; }
+html.is-app #page-container[data-page="recurring"] .rec-next.due { color: #f59e0b; }
+html.is-app #page-container[data-page="recurring"] .rec-right {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 12px; flex-shrink: 0;
+}
+html.is-app #page-container[data-page="recurring"] .rec-amt { font-weight: 900; font-size: 21px; }
+
+/* on/off switch */
+html.is-app #page-container[data-page="recurring"] .rec-switch {
+  position: relative; display: inline-block; width: 54px; height: 32px; flex-shrink: 0;
+}
+html.is-app #page-container[data-page="recurring"] .rec-switch input { opacity: 0; width: 0; height: 0; }
+html.is-app #page-container[data-page="recurring"] .rec-switch-track {
+  position: absolute; inset: 0; border-radius: 32px; background: rgba(255, 255, 255, 0.16);
+  transition: .2s; cursor: pointer;
+}
+html.is-app #page-container[data-page="recurring"] .rec-switch-track::before {
+  content: ''; position: absolute; height: 26px; width: 26px; left: 3px; top: 3px;
+  border-radius: 50%; background: #fff; transition: .2s;
+}
+html.is-app #page-container[data-page="recurring"] .rec-switch input:checked + .rec-switch-track { background: #10b981; }
+html.is-app #page-container[data-page="recurring"] .rec-switch input:checked + .rec-switch-track::before { transform: translateX(22px); }
+
+html.is-app #page-container[data-page="recurring"] .rec-empty { font-size: 15px; color: var(--text3); padding: 14px 6px; }
+html.is-app #page-container[data-page="recurring"] .rec-post-btn { width: 100%; margin: 4px 0 14px; font-size: 18px; padding: 16px; }
+
+/* ============================================================
    build 481 — Give breathing space between cards and increase text/font size
    - Scales the root font size from 175% to 190% for app elements.
    - Increases margins of all card/container elements in app views.
