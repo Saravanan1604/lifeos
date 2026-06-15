@@ -13481,3 +13481,21 @@ html.is-app #page-container[data-page="finance"] .mm-hero-dots span {
 html.is-app #page-container[data-page="finance"] .mm-hero-dots span.on {
   background: #00c9a7 !important;
 }
+
+/* ============================================================
+   build 475 — user-pickable account card colour.
+   Older app rules forced every carousel card to a slate gradient
+   (and hardcoded the 1st/2nd bank cards to blue/orange) with
+   !important, which killed the per-account colour. Drive the card
+   background from inline --c1/--c2 (set per account in finance.js)
+   so the colour the user picks in Add/Edit actually shows. The ID
+   in the selector outranks those older rules.
+   ============================================================ */
+html.is-app #page-container[data-page="finance"] .fin-bank-grid > .fin-dark-card,
+html.is-app #page-container[data-page="finance"] .fin-card-grid > .fin-dark-card,
+html.is-app #page-container[data-page="finance"] .fin-cash-grid > .fin-dark-card,
+html.is-app #page-container[data-page="bank-tracker"] .fin-bank-grid > .fin-dark-card,
+html.is-app #page-container[data-page="bank-tracker"] .fin-card-grid > .fin-dark-card,
+html.is-app #page-container[data-page="bank-tracker"] .fin-cash-grid > .fin-dark-card {
+  background: linear-gradient(135deg, var(--c1, #1e293b) 0%, var(--c2, #0f172a) 100%) !important;
+}

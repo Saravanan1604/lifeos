@@ -1871,7 +1871,7 @@ function acctSection(type) {
         ${list.map((b,i) => {
           if (window.__IS_APP) {
             return `
-            <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:auto;min-height:170px;padding:1.2rem 1.3rem;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;gap:0.8rem;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});cursor:pointer;flex-shrink:0">
+            <div class="fin-dark-card" data-bid="${b.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='banks';bankTrackerAccount=this.dataset.bid;navigate('bank-tracker')}" style="--c1:${b.color||'#1e293b'};--c2:${b.color2||'#0f172a'};flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:auto;min-height:170px;padding:1.2rem 1.3rem;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;gap:0.8rem;background:linear-gradient(135deg,${b.color||'#1e293b'},${b.color2||'#0f172a'});cursor:pointer;flex-shrink:0">
               <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
                 <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">${b.bankName}</span>
                 <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
@@ -1931,7 +1931,7 @@ function acctSection(type) {
         ${list.map((c,i) => { const used=c.outstanding||0, limit=c.limit||1, pct=Math.min(100,Math.round((used/limit)*100)), utilColor=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
           if (window.__IS_APP) {
             return `
-            <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:auto;min-height:185px;padding:1.2rem 1.3rem;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;gap:0.8rem;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});cursor:pointer;flex-shrink:0">
+            <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:auto;min-height:185px;padding:1.2rem 1.3rem;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;gap:0.8rem;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});cursor:pointer;flex-shrink:0">
               <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
                 <div style="display:flex;align-items:center;gap:0.4rem;min-width:0;flex:1">
                   <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.bankName}</span>
@@ -2000,7 +2000,7 @@ function acctSection(type) {
       ${list.map((ca,i) => {
         if (window.__IS_APP) {
           return `
-          <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:auto;min-height:170px;padding:1.2rem 1.3rem;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;gap:0.8rem;background:linear-gradient(135deg,#78350f,#92400e);cursor:pointer;flex-shrink:0">
+          <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:${ca.color||'#78350f'};--c2:${ca.color2||'#92400e'};flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:auto;min-height:170px;padding:1.2rem 1.3rem;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;gap:0.8rem;background:linear-gradient(135deg,${ca.color||'#78350f'},${ca.color2||'#92400e'});cursor:pointer;flex-shrink:0">
             <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
               <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">${ca.name}</span>
               <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
@@ -2015,7 +2015,7 @@ function acctSection(type) {
           </div>`;
         } else {
           return `
-          <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:#a16207;--c2:#78350f;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
+          <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:${ca.color||'#a16207'};--c2:${ca.color2||'#78350f'};position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,${ca.color||'#78350f'},${ca.color2||'#92400e'});padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
             <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
             <div style="display:flex;justify-content:space-between;align-items:start;position:relative">
               <div style="font-size:22px"><i data-lucide="banknote"></i></div>
@@ -2303,7 +2303,7 @@ function renderFinance() {
           ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="banknote"></i></span><p>No cash wallets yet. Track your physical cash!</p></div>`
           : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px" class="fin-cash-grid">
             ${(STATE.cashAccounts||[]).map((ca,i) => `
-            <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:#a16207;--c2:#78350f;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#78350f,#92400e);padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
+            <div class="fin-dark-card" data-caid="${ca.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cash';bankTrackerCash=this.dataset.caid;navigate('bank-tracker')}" style="--c1:${ca.color||'#a16207'};--c2:${ca.color2||'#78350f'};position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,${ca.color||'#78350f'},${ca.color2||'#92400e'});padding:16px;box-shadow:0 8px 24px rgba(120,53,15,0.3);cursor:pointer">
               <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
               <div style="display:flex;justify-content:space-between;align-items:start;position:relative">
                 <div style="font-size:22px"><i data-lucide="banknote"></i></div>
@@ -3280,6 +3280,7 @@ function addCashAccount() {
         <input type="date" id="cash-bal-date" class="form-input" value="${today()}"/>
       </div>
     </div>
+    ${acctColorPickerHtml('', '')}
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveCashAccount(null)">💾 Save Wallet</button>
@@ -3293,6 +3294,7 @@ function editCashAccount(i) {
     <div class="form-group"><label class="form-label">Wallet Name</label>
       <input type="text" id="cash-name" class="form-input" value="${ca.name}"/>
     </div>
+    ${acctColorPickerHtml(ca.color || '', ca.color2 || '')}
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveCashAccount(${i})">💾 Save Changes</button>
@@ -3304,14 +3306,18 @@ function saveCashAccount(editIndex) {
   if (!name) { toast('Enter a wallet name', 'error'); return; }
   STATE.cashAccounts = STATE.cashAccounts || [];
   STATE.cashBalanceHistory = STATE.cashBalanceHistory || [];
+  const pickedC  = document.getElementById('acct-color')?.value  || '';
+  const pickedC2 = document.getElementById('acct-color2')?.value || '';
   if (editIndex !== null && editIndex >= 0) {
     STATE.cashAccounts[editIndex].name = name;
+    if (pickedC)  STATE.cashAccounts[editIndex].color  = pickedC;
+    if (pickedC2) STATE.cashAccounts[editIndex].color2 = pickedC2;
     toast('Cash wallet updated ✅', 'success');
   } else {
     const balance = parseFloat(document.getElementById('cash-balance')?.value) || 0;
     const balDate = document.getElementById('cash-bal-date')?.value || today();
     const id = genId();
-    STATE.cashAccounts.push({ id, name, balance });
+    STATE.cashAccounts.push({ id, name, balance, color: pickedC || '#78350f', color2: pickedC2 || '#92400e' });
     STATE.cashBalanceHistory.push({ accountId: id, balance, date: balDate, note: 'Wallet created' });
     toast('Cash wallet added! 💵', 'success');
   }
@@ -3369,6 +3375,47 @@ function saveCashBalanceUpdate(i) {
   renderFinance();
 }
 
+// ===== ACCOUNT CARD COLOUR PICKER (user-selectable) =====
+// Curated gradient swatches shown in the Add/Edit modals for bank, cash and
+// credit-card accounts so the user can pick their own card colour. Each swatch
+// is a {c, c2} pair used as linear-gradient(135deg, c, c2).
+const ACCT_COLOR_SWATCHES = [
+  { c:'#1e40af', c2:'#1e1b4b' }, { c:'#0369a1', c2:'#082f49' },
+  { c:'#0f766e', c2:'#042f2e' }, { c:'#15803d', c2:'#052e16' },
+  { c:'#b45309', c2:'#451a03' }, { c:'#c2410c', c2:'#431407' },
+  { c:'#b91c1c', c2:'#450a0a' }, { c:'#be185d', c2:'#500724' },
+  { c:'#7c3aed', c2:'#2e1065' }, { c:'#475569', c2:'#0f172a' },
+  { c:'#0d9488', c2:'#134e4a' }, { c:'#854d0e', c2:'#422006' },
+];
+
+// Renders the swatch row + two hidden inputs (#acct-color / #acct-color2)
+// that the save* functions read. Pass the account's current colours to
+// pre-select the matching swatch when editing.
+function acctColorPickerHtml(selColor, selColor2) {
+  const sel = (selColor || '').toLowerCase();
+  const sw = ACCT_COLOR_SWATCHES.map(s => {
+    const on = s.c.toLowerCase() === sel;
+    return `<button type="button" onclick="pickAcctColor(this,'${s.c}','${s.c2}')" title="${s.c}" style="width:46px;height:46px;border-radius:14px;cursor:pointer;flex-shrink:0;padding:0;background:linear-gradient(135deg,${s.c},${s.c2});border:2px solid ${on?'#fff':'transparent'};box-shadow:${on?'0 0 0 2px rgba(0,201,167,0.7)':'none'};transition:.15s"></button>`;
+  }).join('');
+  return `
+    <div class="form-group">
+      <label class="form-label">Card Colour</label>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px">${sw}</div>
+      <input type="hidden" id="acct-color" value="${selColor || ''}">
+      <input type="hidden" id="acct-color2" value="${selColor2 || ''}">
+    </div>`;
+}
+
+function pickAcctColor(el, c, c2) {
+  const row = el.parentElement;
+  if (row) [...row.children].forEach(b => { b.style.borderColor = 'transparent'; b.style.boxShadow = 'none'; });
+  el.style.borderColor = '#fff';
+  el.style.boxShadow = '0 0 0 2px rgba(0,201,167,0.7)';
+  const f1 = document.getElementById('acct-color'), f2 = document.getElementById('acct-color2');
+  if (f1) f1.value = c;
+  if (f2) f2.value = c2;
+}
+
 // ===== BANK ACCOUNTS =====
 const BANK_PRESETS = [
   { label:'SBI',          icon:'🏛️', color:'#1a237e', color2:'#0d1757' },
@@ -3416,6 +3463,7 @@ function addBankAccount() {
         <input type="text" id="bank-last4" class="form-input" maxlength="4" placeholder="XXXX"/>
       </div>
     </div>
+    ${acctColorPickerHtml('', '')}
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveBankAccount(null)">Save Account</button>
@@ -3460,6 +3508,7 @@ function editBankAccount(i) {
         <input type="text" id="bank-last4" class="form-input" maxlength="4" value="${b.lastFour||''}"/>
       </div>
     </div>
+    ${acctColorPickerHtml(b.color || '', b.color2 || '')}
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveBankAccount(${i})">Update Account</button>
@@ -3479,8 +3528,11 @@ function saveBankAccount(editIndex) {
 
   const found = BANK_PRESETS.find(p => p.label === bankName);
   const icon  = found?.icon  || '🏦';
-  const color = found?.color || '#1e293b';
-  const color2= found?.color2|| '#0f172a';
+  // User-picked card colour wins; otherwise fall back to the bank's preset colour.
+  const pickedC  = document.getElementById('acct-color')?.value  || '';
+  const pickedC2 = document.getElementById('acct-color2')?.value || '';
+  const color = pickedC  || found?.color || '#1e293b';
+  const color2= pickedC2 || found?.color2|| '#0f172a';
 
   const account = { id: genId(), bankName, type, balance, lastFour, icon, color, color2 };
   STATE.bankAccounts = STATE.bankAccounts || [];
@@ -6539,6 +6591,7 @@ function addCreditCard() {
       <div class="form-group"><label class="form-label">Due Date (optional)</label>
         <input type="date" id="cc-due" class="form-input"/></div>
     </div>
+    ${acctColorPickerHtml('', '')}
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveCreditCard(null)">Save Card</button>
@@ -6570,6 +6623,7 @@ function editCreditCard(i) {
       <div class="form-group"><label class="form-label">Due Date</label>
         <input type="date" id="cc-due" class="form-input" value="${c.dueDate||''}"/></div>
     </div>
+    ${acctColorPickerHtml(c.color || '', c.color2 || '')}
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveCreditCard(${i})">Update Card</button>
@@ -6585,8 +6639,11 @@ function saveCreditCard(editIndex) {
   const dueDate     = document.getElementById('cc-due')?.value || '';
 
   const preset = CARD_PRESETS.find(p => p.label === bankName);
-  const color  = preset?.color  || '#263238';
-  const color2 = preset?.color2 || '#102027';
+  // User-picked card colour wins; otherwise fall back to the card preset colour.
+  const pickedC  = document.getElementById('acct-color')?.value  || '';
+  const pickedC2 = document.getElementById('acct-color2')?.value || '';
+  const color  = pickedC  || preset?.color  || '#263238';
+  const color2 = pickedC2 || preset?.color2 || '#102027';
 
   const card = { id: genId(), bankName, network, limit, outstanding, lastFour, dueDate, color, color2 };
   STATE.creditCards = STATE.creditCards || [];
