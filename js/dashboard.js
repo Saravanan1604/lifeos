@@ -806,13 +806,12 @@ function renderDashboard() {
       </div>
 
       <!-- ── Financial Health Card ── -->
-      <div class="glass-card ${window.__IS_APP ? 'chart-planet-card' : ''}" id="dash-mr-health" style="padding:22px;margin-bottom:20px" onclick="${window.__IS_APP ? `openChartDetail('health', this)` : ''}">
-        ${window.__IS_APP ? `<span class="planet-emoji">⚡</span>` : ''}
+      <div class="glass-card" id="dash-mr-health" style="padding:22px;margin-bottom:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
           <p class="section-title" style="margin:0;display:flex;align-items:center;gap:6px">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             Financial Health
-            <button onclick="event.stopPropagation();mrPinChart('health','Financial Health')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+            <button onclick="mrPinChart('health','Financial Health')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             </button>
           </p>
@@ -825,13 +824,12 @@ function renderDashboard() {
       </div>
 
       <!-- ── 7 Income Streams Card ── -->
-      <div class="glass-card ${window.__IS_APP ? 'chart-planet-card' : ''}" id="dash-mr-stream" style="padding:22px;margin-bottom:20px" onclick="${window.__IS_APP ? `openChartDetail('stream', this)` : ''}">
-        ${window.__IS_APP ? `<span class="planet-emoji">🌊</span>` : ''}
+      <div class="glass-card" id="dash-mr-stream" style="padding:22px;margin-bottom:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
           <p class="section-title" style="margin:0;display:flex;align-items:center;gap:8px">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
             7 Income Streams
-            <button onclick="event.stopPropagation();mrPinChart('stream','7 Income Streams')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+            <button onclick="mrPinChart('stream','7 Income Streams')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             </button>
           </p>
@@ -839,16 +837,20 @@ function renderDashboard() {
         </div>
         <p style="font-size:12px;color:var(--text3);margin-bottom:8px">The average millionaire has 7 streams of income.</p>
         <div style="position:relative;height:300px"><canvas id="mr-stream-chart"></canvas></div>
-        <d      <!-- ── Where Your Money Goes Card ── -->
-      <div class="glass-card ${window.__IS_APP ? 'chart-planet-card' : ''}" id="dash-mr-flow" style="padding:22px;margin-bottom:20px" onclick="${window.__IS_APP ? `openChartDetail('flow', this)` : ''}">
-        ${window.__IS_APP ? `<span class="planet-emoji">🔄</span>` : ''}
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${strm.sums && strm.sums.map(s=>`<div style="display:flex;align-items:center;gap:7px;font-size:13px;padding:7px 10px;border-radius:10px;background:var(--glass);opacity:${s.total>0?1:0.5}"><span style="width:9px;height:9px;border-radius:50%;flex-shrink:0;background:${s.total>0?'#10b981':'#6b7280'}"></span><span style="flex:1;min-width:0;font-weight:600">${s.k}</span>${s.total>0?`<b style="font-size:12px">${fmt(Math.round(s.total))}</b>`:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}</div>`).join('')}
+        </div>
+      </div>
+
+      <!-- ── Where Your Money Goes Card ── -->
+      <div class="glass-card" id="dash-mr-flow" style="padding:22px;margin-bottom:20px">
         <p class="section-title" style="margin:0 0 4px;display:flex;align-items:center;gap:8px">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M12 22v-6.5a2.5 2.5 0 0 0-5 0V22"/><path d="M12 2v6.5a2.5 2.5 0 0 0 5 0V2"/><path d="M12 2v22"/><path d="M17 12H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M12 22v-6.5a2.5 2.5 0 0 0-5 0V22"/><path d="M12 2v6.5a2.5 2.5 0 0 0 5 0V2"/><path d="M12 2v20"/><path d="M17 12H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           Where Your Money Goes
-          <button onclick="event.stopPropagation();mrToggleFlowAmt()" style="background:none;border:none;color:${typeof _mrShowFlowAmt !== 'undefined' && _mrShowFlowAmt ? '#00c9a7' : 'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %">
+          <button onclick="mrToggleFlowAmt()" style="background:none;border:none;color:${typeof _mrShowFlowAmt !== 'undefined' && _mrShowFlowAmt ? '#00c9a7' : 'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
-          <button onclick="event.stopPropagation();mrPinChart('flow','Where Your Money Goes')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+          <button onclick="mrPinChart('flow','Where Your Money Goes')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </button>
         </p>
@@ -856,21 +858,20 @@ function renderDashboard() {
         <div style="position:relative;height:380px"><canvas id="mr-flow-chart"></canvas></div>
         <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
         <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
-          ${flow.incBy && flow.expBy ? [...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="event.stopPropagation();mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('') : ''}
-          ${(totalExpense>totalIncome?['From Savings / Debt']:['Savings']).concat(['Bank','Cash','Investments','Debt','Net Worth']).map(n=>{const neg=n==='From Savings / Debt';return `<button onclick="event.stopPropagation();mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:${neg?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};border:1px solid ${neg?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)'};color:${neg?'#ef4444':'#10b981'};cursor:pointer">${n}</button>`;}).join('')}
+          ${flow.incBy && flow.expBy ? [...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('') : ''}
+          ${(totalExpense>totalIncome?['From Savings / Debt']:['Savings']).concat(['Bank','Cash','Investments','Debt','Net Worth']).map(n=>{const neg=n==='From Savings / Debt';return `<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:${neg?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};border:1px solid ${neg?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)'};color:${neg?'#ef4444':'#10b981'};cursor:pointer">${n}</button>`;}).join('')}
         </div>
       </div>
 
       <!-- ── Wealth Flow Card ── -->
-      <div class="glass-card ${window.__IS_APP ? 'chart-planet-card' : ''}" id="dash-mr-wealth" style="padding:22px;margin-bottom:20px" onclick="${window.__IS_APP ? `openChartDetail('wealth', this)` : ''}">
-        ${window.__IS_APP ? `<span class="planet-emoji">💎</span>` : ''}
+      <div class="glass-card" id="dash-mr-wealth" style="padding:22px;margin-bottom:20px">
         <p class="section-title" style="margin:0 0 4px;display:flex;align-items:center;gap:8px">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M12 22v-6.5a2.5 2.5 0 0 0-5 0V22"/><path d="M12 2v6.5a2.5 2.5 0 0 0 5 0V2"/><path d="M12 2v22"/><path d="M17 12H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           Wealth Flow
-          <button onclick="event.stopPropagation();mrToggleFlowAmt()" style="background:none;border:none;color:${typeof _mrShowFlowAmt !== 'undefined' && _mrShowFlowAmt ? '#00c9a7' : 'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %">
+          <button onclick="mrToggleFlowAmt()" style="background:none;border:none;color:${typeof _mrShowFlowAmt !== 'undefined' && _mrShowFlowAmt ? '#00c9a7' : 'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
-          <button onclick="event.stopPropagation();mrPinChart('wealth','Wealth Flow')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+          <button onclick="mrPinChart('wealth','Wealth Flow')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </button>
         </p>
@@ -904,8 +905,7 @@ function renderDashboard() {
       })()}
 
       <!-- ── Financial Overview line chart card ─────────────────────── -->
-      <div class="glass-card ${window.__IS_APP ? 'chart-planet-card' : ''}" id="dash-fin-overview" style="padding:22px;margin-bottom:20px" onclick="${window.__IS_APP ? `openChartDetail('combined', this)` : ''}">
-        ${window.__IS_APP ? `<span class="planet-emoji">📈</span>` : ''}
+      <div class="glass-card" id="dash-fin-overview" style="padding:22px;margin-bottom:20px">
         <!-- Header row -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <div>
@@ -914,7 +914,7 @@ function renderDashboard() {
             </p>
             <p style="font-size:11px;color:var(--text3);margin-top:2px">Last 12 months · Income · Expense · Savings · Net Worth</p>
           </div>
-          <button class="btn-icon btn-sm" onclick="event.stopPropagation();navigate('finance')" style="color:var(--teal);border-color:rgba(0,201,167,0.3)">View All →</button>
+          <button class="btn-icon btn-sm" onclick="navigate('finance')" style="color:var(--teal);border-color:rgba(0,201,167,0.3)">View All →</button>
         </div>
 
         <!-- Two-column: chart | spending list -->
@@ -1031,11 +1031,10 @@ function renderDashboard() {
 
       <!-- ── Life Score Card ─────────────────────── -->
       <div style="margin-bottom:20px" id="dash-lifescore-card">
-        <div class="glass-card ${window.__IS_APP ? 'chart-planet-card' : ''}" style="padding:22px" onclick="${window.__IS_APP ? `openChartDetail('radar', this)` : ''}">
-          ${window.__IS_APP ? `<span class="planet-emoji">🏆</span>` : ''}
+        <div class="glass-card" style="padding:22px">
           <div class="section-header" style="margin-bottom:14px">
             <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Life Score</p>
-            <span style="font-size:26px;font-weight:900;color:var(--teal);cursor:pointer" onclick="event.stopPropagation();navigate('achievements')">${scores.overall}<span style="font-size:13px;font-weight:400;color:var(--text3)">/100</span></span>
+            <span style="font-size:26px;font-weight:900;color:var(--teal);cursor:pointer" onclick="navigate('achievements')">${scores.overall}<span style="font-size:13px;font-weight:400;color:var(--text3)">/100</span></span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center" class="life-score-grid">
             <div style="height:230px;position:relative"><canvas id="dash-radar-chart"></canvas></div>
@@ -1047,7 +1046,7 @@ function renderDashboard() {
                 {label:'Career',      val:scores.careerScore,    page:'goals',   c:'#8b5cf6'},
                 {label:'Emotional',   val:scores.emotionalScore, page:'journal', c:'#ec4899'},
               ].map(s=>`
-                <div onclick="event.stopPropagation();navigate('${s.page}')" style="cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                <div onclick="navigate('${s.page}')" style="cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
                   <span style="font-size:11px;color:var(--text3);width:72px;flex-shrink:0">${s.label}</span>
                   <div style="flex:1;height:5px;border-radius:4px;background:rgba(255,255,255,0.07)">
                     <div style="height:5px;border-radius:4px;width:${s.val}%;background:${s.c};transition:.5s;box-shadow:0 0 6px ${s.c}66"></div>
@@ -1445,611 +1444,4 @@ function renderLifeScoreRadar(scores) {
       }}
     }
   });
-}
-
-/* ============================================================
-   build 483 — chart detail modal expanding logic & renderers
-   ============================================================ */
-function openChartDetail(type, cardEl) {
-  if (typeof Chart === 'undefined') return;
-
-  const rect = cardEl.getBoundingClientRect();
-  window._activeDetailCardEl = cardEl;
-  window._activeDetailRect = rect;
-
-  const modal = document.getElementById('chart-detail-modal');
-  if (!modal) return;
-
-  // Render text content
-  const data = _getChartDetailData(type);
-  document.getElementById('cd-title').innerHTML = data.title;
-  document.getElementById('cd-meta').innerHTML = data.metaHtml;
-
-  // Place modal matching the card's original bounds
-  modal.style.top = rect.top + 'px';
-  modal.style.left = rect.left + 'px';
-  modal.style.width = rect.width + 'px';
-  modal.style.height = rect.height + 'px';
-  modal.style.borderRadius = window.getComputedStyle(cardEl).borderRadius || '24px';
-  
-  modal.classList.add('active');
-
-  // Trigger reflow
-  modal.offsetHeight;
-
-  // Transition to full screen
-  modal.classList.add('expanded');
-
-  // Render chart after transition
-  setTimeout(() => {
-    _renderChartInModal(type);
-  }, 350);
-}
-
-function closeChartDetail() {
-  const modal = document.getElementById('chart-detail-modal');
-  if (!modal) return;
-
-  if (window._modalChartInst) {
-    window._modalChartInst.destroy();
-    window._modalChartInst = null;
-  }
-
-  // Shrink back to card bounds
-  modal.classList.remove('expanded');
-
-  if (window._activeDetailCardEl) {
-    const rect = window._activeDetailCardEl.getBoundingClientRect();
-    modal.style.top = rect.top + 'px';
-    modal.style.left = rect.left + 'px';
-    modal.style.width = rect.width + 'px';
-    modal.style.height = rect.height + 'px';
-    modal.style.borderRadius = window.getComputedStyle(window._activeDetailCardEl).borderRadius || '24px';
-  }
-
-  // Hide modal after transition
-  setTimeout(() => {
-    modal.classList.remove('active');
-  }, 400);
-}
-
-function _getChartDetailData(type) {
-  const isLight = document.body.classList.contains('light');
-  const txns = STATE.transactions || [];
-
-  if (type === 'combined') {
-    const totalIncome = txns.filter(t => t.type === 'income').reduce((a, t) => a + +t.amount, 0);
-    const totalExpense = txns.filter(t => t.type === 'expense').reduce((a, t) => a + +t.amount, 0);
-    const netSaved = totalIncome - totalExpense;
-    
-    const monthMap = {};
-    [...txns].sort((a,b) => a.date.localeCompare(b.date)).forEach(t => {
-      const d = new Date(t.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-      const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
-      if (!monthMap[key]) monthMap[key] = { label, income: 0, expense: 0 };
-      if (t.type === 'income') monthMap[key].income += t.amount;
-      else monthMap[key].expense += t.amount;
-    });
-
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d2 = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const k2 = `${d2.getFullYear()}-${String(d2.getMonth()+1).padStart(2,'0')}`;
-      const lbl2 = d2.toLocaleString('default', { month: 'short', year: '2-digit' });
-      if (!monthMap[k2]) monthMap[k2] = { label: lbl2, income: 0, expense: 0 };
-    }
-    const entries = Object.entries(monthMap).sort(([a],[b]) => a.localeCompare(b)).slice(-6);
-
-    const rowsHtml = entries.reverse().map(([key, v]) => {
-      const diff = v.income - v.expense;
-      return `<tr>
-        <td style="font-weight:700">${v.label}</td>
-        <td style="color:#10b981">+${fmt(Math.round(v.income))}</td>
-        <td style="color:#ef4444">-${fmt(Math.round(v.expense))}</td>
-        <td style="font-weight:800;color:${diff >= 0 ? '#00c9a7' : '#ef4444'}">${fmt(Math.round(diff))}</td>
-      </tr>`;
-    }).join('');
-
-    return {
-      title: 'Financial Overview 📈',
-      metaHtml: `
-        <div class="cd-table-card">
-          <h4>Summary Metrics</h4>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-            <div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)">
-              <span style="font-size:11px;color:var(--text3)">Total Income</span>
-              <p style="font-size:18px;font-weight:800;color:#10b981;margin:4px 0 0">+${fmt(Math.round(totalIncome))}</p>
-            </div>
-            <div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)">
-              <span style="font-size:11px;color:var(--text3)">Total Expense</span>
-              <p style="font-size:18px;font-weight:800;color:#ef4444;margin:4px 0 0">-${fmt(Math.round(totalExpense))}</p>
-            </div>
-          </div>
-          <div style="background:rgba(0,201,167,0.06);padding:12px;border-radius:12px;border:1px solid rgba(0,201,167,0.15);text-align:center">
-            <span style="font-size:11px;color:var(--text3)">Net Savings Rate</span>
-            <p style="font-size:22px;font-weight:900;color:#00c9a7;margin:4px 0 0">${totalIncome > 0 ? Math.round((netSaved / totalIncome) * 100) : 0}%</p>
-          </div>
-        </div>
-        <div class="cd-table-card">
-          <h4>Recent Months Breakdown</h4>
-          <table class="cd-table">
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Income</th>
-                <th>Expenses</th>
-                <th>Net</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
-        </div>
-        <button class="cd-btn-nav" onclick="closeChartDetail();navigate('finance')">
-          View All Transactions →
-        </button>
-      `
-    };
-  }
-
-  if (type === 'radar') {
-    const scores = calcLifeScore();
-    const dims = [
-      { l: 'Wealth', v: scores.wealthScore, desc: 'Based on savings rate & investments logging', color: '#10b981', page: 'finance' },
-      { l: 'Health', v: scores.healthScore, desc: 'Computed from mood logs & average sleep time', color: '#3b82f6', page: 'health' },
-      { l: 'Productivity', v: scores.prodScore, desc: 'Completion percentage of daily habits', color: '#f59e0b', page: 'habits' },
-      { l: 'Career', v: scores.careerScore, desc: 'Skills count & job application trackers', color: '#8b5cf6', page: 'goals' },
-      { l: 'Emotional', v: scores.emotionalScore, desc: 'Average mental state from daily journals', color: '#ec4899', page: 'journal' }
-    ];
-
-    const listHtml = dims.map(d => `
-      <div style="display:flex;align-items:start;gap:12px;padding:12px;border-bottom:1px solid rgba(255,255,255,0.05)" onclick="closeChartDetail();navigate('${d.page}')">
-        <span style="width:12px;height:12px;border-radius:50%;background:${d.color};margin-top:4px;flex-shrink:0"></span>
-        <div style="flex:1">
-          <p style="font-weight:700;font-size:14px;margin:0;color:var(--text1)">${d.l}: ${d.v}/100</p>
-          <p style="font-size:11px;color:var(--text3);margin:2px 0 0">${d.desc}</p>
-        </div>
-        <span style="font-size:12px;color:var(--teal)">Edit →</span>
-      </div>
-    `).join('');
-
-    return {
-      title: 'Life Score 🏆',
-      metaHtml: `
-        <div class="cd-table-card">
-          <div style="text-align:center;padding:12px 0">
-            <span style="font-size:12px;color:var(--text3)">Overall Rating</span>
-            <p style="font-size:48px;font-weight:900;color:var(--teal);margin:4px 0">${scores.overall}<span style="font-size:20px;font-weight:400;color:var(--text3)">/100</span></p>
-            <p style="font-size:12px;color:#10b981;margin:0">Balanced across 5 life dimensions</p>
-          </div>
-        </div>
-        <div class="cd-table-card">
-          <h4>Score Breakdown</h4>
-          <div style="display:flex;flex-direction:column">${listHtml}</div>
-        </div>
-      `
-    };
-  }
-
-  if (type === 'health') {
-    const ptx = filterTxByAnchor(STATE.transactions || [], _dashPeriod === 'all' ? 'all' : _dashPeriod, _dashAnchorDate || today());
-    const m = typeof _mrMonthlyEquiv === 'function' ? _mrMonthlyEquiv(ptx) : { income: 0, expense: 0 };
-    const fh = typeof _mrFinHealth === 'function' ? _mrFinHealth(ptx, m, STATE.transactions || []) : { axes: [], overall: 50 };
-
-    const tipsHtml = fh.axes.map(a => `
-      <div style="display:flex;gap:10px;padding:12px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.05);border-radius:12px;margin-bottom:8px">
-        <span style="font-size:18px">${a.v >= 70 ? '🟢' : a.v >= 40 ? '🟡' : '🔴'}</span>
-        <div style="flex:1">
-          <p style="font-weight:700;font-size:13px;margin:0;color:var(--text2)">${a.k}: ${a.v}/100</p>
-          <p style="font-size:12px;color:var(--text3);margin:3px 0 0">${a.tip}</p>
-        </div>
-      </div>
-    `).join('');
-
-    return {
-      title: 'Financial Health ⚡',
-      metaHtml: `
-        <div class="cd-table-card">
-          <div style="text-align:center;padding:10px 0">
-            <span style="font-size:12px;color:var(--text3)">Health Index</span>
-            <p style="font-size:44px;font-weight:900;color:${fh.overall>=70?'#10b981':fh.overall>=40?'#f59e0b':'#ef4444'};margin:4px 0">${fh.overall}<span style="font-size:18px;font-weight:400;color:var(--text3)">/100</span></p>
-          </div>
-        </div>
-        <div class="cd-table-card">
-          <h4>Health Pillars</h4>
-          <div>${tipsHtml}</div>
-        </div>
-      `
-    };
-  }
-
-  if (type === 'stream') {
-    const ptx = filterTxByAnchor(STATE.transactions || [], _dashPeriod === 'all' ? 'all' : _dashPeriod, _dashAnchorDate || today());
-    const strm = typeof _mrIncomeStreams === 'function' ? _mrIncomeStreams(ptx) : { sums: [], active: 0 };
-
-    const streamsHtml = strm.sums.map(s => {
-      const active = s.total > 0;
-      return `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;margin-bottom:8px;opacity:${active ? 1 : 0.65}">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="width:10px;height:10px;border-radius:50%;background:${active ? '#10b981' : '#6b7280'}"></span>
-            <span style="font-weight:600;font-size:13px">${s.k}</span>
-          </div>
-          <span style="font-weight:700;font-size:13px;color:${active ? '#10b981' : 'var(--text3)'}">${active ? `₹${Math.round(s.total).toLocaleString('en-IN')}` : 'Inactive'}</span>
-        </div>
-      `;
-    }).join('');
-
-    return {
-      title: '7 Income Streams 🌊',
-      metaHtml: `
-        <div class="cd-table-card">
-          <div style="text-align:center;padding:10px 0">
-            <span style="font-size:12px;color:var(--text3)">Active Streams</span>
-            <p style="font-size:44px;font-weight:900;color:#10b981;margin:4px 0">${strm.active}<span style="font-size:18px;font-weight:400;color:var(--text3)"> / 7</span></p>
-          </div>
-        </div>
-        <div class="cd-table-card">
-          <h4>Stream Status</h4>
-          <div>${streamsHtml}</div>
-        </div>
-      `
-    };
-  }
-
-  if (type === 'flow') {
-    const ptx = filterTxByAnchor(STATE.transactions || [], _dashPeriod === 'all' ? 'all' : _dashPeriod, _dashAnchorDate || today());
-    const flow = typeof _mrFlow === 'function' ? _mrFlow(ptx) : { totalInc: 0, totalExp: 0 };
-
-    return {
-      title: 'Where Money Goes 🔄',
-      metaHtml: `
-        <div class="cd-table-card">
-          <h4>Lifecycle Analysis</h4>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)">
-              <span style="font-size:11px;color:var(--text3)">Income Sources</span>
-              <p style="font-size:18px;font-weight:800;color:#10b981;margin:4px 0 0">${Object.keys(flow.incBy || {}).length}</p>
-            </div>
-            <div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)">
-              <span style="font-size:11px;color:var(--text3)">Expense Categories</span>
-              <p style="font-size:18px;font-weight:800;color:#ef4444;margin:4px 0 0">${Object.keys(flow.expBy || {}).length}</p>
-            </div>
-          </div>
-        </div>
-        <button class="cd-btn-nav" onclick="closeChartDetail();navigate('finance')">
-          Manage Accounts & Cash →
-        </button>
-      `
-    };
-  }
-
-  if (type === 'wealth') {
-    const n = _mrNetWorth();
-    const assets = n.liquid + n.invest;
-
-    return {
-      title: 'Wealth Flow 💎',
-      metaHtml: `
-        <div class="cd-table-card">
-          <h4>Asset Ownership</h4>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-            <div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)">
-              <span style="font-size:11px;color:var(--text3)">Owned (Net Worth)</span>
-              <p style="font-size:18px;font-weight:800;color:#10b981;margin:4px 0 0">${fmt(Math.round(n.net))}</p>
-            </div>
-            <div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)">
-              <span style="font-size:11px;color:var(--text3)">Owed (Debt)</span>
-              <p style="font-size:18px;font-weight:800;color:#ef4444;margin:4px 0 0">${fmt(Math.round(n.debt))}</p>
-            </div>
-          </div>
-          <div style="background:rgba(59,130,246,0.08);padding:12px;border-radius:12px;border:1px solid rgba(59,130,246,0.15);text-align:center">
-            <span style="font-size:11px;color:var(--text3)">Total Assets Value</span>
-            <p style="font-size:22px;font-weight:900;color:#3b82f6;margin:4px 0 0">${fmt(Math.round(assets))}</p>
-          </div>
-        </div>
-        <button class="cd-btn-nav" onclick="closeChartDetail();navigate('investments')">
-          View All Assets Ledger →
-        </button>
-      `
-    };
-  }
-
-  return { title: 'Chart Detail', metaHtml: '' };
-}
-
-function _renderChartInModal(type) {
-  const canvas = document.getElementById('cd-chart-canvas');
-  if (!canvas) return;
-
-  if (window._modalChartInst) {
-    try { window._modalChartInst.destroy(); } catch (_) {}
-    window._modalChartInst = null;
-  }
-
-  const isLight = document.body.classList.contains('light');
-  const grid = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
-  const tick = isLight ? '#374151' : '#94a3b8';
-  const ctx = canvas.getContext('2d');
-
-  const ptx = filterTxByAnchor(STATE.transactions || [], _dashPeriod === 'all' ? 'all' : _dashPeriod, _dashAnchorDate || today());
-  const m = typeof _mrMonthlyEquiv === 'function' ? _mrMonthlyEquiv(ptx) : { income: 0, expense: 0 };
-
-  if (type === 'combined') {
-    const txns = STATE.transactions || [];
-    const monthMap = {};
-    [...txns].sort((a,b) => a.date.localeCompare(b.date)).forEach(t => {
-      const d = new Date(t.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-      const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
-      if (!monthMap[key]) monthMap[key] = { label, income: 0, expense: 0 };
-      if (t.type === 'income') monthMap[key].income += t.amount;
-      else monthMap[key].expense += t.amount;
-    });
-
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d2 = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const k2 = `${d2.getFullYear()}-${String(d2.getMonth()+1).padStart(2,'0')}`;
-      const lbl2 = d2.toLocaleString('default', { month: 'short', year: '2-digit' });
-      if (!monthMap[k2]) monthMap[k2] = { label: lbl2, income: 0, expense: 0 };
-    }
-    const entries = Object.entries(monthMap).sort(([a],[b]) => a.localeCompare(b)).slice(-12);
-
-    const labels  = entries.map(([,v]) => v.label);
-    const incData = entries.map(([,v]) => Math.round(v.income));
-    const expData = entries.map(([,v]) => Math.round(v.expense));
-    const savData = entries.map(([,v]) => Math.round(v.income - v.expense));
-    let run = 0;
-    const nwData = entries.map(([,v]) => { run += (v.income - v.expense); return Math.round(run); });
-
-    const fmtY = v => `₹${Math.abs(v)>=100000?(v/100000).toFixed(1)+'L':Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v}`;
-
-    window._modalChartInst = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Net Worth', data: nwData,
-            borderColor: '#00c9a7', borderWidth: 3,
-            backgroundColor: 'transparent',
-            fill: false, tension: 0.4,
-            pointBackgroundColor: '#00c9a7', pointRadius: 4,
-            yAxisID: 'yNW', order: 0
-          },
-          {
-            label: 'Income', data: incData,
-            borderColor: '#eab308', borderWidth: 2,
-            backgroundColor: 'transparent',
-            fill: false, tension: 0.4,
-            pointBackgroundColor: '#eab308', pointRadius: 3,
-            yAxisID: 'y', order: 2
-          },
-          {
-            label: 'Expense', data: expData,
-            borderColor: '#ef4444', borderWidth: 2,
-            backgroundColor: 'transparent',
-            fill: false, tension: 0.4,
-            pointBackgroundColor: '#ef4444', pointRadius: 3,
-            yAxisID: 'y', order: 3
-          }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: true } },
-        scales: {
-          x: { ticks: { color: tick }, grid: { color: grid } },
-          y: { position: 'left', ticks: { color: tick, callback: fmtY }, grid: { color: grid } },
-          yNW: { position: 'right', ticks: { color: '#00c9a7', callback: fmtY }, grid: { drawOnChartArea: false } }
-        }
-      }
-    });
-  }
-
-  else if (type === 'radar') {
-    const scores = calcLifeScore();
-    window._modalChartInst = new Chart(canvas, {
-      type: 'radar',
-      data: {
-        labels: ['Wealth', 'Health', 'Productivity', 'Career', 'Emotional'],
-        datasets: [{
-          data: [scores.wealthScore, scores.healthScore, scores.prodScore, scores.careerScore, scores.emotionalScore],
-          borderColor: '#00c9a7', backgroundColor: 'rgba(0,201,167,0.2)',
-          borderWidth: 2, pointBackgroundColor: '#00c9a7', pointRadius: 4
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { r: {
-          min: 0, max: 100, ticks: { stepSize: 25, color: tick, backdropColor: 'transparent' },
-          grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: tick, font: { size: 12, weight: '700' } }
-        } }
-      }
-    });
-  }
-
-  else if (type === 'health') {
-    const fh = typeof _mrFinHealth === 'function' ? _mrFinHealth(ptx, m, STATE.transactions || []) : { axes: [], overall: 50 };
-    window._modalChartInst = new Chart(canvas, {
-      type: 'radar',
-      data: {
-        labels: fh.axes.map(a => a.k),
-        datasets: [{
-          data: fh.axes.map(a => a.v),
-          borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.25)',
-          borderWidth: 2, pointBackgroundColor: '#6366f1', pointRadius: 4,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { r: {
-          min: 0, max: 100, ticks: { stepSize: 20, color: tick, backdropColor: 'transparent' },
-          grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: tick, font: { size: 11, weight: '600' } }
-        } }
-      }
-    });
-  }
-
-  else if (type === 'stream') {
-    const strm = typeof _mrIncomeStreams === 'function' ? _mrIncomeStreams(ptx) : { sums: [], active: 0 };
-    const max = Math.max(1, ...strm.sums.map(s => s.total));
-    window._modalChartInst = new Chart(canvas, {
-      type: 'radar',
-      data: {
-        labels: strm.sums.map(s => s.k),
-        datasets: [{
-          data: strm.sums.map(s => Math.round((s.total / max) * 100)),
-          borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.3)',
-          borderWidth: 2, pointBackgroundColor: '#10b981', pointRadius: 4,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => fmt(strm.sums[ctx.dataIndex].total) } }
-        },
-        scales: { r: {
-          min: 0, max: 100, ticks: { display: false },
-          grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: tick, font: { size: 11, weight: '600' } }
-        } }
-      }
-    });
-  }
-
-  else if (type === 'flow') {
-    const flow = typeof _mrFlow === 'function' ? _mrFlow(ptx) : null;
-    if (!flow || flow.totalInc <= 0) return;
-    const nw = _mrNetWorth();
-    const palette = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#ec4899','#6366f1','#14b8a6','#f97316'];
-    let ci = 0; const colorMap = {};
-    const colorOf = (k) => (colorMap[k] = colorMap[k] || palette[(ci++) % palette.length]);
-    const data = [];
-    const column = {};
-
-    Object.entries(flow.incBy).forEach(([k, v]) => { if (v > 0) { data.push({ from: k, to: 'Income', flow: Math.round(v) }); colorOf(k); column[k] = 0; } });
-    column['Income'] = 1;
-
-    const debtRe = /emi|loan|mortgage|credit\s?card|card\s?payment|debt/i;
-    const invRe = /investment|invest|mutual\s?fund|mutual|sip|stock|equity|shares|nps|ppf|elss/i;
-    let emi = 0, invested = 0; const spend = {};
-    Object.entries(flow.expBy).forEach(([k, v]) => {
-      if (v <= 0) return;
-      if (debtRe.test(k)) emi += v;
-      else if (invRe.test(k)) invested += v;
-      else spend[k] = v;
-    });
-    const consumption = Object.values(spend).reduce((a, b) => a + b, 0);
-    const savings = flow.totalInc - consumption - emi;
-
-    const deficit = Math.round((consumption + emi) - flow.totalInc);
-    if (deficit > 0) {
-      data.push({ from: 'From Savings / Debt', to: 'Income', flow: deficit });
-      colorMap['From Savings / Debt'] = '#ef4444'; column['From Savings / Debt'] = 0;
-    }
-
-    const exps = Object.entries(spend).sort((a, b) => b[1] - a[1]);
-    const top = exps.slice(0, 7); const restSum = exps.slice(7).reduce((a, e) => a + e[1], 0);
-    top.forEach(([k, v]) => { data.push({ from: 'Income', to: k, flow: Math.round(v) }); colorOf(k); column[k] = 2; });
-    if (restSum > 0) { data.push({ from: 'Income', to: 'Other', flow: Math.round(restSum) }); colorOf('Other'); column['Other'] = 2; }
-    if (emi > 0) { data.push({ from: 'Income', to: 'EMI', flow: Math.round(emi) }); column['EMI'] = 2; }
-
-    if (savings > 0) {
-      data.push({ from: 'Income', to: 'Savings', flow: Math.round(savings) }); column['Savings'] = 2;
-      const invAmt = Math.min(savings, invested);
-      const leftover = Math.max(0, savings - invAmt);
-      if (invAmt > 0) {
-        data.push({ from: 'Savings', to: 'Investments', flow: Math.round(invAmt) }); column['Investments'] = 3;
-        data.push({ from: 'Investments', to: 'Net Worth', flow: Math.round(invAmt) }); column['Net Worth'] = 4;
-      }
-      if (leftover > 0) {
-        let parts = [['Bank', nw.bank], ['Cash', nw.cash]].filter(p => p[1] > 0);
-        if (!parts.length) parts = [['Bank', 1]];
-        const psum = parts.reduce((a, p) => a + p[1], 0);
-        parts.forEach(([name, w]) => {
-          const amt = Math.round(leftover * w / psum);
-          if (amt <= 0) return;
-          data.push({ from: 'Savings', to: name, flow: amt }); column[name] = 3;
-          data.push({ from: name, to: 'Net Worth', flow: amt }); column['Net Worth'] = 4;
-        });
-      }
-    }
-
-    colorMap['Income'] = '#22c55e'; colorMap['Savings'] = '#10b981';
-    colorMap['Bank'] = '#3b82f6'; colorMap['Cash'] = '#06b6d4'; colorMap['Investments'] = '#8b5cf6';
-    colorMap['Net Worth'] = '#10b981'; colorMap['EMI'] = '#ef4444'; colorMap['Other'] = '#64748b'; colorMap['Debt'] = '#ef4444';
-
-    const flowLabels = _mrShowFlowAmt ? _mrNodeLabels(data) : {};
-    _mrScaleFlows(data, 6, 90);
-
-    window._modalChartInst = new Chart(ctx, {
-      type: 'sankey',
-      data: { datasets: [{
-        data, column,
-        colorFrom: (c) => colorOf(c.dataset.data[c.dataIndex].from),
-        colorTo: (c) => colorOf(c.dataset.data[c.dataIndex].to),
-        colorMode: 'gradient', labels: flowLabels, color: tick, font: { size: 10, weight: '600' }, borderWidth: 0,
-      }] },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.real != null ? ctx.raw.real : ctx.raw.flow)}` } } },
-      }
-    });
-  }
-
-  else if (type === 'wealth') {
-    const n = _mrNetWorth();
-    const assets = n.liquid + n.invest;
-    if (assets <= 0) return;
-
-    const wcolor = { Bank: '#3b82f6', Cash: '#06b6d4', Investments: '#8b5cf6', 'Total Assets': '#22c55e', 'Net Worth': '#10b981', Debt: '#ef4444', 'Shortfall (negative)': '#ef4444' };
-    const wdata = [];
-    if (n.bank > 0) wdata.push({ from: 'Bank', to: 'Total Assets', flow: Math.round(n.bank) });
-    if (n.cash > 0) wdata.push({ from: 'Cash', to: 'Total Assets', flow: Math.round(n.cash) });
-    if (n.invest > 0) wdata.push({ from: 'Investments', to: 'Total Assets', flow: Math.round(n.invest) });
-    let wcol;
-    if (n.net >= 0) {
-      wdata.push({ from: 'Total Assets', to: 'Net Worth', flow: Math.round(n.net) });
-      if (n.debt > 0) wdata.push({ from: 'Total Assets', to: 'Debt', flow: Math.round(n.debt) });
-      wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Net Worth': 2, Debt: 2 };
-    } else {
-      wdata.push({ from: 'Total Assets', to: 'Debt', flow: Math.round(assets) });
-      wdata.push({ from: 'Shortfall (negative)', to: 'Debt', flow: Math.round(n.debt - assets) });
-      wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Shortfall (negative)': 1, Debt: 2 };
-    }
-    if (n.debt > 0) {
-      const loansO = (STATE.loans || []).filter(l => (+l.outstanding || 0) > 0);
-      const cardsO = (STATE.creditCards || []).filter(c => (+c.outstanding || 0) > 0);
-      const dcol = (wcol['Debt'] || 2) + 1;
-      loansO.forEach(l => { const nm = (l.name || l.type || 'Loan'); wdata.push({ from: 'Debt', to: nm, flow: Math.round(+l.outstanding) }); wcol[nm] = dcol; wcolor[nm] = '#ef4444'; });
-      cardsO.forEach(c => { const nm = (c.bankName || c.name || 'Card') + ' 💳'; wdata.push({ from: 'Debt', to: nm, flow: Math.round(+c.outstanding) }); wcol[nm] = dcol; wcolor[nm] = '#f97316'; });
-    }
-    const wLabels = _mrShowFlowAmt ? _mrNodeLabels(wdata, false) : {};
-    _mrScaleFlows(wdata, 6, 90);
-
-    window._modalChartInst = new Chart(ctx, {
-      type: 'sankey',
-      data: { datasets: [{
-        data: wdata, column: wcol,
-        colorFrom: (c) => wcolor[c.dataset.data[c.dataIndex].from] || '#64748b',
-        colorTo: (c) => wcolor[c.dataset.data[c.dataIndex].to] || '#64748b',
-        colorMode: 'gradient', labels: wLabels, color: tick, font: { size: 10, weight: '600' }, borderWidth: 0,
-      }] },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.real != null ? ctx.raw.real : ctx.raw.flow)}` } } },
-      }
-    });
-  }
 }
