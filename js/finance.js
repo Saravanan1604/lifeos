@@ -1875,10 +1875,7 @@ function acctSection(type) {
               <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
                 <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">${b.bankName}</span>
                 <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
-                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openCardQuickMenu('bank','${b.id}')" title="Add log" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
-                  <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('bank', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
-                  🏛️
-                  </div>
+                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openAccountMenu('bank', ${i})" title="Account options" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.5rem;font-weight:700;line-height:1">⋯</div>
                 </div>
               </div>
               <div style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(b.balance)}</div>
@@ -1938,10 +1935,7 @@ function acctSection(type) {
                   <span style="opacity:0.6;font-size:0.7rem;flex-shrink:0">${c.network||'VISA'}</span>
                 </div>
                 <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
-                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openCardQuickMenu('card','${c.id}')" title="Pay / update" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
-                  <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('card', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
-                  💳
-                  </div>
+                  <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openAccountMenu('card', ${i})" title="Card options" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.5rem;font-weight:700;line-height:1">⋯</div>
                 </div>
               </div>
               <div style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(used)}</div>
@@ -2004,10 +1998,7 @@ function acctSection(type) {
             <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
               <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">${ca.name}</span>
               <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
-                <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openCardQuickMenu('cash','${ca.id}')" title="Log cash" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;font-weight:700">＋</div>
-                <div class="card-icon-trigger" onclick="event.stopPropagation(); openAccountOptions('cash', ${i})" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem">
-                💵
-                </div>
+                <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openAccountMenu('cash', ${i})" title="Wallet options" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.5rem;font-weight:700;line-height:1">⋯</div>
               </div>
             </div>
             <div style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(ca.balance||0)}</div>
@@ -2050,62 +2041,56 @@ function acctSection(type) {
 // Mobile-friendly account options panel for quick actions
 // Per-card "+" quick menu (app): log a balance, upload (import) or
 // download (export) right from the account card.
-function openCardQuickMenu(type, id) {
-  const logAction = type === 'bank' ? `openQuickBalanceModal('${id}')`
-                  : type === 'card' ? `openUpdateCCModal('${id}')`
-                  : `openQuickCashModal('${id}')`;
-  const logLabel  = type === 'card' ? 'Pay / Update Outstanding' : 'Add Log';
-  const importMode = type === 'card' ? 'card' : 'bank';
-  openModal('＋ Quick Actions', `
+// Single merged account menu (bank / cash / card). Replaces the old split
+// "Quick Actions" (log / import / export) and "Options" (edit / delete / add)
+// sheets — everything now lives in one sheet opened from the card's chip.
+function openAccountMenu(type, i) {
+  const cfg = {
+    bank: {
+      list: STATE.bankAccounts, title: '🏦 Bank Options',
+      logLabel: 'Update Balance / Add Log', logIcon: 'refresh-cw',
+      log: a => `openQuickBalanceModal('${a.id}')`,
+      edit: `editBankAccount(${i})`, del: `deleteBankAccount(${i})`, delLabel: 'Delete Account',
+      add: `addBankAccount()`, addLabel: 'Add New Bank', importMode: 'bank',
+    },
+    cash: {
+      list: STATE.cashAccounts, title: '💵 Cash Options',
+      logLabel: 'Update Balance / Add Log', logIcon: 'refresh-cw',
+      log: () => `updateCashBalance(${i})`,
+      edit: `editCashAccount(${i})`, del: `deleteCashAccount(${i})`, delLabel: 'Delete Wallet',
+      add: `addCashAccount()`, addLabel: 'Add New Wallet', importMode: 'bank',
+    },
+    card: {
+      list: STATE.creditCards, title: '💳 Card Options',
+      logLabel: 'Pay / Update Outstanding', logIcon: 'credit-card',
+      log: a => `openUpdateCCModal('${a.id}')`,
+      edit: `editCreditCard(${i})`, del: `deleteCreditCard(${i})`, delLabel: 'Delete Card',
+      add: `addCreditCard()`, addLabel: 'Add New Card', importMode: 'card',
+    },
+  }[type];
+  if (!cfg) return;
+  const acct = (cfg.list || [])[i];
+  if (!acct) return;
+  openModal(cfg.title, `
     <div class="account-options-menu" style="display:flex;flex-direction:column;gap:12px;padding:10px 0">
-      <button class="btn-action" onclick="closeModal(); ${logAction}" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="plus-circle" style="margin-right:8px"></i> ${logLabel}</button>
-      <button class="btn-action" onclick="closeModal(); openBalanceImport('${importMode}')" style="padding:16px;font-size:1.2rem"><i data-lucide="upload" style="margin-right:8px"></i> Upload (Import)</button>
+      <button class="btn-action" onclick="closeModal(); ${cfg.log(acct)}" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="${cfg.logIcon}" style="margin-right:8px"></i> ${cfg.logLabel}</button>
+      <button class="btn-action" onclick="closeModal(); ${cfg.edit}" style="padding:16px;font-size:1.2rem"><i data-lucide="edit" style="margin-right:8px"></i> Edit Details</button>
+      <button class="btn-action" onclick="closeModal(); openBalanceImport('${cfg.importMode}')" style="padding:16px;font-size:1.2rem"><i data-lucide="upload" style="margin-right:8px"></i> Upload (Import)</button>
       <button class="btn-action" onclick="closeModal(); if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()" style="padding:16px;font-size:1.2rem"><i data-lucide="download" style="margin-right:8px"></i> Download (Export)</button>
+      <button class="btn-action" onclick="closeModal(); ${cfg.del}" style="padding:16px;font-size:1.2rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444"><i data-lucide="trash-2" style="margin-right:8px"></i> ${cfg.delLabel}</button>
+      <button class="btn-action" onclick="closeModal(); ${cfg.add}" style="padding:16px;font-size:1.2rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)"><i data-lucide="plus" style="margin-right:8px"></i> ${cfg.addLabel}</button>
       <button class="btn-action" onclick="closeModal()" style="padding:16px;font-size:1.2rem;background:transparent;border:1px solid rgba(255,255,255,0.08)"><i data-lucide="x" style="margin-right:8px"></i> Cancel</button>
     </div>
   `);
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
 }
 
-function openAccountOptions(type, i) {
-  if (type === 'bank') {
-    const acct = (STATE.bankAccounts || [])[i];
-    if (!acct) return;
-    openModal('🏛️ Bank Options', `
-      <div class="account-options-menu" style="display:flex;flex-direction:column;gap:12px;padding:10px 0">
-        <button class="btn-action" onclick="closeModal(); updateBankBalance(${i})" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="refresh-cw" style="margin-right:8px"></i> Update Balance</button>
-        <button class="btn-action" onclick="closeModal(); editBankAccount(${i})" style="padding:16px;font-size:1.2rem"><i data-lucide="edit" style="margin-right:8px"></i> Edit Details</button>
-        <button class="btn-action" onclick="closeModal(); deleteBankAccount(${i})" style="padding:16px;font-size:1.2rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444"><i data-lucide="trash-2" style="margin-right:8px"></i> Delete Account</button>
-        <button class="btn-action" onclick="closeModal(); addBankAccount()" style="padding:16px;font-size:1.2rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)"><i data-lucide="plus" style="margin-right:8px"></i> Add New Bank</button>
-        <button class="btn-action" onclick="closeModal()" style="padding:16px;font-size:1.2rem;background:transparent;border:1px solid rgba(255,255,255,0.08)"><i data-lucide="x" style="margin-right:8px"></i> Cancel</button>
-      </div>
-    `);
-  } else if (type === 'card') {
-    const card = (STATE.creditCards || [])[i];
-    if (!card) return;
-    openModal('💳 Card Options', `
-      <div class="account-options-menu" style="display:flex;flex-direction:column;gap:12px;padding:10px 0">
-        <button class="btn-action" onclick="closeModal(); openUpdateCCModal('${card.id}')" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="credit-card" style="margin-right:8px"></i> Pay / Update Outstanding</button>
-        <button class="btn-action" onclick="closeModal(); editCreditCard(${i})" style="padding:16px;font-size:1.2rem"><i data-lucide="edit" style="margin-right:8px"></i> Edit Details</button>
-        <button class="btn-action" onclick="closeModal(); deleteCreditCard(${i})" style="padding:16px;font-size:1.2rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444"><i data-lucide="trash-2" style="margin-right:8px"></i> Delete Card</button>
-        <button class="btn-action" onclick="closeModal(); addCreditCard()" style="padding:16px;font-size:1.2rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)"><i data-lucide="plus" style="margin-right:8px"></i> Add New Card</button>
-        <button class="btn-action" onclick="closeModal()" style="padding:16px;font-size:1.2rem;background:transparent;border:1px solid rgba(255,255,255,0.08)"><i data-lucide="x" style="margin-right:8px"></i> Cancel</button>
-      </div>
-    `);
-  } else if (type === 'cash') {
-    const ca = (STATE.cashAccounts || [])[i];
-    if (!ca) return;
-    openModal('💵 Cash Options', `
-      <div class="account-options-menu" style="display:flex;flex-direction:column;gap:12px;padding:10px 0">
-        <button class="btn-action" onclick="closeModal(); updateCashBalance(${i})" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="refresh-cw" style="margin-right:8px"></i> Log Cash / Update Balance</button>
-        <button class="btn-action" onclick="closeModal(); editCashAccount(${i})" style="padding:16px;font-size:1.2rem"><i data-lucide="edit" style="margin-right:8px"></i> Edit Details</button>
-        <button class="btn-action" onclick="closeModal(); deleteCashAccount(${i})" style="padding:16px;font-size:1.2rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444"><i data-lucide="trash-2" style="margin-right:8px"></i> Delete Wallet</button>
-        <button class="btn-action" onclick="closeModal(); addCashAccount()" style="padding:16px;font-size:1.2rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)"><i data-lucide="plus" style="margin-right:8px"></i> Add New Wallet</button>
-        <button class="btn-action" onclick="closeModal()" style="padding:16px;font-size:1.2rem;background:transparent;border:1px solid rgba(255,255,255,0.08)"><i data-lucide="x" style="margin-right:8px"></i> Cancel</button>
-      </div>
-    `);
-  }
+// Back-compat aliases (in case any older handler still references these).
+function openCardQuickMenu(type, id) {
+  const list = type === 'bank' ? STATE.bankAccounts : type === 'card' ? STATE.creditCards : STATE.cashAccounts;
+  openAccountMenu(type, (list || []).findIndex(a => a.id === id));
 }
+function openAccountOptions(type, i) { openAccountMenu(type, i); }
 
 let _finView = 'overview'; // 'overview' (cards/charts/tx) | 'history' (bank-tracker trends)
 // Inject the Overview / History toggle at the top of the merged Finance page
