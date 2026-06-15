@@ -758,7 +758,11 @@ function _mrINR(n) { return '₹' + Math.round(+n || 0).toLocaleString('en-IN');
 
 // Show ₹ amount + % on Sankey node labels (toggled by the eye button).
 let _mrShowFlowAmt = true;
-function mrToggleFlowAmt() { _mrShowFlowAmt = !_mrShowFlowAmt; renderMoneyRules(); }
+function mrToggleFlowAmt() {
+  _mrShowFlowAmt = !_mrShowFlowAmt;
+  if (typeof renderDashboard === 'function') renderDashboard();
+  else renderMoneyRules();
+}
 
 // Build a node→label map ("Name · ₹X · Y%") from a Sankey link list (real values).
 function _mrNodeLabels(data, showPct = true) {
@@ -827,7 +831,8 @@ function mrSaveField(key, val) {
   const n = parseFloat(val);
   if (!isFinite(n) || n <= 0) delete STATE.settings[key]; else STATE.settings[key] = Math.round(n);
   saveState();
-  renderMoneyRules();
+  if (typeof renderDashboard === 'function') renderDashboard();
+  else renderMoneyRules();
 }
 
 // Open the All-Transactions page pre-filtered to this category + the same period.

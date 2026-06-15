@@ -6,7 +6,7 @@ const LO_PAGES = [
   'dashboard', 'finance', 'investments', 'transactions', 'notes',
   'yearly', 'budget', 'bank-tracker', 'health', 'habits', 'goals',
   'journal', 'achievements', 'ai-coach',
-  'categories', 'recurring', 'rules', 'settings', 'help'
+  'categories', 'recurring', 'settings', 'help'
 ];
 let _loEdit = false;
 
@@ -63,7 +63,7 @@ function applyPageLayout(page) {
   // Auto-reset layout on structural updates (Version Bump) to default template order
   // Skip for custom pages — their layout is user-defined, not template-dependent
   if (!isCustomPage(page)) {
-    const currentLayoutVer = 'v2';
+    const currentLayoutVer = 'v3';
     const verKey = 'lifeos_layout_ver_' + page;
     if (localStorage.getItem(verKey) !== currentLayoutVer) {
       localStorage.removeItem(_loKey(page));

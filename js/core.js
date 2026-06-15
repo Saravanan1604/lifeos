@@ -951,9 +951,6 @@ function _renderPage(page) {
     case 'spending':     renderSpendingOverview(); break;
     case 'category-detail': renderCategoryDetail(); break;
     case 'recurring':    renderRecurring();      break;
-    case 'rules':        renderMoneyRules();     break;
-    case 'heatmap':      renderHeatmap();        break;
-    case 'projection':   renderProjection();     break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;
     default:

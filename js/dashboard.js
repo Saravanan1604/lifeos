@@ -652,8 +652,32 @@ function renderDashboard() {
   const doneToday = comps.filter(c => c.date === today()).length;
   const scoreBarColor = s => s >= 70 ? '#10b981' : s >= 40 ? '#f59e0b' : '#ef4444';
 
+  // Money Rules calculations scoped to dashboard active period/anchor
+  const ptx = filterTxByAnchor(STATE.transactions || [], _dashPeriod === 'all' ? 'all' : _dashPeriod, _dashAnchorDate || today());
+  _mrLastTx = ptx; // expose globally for node drill-down modal lookup
+  const m = typeof _mrMonthlyEquiv === 'function' ? _mrMonthlyEquiv(ptx) : { income: totalIncome, expense: totalExpense };
+  const fh = typeof _mrFinHealth === 'function' ? _mrFinHealth(ptx, m, STATE.transactions || []) : { axes: [], overall: 50 };
+  const strm = typeof _mrIncomeStreams === 'function' ? _mrIncomeStreams(ptx) : { sums: [], active: 0 };
+  const flow = typeof _mrFlow === 'function' ? _mrFlow(ptx) : { invValue: 0, incBy: {}, expBy: {} };
+
+  const S = STATE.settings || {};
+  const invValue = flow.invValue || 0;
+  const netSaved = Math.max(0, txnsAll.reduce((a, t) => a + (t.type === 'income' ? +t.amount : -+t.amount || 0), 0));
+  const corpusGuess = Math.round(+S.mrCorpus || (invValue + netSaved)) || 1000000;
+  const age = Math.round(+S.mrAge || +(STATE.user?.age) || (STATE.user?.dob ? (new Date().getFullYear() - new Date(STATE.user.dob).getFullYear()) : 0) || 30);
+  const cover = +S.mrCover || 0;
+
+  const missing = [];
+  if (!S.mrAge) missing.push('age');
+  if (!S.mrCorpus) missing.push('retirement corpus');
+  if (!S.mrCover) missing.push('insurance cover');
+
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
+      <!-- ── Money Heatmap Card (Dashboard Top) ── -->
+      <div id="dash-heatmap-card" style="margin-bottom:20px">
+        <div id="dash-heatmap-container"></div>
+      </div>
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div class="dash-title-block">
@@ -756,6 +780,104 @@ function renderDashboard() {
       <!-- ── Core KPIs Grid ───────────────────────── -->
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px" class="kpi-grid" id="dash-kpi-card">
         ${_buildKpiCards(totalIncome, totalExpense, netWorth, habits, doneToday)}
+      </div>
+
+      <!-- ── Your Details Card (Personaliser inputs) ── -->
+      <div class="glass-card" id="dash-mr-details" style="padding:22px;margin-bottom:20px;${missing.length?'border:1px solid rgba(245,158,11,0.45)':''}">
+        <p class="section-title" style="margin:0 0 ${missing.length?'4px':'12px'};display:flex;align-items:center;gap:8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Your Details
+        </p>
+        ${missing.length?`<p style="font-size:13px;color:#f59e0b;margin-bottom:12px">Add your ${missing.join(', ')} to personalise the results below.</p>`:''}
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div>
+            <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:6px">Age</label>
+            <input type="number" value="${S.mrAge||''}" placeholder="30" style="width:100%;padding:12px 14px;font-size:16px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);box-sizing:border-box" onchange="mrSaveField('mrAge',this.value)">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:6px">Retirement corpus</label>
+            <input type="number" value="${S.mrCorpus||''}" placeholder="${invValue+netSaved||1000000}" style="width:100%;padding:12px 14px;font-size:16px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);box-sizing:border-box" onchange="mrSaveField('mrCorpus',this.value)">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:6px">Insurance cover</label>
+            <input type="number" value="${S.mrCover||''}" placeholder="0" style="width:100%;padding:12px 14px;font-size:16px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);box-sizing:border-box" onchange="mrSaveField('mrCover',this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Financial Health Card ── -->
+      <div class="glass-card" id="dash-mr-health" style="padding:22px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <p class="section-title" style="margin:0;display:flex;align-items:center;gap:6px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Financial Health
+            <button onclick="mrPinChart('health','Financial Health')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </button>
+          </p>
+          <span style="font-size:22px;font-weight:900;color:${fh.overall>=70?'#10b981':fh.overall>=40?'#f59e0b':'#ef4444'}">${fh.overall}<span style="font-size:13px;color:var(--text3)">/100</span></span>
+        </div>
+        <div style="position:relative;height:300px"><canvas id="mr-health-chart"></canvas></div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+          ${fh.axes && fh.axes.filter(a=>a.v<50).slice(0,3).map(a=>`<p style="font-size:12px;color:var(--text3);display:flex;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" style="display:inline-block;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span><b style="color:var(--text2)">${a.k} (${a.v}):</b> ${a.tip}</span></p>`).join('') || `<p style="font-size:12px;color:#10b981;display:flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" style="display:inline-block;flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Strong across the board — keep it up!</p>`}
+        </div>
+      </div>
+
+      <!-- ── 7 Income Streams Card ── -->
+      <div class="glass-card" id="dash-mr-stream" style="padding:22px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <p class="section-title" style="margin:0;display:flex;align-items:center;gap:8px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            7 Income Streams
+            <button onclick="mrPinChart('stream','7 Income Streams')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </button>
+          </p>
+          <span style="font-size:15px;font-weight:800;color:var(--text2)">${strm.active}<span style="font-size:13px;color:var(--text3)"> / 7 active</span></span>
+        </div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">The average millionaire has 7 streams of income.</p>
+        <div style="position:relative;height:300px"><canvas id="mr-stream-chart"></canvas></div>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${strm.sums && strm.sums.map(s=>`<div style="display:flex;align-items:center;gap:7px;font-size:13px;padding:7px 10px;border-radius:10px;background:var(--glass);opacity:${s.total>0?1:0.5}"><span style="width:9px;height:9px;border-radius:50%;flex-shrink:0;background:${s.total>0?'#10b981':'#6b7280'}"></span><span style="flex:1;min-width:0;font-weight:600">${s.k}</span>${s.total>0?`<b style="font-size:12px">${fmt(Math.round(s.total))}</b>`:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}</div>`).join('')}
+        </div>
+      </div>
+
+      <!-- ── Where Your Money Goes Card ── -->
+      <div class="glass-card" id="dash-mr-flow" style="padding:22px;margin-bottom:20px">
+        <p class="section-title" style="margin:0 0 4px;display:flex;align-items:center;gap:8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M12 22v-6.5a2.5 2.5 0 0 0-5 0V22"/><path d="M12 2v6.5a2.5 2.5 0 0 0 5 0V2"/><path d="M12 2v20"/><path d="M17 12H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Where Your Money Goes
+          <button onclick="mrToggleFlowAmt()" style="background:none;border:none;color:${typeof _mrShowFlowAmt !== 'undefined' && _mrShowFlowAmt ? '#00c9a7' : 'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button onclick="mrPinChart('flow','Where Your Money Goes')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </button>
+        </p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Your full money lifecycle: income → spending, debt & savings → bank, cash & investments → net worth. Tap any node to drill in.</p>
+        <div style="position:relative;height:380px"><canvas id="mr-flow-chart"></canvas></div>
+        <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
+        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
+          ${flow.incBy && flow.expBy ? [...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('') : ''}
+          ${(totalExpense>totalIncome?['From Savings / Debt']:['Savings']).concat(['Bank','Cash','Investments','Debt','Net Worth']).map(n=>{const neg=n==='From Savings / Debt';return `<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:${neg?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};border:1px solid ${neg?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)'};color:${neg?'#ef4444':'#10b981'};cursor:pointer">${n}</button>`;}).join('')}
+        </div>
+      </div>
+
+      <!-- ── Wealth Flow Card ── -->
+      <div class="glass-card" id="dash-mr-wealth" style="padding:22px;margin-bottom:20px">
+        <p class="section-title" style="margin:0 0 4px;display:flex;align-items:center;gap:8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M12 22v-6.5a2.5 2.5 0 0 0-5 0V22"/><path d="M12 2v6.5a2.5 2.5 0 0 0 5 0V2"/><path d="M12 2v22"/><path d="M17 12H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Wealth Flow
+          <button onclick="mrToggleFlowAmt()" style="background:none;border:none;color:${typeof _mrShowFlowAmt !== 'undefined' && _mrShowFlowAmt ? '#00c9a7' : 'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button onclick="mrPinChart('wealth','Wealth Flow')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </button>
+        </p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Where your wealth sits: assets gather, then split into what you own (net worth) and what you owe (debt).</p>
+        <div id="mr-wealth-wrap" style="position:relative;height:300px"><canvas id="mr-wealth-chart"></canvas></div>
+        <p id="mr-wealth-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:18px"></p>
       </div>
 
       <!-- ── Budgets & Goals Card ───────────────────────── -->
@@ -1010,6 +1132,14 @@ function renderDashboard() {
     if (typeof renderAIGroupedChart === 'function') renderAIGroupedChart();
     if (typeof renderAICategoryChart === 'function') renderAICategoryChart();
     if (typeof renderAITrendChart === 'function') renderAITrendChart();
+
+    // Render Heatmap and Money Rules charts if available
+    if (typeof renderHeatmap === 'function') {
+      try { renderHeatmap(); } catch(e) { console.error('Error drawing dashboard heatmap:', e); }
+    }
+    if (typeof _mrDrawCharts === 'function' && fh.axes.length > 0) {
+      try { _mrDrawCharts(fh, strm, flow); } catch(e) { console.error('Error drawing dashboard money rules charts:', e); }
+    }
 
     if (window.innerWidth < 700) {
       const fog = document.querySelector('.fin-overview-grid');

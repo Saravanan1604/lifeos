@@ -29,7 +29,7 @@ function _selectHeatmapDay(ymd) {
 }
 
 function renderHeatmap() {
-  const container = document.getElementById('page-container');
+  const container = document.getElementById('dash-heatmap-container');
   if (!container) return;
 
   const yr = _heatmapAnchorDate.getFullYear();
@@ -181,12 +181,14 @@ function renderHeatmap() {
   }
 
   container.innerHTML = `
-    <div class="fade-in hm-page">
-      <div class="page-header">
-        <div>
-          <h1 class="page-title"><i data-lucide="calendar-range"></i> Heatmap</h1>
-          <p class="page-subtitle">Visual month activity analyzer</p>
+    <div class="hm-page" style="padding-bottom: 0px">
+      <!-- Section Title for Dashboard -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--glass-border)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px"><i data-lucide="calendar-range"></i></span>
+          <h2 style="font-size:15px;font-weight:800;color:var(--text);margin:0">Money Heatmap</h2>
         </div>
+        <p style="font-size:11px;color:var(--text3);margin:0">Visual month activity analyzer</p>
       </div>
 
       <!-- Month Selector Row -->
