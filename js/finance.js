@@ -743,7 +743,7 @@ function renderSpendingOverview() {
         </button>
         
         <div class="ring-container">
-          <canvas id="spov-chart" style="width:260px;height:260px;display:block"></canvas>
+          <canvas id="spov-chart" style="width:100%;height:100%;display:block"></canvas>
           <div class="ring-center-text">
             <span class="ring-score" style="font-size:${scoreFontSize}">${displayTotalText}</span>
             <span class="ring-label">total spent</span>
@@ -6421,7 +6421,7 @@ function renderBudget() {
         
         <!-- Segmented Donut Ring -->
         <div class="ring-container">
-          <canvas id="budget-donut-chart" style="width:260px;height:260px;display:block"></canvas>
+          <canvas id="budget-donut-chart" style="width:100%;height:100%;display:block"></canvas>
           <div class="ring-center-text">
             <span class="ring-score">${displayScore}</span>
             <span class="ring-label">budget health score</span>
