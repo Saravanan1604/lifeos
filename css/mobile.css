@@ -13388,3 +13388,96 @@ html.is-app #bottom-nav .bn-item:active {
   outline: none !important;
   background: transparent !important;
 }
+
+/* ============================================================
+   build 474 — FINANCE PAGE FULL REDESIGN (app-only)
+   Clean "fintech premium" dark look with ZERO flash/glare.
+   Purely a reskin (no markup/handler changes) so nothing breaks.
+   Scoped to the Finance route (banks/cash/cards tabs all render
+   under data-page="finance") + the per-account drill-down.
+   ============================================================ */
+
+/* A — KILL THE GLARE: remove the glossy diagonal sheen baked into every
+   coloured card. That moving white band was the on-card "flash". */
+html.is-app .fin-dark-card::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* B — NET-BALANCE HERO: premium dark glass, soft top accent, no glare.
+   The Bank/Cash/Card split becomes a clean inset sub-panel. */
+html.is-app #page-container[data-page="finance"] .mm-hero,
+html.is-app #page-container[data-page="bank-tracker"] .mm-hero {
+  margin: 4px 12px 16px !important;
+  padding: 26px 22px 18px !important;
+  border-radius: 26px !important;
+  background:
+    radial-gradient(135% 120% at 50% -25%, rgba(0, 201, 167, 0.16), transparent 58%),
+    linear-gradient(180deg, #141b2d 0%, #0c111d 100%) !important;
+  border: 1px solid rgba(0, 201, 167, 0.18) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+html.is-app #page-container[data-page="finance"] .mm-hero-lbl,
+html.is-app #page-container[data-page="bank-tracker"] .mm-hero-lbl {
+  color: rgba(148, 163, 184, 0.9) !important;
+  letter-spacing: 2px !important;
+}
+html.is-app #page-container[data-page="finance"] .mm-hero-val,
+html.is-app #page-container[data-page="bank-tracker"] .mm-hero-val {
+  margin: 10px 0 18px !important;
+}
+html.is-app #page-container[data-page="finance"] .mm-hero-split,
+html.is-app #page-container[data-page="bank-tracker"] .mm-hero-split {
+  background: rgba(255, 255, 255, 0.035) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 18px !important;
+  padding: 14px 8px !important;
+}
+html.is-app #page-container[data-page="finance"] .mm-hero-split .mm-hs-div,
+html.is-app #page-container[data-page="bank-tracker"] .mm-hero-split .mm-hs-div {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+html.is-app #page-container[data-page="finance"] .mm-accts3 .mm-hs-val,
+html.is-app #page-container[data-page="bank-tracker"] .mm-accts3 .mm-hs-val {
+  font-weight: 800 !important;
+}
+
+/* C — ACCOUNT CARDS: flat & crisp. Brand colour stays, but a clean 1px
+   top-edge highlight replaces the glare, with a deeper soft shadow. */
+html.is-app #page-container[data-page="finance"] .fin-dark-card,
+html.is-app #page-container[data-page="bank-tracker"] .fin-dark-card {
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.13) !important;
+}
+/* the round +/options chips on the cards: cleaner frosted look */
+html.is-app #page-container[data-page="finance"] .fin-dark-card .card-icon-trigger,
+html.is-app #page-container[data-page="bank-tracker"] .fin-dark-card .card-icon-trigger {
+  background: rgba(255, 255, 255, 0.16) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  backdrop-filter: blur(4px) !important;
+}
+/* the "+ Add Bank/Card/Cash" tail card: match the new rounding */
+html.is-app #page-container[data-page="finance"] .fin-add-card,
+html.is-app #page-container[data-page="bank-tracker"] .fin-add-card {
+  border-radius: 24px !important;
+  border: 1px dashed rgba(255, 255, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* D — SECTION CARDS (Trend, Balance Log, etc): one unified clean surface. */
+html.is-app #page-container[data-page="finance"] .glass-card,
+html.is-app #page-container[data-page="bank-tracker"] .glass-card {
+  background: #0e1422 !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.30) !important;
+}
+
+/* E — carousel page dots: keep the active teal pill, quieter inactive dots. */
+html.is-app #page-container[data-page="finance"] .mm-hero-dots span {
+  background: rgba(255, 255, 255, 0.16) !important;
+}
+html.is-app #page-container[data-page="finance"] .mm-hero-dots span.on {
+  background: #00c9a7 !important;
+}
