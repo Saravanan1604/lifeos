@@ -101,6 +101,156 @@ function _drawSegmentedRing(canvas, items, colors) {
   return [];
 }
 
+// Interactive Spending details breakdown modal
+function showSpendingDetailsModal() {
+  const a = (_spendAnchor instanceof Date && !isNaN(_spendAnchor)) ? _spendAnchor : new Date();
+  const tx = (_spendPeriod === 'all'
+    ? [...(STATE.transactions || [])]
+    : filterTxByAnchor([...(STATE.transactions || [])], _spendPeriod, _ymdLocal(a))
+  ).filter(t => t.type !== 'income');
+  
+  const byCat = {};
+  tx.forEach(t => { 
+    const c = t.category || 'Other'; 
+    if (!byCat[c]) byCat[c] = { total: 0, n: 0 }; 
+    byCat[c].total += (+t.amount || 0); 
+    byCat[c].n++; 
+  });
+  const rows = Object.entries(byCat).map(([c, v]) => ({ cat: c, total: v.total, n: v.n })).sort((x, y) => y.total - x.total);
+  const grand = rows.reduce((s, r) => s + r.total, 0);
+  const lbl = _spendPeriodLabel();
+
+  let bodyHTML = `
+    <div style="text-align:left;padding:4px">
+      <p style="font-size:16px;color:var(--text3);margin-bottom:14px">Period: <b>${lbl}</b></p>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:20px">
+        <span style="font-size:16px;font-weight:600;color:var(--text2)">Total Spent</span>
+        <b style="font-size:24px;font-weight:900;color:#ef4444">${fmt(Math.round(grand))}</b>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;max-height:350px;overflow-y:auto;padding-right:4px">
+  `;
+
+  if (rows.length === 0) {
+    bodyHTML += `<div style="text-align:center;padding:20px;color:var(--text3)">No expenses recorded for this period.</div>`;
+  } else {
+    rows.forEach(r => {
+      const pct = grand > 0 ? Math.round(r.total / grand * 100) : 0;
+      const color = catColor(r.cat);
+      bodyHTML += `
+        <div onclick="closeModal(); openCategoryDetail('${r.cat.replace(/'/g, "\\'")}','spending')" style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:${color}15;color:${color};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">
+            ${catIconHtml(r.cat)}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.cat}</span>
+              <span style="font-size:15px;font-weight:800;color:var(--text)">${fmt(Math.round(r.total))}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3)">
+              <span>${r.n} ${r.n === 1 ? 'spend' : 'spends'}</span>
+              <span>${pct}% of total</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  bodyHTML += `
+      </div>
+      <div class="modal-actions" style="margin-top:20px">
+        <button class="btn-primary" style="width:100%" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  `;
+
+  openModal('📊 Spending Breakdown', bodyHTML);
+}
+
+// Interactive Budget details breakdown modal
+function showBudgetDetailsModal() {
+  const budgets = STATE.budgets || [];
+  const txns = STATE.transactions || [];
+  const filteredTxns = (window.__IS_APP
+    ? filterTxByAnchor([...txns], _budgetPeriod, _ymdLocal(_budgetAnchor))
+    : filterTxByPeriod(txns, _budgetPeriod)).filter(t => t.type === 'expense');
+  const lbl = window.__IS_APP ? _budgetPeriodLabel() : periodLabel(_budgetPeriod);
+
+  const budgetRows = budgets.map((b, bi) => {
+    const limit = getBudgetLimit(b, _budgetPeriod);
+    const spent = filteredTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
+    return { b, bi, limit, spent };
+  });
+
+  const totalLimit = budgetRows.reduce((s, r) => s + r.limit, 0);
+  const totalSpent = budgetRows.reduce((s, r) => s + r.spent, 0);
+  const totalRemaining = totalLimit - totalSpent;
+
+  let bodyHTML = `
+    <div style="text-align:left;padding:4px">
+      <p style="font-size:16px;color:var(--text3);margin-bottom:14px">Period: <b>${lbl}</b></p>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+        <div style="padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;text-align:center">
+          <p style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">TOTAL BUDGET</p>
+          <b style="font-size:18px;font-weight:800;color:#6366f1">${fmt(Math.round(totalLimit))}</b>
+        </div>
+        <div style="padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;text-align:center">
+          <p style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600">TOTAL SPENT</p>
+          <b style="font-size:18px;font-weight:800;color:${totalSpent > totalLimit ? '#ef4444' : '#10b981'}">${fmt(Math.round(totalSpent))}</b>
+        </div>
+      </div>
+      
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:${totalRemaining < 0 ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)'};border:1px solid ${totalRemaining < 0 ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'};border-radius:12px;margin-bottom:20px">
+        <span style="font-size:14px;font-weight:600;color:var(--text2)">${totalRemaining < 0 ? 'Over Budget' : 'Remaining Budget'}</span>
+        <b style="font-size:18px;font-weight:800;color:${totalRemaining < 0 ? '#ef4444' : '#f59e0b'}">${fmt(Math.abs(Math.round(totalRemaining)))}</b>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;max-height:350px;overflow-y:auto;padding-right:4px">
+  `;
+
+  if (budgetRows.length === 0) {
+    bodyHTML += `<div style="text-align:center;padding:20px;color:var(--text3)">No budgets active.</div>`;
+  } else {
+    const BUDGET_COLORS = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6','#00c9a7','#ef4444','#f97316','#14b8a6','#a855f7','#eab308'];
+    budgetRows.forEach(({b, bi, limit, spent}, idx) => {
+      const pct = limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : 0;
+      const color = BUDGET_COLORS[idx % BUDGET_COLORS.length];
+      const over = spent > limit;
+      bodyHTML += `
+        <div onclick="closeModal(); openAddBudgetModal(${bi})" style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;cursor:pointer">
+          <div style="width:40px;height:40px;border-radius:50%;background:${color}15;color:${color};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">
+            ${catIconHtml(b.category)}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.category}</span>
+              <span style="font-size:15px;font-weight:800;color:var(--text)">${fmt(Math.round(spent))} / ${fmt(Math.round(limit))}</span>
+            </div>
+            <div style="width:100%;height:6px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;margin-bottom:4px">
+              <div style="width:${pct}%;height:100%;background:${over ? '#ef4444' : color};border-radius:3px"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:${over ? '#ef4444' : 'var(--text3)'}">
+              <span>${pct}% used</span>
+              <span>${over ? 'Over limit' : `₹${Math.round(limit - spent)} left`}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  bodyHTML += `
+      </div>
+      <div class="modal-actions" style="margin-top:20px">
+        <button class="btn-primary" style="width:100%" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  `;
+
+  openModal('🎯 Budget Breakdown', bodyHTML);
+}
+
 // ===== Lucide line-icon mapping (display only — stored data stays as emoji) =====
 // Maps a category NAME to a Lucide icon. Falls back to an emoji→icon table,
 // then a neutral 'circle'. Render-time only, so no data migration is needed.
@@ -748,12 +898,12 @@ function renderSpendingOverview() {
           <h1 class="ring-page-title">Spending</h1>
         </div>
 
-        <div class="ring-container">
+        <div class="ring-container" onclick="showSpendingDetailsModal()" style="cursor:pointer">
           <canvas id="spov-chart" style="width:100%;height:100%;display:block"></canvas>
           <div class="ring-center-text">
             <span class="ring-score" style="font-size:${scoreFontSize} !important">${displayTotalText}</span>
           </div>
-          <div id="ring-badges-wrap"></div>
+          <div id="ring-badges-wrap" onclick="event.stopPropagation()"></div>
         </div>
 
         <div class="actions-row">
@@ -6426,12 +6576,12 @@ function renderBudget() {
         </div>
 
         <!-- Segmented Donut Ring -->
-        <div class="ring-container">
+        <div class="ring-container" onclick="showBudgetDetailsModal()" style="cursor:pointer">
           <canvas id="budget-donut-chart" style="width:100%;height:100%;display:block"></canvas>
           <div class="ring-center-text">
             <span class="ring-score" style="font-size:${scoreFontSize} !important">${displayScore}</span>
           </div>
-          <div id="ring-badges-wrap"></div>
+          <div id="ring-badges-wrap" onclick="event.stopPropagation()"></div>
         </div>
 
         <!-- Action row -->
