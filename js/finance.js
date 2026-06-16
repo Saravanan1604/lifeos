@@ -733,6 +733,8 @@ function renderCombinedSpendBudget(activeTab) {
       const slider = document.getElementById('sb-panels-slider');
       const segmentBg = document.querySelector('.sb-segmented-bg');
       const btns = document.querySelectorAll('.sb-segmented-btn');
+      const addBtn = document.getElementById('sb-header-add-btn');
+      const addSpacer = document.getElementById('sb-header-add-spacer');
 
       if (slider && segmentBg) {
         slider.style.transform = tab === 'spending' ? 'translateX(-50%)' : 'translateX(0)';
@@ -740,6 +742,10 @@ function renderCombinedSpendBudget(activeTab) {
         btns.forEach(btn => {
           btn.classList.toggle('active', btn.innerText.toLowerCase() === tab.toLowerCase());
         });
+        if (addBtn && addSpacer) {
+          addBtn.style.display = tab === 'budget' ? 'flex' : 'none';
+          addSpacer.style.display = tab === 'spending' ? 'block' : 'none';
+        }
       } else {
         renderCombinedSpendBudget(tab);
       }
@@ -846,6 +852,30 @@ function renderCombinedSpendBudget(activeTab) {
   const budgetDisplayScore = totalLimit > 0 ? Math.round(totalSpent / totalLimit * 100) + '%' : '0%';
   const budgetScoreFontSize = budgetDisplayScore.length > 5 ? '46px' : '64px';
 
+  // Compute total budget progress bar HTML
+  let totalBudgetBarHtml = '';
+  if (budgets.length > 0) {
+    const totalPct = totalLimit > 0 ? Math.min(100, (totalSpent / totalLimit) * 100) : 0;
+    totalBudgetBarHtml = `
+      <div class="glass-card total-budget-progress-card" style="padding:18px; margin-bottom:20px; border-radius: 16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:16px; font-weight:700; color:var(--text2)">Total Budget Progress</span>
+          <span style="font-size:14px; font-weight:700; color:${totalSpent > totalLimit ? '#ef4444' : 'var(--text3)'}">
+            ${fmt(Math.round(totalSpent))} / ${fmt(Math.round(totalLimit))} (${Math.round(totalPct)}%)
+          </span>
+        </div>
+        <div class="category-progress-bg" style="height: 12px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden;">
+          <div class="category-progress-fill" style="height: 100%; width: ${totalPct}%; background: ${totalSpent > totalLimit ? '#ef4444' : 'linear-gradient(135deg, #00c9a7, #0acf83)'}; border-radius: 6px;"></div>
+        </div>
+        ${totalRemaining < 0 ? `
+          <p style="font-size:13px; color:#ef4444; margin-top:8px; font-weight:600; margin-bottom:0">⚠️ Over budget by ${fmt(Math.round(Math.abs(totalRemaining)))}!</p>
+        ` : `
+          <p style="font-size:13px; color:var(--text3); margin-top:8px; font-weight:600; margin-bottom:0">${fmt(Math.round(totalRemaining))} remaining</p>
+        `}
+      </div>
+    `;
+  }
+
   // Construct combined layout
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in" id="combined-spend-budget-page" style="padding:16px 20px 80px; overflow-x: hidden; position: relative; width: 100%; box-sizing: border-box;">
@@ -862,7 +892,10 @@ function renderCombinedSpendBudget(activeTab) {
           <button class="sb-segmented-btn ${activeTab === 'spending' ? 'active' : ''}" onclick="switchSpendBudgetTab('spending')">Spending</button>
         </div>
         
-        <div style="width: 38px;"></div>
+        <button class="model-back-btn" id="sb-header-add-btn" onclick="openAddBudgetModal(-1)" style="display: ${activeTab === 'budget' ? 'flex' : 'none'}; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.06); border: none; cursor: pointer; color: var(--text);" title="Add Budget">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div id="sb-header-add-spacer" style="width: 38px; display: ${activeTab === 'spending' ? 'block' : 'none'};"></div>
       </div>
 
       <!-- Swipeable Viewport -->
@@ -878,13 +911,6 @@ function renderCombinedSpendBudget(activeTab) {
                 </div>
               </div>
 
-              <div class="actions-row">
-                <button class="model-primary-btn" onclick="openAddBudgetModal(-1)">+ Add Budget</button>
-                <button class="model-circle-btn" onclick="openBudgetPeriodSheet()" title="Budget Period">📅</button>
-                <button class="model-circle-btn" onclick="navigate('ai-coach')" title="Ask AI Coach">💬</button>
-                <button class="model-circle-btn" onclick="switchSpendBudgetTab('spending')" title="View Spending">📊</button>
-              </div>
-
               <div class="section-heading-row">
                 <span class="section-heading">Budget Categories</span>
                 <button class="section-filter-btn" onclick="openBudgetPeriodSheet()">
@@ -892,10 +918,13 @@ function renderCombinedSpendBudget(activeTab) {
                 </button>
               </div>
 
+              <!-- Total Budget Progress Card -->
+              ${totalBudgetBarHtml}
+
               <div style="display:flex;flex-direction:column;margin-bottom:28px">
                 ${budgets.length === 0 ? `
                   <div style="text-align:center;padding:32px 0;color:var(--text3)">
-                    No budgets active. Tap '+ Add Budget' above to create one.
+                    No budgets active. Tap '+' in top right to create one.
                   </div>
                 ` : budgetRows.map(({b, bi, limit, spent}, idx) => {
                   const pct = limit > 0 ? Math.min(100, (spent / limit) * 100) : 0;
@@ -934,13 +963,6 @@ function renderCombinedSpendBudget(activeTab) {
                 <div class="ring-center-text">
                   <span class="ring-score" style="font-size:${scoreFontSize} !important">${displayTotalText}</span>
                 </div>
-              </div>
-
-              <div class="actions-row">
-                <button class="model-primary-btn" onclick="openAddTxModal('expense')">+ Add Expense</button>
-                <button class="model-circle-btn" onclick="openSpendPeriodSheet()" title="Spend Period">📅</button>
-                <button class="model-circle-btn" onclick="navigate('ai-coach')" title="Ask AI Coach">💬</button>
-                <button class="model-circle-btn" onclick="switchSpendBudgetTab('budget')" title="View Budget">🎯</button>
               </div>
 
               <div class="section-heading-row">
