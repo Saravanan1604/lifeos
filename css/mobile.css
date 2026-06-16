@@ -14600,7 +14600,7 @@ html.is-app #spending-page .section-filter-btn span[style*="font-size:8px"] {
 /* slightly smaller sub-text so the longer "100% · ₹50,000" fits the row */
 html.is-app #budget-page .category-values span,
 html.is-app #spending-page .category-values span {
-  font-size: 18px !important;
+  font-size: 25px !important;
 }
 
 /* ============================================================

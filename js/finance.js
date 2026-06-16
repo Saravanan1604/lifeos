@@ -828,6 +828,9 @@ function renderSpendingOverview() {
             legend: { display: false },
             tooltip: {
               enabled: true,
+              padding: 16,
+              titleFont: { size: 24, weight: 'bold' },
+              bodyFont: { size: 22 },
               callbacks: {
                 label: c => ' ' + c.label + ': ' + fmt(Math.round(c.parsed))
               }
@@ -6526,6 +6529,9 @@ function renderBudget() {
             legend: { display: false },
             tooltip: {
               enabled: true,
+              padding: 16,
+              titleFont: { size: 24, weight: 'bold' },
+              bodyFont: { size: 22 },
               callbacks: {
                 label: c => {
                   const idx = c.dataIndex;
