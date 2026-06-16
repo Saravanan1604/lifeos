@@ -570,8 +570,8 @@ html.is-app .sidebar {
   box-shadow: 15px 0 50px rgba(0, 0, 0, 0.6) !important;
 }
 
-html.is-app.light .sidebar,
-html.is-app .light .sidebar {
+html.is-app body.light .sidebar,
+html.is-app body.light .sidebar {
   background: rgba(255, 255, 255, 0.95) !important;
   border-right-color: rgba(15, 23, 42, 0.08) !important;
 }
@@ -632,7 +632,7 @@ html.is-app .sidebar-header .sidebar-toggle {
   padding: 0 !important;
 }
 
-html.is-app.light .sidebar-header .sidebar-toggle {
+html.is-app body.light .sidebar-header .sidebar-toggle {
   background: rgba(0, 0, 0, 0.03) !important;
   border-color: rgba(0, 0, 0, 0.06) !important;
   color: rgba(0, 0, 0, 0.6) !important;
@@ -658,7 +658,7 @@ html.is-app .sidebar-user {
   gap: 12px !important;
 }
 
-html.is-app.light .sidebar-user {
+html.is-app body.light .sidebar-user {
   background: rgba(0, 0, 0, 0.02) !important;
   border-color: rgba(0, 0, 0, 0.06) !important;
 }
@@ -669,7 +669,7 @@ html.is-app .sidebar-user .user-name {
   color: #fff !important;
 }
 
-html.is-app.light .sidebar-user .user-name {
+html.is-app body.light .sidebar-user .user-name {
   color: #0f172a !important;
 }
 
@@ -700,7 +700,7 @@ html.is-app .sidebar-xp .xp-bar {
   border-radius: 3px !important;
 }
 
-html.is-app.light .sidebar-xp .xp-bar {
+html.is-app body.light .sidebar-xp .xp-bar {
   background: rgba(0, 0, 0, 0.06) !important;
 }
 
@@ -715,7 +715,7 @@ html.is-app .sidebar-xp .xp-label {
   font-weight: 600 !important;
 }
 
-html.is-app.light .sidebar-xp .xp-label {
+html.is-app body.light .sidebar-xp .xp-label {
   color: rgba(0, 0, 0, 0.5) !important;
 }
 
@@ -732,7 +732,7 @@ html.is-app .sidebar.mobile-open .nav-item {
   background: transparent !important;
 }
 
-html.is-app.light .sidebar.mobile-open .nav-item {
+html.is-app body.light .sidebar.mobile-open .nav-item {
   color: rgba(15, 23, 42, 0.7) !important;
 }
 
@@ -741,7 +741,7 @@ html.is-app .sidebar.mobile-open .nav-item:hover {
   color: #fff !important;
 }
 
-html.is-app.light .sidebar.mobile-open .nav-item:hover {
+html.is-app body.light .sidebar.mobile-open .nav-item:hover {
   background: rgba(0, 0, 0, 0.03) !important;
   color: #0f172a !important;
 }
@@ -754,7 +754,7 @@ html.is-app .sidebar.mobile-open .nav-item.active {
   box-shadow: 0 4px 20px rgba(0, 201, 167, 0.12) !important;
 }
 
-html.is-app.light .sidebar.mobile-open .nav-item.active {
+html.is-app body.light .sidebar.mobile-open .nav-item.active {
   background: linear-gradient(135deg, rgba(0, 201, 167, 0.12) 0%, rgba(99, 102, 241, 0.05) 100%) !important;
   border-color: rgba(0, 201, 167, 0.3) !important;
   color: #00b09b !important;
@@ -765,7 +765,7 @@ html.is-app .sidebar.mobile-open .nav-item .nav-icon {
   color: rgba(255, 255, 255, 0.5) !important;
 }
 
-html.is-app.light .sidebar.mobile-open .nav-item .nav-icon {
+html.is-app body.light .sidebar.mobile-open .nav-item .nav-icon {
   color: rgba(15, 23, 42, 0.5) !important;
 }
 
@@ -785,7 +785,7 @@ html.is-app .nav-group-label {
   margin: 0 !important;
 }
 
-html.is-app.light .nav-group-label {
+html.is-app body.light .nav-group-label {
   color: rgba(15, 23, 42, 0.4) !important;
 }
 
@@ -798,7 +798,7 @@ html.is-app .sidebar>div[onclick="openShortcutsPanel()"] {
   border: 1px solid rgba(0, 201, 167, 0.12) !important;
 }
 
-html.is-app.light .sidebar>div[onclick="openShortcutsPanel()"] {
+html.is-app body.light .sidebar>div[onclick="openShortcutsPanel()"] {
   background: rgba(0, 201, 167, 0.03) !important;
   border-color: rgba(0, 201, 167, 0.1) !important;
 }
@@ -1273,8 +1273,8 @@ html.is-app #bottom-nav {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-html.is-app.light #bottom-nav,
-html.is-app .light #bottom-nav {
+html.is-app body.light #bottom-nav,
+html.is-app body.light #bottom-nav {
   background: rgba(255, 255, 255, 0.95);
   border-top-color: rgba(15, 23, 42, 0.08);
 }
@@ -1293,8 +1293,8 @@ html.is-app #bottom-nav .bn-item {
   padding: 4px;
 }
 
-html.is-app.light #bottom-nav .bn-item,
-html.is-app .light #bottom-nav .bn-item {
+html.is-app body.light #bottom-nav .bn-item,
+html.is-app body.light #bottom-nav .bn-item {
   color: rgba(15, 23, 42, 0.45);
 }
 
@@ -1336,8 +1336,8 @@ html.is-app .app-search {
   cursor: pointer;
 }
 
-html.is-app.light .app-search,
-html.is-app .light .app-search {
+html.is-app body.light .app-search,
+html.is-app body.light .app-search {
   background: rgba(15, 23, 42, 0.04);
   border-color: rgba(15, 23, 42, 0.1);
   color: rgba(15, 23, 42, 0.5);
@@ -1535,8 +1535,8 @@ html.is-app #fab-add {
   cursor: pointer;
 }
 
-html.is-app.light #fab-add,
-html.is-app .light #fab-add {
+html.is-app body.light #fab-add,
+html.is-app body.light #fab-add {
   border-color: #f1f5f9;
 }
 
@@ -2515,8 +2515,8 @@ html.is-app .glass-card {
   backdrop-filter: none !important;
 }
 
-html.is-app.light .glass-card,
-html.is-app .light .glass-card {
+html.is-app body.light .glass-card,
+html.is-app body.light .glass-card {
   background: #ffffff !important;
 }
 
@@ -2527,8 +2527,8 @@ html.is-app .sidebar {
   border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-html.is-app.light .sidebar,
-html.is-app .light .sidebar {
+html.is-app body.light .sidebar,
+html.is-app body.light .sidebar {
   background: rgba(255, 255, 255, 0.95) !important;
   border-right-color: rgba(15, 23, 42, 0.08) !important;
 }
@@ -3441,8 +3441,8 @@ html.is-app #bottom-nav {
   box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.4) !important;
 }
 
-html.is-app.light #bottom-nav,
-html.is-app .light #bottom-nav {
+html.is-app body.light #bottom-nav,
+html.is-app body.light #bottom-nav {
   background: rgba(255, 255, 255, 0.98) !important;
 }
 
@@ -3943,7 +3943,7 @@ html.is-app #modal-overlay .modal-box {
   margin-top: auto !important;
   animation: bottomSheetUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) both !important;
 }
-html.is-app.light #modal-overlay .modal-box,
+html.is-app body.light #modal-overlay .modal-box,
 html.is-app body.light #modal-overlay .modal-box {
   background: #ffffff !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
@@ -3985,7 +3985,7 @@ html.is-app .modal-drag-handle {
   z-index: 12 !important;
   position: relative !important;
 }
-html.is-app.light .modal-drag-handle,
+html.is-app body.light .modal-drag-handle,
 html.is-app body.light .modal-drag-handle {
   background: rgba(0, 0, 0, 0.1) !important;
 }
@@ -4016,7 +4016,7 @@ html.is-app #modal-overlay .modal-header h3 {
   margin: 0 !important;
   text-align: center !important;
 }
-html.is-app.light #modal-overlay .modal-header h3,
+html.is-app body.light #modal-overlay .modal-header h3,
 html.is-app body.light #modal-overlay .modal-header h3 {
   color: #111827 !important;
 }
@@ -4043,7 +4043,7 @@ html.is-app #modal-overlay .modal-close {
 html.is-app #modal-overlay .modal-close:active {
   transform: scale(0.9) !important;
 }
-html.is-app.light #modal-overlay .modal-close,
+html.is-app body.light #modal-overlay .modal-close,
 html.is-app body.light #modal-overlay .modal-close {
   background: rgba(0, 0, 0, 0.05) !important;
   color: #4b5563 !important;
@@ -4055,7 +4055,7 @@ html.is-app #modal-overlay .modal-body {
   color: var(--text) !important;
   padding: 10px 28px 28px !important;
 }
-html.is-app.light #modal-overlay .modal-body,
+html.is-app body.light #modal-overlay .modal-body,
 html.is-app body.light #modal-overlay .modal-body {
   color: #1f2937 !important;
 }
@@ -4067,7 +4067,7 @@ html.is-app #modal-overlay .modal-body label {
   font-size: 18px !important;
   margin-bottom: 8px !important;
 }
-html.is-app.light #modal-overlay .modal-body .form-label,
+html.is-app body.light #modal-overlay .modal-body .form-label,
 html.is-app body.light #modal-overlay .modal-body label {
   color: #374151 !important;
 }
@@ -4092,9 +4092,9 @@ html.is-app #modal-overlay .modal-body textarea:focus {
   background: rgba(255, 255, 255, 0.07) !important;
   box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.15) !important;
 }
-html.is-app.light #modal-overlay .modal-body .form-input,
-html.is-app.light #modal-overlay .modal-body select,
-html.is-app.light #modal-overlay .modal-body textarea,
+html.is-app body.light #modal-overlay .modal-body .form-input,
+html.is-app body.light #modal-overlay .modal-body select,
+html.is-app body.light #modal-overlay .modal-body textarea,
 html.is-app body.light #modal-overlay .modal-body .form-input,
 html.is-app body.light #modal-overlay .modal-body select,
 html.is-app body.light #modal-overlay .modal-body textarea {
@@ -4103,9 +4103,9 @@ html.is-app body.light #modal-overlay .modal-body textarea {
   border: 1.5px solid #e5e7eb !important;
   color-scheme: light !important;
 }
-html.is-app.light #modal-overlay .modal-body .form-input:focus,
-html.is-app.light #modal-overlay .modal-body select:focus,
-html.is-app.light #modal-overlay .modal-body textarea:focus,
+html.is-app body.light #modal-overlay .modal-body .form-input:focus,
+html.is-app body.light #modal-overlay .modal-body select:focus,
+html.is-app body.light #modal-overlay .modal-body textarea:focus,
 html.is-app body.light #modal-overlay .modal-body .form-input:focus,
 html.is-app body.light #modal-overlay .modal-body select:focus,
 html.is-app body.light #modal-overlay .modal-body textarea:focus {
@@ -4131,7 +4131,7 @@ html.is-app #modal-overlay .modal-body select option {
   background: var(--card-bg) !important;
   color: var(--text) !important;
 }
-html.is-app.light #modal-overlay .modal-body select option,
+html.is-app body.light #modal-overlay .modal-body select option,
 html.is-app body.light #modal-overlay .modal-body select option {
   background: #ffffff !important;
   color: #111827 !important;
@@ -4143,7 +4143,7 @@ html.is-app #modal-overlay .modal-body .btn-secondary {
   color: var(--text) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
-html.is-app.light #modal-overlay .modal-body .btn-secondary,
+html.is-app body.light #modal-overlay .modal-body .btn-secondary,
 html.is-app body.light #modal-overlay .modal-body .btn-secondary {
   background: #f3f4f6 !important;
   color: #374151 !important;
@@ -4156,7 +4156,7 @@ html.is-app #modal-overlay .modal-actions {
   margin-top: 10px !important;
   gap: 14px !important;
 }
-html.is-app.light #modal-overlay .modal-actions,
+html.is-app body.light #modal-overlay .modal-actions,
 html.is-app body.light #modal-overlay .modal-actions {
   border-top: 1px solid #e5e7eb !important;
 }
@@ -5218,8 +5218,8 @@ html.is-app .mm-row-actions .mm-act:active {
   filter: brightness(1.15);
 }
 
-html.is-app.light .mm-rowwrap .mm-row,
-html.is-app .light .mm-rowwrap .mm-row {
+html.is-app body.light .mm-rowwrap .mm-row,
+html.is-app body.light .mm-rowwrap .mm-row {
   background: #ffffff;
 }
 
@@ -5244,8 +5244,8 @@ html.is-app .mm-row.sel {
   box-shadow: inset 4px 0 0 #00c9a7;
 }
 
-html.is-app.light .mm-row.sel,
-html.is-app .light .mm-row.sel {
+html.is-app body.light .mm-row.sel,
+html.is-app body.light .mm-row.sel {
   background: #eafaf6 !important;
   box-shadow: inset 4px 0 0 #00c9a7;
 }
@@ -5921,8 +5921,8 @@ html.is-app .calc-btn {
   justify-content: center;
 }
 
-html.is-app.light .calc-btn,
-html.is-app .light .calc-btn {
+html.is-app body.light .calc-btn,
+html.is-app body.light .calc-btn {
   background: rgba(15, 23, 42, 0.06) !important;
 }
 
@@ -6151,8 +6151,8 @@ html.is-app:not(.light) #txpad .pad-key {
   justify-content: center;
 }
 
-html.is-app.light #txpad .pad-key,
-html.is-app .light #txpad .pad-key {
+html.is-app body.light #txpad .pad-key,
+html.is-app body.light #txpad .pad-key {
   background: #e4e4ea !important;
   color: #1c1c1e !important;
 }
@@ -6168,8 +6168,8 @@ html.is-app .light #txpad .pad-key {
   color: #fff !important;
 }
 
-html.is-app.light #txpad .pad-key.fn,
-html.is-app .light #txpad .pad-key.fn {
+html.is-app body.light #txpad .pad-key.fn,
+html.is-app body.light #txpad .pad-key.fn {
   background: #d0d0d6 !important;
   color: #1c1c1e !important;
 }
@@ -6356,20 +6356,20 @@ body:has(#txpad) .mobile-menu-btn {
 }
 
 /* operators/equals must beat the light-theme key colour (higher specificity) */
-html.is-app.light #txpad .pad-key.oper,
-html.is-app .light #txpad .pad-key.oper {
+html.is-app body.light #txpad .pad-key.oper,
+html.is-app body.light #txpad .pad-key.oper {
   background: #2e9e44 !important;
   color: #fff !important;
 }
 
-html.is-app.light #txpad .pad-key.eq,
-html.is-app .light #txpad .pad-key.eq {
+html.is-app body.light #txpad .pad-key.eq,
+html.is-app body.light #txpad .pad-key.eq {
   background: #2f6bff !important;
   color: #fff !important;
 }
 
-html.is-app.light #txpad .pad-key.fn,
-html.is-app .light #txpad .pad-key.fn {
+html.is-app body.light #txpad .pad-key.fn,
+html.is-app body.light #txpad .pad-key.fn {
   background: #d0d0d6 !important;
 }
 
@@ -6484,8 +6484,8 @@ html.is-app #modal-overlay .modal-body li {
   font-weight: 500 !important;
 }
 
-html.is-app.light #txpad .pad-key,
-html.is-app .light #txpad .pad-key {
+html.is-app body.light #txpad .pad-key,
+html.is-app body.light #txpad .pad-key {
   background: rgba(15, 23, 42, 0.05) !important;
   color: #1c1c1e !important;
 }
@@ -6500,8 +6500,8 @@ html.is-app .light #txpad .pad-key {
   color: #00c9a7 !important;
 }
 
-html.is-app.light #txpad .pad-key.fn,
-html.is-app .light #txpad .pad-key.fn {
+html.is-app body.light #txpad .pad-key.fn,
+html.is-app body.light #txpad .pad-key.fn {
   background: rgba(0, 201, 167, 0.12) !important;
   color: #009e85 !important;
 }
@@ -6514,8 +6514,8 @@ html.is-app .light #txpad .pad-key.fn {
   font-weight: 600 !important;
 }
 
-html.is-app.light #txpad .pad-key.oper,
-html.is-app .light #txpad .pad-key.oper {
+html.is-app body.light #txpad .pad-key.oper,
+html.is-app body.light #txpad .pad-key.oper {
   color: #009e85 !important;
 }
 
@@ -6732,8 +6732,8 @@ html.is-app .light #txpad .pad-key.oper {
   transition: transform .1s, background .1s;
 }
 
-html.is-app.light #txpad .pad-numgrid .pad-key,
-html.is-app .light #txpad .pad-numgrid .pad-key {
+html.is-app body.light #txpad .pad-numgrid .pad-key,
+html.is-app body.light #txpad .pad-numgrid .pad-key {
   background: rgba(15, 23, 42, 0.06) !important;
   color: #1c1c1e !important;
 }
@@ -6750,8 +6750,8 @@ html.is-app .light #txpad .pad-numgrid .pad-key {
   font-weight: 700 !important;
 }
 
-html.is-app.light #txpad .pad-numgrid .pad-key-fn,
-html.is-app .light #txpad .pad-numgrid .pad-key-fn {
+html.is-app body.light #txpad .pad-numgrid .pad-key-fn,
+html.is-app body.light #txpad .pad-numgrid .pad-key-fn {
   background: rgba(0, 201, 167, 0.15) !important;
   color: #009e85 !important;
 }
@@ -6849,7 +6849,7 @@ html.is-app .light #txpad .pad-numgrid .pad-key-fn {
   background: linear-gradient(135deg, rgba(0, 201, 167, 0.18), rgba(99, 102, 241, 0.18));
 }
 
-html.is-app.light #txpad .pad-tool {
+html.is-app body.light #txpad .pad-tool {
   background: rgba(0, 0, 0, 0.04);
   border-color: rgba(0, 0, 0, 0.08);
   color: #0f4c43;
@@ -7322,7 +7322,7 @@ html.is-app .mm-today {
   background: rgba(239, 68, 68, 0.22);
 }
 
-html.is-app.light #txpad .pad-cancel-btn {
+html.is-app body.light #txpad .pad-cancel-btn {
   background: rgba(239, 68, 68, 0.10);
   color: #dc2626 !important;
   border-color: rgba(239, 68, 68, 0.4);
@@ -7827,7 +7827,7 @@ html.is-app #modal-overlay .rf-modal .btn-primary {
   margin-top: 10px;
 }
 
-html.is-app.light #txpad .pad-entry-zone {
+html.is-app body.light #txpad .pad-entry-zone {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.06);
 }
@@ -8269,11 +8269,11 @@ html.is-app.light #txpad .pad-entry-zone {
   height: 2.2rem;
 }
 
-html.is-app.light #calc-page .cp-key {
+html.is-app body.light #calc-page .cp-key {
   background: rgba(0, 0, 0, 0.06);
 }
 
-html.is-app.light #calc-page .cp-key.fn {
+html.is-app body.light #calc-page .cp-key.fn {
   background: rgba(0, 0, 0, 0.12);
 }
 
@@ -9017,7 +9017,7 @@ html.is-app .mm-day {
   font-weight: 700 !important;
 }
 
-html.is-app.light .mm-day {
+html.is-app body.light .mm-day {
   background: #f1f2f6 !important;
 }
 
@@ -10329,23 +10329,23 @@ html.is-app .sidebar .nav-item.active .nav-icon svg {
 }
 
 /* Light theme: invert the active pill */
-html.is-app.light .sidebar .nav-item,
-html.is-app .light .sidebar .nav-item {
+html.is-app body.light .sidebar .nav-item,
+html.is-app body.light .sidebar .nav-item {
   background: rgba(15, 23, 42, 0.05) !important;
   border-color: rgba(15, 23, 42, 0.07) !important;
   color: #1e293b !important;
 }
-html.is-app.light .sidebar .nav-item.active,
-html.is-app .light .sidebar .nav-item.active {
+html.is-app body.light .sidebar .nav-item.active,
+html.is-app body.light .sidebar .nav-item.active {
   background: #0f172a !important;
   color: #f8fafc !important;
 }
-html.is-app.light .sidebar .nav-item.active .nav-text,
-html.is-app .light .sidebar .nav-item.active .nav-text {
+html.is-app body.light .sidebar .nav-item.active .nav-text,
+html.is-app body.light .sidebar .nav-item.active .nav-text {
   color: #f8fafc !important;
 }
-html.is-app.light .sidebar .nav-item.active .nav-icon svg,
-html.is-app .light .sidebar .nav-item.active .nav-icon svg {
+html.is-app body.light .sidebar .nav-item.active .nav-icon svg,
+html.is-app body.light .sidebar .nav-item.active .nav-icon svg {
   stroke: #f8fafc !important;
 }
 
@@ -10367,16 +10367,16 @@ html.is-app .sidebar.mobile-open .nav-item.active .nav-icon {
 html.is-app .sidebar.mobile-open .nav-item.active .nav-icon svg {
   stroke: #0b1220 !important;
 }
-html.is-app.light .sidebar.mobile-open .nav-item {
+html.is-app body.light .sidebar.mobile-open .nav-item {
   background: rgba(15, 23, 42, 0.05) !important;
   border-color: rgba(15, 23, 42, 0.07) !important;
   color: #1e293b !important;
 }
-html.is-app.light .sidebar.mobile-open .nav-item.active {
+html.is-app body.light .sidebar.mobile-open .nav-item.active {
   background: #0f172a !important;
   color: #f8fafc !important;
 }
-html.is-app.light .sidebar.mobile-open .nav-item.active .nav-icon svg {
+html.is-app body.light .sidebar.mobile-open .nav-item.active .nav-icon svg {
   stroke: #f8fafc !important;
 }
 
@@ -10397,11 +10397,11 @@ html.is-app .sidebar .nav-item.active.active .nav-icon {
 html.is-app .sidebar .nav-item.active.active .nav-icon svg {
   stroke: #0b1220 !important;
 }
-html.is-app.light .sidebar .nav-item.active.active {
+html.is-app body.light .sidebar .nav-item.active.active {
   background: #0f172a !important;
   color: #f8fafc !important;
 }
-html.is-app.light .sidebar .nav-item.active.active .nav-icon svg {
+html.is-app body.light .sidebar .nav-item.active.active .nav-icon svg {
   stroke: #f8fafc !important;
 }
 
@@ -12555,7 +12555,7 @@ html.is-app body:not(.light) #modal-overlay .modal-box {
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5) !important;
 }
 
-html.is-app.light #modal-overlay .modal-box,
+html.is-app body.light #modal-overlay .modal-box,
 html.is-app body.light #modal-overlay .modal-box {
   background: #ffffff !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
@@ -12609,7 +12609,7 @@ html.is-app .modal-drag-handle {
   position: relative !important;
   flex-shrink: 0 !important;
 }
-html.is-app.light .modal-drag-handle,
+html.is-app body.light .modal-drag-handle,
 html.is-app body.light .modal-drag-handle {
   background: rgba(0, 0, 0, 0.1) !important;
 }
@@ -12661,7 +12661,7 @@ html.is-app .modal-title-icon {
   flex-shrink: 0 !important;
   box-shadow: 0 0 12px rgba(0, 201, 167, 0.15) !important;
 }
-html.is-app.light .modal-title-icon,
+html.is-app body.light .modal-title-icon,
 html.is-app body.light .modal-title-icon {
   box-shadow: none !important;
 }
@@ -12715,7 +12715,7 @@ html.is-app #modal-overlay .form-field-icon-wrap textarea {
   padding-left: 48px !important;
 }
 
-html.is-app.light #modal-overlay .form-input,
+html.is-app body.light #modal-overlay .form-input,
 html.is-app body.light #modal-overlay .modal-body input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
 html.is-app body.light #modal-overlay .modal-body select,
 html.is-app body.light #modal-overlay .modal-body textarea,
@@ -12927,11 +12927,11 @@ html.is-app .habit-grid-cell.level-2 { background-color: rgba(16, 185, 129, 0.45
 html.is-app .habit-grid-cell.level-3 { background-color: rgba(16, 185, 129, 0.70) !important; }
 html.is-app .habit-grid-cell.level-4 { background-color: rgba(16, 185, 129, 1.00) !important; }
 
-html.is-app.light .habit-grid-cell.level-0 { background-color: rgba(0, 0, 0, 0.05) !important; }
-html.is-app.light .habit-grid-cell.level-1 { background-color: rgba(16, 185, 129, 0.15) !important; }
-html.is-app.light .habit-grid-cell.level-2 { background-color: rgba(16, 185, 129, 0.38) !important; }
-html.is-app.light .habit-grid-cell.level-3 { background-color: rgba(16, 185, 129, 0.65) !important; }
-html.is-app.light .habit-grid-cell.level-4 { background-color: rgba(16, 185, 129, 0.95) !important; }
+html.is-app body.light .habit-grid-cell.level-0 { background-color: rgba(0, 0, 0, 0.05) !important; }
+html.is-app body.light .habit-grid-cell.level-1 { background-color: rgba(16, 185, 129, 0.15) !important; }
+html.is-app body.light .habit-grid-cell.level-2 { background-color: rgba(16, 185, 129, 0.38) !important; }
+html.is-app body.light .habit-grid-cell.level-3 { background-color: rgba(16, 185, 129, 0.65) !important; }
+html.is-app body.light .habit-grid-cell.level-4 { background-color: rgba(16, 185, 129, 0.95) !important; }
 
 html.is-app .heatmap-legend-cell {
   display: inline-block !important;
@@ -12945,11 +12945,11 @@ html.is-app .heatmap-legend-cell.level-2 { background-color: rgba(16, 185, 129, 
 html.is-app .heatmap-legend-cell.level-3 { background-color: rgba(16, 185, 129, 0.70) !important; }
 html.is-app .heatmap-legend-cell.level-4 { background-color: rgba(16, 185, 129, 1.00) !important; }
 
-html.is-app.light .heatmap-legend-cell.level-0 { background-color: rgba(0, 0, 0, 0.05) !important; }
-html.is-app.light .heatmap-legend-cell.level-1 { background-color: rgba(16, 185, 129, 0.15) !important; }
-html.is-app.light .heatmap-legend-cell.level-2 { background-color: rgba(16, 185, 129, 0.38) !important; }
-html.is-app.light .heatmap-legend-cell.level-3 { background-color: rgba(16, 185, 129, 0.65) !important; }
-html.is-app.light .heatmap-legend-cell.level-4 { background-color: rgba(16, 185, 129, 0.95) !important; }
+html.is-app body.light .heatmap-legend-cell.level-0 { background-color: rgba(0, 0, 0, 0.05) !important; }
+html.is-app body.light .heatmap-legend-cell.level-1 { background-color: rgba(16, 185, 129, 0.15) !important; }
+html.is-app body.light .heatmap-legend-cell.level-2 { background-color: rgba(16, 185, 129, 0.38) !important; }
+html.is-app body.light .heatmap-legend-cell.level-3 { background-color: rgba(16, 185, 129, 0.65) !important; }
+html.is-app body.light .heatmap-legend-cell.level-4 { background-color: rgba(16, 185, 129, 0.95) !important; }
 
 /* Achievements Circular Progress Ring mobile styling */
 html.is-app .ring-container {
@@ -12967,7 +12967,7 @@ html.is-app .ring-track {
   stroke: rgba(255, 255, 255, 0.06) !important;
   stroke-width: 10 !important;
 }
-html.is-app.light .ring-track {
+html.is-app body.light .ring-track {
   stroke: rgba(0, 0, 0, 0.06) !important;
 }
 html.is-app .ring-fill {
@@ -12989,7 +12989,7 @@ html.is-app .ring-value {
   display: block !important;
   color: #fff !important;
 }
-html.is-app.light .ring-value {
+html.is-app body.light .ring-value {
   color: #1a1f2e !important;
 }
 html.is-app .ring-sub {
@@ -13008,7 +13008,7 @@ html.is-app input[type="range"] {
   border-radius: 4px !important;
   outline: none !important;
 }
-html.is-app.light input[type="range"] {
+html.is-app body.light input[type="range"] {
   background: rgba(0, 0, 0, 0.08) !important;
 }
 html.is-app input[type="range"]::-webkit-slider-thumb {
@@ -13056,7 +13056,7 @@ html.is-app .page-categories .cat-hdr-btn {
   flex: 0 0 auto !important;
 }
 
-html.is-app.light .page-categories .cat-hdr-btn {
+html.is-app body.light .page-categories .cat-hdr-btn {
   background: rgba(0, 0, 0, 0.02) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
   color: #374151 !important;
@@ -13066,7 +13066,7 @@ html.is-app .page-categories .cat-hdr-btn:active {
   background: rgba(255, 255, 255, 0.08) !important;
 }
 
-html.is-app.light .page-categories .cat-hdr-btn:active {
+html.is-app body.light .page-categories .cat-hdr-btn:active {
   background: rgba(0, 0, 0, 0.05) !important;
 }
 
@@ -13078,7 +13078,7 @@ html.is-app .page-categories .cat-hdr-btn-aifix {
   color: #a5b4fc !important;
 }
 
-html.is-app.light .page-categories .cat-hdr-btn-aifix {
+html.is-app body.light .page-categories .cat-hdr-btn-aifix {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08)) !important;
   border-color: rgba(139, 92, 246, 0.5) !important;
   color: #6366f1 !important;
@@ -13106,7 +13106,7 @@ html.is-app .page-categories #page-quick-actions button {
   transition: background 0.2s, border-color 0.2s !important;
 }
 
-html.is-app.light .page-categories #page-quick-actions button {
+html.is-app body.light .page-categories #page-quick-actions button {
   border-color: rgba(99, 102, 241, 0.35) !important;
   background: rgba(99, 102, 241, 0.02) !important;
   color: #6366f1 !important;
@@ -13117,7 +13117,7 @@ html.is-app .page-categories #page-quick-actions button:active {
   border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-html.is-app.light .page-categories #page-quick-actions button:active {
+html.is-app body.light .page-categories #page-quick-actions button:active {
   background: rgba(99, 102, 241, 0.06) !important;
   border-color: rgba(99, 102, 241, 0.5) !important;
 }
@@ -13142,7 +13142,7 @@ html.is-app #modal-overlay .modal-box {
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-html.is-app.light #modal-overlay .modal-box,
+html.is-app body.light #modal-overlay .modal-box,
 html.is-app body.light #modal-overlay .modal-box {
   background: rgba(255, 255, 255, 0.65) !important;
   backdrop-filter: blur(30px) saturate(190%) !important;
@@ -13347,7 +13347,7 @@ html.is-app .ld-edit-btn {
   transition: all 0.2s ease !important;
 }
 
-html.is-app.light .ld-edit-btn {
+html.is-app body.light .ld-edit-btn {
   background: rgba(0, 0, 0, 0.03) !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
   color: #374151 !important;
@@ -13357,7 +13357,7 @@ html.is-app .ld-edit-btn:active {
   background: rgba(255, 255, 255, 0.12) !important;
 }
 
-html.is-app.light .ld-edit-btn:active {
+html.is-app body.light .ld-edit-btn:active {
   background: rgba(0, 0, 0, 0.06) !important;
 }
 
@@ -14629,7 +14629,7 @@ html.is-app body:not(.light) #modal-overlay .modal-box {
 }
 
 /* 2b — frosted glass (light theme) */
-html.is-app.light #modal-overlay .modal-box,
+html.is-app body.light #modal-overlay .modal-box,
 html.is-app body.light #modal-overlay .modal-box {
   background: rgba(255, 255, 255, 0.55) !important;
   -webkit-backdrop-filter: blur(34px) saturate(170%) !important;
@@ -15048,4 +15048,175 @@ html.is-app #page-container[data-page="habits"] .heatmap-legend-cell {
   width: 14px !important;
   height: 14px !important;
   border-radius: 3px !important;
+}
+
+/* ============================================================
+   DAY MODE (light) COLOUR FIXES — app-only, scoped to html.is-app body.light
+   Fixes all remaining elements that were dark-only styled.
+   ============================================================ */
+
+/* App body background */
+html.is-app body.light {
+  background-color: #eef0f5 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.55) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.55) 1px, transparent 1px) !important;
+  background-size: 32px 32px !important;
+}
+
+/* Top toolbar buttons — light mode */
+html.is-app body.light #top-tools button {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(15, 23, 42, 0.10) !important;
+  color: #1a1f2e !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+html.is-app body.light #top-tools button:hover {
+  background: rgba(255, 255, 255, 1) !important;
+}
+
+/* Menu / hamburger button */
+html.is-app body.light .mobile-menu-btn {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(15, 23, 42, 0.10) !important;
+  color: #1a1f2e !important;
+}
+
+/* Spend/Budget segmented control — light mode */
+html.is-app body.light .sb-segmented-control {
+  background: rgba(15, 23, 42, 0.06) !important;
+  border-color: rgba(15, 23, 42, 0.10) !important;
+}
+html.is-app body.light .sb-segmented-btn {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+html.is-app body.light .sb-segmented-btn.active {
+  color: #ffffff !important;
+}
+
+/* Spending ring inner (donut hole) — light mode */
+html.is-app body.light .spend-ring-inner {
+  background: #f5f6fa !important;
+}
+
+/* Records page — light mode fixes */
+html.is-app body.light .mm-rowwrap .mm-row {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.06) !important;
+  color: #1a1f2e !important;
+}
+html.is-app body.light .mm-row.sel {
+  background: rgba(0, 201, 167, 0.10) !important;
+}
+
+/* Page container content text */
+html.is-app body.light #page-container {
+  color: #1a1f2e !important;
+}
+
+/* Category rows, stat chips, pills */
+html.is-app body.light [style*="background:rgba(255,255,255,0.05)"],
+html.is-app body.light [style*="background: rgba(255,255,255,0.05)"],
+html.is-app body.light [style*="background:rgba(255,255,255,0.06)"],
+html.is-app body.light [style*="background: rgba(255,255,255,0.06)"],
+html.is-app body.light [style*="background:rgba(255,255,255,0.07)"],
+html.is-app body.light [style*="background: rgba(255,255,255,0.07)"],
+html.is-app body.light [style*="background:rgba(255,255,255,0.08)"],
+html.is-app body.light [style*="background: rgba(255,255,255,0.08)"] {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Ring page: ensure ring-page-head and budget/spending page background */
+html.is-app body.light #combined-spend-budget-page {
+  color: #1a1f2e !important;
+}
+
+/* Budget total bar */
+html.is-app body.light .budget-total-bar-track {
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Finance view tabs */
+html.is-app body.light .fin-viewtabs {
+  background: rgba(15, 23, 42, 0.06) !important;
+  border-color: rgba(15, 23, 42, 0.10) !important;
+}
+html.is-app body.light .fin-viewtabs button {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+html.is-app body.light .fin-viewtabs button.on {
+  color: #fff !important;
+}
+
+/* Period tabs — light mode */
+html.is-app body.light .period-tabs {
+  background: rgba(15, 23, 42, 0.06) !important;
+  border-color: rgba(15, 23, 42, 0.10) !important;
+}
+html.is-app body.light .period-tab {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+html.is-app body.light .period-tab.active {
+  color: #fff !important;
+}
+html.is-app body.light .period-tab:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #1a1f2e !important;
+}
+
+/* Records balance hero card */
+html.is-app body.light .rec-balance-card,
+html.is-app body.light .rc-hero {
+  background: linear-gradient(135deg, #00b09b, #00c9a7) !important;
+  color: #fff !important;
+}
+
+/* Any inline dark background chips that show in light mode */
+html.is-app body.light [style*="background:rgba(0,0,0,"],
+html.is-app body.light [style*="background: rgba(0,0,0,"] {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Txpad (add/edit keypad) light mode */
+html.is-app body.light #txpad {
+  background: #eef0f5 !important;
+  color: #1a1f2e !important;
+}
+
+/* Drawer items in light mode */
+html.is-app body.light .drawer-item,
+html.is-app body.light .nav-item {
+  color: rgba(15, 23, 42, 0.70) !important;
+}
+html.is-app body.light .nav-item.active {
+  color: #00b09b !important;
+}
+
+/* Habit page items — light mode */
+html.is-app body.light #page-container[data-page="habits"] .habit-item {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: #1a1f2e !important;
+}
+html.is-app body.light #page-container[data-page="habits"] .habit-name {
+  color: #1a1f2e !important;
+}
+html.is-app body.light #page-container[data-page="habits"] .glass-card {
+  background: #ffffff !important;
+  color: #1a1f2e !important;
+}
+
+/* Section & page titles */
+html.is-app body.light .page-title,
+html.is-app body.light .section-title {
+  color: #0f172a !important;
+}
+html.is-app body.light .page-subtitle {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+
+/* Ensure the add budget button in top right looks good */
+html.is-app body.light .sb-add-budget-btn {
+  background: linear-gradient(135deg, #00c9a7, #0acf83) !important;
+  color: #fff !important;
 }
