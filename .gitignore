@@ -26,3 +26,7 @@ www/
 
 # Don't upload the icon generator (development helper only)
 create-icons.html
+
+# Claude helper directories
+.claude/
+
