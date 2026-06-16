@@ -476,7 +476,7 @@ function renderGoals() {
             const pct = g.target > 0 ? Math.min(100, Math.round((g.current / g.target) * 100)) : 0;
             const daysLeft = g.deadline ? Math.ceil((new Date(g.deadline) - new Date()) / 86400000) : null;
             const done = pct >= 100;
-            return `<div class="glass-card goal-card" style="padding:18px${done?';border-color:rgba(16,185,129,0.4)':''}">
+            return `<div class="glass-card goal-card" style="padding:18px${done?';border-color:rgba(16,185,129,0.4)':''};cursor:pointer" onclick="openEditGoalModal('${g.id}')">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">
                 <div style="display:flex;align-items:center;gap:11px;flex:1;min-width:0">
                   <span class="goal-ic" style="background:${done?'rgba(16,185,129,0.15)':'rgba(99,102,241,0.15)'};color:${done?'#10b981':'#8b5cf6'}"><i data-lucide="${done?'check-circle-2':'target'}"></i></span>
@@ -485,9 +485,9 @@ function renderGoals() {
                     <p style="font-size:12px;color:var(--text3);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.category||'Personal'}${g.autoSync ? ' · <i data-lucide="link" class="goal-mini-ic" style="color:#00c9a7"></i> <span style="color:#00c9a7">' + _goalSyncSourceLabel(g) + '</span>' : ''}</p>
                   </div>
                 </div>
-                <button class="goal-x" onclick="deleteGoal('${g.id}')" title="Delete goal"><i data-lucide="x"></i></button>
+                <button class="goal-x" onclick="event.stopPropagation();deleteGoal('${g.id}')" title="Delete goal"><i data-lucide="x"></i></button>
               </div>
-              <div class="goal-chips" style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:14px">
+              <div class="goal-chips" style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:14px" onclick="event.stopPropagation()">
                 ${done ? '<span class="tag tag-green">Complete</span>' : daysLeft !== null ? `<span class="tag ${daysLeft<7?'tag-red':daysLeft<30?'tag-gold':'tag-blue'}">${daysLeft>0?daysLeft+' days left':'Overdue'}</span>` : ''}
                 ${!g.autoSync && g.type==='savings' ? `<button class="goal-chip-btn" title="Sync with sources" onclick="toggleGoalSync('${g.id}')" style="color:#00c9a7;border-color:rgba(0,201,167,0.35)"><i data-lucide="link"></i> Sync</button>` : ''}
                 ${g.autoSync ? `<button class="goal-chip-btn" title="Disable auto-sync" onclick="toggleGoalSync('${g.id}')" style="color:#f59e0b;border-color:rgba(245,158,11,0.35)"><i data-lucide="lock"></i> Manual</button>` : ''}
@@ -499,7 +499,7 @@ function renderGoals() {
                 </div>
                 <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${done?'#10b981':'linear-gradient(90deg,#00b09b,#00c9a7)'}"></div></div>
                 ${!g.autoSync ? `
-                <div style="margin-top:12px;display:flex;gap:8px">
+                <div style="margin-top:12px;display:flex;gap:8px" onclick="event.stopPropagation()">
                   <input type="number" id="goal-upd-${g.id}" class="form-input" placeholder="Add amount manually" style="flex:1"/>
                   <button class="btn-primary btn-sm" onclick="updateGoalProgress('${g.id}')">+ Add</button>
                 </div>` : `<p style="font-size:11px;color:var(--text3);margin-top:8px;display:flex;align-items:center;gap:5px"><i data-lucide="link" class="goal-mini-ic"></i> Automatically updates from your linked source(s)</p>`}
@@ -654,4 +654,132 @@ function updateGoalProgress(id) {
 function deleteGoal(id) {
   STATE.goals = (STATE.goals || []).filter(g => g.id !== id);
   saveState(); toast('Goal deleted', 'info'); renderGoals();
+}
+
+function openEditGoalModal(id) {
+  const goal = (STATE.goals || []).find(g => g.id === id);
+  if (!goal) return;
+
+  const bankAccounts = STATE.bankAccounts || [];
+  const investments = STATE.investments || [];
+  
+  // build options for sync sources list
+  let sourcesHTML = `
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;padding:4px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <input type="checkbox" name="g-source" value="net-savings" ${goal.syncSources?.includes('net-savings') ? 'checked' : ''} style="width:14px;height:14px"/>
+        <span>🔗 Net Savings (Income - Expenses)</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <input type="checkbox" name="g-source" value="bank-cash" ${goal.syncSources?.includes('bank-cash') ? 'checked' : ''} style="width:14px;height:14px"/>
+        <span>🏦 Total Bank & Cash Balance</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <input type="checkbox" name="g-source" value="investments" ${goal.syncSources?.includes('investments') ? 'checked' : ''} style="width:14px;height:14px"/>
+        <span>📈 Total Investment Value</span>
+      </label>
+  `;
+  
+  if (bankAccounts.length > 0) {
+    sourcesHTML += `<p style="font-size:10px;font-weight:700;color:var(--text3);margin:4px 0 2px">BANK ACCOUNTS</p>`;
+    bankAccounts.forEach(b => {
+      sourcesHTML += `
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-left:4px">
+          <input type="checkbox" name="g-source" value="bank:${b.id}" ${goal.syncSources?.includes('bank:' + b.id) ? 'checked' : ''} style="width:14px;height:14px"/>
+          <span>🏦 ${b.name} (${fmt(b.balance)})</span>
+        </label>
+      `;
+    });
+  }
+  
+  if (investments.length > 0) {
+    sourcesHTML += `<p style="font-size:10px;font-weight:700;color:var(--text3);margin:4px 0 2px">INVESTMENTS</p>`;
+    investments.forEach(i => {
+      const val = +i.currentValue || +i.amount || +i.value || 0;
+      sourcesHTML += `
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-left:4px">
+          <input type="checkbox" name="g-source" value="invest:${i.id}" ${goal.syncSources?.includes('invest:' + i.id) ? 'checked' : ''} style="width:14px;height:14px"/>
+          <span>📈 ${i.name} (${fmt(val)})</span>
+        </label>
+      `;
+    });
+  }
+  
+  sourcesHTML += `</div>`;
+
+  openModal('Edit Goal', `
+    <div class="form-group"><label class="form-label">Goal Name</label><input type="text" id="g-name" class="form-input" value="${esc(goal.name || '')}"/></div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Type</label><select id="g-type" class="form-input" onchange="document.getElementById('g-sync-wrap').style.display=this.value==='savings'?'block':'none'"><option value="savings" ${goal.type==='savings'?'selected':''}>💰 Savings Goal</option><option value="milestone" ${goal.type==='milestone'?'selected':''}>🎯 Milestone</option></select></div>
+      <div class="form-group"><label class="form-label">Emoji</label><input type="text" id="g-emoji" class="form-input" value="${esc(goal.emoji || '🎯')}" maxlength="4"/></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label class="form-label">Target Amount / %</label><input type="number" id="g-target" class="form-input" value="${goal.target || 100}"/></div>
+      <div class="form-group"><label class="form-label">Current Progress</label><input type="number" id="g-current" class="form-input" value="${goal.current || 0}" ${goal.autoSync ? 'disabled style="opacity:0.5"' : ''}/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Deadline</label><input type="date" id="g-deadline" class="form-input" value="${goal.deadline || ''}"/></div>
+    
+    <div class="form-group" id="g-sync-wrap" style="padding:12px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);border-radius:10px;display:${goal.type==='savings'?'block':'none'}">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="var ch = document.getElementById('g-autosync'); document.getElementById('g-sources-container').style.display = ch.checked ? 'block' : 'none'">
+        <input type="checkbox" id="g-autosync" ${goal.autoSync ? 'checked' : ''} style="width:16px;height:16px;accent-color:#00c9a7" onchange="document.getElementById('g-sources-container').style.display = this.checked ? 'block' : 'none'; document.getElementById('g-current').disabled = this.checked; document.getElementById('g-current').style.opacity = this.checked ? '0.5' : '1';"/>
+        <div>
+          <p style="font-weight:600;font-size:13px">🔗 Auto-sync with sources</p>
+          <p style="font-size:11px;color:var(--text3)">Select one or multiple financial sources below to sync progress automatically</p>
+        </div>
+      </label>
+      <div id="g-sources-container" style="display:${goal.autoSync ? 'block' : 'none'};border-top:1px solid rgba(0,201,167,0.15);margin-top:8px;padding-top:6px">
+        ${sourcesHTML}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Description</label><input type="text" id="g-desc" class="form-input" value="${esc(goal.description || '')}" placeholder="Why is this goal important?"/></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444" onclick="event.stopPropagation(); deleteGoal('${goal.id}'); closeModal();">Delete</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn-primary" onclick="updateGoal('${goal.id}')">Save Changes</button>
+      </div>
+    </div>`);
+}
+
+function updateGoal(id) {
+  const goal = (STATE.goals || []).find(g => g.id === id);
+  if (!goal) return;
+
+  const name = document.getElementById('g-name').value.trim();
+  const type = document.getElementById('g-type').value;
+  const target = parseFloat(document.getElementById('g-target').value) || 100;
+  const emoji = document.getElementById('g-emoji').value.trim() || '🎯';
+  const deadline = document.getElementById('g-deadline').value;
+  const description = document.getElementById('g-desc').value.trim();
+  const autoSync = type === 'savings' && (document.getElementById('g-autosync')?.checked || false);
+  const current = parseFloat(document.getElementById('g-current').value) || 0;
+
+  const syncSources = [];
+  if (autoSync) {
+    document.querySelectorAll('input[name="g-source"]:checked').forEach(cb => {
+      syncSources.push(cb.value);
+    });
+  }
+
+  if (!name) { toast('Enter goal name', 'error'); return; }
+
+  goal.name = name;
+  goal.type = type;
+  goal.target = target;
+  goal.emoji = emoji;
+  goal.deadline = deadline;
+  goal.description = description;
+  goal.autoSync = autoSync;
+  if (autoSync) {
+    goal.syncSources = syncSources.length ? syncSources : ['net-savings'];
+  } else {
+    goal.current = current;
+    delete goal.syncSources;
+  }
+
+  saveState();
+  closeModal();
+  toast('Goal updated successfully!', 'success');
+  autoSyncGoals();
+  renderGoals();
 }
