@@ -14613,14 +14613,14 @@ html.is-app #spending-page .category-values span {
 
 /* 1 — the popup backdrop: see-through, blurred, lightly tinted */
 html.is-app #modal-overlay {
-  background: rgba(0, 0, 0, 0.55) !important;
+  background: rgba(0, 0, 0, 0.65) !important;
   -webkit-backdrop-filter: blur(20px) saturate(100%) !important;
   backdrop-filter: blur(20px) saturate(100%) !important;
 }
 
-/* 2 — the popup card: frosted glass (dark theme) - midblack colour gracy */
+/* 2 — the popup card: frosted glass (dark theme) - pure black glass */
 html.is-app body:not(.light) #modal-overlay .modal-box {
-  background: rgba(18, 18, 18, 0.82) !important;
+  background: rgba(0, 0, 0, 0.88) !important;
   -webkit-backdrop-filter: blur(34px) saturate(120%) !important;
   backdrop-filter: blur(34px) saturate(120%) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
