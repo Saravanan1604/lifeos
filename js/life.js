@@ -382,16 +382,77 @@ function deleteHabit(id) {
 
 // ===== GOALS PAGE =====
 
-// Auto-sync savings goals with transaction data
+// Helper to display clean sync source labels on goal cards
+function _goalSyncSourceLabel(g) {
+  if (!g.autoSync) return '';
+  const sources = g.syncSources || ['net-savings'];
+  if (sources.length === 1 && sources[0] === 'net-savings') return 'Auto-synced';
+  
+  const resolved = [];
+  sources.forEach(src => {
+    if (src === 'net-savings') resolved.push('Net Savings');
+    else if (src === 'bank-cash') resolved.push('Bank & Cash');
+    else if (src === 'investments') resolved.push('Investments');
+    else if (src === 'net-worth') resolved.push('Net Worth');
+    else if (src.startsWith('bank:')) {
+      const id = src.slice(5);
+      const acct = (STATE.bankAccounts || []).find(b => b.id === id);
+      if (acct) resolved.push(acct.name);
+    } else if (src.startsWith('invest:')) {
+      const id = src.slice(7);
+      const inv = (STATE.investments || []).find(i => i.id === id);
+      if (inv) resolved.push(inv.name);
+    }
+  });
+  if (resolved.length === 0) return 'Auto-synced';
+  return 'Synced: ' + resolved.join(', ');
+}
+
+// Auto-sync savings goals with transaction data & custom sources (bank/investments/etc)
 function autoSyncGoals() {
   const txns = STATE.transactions || [];
   const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const expense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const netSavings = Math.max(0, income - expense);
+  
+  const bankAccounts = STATE.bankAccounts || [];
+  const cashAccounts = STATE.cashAccounts || [];
+  const investments = STATE.investments || [];
+  
   let changed = false;
   (STATE.goals || []).forEach(g => {
     if (g.autoSync && g.type === 'savings') {
-      g.current = Math.min(g.target, netSavings);
+      let sum = 0;
+      const sources = g.syncSources || ['net-savings'];
+      
+      sources.forEach(src => {
+        if (src === 'net-savings') {
+          sum += netSavings;
+        } else if (src === 'bank-cash') {
+          const bankTot = bankAccounts.reduce((s,b)=>s+(b.balance||0),0);
+          const cashTot = cashAccounts.reduce((s,c)=>s+(c.balance||0),0);
+          sum += (bankTot + cashTot);
+        } else if (src === 'investments') {
+          sum += investments.reduce((s,i)=>s+(+i.currentValue || +i.amount || +i.value || 0),0);
+        } else if (src === 'net-worth') {
+          const bankTot = bankAccounts.reduce((s,b)=>s+(b.balance||0),0);
+          const cashTot = cashAccounts.reduce((s,c)=>s+(c.balance||0),0);
+          const cardOut = (STATE.creditCards || []).reduce((s,c)=>s+(c.outstanding||0),0);
+          const loanDebt = (STATE.loans || []).reduce((s,l)=>s+(+l.outstanding||0),0);
+          const invVal = investments.reduce((s,i)=>s+(+i.currentValue || +i.amount || +i.value || 0),0);
+          sum += (bankTot + cashTot + invVal - cardOut - loanDebt);
+        } else if (src.startsWith('bank:')) {
+          const id = src.slice(5);
+          const acct = bankAccounts.find(b => b.id === id);
+          if (acct) sum += (acct.balance || 0);
+        } else if (src.startsWith('invest:')) {
+          const id = src.slice(7);
+          const inv = investments.find(i => i.id === id);
+          if (inv) sum += (+inv.currentValue || +inv.amount || +inv.value || 0);
+        }
+      });
+      
+      g.current = Math.min(g.target, sum);
       changed = true;
     }
   });
@@ -421,14 +482,14 @@ function renderGoals() {
                   <span class="goal-ic" style="background:${done?'rgba(16,185,129,0.15)':'rgba(99,102,241,0.15)'};color:${done?'#10b981':'#8b5cf6'}"><i data-lucide="${done?'check-circle-2':'target'}"></i></span>
                   <div style="min-width:0">
                     <p style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.name}</p>
-                    <p style="font-size:12px;color:var(--text3);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.category||'Personal'}${g.autoSync ? ' · <i data-lucide="link" class="goal-mini-ic" style="color:#00c9a7"></i> <span style="color:#00c9a7">Auto-synced</span>' : ''}</p>
+                    <p style="font-size:12px;color:var(--text3);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.category||'Personal'}${g.autoSync ? ' · <i data-lucide="link" class="goal-mini-ic" style="color:#00c9a7"></i> <span style="color:#00c9a7">' + _goalSyncSourceLabel(g) + '</span>' : ''}</p>
                   </div>
                 </div>
                 <button class="goal-x" onclick="deleteGoal('${g.id}')" title="Delete goal"><i data-lucide="x"></i></button>
               </div>
               <div class="goal-chips" style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:14px">
                 ${done ? '<span class="tag tag-green">Complete</span>' : daysLeft !== null ? `<span class="tag ${daysLeft<7?'tag-red':daysLeft<30?'tag-gold':'tag-blue'}">${daysLeft>0?daysLeft+' days left':'Overdue'}</span>` : ''}
-                ${!g.autoSync && g.type==='savings' ? `<button class="goal-chip-btn" title="Sync with net savings" onclick="toggleGoalSync('${g.id}')" style="color:#00c9a7;border-color:rgba(0,201,167,0.35)"><i data-lucide="link"></i> Sync</button>` : ''}
+                ${!g.autoSync && g.type==='savings' ? `<button class="goal-chip-btn" title="Sync with sources" onclick="toggleGoalSync('${g.id}')" style="color:#00c9a7;border-color:rgba(0,201,167,0.35)"><i data-lucide="link"></i> Sync</button>` : ''}
                 ${g.autoSync ? `<button class="goal-chip-btn" title="Disable auto-sync" onclick="toggleGoalSync('${g.id}')" style="color:#f59e0b;border-color:rgba(245,158,11,0.35)"><i data-lucide="lock"></i> Manual</button>` : ''}
               </div>
               ${g.type === 'savings' ? `
@@ -441,7 +502,7 @@ function renderGoals() {
                 <div style="margin-top:12px;display:flex;gap:8px">
                   <input type="number" id="goal-upd-${g.id}" class="form-input" placeholder="Add amount manually" style="flex:1"/>
                   <button class="btn-primary btn-sm" onclick="updateGoalProgress('${g.id}')">+ Add</button>
-                </div>` : `<p style="font-size:11px;color:var(--text3);margin-top:8px;display:flex;align-items:center;gap:5px"><i data-lucide="link" class="goal-mini-ic"></i> Automatically updates when you add transactions</p>`}
+                </div>` : `<p style="font-size:11px;color:var(--text3);margin-top:8px;display:flex;align-items:center;gap:5px"><i data-lucide="link" class="goal-mini-ic"></i> Automatically updates from your linked source(s)</p>`}
               ` : `
                 <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
                   <span style="color:var(--text2)">${g.description||'Milestone goal'}</span>
@@ -455,6 +516,53 @@ function renderGoals() {
 }
 
 function openAddGoalModal() {
+  const bankAccounts = STATE.bankAccounts || [];
+  const investments = STATE.investments || [];
+  
+  // build options for sync sources list
+  let sourcesHTML = `
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;padding:4px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <input type="checkbox" name="g-source" value="net-savings" checked style="width:14px;height:14px"/>
+        <span>🔗 Net Savings (Income - Expenses)</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <input type="checkbox" name="g-source" value="bank-cash" style="width:14px;height:14px"/>
+        <span>🏦 Total Bank & Cash Balance</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <input type="checkbox" name="g-source" value="investments" style="width:14px;height:14px"/>
+        <span>📈 Total Investment Value</span>
+      </label>
+  `;
+  
+  if (bankAccounts.length > 0) {
+    sourcesHTML += `<p style="font-size:10px;font-weight:700;color:var(--text3);margin:4px 0 2px">BANK ACCOUNTS</p>`;
+    bankAccounts.forEach(b => {
+      sourcesHTML += `
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-left:4px">
+          <input type="checkbox" name="g-source" value="bank:${b.id}" style="width:14px;height:14px"/>
+          <span>🏦 ${b.name} (${fmt(b.balance)})</span>
+        </label>
+      `;
+    });
+  }
+  
+  if (investments.length > 0) {
+    sourcesHTML += `<p style="font-size:10px;font-weight:700;color:var(--text3);margin:4px 0 2px">INVESTMENTS</p>`;
+    investments.forEach(i => {
+      const val = +i.currentValue || +i.amount || +i.value || 0;
+      sourcesHTML += `
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-left:4px">
+          <input type="checkbox" name="g-source" value="invest:${i.id}" style="width:14px;height:14px"/>
+          <span>📈 ${i.name} (${fmt(val)})</span>
+        </label>
+      `;
+    });
+  }
+  
+  sourcesHTML += `</div>`;
+
   openModal('New Goal', `
     <div class="form-group"><label class="form-label">Goal Name</label><input type="text" id="g-name" class="form-input" placeholder="e.g. Emergency Fund, Learn Python"/></div>
     <div class="input-row">
@@ -466,13 +574,16 @@ function openAddGoalModal() {
       <div class="form-group"><label class="form-label">Deadline</label><input type="date" id="g-deadline" class="form-input"/></div>
     </div>
     <div class="form-group" id="g-sync-wrap" style="padding:12px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);border-radius:10px">
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
-        <input type="checkbox" id="g-autosync" style="width:16px;height:16px;accent-color:#00c9a7"/>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="var ch = document.getElementById('g-autosync'); document.getElementById('g-sources-container').style.display = ch.checked ? 'block' : 'none'">
+        <input type="checkbox" id="g-autosync" style="width:16px;height:16px;accent-color:#00c9a7" onchange="document.getElementById('g-sources-container').style.display = this.checked ? 'block' : 'none'"/>
         <div>
-          <p style="font-weight:600;font-size:13px">🔗 Auto-sync with net savings</p>
-          <p style="font-size:11px;color:var(--text3)">Progress updates automatically every time you add a transaction</p>
+          <p style="font-weight:600;font-size:13px">🔗 Auto-sync with sources</p>
+          <p style="font-size:11px;color:var(--text3)">Select one or multiple financial sources below to sync progress automatically</p>
         </div>
       </label>
+      <div id="g-sources-container" style="display:none;border-top:1px solid rgba(0,201,167,0.15);margin-top:8px;padding-top:6px">
+        ${sourcesHTML}
+      </div>
     </div>
     <div class="form-group"><label class="form-label">Description</label><input type="text" id="g-desc" class="form-input" placeholder="Why is this goal important?"/></div>
     <div class="modal-actions">
@@ -489,9 +600,29 @@ function saveGoal() {
   const deadline = document.getElementById('g-deadline').value;
   const description = document.getElementById('g-desc').value.trim();
   const autoSync = type === 'savings' && (document.getElementById('g-autosync')?.checked || false);
+  
+  const syncSources = [];
+  if (autoSync) {
+    document.querySelectorAll('input[name="g-source"]:checked').forEach(cb => {
+      syncSources.push(cb.value);
+    });
+  }
+  
   if (!name) { toast('Enter goal name', 'error'); return; }
   STATE.goals = STATE.goals || [];
-  STATE.goals.push({ id: genId(), name, type, target, current: 0, emoji, deadline, description, autoSync, createdAt: new Date().toISOString() });
+  STATE.goals.push({ 
+    id: genId(), 
+    name, 
+    type, 
+    target, 
+    current: 0, 
+    emoji, 
+    deadline, 
+    description, 
+    autoSync, 
+    syncSources: syncSources.length ? syncSources : ['net-savings'],
+    createdAt: new Date().toISOString() 
+  });
   saveState(); addXP(30, 'Goal created'); closeModal(); toast('Goal created! +30 XP 🚀', 'success');
   autoSyncGoals();
   renderGoals();
@@ -501,10 +632,13 @@ function toggleGoalSync(id) {
   const goal = (STATE.goals || []).find(g => g.id === id);
   if (!goal) return;
   goal.autoSync = !goal.autoSync;
+  if (goal.autoSync && (!goal.syncSources || !goal.syncSources.length)) {
+    goal.syncSources = ['net-savings'];
+  }
   saveState();
   autoSyncGoals();
   renderGoals();
-  toast(goal.autoSync ? '🔗 Auto-sync ON — updates with transactions' : '🔓 Manual mode — add amounts yourself', 'info');
+  toast(goal.autoSync ? '🔗 Auto-sync ON' : '🔓 Manual mode', 'info');
 }
 
 function updateGoalProgress(id) {

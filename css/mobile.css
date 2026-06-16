@@ -14655,3 +14655,42 @@ html.is-app .hm-mode-tabs .hm-tab-btn i {
   height: 1.2em !important;
   flex: 0 0 auto !important;
 }
+
+/* ============================================================
+   build 505 — Goals page: scale typography and spacing inside Goal Cards
+   ============================================================ */
+html.is-app .goal-card {
+  padding: 24px 20px !important;
+  border-radius: 20px !important;
+}
+html.is-app .goal-card p:first-of-type {
+  font-size: 22px !important; /* Goal Name */
+}
+html.is-app .goal-card p:nth-of-type(2) {
+  font-size: 15px !important; /* Category / Sync status */
+}
+html.is-app .goal-card .goal-chips .tag {
+  font-size: 15px !important; /* Chips (days left / Complete) */
+  padding: 4px 10px !important;
+}
+html.is-app .goal-card .goal-chips .goal-chip-btn {
+  font-size: 15px !important; /* Sync / Manual buttons */
+  padding: 6px 14px !important;
+}
+html.is-app .goal-card div[style*="font-size:13px"] {
+  font-size: 17px !important; /* Progress and description labels */
+}
+html.is-app .goal-card div[style*="font-size:13px"] span:last-child {
+  font-size: 24px !important; /* Percentage indicator */
+}
+html.is-app .goal-card p[style*="font-size:11px"] {
+  font-size: 14px !important; /* Sync footnote */
+}
+html.is-app .goal-card .form-input {
+  font-size: 18px !important; /* Manual entry input */
+  padding: 10px 14px !important;
+}
+html.is-app .goal-card .btn-primary {
+  font-size: 16px !important; /* Manual entry add button */
+}
+

@@ -855,10 +855,7 @@ const _QUICK_ACTIONS = {
   habits: [
     {icon:'✅', label:'Add Habit',     color:'#00c9a7', bg:'rgba(0,201,167,0.12)',   bc:'rgba(0,201,167,0.3)',  fn:"openAddHabitModal()"},
   ],
-  goals: [
-    {lucide:'target',    label:'Add Goal',   color:'#8b5cf6', bg:'rgba(139,92,246,0.12)', bc:'rgba(139,92,246,0.3)', fn:"openAddGoalModal()"},
-    {lucide:'banknote',  label:'Add Income', color:'#10b981', bg:'rgba(16,185,129,0.12)', bc:'rgba(16,185,129,0.3)', fn:"openAddTxModal('income')"},
-  ],
+  goals: [],
   health: [
     {icon:'❤️', label:'Log Today',     color:'#3b82f6', bg:'rgba(59,130,246,0.12)',  bc:'rgba(59,130,246,0.3)',  fn:"document.getElementById('h-sleep')?.focus()"},
     {icon:'😊', label:'Log Mood',      color:'#ec4899', bg:'rgba(236,72,153,0.12)',  bc:'rgba(236,72,153,0.3)',  fn:"document.getElementById('mood-grid')?.scrollIntoView({behavior:'smooth',block:'center'})"},
