@@ -15297,3 +15297,119 @@ html.is-app body.light .ia-proj-btn {
   border-color: rgba(99, 102, 241, 0.25) !important;
   color: #4f46e5 !important;
 }
+
+/* Glass cards in finance and bank tracker — light mode */
+html.is-app body.light #page-container[data-page="finance"] .glass-card,
+html.is-app body.light #page-container[data-page="bank-tracker"] .glass-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  color: #1a1f2e !important;
+}
+
+/* Balance Log Header & Input Bar — light mode */
+html.is-app body.light #page-container[data-page="bank-tracker"] .glass-card > div[style*="background:rgba(0,0,0,0.25)"],
+html.is-app body.light #page-container[data-page="bank-tracker"] .glass-card > div:first-child {
+  background: rgba(15, 23, 42, 0.04) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+html.is-app body.light #page-container[data-page="bank-tracker"] .glass-card > div[style*="background:rgba(0,0,0,0.2)"],
+html.is-app body.light #page-container[data-page="bank-tracker"] .glass-card > div:last-child {
+  background: rgba(15, 23, 42, 0.03) !important;
+  border-top-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+html.is-app body.light #page-container[data-page="bank-tracker"] .glass-card [onclick*="openQuickBalanceModal"] {
+  background: rgba(15, 23, 42, 0.04) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+
+/* Balance Log entries — light mode */
+html.is-app body.light .blog-card {
+  background: rgba(15, 23, 42, 0.03) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: #1a1f2e !important;
+}
+html.is-app body.light .blog-card:active {
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+html.is-app body.light .blog-title {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+html.is-app body.light .blog-time {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+html.is-app body.light .blog-from {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+html.is-app body.light .blog-note {
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+html.is-app body.light .blog-util-bar {
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+html.is-app body.light .blog-util span {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+html.is-app body.light .tlog-row {
+  border-bottom-color: rgba(15, 23, 42, 0.06) !important;
+  color: #1a1f2e !important;
+}
+html.is-app body.light .tlog-title {
+  color: #1a1f2e !important;
+}
+html.is-app body.light .tlog-meta {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+
+/* Recurring page — light mode */
+html.is-app body.light #page-container[data-page="recurring"] .rec-sum-box {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: #1a1f2e !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+html.is-app body.light #page-container[data-page="recurring"] .rec-sum-box b {
+  color: #1a1f2e !important;
+}
+html.is-app body.light #page-container[data-page="recurring"] .rec-sum-box span {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+html.is-app body.light #page-container[data-page="recurring"] .rec-item {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: #1a1f2e !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+html.is-app body.light #page-container[data-page="recurring"] .rec-sec-title {
+  color: #1a1f2e !important;
+}
+html.is-app body.light #page-container[data-page="recurring"] .rec-sec-count {
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+html.is-app body.light #page-container[data-page="recurring"] .rec-switch-track {
+  background: rgba(15, 23, 42, 0.16) !important;
+}
+html.is-app body.light #page-container[data-page="recurring"] .rec-meta {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+html.is-app body.light #page-container[data-page="recurring"] .rec-empty {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+
+/* Modal box background — solid white on light mode for high contrast */
+html.is-app body.light #modal-overlay .modal-box {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Modal placeholder text readability in light mode */
+html.is-app body.light #modal-overlay .modal-body .form-input::placeholder,
+html.is-app body.light #modal-overlay .modal-body textarea::placeholder,
+html.is-app body.light #modal-overlay .form-input::placeholder {
+  color: rgba(15, 23, 42, 0.45) !important;
+}
