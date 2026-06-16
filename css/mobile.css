@@ -15413,3 +15413,83 @@ html.is-app body.light #modal-overlay .modal-body textarea::placeholder,
 html.is-app body.light #modal-overlay .form-input::placeholder {
   color: rgba(15, 23, 42, 0.45) !important;
 }
+
+/* Redefine light mode variables for calendar empty cells and card borders */
+html.is-app body.light {
+  --glass-border: rgba(15, 23, 42, 0.08) !important;
+  --hm-empty: rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Heatmap page calendar cells — light mode readability */
+html.is-app body.light .hm-day-cell {
+  color: rgba(15, 23, 42, 0.75) !important;
+}
+html.is-app body.light .hm-day-cell.has-activity {
+  color: #ffffff !important;
+}
+html.is-app body.light .hm-day-cell.today {
+  box-shadow: 0 0 0 1.5px rgba(15, 23, 42, 0.4) !important;
+}
+html.is-app body.light .hm-week-labels {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+
+/* Report tabs — light mode overrides */
+html.is-app body.light .rpt-tabs {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+html.is-app body.light .rpt-tab {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+html.is-app body.light .rpt-tab.on {
+  color: #ffffff !important;
+}
+
+/* Spending page tabs — light mode overrides */
+html.is-app body.light .spov-tabs {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+html.is-app body.light .spov-tab {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+html.is-app body.light .spov-tab.on {
+  color: #ffffff !important;
+}
+
+/* Pull-to-refresh armed/badge indicator — light mode */
+html.is-app body.light #ptr-indicator {
+  background: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Loan detail schedule layout — light mode */
+html.is-app body.light .ld-sch-hd {
+  background: #ffffff !important;
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+html.is-app body.light .ld-sch-row {
+  border-bottom-color: rgba(15, 23, 42, 0.06) !important;
+  color: #1a1f2e !important;
+}
+html.is-app body.light .ld-sch-yr {
+  background: rgba(99, 102, 241, 0.08) !important;
+  color: #4f46e5 !important;
+}
+html.is-app body.light .ld-kpi {
+  background: rgba(15, 23, 42, 0.04) !important;
+  color: #1a1f2e !important;
+}
+html.is-app body.light .ld-seg {
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+html.is-app body.light .ld-seg-b {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+html.is-app body.light .ld-seg-b.on {
+  color: #ffffff !important;
+}

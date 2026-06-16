@@ -92,12 +92,14 @@ function renderHeatmap() {
     const inc = dailyIncome[ymd] || 0;
     const exp = dailyExpense[ymd] || 0;
 
-    let color = 'rgba(255, 255, 255, 0.03)';
+    let color = 'var(--hm-empty, rgba(255, 255, 255, 0.03))';
     let tooltipVal = '';
+    let hasActivity = false;
 
     if (_heatmapMode === 'expense') {
       const val = exp;
       if (val > 0) {
+        hasActivity = true;
         const ratio = maxExpense > 0 ? (val / maxExpense) : 0;
         color = `rgba(239, 68, 68, ${0.18 + ratio * 0.82})`;
         tooltipVal = `Expense: ${fmt(val)}`;
@@ -107,6 +109,7 @@ function renderHeatmap() {
     } else if (_heatmapMode === 'income') {
       const val = inc;
       if (val > 0) {
+        hasActivity = true;
         const ratio = maxIncome > 0 ? (val / maxIncome) : 0;
         color = `rgba(16, 185, 129, ${0.18 + ratio * 0.82})`;
         tooltipVal = `Income: ${fmt(val)}`;
@@ -116,10 +119,12 @@ function renderHeatmap() {
     } else { // 'net'
       const net = netValues[ymd] || 0;
       if (net > 0) {
+        hasActivity = true;
         const ratio = maxNetPositive > 0 ? (net / maxNetPositive) : 0;
         color = `rgba(16, 185, 129, ${0.18 + ratio * 0.82})`;
         tooltipVal = `Net: +${fmt(net)}`;
       } else if (net < 0) {
+        hasActivity = true;
         const ratio = maxNetNegative > 0 ? (Math.abs(net) / maxNetNegative) : 0;
         color = `rgba(239, 68, 68, ${0.18 + ratio * 0.82})`;
         tooltipVal = `Net: -${fmt(Math.abs(net))}`;
@@ -132,7 +137,7 @@ function renderHeatmap() {
     const isToday = ymd === today();
 
     cellsHTML += `
-      <div onclick="_selectHeatmapDay('${ymd}')" class="hm-day-cell ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}" style="background:${color}" title="${d} ${mLabel} · ${tooltipVal}">
+      <div onclick="_selectHeatmapDay('${ymd}')" class="hm-day-cell ${hasActivity ? 'has-activity' : ''} ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}" style="background:${color}" title="${d} ${mLabel} · ${tooltipVal}">
         <span class="hm-day-num">${d}</span>
       </div>`;
   }
@@ -154,7 +159,7 @@ function renderHeatmap() {
 
   if (_heatmapMode === 'expense') {
     legendColors = `
-      <span style="background:rgba(255,255,255,0.03)"></span>
+      <span style="background:var(--hm-empty, rgba(255,255,255,0.03))"></span>
       <span style="background:rgba(239, 68, 68, 0.25)"></span>
       <span style="background:rgba(239, 68, 68, 0.5)"></span>
       <span style="background:rgba(239, 68, 68, 0.75)"></span>
@@ -162,7 +167,7 @@ function renderHeatmap() {
     `;
   } else if (_heatmapMode === 'income') {
     legendColors = `
-      <span style="background:rgba(255,255,255,0.03)"></span>
+      <span style="background:var(--hm-empty, rgba(255,255,255,0.03))"></span>
       <span style="background:rgba(16, 185, 129, 0.25)"></span>
       <span style="background:rgba(16, 185, 129, 0.5)"></span>
       <span style="background:rgba(16, 185, 129, 0.75)"></span>
@@ -174,7 +179,7 @@ function renderHeatmap() {
     legendColors = `
       <span style="background:rgba(239, 68, 68, 0.9)"></span>
       <span style="background:rgba(239, 68, 68, 0.4)"></span>
-      <span style="background:rgba(255,255,255,0.03)"></span>
+      <span style="background:var(--hm-empty, rgba(255,255,255,0.03))"></span>
       <span style="background:rgba(16, 185, 129, 0.4)"></span>
       <span style="background:rgba(16, 185, 129, 0.9)"></span>
     `;
