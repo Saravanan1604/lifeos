@@ -854,7 +854,7 @@ function renderDashboard() {
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </button>
         </p>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Your full money lifecycle: income → spending, debt & savings → bank, cash & investments → net worth. Tap any node to drill in.</p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">${window.__IS_APP ? 'Where your income goes: spending, debt (EMI) and what you saved. Tap the income trunk for total income, or any node to drill in.' : 'Your full money lifecycle: income → spending, debt & savings → bank, cash & investments → net worth. Tap any node to drill in.'}</p>
         <div class="sankey-scroll-wrap">
           <div style="position:relative;height:380px" class="sankey-inner">
             <canvas id="mr-flow-chart"></canvas>
@@ -863,7 +863,7 @@ function renderDashboard() {
         <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
         <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
           ${flow.incBy && flow.expBy ? [...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('') : ''}
-          ${(totalExpense>totalIncome?['From Savings / Debt']:['Savings']).concat(['Bank','Cash','Investments','Debt','Net Worth']).map(n=>{const neg=n==='From Savings / Debt';return `<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:${neg?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};border:1px solid ${neg?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)'};color:${neg?'#ef4444':'#10b981'};cursor:pointer">${n}</button>`;}).join('')}
+          ${(totalExpense>totalIncome?['From Savings / Debt']:['Savings']).concat(window.__IS_APP?[]:['Bank','Cash','Investments','Debt','Net Worth']).map(n=>{const neg=n==='From Savings / Debt';return `<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:${neg?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};border:1px solid ${neg?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)'};color:${neg?'#ef4444':'#10b981'};cursor:pointer">${n}</button>`;}).join('')}
         </div>
       </div>
 
@@ -880,7 +880,7 @@ function renderDashboard() {
           </button>
         </p>
         <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Where your wealth sits: assets gather, then split into what you own (net worth) and what you owe (debt).</p>
-        <div id="mr-wealth-wrap" class="sankey-scroll-wrap">
+        <div id="mr-wealth-wrap" class="sankey-scroll-wrap wealth-scroll-wrap">
           <div style="position:relative;height:300px" class="sankey-inner">
             <canvas id="mr-wealth-chart"></canvas>
           </div>

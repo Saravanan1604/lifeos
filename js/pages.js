@@ -902,6 +902,15 @@ function mrShowNode(name) {
     const rows = matched.map(t => `<div onclick="mrEditTx('${t.id}')" style="display:flex;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--glass-border);cursor:pointer"><div><p style="font-weight:600;font-size:14px">${esc(t.description || t.category)}</p><p style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}</p></div><b style="color:#ef4444">-${fmt(t.amount)}</b></div>`).join('');
     listCard(rows, 'EMI — ' + matched.length + ' entr' + (matched.length === 1 ? 'y' : 'ies'), 'Total paid', matched.reduce((s, t) => s + (+t.amount || 0), 0), '#ef4444'); return;
   }
+  if (name === 'Income') {
+    const bySrc = {}; let total = 0;
+    txs.forEach(t => { if (t.type === 'income') { const k = t.category || 'Other'; bySrc[k] = (bySrc[k] || 0) + (+t.amount || 0); total += (+t.amount || 0); } });
+    const rows = Object.entries(bySrc).sort((a, b) => b[1] - a[1]).map(([k, v]) => `
+      <div onclick="mrShowNode('${String(k).replace(/'/g, "\\'")}')" style="display:flex;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--glass-border);cursor:pointer">
+        <span style="font-weight:600;font-size:14px">${esc(k)}</span><b style="color:#10b981;white-space:nowrap">${fmt(v)}</b></div>`).join('');
+    listCard(rows, '💰 Total Income — ' + Object.keys(bySrc).length + ' source(s)', 'All income', total, '#10b981');
+    return;
+  }
   if (name === 'Savings') {
     let inc = 0, exp = 0; txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
     openModal('💰 Savings', `<p style="font-size:14px;color:var(--text2);line-height:1.9">
@@ -981,7 +990,13 @@ function _mrRenderPins(page) {
           <p style="font-size:16px;font-weight:800">${esc(p.title || titles[p.chart] || 'Chart')}</p>
           <button onclick="mrUnpin('${p.chart}','${page}')" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:9px;padding:5px 9px;cursor:pointer;font-size:12px;font-weight:700">Unpin</button>
         </div>
-        <div style="position:relative;height:300px"><canvas id="${canvasId[p.chart]}"></canvas></div>
+        ${p.chart === 'flow' || p.chart === 'wealth' ? `
+        <div class="sankey-scroll-wrap${p.chart === 'wealth' ? ' wealth-scroll-wrap' : ''}">
+          <div style="position:relative;height:${p.chart === 'flow' ? '380px' : '300px'}" class="sankey-inner">
+            <canvas id="${canvasId[p.chart]}"></canvas>
+          </div>
+        </div>` : `
+        <div style="position:relative;height:300px"><canvas id="${canvasId[p.chart]}"></canvas></div>`}
       </div>`).join('')}
   </div>`;
   fadeIn.insertAdjacentHTML('beforeend', html);
@@ -1126,7 +1141,7 @@ function renderMoneyRules() {
         <p style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="git-fork" style="width:20px;height:20px;color:#3b82f6"></i> Where Your Money Goes
           <button onclick="mrToggleFlowAmt()" style="background:none;border:none;color:${_mrShowFlowAmt?'#00c9a7':'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %"><i data-lucide="${_mrShowFlowAmt?'eye':'eye-off'}" style="width:18px;height:18px"></i></button>
           <button onclick="mrPinChart('flow','Where Your Money Goes')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Your full money lifecycle: income → spending, debt & savings → bank, cash & investments → net worth. Tap any node to drill in.</p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:10px">${window.__IS_APP ? 'Where your income goes: spending, debt (EMI) and what you saved. Tap the income trunk for total income, or any node to drill in.' : 'Your full money lifecycle: income → spending, debt & savings → bank, cash & investments → net worth. Tap any node to drill in.'}</p>
         <div class="sankey-scroll-wrap">
           <div style="position:relative;height:380px" class="sankey-inner">
             <canvas id="mr-flow-chart"></canvas>
@@ -1135,7 +1150,7 @@ function renderMoneyRules() {
         <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
         <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
           ${[...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('')}
-          ${(pExp>pInc?['From Savings / Debt']:['Savings']).concat(['Bank','Cash','Investments','Debt','Net Worth']).map(n=>{const neg=n==='From Savings / Debt';return `<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:${neg?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};border:1px solid ${neg?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)'};color:${neg?'#ef4444':'#10b981'};cursor:pointer">${n}</button>`;}).join('')}
+          ${(pExp>pInc?['From Savings / Debt']:['Savings']).concat(window.__IS_APP?[]:['Bank','Cash','Investments','Debt','Net Worth']).map(n=>{const neg=n==='From Savings / Debt';return `<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:${neg?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};border:1px solid ${neg?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)'};color:${neg?'#ef4444':'#10b981'};cursor:pointer">${n}</button>`;}).join('')}
         </div>
       </div>
 
@@ -1173,7 +1188,7 @@ function renderMoneyRules() {
           <button onclick="mrToggleFlowAmt()" style="background:none;border:none;color:${_mrShowFlowAmt?'#00c9a7':'var(--text3)'};cursor:pointer;padding:2px;margin-left:auto" title="Show/hide amounts & %"><i data-lucide="${_mrShowFlowAmt?'eye':'eye-off'}" style="width:18px;height:18px"></i></button>
           <button onclick="mrPinChart('wealth','Wealth Flow')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page"><i data-lucide="pin" style="width:16px;height:16px"></i></button></p>
         <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Where your wealth sits: assets gather, then split into what you own (net worth) and what you owe (debt).</p>
-        <div id="mr-wealth-wrap" class="sankey-scroll-wrap">
+        <div id="mr-wealth-wrap" class="sankey-scroll-wrap wealth-scroll-wrap">
           <div style="position:relative;height:300px" class="sankey-inner">
             <canvas id="mr-wealth-chart"></canvas>
           </div>
@@ -1290,6 +1305,47 @@ function renderMoneyRules() {
   }, 30);
 }
 
+function _mrPrepareSankeyCanvas(canvas, isWealth) {
+  if (!canvas) return;
+  if (canvas.__sankeyPrepared) return;
+  canvas.__sankeyPrepared = true;
+
+  if (window.__IS_APP) {
+    const ctx = canvas.getContext('2d');
+    const originalFillText = ctx.fillText;
+    ctx.fillText = function(text, x, y, maxWidth) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(-Math.PI / 2);
+      originalFillText.call(ctx, text, 0, 0, maxWidth);
+      ctx.restore();
+    };
+
+    const mapCoordinates = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const xVis = e.clientX - rect.left;
+      const yVis = e.clientY - rect.top;
+      const xCanvasCss = yVis;
+      const yCanvasCss = rect.width - xVis;
+      
+      Object.defineProperty(e, 'offsetX', { value: xCanvasCss, configurable: true });
+      Object.defineProperty(e, 'offsetY', { value: yCanvasCss, configurable: true });
+      Object.defineProperty(e, 'clientX', { value: rect.left + xCanvasCss, configurable: true });
+      Object.defineProperty(e, 'clientY', { value: rect.top + yCanvasCss, configurable: true });
+    };
+
+    canvas.addEventListener('click', mapCoordinates, true);
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches[0]) {
+        const touch = e.touches[0];
+        Object.defineProperty(e, 'clientX', { value: touch.clientX, configurable: true });
+        Object.defineProperty(e, 'clientY', { value: touch.clientY, configurable: true });
+        mapCoordinates(e);
+      }
+    }, true);
+  }
+}
+
 function _mrDrawCharts(fh, strm, flow) {
   if (!window.Chart) return;
   const isLight = document.body.classList.contains('light');
@@ -1354,6 +1410,7 @@ function _mrDrawCharts(fh, strm, flow) {
   // Money-flow Sankey (income sources → Income → expense categories + Savings)
   const c3 = document.getElementById('mr-flow-chart');
   if (c3 && flow) {
+    _mrPrepareSankeyCanvas(c3, false);
     const hasSankey = !!(window.Chart.registry && Chart.registry.controllers && Chart.registry.controllers.items && Chart.registry.controllers.items.sankey);
     if (!hasSankey || flow.totalInc <= 0) {
       const fb = document.getElementById('mr-flow-fallback');
@@ -1401,25 +1458,29 @@ function _mrDrawCharts(fh, strm, flow) {
     if (restSum > 0) { data.push({ from: 'Income', to: 'Other', flow: Math.round(restSum) }); colorOf('Other'); column['Other'] = 2; }
     if (emi > 0) { data.push({ from: 'Income', to: 'EMI', flow: Math.round(emi) }); column['EMI'] = 2; }
 
-    // Stage 3 — Savings → Investments (only what you actually invested) + Bank/Cash → Net Worth
+    // Stage 3 — Savings. In the APP the user wants only the Savings node here:
+    // Bank / Cash / Investments / Net Worth belong to the Wealth Flow card, so we
+    // make Savings a terminal node. On the web we keep the full lifecycle.
     if (savings > 0) {
       data.push({ from: 'Income', to: 'Savings', flow: Math.round(savings) }); column['Savings'] = 2;
-      const invAmt = Math.min(savings, invested);            // only this period's real investing
-      const leftover = Math.max(0, savings - invAmt);
-      if (invAmt > 0) {
-        data.push({ from: 'Savings', to: 'Investments', flow: Math.round(invAmt) }); column['Investments'] = 3;
-        data.push({ from: 'Investments', to: 'Net Worth', flow: Math.round(invAmt) }); column['Net Worth'] = 4;
-      }
-      if (leftover > 0) {
-        let parts = [['Bank', nw.bank], ['Cash', nw.cash]].filter(p => p[1] > 0);
-        if (!parts.length) parts = [['Bank', 1]];
-        const psum = parts.reduce((a, p) => a + p[1], 0);
-        parts.forEach(([name, w]) => {
-          const amt = Math.round(leftover * w / psum);
-          if (amt <= 0) return;
-          data.push({ from: 'Savings', to: name, flow: amt }); column[name] = 3;
-          data.push({ from: name, to: 'Net Worth', flow: amt }); column['Net Worth'] = 4;
-        });
+      if (!window.__IS_APP) {
+        const invAmt = Math.min(savings, invested);            // only this period's real investing
+        const leftover = Math.max(0, savings - invAmt);
+        if (invAmt > 0) {
+          data.push({ from: 'Savings', to: 'Investments', flow: Math.round(invAmt) }); column['Investments'] = 3;
+          data.push({ from: 'Investments', to: 'Net Worth', flow: Math.round(invAmt) }); column['Net Worth'] = 4;
+        }
+        if (leftover > 0) {
+          let parts = [['Bank', nw.bank], ['Cash', nw.cash]].filter(p => p[1] > 0);
+          if (!parts.length) parts = [['Bank', 1]];
+          const psum = parts.reduce((a, p) => a + p[1], 0);
+          parts.forEach(([name, w]) => {
+            const amt = Math.round(leftover * w / psum);
+            if (amt <= 0) return;
+            data.push({ from: 'Savings', to: name, flow: amt }); column[name] = 3;
+            data.push({ from: name, to: 'Net Worth', flow: amt }); column['Net Worth'] = 4;
+          });
+        }
       }
     }
 
@@ -1429,6 +1490,11 @@ function _mrDrawCharts(fh, strm, flow) {
 
     const flowLabels = _mrShowFlowAmt ? _mrNodeLabels(data) : {};
     _mrScaleFlows(data, 6, 90);                        // keep tiny bands visible
+    if (window.__IS_APP) {
+      // Beef up the central income trunk (income sources → Income) so the mid
+      // line reads as the grand total of income.
+      data.forEach(d => { if (d.to === 'Income') d.flow = Math.round(d.flow * 1.7); });
+    }
 
     chartInstances.mrFlow = new Chart(c3.getContext('2d'), {
       type: 'sankey',
@@ -1449,11 +1515,17 @@ function _mrDrawCharts(fh, strm, flow) {
           if (!pts.length) return;
           const raw = chart.data.datasets[0].data[pts[0].index];
           if (!raw) return;
-          const node = raw.from === 'Income' ? raw.to : raw.from;
+          let node = raw.from === 'Income' ? raw.to : raw.from;
+          // Tapping the income trunk (sources → Income) shows the sum of all income.
+          if (window.__IS_APP && raw.to === 'Income' && raw.from !== 'From Savings / Debt') node = 'Income';
           if (typeof mrShowNode === 'function') mrShowNode(node);
         },
         plugins: { legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.real != null ? ctx.raw.real : ctx.raw.flow)}` } } },
+          tooltip: {
+            enabled: !window.__IS_APP,
+            callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.real != null ? ctx.raw.real : ctx.raw.flow)}` }
+          }
+        },
       }
     });
   }
@@ -1502,6 +1574,7 @@ function _mrDrawCharts(fh, strm, flow) {
       }
       const wLabels = _mrShowFlowAmt ? _mrNodeLabels(wdata, false) : {};
       _mrScaleFlows(wdata, 6, 90);                      // keep tiny bands (Bank/Cash) visible
+      _mrPrepareSankeyCanvas(c4, true);
       chartInstances.mrWealth = new Chart(c4.getContext('2d'), {
         type: 'sankey',
         data: { datasets: [{
@@ -1521,7 +1594,11 @@ function _mrDrawCharts(fh, strm, flow) {
             if (typeof mrShowNode === 'function') mrShowNode(node);
           },
           plugins: { legend: { display: false },
-            tooltip: { callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.real != null ? ctx.raw.real : ctx.raw.flow)}` } } },
+            tooltip: {
+              enabled: !window.__IS_APP,
+              callbacks: { label: (ctx) => `${ctx.raw.from} → ${ctx.raw.to}: ${fmt(ctx.raw.real != null ? ctx.raw.real : ctx.raw.flow)}` }
+            }
+          },
         }
       });
     }
