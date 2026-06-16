@@ -700,7 +700,433 @@ function _spendPeriodLabel() {
   const o = { day: '2-digit', month: 'short' };
   return `${mon.toLocaleDateString('en-IN', o)} – ${sun.toLocaleDateString('en-IN', o)}`;
 }
+function renderCombinedSpendBudget(activeTab) {
+  if (!activeTab) activeTab = currentPage === 'budget' ? 'budget' : 'spending';
+  
+  // Initialize window function if not done
+  if (!window.switchSpendBudgetTab) {
+    window.switchSpendBudgetTab = function(tab) {
+      if (currentPage === tab) return;
+      currentPage = tab;
+      STATE._currentPage = tab;
+      history.replaceState({ page: tab }, '', '#' + tab);
+      
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.page === tab);
+      });
+      const bnItems = [...document.querySelectorAll('#bottom-nav .bn-item')]
+        .filter(el => getComputedStyle(el).display !== 'none');
+      bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === tab));
+      
+      const ind = document.getElementById('bn-indicator');
+      if (ind) {
+        const active = bnItems.find(el => el.dataset.page === tab);
+        if (active && active.offsetWidth) {
+          ind.style.opacity = '1';
+          ind.style.width = active.offsetWidth + 'px';
+          ind.style.transform = `translateX(${active.offsetLeft}px)`;
+        } else {
+          ind.style.opacity = '0';
+        }
+      }
+
+      const slider = document.getElementById('sb-panels-slider');
+      const segmentBg = document.querySelector('.sb-segmented-bg');
+      const btns = document.querySelectorAll('.sb-segmented-btn');
+
+      if (slider && segmentBg) {
+        slider.style.transform = tab === 'spending' ? 'translateX(-50%)' : 'translateX(0)';
+        segmentBg.style.transform = tab === 'spending' ? 'translateX(100%)' : 'translateX(0)';
+        btns.forEach(btn => {
+          btn.classList.toggle('active', btn.innerText.toLowerCase() === tab.toLowerCase());
+        });
+      } else {
+        renderCombinedSpendBudget(tab);
+      }
+    };
+  }
+
+  // 1) SPENDING DATA
+  const a = (_spendAnchor instanceof Date && !isNaN(_spendAnchor)) ? _spendAnchor : new Date();
+  const tx = (_spendPeriod === 'all'
+    ? [...(STATE.transactions || [])]
+    : filterTxByAnchor([...(STATE.transactions || [])], _spendPeriod, _ymdLocal(a))
+  ).filter(t => t.type !== 'income');
+  const byCat = {};
+  tx.forEach(t => { const c = t.category || 'Other'; if (!byCat[c]) byCat[c] = { total: 0, n: 0 }; byCat[c].total += (+t.amount || 0); byCat[c].n++; });
+  const rows = Object.entries(byCat).map(([c, v]) => ({ cat: c, total: v.total, n: v.n })).sort((x, y) => y.total - x.total);
+  const grand = rows.reduce((s, r) => s + r.total, 0);
+  const lbl = _spendPeriodLabel();
+  const colors = rows.map(r => catColor(r.cat));
+  const displayTotalText = grand > 0 ? fmt(Math.round(grand)) : '₹0';
+  const scoreFontSize = displayTotalText.length > 8 ? '40px' : (displayTotalText.length > 6 ? '52px' : (displayTotalText.length > 4 ? '64px' : '76px'));
+
+  // 2) BUDGET DATA
+  const budgets = STATE.budgets || [];
+  const txns = STATE.transactions || [];
+  const filteredTxns = filterTxByAnchor([...txns], _budgetPeriod, _ymdLocal(_budgetAnchor)).filter(t => t.type === 'expense');
+  const _plbl = _budgetPeriodLabel();
+
+  const budgetRows = budgets.map((b, bi) => {
+    const limit = getBudgetLimit(b, _budgetPeriod);
+    const spent = filteredTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
+    return { b, bi, limit, spent };
+  });
+  const totalLimit = budgetRows.reduce((s, r) => s + r.limit, 0);
+  const totalSpent = budgetRows.reduce((s, r) => s + r.spent, 0);
+  const totalRemaining = totalLimit - totalSpent;
+  const totalPct = totalLimit > 0 ? Math.min(100, (totalSpent / totalLimit) * 100) : 0;
+  const BUDGET_COLORS = ['#6366f1','#10b981','#f59e0b','#ec4899','#8b5cf6','#3b82f6','#00c9a7','#ef4444','#f97316','#14b8a6','#a855f7','#eab308'];
+
+  const budgetedSet = new Set(budgets.map(b => (b.category || '').trim().toLowerCase()));
+  const unbudgeted = {};
+  filteredTxns.forEach(t => {
+    const c = (t.category || 'Other').trim();
+    if (budgetedSet.has(c.toLowerCase())) return;
+    unbudgeted[c] = (unbudgeted[c] || 0) + (+t.amount || 0);
+  });
+  const unbudgetedRows = Object.entries(unbudgeted).sort((a, b) => b[1] - a[1]);
+  const unbudgetedTotal = unbudgetedRows.reduce((s, r) => s + r[1], 0);
+
+  // Month-comparison chart (app)
+  let cmpChartHtml = '';
+  let _cmpData = null;
+  const now = new Date(_budgetAnchor);
+  const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const ymOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const sums = ymKey => {
+    const o = {};
+    txns.forEach(t => {
+      if (t.type === 'income') return;
+      if ((t.date || '').slice(0, 7) !== ymKey) return;
+      const c = (t.category || 'Other').trim();
+      o[c] = (o[c] || 0) + (+t.amount || 0);
+    });
+    return o;
+  };
+  const cur = sums(ymOf(now)), prev = sums(ymOf(prevDate));
+  const cmpCats = [...new Set([...Object.keys(cur), ...Object.keys(prev)])]
+    .sort((a, b) => ((cur[b] || 0) + (prev[b] || 0)) - ((cur[a] || 0) + (prev[a] || 0)))
+    .slice(0, 10);
+  if (cmpCats.length) {
+    _cmpData = {
+      cats: cmpCats,
+      cur: cmpCats.map(c => Math.round(cur[c] || 0)),
+      prev: cmpCats.map(c => Math.round(prev[c] || 0)),
+      curLbl: now.toLocaleString('default', { month: 'short', year: '2-digit' }),
+      prevLbl: prevDate.toLocaleString('default', { month: 'short', year: '2-digit' })
+    };
+    cmpChartHtml = `
+    <div class="glass-card" style="padding:18px;margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px">
+        <p class="section-title" style="margin:0;font-size:16px"><i data-lucide="bar-chart-3"></i> ${_cmpData.curLbl} vs ${_cmpData.prevLbl}</p>
+        <span style="font-size:12px;color:var(--text3);white-space:nowrap">spend per category</span>
+      </div>
+      <div style="height:${cmpCats.length * 88 + 90}px;position:relative"><canvas id="budget-cmp-chart"></canvas></div>
+    </div>`;
+  }
+
+  const unbudgetedHtml = unbudgetedRows.length ? `
+    <div class="glass-card" style="padding:18px;margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px">
+        <p class="section-title" style="margin:0;font-size:16px"><i data-lucide="layers"></i> No Budget Set</p>
+        <span style="font-size:12px;color:var(--text3);white-space:nowrap">${fmt(Math.round(unbudgetedTotal))} · ${_plbl}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:13px">
+        ${unbudgetedRows.map(([c, v]) => `
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="cat-lic" style="font-size:20px;color:${catColor(c)}">${catIconHtml(c)}</span>
+            <span style="flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c)}</span>
+            <span style="font-size:14px;font-weight:700;white-space:nowrap">${fmt(Math.round(v))}</span>
+            <button onclick="openAddBudgetModalFor('${c.replace(/'/g, "\\'")}')" style="background:rgba(0,201,167,0.12);border:1px solid rgba(0,201,167,0.3);color:#00c9a7;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0">+ Budget</button>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const budgetDisplayScore = totalLimit > 0 ? Math.round(totalSpent / totalLimit * 100) + '%' : '0%';
+  const budgetScoreFontSize = budgetDisplayScore.length > 5 ? '46px' : '64px';
+
+  // Construct combined layout
+  document.getElementById('page-container').innerHTML = `
+    <div class="fade-in" id="combined-spend-budget-page" style="padding:16px 20px 80px; overflow-x: hidden; position: relative; width: 100%; box-sizing: border-box;">
+      <!-- Combined Header -->
+      <div class="ring-page-head" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        
+        <!-- Segmented Tab Toggle -->
+        <div class="sb-segmented-control">
+          <div class="sb-segmented-bg" style="transform: translateX(${activeTab === 'spending' ? '100%' : '0'});"></div>
+          <button class="sb-segmented-btn ${activeTab === 'budget' ? 'active' : ''}" onclick="switchSpendBudgetTab('budget')">Budget</button>
+          <button class="sb-segmented-btn ${activeTab === 'spending' ? 'active' : ''}" onclick="switchSpendBudgetTab('spending')">Spending</button>
+        </div>
+        
+        <div style="width: 38px;"></div>
+      </div>
+
+      <!-- Swipeable Viewport -->
+      <div class="sb-viewport" id="sb-viewport">
+        <div class="sb-wrapper" id="sb-panels-slider" style="transform: translateX(${activeTab === 'spending' ? '-50%' : '0'});">
+          <!-- LEFT PANEL: BUDGET -->
+          <div class="sb-panel">
+            <div id="budget-page" style="padding:0">
+              <div class="ring-container">
+                <canvas id="budget-donut-chart" style="width:100%;height:100%;display:block"></canvas>
+                <div class="ring-center-text">
+                  <span class="ring-score" style="font-size:${budgetScoreFontSize} !important">${budgetDisplayScore}</span>
+                </div>
+              </div>
+
+              <div class="actions-row">
+                <button class="model-primary-btn" onclick="openAddBudgetModal(-1)">+ Add Budget</button>
+                <button class="model-circle-btn" onclick="openBudgetPeriodSheet()" title="Budget Period">📅</button>
+                <button class="model-circle-btn" onclick="navigate('ai-coach')" title="Ask AI Coach">💬</button>
+                <button class="model-circle-btn" onclick="switchSpendBudgetTab('spending')" title="View Spending">📊</button>
+              </div>
+
+              <div class="section-heading-row">
+                <span class="section-heading">Budget Categories</span>
+                <button class="section-filter-btn" onclick="openBudgetPeriodSheet()">
+                  <span>${_plbl}</span> <span style="font-size:8px">▼</span>
+                </button>
+              </div>
+
+              <div style="display:flex;flex-direction:column;margin-bottom:28px">
+                ${budgets.length === 0 ? `
+                  <div style="text-align:center;padding:32px 0;color:var(--text3)">
+                    No budgets active. Tap '+ Add Budget' above to create one.
+                  </div>
+                ` : budgetRows.map(({b, bi, limit, spent}, idx) => {
+                  const pct = limit > 0 ? Math.min(100, (spent / limit) * 100) : 0;
+                  const color = BUDGET_COLORS[idx % BUDGET_COLORS.length];
+                  const over = spent > limit;
+                  const spentFormatted = fmt(Math.round(spent));
+                  const limitFormatted = fmt(Math.round(limit));
+                  return `
+                    <div class="category-row" onclick="openAddBudgetModal(${bi})">
+                      <div class="cat-head">
+                        <div class="category-icon-wrap" style="background:${color}15;color:${color}">
+                          ${catIconHtml(b.category)}
+                        </div>
+                        <div class="category-name">${b.category}</div>
+                        <div class="category-values">
+                          ${spentFormatted}<span>${Math.round(pct)}% · ${limitFormatted}</span>
+                        </div>
+                      </div>
+                      <div class="category-progress-bg">
+                        <div class="category-progress-fill" style="width:${pct}%;background:${over ? '#ef4444' : color}"></div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              ${unbudgetedHtml}
+              ${cmpChartHtml}
+            </div>
+          </div>
+          <!-- RIGHT PANEL: SPENDING -->
+          <div class="sb-panel">
+            <div id="spending-page" style="padding:0">
+              <div class="ring-container">
+                <canvas id="spov-chart" style="width:100%;height:100%;display:block"></canvas>
+                <div class="ring-center-text">
+                  <span class="ring-score" style="font-size:${scoreFontSize} !important">${displayTotalText}</span>
+                </div>
+              </div>
+
+              <div class="actions-row">
+                <button class="model-primary-btn" onclick="openAddTxModal('expense')">+ Add Expense</button>
+                <button class="model-circle-btn" onclick="openSpendPeriodSheet()" title="Spend Period">📅</button>
+                <button class="model-circle-btn" onclick="navigate('ai-coach')" title="Ask AI Coach">💬</button>
+                <button class="model-circle-btn" onclick="switchSpendBudgetTab('budget')" title="View Budget">🎯</button>
+              </div>
+
+              <div class="section-heading-row">
+                <span class="section-heading">Spending Categories</span>
+                <button class="section-filter-btn" onclick="openSpendPeriodSheet()">
+                  <span>${lbl}</span> <span style="font-size:8px">▼</span>
+                </button>
+              </div>
+
+              <div style="display:flex;flex-direction:column;margin-bottom:28px">
+                ${rows.length === 0 ? `
+                  <div style="text-align:center;padding:32px 0;color:var(--text3)">
+                    No spending in ${lbl}.
+                  </div>
+                ` : rows.map((r, idx) => {
+                  const pct = grand > 0 ? Math.round(r.total / grand * 100) : 0;
+                  const color = colors[idx % colors.length];
+                  const spentFormatted = fmt(Math.round(r.total));
+                  return `
+                    <div class="category-row" onclick="openCategoryDetail('${r.cat.replace(/'/g, "\\'")}','spending')">
+                      <div class="cat-head">
+                        <div class="category-icon-wrap" style="background:${color}15;color:${color}">
+                          ${catIconHtml(r.cat)}
+                        </div>
+                        <div class="category-name">${r.cat}</div>
+                        <div class="category-values">
+                          ${spentFormatted}<span>${pct}% · ${r.n} ${r.n === 1 ? 'spend' : 'spends'}</span>
+                        </div>
+                      </div>
+                      <div class="category-progress-bg">
+                        <div class="category-progress-fill" style="width:${pct}%;background:${color}"></div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Setup touch swipe event listeners on mobile
+  setTimeout(() => {
+    const el = document.getElementById('sb-viewport');
+    if (!el) return;
+    let startX = 0;
+    let startY = 0;
+    let startTime = 0;
+
+    el.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+      startTime = new Date().getTime();
+    }, { passive: true });
+
+    el.addEventListener('touchend', (e) => {
+      const touch = e.changedTouches[0];
+      const diffX = touch.clientX - startX;
+      const diffY = touch.clientY - startY;
+      const elapsed = new Date().getTime() - startTime;
+
+      // Check if horizontal swipe
+      if (elapsed < 300 && Math.abs(diffX) > 60 && Math.abs(diffY) < 60) {
+        if (diffX < 0 && currentPage === 'budget') {
+          // Swipe left -> Spending
+          switchSpendBudgetTab('spending');
+        } else if (diffX > 0 && currentPage === 'spending') {
+          // Swipe right -> Budget
+          switchSpendBudgetTab('budget');
+        }
+      }
+    }, { passive: true });
+  }, 50);
+
+  // Render Charts
+  setTimeout(() => {
+    // 1) Budget Donut Chart
+    const budgetCanvas = document.getElementById('budget-donut-chart');
+    if (budgetCanvas && typeof Chart !== 'undefined') {
+      if (chartInstances['budget-donut']) { chartInstances['budget-donut'].destroy(); delete chartInstances['budget-donut']; }
+      chartInstances['budget-donut'] = new Chart(budgetCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: budgetRows.map(r => r.b.category),
+          datasets: [{
+            data: budgetRows.map(r => r.limit),
+            backgroundColor: budgetRows.map((_, i) => BUDGET_COLORS[i % BUDGET_COLORS.length]),
+            borderWidth: 0
+          }]
+        },
+        options: {
+          cutout: '72%',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              padding: 16,
+              titleFont: { size: 24, weight: 'bold' },
+              bodyFont: { size: 22 },
+              callbacks: {
+                label: c => {
+                  const idx = c.dataIndex;
+                  return ` ${c.label}: ${fmt(Math.round(budgetRows[idx].spent))} spent / ${fmt(Math.round(c.parsed))} limit`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 2) Budget comparison chart
+    const cmpCanvas = document.getElementById('budget-cmp-chart');
+    if (cmpCanvas && _cmpData && typeof Chart !== 'undefined') {
+      if (chartInstances['budget-cmp']) { chartInstances['budget-cmp'].destroy(); delete chartInstances['budget-cmp']; }
+      chartInstances['budget-cmp'] = new Chart(cmpCanvas, {
+        type: 'bar',
+        data: {
+          labels: _cmpData.cats,
+          datasets: [
+            { label: _cmpData.prevLbl, data: _cmpData.prev, backgroundColor: 'rgba(139,92,246,0.75)', borderRadius: 6, barPercentage: .9, categoryPercentage: .68 },
+            { label: _cmpData.curLbl,  data: _cmpData.cur,  backgroundColor: 'rgba(0,201,167,0.9)',   borderRadius: 6, barPercentage: .9, categoryPercentage: .68 }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)', font: { family: 'Inter', size: 16 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#ffffff', font: { family: 'Inter', size: 16, weight: 'bold' } } }
+          },
+          plugins: {
+            legend: { labels: { color: 'rgba(255,255,255,0.6)', font: { size: 15 } } }
+          }
+        }
+      });
+    }
+
+    // 3) Spending Donut Chart
+    const spendCanvas = document.getElementById('spov-chart');
+    if (spendCanvas && typeof Chart !== 'undefined') {
+      if (chartInstances['spov']) { chartInstances['spov'].destroy(); delete chartInstances['spov']; }
+      chartInstances['spov'] = new Chart(spendCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: spendRows.map(r => r.cat),
+          datasets: [{
+            data: spendRows.map(r => r.total),
+            backgroundColor: colors,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          cutout: '72%',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              padding: 16,
+              titleFont: { size: 24, weight: 'bold' },
+              bodyFont: { size: 22 },
+              callbacks: {
+                label: c => ' ' + c.label + ': ' + fmt(Math.round(c.parsed))
+              }
+            }
+          }
+        }
+      });
+    }
+
+    _lucideRefresh();
+  }, 60);
+}
+
 function renderSpendingOverview() {
+  if (window.__IS_APP) {
+    renderCombinedSpendBudget('spending');
+    return;
+  }
   const a = (_spendAnchor instanceof Date && !isNaN(_spendAnchor)) ? _spendAnchor : new Date();
   const tx = (_spendPeriod === 'all'
     ? [...(STATE.transactions || [])]
@@ -6308,6 +6734,10 @@ function selectBudgetPeriod(p) {
 }
 
 function renderBudget() {
+  if (window.__IS_APP) {
+    renderCombinedSpendBudget('budget');
+    return;
+  }
   const budgets = STATE.budgets || [];
   const txns = STATE.transactions || [];
   // App: anchor-based filtering so ‹ › / calendar can move through history

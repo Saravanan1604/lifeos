@@ -14881,4 +14881,68 @@ html.is-app .rec-add-lbl {
   font-size: 36px !important;
 }
 
+/* ============================================================
+   Spending and Budget combined swipeable views
+   ============================================================ */
+html.is-app .sb-segmented-control {
+  display: flex !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  padding: 5px !important;
+  width: 300px !important;
+  position: relative !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+html.is-app .sb-segmented-bg {
+  position: absolute !important;
+  top: 5px !important;
+  bottom: 5px !important;
+  width: calc(50% - 5px) !important;
+  background: linear-gradient(135deg, #00c9a7, #0acf83) !important;
+  border-radius: 16px !important;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 10px rgba(10, 207, 131, 0.25) !important;
+}
+
+html.is-app .sb-segmented-btn {
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  padding: 12px 0 !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  position: relative !important;
+  z-index: 2 !important;
+  transition: color 0.2s !important;
+  outline: none !important;
+}
+
+html.is-app .sb-segmented-btn.active {
+  color: #ffffff !important;
+}
+
+html.is-app .sb-viewport {
+  width: 100% !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+html.is-app .sb-wrapper {
+  display: flex !important;
+  width: 200% !important;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: transform !important;
+}
+
+html.is-app .sb-panel {
+  width: 50% !important;
+  box-sizing: border-box !important;
+}
+
+
 
