@@ -1083,12 +1083,19 @@ window.addEventListener('popstate', (e) => {
   const sb = document.querySelector('.sidebar.mobile-open');
   if (sb) { _closeMobileDrawer(); return; }
 
-  // 2) Any page → Home (re-renders).   3) On Home → ask to exit.
-  const HOME = window.__IS_APP ? 'transactions' : 'dashboard';
-  if (currentPage !== HOME) {
-    navigate(HOME, true);
-  } else if (window.__IS_APP) {
-    showExitConfirm();
+  // 2) Detail pages → Parent page. Otherwise any page → Home (re-renders). 3) On Home → ask to exit.
+  if (currentPage === 'category-detail') {
+    const target = (typeof _catDetailFrom !== 'undefined' && _catDetailFrom === 'spending') ? 'spending' : (window.__IS_APP ? 'transactions' : 'dashboard');
+    navigate(target, true);
+  } else if (currentPage === 'loan-detail' || currentPage === 'asset-detail') {
+    navigate('investments', true);
+  } else {
+    const HOME = window.__IS_APP ? 'transactions' : 'dashboard';
+    if (currentPage !== HOME) {
+      navigate(HOME, true);
+    } else if (window.__IS_APP) {
+      showExitConfirm();
+    }
   }
 });
 
