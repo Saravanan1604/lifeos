@@ -14613,19 +14613,19 @@ html.is-app #spending-page .category-values span {
 
 /* 1 — the popup backdrop: see-through, blurred, lightly tinted */
 html.is-app #modal-overlay {
-  background: rgba(8, 10, 22, 0.34) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(135%) !important;
-  backdrop-filter: blur(20px) saturate(135%) !important;
+  background: rgba(0, 0, 0, 0.55) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(100%) !important;
+  backdrop-filter: blur(20px) saturate(100%) !important;
 }
 
-/* 2 — the popup card: frosted glass (dark theme) */
+/* 2 — the popup card: frosted glass (dark theme) - midblack colour gracy */
 html.is-app body:not(.light) #modal-overlay .modal-box {
-  background: rgba(30, 35, 62, 0.46) !important;
-  -webkit-backdrop-filter: blur(34px) saturate(170%) !important;
-  backdrop-filter: blur(34px) saturate(170%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55),
-              inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  background: rgba(18, 18, 18, 0.82) !important;
+  -webkit-backdrop-filter: blur(34px) saturate(120%) !important;
+  backdrop-filter: blur(34px) saturate(120%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
 /* 2b — frosted glass (light theme) */
