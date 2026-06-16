@@ -1091,9 +1091,9 @@ function renderCombinedSpendBudget(activeTab) {
       chartInstances['spov'] = new Chart(spendCanvas, {
         type: 'doughnut',
         data: {
-          labels: spendRows.map(r => r.cat),
+          labels: rows.map(r => r.cat),
           datasets: [{
-            data: spendRows.map(r => r.total),
+            data: rows.map(r => r.total),
             backgroundColor: colors,
             borderWidth: 0
           }]
