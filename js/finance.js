@@ -816,8 +816,7 @@ function renderSpendingOverview() {
           datasets: [{
             data: rows.map(r => r.total),
             backgroundColor: colors,
-            borderColor: 'rgba(10,12,25,0.6)',
-            borderWidth: 3
+            borderWidth: 0
           }]
         },
         options: {
@@ -886,7 +885,7 @@ function renderSpendingOverview() {
     if (chartInstances['spov']) { chartInstances['spov'].destroy(); delete chartInstances['spov']; }
     chartInstances['spov'] = new Chart(cv, {
       type: 'doughnut',
-      data: { labels: rows.map(r => r.cat), datasets: [{ data: rows.map(r => r.total), backgroundColor: rows.map(r => catColor(r.cat)), borderColor: 'rgba(10,12,25,0.6)', borderWidth: 3 }] },
+      data: { labels: rows.map(r => r.cat), datasets: [{ data: rows.map(r => r.total), backgroundColor: rows.map(r => catColor(r.cat)), borderWidth: 0 }] },
       options: { cutout: '66%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.label + ': ₹' + (+c.parsed).toLocaleString('en-IN') } } } }
     });
   }, 50);
@@ -6517,8 +6516,7 @@ function renderBudget() {
           datasets: [{
             data: budgetRows.map(r => r.limit),
             backgroundColor: budgetRows.map((_, i) => BUDGET_COLORS[i % BUDGET_COLORS.length]),
-            borderColor: 'rgba(10,12,25,0.6)',
-            borderWidth: 3
+            borderWidth: 0
           }]
         },
         options: {
@@ -6699,8 +6697,7 @@ function renderBudget() {
           datasets: [{
             data: budgetRows.map(r => r.limit),
             backgroundColor: budgetRows.map((_, i) => BUDGET_COLORS[i % BUDGET_COLORS.length]),
-            borderColor: 'rgba(10,10,30,0.5)',
-            borderWidth: 2,
+            borderWidth: 0,
             hoverOffset: 8
           }]
         },
