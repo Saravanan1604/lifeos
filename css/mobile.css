@@ -15220,3 +15220,80 @@ html.is-app body.light .sb-add-budget-btn {
   background: linear-gradient(135deg, #00c9a7, #0acf83) !important;
   color: #fff !important;
 }
+
+/* Glass cards (excluding grids) — light mode */
+html.is-app body.light .glass-card:not(:has(.fin-bank-grid, .fin-card-grid, .fin-cash-grid)) {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  color: #1a1f2e !important;
+}
+
+/* All Assets / Investments — light mode overrides */
+html.is-app body.light .ia-hero {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  color: #1a1f2e !important;
+}
+html.is-app body.light .ia-hero-lbl {
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+html.is-app body.light .ia-hero-div {
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+html.is-app body.light .ia-hs-lbl {
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+html.is-app body.light .ia-hero-chg span {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+html.is-app body.light .ia-hs-val.neg {
+  color: #1a1f2e !important;
+}
+html.is-app body.light .ia-stats {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  color: #1a1f2e !important;
+}
+html.is-app body.light .ia-stat-lbl {
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+html.is-app body.light .ia-toggle {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+html.is-app body.light .ia-tg {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+html.is-app body.light .ia-tg.on {
+  color: #ffffff !important;
+}
+html.is-app body.light .ia-card {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  color: #1a1f2e !important;
+}
+html.is-app body.light .ia-item {
+  border-top-color: rgba(15, 23, 42, 0.06) !important;
+}
+html.is-app body.light .ia-sub {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+html.is-app body.light .ia-chev {
+  color: rgba(15, 23, 42, 0.35) !important;
+}
+html.is-app body.light .ia-leg-bar {
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+html.is-app body.light .ia-donut-c span {
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+html.is-app body.light .ia-proj-btn {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08)) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+  color: #4f46e5 !important;
+}

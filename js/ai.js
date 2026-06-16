@@ -62,7 +62,7 @@ function renderAchievements() {
           <!-- Circular Progress Ring -->
           <div class="ring-container" style="position:relative;width:140px;height:140px">
             <svg class="ring-svg" width="140" height="140" viewBox="0 0 140 140" style="transform:rotate(-90deg)">
-              <circle class="ring-track" cx="70" cy="70" r="60" style="fill:none;stroke:rgba(255,255,255,0.06);stroke-width:10"/>
+              <circle class="ring-track" cx="70" cy="70" r="60" style="fill:none;stroke-width:10"/>
               <circle class="ring-fill" cx="70" cy="70" r="60" stroke="url(#xpGrad)" stroke-dasharray="376.99" stroke-dashoffset="${offset}" style="fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)"/>
               <defs>
                 <linearGradient id="xpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -72,7 +72,7 @@ function renderAchievements() {
               </defs>
             </svg>
             <div class="ring-label" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
-              <span class="ring-value" style="font-size:22px;font-weight:900;display:block;color:#fff">Lvl ${L}</span>
+              <span class="ring-value" style="font-size:22px;font-weight:900;display:block;color:var(--text)">Lvl ${L}</span>
               <span class="ring-sub" style="font-size:11px;color:var(--text2);display:block;margin-top:2px">${xpProgress} / 1000 XP</span>
             </div>
           </div>

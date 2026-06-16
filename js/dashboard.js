@@ -416,7 +416,7 @@ function _buildBalancesCard() {
            <canvas id="dash-bank-chart"></canvas>
            <div class="bank-donut-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
              <span style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700">Total</span>
-             <span style="font-size:12px;font-weight:900;color:#fff">${fmt(totalBank)}</span>
+             <span style="font-size:12px;font-weight:900;color:var(--text)">${fmt(totalBank)}</span>
            </div>
          </div>
          <div style="display:flex;flex-direction:column;gap:7px;max-height:120px;overflow-y:auto">

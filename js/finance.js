@@ -4887,7 +4887,7 @@ function renderInvestmentsApp() {
       </div>
 
       <!-- PROJECTION BUTTON -->
-      <button onclick="openNetWorthProjModal()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.4);border-radius:16px;background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.12));color:#a5b4fc;font-size:15px;font-weight:700;cursor:pointer">
+      <button class="ia-proj-btn" onclick="openNetWorthProjModal()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.4);border-radius:16px;background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.12));color:#a5b4fc;font-size:15px;font-weight:700;cursor:pointer">
         <i data-lucide="trending-up"></i> Net-Worth Projection
       </button>
 
