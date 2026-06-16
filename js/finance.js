@@ -507,8 +507,8 @@ function renderRecordsMyMoney() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in mymoney-records ${_recSelectMode ? 'selmode' : ''}">
       <div class="mm-monthbar">
-        <button class="mm-ring-btn" onclick="navigate('budget')" title="Budget & category spend">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9" opacity=".35"/><path d="M12 3a9 9 0 0 1 9 9" stroke-linecap="round"/></svg>
+        <button class="mm-ring-btn" onclick="navigate('spending')" title="Spending & Budget">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
         </button>
         ${_recPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="recNav(-1)">‹</button>`}
         <button class="mm-month" onclick="openRecPeriodSheet()" title="Change period / pick a date">${periodLabelTxt} <span class="mm-month-chev">▾</span></button>
@@ -880,22 +880,22 @@ function renderCombinedSpendBudget(activeTab) {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in" id="combined-spend-budget-page" style="padding:16px 20px 80px; overflow-x: hidden; position: relative; width: 100%; box-sizing: border-box;">
       <!-- Combined Header -->
-      <div class="ring-page-head" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        </button>
+      <div class="ring-page-head" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; position: relative;">
+        <!-- Balanced Spacer (balances the 60px plus button on the right so tabs center perfectly) -->
+        <div style="width: 60px; flex-shrink: 0;"></div>
         
         <!-- Segmented Tab Toggle -->
-        <div class="sb-segmented-control">
+        <div class="sb-segmented-control" style="margin: 0 auto;">
           <div class="sb-segmented-bg" style="transform: translateX(${activeTab === 'spending' ? '100%' : '0'});"></div>
           <button class="sb-segmented-btn ${activeTab === 'budget' ? 'active' : ''}" onclick="switchSpendBudgetTab('budget')">Budget</button>
           <button class="sb-segmented-btn ${activeTab === 'spending' ? 'active' : ''}" onclick="switchSpendBudgetTab('spending')">Spending</button>
         </div>
         
-        <button class="model-back-btn" id="sb-header-add-btn" onclick="openAddBudgetModal(-1)" style="display: ${activeTab === 'budget' ? 'flex' : 'none'}; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.06); border: none; cursor: pointer; color: var(--text);" title="Add Budget">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <!-- Top Right Plus Button -->
+        <button id="sb-header-add-btn" onclick="openAddBudgetModal(-1)" style="display: ${activeTab === 'budget' ? 'flex' : 'none'}; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #00b09b, #00c9a7); border: none; cursor: pointer; color: #ffffff; box-shadow: 0 4px 12px rgba(0, 201, 167, 0.35); flex-shrink: 0;" title="Add Budget">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-        <div id="sb-header-add-spacer" style="width: 38px; display: ${activeTab === 'spending' ? 'block' : 'none'};"></div>
+        <div id="sb-header-add-spacer" style="width: 60px; display: ${activeTab === 'spending' ? 'block' : 'none'}; flex-shrink: 0;"></div>
       </div>
 
       <!-- Swipeable Viewport -->

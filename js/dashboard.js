@@ -697,8 +697,8 @@ function renderDashboard() {
           <!-- Mobile-only Monthbar Period Navigator -->
           <div class="dash-monthbar-wrap" style="width:100%">
             <div class="mm-monthbar">
-              <button class="mm-ring-btn" onclick="navigate('budget')" title="Budget & category spend">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9" opacity=".35"/><path d="M12 3a9 9 0 0 1 9 9" stroke-linecap="round"/></svg>
+              <button class="mm-ring-btn" onclick="navigate('spending')" title="Spending & Budget">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
               </button>
               ${_dashPeriod === 'all' ? '<span class="mm-navbtn" style="visibility:hidden">‹</span>' : `<button class="mm-navbtn" onclick="shiftDashPeriod(-1)">‹</button>`}
               <button class="mm-month" onclick="openDashPeriodSheet()" title="Change period / pick a date">

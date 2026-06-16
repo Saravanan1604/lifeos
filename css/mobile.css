@@ -14764,21 +14764,34 @@ html.is-app .goal-ic svg {
 
 /* Recurring list items & page elements redone at 5X size */
 html.is-app #page-container[data-page="recurring"] .rec-summary {
-  gap: 24px !important;
-  margin: 8px 0 48px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 10px !important;
+  margin: 12px 0 32px !important;
 }
 html.is-app #page-container[data-page="recurring"] .rec-sum-box {
-  border-radius: 32px !important;
-  padding: 36px 32px !important;
-  gap: 12px !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  border-radius: 16px !important;
+  padding: 16px 10px !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
 }
 html.is-app #page-container[data-page="recurring"] .rec-sum-box span {
-  font-size: 28px !important;
-  letter-spacing: 2.5px !important;
+  font-size: 15px !important;
+  letter-spacing: 0.8px !important;
+  font-weight: 700 !important;
 }
 html.is-app #page-container[data-page="recurring"] .rec-sum-box b {
-  font-size: 80px !important;
-  line-height: 1.05 !important;
+  font-size: 24px !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 html.is-app #page-container[data-page="recurring"] .rec-sec {
   margin-bottom: 40px !important;
@@ -14950,6 +14963,87 @@ html.is-app #combined-spend-budget-page .ring-container {
   margin-bottom: 42px !important;
 }
 
-
-
-
+/* Habit Tracker mobile app design adjustments (making elements larger) */
+html.is-app #page-container[data-page="habits"] .page-title {
+  font-size: 36px !important;
+}
+html.is-app #page-container[data-page="habits"] .page-subtitle {
+  font-size: 18px !important;
+}
+html.is-app #page-container[data-page="habits"] .btn-primary.btn-sm {
+  font-size: 18px !important;
+  padding: 12px 20px !important;
+  border-radius: 12px !important;
+}
+html.is-app #page-container[data-page="habits"] .glass-card {
+  padding: 24px !important;
+  border-radius: 20px !important;
+}
+html.is-app #page-container[data-page="habits"] .section-title {
+  font-size: 20px !important;
+}
+html.is-app #page-container[data-page="habits"] .glass-card span {
+  font-size: 16px !important;
+}
+html.is-app #page-container[data-page="habits"] .progress-bar {
+  height: 16px !important;
+  border-radius: 8px !important;
+}
+html.is-app #page-container[data-page="habits"] .progress-fill {
+  border-radius: 8px !important;
+}
+html.is-app #page-container[data-page="habits"] .glass-card p {
+  font-size: 15px !important;
+}
+html.is-app #page-container[data-page="habits"] .habit-item {
+  padding: 24px 22px !important;
+  gap: 16px !important;
+  border-radius: 20px !important;
+  margin-bottom: 12px !important;
+}
+html.is-app #page-container[data-page="habits"] .habit-check {
+  width: 36px !important;
+  height: 36px !important;
+  border-width: 2.5px !important;
+}
+html.is-app #page-container[data-page="habits"] .habit-check.done {
+  font-size: 20px !important;
+}
+html.is-app #page-container[data-page="habits"] .habit-name {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+}
+html.is-app #page-container[data-page="habits"] .habit-streak {
+  font-size: 15px !important;
+  margin-top: 4px !important;
+}
+html.is-app #page-container[data-page="habits"] .btn-icon.btn-sm {
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 18px !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+html.is-app #page-container[data-page="habits"] input.form-input {
+  font-size: 16px !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+}
+html.is-app #page-container[data-page="habits"] .btn-primary,
+html.is-app #page-container[data-page="habits"] .btn-secondary {
+  font-size: 16px !important;
+  padding: 10px 16px !important;
+  border-radius: 10px !important;
+}
+html.is-app #page-container[data-page="habits"] .habit-grid-cell {
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 4px !important;
+}
+html.is-app #page-container[data-page="habits"] .heatmap-legend-cell {
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 3px !important;
+}
