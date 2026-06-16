@@ -14456,25 +14456,43 @@ html.is-app #spending-page .category-progress-fill {
 
 /* ============================================================
    build 493 — Sankey Charts: horizontally scrollable on mobile
+   build 501 — horizontal (natural left→right) orientation, bigger
+   text; the chart is wider than the screen and scrolls sideways.
    ============================================================ */
 html.is-app .sankey-scroll-wrap {
   width: 100% !important;
-  height: 680px !important;
-  overflow: hidden !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
   position: relative !important;
   margin-bottom: 12px !important;
 }
 html.is-app .sankey-inner {
-  width: 680px !important;
-  height: 380px !important;
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) rotate(90deg) !important;
-  transform-origin: center !important;
+  width: 960px !important;       /* wide canvas → scroll left/right */
+  height: 560px !important;      /* tall enough to stack expense nodes */
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
 }
 html.is-app .wealth-scroll-wrap .sankey-inner {
-  height: 300px !important;
+  width: 860px !important;
+  height: 480px !important;
+}
+
+/* build 501 — bigger text in the money-flow drill-down popups (.mr-pop).
+   !important so it beats the inline px sizes in the popup templates. */
+html.is-app #modal-body .mr-pop,
+html.is-app #modal-body .mr-pop p,
+html.is-app #modal-body .mr-pop span {
+  font-size: 17px !important;
+  line-height: 1.9 !important;
+}
+html.is-app #modal-body .mr-pop b {
+  font-size: 19px !important;
+}
+html.is-app #modal-body .mr-pop > div:first-child b {
+  font-size: 22px !important;     /* the big "Total" figure */
 }
 
 /* ============================================================

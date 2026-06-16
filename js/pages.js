@@ -860,10 +860,10 @@ function mrEditTx(id) {
 function mrShowNode(name) {
   if (typeof openModal !== 'function') return;
   const txs = _mrLastTx || [];
-  const listCard = (rows, title, totalLabel, total, color) => openModal(title, `
+  const listCard = (rows, title, totalLabel, total, color) => openModal(title, `<div class="mr-pop">
     <div style="display:flex;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--glass);margin-bottom:8px">
       <span style="font-weight:700">${totalLabel}</span><b style="font-size:18px;color:${color}">${fmt(total)}</b></div>
-    <div style="max-height:50vh;overflow-y:auto">${rows || '<p style="color:var(--text3);padding:14px 0">Nothing to show.</p>'}</div>`);
+    <div style="max-height:50vh;overflow-y:auto">${rows || '<p style="color:var(--text3);padding:14px 0">Nothing to show.</p>'}</div></div>`);
   const acctRows = (arr, nameKey, valKey) => (arr || []).map(a => `
     <div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--glass-border)">
       <span style="font-weight:600;font-size:14px">${esc(a[nameKey] || a.name || a.type || 'Account')}</span>
@@ -872,18 +872,18 @@ function mrShowNode(name) {
   if (name === 'From Savings / Debt') {
     let inc = 0, exp = 0; txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
     const gap = Math.max(0, exp - inc);
-    openModal('⚠️ Spending Over Income', `<p style="font-size:14px;color:var(--text2);line-height:1.9">
+    openModal('⚠️ Spending Over Income', `<div class="mr-pop"><p style="font-size:14px;color:var(--text2);line-height:1.9">
         You spent <b style="color:#ef4444">${fmt(exp)}</b> but earned <b style="color:#10b981">${fmt(inc)}</b> this period.<br>
         The shortfall of <b style="color:#ef4444;font-size:17px">${fmt(gap)}</b> was covered by drawing down your savings or taking on debt — it reduces your net worth.</p>
-        <p style="font-size:12px;color:var(--text3);margin-top:10px">Tip: aim to keep spending below income so savings (and net worth) keep growing.</p>`);
+        <p style="font-size:12px;color:var(--text3);margin-top:10px">Tip: aim to keep spending below income so savings (and net worth) keep growing.</p></div>`);
     return;
   }
   if (name === 'Net Worth') {
     const n = _mrNetWorth();
-    openModal('🏦 Net Worth', `<p style="font-size:14px;color:var(--text2);line-height:2">
+    openModal('🏦 Net Worth', `<div class="mr-pop"><p style="font-size:14px;color:var(--text2);line-height:2">
         Bank: <b style="color:var(--text)">${fmt(n.bank)}</b><br>Cash: <b style="color:var(--text)">${fmt(n.cash)}</b><br>
         Investments: <b style="color:#8b5cf6">${fmt(n.invest)}</b><br>Debt: <b style="color:#ef4444">−${fmt(n.debt)}</b><br>
-        <span style="font-size:18px">Net Worth: <b style="color:#10b981">${fmt(n.net)}</b></span></p>`);
+        <span style="font-size:18px">Net Worth: <b style="color:#10b981">${fmt(n.net)}</b></span></p></div>`);
     return;
   }
   if (name === 'Bank') { const a = STATE.bankAccounts || []; listCard(acctRows(a, 'name', 'balance'), '🏦 Bank — ' + a.length + ' account(s)', 'Total', a.reduce((s, b) => s + (+b.balance || 0), 0), '#3b82f6'); return; }
@@ -913,9 +913,9 @@ function mrShowNode(name) {
   }
   if (name === 'Savings') {
     let inc = 0, exp = 0; txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
-    openModal('💰 Savings', `<p style="font-size:14px;color:var(--text2);line-height:1.9">
+    openModal('💰 Savings', `<div class="mr-pop"><p style="font-size:14px;color:var(--text2);line-height:1.9">
         Income: <b style="color:#10b981">${fmt(inc)}</b><br>Expenses: <b style="color:#ef4444">${fmt(exp)}</b><br>
-        <span style="font-size:18px">Net Saved: <b style="color:#10b981">${fmt(Math.max(0, inc - exp))}</b></span></p>`);
+        <span style="font-size:18px">Net Saved: <b style="color:#10b981">${fmt(Math.max(0, inc - exp))}</b></span></p></div>`);
     return;
   }
   const matched = txs.filter(t => (t.category || 'Other') === name).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
@@ -928,7 +928,7 @@ function mrShowNode(name) {
       <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'};white-space:nowrap;flex-shrink:0">${t.type === 'income' ? '' : '-'}${fmt(t.amount)}</b>
     </div>`).join('') : '<p style="color:var(--text3);padding:14px 0">No transactions in this period.</p>';
   const safe = String(name).replace(/'/g, "\\'");
-  openModal(`${name} — ${matched.length} entr${matched.length === 1 ? 'y' : 'ies'}`, `
+  openModal(`${name} — ${matched.length} entr${matched.length === 1 ? 'y' : 'ies'}`, `<div class="mr-pop">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--glass);margin-bottom:8px">
       <span style="font-weight:700">Total</span>
       <div style="display:flex;align-items:center;gap:12px"><b style="font-size:18px;color:${pos ? '#10b981' : '#ef4444'}">${fmt(total)}</b>
@@ -936,7 +936,7 @@ function mrShowNode(name) {
       </div>
     </div>
     <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Tap a row to edit it, or “Edit” to open all in Transactions.</p>
-    <div style="max-height:50vh;overflow-y:auto">${rows}</div>`);
+    <div style="max-height:50vh;overflow-y:auto">${rows}</div></div>`);
   setTimeout(() => { if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} } }, 20);
 }
 
@@ -1306,44 +1306,12 @@ function renderMoneyRules() {
 }
 
 function _mrPrepareSankeyCanvas(canvas, isWealth) {
+  // The Sankey now renders in its natural horizontal (left→right) orientation,
+  // so no canvas rotation or click-coordinate remapping is needed — Chart.js
+  // handles taps/tooltips directly. Kept as a hook for future tweaks.
   if (!canvas) return;
   if (canvas.__sankeyPrepared) return;
   canvas.__sankeyPrepared = true;
-
-  if (window.__IS_APP) {
-    const ctx = canvas.getContext('2d');
-    const originalFillText = ctx.fillText;
-    ctx.fillText = function(text, x, y, maxWidth) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(-Math.PI / 2);
-      originalFillText.call(ctx, text, 0, 0, maxWidth);
-      ctx.restore();
-    };
-
-    const mapCoordinates = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const xVis = e.clientX - rect.left;
-      const yVis = e.clientY - rect.top;
-      const xCanvasCss = yVis;
-      const yCanvasCss = rect.width - xVis;
-      
-      Object.defineProperty(e, 'offsetX', { value: xCanvasCss, configurable: true });
-      Object.defineProperty(e, 'offsetY', { value: yCanvasCss, configurable: true });
-      Object.defineProperty(e, 'clientX', { value: rect.left + xCanvasCss, configurable: true });
-      Object.defineProperty(e, 'clientY', { value: rect.top + yCanvasCss, configurable: true });
-    };
-
-    canvas.addEventListener('click', mapCoordinates, true);
-    canvas.addEventListener('touchstart', (e) => {
-      if (e.touches && e.touches[0]) {
-        const touch = e.touches[0];
-        Object.defineProperty(e, 'clientX', { value: touch.clientX, configurable: true });
-        Object.defineProperty(e, 'clientY', { value: touch.clientY, configurable: true });
-        mapCoordinates(e);
-      }
-    }, true);
-  }
 }
 
 function _mrDrawCharts(fh, strm, flow) {
@@ -1505,11 +1473,12 @@ function _mrDrawCharts(fh, strm, flow) {
         colorMode: 'gradient',
         labels: flowLabels,
         color: tick,
-        font: { size: 11, weight: '600' },
+        font: { size: window.__IS_APP ? 16 : 11, weight: '700' },
         borderWidth: 0,
       }] },
       options: {
         responsive: true, maintainAspectRatio: false, animation: false,
+        layout: { padding: window.__IS_APP ? { left: 70, right: 70, top: 14, bottom: 14 } : 0 },
         onClick: (evt, els, chart) => {
           const pts = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
           if (!pts.length) return;
@@ -1581,10 +1550,11 @@ function _mrDrawCharts(fh, strm, flow) {
           data: wdata, column: wcol,
           colorFrom: (c) => wcolor[c.dataset.data[c.dataIndex].from] || '#64748b',
           colorTo: (c) => wcolor[c.dataset.data[c.dataIndex].to] || '#64748b',
-          colorMode: 'gradient', labels: wLabels, color: tick, font: { size: 11, weight: '600' }, borderWidth: 0,
+          colorMode: 'gradient', labels: wLabels, color: tick, font: { size: window.__IS_APP ? 16 : 11, weight: '700' }, borderWidth: 0,
         }] },
         options: {
           responsive: true, maintainAspectRatio: false, animation: false,
+          layout: { padding: window.__IS_APP ? { left: 70, right: 70, top: 14, bottom: 14 } : 0 },
           onClick: (evt, els, chart) => {
             const pts = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
             if (!pts.length) return;
