@@ -1,5 +1,9 @@
 let _dashPeriod = 'month';
 let _dashAnchorDate = null; // null = today; 'YYYY-MM-DD' = specific anchor
+let _dashActiveTab = 1; // 1 to 5
+let _dashFH = null;
+let _dashStrm = null;
+let _dashFlow = null;
 
 function setDashPeriod(p) {
   _dashPeriod = p;
@@ -672,12 +676,12 @@ function renderDashboard() {
   if (!S.mrCorpus) missing.push('retirement corpus');
   if (!S.mrCover) missing.push('insurance cover');
 
+  _dashFH = fh;
+  _dashStrm = strm;
+  _dashFlow = flow;
+
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
-      <!-- ── Money Heatmap Card (Dashboard Top) ── -->
-      <div id="dash-heatmap-card" style="margin-bottom:20px">
-        <div id="dash-heatmap-container"></div>
-      </div>
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div class="dash-title-block">
@@ -753,47 +757,39 @@ function renderDashboard() {
 
       ${(!window.__IS_APP && typeof buildSpendingPulseHTML === 'function') ? buildSpendingPulseHTML() : ''}
 
-
-
-      <!-- ── Financial Health Card ── -->
-      <div class="glass-card" id="dash-mr-health" style="padding:22px;margin-bottom:20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <p class="section-title" style="margin:0;display:flex;align-items:center;gap:6px">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            Financial Health
-            <button onclick="mrPinChart('health','Financial Health')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            </button>
-          </p>
-          <span style="font-size:22px;font-weight:900;color:${fh.overall>=70?'#10b981':fh.overall>=40?'#f59e0b':'#ef4444'}">${fh.overall}<span style="font-size:13px;color:var(--text3)">/100</span></span>
-        </div>
-        <div style="position:relative;height:300px"><canvas id="mr-health-chart"></canvas></div>
-        <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
-          ${fh.axes && fh.axes.filter(a=>a.v<50).slice(0,3).map(a=>`<p style="font-size:12px;color:var(--text3);display:flex;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" style="display:inline-block;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span><b style="color:var(--text2)">${a.k} (${a.v}):</b> ${a.tip}</span></p>`).join('') || `<p style="font-size:12px;color:#10b981;display:flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" style="display:inline-block;flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Strong across the board — keep it up!</p>`}
-        </div>
-      </div>
-
-      <!-- ── 7 Income Streams Card ── -->
-      <div class="glass-card" id="dash-mr-stream" style="padding:22px;margin-bottom:20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <p class="section-title" style="margin:0;display:flex;align-items:center;gap:8px">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-            7 Income Streams
-            <button onclick="mrPinChart('stream','7 Income Streams')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            </button>
-          </p>
-          <span style="font-size:15px;font-weight:800;color:var(--text2)">${strm.active}<span style="font-size:13px;color:var(--text3)"> / 7 active</span></span>
-        </div>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">The average millionaire has 7 streams of income.</p>
-        <div style="position:relative;height:300px"><canvas id="mr-stream-chart"></canvas></div>
-        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          ${strm.sums && strm.sums.map(s=>`<div style="display:flex;align-items:center;gap:7px;font-size:13px;padding:7px 10px;border-radius:10px;background:var(--glass);opacity:${s.total>0?1:0.5}"><span style="width:9px;height:9px;border-radius:50%;flex-shrink:0;background:${s.total>0?'#10b981':'#6b7280'}"></span><span style="flex:1;min-width:0;font-weight:600">${s.k}</span>${s.total>0?`<b style="font-size:12px">${fmt(Math.round(s.total))}</b>`:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}</div>`).join('')}
+      <!-- Sliding Tab Bar -->
+      <div class="dash-tabs-container">
+        <div class="dash-tabs">
+          <button class="dash-tab ${_dashActiveTab===1?'active':''}" data-tab="1" onclick="switchDashTab(1)">
+            <span class="dash-tab-icon">📅</span>
+            <span class="dash-tab-text">Heatmap</span>
+          </button>
+          <button class="dash-tab ${_dashActiveTab===2?'active':''}" data-tab="2" onclick="switchDashTab(2)">
+            <span class="dash-tab-icon">🔄</span>
+            <span class="dash-tab-text">Money Flow</span>
+          </button>
+          <button class="dash-tab ${_dashActiveTab===3?'active':''}" data-tab="3" onclick="switchDashTab(3)">
+            <span class="dash-tab-icon">🏦</span>
+            <span class="dash-tab-text">Wealth Flow</span>
+          </button>
+          <button class="dash-tab ${_dashActiveTab===4?'active':''}" data-tab="4" onclick="switchDashTab(4)">
+            <span class="dash-tab-icon">⚡</span>
+            <span class="dash-tab-text">Health</span>
+          </button>
+          <button class="dash-tab ${_dashActiveTab===5?'active':''}" data-tab="5" onclick="switchDashTab(5)">
+            <span class="dash-tab-icon">💰</span>
+            <span class="dash-tab-text">7 Income</span>
+          </button>
         </div>
       </div>
 
-      <!-- ── Where Your Money Goes Card ── -->
-      <div class="glass-card" id="dash-mr-flow" style="padding:22px;margin-bottom:20px">
+      <!-- Tab 1: Money Heatmap Card -->
+      <div id="dash-heatmap-card" style="margin-bottom:20px; display: ${_dashActiveTab===1?'block':'none'}">
+        <div id="dash-heatmap-container"></div>
+      </div>
+
+      <!-- Tab 2: Where Your Money Goes Card -->
+      <div class="glass-card" id="dash-mr-flow" style="padding:22px;margin-bottom:20px; display: ${_dashActiveTab===2?'block':'none'}">
         <p class="section-title" style="margin:0 0 4px;display:flex;align-items:center;gap:8px">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M12 22v-6.5a2.5 2.5 0 0 0-5 0V22"/><path d="M12 2v6.5a2.5 2.5 0 0 0 5 0V2"/><path d="M12 2v20"/><path d="M17 12H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           Where Your Money Goes
@@ -817,8 +813,8 @@ function renderDashboard() {
         </div>
       </div>
 
-      <!-- ── Wealth Flow Card ── -->
-      <div class="glass-card" id="dash-mr-wealth" style="padding:22px;margin-bottom:20px">
+      <!-- Tab 3: Wealth Flow Card -->
+      <div class="glass-card" id="dash-mr-wealth" style="padding:22px;margin-bottom:20px; display: ${_dashActiveTab===3?'block':'none'}">
         <p class="section-title" style="margin:0 0 4px;display:flex;align-items:center;gap:8px">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M12 22v-6.5a2.5 2.5 0 0 0-5 0V22"/><path d="M12 2v6.5a2.5 2.5 0 0 0 5 0V2"/><path d="M12 2v22"/><path d="M17 12H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           Wealth Flow
@@ -838,88 +834,96 @@ function renderDashboard() {
         <p id="mr-wealth-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:18px"></p>
       </div>
 
-
-
-      <!-- ── Spending Hero Ring (axio-style) ───────────────────────── -->
-      ${(() => {
-        const pct = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : (totalExpense > 0 ? 100 : 0);
-        const sav = totalIncome - totalExpense;
-        const mon = new Date().toLocaleString('default', { month: 'long' });
-        return `<div class="spend-ring-card glass-card" id="dash-spendring-card" style="padding:24px 20px;margin-bottom:20px;text-align:center" onclick="navigate('finance')">
-          <p style="font-size:13px;color:var(--text3);font-weight:600">Spent in <b style="color:var(--text)">${mon}</b></p>
-          <div class="spend-ring" style="--pct:${pct};--col:${pct > 85 ? '#ef4444' : pct > 60 ? '#f59e0b' : '#00c9a7'}">
-            <div class="spend-ring-inner">
-              <span class="spend-ring-amt">${fmt(totalExpense)}</span>
-              <span class="spend-ring-sub">${pct}% of income</span>
-            </div>
-          </div>
-          <div class="spend-ring-foot">
-            <div><p class="srf-l">Income</p><p class="srf-v" style="color:#10b981">${fmt(totalIncome)}</p></div>
-            <div style="border-left:1px solid var(--glass-border)"></div>
-            <div><p class="srf-l">Saved</p><p class="srf-v" style="color:${sav >= 0 ? '#00c9a7' : '#ef4444'}">${fmt(sav)}</p></div>
-          </div>
-        </div>`;
-      })()}
-
-      <!-- ── Financial Overview line chart card ─────────────────────── -->
-      <div class="glass-card" id="dash-fin-overview" style="padding:22px;margin-bottom:20px">
-        <!-- Header row -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div>
-            <p class="section-title" style="margin-bottom:2px">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00c9a7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Financial Overview
-            </p>
-            <p style="font-size:11px;color:var(--text3);margin-top:2px">Last 12 months · Income · Expense · Savings · Net Worth</p>
-          </div>
-          <button class="btn-icon btn-sm" onclick="navigate('finance')" style="color:var(--teal);border-color:rgba(0,201,167,0.3)">View All →</button>
+      <!-- Tab 4: Financial Health Card -->
+      <div class="glass-card" id="dash-mr-health" style="padding:22px;margin-bottom:20px; display: ${_dashActiveTab===4?'block':'none'}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <p class="section-title" style="margin:0;display:flex;align-items:center;gap:6px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Financial Health
+            <button onclick="mrPinChart('health','Financial Health')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </button>
+          </p>
+          <span style="font-size:22px;font-weight:900;color:${fh.overall>=70?'#10b981':fh.overall>=40?'#f59e0b':'#ef4444'}">${fh.overall}<span style="font-size:13px;color:var(--text3)">/100</span></span>
         </div>
-
-        <!-- Two-column: chart | spending list -->
-        <div style="display:grid;grid-template-columns:1fr 220px;gap:20px;align-items:start" class="fin-overview-grid">
-          <!-- Chart -->
-          <div style="height:240px;position:relative">
-            <canvas id="dash-combined-chart"></canvas>
-          </div>
-          <!-- Spending by Category — compact list -->
-          <div>
-            <p style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Top Spending</p>
-            <div id="dash-pie-chart" style="display:flex;flex-direction:column;gap:6px"></div>
-          </div>
+        <div style="position:relative;height:300px"><canvas id="mr-health-chart"></canvas></div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+          ${fh.axes && fh.axes.filter(a=>a.v<50).slice(0,3).map(a=>`<p style="font-size:12px;color:var(--text3);display:flex;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" style="display:inline-block;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span><b style="color:var(--text2)">${a.k} (${a.v}):</b> ${a.tip}</span></p>`).join('') || `<p style="font-size:12px;color:#10b981;display:flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" style="display:inline-block;flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Strong across the board — keep it up!</p>`}
         </div>
       </div>
 
-      <!-- ── Recent Transactions Card ───────────────────────── -->
-      <div class="glass-card" id="dash-recent-tx" style="overflow:hidden;margin-bottom:20px">
-        <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center">
-          <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Recent Transactions</p>
-          <button class="btn-secondary btn-sm" onclick="navigate('finance')">View All →</button>
+      <!-- Tab 5: 7 Income Streams Card -->
+      <div class="glass-card" id="dash-mr-stream" style="padding:22px;margin-bottom:20px; display: ${_dashActiveTab===5?'block':'none'}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <p class="section-title" style="margin:0;display:flex;align-items:center;gap:8px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            7 Income Streams
+            <button onclick="mrPinChart('stream','7 Income Streams')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:2px" title="Pin to a page">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </button>
+          </p>
+          <span style="font-size:15px;font-weight:800;color:var(--text2)">${strm.active}<span style="font-size:13px;color:var(--text3)"> / 7 active</span></span>
         </div>
-        ${recent.length === 0
-          ? `<div class="empty-state"><span class="empty-state-icon"><i data-lucide="receipt"></i></span><p>No transactions yet. <span onclick="navigate('finance')" style="color:#00c9a7;cursor:pointer;text-decoration:underline">Add one now →</span></p></div>`
-          : recent.map(tx => `
-            <div class="tx-row" onclick="if(typeof openTxDetail==='function')openTxDetail('${tx.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.04)'" onmouseout="this.style.background=''">
-              <div style="display:flex;align-items:center;gap:12px">
-                <div class="tx-ic" style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}26;border:1px solid ${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}55;color:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')};font-size:18px;flex-shrink:0">${typeof catIconHtml==='function'?catIconHtml(tx.category):(tx.icon||'')}</div>
-                <div>
-                  <p style="font-size:13px;font-weight:600">${tx.description||tx.category}</p>
-                  <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>
-                </div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">The average millionaire has 7 streams of income.</p>
+        <div style="position:relative;height:300px"><canvas id="mr-stream-chart"></canvas></div>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${strm.sums && strm.sums.map(s=>`<div style="display:flex;align-items:center;gap:7px;font-size:13px;padding:7px 10px;border-radius:10px;background:var(--glass);opacity:${s.total>0?1:0.5}"><span style="width:9px;height:9px;border-radius:50%;flex-shrink:0;background:${s.total>0?'#10b981':'#6b7280'}"></span><span style="flex:1;min-width:0;font-weight:600">${s.k}</span>${s.total>0?`<b style="font-size:12px">${fmt(Math.round(s.total))}</b>`:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}</div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Generic Bottom Sections (Hidden on Tab 1) -->
+      <div id="dash-bottom-cards" style="display: ${_dashActiveTab===1?'none':'block'}">
+        <!-- ── Spending Hero Ring (axio-style) ───────────────────────── -->
+        ${(() => {
+          const pct = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : (totalExpense > 0 ? 100 : 0);
+          const sav = totalIncome - totalExpense;
+          const mon = new Date().toLocaleString('default', { month: 'long' });
+          return `<div class="spend-ring-card glass-card" id="dash-spendring-card" style="padding:24px 20px;margin-bottom:20px;text-align:center" onclick="navigate('finance')">
+            <p style="font-size:13px;color:var(--text3);font-weight:600">Spent in <b style="color:var(--text)">${mon}</b></p>
+            <div class="spend-ring" style="--pct:${pct};--col:${pct > 85 ? '#ef4444' : pct > 60 ? '#f59e0b' : '#00c9a7'}">
+              <div class="spend-ring-inner">
+                <span class="spend-ring-amt">${fmt(totalExpense)}</span>
+                <span class="spend-ring-sub">${pct}% of income</span>
               </div>
-              <span style="font-weight:700;font-size:14px;color:${tx.type==='income'?'#00c9a7':'#ef4444'}">${tx.type==='income'?'+':'-'}${fmt(tx.amount)}</span>
-            </div>`).join('')}
+            </div>
+            <div class="spend-ring-foot">
+              <div><p class="srf-l">Income</p><p class="srf-v" style="color:#10b981">${fmt(totalIncome)}</p></div>
+              <div style="border-left:1px solid var(--glass-border)"></div>
+              <div><p class="srf-l">Saved</p><p class="srf-v" style="color:${sav >= 0 ? '#00c9a7' : '#ef4444'}">${fmt(sav)}</p></div>
+            </div>
+          </div>`;
+        })()}
+
+        <!-- ── Recent Transactions Card ───────────────────────── -->
+        <div class="glass-card" id="dash-recent-tx" style="overflow:hidden;margin-bottom:20px">
+          <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center">
+            <p class="section-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Recent Transactions</p>
+            <button class="btn-secondary btn-sm" onclick="navigate('finance')">View All →</button>
+          </div>
+          ${recent.length === 0
+            ? `<div class="empty-state"><span class="empty-state-icon"><i data-lucide="receipt"></i></span><p>No transactions yet. <span onclick="navigate('finance')" style="color:#00c9a7;cursor:pointer;text-decoration:underline">Add one now →</span></p></div>`
+            : recent.map(tx => `
+              <div class="tx-row" onclick="if(typeof openTxDetail==='function')openTxDetail('${tx.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(0,201,167,0.04)'" onmouseout="this.style.background=''">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div class="tx-ic" style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}26;border:1px solid ${(typeof catColor==='function'?catColor(tx.category):'#6366f1')}55;color:${(typeof catColor==='function'?catColor(tx.category):'#6366f1')};font-size:18px;flex-shrink:0">${typeof catIconHtml==='function'?catIconHtml(tx.category):(tx.icon||'')}</div>
+                  <div>
+                    <p style="font-size:13px;font-weight:600">${tx.description||tx.category}</p>
+                    <p style="font-size:11px;color:var(--text3)">${tx.category} · ${fmtDate(tx.date)}</p>
+                  </div>
+                </div>
+                <span style="font-weight:700;font-size:14px;color:${tx.type==='income'?'#00c9a7':'#ef4444'}">${tx.type==='income'?'+':'-'}${fmt(tx.amount)}</span>
+              </div>`).join('')}
+        </div>
+
+        <!-- ── AI Rule of the Day Card ─────────────────────── -->
+        <div class="glass-card" id="dash-ai-rule" style="padding:22px;margin-bottom:20px;border-left:4px solid var(--indigo)">
+          <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">💡 AI RULE OF THE DAY</p>
+          <p style="font-size:13px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
+        </div>
+
+        <!-- User-added chart widgets (from the layout customizer) -->
+        <div id="home-widgets"></div>
       </div>
-
-      <!-- ── AI Rule of the Day Card ─────────────────────── -->
-      <div class="glass-card" id="dash-ai-rule" style="padding:22px;margin-bottom:20px;border-left:4px solid var(--indigo)">
-        <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">💡 AI RULE OF THE DAY</p>
-        <p style="font-size:13px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
-      </div>
-
-
-
-      <!-- User-added chart widgets (from the layout customizer) -->
-      <div id="home-widgets"></div>
-
     </div>`;
 
   if (window.innerWidth < 700) {
@@ -934,29 +938,22 @@ function renderDashboard() {
 
   // Render charts after DOM is ready
   setTimeout(() => {
-    renderDashCombinedChart(txnsAll);
-    renderDashPieChart(txns);
-
     // Render Heatmap and Money Rules charts if available
-    if (typeof renderHeatmap === 'function') {
-      try { renderHeatmap(); } catch(e) { console.error('Error drawing dashboard heatmap:', e); }
-    }
-    if (typeof _mrDrawCharts === 'function' && fh.axes.length > 0) {
-      try { _mrDrawCharts(fh, strm, flow); } catch(e) { console.error('Error drawing dashboard money rules charts:', e); }
+    if (_dashActiveTab === 1) {
+      if (typeof renderHeatmap === 'function') {
+        try { renderHeatmap(); } catch(e) { console.error('Error drawing dashboard heatmap:', e); }
+      }
+    } else {
+      if (typeof _mrDrawCharts === 'function' && fh.axes.length > 0) {
+        try { _mrDrawCharts(fh, strm, flow); } catch(e) { console.error('Error drawing dashboard money rules charts:', e); }
+      }
     }
 
-    if (window.innerWidth < 700) {
-      const fog = document.querySelector('.fin-overview-grid');
-      if (fog) fog.style.gridTemplateColumns = '1fr';
-    }
-    // App: move Financial Overview to the bottom — but ONLY if the user hasn't
-    // saved a custom layout (otherwise it fights the Layout Customizer).
-    if (window.__IS_APP && !localStorage.getItem('lifeos_layout_dashboard')) {
-      const fo = document.getElementById('dash-fin-overview');
-      if (fo && fo.parentNode) fo.parentNode.appendChild(fo);
-    }
     // Render any chart widgets the user added to Home
     if (typeof renderHomeWidgets === 'function') renderHomeWidgets();
+
+    // Hook up swiping gesture detector
+    if (typeof initDashSwipe === 'function') initDashSwipe();
   }, 50);
 
   } catch(err) {
@@ -980,233 +977,107 @@ function renderDashboard() {
   }
 }
 
-// ── Combined: Income / Expense / Savings / Net Worth ──
-function renderDashCombinedChart(txns) {
-  const canvas = document.getElementById('dash-combined-chart');
-  if (!canvas || typeof Chart === 'undefined') return;
-
-  // Monthly buckets — last 12 months
-  const monthMap = {};
-  [...txns].sort((a,b) => a.date.localeCompare(b.date)).forEach(t => {
-    const d = new Date(t.date);
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
-    if (!monthMap[key]) monthMap[key] = { label, income: 0, expense: 0 };
-    if (t.type === 'income') monthMap[key].income += t.amount;
-    else monthMap[key].expense += t.amount;
+function switchDashTab(tabIdx) {
+  _dashActiveTab = tabIdx;
+  
+  // Update button active state
+  const tabs = document.querySelectorAll('.dash-tab');
+  tabs.forEach(tab => {
+    const dataTab = parseInt(tab.getAttribute('data-tab'), 10);
+    if (dataTab === tabIdx) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
   });
 
-  // Always show last 6 months as x-axis baseline even with no data
-  const now2 = new Date();
-  for (let i = 5; i >= 0; i--) {
-    const d2 = new Date(now2.getFullYear(), now2.getMonth() - i, 1);
-    const k2 = `${d2.getFullYear()}-${String(d2.getMonth()+1).padStart(2,'0')}`;
-    const lbl2 = d2.toLocaleString('default', { month: 'short', year: '2-digit' });
-    if (!monthMap[k2]) monthMap[k2] = { label: lbl2, income: 0, expense: 0 };
+  // Toggle card displays
+  const card1 = document.getElementById('dash-heatmap-card');
+  const card2 = document.getElementById('dash-mr-flow');
+  const card3 = document.getElementById('dash-mr-wealth');
+  const card4 = document.getElementById('dash-mr-health');
+  const card5 = document.getElementById('dash-mr-stream');
+  const bottomCards = document.getElementById('dash-bottom-cards');
+
+  if (card1) card1.style.display = tabIdx === 1 ? 'block' : 'none';
+  if (card2) card2.style.display = tabIdx === 2 ? 'block' : 'none';
+  if (card3) card3.style.display = tabIdx === 3 ? 'block' : 'none';
+  if (card4) card4.style.display = tabIdx === 4 ? 'block' : 'none';
+  if (card5) card5.style.display = tabIdx === 5 ? 'block' : 'none';
+  if (bottomCards) bottomCards.style.display = tabIdx === 1 ? 'none' : 'block';
+
+  // Redraw charts for the visible tab
+  if (tabIdx === 1) {
+    if (typeof renderHeatmap === 'function') {
+      try { renderHeatmap(); } catch(e) { console.error('Error drawing dashboard heatmap:', e); }
+    }
+  } else {
+    if (typeof _mrDrawCharts === 'function' && _dashFH && _dashFH.axes && _dashFH.axes.length > 0) {
+      try { _mrDrawCharts(_dashFH, _dashStrm, _dashFlow); } catch(e) { console.error('Error drawing dashboard money rules charts:', e); }
+    }
+    if (typeof renderHomeWidgets === 'function') {
+      try { renderHomeWidgets(); } catch(e) { console.error('Error rendering home widgets:', e); }
+    }
   }
-  const entries = Object.entries(monthMap).sort(([a],[b]) => a.localeCompare(b)).slice(-12);
+}
 
-  const labels  = entries.map(([,v]) => v.label);
-  const incData = entries.map(([,v]) => Math.round(v.income));
-  const expData = entries.map(([,v]) => Math.round(v.expense));
-  const savData = entries.map(([,v]) => Math.round(v.income - v.expense));
-  let run = 0;
-  const nwData = entries.map(([,v]) => { run += (v.income - v.expense); return Math.round(run); });
+function initDashSwipe() {
+  const pageContainer = document.getElementById('page-container');
+  if (!pageContainer) return;
 
-  const isLight = document.body.classList.contains('light');
-  const gridC  = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
-  const tickC  = isLight ? '#374151' : '#64748b';
-  const fmtY   = v => `₹${Math.abs(v)>=100000?(v/100000).toFixed(1)+'L':Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v}`;
+  let touchstartX = 0;
+  let touchstartY = 0;
+  let touchendX = 0;
+  let touchendY = 0;
 
-  if (chartInstances['dash-combined']) { chartInstances['dash-combined'].destroy(); delete chartInstances['dash-combined']; }
+  // Use distinct function references to prevent event duplicate pile-ups
+  pageContainer.removeEventListener('touchstart', handleTouchStart);
+  pageContainer.removeEventListener('touchend', handleTouchEnd);
 
-  const ctx = canvas.getContext('2d');
-  const mkGrad = (top, bot) => {
-    const g = ctx.createLinearGradient(0, 0, 0, canvas.offsetHeight || 260);
-    g.addColorStop(0, top); g.addColorStop(1, bot); return g;
-  };
+  pageContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+  pageContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
 
-  chartInstances['dash-combined'] = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        // Net Worth — teal gradient fill — RIGHT axis
-        {
-          label: 'Net Worth', data: nwData,
-          borderColor: '#00c9a7', borderWidth: 2.8,
-          backgroundColor: (c) => {
-            const { ctx: cx, chartArea } = c.chart;
-            if (!chartArea) return 'rgba(0,201,167,0.18)';
-            const g = cx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            g.addColorStop(0, nwData[nwData.length-1]>=0?'rgba(0,201,167,0.28)':'rgba(239,68,68,0.22)');
-            g.addColorStop(1, 'rgba(0,201,167,0.0)');
-            return g;
-          },
-          fill: true, tension: 0.4,
-          pointBackgroundColor: '#00c9a7', pointRadius: 4, pointHoverRadius: 7,
-          yAxisID: 'yNW', order: 0
-        },
-        // Income — green line
-        {
-          label: 'Income', data: incData,
-          borderColor: '#eab308', borderWidth: 2.2,
-          backgroundColor: mkGrad('rgba(234,179,8,0.22)', 'rgba(234,179,8,0.0)'),
-          fill: true, tension: 0.42,
-          pointBackgroundColor: '#eab308', pointRadius: 3, pointHoverRadius: 6,
-          yAxisID: 'y', order: 2
-        },
-        // Expense — red line
-        {
-          label: 'Expense', data: expData,
-          borderColor: '#ef4444', borderWidth: 2.2,
-          backgroundColor: mkGrad('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.0)'),
-          fill: true, tension: 0.42,
-          pointBackgroundColor: '#ef4444', pointRadius: 3, pointHoverRadius: 6,
-          yAxisID: 'y', order: 3
-        },
-        // Savings — indigo dashed
-        {
-          label: 'Savings', data: savData,
-          borderColor: 'rgba(99,102,241,0.9)', borderWidth: 2,
-          backgroundColor: 'transparent', fill: false, tension: 0.42,
-          pointBackgroundColor: '#6366f1', pointRadius: 3, pointHoverRadius: 6,
-          borderDash: [5, 3], yAxisID: 'y', order: 1
+  function handleTouchStart(event) {
+    touchstartX = event.changedTouches[0].screenX;
+    touchstartY = event.changedTouches[0].screenY;
+  }
+
+  function handleTouchEnd(event) {
+    touchendX = event.changedTouches[0].screenX;
+    touchendY = event.changedTouches[0].screenY;
+    handleGesture();
+  }
+
+  function handleGesture() {
+    const diffX = touchendX - touchstartX;
+    const diffY = touchendY - touchstartY;
+
+    // Trigger if horizontal movement is larger than vertical and exceeds 50px
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      // Do not trigger swipe on scrollable elements
+      const target = document.elementFromPoint(touchendX, touchendY);
+      if (target && (target.closest('.sankey-scroll-wrap') || target.closest('.hm-days-grid') || target.closest('.dash-tabs-container'))) {
+        return;
+      }
+
+      if (diffX < 0) {
+        if (_dashActiveTab < 5) {
+          switchDashTab(_dashActiveTab + 1);
+          const tabBtn = document.querySelector(`.dash-tab[data-tab="${_dashActiveTab}"]`);
+          if (tabBtn) tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: {
-          labels: {
-            color: isLight ? '#374151' : '#94a3b8', font: { family: 'Inter', size: 11 },
-            padding: 16, usePointStyle: true, pointStyleWidth: 8
-          }
-        },
-        tooltip: {
-          backgroundColor: isLight ? 'rgba(255,255,255,0.97)' : 'rgba(10,14,30,0.95)',
-          titleColor: isLight ? '#1a1f2e' : '#94a3b8', bodyColor: isLight ? '#374151' : '#e2e8f0',
-          borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(0,201,167,0.3)',
-          padding: 14, borderColor: 'rgba(0,201,167,0.3)', borderWidth: 1,
-          cornerRadius: 10,
-          callbacks: {
-            label: ctx => {
-              const v = ctx.parsed.y;
-              return ` ${ctx.dataset.label}: ${v>=0?'+':''}₹${Math.abs(v).toLocaleString('en-IN')}`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: { ticks: { color: tickC, font: { size: 11, family: 'Inter' } }, grid: { color: gridC } },
-        y: {
-          position: 'left',
-          ticks: { color: tickC, font: { size: 11 }, callback: fmtY },
-          grid: { color: gridC }
-        },
-        yNW: {
-          position: 'right',
-          ticks: { color: '#00c9a7', font: { size: 11 }, callback: fmtY },
-          grid: { drawOnChartArea: false }
+      } else {
+        if (_dashActiveTab > 1) {
+          switchDashTab(_dashActiveTab - 1);
+          const tabBtn = document.querySelector(`.dash-tab[data-tab="${_dashActiveTab}"]`);
+          if (tabBtn) tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
       }
     }
-  });
-}
-
-function renderDashPieChart(txns) {
-  const el = document.getElementById('dash-pie-chart');
-  if (!el) return;
-  const isLight = document.body.classList.contains('light');
-
-  const catMap = {};
-  txns.filter(t => t.type === 'expense').forEach(t => {
-    catMap[t.category] = (catMap[t.category] || 0) + t.amount;
-  });
-  const topCats = Object.entries(catMap).sort(([,a],[,b]) => b - a).slice(0, 6);
-  if (!topCats.length) {
-    el.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 10px;text-align:center">
-        <div style="width:64px;height:64px;border-radius:50%;border:3px dashed rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px">📊</div>
-        <p style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px">No spending yet</p>
-        <p style="font-size:11px;color:var(--text3);margin-bottom:14px">Add expenses to see your category breakdown</p>
-        <button onclick="navigate('finance')" style="padding:7px 16px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);color:#6366f1;font-size:11px;font-weight:700;cursor:pointer">+ Add Expense</button>
-      </div>`;
-    return;
   }
-
-  const total = topCats.reduce((s,[,v]) => s + v, 0);
-  const COLORS = ['#f59e0b','#ec4899','#10b981','#6366f1','#8b5cf6','#3b82f6'];
-  const CAT_ICONS = {Food:'🍔',Shopping:'🛍️',Transport:'🚗',Fuel:'⛽',Rent:'🏠',Bills:'💡',Health:'💊',Entertainment:'🎬',Travel:'✈️',Other:'📦',Education:'📚',Groceries:'🛒',Insurance:'🛡️',Utilities:'🔌',EMI:'🏦',Gifts:'🎁',Business:'💼'};
-  const fmtV = v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : v >= 1000 ? `₹${(v/1000).toFixed(1)}k` : `₹${v}`;
-  const totalFmt = fmtV(total);
-
-  // Inject canvas + legend
-  el.innerHTML = `
-    <div style="position:relative;height:160px;margin-bottom:12px">
-      <canvas id="dash-spending-donut"></canvas>
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
-        <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#64748b">TOTAL</span>
-        <span style="font-size:15px;font-weight:900;color:${isLight?'#1a1f2e':'#f1f5f9'};margin-top:2px">${totalFmt}</span>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:5px">
-      ${topCats.map(([name, val], i) => {
-        const pct = (val / total * 100).toFixed(0);
-        const color = COLORS[i % COLORS.length];
-        const icon = CAT_ICONS[name] || '💳';
-        return `<div style="display:flex;align-items:center;gap:6px">
-          <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></span>
-          <span style="font-size:12px">${icon}</span>
-          <span style="font-size:11px;font-weight:500;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
-          <span style="font-size:11px;font-weight:700;color:${color}">${fmtV(val)}</span>
-          <span style="font-size:10px;color:var(--text3);width:26px;text-align:right">${pct}%</span>
-        </div>`;
-      }).join('')}
-    </div>`;
-
-  // Render Chart.js doughnut
-  setTimeout(() => {
-    const canvas = document.getElementById('dash-spending-donut');
-    if (!canvas || typeof Chart === 'undefined') return;
-    if (chartInstances['dash-spending']) { chartInstances['dash-spending'].destroy(); delete chartInstances['dash-spending']; }
-    chartInstances['dash-spending'] = new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels: topCats.map(([n]) => n),
-        datasets: [{
-          data: topCats.map(([,v]) => v),
-          backgroundColor: COLORS.slice(0, topCats.length),
-          borderColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(10,10,30,0.6)',
-          borderWidth: 3,
-          hoverOffset: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '68%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: isLight ? 'rgba(255,255,255,0.97)' : 'rgba(10,14,30,0.95)',
-            titleColor: isLight ? '#475569' : '#94a3b8',
-            bodyColor: isLight ? '#1a1f2e' : '#e2e8f0',
-            padding: 10,
-            borderColor: isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.1)',
-            borderWidth: 1,
-            cornerRadius: 8,
-            callbacks: {
-              label: ctx => ` ${ctx.label}: ${fmtV(ctx.parsed)} (${(ctx.parsed/total*100).toFixed(1)}%)`
-            }
-          }
-        }
-      }
-    });
-  }, 10);
 }
+
+
 
 
 // ── Radar: Life Score ──

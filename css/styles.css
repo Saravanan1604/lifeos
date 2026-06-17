@@ -479,3 +479,81 @@ body.light .chat-code{background:rgba(79,70,229,0.08);color:#4f46e5}
 .btn-action:active {
   transform: translateY(0);
 }
+
+/* Dashboard sliding tabs */
+.dash-tabs-container {
+  overflow-x: auto;
+  display: flex;
+  margin-bottom: 20px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE/Edge */
+}
+.dash-tabs-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.dash-tabs {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+.dash-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dash-tab:hover {
+  color: var(--text2);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Tab active styles per theme color */
+.dash-tab.active[data-tab="1"] {
+  background: rgba(0, 201, 167, 0.15);
+  color: #00c9a7;
+  box-shadow: inset 0 0 0 1px rgba(0, 201, 167, 0.3);
+}
+.dash-tab.active[data-tab="2"] {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.3);
+}
+.dash-tab.active[data-tab="3"] {
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+  box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.3);
+}
+.dash-tab.active[data-tab="4"] {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.3);
+}
+.dash-tab.active[data-tab="5"] {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.3);
+}
+
+/* Light mode overrides */
+body.light .dash-tabs-container {
+  background: rgba(0, 0, 0, 0.02);
+}
+body.light .dash-tab:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
