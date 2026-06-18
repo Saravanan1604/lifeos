@@ -15549,3 +15549,56 @@ html.is-app .mr-inline-body .mr-pop > div:first-child b { font-size: 20px !impor
 html.is-app .mr-inline-body .mr-pop span,
 html.is-app .mr-inline-body .mr-pop b { font-size: 15px; }
 html.is-app .mr-inline-body .mr-pop [style*="max-height:50vh"] { max-height: none !important; }
+
+/* ============================================================
+   build 529 — Financial Health + 7 Income Streams cards: much
+   bigger text. Header (title + score) stacked & bold (~3x), radar
+   labels handled in JS, legend / tip rows enlarged (~2x). App only.
+   ============================================================ */
+/* Trim side padding so the radar gets more width (it's width-bound on mobile) */
+html.is-app #dash-mr-health,
+html.is-app #dash-mr-stream {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+/* Stack the header so the big title + score don't collide/wrap badly */
+html.is-app #dash-mr-health > div:first-child,
+html.is-app #dash-mr-stream > div:first-child {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 6px !important;
+  margin-bottom: 10px !important;
+}
+/* Card title (Financial Health / 7 Income Streams) — ~3x + bold */
+html.is-app #dash-mr-health .section-title,
+html.is-app #dash-mr-stream .section-title {
+  font-size: 30px !important;
+  font-weight: 900 !important;
+  gap: 10px !important;
+}
+html.is-app #dash-mr-health .section-title svg,
+html.is-app #dash-mr-stream .section-title svg {
+  width: 26px !important;
+  height: 26px !important;
+}
+/* Score / active-count (top-right value) — ~3x + bold */
+html.is-app #dash-mr-health > div:first-child > span,
+html.is-app #dash-mr-stream > div:first-child > span {
+  font-size: 48px !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+}
+html.is-app #dash-mr-health > div:first-child > span span,
+html.is-app #dash-mr-stream > div:first-child > span span {
+  font-size: 24px !important;
+}
+/* Subtitle ("The average millionaire…") bigger */
+html.is-app #dash-mr-stream > p { font-size: 16px !important; }
+/* 7 Income stream legend rows (Earned / Profit / …) — ~2x */
+html.is-app #dash-mr-stream > div:last-child > div { font-size: 19px !important; padding: 12px 14px !important; }
+html.is-app #dash-mr-stream > div:last-child > div b { font-size: 19px !important; }
+html.is-app #dash-mr-stream > div:last-child > div svg { width: 18px !important; height: 18px !important; }
+html.is-app #dash-mr-stream > div:last-child > div span:first-child { width: 13px !important; height: 13px !important; }
+/* Financial Health tip rows (Debt-to-Income / Emergency Fund / …) — ~2x */
+html.is-app #dash-mr-health > div:last-child p { font-size: 17px !important; line-height: 1.6 !important; }
+html.is-app #dash-mr-health > div:last-child p svg { width: 20px !important; height: 20px !important; }

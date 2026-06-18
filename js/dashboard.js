@@ -848,7 +848,7 @@ function renderDashboard() {
           </p>
           <span style="font-size:${window.__IS_APP ? '40px' : '22px'};font-weight:900;color:${fh.overall>=70?'#10b981':fh.overall>=40?'#f59e0b':'#ef4444'}">${fh.overall}<span style="font-size:${window.__IS_APP ? '20px' : '13px'};color:var(--text3)">/100</span></span>
         </div>
-        <div style="position:relative;height:${window.__IS_APP ? '64vh' : '300px'}"><canvas id="mr-health-chart"></canvas></div>
+        <div style="position:relative;height:${window.__IS_APP ? '300px' : '300px'}"><canvas id="mr-health-chart"></canvas></div>
         <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
           ${fh.axes && fh.axes.filter(a=>a.v<50).slice(0,3).map(a=>`<p style="font-size:12px;color:var(--text3);display:flex;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" style="display:inline-block;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span><b style="color:var(--text2)">${a.k} (${a.v}):</b> ${a.tip}</span></p>`).join('') || `<p style="font-size:12px;color:#10b981;display:flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" style="display:inline-block;flex-shrink:0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Strong across the board — keep it up!</p>`}
         </div>
@@ -867,7 +867,7 @@ function renderDashboard() {
           <span style="font-size:${window.__IS_APP ? '26px' : '15px'};font-weight:800;color:var(--text2)">${strm.active}<span style="font-size:${window.__IS_APP ? '18px' : '13px'};color:var(--text3)"> / 7 active</span></span>
         </div>
         <p style="font-size:12px;color:var(--text3);margin-bottom:8px">The average millionaire has 7 streams of income.</p>
-        <div style="position:relative;height:${window.__IS_APP ? '64vh' : '300px'}"><canvas id="mr-stream-chart"></canvas></div>
+        <div style="position:relative;height:${window.__IS_APP ? '300px' : '300px'}"><canvas id="mr-stream-chart"></canvas></div>
         <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
           ${strm.sums && strm.sums.map(s=>`<div style="display:flex;align-items:center;gap:7px;font-size:13px;padding:7px 10px;border-radius:10px;background:var(--glass);opacity:${s.total>0?1:0.5}"><span style="width:9px;height:9px;border-radius:50%;flex-shrink:0;background:${s.total>0?'#10b981':'#6b7280'}"></span><span style="flex:1;min-width:0;font-weight:600">${s.k}</span>${s.total>0?`<b style="font-size:12px">${fmt(Math.round(s.total))}</b>`:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}</div>`).join('')}
         </div>

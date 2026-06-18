@@ -1350,7 +1350,7 @@ function _mrDrawCharts(fh, strm, flow) {
     chartInstances.mrHealth = new Chart(c1.getContext('2d'), {
       type: 'radar',
       data: {
-        labels: fh.axes.map(a => a.k),
+        labels: fh.axes.map(a => window.__IS_APP ? String(a.k).split(/[\s-]+/) : a.k),
         datasets: [{
           data: fh.axes.map(a => a.v),
           borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.25)',
@@ -1363,7 +1363,7 @@ function _mrDrawCharts(fh, strm, flow) {
         scales: { r: {
           min: 0, max: 100, ticks: { stepSize: 20, color: tick, backdropColor: 'transparent', font: { size: 10 } },
           grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: tick, font: { size: window.__IS_APP ? 16 : 12, weight: '700' } }
+          pointLabels: { color: tick, font: { size: window.__IS_APP ? 21 : 12, weight: window.__IS_APP ? '800' : '700' }, padding: window.__IS_APP ? 4 : 3 }
         } }
       }
     });
@@ -1377,7 +1377,7 @@ function _mrDrawCharts(fh, strm, flow) {
     chartInstances.mrStream = new Chart(c2.getContext('2d'), {
       type: 'radar',
       data: {
-        labels: strm.sums.map(s => s.k),
+        labels: strm.sums.map(s => window.__IS_APP ? String(s.k).split(/[\s-]+/) : s.k),
         datasets: [{
           data: strm.sums.map(s => Math.round((s.total / max) * 100)),
           borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.30)',
@@ -1391,7 +1391,7 @@ function _mrDrawCharts(fh, strm, flow) {
         scales: { r: {
           min: 0, max: 100, ticks: { display: false, stepSize: 25 },
           grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: tick, font: { size: window.__IS_APP ? 16 : 12, weight: '700' } }
+          pointLabels: { color: tick, font: { size: window.__IS_APP ? 21 : 12, weight: window.__IS_APP ? '800' : '700' }, padding: window.__IS_APP ? 4 : 3 }
         } }
       }
     });
