@@ -15655,3 +15655,39 @@ html.is-app #page-container[data-page="habits"] .btn-primary.btn-sm { font-size:
 html.is-app #page-container[data-page="habits"] input.form-input { font-size: 22px !important; padding: 12px 16px !important; }
 /* Heatmap "Less / More" legend row */
 html.is-app #page-container[data-page="habits"] .habit-heatmap-container > div:last-child { font-size: 20px !important; }
+
+/* ============================================================
+   build 537 — Categories header alignment. The title and the
+   action buttons were sharing one flex row, squeezing the buttons
+   (AI Fix / Merge / Asset Types / Loan Types) + Customize into a
+   narrow ~197px column offset from the cards below. Stack the
+   header into full-width rows: title, a tidy 2-col action grid,
+   then a full-width Customize — all flush with the cards. App only.
+   ============================================================ */
+html.is-app .page-categories .page-header {
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;   /* with column+wrap the header shrink-wraps to content */
+  align-items: stretch !important;
+  gap: 10px !important;
+  padding-left: 0 !important;     /* drop the global 60px header inset so the */
+  padding-right: 0 !important;    /* buttons line up with the cards below */
+}
+html.is-app .page-categories .cat-hdr-buttons {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  width: 100% !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  margin-top: 2px !important;
+}
+html.is-app .page-categories .cat-hdr-btn {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: none !important;
+}
+html.is-app .page-categories .page-customize-btn {
+  width: 100% !important;
+  justify-content: center !important;
+  margin: 0 !important;
+}
