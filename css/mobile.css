@@ -15738,6 +15738,44 @@ html.is-app .ld-rnote { font-size: 12px; color: var(--text3); margin: 14px 0 0; 
 html.is-app body.light .ld-ret { background: rgba(15, 23, 42, 0.04) !important; }
 
 /* ============================================================
+   build 544 — bigger text: Settings page (2x), dashboard top tabs,
+   and Money Flow / Wealth Flow "below" text (chips + detail panel).
+   Also shrinks the oversized theme preview cards. App only.
+   ============================================================ */
+/* ---- Settings: ~2x text, fill width ---- */
+html.is-app #page-container[data-page="settings"] > .fade-in > div[style*="max-width"] { max-width: 100% !important; }
+html.is-app #page-container[data-page="settings"] .page-title { font-size: 40px !important; line-height: 1.1 !important; }
+html.is-app #page-container[data-page="settings"] .page-subtitle { font-size: 20px !important; }
+html.is-app #page-container[data-page="settings"] .section-title { font-size: 28px !important; }
+html.is-app #page-container[data-page="settings"] p { font-size: 21px !important; line-height: 1.5 !important; }
+html.is-app #page-container[data-page="settings"] .form-label { font-size: 20px !important; }
+html.is-app #page-container[data-page="settings"] .form-input,
+html.is-app #page-container[data-page="settings"] select.form-input { font-size: 22px !important; padding: 14px 16px !important; height: auto !important; }
+html.is-app #page-container[data-page="settings"] .btn-primary,
+html.is-app #page-container[data-page="settings"] .btn-secondary { font-size: 21px !important; padding: 15px 22px !important; }
+html.is-app #page-container[data-page="settings"] span { font-size: 20px !important; }
+/* Your Stats rows (inline font-size:13px wrapper) */
+html.is-app #page-container[data-page="settings"] .glass-card > div[style*="font-size:13px"] { font-size: 21px !important; }
+/* ---- Theme preview cards were way too tall — make them compact ---- */
+html.is-app #page-container[data-page="settings"] .set-theme-prev { height: 64px !important; border-radius: 12px !important; }
+html.is-app #page-container[data-page="settings"] .set-theme-prev > div { width: 70% !important; padding: 8px !important; gap: 5px !important; }
+
+/* ---- Dashboard top 5 tabs: as large as a 5-across strip allows ---- */
+html.is-app .dash-tabs { gap: 3px !important; }
+html.is-app .dash-tab { padding: 12px 3px !important; gap: 5px !important; }
+html.is-app .dash-tab .dash-tab-icon { font-size: 30px !important; }
+html.is-app .dash-tab .dash-tab-text { font-size: 14px !important; white-space: normal !important; line-height: 1.15 !important; }
+
+/* ---- Money Flow / Wealth Flow: bigger chips + detail-panel text ---- */
+html.is-app .mr-chips button { font-size: 16px !important; font-weight: 700 !important; padding: 9px 15px !important; border-radius: 18px !important; }
+html.is-app .mr-inline-title { font-size: 24px !important; }
+html.is-app .mr-inline-body .mr-pop,
+html.is-app .mr-inline-body .mr-pop p,
+html.is-app .mr-inline-body .mr-pop span,
+html.is-app .mr-inline-body .mr-pop b { font-size: 19px !important; line-height: 1.5 !important; }
+html.is-app .mr-inline-body .mr-pop > div:first-child b { font-size: 24px !important; }
+
+/* ============================================================
    build 542 — remove Customize button + Create Custom Page (app only)
    Hides the hardcoded .page-customize-btn in every page template, plus the
    sidebar "Create Custom Page" button as a CSS belt-and-suspenders.

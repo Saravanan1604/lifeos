@@ -384,7 +384,7 @@ function renderSettings() {
 
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🎨 Theme</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="set-theme-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
             ${[
               { m:'light',  label:'Light',  bg:'#e9edf2', card:'#ffffff', line:'#d4d9e0' },
               { m:'dark',   label:'Dark',   bg:'#161b2b', card:'#28304a', line:'#3a425c' },
@@ -392,8 +392,8 @@ function renderSettings() {
               { m:'ocean',  label:'Ocean',  bg:'#07172a', card:'#0e2a44', line:'#1d4d6b' },
               { m:'auto',   label:'Auto',   bg:'linear-gradient(120deg,#e9edf2 0 50%,#161b2b 50% 100%)', card:'rgba(128,128,128,0.5)', line:'rgba(255,255,255,0.4)' },
             ].map(t => { const active = (STATE.settings?.theme || 'amoled') === t.m; return `
-              <div onclick="setTheme('${t.m}')" style="cursor:pointer">
-                <div style="height:120px;border-radius:16px;background:${t.bg};border:2px solid ${active ? '#3b82f6' : 'rgba(255,255,255,0.10)'};display:flex;align-items:center;justify-content:center;overflow:hidden">
+              <div class="set-theme-card" onclick="setTheme('${t.m}')" style="cursor:pointer">
+                <div class="set-theme-prev" style="height:120px;border-radius:16px;background:${t.bg};border:2px solid ${active ? '#3b82f6' : 'rgba(255,255,255,0.10)'};display:flex;align-items:center;justify-content:center;overflow:hidden">
                   <div style="width:76%;background:${t.card};border-radius:10px;padding:11px;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.25)">
                     <div style="display:flex;align-items:center;gap:7px"><span style="width:11px;height:11px;border-radius:50%;background:#3b82f6;flex-shrink:0"></span><span style="height:7px;border-radius:4px;background:${t.line};width:66%"></span></div>
                     <div style="display:flex;align-items:center;gap:7px"><span style="width:11px;height:11px;border-radius:50%;background:#3b82f6;flex-shrink:0"></span><span style="height:7px;border-radius:4px;background:${t.line};width:48%"></span></div>
@@ -1170,7 +1170,7 @@ function renderMoneyRules() {
           </div>
         </div>
         <p id="mr-flow-fallback" style="display:none;font-size:13px;color:var(--text3);text-align:center;padding:20px">Money-flow chart needs an internet connection the first time. Reopen online to load it.</p>
-        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
+        <div class="mr-chips" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px">
           ${[...Object.keys(flow.incBy), ...Object.keys(flow.expBy)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<button onclick="mrShowNode('${esc(k).replace(/'/g,"\\'")}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${esc(k)}</button>`).join('')}
           ${(pExp>pInc?['From Savings / Debt']:['Savings']).concat(window.__IS_APP?[]:['Bank','Cash','Investments','Debt','Net Worth']).map(n=>{const neg=n==='From Savings / Debt';return `<button onclick="mrShowNode('${n}')" style="font-size:12px;font-weight:600;padding:6px 11px;border-radius:16px;background:${neg?'rgba(239,68,68,0.12)':'rgba(16,185,129,0.12)'};border:1px solid ${neg?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)'};color:${neg?'#ef4444':'#10b981'};cursor:pointer">${n}</button>`;}).join('')}
         </div>
