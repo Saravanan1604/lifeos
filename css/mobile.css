@@ -15493,3 +15493,59 @@ html.is-app body.light .ld-seg-b {
 html.is-app body.light .ld-seg-b.on {
   color: #ffffff !important;
 }
+
+/* ============================================================
+   build 528 — Dashboard tabs: bigger tab buttons (Heatmap / Money
+   Flow / Wealth Flow / Health / 7 Income), and inline node-detail
+   panel under the Money Flow / Wealth Flow Sankey graphs (replaces
+   the popup in the app). App only.
+   ============================================================ */
+/* Bigger, scrollable dashboard tab strip */
+html.is-app .dash-tabs-container { padding: 6px !important; border-radius: 18px !important; }
+html.is-app .dash-tabs { gap: 8px !important; width: max-content !important; }
+html.is-app .dash-tab {
+  flex: 0 0 auto !important;
+  padding: 14px 20px !important;
+  border-radius: 14px !important;
+  font-size: 16px !important;
+  gap: 9px !important;
+}
+html.is-app .dash-tab .dash-tab-icon { font-size: 20px !important; }
+html.is-app .dash-tab .dash-tab-text { font-size: 16px !important; font-weight: 800 !important; }
+
+/* Inline node-detail panel (Money Flow / Wealth Flow) — sits below the graph */
+html.is-app .mr-inline-detail {
+  margin-top: 16px;
+  border-top: 1px solid var(--glass-border);
+  padding-top: 14px;
+}
+html.is-app .mr-inline-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+html.is-app .mr-inline-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+html.is-app .mr-inline-x {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: var(--text2);
+  font-size: 18px;
+  cursor: pointer;
+}
+html.is-app .mr-inline-body .mr-pop { font-size: 15px; }
+html.is-app .mr-inline-body .mr-pop > div:first-child b { font-size: 20px !important; }
+/* make the rows inside the inline panel a touch bigger for the app */
+html.is-app .mr-inline-body .mr-pop span,
+html.is-app .mr-inline-body .mr-pop b { font-size: 15px; }
+html.is-app .mr-inline-body .mr-pop [style*="max-height:50vh"] { max-height: none !important; }

@@ -17,6 +17,38 @@ function resetHeatmapAnchor() {
   renderHeatmap();
 }
 
+// ── Month/Year picker (tap the "June 2026" label on the heatmap) ──
+let _hmPickerYear = null;
+function _openHeatmapMonthPicker() {
+  if (typeof openModal !== 'function') return;
+  _hmPickerYear = _heatmapAnchorDate.getFullYear();
+  openModal('📅 Jump to month', _hmPickerBody());
+}
+function _hmPickerBody() {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const curY = _heatmapAnchorDate.getFullYear(), curM = _heatmapAnchorDate.getMonth();
+  const grid = months.map((m, i) => {
+    const sel = (_hmPickerYear === curY && i === curM);
+    return `<button onclick="_pickHeatmapMonth(${i})" style="padding:16px 0;border-radius:12px;border:1px solid ${sel ? '#00c9a7' : 'var(--glass-border)'};background:${sel ? 'rgba(0,201,167,0.15)' : 'var(--glass)'};color:${sel ? '#00c9a7' : 'var(--text)'};font-weight:700;font-size:16px;cursor:pointer">${m}</button>`;
+  }).join('');
+  return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <button onclick="_hmPickerNavYear(-1)" style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;width:44px;height:44px;font-size:22px;cursor:pointer;color:var(--text)">‹</button>
+      <span style="font-size:22px;font-weight:800;color:var(--text)">${_hmPickerYear}</span>
+      <button onclick="_hmPickerNavYear(1)" style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;width:44px;height:44px;font-size:22px;cursor:pointer;color:var(--text)">›</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${grid}</div>`;
+}
+function _hmPickerNavYear(d) {
+  _hmPickerYear += d;
+  const b = document.getElementById('modal-body');
+  if (b) b.innerHTML = _hmPickerBody();
+}
+function _pickHeatmapMonth(m) {
+  _heatmapAnchorDate = new Date(_hmPickerYear, m, 1);
+  if (typeof closeModal === 'function') closeModal();
+  renderHeatmap();
+}
+
 function setHeatmapMode(mode) {
   _heatmapMode = mode;
   renderHeatmap();
@@ -199,7 +231,7 @@ function renderHeatmap() {
       <!-- Month Selector Row -->
       <div class="mm-monthbar" style="margin-bottom:16px">
         <button class="mm-navbtn" onclick="shiftHeatmapPeriod(-1)">‹</button>
-        <button class="mm-month" style="cursor:default">${mLabel}</button>
+        <button class="mm-month" onclick="_openHeatmapMonthPicker()" style="cursor:pointer">${mLabel}</button>
         <button class="mm-navbtn" onclick="shiftHeatmapPeriod(1)">›</button>
         <button class="mm-today" onclick="resetHeatmapAnchor()">Today</button>
       </div>

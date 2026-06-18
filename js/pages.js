@@ -857,10 +857,32 @@ function mrEditTx(id) {
 }
 
 // Tap a Sankey node (or chip) → list the matching transactions with dates + total.
+// In the installed app, node details render in a panel below the Sankey graph
+// (like the heatmap's day detail) instead of a popup modal. On web it stays a modal.
+function _mrEmit(title, html) {
+  if (window.__IS_APP) {
+    const wealthCard = document.getElementById('dash-mr-wealth');
+    const useWealth = wealthCard && getComputedStyle(wealthCard).display !== 'none';
+    const box = document.getElementById(useWealth ? 'mr-wealth-detail' : 'mr-flow-detail');
+    if (box) {
+      box.innerHTML = `<div class="mr-inline-head"><span class="mr-inline-title">${title}</span>`
+        + `<button class="mr-inline-x" onclick="_mrCloseDetail()" aria-label="Close">✕</button></div>`
+        + `<div class="mr-inline-body">${html}</div>`;
+      box.style.display = 'block';
+      try { box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) {}
+      if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+      return;
+    }
+  }
+  if (typeof openModal === 'function') openModal(title, html);
+}
+function _mrCloseDetail() {
+  ['mr-flow-detail', 'mr-wealth-detail'].forEach(id => { const b = document.getElementById(id); if (b) { b.style.display = 'none'; b.innerHTML = ''; } });
+}
 function mrShowNode(name) {
-  if (typeof openModal !== 'function') return;
+  if (!window.__IS_APP && typeof openModal !== 'function') return;
   const txs = _mrLastTx || [];
-  const listCard = (rows, title, totalLabel, total, color) => openModal(title, `<div class="mr-pop">
+  const listCard = (rows, title, totalLabel, total, color) => _mrEmit(title, `<div class="mr-pop">
     <div style="display:flex;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--glass);margin-bottom:8px">
       <span style="font-weight:700">${totalLabel}</span><b style="font-size:18px;color:${color}">${fmt(total)}</b></div>
     <div style="max-height:50vh;overflow-y:auto">${rows || '<p style="color:var(--text3);padding:14px 0">Nothing to show.</p>'}</div></div>`);
@@ -872,7 +894,7 @@ function mrShowNode(name) {
   if (name === 'From Savings / Debt') {
     let inc = 0, exp = 0; txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
     const gap = Math.max(0, exp - inc);
-    openModal('⚠️ Spending Over Income', `<div class="mr-pop"><p style="font-size:14px;color:var(--text2);line-height:1.9">
+    _mrEmit('⚠️ Spending Over Income', `<div class="mr-pop"><p style="font-size:14px;color:var(--text2);line-height:1.9">
         You spent <b style="color:#ef4444">${fmt(exp)}</b> but earned <b style="color:#10b981">${fmt(inc)}</b> this period.<br>
         The shortfall of <b style="color:#ef4444;font-size:17px">${fmt(gap)}</b> was covered by drawing down your savings or taking on debt — it reduces your net worth.</p>
         <p style="font-size:12px;color:var(--text3);margin-top:10px">Tip: aim to keep spending below income so savings (and net worth) keep growing.</p></div>`);
@@ -880,7 +902,7 @@ function mrShowNode(name) {
   }
   if (name === 'Net Worth') {
     const n = _mrNetWorth();
-    openModal('🏦 Net Worth', `<div class="mr-pop"><p style="font-size:14px;color:var(--text2);line-height:2">
+    _mrEmit('🏦 Net Worth', `<div class="mr-pop"><p style="font-size:14px;color:var(--text2);line-height:2">
         Bank: <b style="color:var(--text)">${fmt(n.bank)}</b><br>Cash: <b style="color:var(--text)">${fmt(n.cash)}</b><br>
         Investments: <b style="color:#8b5cf6">${fmt(n.invest)}</b><br>Debt: <b style="color:#ef4444">−${fmt(n.debt)}</b><br>
         <span style="font-size:18px">Net Worth: <b style="color:#10b981">${fmt(n.net)}</b></span></p></div>`);
@@ -913,7 +935,7 @@ function mrShowNode(name) {
   }
   if (name === 'Savings') {
     let inc = 0, exp = 0; txs.forEach(t => { const a = +t.amount || 0; if (t.type === 'income') inc += a; else exp += a; });
-    openModal('💰 Savings', `<div class="mr-pop"><p style="font-size:14px;color:var(--text2);line-height:1.9">
+    _mrEmit('💰 Savings', `<div class="mr-pop"><p style="font-size:14px;color:var(--text2);line-height:1.9">
         Income: <b style="color:#10b981">${fmt(inc)}</b><br>Expenses: <b style="color:#ef4444">${fmt(exp)}</b><br>
         <span style="font-size:18px">Net Saved: <b style="color:#10b981">${fmt(Math.max(0, inc - exp))}</b></span></p></div>`);
     return;
@@ -928,7 +950,7 @@ function mrShowNode(name) {
       <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'};white-space:nowrap;flex-shrink:0">${t.type === 'income' ? '' : '-'}${fmt(t.amount)}</b>
     </div>`).join('') : '<p style="color:var(--text3);padding:14px 0">No transactions in this period.</p>';
   const safe = String(name).replace(/'/g, "\\'");
-  openModal(`${name} — ${matched.length} entr${matched.length === 1 ? 'y' : 'ies'}`, `<div class="mr-pop">
+  _mrEmit(`${name} — ${matched.length} entr${matched.length === 1 ? 'y' : 'ies'}`, `<div class="mr-pop">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--glass);margin-bottom:8px">
       <span style="font-weight:700">Total</span>
       <div style="display:flex;align-items:center;gap:12px"><b style="font-size:18px;color:${pos ? '#10b981' : '#ef4444'}">${fmt(total)}</b>
@@ -1341,7 +1363,7 @@ function _mrDrawCharts(fh, strm, flow) {
         scales: { r: {
           min: 0, max: 100, ticks: { stepSize: 20, color: tick, backdropColor: 'transparent', font: { size: 10 } },
           grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: tick, font: { size: 12, weight: '600' } }
+          pointLabels: { color: tick, font: { size: window.__IS_APP ? 16 : 12, weight: '700' } }
         } }
       }
     });
@@ -1369,7 +1391,7 @@ function _mrDrawCharts(fh, strm, flow) {
         scales: { r: {
           min: 0, max: 100, ticks: { display: false, stepSize: 25 },
           grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: tick, font: { size: 12, weight: '600' } }
+          pointLabels: { color: tick, font: { size: window.__IS_APP ? 16 : 12, weight: '700' } }
         } }
       }
     });
@@ -1473,7 +1495,7 @@ function _mrDrawCharts(fh, strm, flow) {
         colorMode: 'gradient',
         labels: flowLabels,
         color: tick,
-        font: { size: window.__IS_APP ? 16 : 11, weight: '700' },
+        font: { size: window.__IS_APP ? 18 : 11, weight: '700' },
         borderWidth: 0,
       }] },
       options: {
@@ -1550,7 +1572,7 @@ function _mrDrawCharts(fh, strm, flow) {
           data: wdata, column: wcol,
           colorFrom: (c) => wcolor[c.dataset.data[c.dataIndex].from] || '#64748b',
           colorTo: (c) => wcolor[c.dataset.data[c.dataIndex].to] || '#64748b',
-          colorMode: 'gradient', labels: wLabels, color: tick, font: { size: window.__IS_APP ? 16 : 11, weight: '700' }, borderWidth: 0,
+          colorMode: 'gradient', labels: wLabels, color: tick, font: { size: window.__IS_APP ? 18 : 11, weight: '700' }, borderWidth: 0,
         }] },
         options: {
           responsive: true, maintainAspectRatio: false, animation: false,
