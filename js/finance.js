@@ -8378,12 +8378,14 @@ async function handleShotFileSelect(input) {
     let fullText = '';
     for (let i = 0; i < files.length; i++) {
       if (progLabel) progLabel.textContent = `Reading image ${i + 1} of ${files.length}…`;
-      const { data } = await T.recognize(files[i], 'eng', {
+      const src = await _shotToCanvas(files[i]);     // upscale + (invert dark) for sharper OCR
+      const { data } = await T.recognize(src, 'eng', {
         logger: m => { if (m.status === 'recognizing text' && progBar) progBar.style.width = `${Math.round(((i + (m.progress || 0)) / files.length) * 100)}%`; }
       });
       fullText += (data && data.text ? data.text : '') + '\n';
     }
     if (prog) prog.style.display = 'none';
+    console.log('[Shot Import] OCR text:\n' + fullText);   // logged so misreads can be diagnosed
 
     _pdfResults = _parseUpiScreenshot(fullText);
     if (!_pdfResults.length) _pdfResults = _parseUpiStatementPdf(fullText);
@@ -8421,65 +8423,143 @@ function _relAgoToDate(s) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// Parse the OCR text of a GPay/PhonePe history screen. Each entry looks like:
-//   "Paid to" / "MERCHANT NAME" / "13 mins ago" / "₹15" / "Debited from"
+// Load an image File into an <img>.
+function _loadImage(file) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = () => rej(new Error('Could not read the image.'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+// Pre-process a screenshot for OCR: upscale small images, convert to
+// grayscale, and INVERT dark-mode screenshots (white-on-black → black-on-white)
+// since Tesseract reads dark-text-on-light far more reliably. Returns a canvas,
+// or the original file if anything fails.
+async function _shotToCanvas(file) {
+  try {
+    const img = await _loadImage(file);
+    const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+    if (!w || !h) return file;
+    const scale = Math.min(2.5, Math.max(1, 1400 / w));   // upscale narrow screenshots
+    const c = document.createElement('canvas');
+    c.width = Math.round(w * scale);
+    c.height = Math.round(h * scale);
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    try {
+      const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
+      let sum = 0;
+      for (let p = 0; p < d.length; p += 4) sum += 0.299 * d[p] + 0.587 * d[p + 1] + 0.114 * d[p + 2];
+      const avg = sum / (d.length / 4);
+      const invert = avg < 110;                            // dark background
+      for (let p = 0; p < d.length; p += 4) {
+        let g = 0.299 * d[p] + 0.587 * d[p + 1] + 0.114 * d[p + 2];
+        if (invert) g = 255 - g;
+        g = g < 128 ? g * 0.75 : Math.min(255, g * 1.12 + 12);  // light contrast bump
+        d[p] = d[p + 1] = d[p + 2] = g;
+      }
+      ctx.putImageData(id, 0, 0);
+    } catch (_) {}
+    try { URL.revokeObjectURL(img.src); } catch (_) {}
+    return c;
+  } catch (_) { return file; }
+}
+
+// Extract a rupee amount from a line. Prefers a number right after a ₹
+// (or a common ₹-misread symbol like %, ®), otherwise the rightmost FULL
+// number on the line (commas kept intact), skipping times and years.
+function _amountFromText(s) {
+  if (!s) return null;
+  let m = String(s).match(/(?:₹|rs\.?|inr|[%®©=¥€])\s*(\d[\d,]*(?:\.\d{1,2})?)/i);
+  if (m) { const v = parseFloat(m[1].replace(/,/g, '')); if (v > 0) return v; }
+  const re = /\d[\d,]*(?:\.\d{1,2})?/g;   // greedy → captures whole "2,317" not "317"
+  let best = null, tok;
+  while ((tok = re.exec(s))) {
+    const raw = tok[0];
+    const after = s.slice(re.lastIndex, re.lastIndex + 14);
+    if (/^\s*(?:min|minute|hour|hr|day|week|month|year)s?\b/i.test(after)) continue; // a time
+    if (/^(?:19|20)\d{2}$/.test(raw)) continue;                                       // a year
+    const v = parseFloat(raw.replace(/,/g, ''));
+    if (v > 0) best = v;                  // keep the last (right-most) number
+  }
+  return best;
+}
+
+// Clean a merchant/name line: drop the action phrase, trailing amount, ellipses
+// and the leading junk the payment-list arrow icon adds (e.g. "/", "1", "A ").
+function _cleanMerchant(s) {
+  let m = String(s)
+    .replace(/\b(paid to|sent to|money sent to|money sent|received from|money received from|money received|paid by)\b/ig, ' ')
+    .replace(/[.…]{2,}/g, ' ')
+    .replace(/\s*(?:₹|rs\.?|inr|[%®©=¥€])\s*[\d,]+(?:\.\d{1,2})?\s*$/i, ' ') // trailing ₹amount
+    .replace(/\s+[\d,]+(?:\.\d{1,2})?\s*$/, '')                              // trailing bare number
+    .replace(/^[^A-Za-z]+/, '')                                             // leading non-letters
+    .replace(/^[A-Za-z]\s+(?=[A-Za-z])/, '')                                // leading stray single letter
+    .replace(/\s+/g, ' ')
+    .trim();
+  return m;
+}
+
+// Parse the OCR text of a GPay / PhonePe history screen into transactions.
+// Layout per row (order/words vary with OCR): an action ("Paid to" / "Received
+// from"), the MERCHANT, a "13 mins ago / 1 day ago" time, the ₹amount, and a
+// "Debited from / Credited to" line.
 function _parseUpiScreenshot(text) {
-  const lines = String(text).split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(l => l);
-  const actionRe = /^(paid to|sent to|money sent to|money sent|received from|money received from|money received|paid by)\b/i;
-  const skipRe = /(ago|debited from|credited to|paid by|transaction id|utr|banking name|completed|pending|failed|wallet|^\d{1,2}:\d{2}\s*(am|pm)?$|^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)\b|^search$|^history$|^alerts$|^home$)/i;
+  const lines = String(text).split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const actionRe = /\b(paid to|sent to|money sent to|money sent|received from|money received from|money received|paid by)\b/i;
+  const dropRe = /^(search|history|alerts|home|notifications|payments?)$/i;
+  const timeRe = /\b\d+\s*(?:min|minute|hour|hr|day|week|month|year)s?\s*ago\b|\byesterday\b|\btoday\b/i;
+  const dirRe = /\b(debited from|credited to|debited|credited|paid by|transaction id|utr)\b/i;
+  const hasName = s => /[A-Za-z]{2,}/.test(s);
+
+  const idxs = [];
+  for (let i = 0; i < lines.length; i++) if (actionRe.test(lines[i])) idxs.push(i);
   const results = [];
 
-  for (let i = 0; i < lines.length; i++) {
-    const a0 = lines[i].match(actionRe);
-    if (!a0) continue;
-    const action = a0[1].toLowerCase();
-    let type = /received/.test(action) ? 'income' : 'expense';
+  for (let k = 0; k < idxs.length; k++) {
+    const i = idxs[k];
+    const end = (k + 1 < idxs.length) ? Math.min(idxs[k + 1], i + 7) : Math.min(lines.length, i + 6);
+    const block = lines.slice(i, end);
+    const blockText = block.join(' ');
 
-    // Window = up to the next action line, capped at +8 lines
-    let end = Math.min(lines.length, i + 8);
-    for (let j = i + 1; j < end; j++) { if (actionRe.test(lines[j])) { end = j; break; } }
+    let type = /\b(received|credited)\b/i.test(blockText) ? 'income' : 'expense';
+    if (/\bdebited\b/i.test(blockText)) type = 'expense';
 
-    // Merchant: trailing text on the action line, else the first "real" line after it
-    let merchant = lines[i].replace(actionRe, '').replace(/^[\s:·.-]+/, '').trim();
-    if (!merchant) {
-      for (let j = i + 1; j < end; j++) {
-        const L = lines[j];
-        if (skipRe.test(L)) continue;
-        if (/^[₹rs.\s]*[\d,]+(\.\d{1,2})?$/i.test(L)) continue; // pure amount line
-        merchant = L; break;
+    // Date from a relative-time line, else today
+    let date = today();
+    for (const L of block) { const d = _relAgoToDate(L); if (d) { date = d; break; } }
+
+    // Merchant/name line: trailing text on the action line, else the first
+    // following line that has a real name and isn't a time/direction line.
+    const tail = block[0].replace(actionRe, '').replace(/^[\s:·.\-]+/, '').trim();
+    let nameLine = hasName(tail) ? tail : '';
+    if (!nameLine) {
+      for (let j = 1; j < block.length; j++) {
+        const L = block[j];
+        if (dropRe.test(L) || timeRe.test(L) || dirRe.test(L)) continue;
+        if (hasName(L)) { nameLine = L; break; }
       }
     }
 
-    // Amount: a currency-prefixed number, or a line that is only a number
-    let amount = null;
-    for (let j = i; j < end; j++) {
-      const cm = lines[j].match(/(?:₹|rs\.?|inr|[^\w\s])\s*([\d][\d,]*(?:\.\d{1,2})?)/i);
-      const pm = lines[j].match(/^\s*([\d][\d,]*(?:\.\d{1,2})?)\s*$/);
-      const hit = cm || pm;
-      if (hit) { const v = parseFloat(hit[1].replace(/,/g, '')); if (v > 0) { amount = v; break; } }
+    // Amount: from the name line first, then any non-time block line
+    let amount = _amountFromText(nameLine);
+    if (!amount) {
+      for (const L of block) { if (timeRe.test(L)) continue; const v = _amountFromText(L); if (v) { amount = v; break; } }
     }
-
-    // Date from relative time / yesterday / today, else today
-    let date = null;
-    for (let j = i; j < end; j++) { date = _relAgoToDate(lines[j]); if (date) break; }
-    if (!date) date = today();
-
-    // Refine type from an explicit Debited/Credited hint
-    for (let j = i; j < end; j++) {
-      if (/credited to|\bcredited\b/i.test(lines[j])) type = 'income';
-      else if (/debited from|\bdebited\b/i.test(lines[j])) type = 'expense';
-    }
-
     if (!amount || amount <= 0) continue;
-    merchant = (merchant || action).replace(/\s+/g, ' ').replace(/[.…]+$/, '').trim();
-    if (!merchant) merchant = type === 'income' ? 'Received' : 'Paid';
+
+    let merchant = _cleanMerchant(nameLine);
+    if (!merchant || merchant.length < 2) merchant = type === 'income' ? 'Received' : 'Paid';
+
     const lo = merchant.toLowerCase();
     const category = (typeof smsCategoryGuess === 'function') ? smsCategoryGuess(lo, lo, type) : (type === 'income' ? 'Other Income' : 'Other');
     results.push({ type, amount, date, description: merchant, category });
   }
 
   const seen = new Set();
-  return results.filter(r => { const k = `${r.amount}|${r.date}|${r.description}`; if (seen.has(k)) return false; seen.add(k); return true; });
+  return results.filter(r => { const key = `${r.amount}|${r.date}|${r.description}`; if (seen.has(key)) return false; seen.add(key); return true; });
 }
 
 function _parsePdfAsTable(text) {
