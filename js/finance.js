@@ -4843,8 +4843,8 @@ function renderInvestmentsApp() {
       <div class="page-header" style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
         <div><h1 class="page-title"><i data-lucide="bar-chart-3"></i> All Assets</h1>
         <p class="page-subtitle">Investments, loans & net worth</p></div>
-        <button class="page-customize-btn" onclick="if(typeof toggleEditLayout==='function')toggleEditLayout()" title="Customize layout">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Customize
+        <button id="refresh-prices-btn" class="inv-live-btn" onclick="fetchLivePrices()" title="Update live prices for all stocks, crypto & gold">
+          <i data-lucide="refresh-cw"></i><span>Live</span>
         </button>
       </div>
 
@@ -5738,17 +5738,34 @@ function _timeSince(iso) {
 
 async function _fetchYahooPrice(ticker) {
   const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 10000);
-  try {
-    const res = await fetch(proxyUrl, { signal: ctrl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-    if (!price) throw new Error('No price');
-    return price;
-  } finally { clearTimeout(timer); }
+  // Yahoo blocks direct browser calls (CORS), so we route through public CORS
+  // proxies. These come and go, so we try several in order and fall through to
+  // the next whenever one is down/blocked.
+  const strategies = [
+    { url: `https://corsproxy.io/?url=${encodeURIComponent(yahooUrl)}`, wrapped: false },
+    { url: `https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}`, wrapped: true },
+    { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`, wrapped: false },
+    { url: `https://thingproxy.freeboard.io/fetch/${yahooUrl}`, wrapped: false },
+  ];
+  let lastErr;
+  for (const s of strategies) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 10000);
+    try {
+      const res = await fetch(s.url, { signal: ctrl.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      let data = await res.json();
+      if (s.wrapped) data = JSON.parse(data.contents);   // allorigins /get wraps the body in .contents
+      const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      if (!price) throw new Error('No price');
+      return price;
+    } catch (e) {
+      lastErr = e;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastErr || new Error('All price sources failed');
 }
 
 const GRAMS_PER_TROY_OZ = 31.1035;
