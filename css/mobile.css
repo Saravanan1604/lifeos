@@ -15720,6 +15720,29 @@ html.is-app #dash-mr-stream > div:last-child > div span:first-child { width: 14p
 html.is-app #dash-mr-stream > div:last-child > div svg { width: 20px !important; height: 20px !important; }
 
 /* ============================================================
+   build 545 — match the Heatmap page's readable text size across
+   the other dashboard tabs: Money Flow / Wealth Flow drill-in detail
+   panel + card descriptions, and the Financial Health tips. App only.
+   Heatmap reference: ~1.25rem rows, ~1.1rem sub, ~1.3rem amounts.
+   ============================================================ */
+/* Card description line under each graph title */
+html.is-app #dash-mr-flow > p[style*="font-size:12px"],
+html.is-app #dash-mr-wealth > p[style*="font-size:12px"] { font-size: 16px !important; line-height: 1.4 !important; }
+/* Drill-in detail panel rows — mirror the heatmap day-detail hierarchy */
+html.is-app .mr-inline-body .mr-pop p[style*="font-size:14px"] { font-size: 20px !important; line-height: 1.45 !important; }
+html.is-app .mr-inline-body .mr-pop p[style*="font-size:12px"] { font-size: 16px !important; }
+html.is-app .mr-inline-body .mr-pop b { font-size: 21px !important; }
+html.is-app .mr-inline-body .mr-pop b[style*="font-size:18px"] { font-size: 22px !important; }
+html.is-app .mr-inline-body .mr-pop span { font-size: 20px !important; }
+html.is-app .mr-inline-title { font-size: 22px !important; }
+/* Financial Health tab — the small low-score tips below the radar */
+html.is-app #dash-mr-health p[style*="font-size:12px"],
+html.is-app #dash-mr-health p[style*="font-size:12px"] b,
+html.is-app #dash-mr-health p[style*="font-size:12px"] span { font-size: 18px !important; line-height: 1.45 !important; }
+/* 7 Income — the millionaire-streams caption (legend list already large) */
+html.is-app #dash-mr-stream > p[style*="font-size:12px"] { font-size: 18px !important; }
+
+/* ============================================================
    build 541 — Asset detail: Returns breakdown card
    (days held + per-month / per-year return %, amount)
    ============================================================ */
