@@ -940,6 +940,18 @@ function renderDashboard() {
 
   // Render charts after DOM is ready
   setTimeout(() => {
+    // Re-assert tab visibility. applyPageLayout() (the layout customizer)
+    // runs after this render and clears the inline display:none we set on
+    // each tab card, which otherwise leaves every tab's card visible (and
+    // blank, since only the active tab's chart is drawn). Re-hide the
+    // non-active tab cards here so only the selected tab shows.
+    if (window.__IS_APP) {
+      [['dash-heatmap-card', 1], ['dash-mr-flow', 2], ['dash-mr-wealth', 3], ['dash-mr-health', 4], ['dash-mr-stream', 5]]
+        .forEach(([id, tab]) => { const el = document.getElementById(id); if (el) el.style.display = (_dashActiveTab === tab ? 'block' : 'none'); });
+      const _bc = document.getElementById('dash-bottom-cards');
+      if (_bc) _bc.style.display = (_dashActiveTab === 1 ? 'none' : 'block');
+    }
+
     // Render Heatmap and Money Rules charts if available
     if (_dashActiveTab === 1) {
       if (typeof renderHeatmap === 'function') {
