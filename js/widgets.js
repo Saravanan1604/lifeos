@@ -66,6 +66,9 @@ const WIDGET_REGISTRY = {
   } },
 };
 
+// App: hide "Rule of the Day" and "Category — Actual vs Budget" widgets
+if (window.__IS_APP) { delete WIDGET_REGISTRY.rule; delete WIDGET_REGISTRY.actualbudget; }
+
 /* ---------- render on Home ---------- */
 function renderHomeWidgets() {
   const host = document.getElementById('home-widgets');

@@ -875,6 +875,7 @@ function renderDashboard() {
       <div id="dash-bottom-cards" style="display: ${_dashActiveTab===1?'none':'block'}">
         <!-- ── Spending Hero Ring (axio-style) ───────────────────────── -->
         ${(() => {
+          if (window.__IS_APP) return '';   // app: "Spent in <month>" card hidden
           const pct = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : (totalExpense > 0 ? 100 : 0);
           const sav = totalIncome - totalExpense;
           const mon = new Date().toLocaleString('default', { month: 'long' });
@@ -915,11 +916,12 @@ function renderDashboard() {
               </div>`).join('')}
         </div>
 
-        <!-- ── AI Rule of the Day Card ─────────────────────── -->
+        <!-- ── AI Rule of the Day Card (hidden in app) ─────────────────────── -->
+        ${window.__IS_APP ? '' : `
         <div class="glass-card" id="dash-ai-rule" style="padding:22px;margin-bottom:20px;border-left:4px solid var(--indigo)">
           <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">💡 AI RULE OF THE DAY</p>
           <p style="font-size:13px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
-        </div>
+        </div>`}
 
         <!-- User-added chart widgets (from the layout customizer) -->
         <div id="home-widgets"></div>

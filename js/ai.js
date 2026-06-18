@@ -399,10 +399,10 @@ function renderAICoach() {
               ].map(([icon,p])=>`<button onclick="quickPrompt('${p}')" style="text-align:left;display:flex;align-items:center;gap:7px;padding:6px 8px;border:1px solid var(--glass-border);border-radius:7px;background:transparent;color:var(--text2);font-size:11px;cursor:pointer;transition:.15s;font-family:monospace" onmouseover="this.style.background='rgba(99,102,241,0.1)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--text2)'">${icon} ${p}</button>`).join('')}
             </div>
           </div>
-          <div class="glass-card" style="padding:14px;border-left:3px solid var(--indigo)">
+          ${window.__IS_APP ? '' : `<div class="glass-card" style="padding:14px;border-left:3px solid var(--indigo)">
             <p style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--indigo);margin-bottom:6px">RULE OF THE DAY</p>
             <p style="font-size:12px;color:var(--text2);line-height:1.6;font-style:italic">${getDailyTip()}</p>
-          </div>
+          </div>`}
         </div>
       </div>
     </div>`;

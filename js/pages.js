@@ -123,8 +123,8 @@ function renderAnalytics() {
       </div>
 
       <!-- Category vs Budget  +  Donut allocation -->
-      <div style="display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:20px" class="cross-mid-row">
-        <div class="glass-card" style="padding:20px">
+      <div style="display:grid;grid-template-columns:${window.__IS_APP ? '1fr' : '3fr 2fr'};gap:16px;margin-bottom:20px" class="cross-mid-row">
+        ${window.__IS_APP ? '' : `<div class="glass-card" style="padding:20px">
           <div class="section-header" style="margin-bottom:12px">
             <p class="section-title">🔍 Category — Actual vs Budget</p>
             <span style="font-size:10px;color:var(--text3)">🟥 over budget · 🟦 within budget · 🟡 budget limit</span>
@@ -132,7 +132,7 @@ function renderAnalytics() {
           <div style="height:${Math.max(160,topCats.length*38)}px;position:relative">
             ${topCats.length?'<canvas id="cross-cat-chart"></canvas>':'<p style="font-size:12px;color:var(--text3);text-align:center;padding-top:40px">No expenses this period</p>'}
           </div>
-        </div>
+        </div>`}
         <div class="glass-card" style="padding:20px">
           <div class="section-header" style="margin-bottom:12px">
             <p class="section-title">🥧 Spend Split</p>
