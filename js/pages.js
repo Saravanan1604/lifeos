@@ -1495,12 +1495,12 @@ function _mrDrawCharts(fh, strm, flow) {
         colorMode: 'gradient',
         labels: flowLabels,
         color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick,
-        font: { size: window.__IS_APP ? 18 : 11, weight: window.__IS_APP ? '900' : '700' },
+        font: { size: window.__IS_APP ? 13 : 11, weight: window.__IS_APP ? '900' : '700' },
         borderWidth: 0,
       }] },
       options: {
         responsive: true, maintainAspectRatio: false, animation: false,
-        layout: { padding: window.__IS_APP ? { left: 70, right: 70, top: 14, bottom: 14 } : 0 },
+        layout: { padding: window.__IS_APP ? { left: 8, right: 8, top: 14, bottom: 14 } : 0 },
         onClick: (evt, els, chart) => {
           const pts = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
           if (!pts.length) return;
@@ -1572,11 +1572,11 @@ function _mrDrawCharts(fh, strm, flow) {
           data: wdata, column: wcol,
           colorFrom: (c) => wcolor[c.dataset.data[c.dataIndex].from] || '#64748b',
           colorTo: (c) => wcolor[c.dataset.data[c.dataIndex].to] || '#64748b',
-          colorMode: 'gradient', labels: wLabels, color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 18 : 11, weight: window.__IS_APP ? '900' : '700' }, borderWidth: 0,
+          colorMode: 'gradient', labels: wLabels, color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 13 : 11, weight: window.__IS_APP ? '900' : '700' }, borderWidth: 0,
         }] },
         options: {
           responsive: true, maintainAspectRatio: false, animation: false,
-          layout: { padding: window.__IS_APP ? { left: 70, right: 70, top: 14, bottom: 14 } : 0 },
+          layout: { padding: window.__IS_APP ? { left: 8, right: 8, top: 14, bottom: 14 } : 0 },
           onClick: (evt, els, chart) => {
             const pts = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
             if (!pts.length) return;

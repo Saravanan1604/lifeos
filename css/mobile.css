@@ -15500,18 +15500,33 @@ html.is-app body.light .ld-seg-b.on {
    panel under the Money Flow / Wealth Flow Sankey graphs (replaces
    the popup in the app). App only.
    ============================================================ */
-/* Bigger, scrollable dashboard tab strip */
-html.is-app .dash-tabs-container { padding: 6px !important; border-radius: 18px !important; }
-html.is-app .dash-tabs { gap: 8px !important; width: max-content !important; }
-html.is-app .dash-tab {
-  flex: 0 0 auto !important;
-  padding: 14px 20px !important;
-  border-radius: 14px !important;
-  font-size: 16px !important;
-  gap: 9px !important;
+/* Dashboard tab strip: all 5 fit on screen, centered & evenly spaced
+   (icon over label) — no horizontal scroll. (updated build 532) */
+html.is-app .dash-tabs-container {
+  padding: 5px !important;
+  border-radius: 18px !important;
+  overflow-x: hidden !important;
 }
-html.is-app .dash-tab .dash-tab-icon { font-size: 20px !important; }
-html.is-app .dash-tab .dash-tab-text { font-size: 16px !important; font-weight: 800 !important; }
+html.is-app .dash-tabs {
+  width: 100% !important;
+  gap: 4px !important;
+  justify-content: space-between !important;
+}
+html.is-app .dash-tab {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  padding: 10px 4px !important;
+  border-radius: 13px !important;
+}
+html.is-app .dash-tab .dash-tab-icon { font-size: 19px !important; line-height: 1 !important; }
+html.is-app .dash-tab .dash-tab-text {
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
+}
 
 /* Inline node-detail panel (Money Flow / Wealth Flow) — sits below the graph */
 html.is-app .mr-inline-detail {
@@ -15597,4 +15612,19 @@ html.is-app #dash-mr-health,
 html.is-app #dash-mr-stream {
   box-shadow: 0 8px 26px rgba(0, 0, 0, 0.18) !important;
   border-radius: 20px !important;
+}
+
+/* ============================================================
+   build 532 — Money Flow / Wealth Flow Sankey: fit the graph to the
+   screen so it no longer scrolls left/right (was a 960px-wide canvas).
+   This also lets a left/right swipe over (and below) the graph change
+   tabs instead of scrolling the chart. App only.
+   ============================================================ */
+html.is-app #dash-mr-flow .sankey-scroll-wrap,
+html.is-app #dash-mr-wealth .sankey-scroll-wrap {
+  overflow-x: hidden !important;
+}
+html.is-app #dash-mr-flow .sankey-inner,
+html.is-app #dash-mr-wealth .sankey-inner {
+  width: 100% !important;
 }
