@@ -8380,6 +8380,9 @@ async function handleShotFileSelect(input) {
       if (progLabel) progLabel.textContent = `Reading image ${i + 1} of ${files.length}…`;
       const src = await _shotToCanvas(files[i]);     // upscale + (invert dark) for sharper OCR
       const { data } = await T.recognize(src, 'eng', {
+        // Keep existing spaces between glyphs so a misread ₹ (often read as "2")
+        // stays a separate token from the amount instead of gluing onto it.
+        preserve_interword_spaces: '1',
         logger: m => { if (m.status === 'recognizing text' && progBar) progBar.style.width = `${Math.round(((i + (m.progress || 0)) / files.length) * 100)}%`; }
       });
       fullText += (data && data.text ? data.text : '') + '\n';
@@ -8442,7 +8445,7 @@ async function _shotToCanvas(file) {
     const img = await _loadImage(file);
     const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
     if (!w || !h) return file;
-    const scale = Math.min(2.5, Math.max(1, 1400 / w));   // upscale narrow screenshots
+    const scale = Math.min(3, Math.max(1, 1700 / w));   // upscale narrow screenshots — extra px helps thin glyphs like ₹ read correctly
     const c = document.createElement('canvas');
     c.width = Math.round(w * scale);
     c.height = Math.round(h * scale);
@@ -8470,10 +8473,13 @@ async function _shotToCanvas(file) {
 // Extract a rupee amount from a line. Prefers a number right after a ₹
 // (or a common ₹-misread symbol like %, ®), otherwise the rightmost FULL
 // number on the line (commas kept intact), skipping times and years.
+// Returns { v, sym }: `sym` is true when a real currency symbol anchored the
+// match (trustworthy). When false, the amount came from a bare-number fallback,
+// which is where the "₹ read as a leading digit" misread sneaks in.
 function _amountFromText(s) {
   if (!s) return null;
   let m = String(s).match(/(?:₹|rs\.?|inr|[%®©=¥€])\s*(\d[\d,]*(?:\.\d{1,2})?)/i);
-  if (m) { const v = parseFloat(m[1].replace(/,/g, '')); if (v > 0) return v; }
+  if (m) { const v = parseFloat(m[1].replace(/,/g, '')); if (v > 0) return { v, sym: true }; }
   const re = /\d[\d,]*(?:\.\d{1,2})?/g;   // greedy → captures whole "2,317" not "317"
   let best = null, tok;
   while ((tok = re.exec(s))) {
@@ -8484,7 +8490,7 @@ function _amountFromText(s) {
     const v = parseFloat(raw.replace(/,/g, ''));
     if (v > 0) best = v;                  // keep the last (right-most) number
   }
-  return best;
+  return best != null ? { v: best, sym: false } : null;
 }
 
 // Clean a merchant/name line: drop the action phrase, trailing amount, ellipses
@@ -8544,18 +8550,32 @@ function _parseUpiScreenshot(text) {
     }
 
     // Amount: from the name line first, then any non-time block line
-    let amount = _amountFromText(nameLine);
-    if (!amount) {
-      for (const L of block) { if (timeRe.test(L)) continue; const v = _amountFromText(L); if (v) { amount = v; break; } }
+    let a = _amountFromText(nameLine);
+    if (!a) {
+      for (const L of block) { if (timeRe.test(L)) continue; const v = _amountFromText(L); if (v) { a = v; break; } }
     }
-    if (!amount || amount <= 0) continue;
+    if (!a || a.v <= 0) continue;
+    const amount = a.v;
+
+    // ₹-misread guard: when no real ₹ anchored the amount and the number starts
+    // with a 2 or 3 (the digits Tesseract turns the ₹ glyph into), the leading
+    // digit is very likely the misread rupee sign. Flag it (non-destructively)
+    // with a suggested fix the user can apply with one tap in the review list.
+    let suspect = false, altAmount = null;
+    if (!a.sym) {
+      const intStr = String(Math.trunc(amount));
+      if (intStr.length > 1 && /^[23]/.test(intStr)) {
+        const alt = parseInt(intStr.slice(1), 10);
+        if (alt > 0) { suspect = true; altAmount = alt; }
+      }
+    }
 
     let merchant = _cleanMerchant(nameLine);
     if (!merchant || merchant.length < 2) merchant = type === 'income' ? 'Received' : 'Paid';
 
     const lo = merchant.toLowerCase();
     const category = (typeof smsCategoryGuess === 'function') ? smsCategoryGuess(lo, lo, type) : (type === 'income' ? 'Other Income' : 'Other');
-    results.push({ type, amount, date, description: merchant, category });
+    results.push({ type, amount, date, description: merchant, category, suspect, altAmount });
   }
 
   const seen = new Set();
@@ -8749,6 +8769,10 @@ function renderPdfResults() {
         <select class="form-input" id="pf-cat-${i}" style="font-size:12px;padding:4px 8px">${_makeSrCatOptions(r.category)}</select>
         <input type="text" class="form-input" id="pf-desc-${i}" value="${(r.description||'').replace(/"/g,'&quot;')}" placeholder="Description" style="font-size:12px;padding:4px 8px"/>
       </div>
+      ${r.suspect ? `<div id="pf-warn-${i}" style="margin-top:8px;display:flex;align-items:center;gap:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:8px;padding:6px 10px;font-size:11.5px;color:var(--text2)">
+        <span style="flex:1">⚠️ The ₹ sign may have been read as a digit. Did you mean <b style="color:var(--text)">${fmt(r.altAmount)}</b>?</span>
+        <button onclick="fixPdfAmount(${i}, ${r.altAmount})" style="background:#f59e0b;border:none;color:#fff;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Use ${fmt(r.altAmount)}</button>
+      </div>` : ''}
     </div>`).join('');
   wrap.style.display = '';
   updatePdfSummary();
@@ -8757,6 +8781,15 @@ function renderPdfResults() {
 function removePdfResult(i) {
   const card = document.getElementById(`pdf-card-${i}`);
   if (card) card.style.display = 'none';
+  updatePdfSummary();
+}
+
+// Apply the suggested fix for a ₹-misread amount and dismiss its warning banner.
+function fixPdfAmount(i, val) {
+  const inp = document.getElementById(`pf-amount-${i}`);
+  if (inp) inp.value = val;
+  const warn = document.getElementById(`pf-warn-${i}`);
+  if (warn) warn.style.display = 'none';
   updatePdfSummary();
 }
 
