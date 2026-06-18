@@ -2366,6 +2366,7 @@ ${_pad.mode === 'add' ? `
         <button class="pad-tool" onclick="openBulkEntry()"><span class="pad-tool-ic"><i data-lucide="calendar-days"></i></span><span>Bulk Entry</span></button>
         <button class="pad-tool" onclick="openSmsParser()"><span class="pad-tool-ic"><i data-lucide="message-square-text"></i></span><span>Scan SMS</span></button>
         <button class="pad-tool" onclick="openPdfImport()"><span class="pad-tool-ic"><i data-lucide="file-text"></i></span><span>Import PDF</span></button>
+        ${window.__IS_APP ? `<button class="pad-tool" onclick="openShotImport()"><span class="pad-tool-ic"><i data-lucide="scan-line"></i></span><span>Scan Shot</span></button>` : ''}
         ${window.__IS_APP ? `<button class="pad-tool" onclick="padClose();if(typeof openTransferModal==='function')openTransferModal()"><span class="pad-tool-ic"><i data-lucide="arrow-left-right"></i></span><span>Transfer</span></button>` : ''}
       </div>
     </div>` : ''}
@@ -8316,6 +8317,169 @@ async function handlePdfFileSelect(input) {
     if (prog) prog.style.display = 'none';
     _showImportStatus('pdf', 'Could not read PDF: ' + (err.message || err), 'warn');
   }
+}
+
+// ── Scan a GPay / PhonePe screenshot (OCR) → import transactions ──
+// Reuses the PDF-import review UI (same pdf-* element ids + _pdfResults +
+// renderPdfResults + saveAllPdfTx) so the user can edit before saving.
+function openShotImport() {
+  if (typeof padClose === 'function') padClose();
+  openModal('📸 Scan Screenshot', `
+    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
+      Take a screenshot of your <strong>GPay</strong> or <strong>PhonePe</strong> payment history, then pick it below.
+      The text is read on-device (OCR) and auto-parsed into transactions you can edit before saving.
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">Select screenshot(s)</label>
+      <input type="file" id="pdf-file-input" accept="image/*" multiple class="form-input"
+        onchange="handleShotFileSelect(this)" style="padding:10px;cursor:pointer"/>
+    </div>
+    <div id="pdf-status" style="display:none;font-size:12px;font-weight:600;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
+    <div id="pdf-progress" style="display:none;margin-bottom:12px">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px" id="pdf-progress-label">Reading image…</div>
+      <div style="background:var(--glass-border);border-radius:4px;height:6px;overflow:hidden">
+        <div id="pdf-progress-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6);height:100%;width:0%;transition:width 0.3s"></div>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-bottom:14px">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+    <div id="pdf-results-wrap" style="display:none">
+      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
+      <p style="font-size:11px;font-weight:700;color:#00c9a7;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Detected transactions — edit if needed</p>
+      <div id="pdf-results-list" style="max-height:45vh;overflow-y:auto;padding-right:2px"></div>
+      <div id="pdf-summary" style="margin:12px 0;padding:10px 14px;border-radius:10px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);font-size:13px;font-weight:600"></div>
+      <button class="btn-primary" onclick="saveAllPdfTx()" style="width:100%;background:linear-gradient(135deg,#00c9a7,#0acf83);padding:12px">💾 Save All Transactions</button>
+    </div>`);
+}
+
+// Lazy-load Tesseract.js (OCR) from CDN the first time it's needed.
+function _ensureTesseract() {
+  return new Promise((resolve, reject) => {
+    if (window.Tesseract) return resolve(window.Tesseract);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = () => window.Tesseract ? resolve(window.Tesseract) : reject(new Error('OCR library failed to load.'));
+    s.onerror = () => reject(new Error('Could not load the OCR library — check your internet connection.'));
+    document.head.appendChild(s);
+  });
+}
+
+async function handleShotFileSelect(input) {
+  const files = Array.from(input.files || []);
+  if (!files.length) return;
+  const prog = document.getElementById('pdf-progress');
+  const progBar = document.getElementById('pdf-progress-bar');
+  const progLabel = document.getElementById('pdf-progress-label');
+  if (prog) prog.style.display = '';
+  try {
+    if (progLabel) progLabel.textContent = 'Loading OCR engine…';
+    const T = await _ensureTesseract();
+    let fullText = '';
+    for (let i = 0; i < files.length; i++) {
+      if (progLabel) progLabel.textContent = `Reading image ${i + 1} of ${files.length}…`;
+      const { data } = await T.recognize(files[i], 'eng', {
+        logger: m => { if (m.status === 'recognizing text' && progBar) progBar.style.width = `${Math.round(((i + (m.progress || 0)) / files.length) * 100)}%`; }
+      });
+      fullText += (data && data.text ? data.text : '') + '\n';
+    }
+    if (prog) prog.style.display = 'none';
+
+    _pdfResults = _parseUpiScreenshot(fullText);
+    if (!_pdfResults.length) _pdfResults = _parseUpiStatementPdf(fullText);
+
+    if (!_pdfResults.length) {
+      console.log('[Shot Import] OCR text:\n', (fullText || '').slice(0, 2000));
+      _showImportStatus('pdf', "Couldn't find transactions in this screenshot. Make sure it shows the payment list (Paid to / Received from + amount), or try a clearer crop.", 'warn');
+      return;
+    }
+    renderPdfResults();
+    _showImportStatus('pdf', `✅ Found ${_pdfResults.length} transaction${_pdfResults.length > 1 ? 's' : ''} — review and save.`, 'ok');
+  } catch (e) {
+    if (prog) prog.style.display = 'none';
+    _showImportStatus('pdf', (e && e.message) || 'OCR failed. Please try another screenshot.', 'warn');
+  }
+}
+
+// Convert "13 mins ago" / "1 day ago" / "yesterday" / "today" → YYYY-MM-DD (local).
+function _relAgoToDate(s) {
+  const str = String(s);
+  const d = new Date();
+  const m = str.match(/(\d+)\s*(min|minute|hour|hr|day|week|month|year)/i);
+  if (m) {
+    const n = +m[1], u = m[2].toLowerCase();
+    if (u.startsWith('day')) d.setDate(d.getDate() - n);
+    else if (u.startsWith('week')) d.setDate(d.getDate() - n * 7);
+    else if (u.startsWith('month')) d.setMonth(d.getMonth() - n);
+    else if (u.startsWith('year')) d.setFullYear(d.getFullYear() - n);
+    // minutes / hours → still today
+  } else if (/yesterday/i.test(str)) {
+    d.setDate(d.getDate() - 1);
+  } else if (!/today/i.test(str)) {
+    return null;
+  }
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Parse the OCR text of a GPay/PhonePe history screen. Each entry looks like:
+//   "Paid to" / "MERCHANT NAME" / "13 mins ago" / "₹15" / "Debited from"
+function _parseUpiScreenshot(text) {
+  const lines = String(text).split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(l => l);
+  const actionRe = /^(paid to|sent to|money sent to|money sent|received from|money received from|money received|paid by)\b/i;
+  const skipRe = /(ago|debited from|credited to|paid by|transaction id|utr|banking name|completed|pending|failed|wallet|^\d{1,2}:\d{2}\s*(am|pm)?$|^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)\b|^search$|^history$|^alerts$|^home$)/i;
+  const results = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const a0 = lines[i].match(actionRe);
+    if (!a0) continue;
+    const action = a0[1].toLowerCase();
+    let type = /received/.test(action) ? 'income' : 'expense';
+
+    // Window = up to the next action line, capped at +8 lines
+    let end = Math.min(lines.length, i + 8);
+    for (let j = i + 1; j < end; j++) { if (actionRe.test(lines[j])) { end = j; break; } }
+
+    // Merchant: trailing text on the action line, else the first "real" line after it
+    let merchant = lines[i].replace(actionRe, '').replace(/^[\s:·.-]+/, '').trim();
+    if (!merchant) {
+      for (let j = i + 1; j < end; j++) {
+        const L = lines[j];
+        if (skipRe.test(L)) continue;
+        if (/^[₹rs.\s]*[\d,]+(\.\d{1,2})?$/i.test(L)) continue; // pure amount line
+        merchant = L; break;
+      }
+    }
+
+    // Amount: a currency-prefixed number, or a line that is only a number
+    let amount = null;
+    for (let j = i; j < end; j++) {
+      const cm = lines[j].match(/(?:₹|rs\.?|inr|[^\w\s])\s*([\d][\d,]*(?:\.\d{1,2})?)/i);
+      const pm = lines[j].match(/^\s*([\d][\d,]*(?:\.\d{1,2})?)\s*$/);
+      const hit = cm || pm;
+      if (hit) { const v = parseFloat(hit[1].replace(/,/g, '')); if (v > 0) { amount = v; break; } }
+    }
+
+    // Date from relative time / yesterday / today, else today
+    let date = null;
+    for (let j = i; j < end; j++) { date = _relAgoToDate(lines[j]); if (date) break; }
+    if (!date) date = today();
+
+    // Refine type from an explicit Debited/Credited hint
+    for (let j = i; j < end; j++) {
+      if (/credited to|\bcredited\b/i.test(lines[j])) type = 'income';
+      else if (/debited from|\bdebited\b/i.test(lines[j])) type = 'expense';
+    }
+
+    if (!amount || amount <= 0) continue;
+    merchant = (merchant || action).replace(/\s+/g, ' ').replace(/[.…]+$/, '').trim();
+    if (!merchant) merchant = type === 'income' ? 'Received' : 'Paid';
+    const lo = merchant.toLowerCase();
+    const category = (typeof smsCategoryGuess === 'function') ? smsCategoryGuess(lo, lo, type) : (type === 'income' ? 'Other Income' : 'Other');
+    results.push({ type, amount, date, description: merchant, category });
+  }
+
+  const seen = new Set();
+  return results.filter(r => { const k = `${r.amount}|${r.date}|${r.description}`; if (seen.has(k)) return false; seen.add(k); return true; });
 }
 
 function _parsePdfAsTable(text) {
