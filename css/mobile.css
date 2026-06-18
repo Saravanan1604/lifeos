@@ -15691,3 +15691,30 @@ html.is-app .page-categories .page-customize-btn {
   justify-content: center !important;
   margin: 0 !important;
 }
+
+/* ============================================================
+   build 538 — much bigger text BELOW the dashboard graphs: the
+   Money Flow / Wealth Flow drill-down detail panel, and the
+   7 Income legend list (Earned / Profit / Interest / …). App only.
+   ============================================================ */
+/* ---- Inline drill-down detail panel (Money Flow / Wealth Flow) ---- */
+html.is-app .mr-inline-detail .mr-inline-title { font-size: 28px !important; }
+html.is-app .mr-inline-detail .mr-inline-x { width: 46px !important; height: 46px !important; font-size: 22px !important; }
+html.is-app .mr-inline-body .mr-pop,
+html.is-app .mr-inline-body .mr-pop p,
+html.is-app .mr-inline-body .mr-pop span,
+html.is-app .mr-inline-body .mr-pop b { font-size: 24px !important; line-height: 1.4 !important; }
+/* the big "Total" amount at the top of the panel */
+html.is-app .mr-inline-body .mr-pop > div:first-child b { font-size: 32px !important; }
+/* secondary lines (dates / "Tap a row to edit" hint) a touch smaller */
+html.is-app .mr-inline-body .mr-pop p[style*="12px"],
+html.is-app .mr-inline-body .mr-pop > p[style*="12px"] { font-size: 18px !important; }
+html.is-app .mr-inline-body .mr-pop [style*="font-size:12px"] { font-size: 18px !important; }
+/* give the rows a bit more breathing room at the larger size */
+html.is-app .mr-inline-body .mr-pop > div { padding-top: 14px !important; padding-bottom: 14px !important; }
+
+/* ---- 7 Income legend list (below the spider chart) ---- */
+html.is-app #dash-mr-stream > div:last-child > div { font-size: 24px !important; padding: 16px 18px !important; gap: 12px !important; }
+html.is-app #dash-mr-stream > div:last-child > div b { font-size: 24px !important; }
+html.is-app #dash-mr-stream > div:last-child > div span:first-child { width: 14px !important; height: 14px !important; flex: 0 0 auto !important; }
+html.is-app #dash-mr-stream > div:last-child > div svg { width: 20px !important; height: 20px !important; }
