@@ -185,6 +185,7 @@ function resetPageLayout() {
 
 // ── Dynamic Customize Layout button injection ──
 function injectCustomizeButton(page) {
+  if (window.__IS_APP) return;   // Customize button removed from the installed app
   if (!isCustomizablePage(page)) return;
   const f = _loFade(); if (!f) return;
   const header = f.querySelector('.page-header');

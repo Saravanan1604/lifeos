@@ -15736,3 +15736,11 @@ html.is-app .ld-ret .v { display: block; font-size: 26px; font-weight: 800; line
 html.is-app .ld-ret .a { display: block; font-size: 15px; font-weight: 700; color: var(--text2); margin-top: 4px; }
 html.is-app .ld-rnote { font-size: 12px; color: var(--text3); margin: 14px 0 0; line-height: 1.4; }
 html.is-app body.light .ld-ret { background: rgba(15, 23, 42, 0.04) !important; }
+
+/* ============================================================
+   build 542 — remove Customize button + Create Custom Page (app only)
+   Hides the hardcoded .page-customize-btn in every page template, plus the
+   sidebar "Create Custom Page" button as a CSS belt-and-suspenders.
+   ============================================================ */
+html.is-app .page-customize-btn { display: none !important; }
+html.is-app .create-page-btn { display: none !important; }

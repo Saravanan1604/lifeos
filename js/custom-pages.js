@@ -38,16 +38,26 @@ function renderCustomPagesMenu() {
   var host = document.getElementById('sidebar-custom-pages-list');
   if (!host) return;
   var pages = STATE.customPages || [];
+  var group = document.getElementById('nav-group-custom-pages');
 
-  var addPageHtml = '<button class="nav-item create-page-btn" onclick="createCustomPagePrompt()" style="border:1px dashed rgba(0,201,167,0.4) !important;background:rgba(0,201,167,0.08) !important;color:#00c9a7 !important;display:flex !important;align-items:center !important;width:auto !important;justify-content:center !important;margin:8px 14px !important">' +
-    '<span class="nav-icon" style="color:#00c9a7 !important;font-size:14px;margin:0;width:auto;flex:none;display:inline">➕</span>' +
-    '<span class="nav-text" style="color:#00c9a7 !important;font-weight:700">Create Custom Page</span>' +
-  '</button>';
+  // Creating new custom pages is disabled in the installed app. Existing custom
+  // pages still show so they stay reachable; the whole section hides if empty.
+  var allowCreate = !window.__IS_APP;
+
+  var addPageHtml = allowCreate
+    ? '<button class="nav-item create-page-btn" onclick="createCustomPagePrompt()" style="border:1px dashed rgba(0,201,167,0.4) !important;background:rgba(0,201,167,0.08) !important;color:#00c9a7 !important;display:flex !important;align-items:center !important;width:auto !important;justify-content:center !important;margin:8px 14px !important">' +
+      '<span class="nav-icon" style="color:#00c9a7 !important;font-size:14px;margin:0;width:auto;flex:none;display:inline">➕</span>' +
+      '<span class="nav-text" style="color:#00c9a7 !important;font-weight:700">Create Custom Page</span>' +
+    '</button>'
+    : '';
 
   if (pages.length === 0) {
+    if (!allowCreate) { if (group) group.style.display = 'none'; host.innerHTML = ''; return; }
+    if (group) group.style.display = '';
     host.innerHTML = '<p style="font-size:11px;color:var(--text3);padding:4px 22px;opacity:.6;margin-bottom:8px">No custom pages yet.</p>' + addPageHtml;
     return;
   }
+  if (group) group.style.display = '';
 
   var listHtml = pages.map(function(pg) {
     var ctrls = '';
