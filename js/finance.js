@@ -6465,6 +6465,71 @@ function applyLoanLumpSum(id) {
 // ════════════════════════════════════════════════════════════════════════
 let _assetDetailId = null;
 let _assetDetailChart = null;
+
+// Build a value-over-time series for an asset's performance chart.
+// Interest-bearing assets get their true accrual curve; other assets use any
+// recorded daily snapshots (inv.history) between purchase and today. Always
+// anchored by the invested amount at the start and the current value at "Today".
+function _assetSeries(inv) {
+  const invested = +inv.amount || 0;
+  const current  = _assetCur(inv);
+  const start    = inv.date ? new Date(inv.date + 'T00:00:00') : null;
+  const now       = new Date();
+  const validStart = start && !isNaN(start) && start <= now;
+  const rate = +inv.interestRate || 0;
+  const mode = inv.interestMode;
+  const accrue = rate > 0 && (mode === 'month' || mode === 'year') && validStart
+              && (inv.type !== 'Money Lent' || inv.autoCalc);
+
+  const pts = [];
+  if (validStart) pts.push({ t: +start, v: invested });
+
+  if (accrue) {
+    const totMonths = Math.max(1, Math.round((now - start) / 86400000 / 30.4375));
+    const step = totMonths > 36 ? Math.ceil(totMonths / 36) : 1;   // cap ~36 points
+    for (let m = step; m < totMonths; m += step) {
+      const d = new Date(start); d.setMonth(d.getMonth() + m);
+      if (d >= now) break;
+      const periods = mode === 'month' ? m : m / 12;
+      pts.push({ t: +d, v: Math.round(invested + invested * (rate / 100) * periods) });
+    }
+  } else if (Array.isArray(inv.history)) {
+    const todayStr = today();
+    inv.history.forEach(h => {
+      if (h.d === todayStr) return;                       // the live "Today" point already covers today
+      const d = new Date((h.d || '') + 'T00:00:00');
+      if (!isNaN(d) && (!validStart || +d > +start) && d < now) pts.push({ t: +d, v: +h.v || 0 });
+    });
+  }
+
+  pts.push({ t: +now, v: current });
+  pts.sort((a, b) => a.t - b.t);
+
+  const labels = [], values = [];
+  pts.forEach((p, i) => {
+    labels.push(i === pts.length - 1 ? 'Today'
+      : new Date(p.t).toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }));
+    values.push(p.v);
+  });
+  if (values.length < 2) { labels.unshift('Start'); values.unshift(invested); }   // safety
+  return { labels, values, isLoss: current < invested };
+}
+
+// Record one daily snapshot of an asset's current value so the performance chart
+// builds a real history over time (deduped to one point per day). Returns true
+// if STATE changed (a new/updated point), so the caller can persist.
+function _recordAssetSnapshot(inv) {
+  if (!inv || !inv.date) return false;
+  const d = today();
+  const v = _assetCur(inv);
+  inv.history = Array.isArray(inv.history) ? inv.history : [];
+  const last = inv.history[inv.history.length - 1];
+  if (last && last.d === d) { if (last.v !== v) { last.v = v; return true; } return false; }
+  inv.history.push({ d, v });
+  if (inv.history.length > 400) inv.history = inv.history.slice(-400);
+  return true;
+}
+
 function openAssetDetail(id) {
   _assetDetailId = id;
   if (typeof navigate === 'function') navigate('asset-detail'); else renderAssetDetail();
@@ -6480,6 +6545,21 @@ function renderAssetDetail() {
   const roi = invested > 0 ? ((pnl / invested) * 100).toFixed(1) : '0.0';
   const defRate = isLent && inv.interestMode === 'month' ? (inv.interestRate || 0) * 12
     : isLent && inv.interestMode === 'year' ? (inv.interestRate || 0) : 10;
+
+  // Holding period + annualized average pace (per-year / per-month return).
+  const startD = inv.date ? new Date(inv.date + 'T00:00:00') : null;
+  const daysHeld = (startD && !isNaN(startD)) ? Math.max(0, Math.round((Date.now() - startD.getTime()) / 86400000)) : 0;
+  const annF  = daysHeld > 0 ? 365.25 / daysHeld : 0;            // scale a holding-to-date figure to one year
+  const yrPct = (invested > 0 && annF) ? (pnl / invested) * 100 * annF : 0;
+  const yrAmt = annF ? pnl * annF : 0;
+  const moPct = yrPct / 12, moAmt = yrAmt / 12;
+  const rc = pos ? '#22c55e' : '#ef4444', sgn = pos ? '+' : '-';
+  const retCell = (lbl, pct, amt) => `<div class="ld-ret"><span class="l">${lbl}</span>${daysHeld > 0
+    ? `<span class="v" style="color:${rc}">${sgn}${Math.abs(pct).toFixed(1)}%</span><span class="a">${sgn}${_fmt0(Math.abs(amt))}</span>`
+    : `<span class="v" style="color:var(--text3)">—</span><span class="a">&nbsp;</span>`}</div>`;
+  const sinceTxt = inv.date ? new Date(inv.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  // Record today's value so the performance graph builds a real history over time.
+  if (_recordAssetSnapshot(inv)) { try { saveState(); } catch (_) {} }
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in ld-page">
       <div class="ld-head">
@@ -6502,6 +6582,16 @@ function renderAssetDetail() {
         <div class="ld-kpi"><p class="l">RETURN</p><p class="v" style="color:${pos ? '#22c55e' : '#ef4444'}">${pos ? '+' : ''}${roi}%</p></div>
       </div>
 
+      ${window.__IS_APP ? `<div class="glass-card ld-rcard">
+        <p class="ld-sec">Returns</p>
+        <p class="ld-held">${daysHeld > 0 ? `Held <b>${daysHeld}</b> day${daysHeld > 1 ? 's' : ''}` : 'Purchased recently'}${sinceTxt ? ` · since ${sinceTxt}` : ''}</p>
+        <div class="ld-ret-grid">
+          ${retCell('PER MONTH', moPct, moAmt)}
+          ${retCell('PER YEAR', yrPct, yrAmt)}
+        </div>
+        ${daysHeld > 0 ? `<p class="ld-rnote">Average pace over the time you've held this — annualized from ${daysHeld} day${daysHeld > 1 ? 's' : ''}.</p>` : ''}
+      </div>` : ''}
+
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
         <p class="ld-sec">Asset Performance</p>
         <div style="height:240px;position:relative"><canvas id="ad-chart"></canvas></div>
@@ -6521,9 +6611,7 @@ function _renderAssetDetailCalc() {
   const bgColor = isLoss ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)';
   const pointColor = isLoss ? '#f87171' : '#34d399';
 
-  const startDateLabel = inv.date ? new Date(inv.date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'Purchase';
-  const labels = [startDateLabel, 'Today'];
-  const series = [invested, current];
+  const { labels, values: series } = _assetSeries(inv);
 
   const ctx = document.getElementById('ad-chart'); if (!ctx || typeof Chart === 'undefined') return;
   if (_assetDetailChart) _assetDetailChart.destroy();
@@ -6537,13 +6625,14 @@ function _renderAssetDetailCalc() {
         data: series, 
         borderColor: lineColor, 
         backgroundColor: bgColor, 
-        tension: .2, 
-        pointRadius: 6, 
+        tension: .25,
+        pointRadius: series.map((_, i) => (i === 0 || i === series.length - 1) ? 5 : (series.length > 14 ? 0 : 3)),
+        pointHoverRadius: 6,
         pointBackgroundColor: pointColor,
         pointBorderColor: '#ffffff',
         pointBorderWidth: 2,
-        fill: true 
-      }] 
+        fill: true
+      }]
     },
     options: { 
       responsive: true, 
@@ -6557,7 +6646,7 @@ function _renderAssetDetailCalc() {
         }
       },
       scales: { 
-        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+        x: { ticks: { color: '#94a3b8', font: { size: 10 }, autoSkip: true, maxTicksLimit: 6, maxRotation: 0 }, grid: { display: false } },
         y: { ticks: { color: '#94a3b8', font: { size: 10 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } } 
       } 
     }

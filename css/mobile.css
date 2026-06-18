@@ -15718,3 +15718,21 @@ html.is-app #dash-mr-stream > div:last-child > div { font-size: 24px !important;
 html.is-app #dash-mr-stream > div:last-child > div b { font-size: 24px !important; }
 html.is-app #dash-mr-stream > div:last-child > div span:first-child { width: 14px !important; height: 14px !important; flex: 0 0 auto !important; }
 html.is-app #dash-mr-stream > div:last-child > div svg { width: 20px !important; height: 20px !important; }
+
+/* ============================================================
+   build 541 — Asset detail: Returns breakdown card
+   (days held + per-month / per-year return %, amount)
+   ============================================================ */
+html.is-app .ld-rcard { padding: 16px; margin-bottom: 16px; }
+html.is-app .ld-held { font-size: 15px; color: var(--text2); margin: 0 0 14px; }
+html.is-app .ld-held b { color: var(--text); font-weight: 800; }
+html.is-app .ld-ret-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+html.is-app .ld-ret {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
+  border-radius: 14px; padding: 14px;
+}
+html.is-app .ld-ret .l { display: block; font-size: 13px; color: var(--text3); letter-spacing: .5px; margin-bottom: 6px; }
+html.is-app .ld-ret .v { display: block; font-size: 26px; font-weight: 800; line-height: 1.05; }
+html.is-app .ld-ret .a { display: block; font-size: 15px; font-weight: 700; color: var(--text2); margin-top: 4px; }
+html.is-app .ld-rnote { font-size: 12px; color: var(--text3); margin: 14px 0 0; line-height: 1.4; }
+html.is-app body.light .ld-ret { background: rgba(15, 23, 42, 0.04) !important; }
