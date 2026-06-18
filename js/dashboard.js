@@ -1037,74 +1037,50 @@ function switchDashTab(tabIdx) {
   }
 }
 
+// Walk up from the touched element: if any ancestor can still scroll
+// horizontally in the swipe direction, let it scroll instead of changing tab.
+// dir < 0 = swipe left (content scrolls right); dir > 0 = swipe right.
+function _dashCanScrollHoriz(el, dir) {
+  while (el && el !== document.body && el.nodeType === 1) {
+    if (el.scrollWidth - el.clientWidth > 4) {
+      const max = el.scrollWidth - el.clientWidth;
+      if (dir < 0 && el.scrollLeft < max - 2) return true;
+      if (dir > 0 && el.scrollLeft > 2) return true;
+    }
+    el = el.parentElement;
+  }
+  return false;
+}
+
+// Bind the tab-swipe ONCE to the whole document so a left/right swipe works
+// anywhere on the dashboard — over the graph card AND in the empty space below
+// it (which lives outside #page-container). Guarded so it only acts on the
+// dashboard page; passive so it never blocks scrolling or other gestures.
+let _dashSwipeStartX = 0, _dashSwipeStartY = 0;
 function initDashSwipe() {
-  const pageContainer = document.getElementById('page-container');
-  if (!pageContainer) return;
+  if (window.__dashSwipeBound) return;
+  window.__dashSwipeBound = true;
 
-  let touchstartX = 0;
-  let touchstartY = 0;
-  let touchendX = 0;
-  let touchendY = 0;
+  document.addEventListener('touchstart', (e) => {
+    _dashSwipeStartX = e.changedTouches[0].clientX;
+    _dashSwipeStartY = e.changedTouches[0].clientY;
+  }, { passive: true });
 
-  // Use distinct function references to prevent event duplicate pile-ups
-  pageContainer.removeEventListener('touchstart', handleTouchStart);
-  pageContainer.removeEventListener('touchend', handleTouchEnd);
-
-  pageContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
-  pageContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-  function handleTouchStart(event) {
-    touchstartX = event.changedTouches[0].screenX;
-    touchstartY = event.changedTouches[0].screenY;
-  }
-
-  function handleTouchEnd(event) {
-    touchendX = event.changedTouches[0].screenX;
-    touchendY = event.changedTouches[0].screenY;
-    handleGesture();
-  }
-
-  // Walk up from the touched element: if any ancestor can still scroll
-  // horizontally in the swipe direction, let it scroll instead of changing tab.
-  // dir < 0 = swipe left (content scrolls right); dir > 0 = swipe right.
-  function _canScrollHoriz(el, dir) {
-    while (el && el !== document.body && el.nodeType === 1) {
-      if (el.scrollWidth - el.clientWidth > 4) {
-        const max = el.scrollWidth - el.clientWidth;
-        if (dir < 0 && el.scrollLeft < max - 2) return true;
-        if (dir > 0 && el.scrollLeft > 2) return true;
-      }
-      el = el.parentElement;
-    }
-    return false;
-  }
-
-  function handleGesture() {
-    const diffX = touchendX - touchstartX;
-    const diffY = touchendY - touchstartY;
-
-    // Trigger only on a clear horizontal swipe (horizontal dominates and is big enough)
-    if (Math.abs(diffX) > Math.abs(diffY) * 1.3 && Math.abs(diffX) > 45) {
-      // If the swipe lands on something that can still scroll sideways
-      // (a wide Sankey chart, the tab strip), let it scroll rather than switch tab.
-      const target = document.elementFromPoint(touchendX, touchendY);
-      if (target && _canScrollHoriz(target, diffX)) return;
-
-      if (diffX < 0) {
-        if (_dashActiveTab < 5) {
-          switchDashTab(_dashActiveTab + 1);
-          const tabBtn = document.querySelector(`.dash-tab[data-tab="${_dashActiveTab}"]`);
-          if (tabBtn) tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-      } else {
-        if (_dashActiveTab > 1) {
-          switchDashTab(_dashActiveTab - 1);
-          const tabBtn = document.querySelector(`.dash-tab[data-tab="${_dashActiveTab}"]`);
-          if (tabBtn) tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-      }
-    }
-  }
+  document.addEventListener('touchend', (e) => {
+    if (typeof currentPage !== 'undefined' && currentPage !== 'dashboard') return;
+    const ex = e.changedTouches[0].clientX, ey = e.changedTouches[0].clientY;
+    const dx = ex - _dashSwipeStartX, dy = ey - _dashSwipeStartY;
+    // Only a clear, big horizontal swipe
+    if (Math.abs(dx) <= Math.abs(dy) * 1.3 || Math.abs(dx) <= 45) return;
+    // Let a sideways-scrollable element (if any) scroll instead of switching tab
+    const target = document.elementFromPoint(ex, ey);
+    if (target && _dashCanScrollHoriz(target, dx)) return;
+    if (dx < 0 && _dashActiveTab < 5) switchDashTab(_dashActiveTab + 1);
+    else if (dx > 0 && _dashActiveTab > 1) switchDashTab(_dashActiveTab - 1);
+    else return;
+    const tabBtn = document.querySelector(`.dash-tab[data-tab="${_dashActiveTab}"]`);
+    if (tabBtn) tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, { passive: true });
 }
 
 
