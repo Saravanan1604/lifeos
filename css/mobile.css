@@ -15549,3 +15549,52 @@ html.is-app .mr-inline-body .mr-pop > div:first-child b { font-size: 20px !impor
 html.is-app .mr-inline-body .mr-pop span,
 html.is-app .mr-inline-body .mr-pop b { font-size: 15px; }
 html.is-app .mr-inline-body .mr-pop [style*="max-height:50vh"] { max-height: none !important; }
+
+/* ============================================================
+   build 531 — Dashboard graph cards (Money Flow / Wealth Flow /
+   Financial Health / 7 Income): give each card a flat, lightly
+   accent-tinted solid background (no gradient/sheen) so they don't
+   look so plain — distinct in both dark and light mode. App only.
+   ============================================================ */
+/* ---- Dark mode: deep accent-tinted solid surfaces ---- */
+html.is-app body:not(.light) #dash-mr-flow {
+  background: #121a2c !important;
+  border: 1px solid rgba(59, 130, 246, 0.28) !important;
+}
+html.is-app body:not(.light) #dash-mr-wealth {
+  background: #181430 !important;
+  border: 1px solid rgba(139, 92, 246, 0.28) !important;
+}
+html.is-app body:not(.light) #dash-mr-health {
+  background: #15172e !important;
+  border: 1px solid rgba(99, 102, 241, 0.28) !important;
+}
+html.is-app body:not(.light) #dash-mr-stream {
+  background: #0e1f19 !important;
+  border: 1px solid rgba(16, 185, 129, 0.28) !important;
+}
+/* ---- Light mode: soft accent-tinted solid surfaces ---- */
+html.is-app body.light #dash-mr-flow {
+  background: #e9f1ff !important;
+  border: 1px solid rgba(59, 130, 246, 0.30) !important;
+}
+html.is-app body.light #dash-mr-wealth {
+  background: #f0eaff !important;
+  border: 1px solid rgba(139, 92, 246, 0.30) !important;
+}
+html.is-app body.light #dash-mr-health {
+  background: #eaecff !important;
+  border: 1px solid rgba(99, 102, 241, 0.30) !important;
+}
+html.is-app body.light #dash-mr-stream {
+  background: #e4f7ee !important;
+  border: 1px solid rgba(16, 185, 129, 0.30) !important;
+}
+/* a touch more depth so the cards read as raised, not flat-on-flat */
+html.is-app #dash-mr-flow,
+html.is-app #dash-mr-wealth,
+html.is-app #dash-mr-health,
+html.is-app #dash-mr-stream {
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.18) !important;
+  border-radius: 20px !important;
+}

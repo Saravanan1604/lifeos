@@ -1363,7 +1363,7 @@ function _mrDrawCharts(fh, strm, flow) {
         scales: { r: {
           min: 0, max: 100, ticks: { stepSize: 20, color: tick, backdropColor: 'transparent', font: { size: 10 } },
           grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: tick, font: { size: window.__IS_APP ? 16 : 12, weight: '700' } }
+          pointLabels: { color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 16 : 12, weight: window.__IS_APP ? '900' : '700' } }
         } }
       }
     });
@@ -1391,7 +1391,7 @@ function _mrDrawCharts(fh, strm, flow) {
         scales: { r: {
           min: 0, max: 100, ticks: { display: false, stepSize: 25 },
           grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: tick, font: { size: window.__IS_APP ? 16 : 12, weight: '700' } }
+          pointLabels: { color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 16 : 12, weight: window.__IS_APP ? '900' : '700' } }
         } }
       }
     });
@@ -1494,8 +1494,8 @@ function _mrDrawCharts(fh, strm, flow) {
         colorTo: (c) => colorOf(c.dataset.data[c.dataIndex].to),
         colorMode: 'gradient',
         labels: flowLabels,
-        color: tick,
-        font: { size: window.__IS_APP ? 18 : 11, weight: '700' },
+        color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick,
+        font: { size: window.__IS_APP ? 18 : 11, weight: window.__IS_APP ? '900' : '700' },
         borderWidth: 0,
       }] },
       options: {
@@ -1572,7 +1572,7 @@ function _mrDrawCharts(fh, strm, flow) {
           data: wdata, column: wcol,
           colorFrom: (c) => wcolor[c.dataset.data[c.dataIndex].from] || '#64748b',
           colorTo: (c) => wcolor[c.dataset.data[c.dataIndex].to] || '#64748b',
-          colorMode: 'gradient', labels: wLabels, color: tick, font: { size: window.__IS_APP ? 18 : 11, weight: '700' }, borderWidth: 0,
+          colorMode: 'gradient', labels: wLabels, color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 18 : 11, weight: window.__IS_APP ? '900' : '700' }, borderWidth: 0,
         }] },
         options: {
           responsive: true, maintainAspectRatio: false, animation: false,
