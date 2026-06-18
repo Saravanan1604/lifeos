@@ -202,7 +202,9 @@ function injectCustomizeButton(page) {
   btn.className = 'page-customize-btn';
   btn.title = 'Customize layout';
   btn.onclick = function() { if (typeof toggleEditLayout === 'function') toggleEditLayout(); };
-  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Customize`;
+  btn.innerHTML = (window.__IS_APP
+    ? `<svg width="20" height="20" viewBox="0 0 24 24" style="margin-right:6px;vertical-align:middle"><circle cx="12" cy="12" r="11" fill="#6366f1"/><g transform="translate(12,12) scale(0.55) translate(-12,-12)" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></g></svg>`
+    : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>`) + ' Customize';
   header.appendChild(btn);
 }
 
