@@ -515,53 +515,38 @@ function renderGoals() {
     </div>`;
 }
 
+// Build the auto-sync source picker (shared by the New / Edit Goal modals).
+// `checked` is the list of selected source values. Checkboxes use the
+// `.auto-cb` class so the broad `html.is-app input` rule doesn't stretch them
+// into full-width glass blocks (the cause of the old broken layout).
+function _goalSourcesHTML(checked) {
+  const sel = new Set(checked || []);
+  const row = (value, icon, name, val) => `
+    <label class="gl-src-row" style="display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:11px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);cursor:pointer;font-size:13px">
+      <input type="checkbox" class="auto-cb" name="g-source" value="${value}" ${sel.has(value) ? 'checked' : ''}/>
+      <span class="gl-src-ic" style="font-size:16px;flex-shrink:0">${icon}</span>
+      <span class="gl-src-name" style="flex:1;font-weight:600;min-width:0">${name}</span>
+      ${val != null ? `<span class="gl-src-val" style="color:var(--text3);font-weight:600;white-space:nowrap">${val}</span>` : ''}
+    </label>`;
+  let html = `<div class="gl-src-list" style="display:flex;flex-direction:column;gap:8px;margin-top:10px">`;
+  html += row('net-savings', '🔗', 'Net Savings (Income − Expenses)');
+  html += row('bank-cash', '🏦', 'Total Bank &amp; Cash Balance');
+  html += row('investments', '📈', 'Total Investment Value');
+  const banks = STATE.bankAccounts || [];
+  if (banks.length) {
+    html += `<p class="gl-src-head" style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin:6px 0 0">BANK ACCOUNTS</p>`;
+    banks.forEach(b => { html += row('bank:' + b.id, '🏦', esc(b.name), fmt(b.balance)); });
+  }
+  const invs = STATE.investments || [];
+  if (invs.length) {
+    html += `<p class="gl-src-head" style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin:6px 0 0">INVESTMENTS</p>`;
+    invs.forEach(i => { const v = +i.currentValue || +i.amount || +i.value || 0; html += row('invest:' + i.id, '📈', esc(i.name), fmt(v)); });
+  }
+  return html + `</div>`;
+}
+
 function openAddGoalModal() {
-  const bankAccounts = STATE.bankAccounts || [];
-  const investments = STATE.investments || [];
-  
-  // build options for sync sources list
-  let sourcesHTML = `
-    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;padding:4px">
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-        <input type="checkbox" name="g-source" value="net-savings" checked style="width:14px;height:14px"/>
-        <span>🔗 Net Savings (Income - Expenses)</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-        <input type="checkbox" name="g-source" value="bank-cash" style="width:14px;height:14px"/>
-        <span>🏦 Total Bank & Cash Balance</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-        <input type="checkbox" name="g-source" value="investments" style="width:14px;height:14px"/>
-        <span>📈 Total Investment Value</span>
-      </label>
-  `;
-  
-  if (bankAccounts.length > 0) {
-    sourcesHTML += `<p style="font-size:10px;font-weight:700;color:var(--text3);margin:4px 0 2px">BANK ACCOUNTS</p>`;
-    bankAccounts.forEach(b => {
-      sourcesHTML += `
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-left:4px">
-          <input type="checkbox" name="g-source" value="bank:${b.id}" style="width:14px;height:14px"/>
-          <span>🏦 ${b.name} (${fmt(b.balance)})</span>
-        </label>
-      `;
-    });
-  }
-  
-  if (investments.length > 0) {
-    sourcesHTML += `<p style="font-size:10px;font-weight:700;color:var(--text3);margin:4px 0 2px">INVESTMENTS</p>`;
-    investments.forEach(i => {
-      const val = +i.currentValue || +i.amount || +i.value || 0;
-      sourcesHTML += `
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-left:4px">
-          <input type="checkbox" name="g-source" value="invest:${i.id}" style="width:14px;height:14px"/>
-          <span>📈 ${i.name} (${fmt(val)})</span>
-        </label>
-      `;
-    });
-  }
-  
-  sourcesHTML += `</div>`;
+  const sourcesHTML = _goalSourcesHTML(['net-savings']);
 
   openModal('New Goal', `
     <div class="form-group"><label class="form-label">Goal Name</label><input type="text" id="g-name" class="form-input" placeholder="e.g. Emergency Fund, Learn Python"/></div>
@@ -575,7 +560,7 @@ function openAddGoalModal() {
     </div>
     <div class="form-group" id="g-sync-wrap" style="padding:12px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);border-radius:10px">
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="var ch = document.getElementById('g-autosync'); document.getElementById('g-sources-container').style.display = ch.checked ? 'block' : 'none'">
-        <input type="checkbox" id="g-autosync" style="width:16px;height:16px;accent-color:#00c9a7" onchange="document.getElementById('g-sources-container').style.display = this.checked ? 'block' : 'none'"/>
+        <input type="checkbox" class="auto-cb" id="g-autosync" onchange="document.getElementById('g-sources-container').style.display = this.checked ? 'block' : 'none'"/>
         <div>
           <p style="font-weight:600;font-size:13px">🔗 Auto-sync with sources</p>
           <p style="font-size:11px;color:var(--text3)">Select one or multiple financial sources below to sync progress automatically</p>
@@ -660,52 +645,7 @@ function openEditGoalModal(id) {
   const goal = (STATE.goals || []).find(g => g.id === id);
   if (!goal) return;
 
-  const bankAccounts = STATE.bankAccounts || [];
-  const investments = STATE.investments || [];
-  
-  // build options for sync sources list
-  let sourcesHTML = `
-    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;padding:4px">
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-        <input type="checkbox" name="g-source" value="net-savings" ${goal.syncSources?.includes('net-savings') ? 'checked' : ''} style="width:14px;height:14px"/>
-        <span>🔗 Net Savings (Income - Expenses)</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-        <input type="checkbox" name="g-source" value="bank-cash" ${goal.syncSources?.includes('bank-cash') ? 'checked' : ''} style="width:14px;height:14px"/>
-        <span>🏦 Total Bank & Cash Balance</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-        <input type="checkbox" name="g-source" value="investments" ${goal.syncSources?.includes('investments') ? 'checked' : ''} style="width:14px;height:14px"/>
-        <span>📈 Total Investment Value</span>
-      </label>
-  `;
-  
-  if (bankAccounts.length > 0) {
-    sourcesHTML += `<p style="font-size:10px;font-weight:700;color:var(--text3);margin:4px 0 2px">BANK ACCOUNTS</p>`;
-    bankAccounts.forEach(b => {
-      sourcesHTML += `
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-left:4px">
-          <input type="checkbox" name="g-source" value="bank:${b.id}" ${goal.syncSources?.includes('bank:' + b.id) ? 'checked' : ''} style="width:14px;height:14px"/>
-          <span>🏦 ${b.name} (${fmt(b.balance)})</span>
-        </label>
-      `;
-    });
-  }
-  
-  if (investments.length > 0) {
-    sourcesHTML += `<p style="font-size:10px;font-weight:700;color:var(--text3);margin:4px 0 2px">INVESTMENTS</p>`;
-    investments.forEach(i => {
-      const val = +i.currentValue || +i.amount || +i.value || 0;
-      sourcesHTML += `
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-left:4px">
-          <input type="checkbox" name="g-source" value="invest:${i.id}" ${goal.syncSources?.includes('invest:' + i.id) ? 'checked' : ''} style="width:14px;height:14px"/>
-          <span>📈 ${i.name} (${fmt(val)})</span>
-        </label>
-      `;
-    });
-  }
-  
-  sourcesHTML += `</div>`;
+  const sourcesHTML = _goalSourcesHTML(goal.syncSources || []);
 
   openModal('Edit Goal', `
     <div class="form-group"><label class="form-label">Goal Name</label><input type="text" id="g-name" class="form-input" value="${esc(goal.name || '')}"/></div>
@@ -721,7 +661,7 @@ function openEditGoalModal(id) {
     
     <div class="form-group" id="g-sync-wrap" style="padding:12px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);border-radius:10px;display:${goal.type==='savings'?'block':'none'}">
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="var ch = document.getElementById('g-autosync'); document.getElementById('g-sources-container').style.display = ch.checked ? 'block' : 'none'">
-        <input type="checkbox" id="g-autosync" ${goal.autoSync ? 'checked' : ''} style="width:16px;height:16px;accent-color:#00c9a7" onchange="document.getElementById('g-sources-container').style.display = this.checked ? 'block' : 'none'; document.getElementById('g-current').disabled = this.checked; document.getElementById('g-current').style.opacity = this.checked ? '0.5' : '1';"/>
+        <input type="checkbox" class="auto-cb" id="g-autosync" ${goal.autoSync ? 'checked' : ''} onchange="document.getElementById('g-sources-container').style.display = this.checked ? 'block' : 'none'; document.getElementById('g-current').disabled = this.checked; document.getElementById('g-current').style.opacity = this.checked ? '0.5' : '1';"/>
         <div>
           <p style="font-weight:600;font-size:13px">🔗 Auto-sync with sources</p>
           <p style="font-size:11px;color:var(--text3)">Select one or multiple financial sources below to sync progress automatically</p>

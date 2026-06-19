@@ -11618,6 +11618,31 @@ html.is-app body.light .mm-today-strip {
   border-color: rgba(0, 201, 167, 0.32) !important;
 }
 
+/* ============================================================
+   build 553 — Goal modal "Auto-sync with sources": clean, full-width
+   selectable rows sized for the app (the old checkboxes got stretched
+   into glass blocks and the list was a cramped 150px scroll box).
+   ============================================================ */
+html.is-app .gl-src-list { gap: 10px !important; margin-top: 12px !important; }
+html.is-app .gl-src-row {
+  padding: 15px 15px !important;
+  border-radius: 14px !important;
+  gap: 14px !important;
+  font-size: 19px !important;
+}
+html.is-app .gl-src-row .gl-src-ic { font-size: 24px !important; }
+html.is-app .gl-src-row .gl-src-name { font-size: 19px !important; line-height: 1.25 !important; }
+html.is-app .gl-src-row .gl-src-val { font-size: 17px !important; }
+html.is-app .gl-src-row input.auto-cb { width: 26px !important; min-width: 26px !important; height: 26px !important; accent-color: #00c9a7 !important; }
+/* Highlight a selected source row */
+html.is-app .gl-src-row:has(input:checked) {
+  background: rgba(0, 201, 167, 0.14) !important;
+  border-color: rgba(0, 201, 167, 0.45) !important;
+}
+html.is-app .gl-src-head { font-size: 14px !important; margin: 10px 0 2px !important; }
+html.is-app body.light .gl-src-row { background: rgba(15, 23, 42, 0.04) !important; }
+html.is-app body.light .gl-src-row:has(input:checked) { background: rgba(0, 201, 167, 0.12) !important; }
+
 /* Smart amount chips in the add pad */
 html.is-app .pad-amt-chips { display: flex; gap: 8px; margin: 10px 0 2px; }
 html.is-app .pad-amt-chips button {
