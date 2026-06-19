@@ -698,3 +698,26 @@ html:not(.is-app) .gs-row:hover { background: rgba(99,102,241,0.08); }
 html:not(.is-app) .gs-empty { text-align: center; padding: 30px 0; color: var(--text3); }
 html:not(.is-app) .gs-empty svg.lucide { width: 40px; height: 40px; opacity: .5; }
 
+/* ============================================================
+   Calculator full-page overlay (#calc-page). Its styles live in
+   mobile.css but are UNSCOPED, so they leak to web — and they're sized
+   for the app's 2–3x mobile scale (expr 200px, key font 80px,
+   aspect-ratio:1). On desktop the 4-col grid fills the whole width →
+   giant circles. Constrain to a centred ~400px column with normal sizes.
+   ============================================================ */
+html:not(.is-app) #calc-page { align-items: center; padding: 28px 16px; }
+html:not(.is-app) #calc-page .cp-top,
+html:not(.is-app) #calc-page .cp-display,
+html:not(.is-app) #calc-page .cp-keys { width: 100%; max-width: 400px; }
+html:not(.is-app) #calc-page .cp-title { font-size: 22px; }
+html:not(.is-app) #calc-page .cp-x { width: 42px; height: 42px; }
+html:not(.is-app) #calc-page .cp-x svg.lucide { width: 20px; height: 20px; }
+html:not(.is-app) #calc-page .cp-use { padding: 9px 18px; font-size: 15px; border-radius: 12px; }
+html:not(.is-app) #calc-page .cp-use svg.lucide { width: 18px; height: 18px; }
+html:not(.is-app) #calc-page .cp-display { flex: 0 0 auto; min-height: 110px; padding: 18px 8px; }
+html:not(.is-app) #calc-page .cp-expr { font-size: 46px; letter-spacing: -1px; }
+html:not(.is-app) #calc-page .cp-res { font-size: 22px; margin-top: 6px; }
+html:not(.is-app) #calc-page .cp-keys { gap: 12px; }
+html:not(.is-app) #calc-page .cp-key { font-size: 24px; }
+html:not(.is-app) #calc-page .cp-key.fn svg.lucide { width: 26px; height: 26px; }
+
