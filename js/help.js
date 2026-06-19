@@ -206,6 +206,16 @@ function renderHelp() {
         </div>` : ''}
       </div>
 
+      <!-- ── Contact Support ───────────────────────────────────────── -->
+      <div class="glass-card help-item" style="padding:22px;margin-bottom:16px">
+        <p class="section-title" style="margin-bottom:4px">📧 Contact Support</p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Questions, bugs or feedback? Email the team directly — we usually reply within a day.</p>
+        <a href="mailto:navaasaravanan@gmail.com?subject=atworth%20Support" style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:12px;background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.3);color:#00c9a7;font-size:14px;font-weight:700;text-decoration:none;word-break:break-all">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+          navaasaravanan@gmail.com
+        </a>
+      </div>
+
       <!-- ── About ─────────────────────────────────────────────────── -->
       <div class="glass-card" style="padding:20px;margin-bottom:16px;text-align:center">
         <p style="font-size:22px;margin-bottom:8px">⚡</p>
