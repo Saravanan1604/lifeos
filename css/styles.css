@@ -609,3 +609,34 @@ html:not(.is-app) .spov-right { display: flex; align-items: center; gap: 8px; fl
 html:not(.is-app) .spov-amt { font-size: 15px; font-weight: 800; margin: 0; color: var(--text1); }
 html:not(.is-app) .spov-right svg { width: 18px; height: 18px; color: var(--text3); }
 
+/* ============================================================
+   Money Heatmap calendar (web/desktop). The day cells (.hm-day-cell)
+   were only styled under html.is-app, so on web they collapsed — the
+   activity colour showed as a thin strip and numbers sat top-left.
+   Give cells a real height, centre the number, and style the states.
+   (App uses aspect-ratio:1 which would be huge squares on desktop,
+   so we use a fixed cell height here instead.)
+   ============================================================ */
+html:not(.is-app) .hm-days-grid { gap: 8px; }
+html:not(.is-app) .hm-day-cell {
+  position: relative;
+  min-height: 58px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text1);
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+html:not(.is-app) .hm-day-cell.empty { background: transparent !important; border-color: transparent; pointer-events: none; }
+html:not(.is-app) .hm-day-cell:not(.empty):hover { transform: scale(1.05); box-shadow: 0 4px 14px rgba(15,23,42,0.12); }
+html:not(.is-app) .hm-day-cell.selected { border-color: #00c9a7; }
+html:not(.is-app) .hm-day-cell.today { box-shadow: 0 0 0 2px rgba(99,102,241,0.45); }
+html:not(.is-app) .hm-day-num { position: static; line-height: 1; }
+/* Day-of-week header row */
+html:not(.is-app) .hm-week-labels { font-weight: 700; color: var(--text3); }
+
