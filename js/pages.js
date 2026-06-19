@@ -373,9 +373,8 @@ function renderSettings() {
           </div>
           <div class="form-group" style="margin-top:12px"><label class="form-label">🌐 Language / மொழி / भाषा</label>
             <select id="s-lang" class="form-input" onchange="setLanguage(this.value)">
-              <option value="en" ${getLang()==='en'?'selected':''}>🇬🇧 English</option>
-              <option value="ta" ${getLang()==='ta'?'selected':''}>🇮🇳 தமிழ் (Tamil)</option>
-              <option value="hi" ${getLang()==='hi'?'selected':''}>🇮🇳 हिन्दी (Hindi)</option>
+              ${(typeof VOICE_LANGS !== 'undefined' ? Object.keys(VOICE_LANGS) : ['en']).map(code =>
+                `<option value="${code}" ${getLang()===code?'selected':''}>${VOICE_LANGS[code].flag} ${VOICE_LANGS[code].label}</option>`).join('')}
             </select>
           </div>
           <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:4px">🎙️ Tap the mic in the floating dock to control the app by voice in your language.</p>
