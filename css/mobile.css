@@ -11610,6 +11610,13 @@ html.is-app .mm-today-strip {
 }
 html.is-app .mm-today-strip svg { width: 20px; height: 20px; color: #f59e0b; flex-shrink: 0; }
 html.is-app .mm-today-strip b { font-weight: 800; }
+/* Day/Light mode: the near-white strip text was invisible on the light
+   background — use a dark, readable colour and a slightly stronger tint. */
+html.is-app body.light .mm-today-strip {
+  color: #475569 !important;
+  background: rgba(0, 201, 167, 0.12) !important;
+  border-color: rgba(0, 201, 167, 0.32) !important;
+}
 
 /* Smart amount chips in the add pad */
 html.is-app .pad-amt-chips { display: flex; gap: 8px; margin: 10px 0 2px; }
