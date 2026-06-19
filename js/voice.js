@@ -220,6 +220,64 @@ const I18N = {
   'within budget': { ta: 'பட்ஜெட்டுக்குள்', hi: 'बजट के भीतर' },
   'budget limit':  { ta: 'பட்ஜெட் வரம்பு', hi: 'बजट सीमा' },
 
+  // ---- Categories page ----
+  'Manage your transaction categories': { ta: 'உங்கள் பரிவர்த்தனை வகைகளை நிர்வகிக்கவும்', hi: 'अपनी लेनदेन श्रेणियाँ प्रबंधित करें' },
+  'AI Fix':        { ta: 'AI சரிசெய்',     hi: 'AI सुधार' },
+  'Merge':         { ta: 'இணை',           hi: 'मर्ज' },
+  'Asset Types':   { ta: 'சொத்து வகைகள்',  hi: 'संपत्ति प्रकार' },
+  'Loan Types':    { ta: 'கடன் வகைகள்',    hi: 'ऋण प्रकार' },
+  'Add Category':  { ta: 'வகை சேர்',       hi: 'श्रेणी जोड़ें' },
+  '+ Add Category':{ ta: '+ வகை சேர்',     hi: '+ श्रेणी जोड़ें' },
+  'My Custom Categories': { ta: 'எனது தனிப்பயன் வகைகள்', hi: 'मेरी कस्टम श्रेणियाँ' },
+  'Default Income Categories':  { ta: 'இயல்புநிலை வருமான வகைகள்', hi: 'डिफ़ॉल्ट आय श्रेणियाँ' },
+  'Default Expense Categories': { ta: 'இயல்புநிலை செலவு வகைகள்',  hi: 'डिफ़ॉल्ट खर्च श्रेणियाँ' },
+  'both':          { ta: 'இரண்டும்',       hi: 'दोनों' },
+  'income':        { ta: 'வருமானம்',       hi: 'आय' },
+  'expense':       { ta: 'செலவு',          hi: 'खर्च' },
+
+  // ---- Category names (defaults) not covered above ----
+  'Business':      { ta: 'வணிகம்',         hi: 'व्यापार' },
+  'Freelance':     { ta: 'ஃப்ரீலான்ஸ்',    hi: 'फ्रीलांस' },
+  'Interest':      { ta: 'வட்டி',          hi: 'ब्याज' },
+  'Gift Received': { ta: 'பெற்ற பரிசு',    hi: 'प्राप्त उपहार' },
+  'Other Income':  { ta: 'பிற வருமானம்',   hi: 'अन्य आय' },
+  'Other':         { ta: 'மற்றவை',         hi: 'अन्य' },
+  'Groceries':     { ta: 'மளிகை',          hi: 'किराना' },
+  'Health':        { ta: 'உடல்நலம்',       hi: 'स्वास्थ्य' },
+  'Bills':         { ta: 'பில்கள்',        hi: 'बिल' },
+  'Insurance':     { ta: 'காப்பீடு',       hi: 'बीमा' },
+  'Education':     { ta: 'கல்வி',          hi: 'शिक्षा' },
+  'Subscriptions': { ta: 'சந்தாக்கள்',     hi: 'सदस्यता' },
+  'Personal Care': { ta: 'தனிப்பட்ட பராமரிப்பு', hi: 'व्यक्तिगत देखभाल' },
+
+  // ---- Filter Records sheet ----
+  'Filter Records':    { ta: 'பதிவுகளை வடிகட்டு', hi: 'रिकॉर्ड फ़िल्टर करें' },
+  'Jump to day':       { ta: 'நாளுக்குச் செல்',   hi: 'दिन पर जाएँ' },
+  'Custom date range': { ta: 'விருப்ப தேதி வரம்பு', hi: 'कस्टम तिथि सीमा' },
+  'From':              { ta: 'இருந்து',           hi: 'से' },
+  'To':                { ta: 'வரை',               hi: 'तक' },
+  'Search':            { ta: 'தேடு',              hi: 'खोजें' },
+  'Name, category or note': { ta: 'பெயர், வகை அல்லது குறிப்பு', hi: 'नाम, श्रेणी या नोट' },
+  'Type':              { ta: 'வகை',               hi: 'प्रकार' },
+  'Sort by':           { ta: 'வரிசைப்படுத்து',    hi: 'क्रमबद्ध करें' },
+  'Clear all':         { ta: 'அனைத்தையும் அழி',   hi: 'सभी साफ़ करें' },
+  'Apply':             { ta: 'பயன்படுத்து',       hi: 'लागू करें' },
+
+  // ---- AI Fix Categories modal ----
+  'AI Fix Categories': { ta: 'AI வகைகளைச் சரிசெய்', hi: 'AI श्रेणियाँ सुधारें' },
+  'Copy prompt':       { ta: 'வழிமுறையை நகலெடு',  hi: 'प्रॉम्प्ट कॉपी करें' },
+  'Apply Categories':  { ta: 'வகைகளைப் பயன்படுத்து', hi: 'श्रेणियाँ लागू करें' },
+
+  // ---- Records / dashboard chrome ----
+  'Recent Transactions': { ta: 'சமீபத்திய பரிவர்த்தனைகள்', hi: 'हाल के लेनदेन' },
+  'BALANCE':           { ta: 'இருப்பு',           hi: 'बैलेंस' },
+  'Today':             { ta: 'இன்று',             hi: 'आज' },
+
+  // ---- Bottom navigation ----
+  'Records':           { ta: 'பதிவுகள்',          hi: 'रिकॉर्ड' },
+  'Assets':            { ta: 'சொத்துகள்',         hi: 'संपत्ति' },
+  'More':              { ta: 'மேலும்',            hi: 'अधिक' },
+
   // Voice feedback strings
   'voice_listening':   { en: 'Listening…',                ta: 'கேட்கிறேன்…',                 hi: 'सुन रहा हूँ…' },
   'voice_not_supported': { en: 'Voice control is not supported in this browser.', ta: 'இந்த உலாவியில் குரல் கட்டுப்பாடு ஆதரிக்கப்படவில்லை.', hi: 'इस ब्राउज़र में वॉयस कंट्रोल समर्थित नहीं है।' },
@@ -309,12 +367,36 @@ function applyTranslations() {
   // Page content + key chrome — generic text-node translation
   _translateTextNodes(document.getElementById('page-container'));
   _translateTextNodes(document.getElementById('content'));
+  _translateTextNodes(document.getElementById('bottom-nav'));
+  // Any modal / bottom-sheet that's currently open (opened outside #page-container)
+  document.querySelectorAll('.modal-overlay, .modal, .sheet, .bottom-sheet, #modal-root, [id$="-modal"], [id$="-sheet"]')
+    .forEach(el => _translateTextNodes(el));
+  // Keep dynamically-rendered DOM (modals, sheets, re-renders) translated too
+  _startI18nObserver();
 
   // Reflect on <html lang="">
   document.documentElement.lang = getLang();
   // Refresh language pill if present
   const pill = document.getElementById('voice-lang-pill');
   if (pill) pill.textContent = VOICE_LANGS[getLang()].flag;
+}
+
+// Auto-translate dynamically added DOM (modals, bottom sheets, re-renders) when
+// a non-English language is active. No-op for English users. Safe from loops:
+// we only observe childList (added nodes); translating sets nodeValue
+// (characterData), which doesn't re-trigger this observer.
+let _i18nObserver = null;
+function _startI18nObserver() {
+  if (_i18nObserver || typeof MutationObserver === 'undefined' || !document.body) return;
+  _i18nObserver = new MutationObserver(muts => {
+    if (getLang() === 'en') return;
+    for (const m of muts) {
+      m.addedNodes.forEach(n => {
+        if (n.nodeType === 1) { try { _translateTextNodes(n); } catch (_) {} }
+      });
+    }
+  });
+  try { _i18nObserver.observe(document.body, { childList: true, subtree: true }); } catch (_) {}
 }
 
 function setLanguage(lang) {
