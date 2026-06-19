@@ -1,6 +1,6 @@
 {
   "appId": "com.saravanan.lifeos",
-  "appName": "LifeOS",
+  "appName": "atworth",
   "webDir": "www",
   "server": {
     "url": "https://lifeos-psi-roan.vercel.app"
