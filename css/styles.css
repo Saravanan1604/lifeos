@@ -673,3 +673,28 @@ html:not(.is-app) .mm-today {
 }
 html:not(.is-app) .mm-today:hover { background: rgba(99,102,241,0.20); }
 
+/* ============================================================
+   Global Search modal (web). The chips / hint / input / rows were only
+   styled under html.is-app, so on web the "Try searching" chips were
+   tiny unstyled native buttons.
+   ============================================================ */
+html:not(.is-app) .gs-inputbar { position: relative; display: flex; align-items: center; margin-top: 4px; }
+html:not(.is-app) .gs-inputbar > svg.lucide {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px; color: var(--text3); pointer-events: none;
+}
+html:not(.is-app) .gs-input { width: 100%; padding: 12px 14px 12px 44px !important; border-radius: 12px; font-size: 15px; }
+html:not(.is-app) .gs-results { margin-top: 14px; max-height: 56vh; overflow-y: auto; }
+html:not(.is-app) .gs-hint { font-size: 13px; color: var(--text2); margin: 12px 2px; }
+html:not(.is-app) .gs-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 2px; }
+html:not(.is-app) .gs-chip {
+  font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 20px;
+  border: 1px solid var(--glass-border); background: var(--glass);
+  color: var(--text); cursor: pointer; transition: background .15s ease, border-color .15s ease;
+}
+html:not(.is-app) .gs-chip:hover { background: var(--glass-hover); border-color: rgba(99,102,241,0.45); }
+html:not(.is-app) .gs-row { padding: 12px 10px; border-radius: 10px; cursor: pointer; transition: background .15s ease; }
+html:not(.is-app) .gs-row:hover { background: rgba(99,102,241,0.08); }
+html:not(.is-app) .gs-empty { text-align: center; padding: 30px 0; color: var(--text3); }
+html:not(.is-app) .gs-empty svg.lucide { width: 40px; height: 40px; opacity: .5; }
+
