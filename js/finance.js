@@ -485,7 +485,7 @@ function renderRecordsMyMoney() {
       <div class="mm-backup-banner">
         <i data-lucide="cloud-off"></i>
         <span>Not backed up in ${Math.floor((Date.now() - lastOk) / 86400000)} days</span>
-        <button onclick="pullFromCloud();toast('Syncing…','info')">Sync now</button>
+        <button onclick="_syncBtnTap()">Sync now</button>
       </div>`;
     }
   } catch (_) {}

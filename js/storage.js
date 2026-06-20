@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 565;
+const APP_BUILD = 566;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -260,17 +260,26 @@ function setSyncDot(status) {
 }
 
 // Manual sync tap � spin the icon and pull from cloud
-function _syncBtnTap() {
+async function _syncBtnTap() {
+  if (typeof pullFromCloud !== 'function') return;
   const icon = document.getElementById('sync-btn-icon');
   if (icon) icon.style.animation = 'syncSpin 1s linear infinite';
-  if (typeof pullFromCloud === 'function') {
-    pullFromCloud().then(() => {
-      toast('Synced!', 'success');
-    }).catch(() => {
-      toast('Sync failed', 'error');
-    }).finally(() => {
-      if (icon) icon.style.animation = 'none';
-    });
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  try {
+    let r = await pullFromCloud();
+    // A background poll was mid-flight — give it a moment, then try again.
+    if (r === 'busy') { await wait(1500); r = await pullFromCloud(); }
+    // Render's free tier sleeps when idle; the first request after a nap often
+    // fails while it boots (~30s). Tell the user and retry once so a real
+    // daily sync actually lands (and clears the "not backed up" nudge).
+    if (r === 'error') { toast('Waking the server… one moment', 'info'); await wait(5000); r = await pullFromCloud(); }
+    if (r === 'ok')          toast('Synced ✓', 'success');
+    else if (r === 'offline') toast("You're offline — sign in to sync", 'warning');
+    else                      toast('Sync failed — server busy, try again in a moment', 'error');
+  } catch (_) {
+    toast('Sync failed', 'error');
+  } finally {
+    if (icon) icon.style.animation = 'none';
   }
 }
 
@@ -294,9 +303,9 @@ function _mergeById(local, cloud, deletedSet) {
 
 // Pull latest state from cloud and merge into local STATE
 async function pullFromCloud() {
-  if (_syncBusy) return;
+  if (_syncBusy) return 'busy';
   const token = localStorage.getItem('lifeos_token');
-  if (!token || !STATE.user || STATE.user.offline) { setSyncDot('offline'); return; }
+  if (!token || !STATE.user || STATE.user.offline) { setSyncDot('offline'); return 'offline'; }
 
   _syncBusy = true;
   try {
@@ -304,10 +313,10 @@ async function pullFromCloud() {
       headers: { 'Authorization': `Bearer ${token}` },
       cache: 'no-store'
     });
-    if (!res.ok) { setSyncDot('error'); return; }
+    if (!res.ok) { setSyncDot('error'); return 'error'; }
 
     const data = await res.json();
-    if (!data.state || !Object.keys(data.state).length) { setSyncDot('ok'); return; }
+    if (!data.state || !Object.keys(data.state).length) { setSyncDot('ok'); return 'ok'; }
 
     // Hash based on content checksum � detects edits to existing items, not just length changes
     const hashObj = {};
@@ -322,7 +331,7 @@ async function pullFromCloud() {
       }
     });
     const hash = JSON.stringify(hashObj);
-    if (hash === _lastCloudHash) { setSyncDot('ok'); return; }
+    if (hash === _lastCloudHash) { setSyncDot('ok'); return 'ok'; }
     _lastCloudHash = hash;
 
     // Union tombstones (local + cloud), keeping the newest timestamp per id.
@@ -371,8 +380,10 @@ async function pullFromCloud() {
         }).then(r => { if (r.ok) { _pendingSave = null; setSyncDot('ok'); } }).catch(() => {});
       }
     }
+    return 'ok';
   } catch {
     setSyncDot('error');
+    return 'error';
   } finally {
     _syncBusy = false;
   }
