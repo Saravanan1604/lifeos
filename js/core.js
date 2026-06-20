@@ -948,6 +948,7 @@ function _renderPage(page) {
     case 'spending':     renderSpendingOverview(); break;
     case 'category-detail': renderCategoryDetail(); break;
     case 'recurring':    renderRecurring();      break;
+    case 'lending':      renderLending();       break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;
     default:
