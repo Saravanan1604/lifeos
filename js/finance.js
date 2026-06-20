@@ -476,19 +476,9 @@ function renderRecordsMyMoney() {
     }
   } catch (_) {}
 
-  // ── Backup nudge when the last successful cloud sync is > 7 days old ──
-  let backupHtml = '';
-  try {
-    const lastOk = +(localStorage.getItem('lifeos_lastSyncOk') || 0);
-    if (STATE.user && !STATE.user.offline && lastOk && (Date.now() - lastOk) > 7 * 86400000) {
-      backupHtml = `
-      <div class="mm-backup-banner">
-        <i data-lucide="cloud-off"></i>
-        <span>Not backed up in ${Math.floor((Date.now() - lastOk) / 86400000)} days</span>
-        <button onclick="_syncBtnTap()">Sync now</button>
-      </div>`;
-    }
-  } catch (_) {}
+  // Backup nudge removed per request — sync still runs silently in the
+  // background; the top-bar sync button gives feedback when tapped.
+  const backupHtml = '';
 
   const showTotal = !(STATE.settings && STATE.settings.showTotal === false);
   const tabs = ['day', 'week', 'month', 'year', 'all'];
