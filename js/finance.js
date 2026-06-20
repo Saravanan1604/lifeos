@@ -5452,6 +5452,9 @@ function toggleTickerFields(prefix) {
   const isLent  = type === 'Money Lent';
   const lendEl  = document.getElementById(`${prefix}-lend-fields`);
   if (lendEl) lendEl.style.display = isLent ? 'block' : 'none';
+  // Real Estate: already-received + expected sell date
+  const realtyEl = document.getElementById(`${prefix}-realty-fields`);
+  if (realtyEl) realtyEl.style.display = (type === 'Real Estate') ? 'block' : 'none';
   const amtLbl  = document.getElementById(`${prefix}-amount-label`);
   const curLbl  = document.getElementById(`${prefix}-current-label`);
   const dateLbl = document.getElementById(`${prefix}-date-label`);
@@ -5499,6 +5502,21 @@ function _lendFieldsHtml(prefix, inv) {
       <p id="${prefix}-lend-breakdown" style="font-size:12.5px;color:var(--text2);margin:2px 2px 6px;line-height:1.6;display:none"></p>
     </div>`;
 }
+// Real-Estate-specific fields: money already received (e.g. advance / part
+// sale) and the date you expect to sell. Shown when Asset Type = "Real Estate".
+function _realtyFieldsHtml(prefix, inv) {
+  const v = (k, d = '') => inv ? (inv[k] ?? d) : d;
+  return `
+    <div id="${prefix}-realty-fields" style="display:none">
+      <div class="input-row">
+        <div class="form-group"><label class="form-label">Already received (₹)</label>
+          <input type="number" id="${prefix}-re-received" class="form-input" value="${v('received', '')}" placeholder="0" step="0.01"/></div>
+        <div class="form-group"><label class="form-label">Expected sell date</label>
+          <input type="date" id="${prefix}-re-expdate" class="form-input" value="${esc(v('expectedDate', ''))}"/></div>
+      </div>
+    </div>`;
+}
+
 function _toggleRate(prefix) {
   const mode = document.getElementById(`${prefix}-imode`)?.value;
   const w = document.getElementById(`${prefix}-rate-wrap`);
@@ -5650,6 +5668,7 @@ function openAddInvModal() {
 
     ${_tickerFieldsHtml('inv')}
     ${_lendFieldsHtml('inv', null)}
+    ${_realtyFieldsHtml('inv', null)}
 
     <div class="input-row">
       <div class="form-group"><label class="form-label" id="inv-amount-label">Invested Amount (₹)</label>
@@ -5688,6 +5707,9 @@ function saveInv() {
     inv.autoCalc     = !!document.getElementById('inv-auto')?.checked;
     inv.received     = parseFloat(document.getElementById('inv-received')?.value) || 0;
     inv.expectedDate = document.getElementById('inv-expdate')?.value || '';
+  } else if (type === 'Real Estate') {
+    inv.received     = parseFloat(document.getElementById('inv-re-received')?.value) || 0;
+    inv.expectedDate = document.getElementById('inv-re-expdate')?.value || '';
   }
   STATE.investments.push(inv);
   saveState(); addXP(25, 'Asset added'); closeModal();
@@ -5706,6 +5728,7 @@ function openEditInvModal(id) {
 
     ${_tickerFieldsHtml('einv', inv.ticker || '', inv.qty || '')}
     ${_lendFieldsHtml('einv', inv)}
+    ${_realtyFieldsHtml('einv', inv)}
 
     <div class="input-row">
       <div class="form-group"><label class="form-label" id="einv-amount-label">Invested Amount (₹)</label>
@@ -5748,6 +5771,10 @@ function saveEditInv(id) {
     inv.autoCalc     = !!document.getElementById('einv-auto')?.checked;
     inv.received     = parseFloat(document.getElementById('einv-received')?.value) || 0;
     inv.expectedDate = document.getElementById('einv-expdate')?.value || '';
+  } else if (inv.type === 'Real Estate') {
+    delete inv.person; delete inv.interestMode; delete inv.interestRate; delete inv.autoCalc;
+    inv.received     = parseFloat(document.getElementById('einv-re-received')?.value) || 0;
+    inv.expectedDate = document.getElementById('einv-re-expdate')?.value || '';
   } else {
     delete inv.person; delete inv.interestMode; delete inv.interestRate; delete inv.autoCalc;
     delete inv.received; delete inv.expectedDate;
@@ -6592,13 +6619,23 @@ function renderAssetDetail() {
   const defRate = isLent && inv.interestMode === 'month' ? (inv.interestRate || 0) * 12
     : isLent && inv.interestMode === 'year' ? (inv.interestRate || 0) : 10;
 
-  // Holding period + annualized average pace (per-year / per-month return).
+  // Holding period + average pace. IMPORTANT: don't annualize a brand-new
+  // holding — extrapolating e.g. -4% over 25 days into a full year reads as
+  // -59%/yr, which is meaningless. So we only show a true "per year" figure
+  // once it's been held ~a year; before that the second cell shows the actual
+  // return so far (no annualization).
   const startD = inv.date ? new Date(inv.date + 'T00:00:00') : null;
-  const daysHeld = (startD && !isNaN(startD)) ? Math.max(0, Math.round((Date.now() - startD.getTime()) / 86400000)) : 0;
-  const annF  = daysHeld > 0 ? 365.25 / daysHeld : 0;            // scale a holding-to-date figure to one year
-  const yrPct = (invested > 0 && annF) ? (pnl / invested) * 100 * annF : 0;
-  const yrAmt = annF ? pnl * annF : 0;
-  const moPct = yrPct / 12, moAmt = yrAmt / 12;
+  const daysHeld   = (startD && !isNaN(startD)) ? Math.max(0, Math.round((Date.now() - startD.getTime()) / 86400000)) : 0;
+  const roiNum     = invested > 0 ? (pnl / invested) * 100 : 0;
+  const monthsHeld = daysHeld / 30.4375;
+  const yearsHeld  = daysHeld / 365.25;
+  // Per-month: average pace so far (floored so a <2-week hold doesn't explode).
+  const moPct = daysHeld > 0 ? roiNum / Math.max(monthsHeld, 0.5) : 0;
+  const moAmt = daysHeld > 0 ? pnl    / Math.max(monthsHeld, 0.5) : 0;
+  const annualize = daysHeld >= 365;          // only a real "per year" after ~1yr
+  const yrLbl = annualize ? 'PER YEAR' : 'SO FAR';
+  const yrPct = annualize ? roiNum / yearsHeld : roiNum;
+  const yrAmt = annualize ? pnl    / yearsHeld : pnl;
   const rc = pos ? '#22c55e' : '#ef4444', sgn = pos ? '+' : '-';
   const retCell = (lbl, pct, amt) => `<div class="ld-ret"><span class="l">${lbl}</span>${daysHeld > 0
     ? `<span class="v" style="color:${rc}">${sgn}${Math.abs(pct).toFixed(1)}%</span><span class="a">${sgn}${_fmt0(Math.abs(amt))}</span>`
@@ -6631,11 +6668,14 @@ function renderAssetDetail() {
       ${window.__IS_APP ? `<div class="glass-card ld-rcard">
         <p class="ld-sec">Returns</p>
         <p class="ld-held">${daysHeld > 0 ? `Held <b>${daysHeld}</b> day${daysHeld > 1 ? 's' : ''}` : 'Purchased recently'}${sinceTxt ? ` · since ${sinceTxt}` : ''}</p>
+        ${(inv.expectedDate || (+inv.received)) ? `<p class="ld-held" style="margin-top:6px">${inv.expectedDate ? `Expected ${isLent ? 'return' : 'sell'}: <b>${new Date(inv.expectedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</b>${typeof _trkDueBadge === 'function' ? ' ' + _trkDueBadge(inv.expectedDate) : ''}` : ''}${(+inv.received) ? `${inv.expectedDate ? ' · ' : ''}Received: <b style="color:#10b981">${_fmt0(+inv.received)}</b>` : ''}</p>` : ''}
         <div class="ld-ret-grid">
           ${retCell('PER MONTH', moPct, moAmt)}
-          ${retCell('PER YEAR', yrPct, yrAmt)}
+          ${retCell(yrLbl, yrPct, yrAmt)}
         </div>
-        ${daysHeld > 0 ? `<p class="ld-rnote">Average pace over the time you've held this — annualized from ${daysHeld} day${daysHeld > 1 ? 's' : ''}.</p>` : ''}
+        ${daysHeld > 0 ? `<p class="ld-rnote">${annualize
+          ? `Annualized average pace over ${daysHeld} days.`
+          : `“Per month” is the average pace so far. “So far” is the actual return since ${sinceTxt} — too early to annualize a full year.`}</p>` : ''}
       </div>` : ''}
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
