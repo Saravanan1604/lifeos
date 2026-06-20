@@ -2366,7 +2366,6 @@ ${_pad.mode === 'add' ? `
         <button class="pad-tool" onclick="openBulkEntry()"><span class="pad-tool-ic"><i data-lucide="calendar-days"></i></span><span>Bulk Entry</span></button>
         <button class="pad-tool" onclick="openSmsParser()"><span class="pad-tool-ic"><i data-lucide="message-square-text"></i></span><span>Scan SMS</span></button>
         <button class="pad-tool" onclick="openPdfImport()"><span class="pad-tool-ic"><i data-lucide="file-text"></i></span><span>Import PDF</span></button>
-        ${window.__IS_APP ? `<button class="pad-tool" onclick="openShotImport()"><span class="pad-tool-ic"><i data-lucide="scan-line"></i></span><span>Scan Shot</span></button>` : ''}
         ${window.__IS_APP ? `<button class="pad-tool" onclick="padClose();if(typeof openTransferModal==='function')openTransferModal()"><span class="pad-tool-ic"><i data-lucide="arrow-left-right"></i></span><span>Transfer</span></button>` : ''}
       </div>
     </div>` : ''}
