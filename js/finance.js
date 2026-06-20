@@ -5488,8 +5488,15 @@ function _lendFieldsHtml(prefix, inv) {
         <span style="font-weight:600">⚡ Auto-calculate amount owed (principal + interest to the date given)</span>
       </label>
       <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:8px 12px;margin-bottom:4px">
-        <p style="font-size:11px;color:#22c55e;margin:0;line-height:1.6">🤝 Money you lent out. Enter what you gave as <b>Amount Given</b>; <b>Amount to Receive</b> is what's owed back. Tick <b>Auto-calculate</b> to grow it automatically from the rate + <b>Date given</b> (simple interest).</p>
+        <p style="font-size:11px;color:#22c55e;margin:0;line-height:1.6">🤝 Money you lent out. Enter what you gave as <b>Amount Given</b>; <b>Amount to Receive</b> is what's still pending. Tick <b>Auto-calculate</b> to grow it from the rate + <b>Date given</b> (simple interest), minus anything you've already got back.</p>
       </div>
+      <div class="input-row" style="margin-top:10px">
+        <div class="form-group"><label class="form-label">Received so far (₹)</label>
+          <input type="number" id="${prefix}-received" class="form-input" value="${v('received', '')}" placeholder="0" step="0.01" oninput="_lendRecalc('${prefix}')"/></div>
+        <div class="form-group"><label class="form-label">Expected return date</label>
+          <input type="date" id="${prefix}-expdate" class="form-input" value="${esc(v('expectedDate', ''))}"/></div>
+      </div>
+      <p id="${prefix}-lend-breakdown" style="font-size:12.5px;color:var(--text2);margin:2px 2px 6px;line-height:1.6;display:none"></p>
     </div>`;
 }
 function _toggleRate(prefix) {
@@ -5512,7 +5519,16 @@ function _accruedValue(principal, ratePct, mode, startStr) {
 }
 // Live current value of an asset (auto-grows for "Money Lent" with auto-calc on).
 function _assetCur(inv) {
-  if (inv && inv.type === 'Money Lent' && inv.autoCalc)
+  if (inv && inv.type === 'Money Lent' && inv.autoCalc) {
+    const accrued = _accruedValue(inv.amount, inv.interestRate, inv.interestMode, inv.date);
+    return Math.max(0, accrued - (+inv.received || 0));   // still-pending = total accrued − received
+  }
+  return inv.currentValue ?? inv.amount ?? 0;
+}
+// Total accrued (principal + interest to now) for a lent asset, before
+// subtracting what's been received — i.e. "from start to now".
+function _assetAccruedTotal(inv) {
+  if (inv && inv.type === 'Money Lent')
     return _accruedValue(inv.amount, inv.interestRate, inv.interestMode, inv.date);
   return inv.currentValue ?? inv.amount ?? 0;
 }
@@ -5556,13 +5572,22 @@ function _lendRecalc(prefix) {
   const curEl = document.getElementById(`${prefix}-current`);
   if (!curEl) return;
   const auto = document.getElementById(`${prefix}-auto`)?.checked;
-  if (!auto) { curEl.disabled = false; return; }
+  const bd   = document.getElementById(`${prefix}-lend-breakdown`);
+  const received = parseFloat(document.getElementById(`${prefix}-received`)?.value) || 0;
+  if (!auto) { curEl.disabled = false; if (bd) bd.style.display = 'none'; return; }
   const amount = parseFloat(document.getElementById(`${prefix}-amount`)?.value) || 0;
   const rate   = parseFloat(document.getElementById(`${prefix}-irate`)?.value) || 0;
   const mode   = document.getElementById(`${prefix}-imode`)?.value || 'none';
   const date   = document.getElementById(`${prefix}-date`)?.value || '';
-  curEl.value = _accruedValue(amount, rate, mode, date);
+  const accrued = _accruedValue(amount, rate, mode, date);   // total owed from start → now
+  const pending = Math.max(0, accrued - received);
+  curEl.value = pending;                                     // Amount to Receive = still pending
   curEl.disabled = true;
+  if (bd) {
+    bd.style.display = '';
+    bd.innerHTML = `Total owed${rate ? ' (with interest)' : ''}: <b style="color:var(--text)">${fmt(accrued)}</b>`
+      + (received > 0 ? ` &nbsp;·&nbsp; Received: <b style="color:#10b981">${fmt(received)}</b> &nbsp;·&nbsp; Pending: <b style="color:#ef4444">${fmt(pending)}</b>` : '');
+  }
 }
 function _loanRecalc() {
   const outEl = document.getElementById('ln-outstanding');
@@ -5661,6 +5686,8 @@ function saveInv() {
     inv.interestMode = document.getElementById('inv-imode')?.value || 'none';
     inv.interestRate = parseFloat(document.getElementById('inv-irate')?.value) || 0;
     inv.autoCalc     = !!document.getElementById('inv-auto')?.checked;
+    inv.received     = parseFloat(document.getElementById('inv-received')?.value) || 0;
+    inv.expectedDate = document.getElementById('inv-expdate')?.value || '';
   }
   STATE.investments.push(inv);
   saveState(); addXP(25, 'Asset added'); closeModal();
@@ -5719,8 +5746,11 @@ function saveEditInv(id) {
     inv.interestMode = document.getElementById('einv-imode')?.value || 'none';
     inv.interestRate = parseFloat(document.getElementById('einv-irate')?.value) || 0;
     inv.autoCalc     = !!document.getElementById('einv-auto')?.checked;
+    inv.received     = parseFloat(document.getElementById('einv-received')?.value) || 0;
+    inv.expectedDate = document.getElementById('einv-expdate')?.value || '';
   } else {
     delete inv.person; delete inv.interestMode; delete inv.interestRate; delete inv.autoCalc;
+    delete inv.received; delete inv.expectedDate;
   }
   saveState(); closeModal(); toast('Asset updated ✅', 'success'); renderInvestments();
 }
