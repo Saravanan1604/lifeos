@@ -412,6 +412,7 @@ function renderRecordsMyMoney() {
       const chip = src ? `<span class="mm-chip">${esc(src)}</span>` : '';
       const note = t.description ? `<span class="mm-note">“${esc(t.description)}”</span>` : '';
       const sub = t.subcategory ? `<span class="mm-note">› ${esc(t.subcategory)}</span>` : '';
+      const tagChip = t.tag ? `<span class="mm-note mm-tag" onclick="event.stopPropagation();openTagDetail('${esc(t.tag).replace(/'/g, "\\'")}')" style="color:#6366f1;font-weight:700;cursor:pointer">#${esc(t.tag)}</span>` : '';
       const tm = t.time ? `<span class="mm-note">🕒 ${_fmtTime(t.time)}</span>` : '';
       const seld = _recSel.has(t.id);
       return `
@@ -424,7 +425,7 @@ function renderRecordsMyMoney() {
           <div class="mm-ic" style="background:${catColor(t.category)}" onclick="event.stopPropagation();openCategoryDetail('${(t.category||'Other').replace(/'/g,"\\'")}')">${catIconHtml(t.category)}</div>
           <div class="mm-mid">
             <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' <i data-lucide="repeat" class="mm-recur-ic"></i>' : ''}</p>
-            <div class="mm-meta">${chip}${note}${sub}${tm}</div>
+            <div class="mm-meta">${chip}${note}${sub}${tagChip}${tm}</div>
           </div>
           <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
         </div>
@@ -2055,7 +2056,8 @@ function runGlobalSearch(q) {
   // Transactions (text or amount)
   const txns = (STATE.transactions || []).filter(t =>
     (t.description || '').toLowerCase().includes(q) || (t.category || '').toLowerCase().includes(q) ||
-    (t.subcategory || '').toLowerCase().includes(q) || _sourceLabel(t.source || '').toLowerCase().includes(q) ||
+    (t.subcategory || '').toLowerCase().includes(q) || (t.tag || '').toLowerCase().includes(q) ||
+    _sourceLabel(t.source || '').toLowerCase().includes(q) ||
     (hasNum && Math.abs((+t.amount || 0) - num) < 0.001)
   ).sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 20);
   if (txns.length) html += `<p class="gs-h">Transactions</p>` + txns.map(t => {
@@ -2107,6 +2109,7 @@ function openTxPad(type, editId) {
     category: ex ? ex.category : '',
     notes: ex ? (ex.description || '') : '',
     subcategory: ex ? (ex.subcategory || '') : '',
+    tag: ex ? (ex.tag || '') : '',
     repeat: ex && ex.recurringId ? ((STATE.recurring || []).find(r => r.id === ex.recurringId)?.frequency || '') : '',
     date: ex ? ex.date : today(),
     time: ex ? (ex.time || _nowTime()) : _nowTime(),
@@ -2222,6 +2225,56 @@ function padPickSubcat() {
     </div>`);
   setTimeout(() => document.getElementById('pad-subcat-in')?.focus(), 100);
 }
+// Distinct tags already used across transactions (for autocomplete).
+function _tagSuggestions() {
+  const seen = new Set();
+  (STATE.transactions || []).forEach(t => { if (t.tag) seen.add(t.tag); });
+  return [...seen].sort().map(s => `<option value="${esc(s)}">`).join('');
+}
+// Free-text tag picker — groups spending across categories (e.g. a "Marriage"
+// or "Goa Trip" tag totals food + gifts + transport together).
+function padPickTag() {
+  const recent = [...new Set((STATE.transactions || []).filter(t => t.tag).map(t => t.tag))].slice(0, 8);
+  openModal('# Tag', `
+    <div class="subcat-modal">
+    <div class="form-group"><label class="form-label">Tag <span style="opacity:.6;font-weight:400">(groups across categories)</span></label>
+      <input type="text" id="pad-tag-in" class="form-input" list="tag-list" value="${esc(_pad.tag || '')}" placeholder="e.g. Marriage, Goa Trip, Bike Service, Tip" autofocus/>
+      <datalist id="tag-list">${_tagSuggestions()}</datalist></div>
+    ${recent.length ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px">${recent.map(r =>
+      `<button type="button" onclick="_pad.tag='${esc(r).replace(/'/g, "\\'")}';closeModal();renderTxPad()" style="padding:7px 14px;border-radius:18px;border:1px solid var(--glass-border);background:var(--glass);color:var(--text);font-size:13px;font-weight:600;cursor:pointer">#${esc(r)}</button>`).join('')}</div>` : ''}
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="_pad.tag='';closeModal();renderTxPad()">Clear</button>
+      <button class="btn-primary" onclick="_pad.tag=(document.getElementById('pad-tag-in').value||'').trim();closeModal();renderTxPad()">Done</button>
+    </div>
+    </div>`);
+  setTimeout(() => document.getElementById('pad-tag-in')?.focus(), 100);
+}
+// Tag total view — every transaction with this tag, across all categories,
+// with the grand total + a per-category breakdown. This is the payoff of tags:
+// "how much did the whole marriage / trip cost?" regardless of category.
+function openTagDetail(tag) {
+  if (!tag) return;
+  const tg = String(tag).toLowerCase();
+  const txns = (STATE.transactions || []).filter(t => (t.tag || '').toLowerCase() === tg)
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const total = txns.reduce((s, t) => s + (t.type === 'income' ? 0 : (+t.amount || 0)), 0);
+  const byCat = {};
+  txns.forEach(t => { if (t.type !== 'income') { const c = t.category || 'Other'; byCat[c] = (byCat[c] || 0) + (+t.amount || 0); } });
+  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const rows = txns.map(t => `
+    <div onclick="closeModal();openTxPad('${t.type}','${t.id}')" style="display:flex;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--glass-border);cursor:pointer">
+      <div style="min-width:0"><p style="margin:0;font-weight:600;font-size:14px">${esc(t.description || t.category)}</p>
+        <p style="margin:2px 0 0;font-size:12px;color:var(--text3)">${esc(t.category)} · ${fmtDate(t.date)}</p></div>
+      <b style="white-space:nowrap;color:${t.type === 'income' ? '#10b981' : '#ef4444'}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</b>
+    </div>`).join('');
+  openModal(`# ${esc(tag)} — ${txns.length} item${txns.length === 1 ? '' : 's'}`, `
+    <div class="mr-pop">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;background:var(--glass);margin-bottom:10px">
+        <span style="font-weight:700">Total spent on this tag</span><b style="font-size:20px;color:#6366f1">${fmt(total)}</b></div>
+      ${cats.length > 1 ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">${cats.map(([c, v]) => `<span style="font-size:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:5px 11px">${esc(c)} · ${fmt(v)}</span>`).join('')}</div>` : ''}
+      <div style="max-height:50vh;overflow-y:auto">${rows || '<p style="color:var(--text3);padding:14px 0">Nothing tagged yet.</p>'}</div>
+    </div>`);
+}
 function padPickRepeat() {
   const opts = [['', 'One-time']].concat(typeof RECUR_FREQS !== 'undefined' ? RECUR_FREQS
     : [['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'], ['yearly', 'Yearly']]);
@@ -2246,7 +2299,7 @@ function padSave() {
     const tx = (STATE.transactions || []).find(t => t.id === _pad.id);
     if (tx) {
       _reverseTxFromAccount(tx);
-      Object.assign(tx, { type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, source: _pad.source, receipt: _pad.receipt });
+      Object.assign(tx, { type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, tag: _pad.tag || '', source: _pad.source, receipt: _pad.receipt });
       _applyTxToAccount(tx);
     }
     // Repeat on an existing transaction → create OR update its linked rule (no duplicates)
@@ -2267,7 +2320,7 @@ function padSave() {
       if (tx) tx.recurringId = null;
     }
   } else {
-    const newTx = { id: genId(), type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, source: _pad.source, receipt: _pad.receipt, createdAt: new Date().toISOString() };
+    const newTx = { id: genId(), type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, tag: _pad.tag || '', source: _pad.source, receipt: _pad.receipt, createdAt: new Date().toISOString() };
     STATE.transactions = STATE.transactions || [];
     STATE.transactions.unshift(newTx);
     _applyTxToAccount(newTx);
@@ -2320,6 +2373,10 @@ function renderTxPad() {
 
     <div class="pad-pickrow pad-mini">
       <div class="pad-field"><label><i data-lucide="tag"></i> Subcategory</label><button onclick="padPickSubcat()">${_pad.subcategory ? esc(_pad.subcategory) : '—'}</button></div>
+      <div class="pad-field"><label><i data-lucide="hash"></i> Tag</label><button onclick="padPickTag()">${_pad.tag ? esc(_pad.tag) : '—'}</button></div>
+    </div>
+
+    <div class="pad-pickrow pad-mini">
       <div class="pad-field"><label><i data-lucide="repeat"></i> Repeat</label><button onclick="padPickRepeat()">${typeof recurFreqLabel === 'function' ? recurFreqLabel(_pad.repeat) : (_pad.repeat ? _pad.repeat.charAt(0).toUpperCase() + _pad.repeat.slice(1) : 'One-time')}</button></div>
     </div>
 
