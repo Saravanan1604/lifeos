@@ -2275,6 +2275,55 @@ function openTagDetail(tag) {
       <div style="max-height:50vh;overflow-y:auto">${rows || '<p style="color:var(--text3);padding:14px 0">Nothing tagged yet.</p>'}</div>
     </div>`);
 }
+// Tags overview page — every tag you've used with its total spend + count.
+// Tap a tag to drill into its transactions (openTagDetail). Routed as 'tags'.
+function renderTags() {
+  const container = document.getElementById('page-container');
+  if (!container) return;
+  const byTag = {};
+  (STATE.transactions || []).forEach(t => {
+    if (!t.tag) return;
+    const k = t.tag;
+    if (!byTag[k]) byTag[k] = { total: 0, n: 0, last: '' };
+    if (t.type !== 'income') byTag[k].total += (+t.amount || 0);
+    byTag[k].n++;
+    if ((t.date || '') > byTag[k].last) byTag[k].last = t.date || '';
+  });
+  const tags = Object.entries(byTag).sort((a, b) => b[1].total - a[1].total);
+  const grand = tags.reduce((s, [, v]) => s + v.total, 0);
+  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#8b5cf6', '#3b82f6'];
+
+  const row = ([tag, v], i) => {
+    const c = COLORS[i % COLORS.length];
+    return `<div class="glass-card" onclick="openTagDetail('${esc(tag).replace(/'/g, "\\'")}')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer">
+      <span style="width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;background:${c}1a;color:${c}">#</span>
+      <div style="flex:1;min-width:0">
+        <p style="margin:0;font-weight:700;font-size:15px;color:var(--text1)">${esc(tag)}</p>
+        <p style="margin:3px 0 0;font-size:12px;color:var(--text3)">${v.n} item${v.n === 1 ? '' : 's'}${v.last ? ' · last ' + fmtDate(v.last) : ''}</p>
+      </div>
+      <b style="font-size:16px;color:${c};flex-shrink:0">${fmt(v.total)}</b>
+    </div>`;
+  };
+
+  container.innerHTML = `
+    <div class="fade-in" style="max-width:760px;margin:0 auto">
+      <div class="page-header"><h1 class="page-title"># Tags</h1>
+        <p class="page-subtitle">Spending grouped by tag — across every category</p></div>
+      ${tags.length ? `
+      <div class="glass-card" style="display:flex;gap:24px;padding:16px 20px;margin-bottom:16px">
+        <div><p style="margin:0;font-size:12px;color:var(--text3)">TAGS</p><p style="margin:2px 0 0;font-size:22px;font-weight:800;color:var(--text1)">${tags.length}</p></div>
+        <div><p style="margin:0;font-size:12px;color:var(--text3)">TAGGED SPEND</p><p style="margin:2px 0 0;font-size:22px;font-weight:800;color:#6366f1">${fmt(grand)}</p></div>
+      </div>
+      ${tags.map(row).join('')}
+      ` : `
+      <div class="glass-card" style="padding:48px 20px;text-align:center">
+        <p style="font-size:40px;margin:0 0 10px">🏷️</p>
+        <p style="margin:0 0 8px;color:var(--text2)">No tags yet.</p>
+        <p style="margin:0;font-size:13px;color:var(--text3)">Add a Tag when logging a transaction (e.g. “Marriage”, “Goa Trip”) to group spending across categories.</p>
+      </div>`}
+    </div>`;
+  if (typeof _lucideRefresh === 'function') _lucideRefresh();
+}
 function padPickRepeat() {
   const opts = [['', 'One-time']].concat(typeof RECUR_FREQS !== 'undefined' ? RECUR_FREQS
     : [['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'], ['yearly', 'Yearly']]);
