@@ -952,6 +952,7 @@ function _renderPage(page) {
     case 'purchases':    renderPurchases();     break;
     case 'upcoming':     renderUpcoming();      break;
     case 'renewals':     renderRenewals();      break;
+    case 'split':        renderSplit();         break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;
     default:
