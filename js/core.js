@@ -950,6 +950,7 @@ function _renderPage(page) {
     case 'recurring':    renderRecurring();      break;
     case 'tags':         renderTags();          break;
     case 'purchases':    renderPurchases();     break;
+    case 'upcoming':     renderUpcoming();      break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;
     default:
