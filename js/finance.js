@@ -2276,7 +2276,8 @@ function openTagDetail(tag) {
     </div>`);
 }
 // Tags overview page — every tag you've used with its total spend + count.
-// Tap a tag to drill into its transactions (openTagDetail). Routed as 'tags'.
+// In the app it mirrors the Spending page (donut ring + category rows); on web
+// it's a simple list. Tap a tag to drill into its breakdown (openTagDetail).
 function renderTags() {
   const container = document.getElementById('page-container');
   if (!container) return;
@@ -2289,22 +2290,76 @@ function renderTags() {
     byTag[k].n++;
     if ((t.date || '') > byTag[k].last) byTag[k].last = t.date || '';
   });
-  const tags = Object.entries(byTag).sort((a, b) => b[1].total - a[1].total);
-  const grand = tags.reduce((s, [, v]) => s + v.total, 0);
-  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#8b5cf6', '#3b82f6'];
+  const tags = Object.entries(byTag).map(([tag, v]) => ({ tag, total: v.total, n: v.n, last: v.last }))
+    .sort((a, b) => b.total - a.total);
+  const grand = tags.reduce((s, t) => s + t.total, 0);
+  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#8b5cf6', '#3b82f6', '#14b8a6', '#f97316'];
 
-  const row = ([tag, v], i) => {
+  // ── App: same look as the Spending page (ring + category rows) ──
+  if (window.__IS_APP) {
+    const displayTotalText = grand > 0 ? fmt(Math.round(grand)) : '₹0';
+    const scoreFontSize = displayTotalText.length > 8 ? '40px' : (displayTotalText.length > 6 ? '52px' : (displayTotalText.length > 4 ? '64px' : '76px'));
+    container.innerHTML = `
+      <div class="fade-in" id="spending-page" style="padding:16px 20px">
+        <div class="ring-page-head">
+          <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </button>
+          <h1 class="ring-page-title"># Tags</h1>
+        </div>
+
+        ${tags.length ? `
+        <div class="ring-container">
+          <canvas id="tags-chart" style="width:100%;height:100%;display:block"></canvas>
+          <div class="ring-center-text"><span class="ring-score" style="font-size:${scoreFontSize} !important">${displayTotalText}</span></div>
+        </div>` : ''}
+
+        <div class="section-heading-row"><span class="section-heading">Tags</span></div>
+
+        <div style="display:flex;flex-direction:column;margin-bottom:28px">
+          ${tags.length === 0 ? `
+            <div style="text-align:center;padding:32px 0;color:var(--text3)">No tags yet — add a Tag (e.g. “Marriage”, “Goa Trip”) when logging a transaction.</div>
+          ` : tags.map((t, idx) => {
+            const pct = grand > 0 ? Math.round(t.total / grand * 100) : 0;
+            const color = COLORS[idx % COLORS.length];
+            return `
+              <div class="category-row" onclick="openTagDetail('${esc(t.tag).replace(/'/g, "\\'")}')">
+                <div class="cat-head">
+                  <div class="category-icon-wrap" style="background:${color}15;color:${color};font-weight:900;font-size:20px">#</div>
+                  <div class="category-name">${esc(t.tag)}</div>
+                  <div class="category-values">${fmt(Math.round(t.total))}<span>${pct}% · ${t.n} ${t.n === 1 ? 'item' : 'items'}</span></div>
+                </div>
+                <div class="category-progress-bg"><div class="category-progress-fill" style="width:${pct}%;background:${color}"></div></div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    if (typeof _lucideRefresh === 'function') _lucideRefresh();
+    if (tags.length) setTimeout(() => {
+      const canvas = document.getElementById('tags-chart');
+      if (!canvas || typeof Chart === 'undefined') return;
+      if (chartInstances['tags']) { chartInstances['tags'].destroy(); delete chartInstances['tags']; }
+      chartInstances['tags'] = new Chart(canvas, {
+        type: 'doughnut',
+        data: { labels: tags.map(t => t.tag), datasets: [{ data: tags.map(t => t.total), backgroundColor: tags.map((t, i) => COLORS[i % COLORS.length]), borderWidth: 0 }] },
+        options: { cutout: '72%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.label + ': ' + fmt(Math.round(c.parsed)) } } } }
+      });
+    }, 40);
+    return;
+  }
+
+  // ── Web: simple list ──
+  const row = (t, i) => {
     const c = COLORS[i % COLORS.length];
-    return `<div class="glass-card" onclick="openTagDetail('${esc(tag).replace(/'/g, "\\'")}')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer">
+    return `<div class="glass-card" onclick="openTagDetail('${esc(t.tag).replace(/'/g, "\\'")}')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer">
       <span style="width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;background:${c}1a;color:${c}">#</span>
       <div style="flex:1;min-width:0">
-        <p style="margin:0;font-weight:700;font-size:15px;color:var(--text1)">${esc(tag)}</p>
-        <p style="margin:3px 0 0;font-size:12px;color:var(--text3)">${v.n} item${v.n === 1 ? '' : 's'}${v.last ? ' · last ' + fmtDate(v.last) : ''}</p>
+        <p style="margin:0;font-weight:700;font-size:15px;color:var(--text1)">${esc(t.tag)}</p>
+        <p style="margin:3px 0 0;font-size:12px;color:var(--text3)">${t.n} item${t.n === 1 ? '' : 's'}${t.last ? ' · last ' + fmtDate(t.last) : ''}</p>
       </div>
-      <b style="font-size:16px;color:${c};flex-shrink:0">${fmt(v.total)}</b>
+      <b style="font-size:16px;color:${c};flex-shrink:0">${fmt(t.total)}</b>
     </div>`;
   };
-
   container.innerHTML = `
     <div class="fade-in" style="max-width:760px;margin:0 auto">
       <div class="page-header"><h1 class="page-title"># Tags</h1>
