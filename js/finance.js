@@ -785,6 +785,31 @@ function renderCombinedSpendBudget(activeTab) {
   const unbudgetedRows = Object.entries(unbudgeted).sort((a, b) => b[1] - a[1]);
   const unbudgetedTotal = unbudgetedRows.reduce((s, r) => s + r[1], 0);
 
+  // ── Smart budget alerts (month view): over-budget, near-limit with days
+  // left, or pacing to overspend based on how much of the month has elapsed.
+  let budgetAlertsHtml = '';
+  if (_budgetPeriod === 'month') {
+    const nowD = new Date();
+    const dim = new Date(nowD.getFullYear(), nowD.getMonth() + 1, 0).getDate();
+    const dayOf = nowD.getDate();
+    const daysLeft = Math.max(0, dim - dayOf);
+    const progress = dayOf / dim;
+    const alerts = [];
+    budgetRows.forEach(({ b, limit, spent }) => {
+      if (limit <= 0) return;
+      const pct = spent / limit;
+      if (pct >= 1) alerts.push({ cat: b.category, msg: `over by ${fmt(Math.round(spent - limit))}`, col: '#ef4444' });
+      else if (pct >= 0.8) alerts.push({ cat: b.category, msg: `${Math.round(pct * 100)}% used · ${daysLeft}d left`, col: '#f59e0b' });
+      else if (progress > 0.2 && spent / progress > limit * 1.1) alerts.push({ cat: b.category, msg: `pacing to overspend (~${fmt(Math.round(spent / progress))})`, col: '#f59e0b' });
+    });
+    if (alerts.length) {
+      budgetAlertsHtml = `<div class="glass-card" style="padding:14px 16px;margin-bottom:16px;border:1px solid rgba(245,158,11,0.35);background:rgba(245,158,11,0.07)">
+        <p style="margin:0 0 8px;font-weight:800;font-size:14px;color:#f59e0b">⚠️ Budget alerts</p>
+        ${alerts.map(a => `<p style="margin:5px 0;font-size:13px;color:var(--text2)">• <b style="color:${a.col}">${esc(a.cat)}</b> — ${a.msg}</p>`).join('')}
+      </div>`;
+    }
+  }
+
   // Month-comparison chart (app)
   let cmpChartHtml = '';
   let _cmpData = null;
@@ -911,6 +936,8 @@ function renderCombinedSpendBudget(activeTab) {
 
               <!-- Total Budget Progress Card -->
               ${totalBudgetBarHtml}
+
+              ${budgetAlertsHtml}
 
               <div style="display:flex;flex-direction:column;margin-bottom:28px">
                 ${budgets.length === 0 ? `
