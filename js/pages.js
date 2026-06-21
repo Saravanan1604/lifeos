@@ -429,6 +429,9 @@ function renderSettings() {
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">💾 Backup &amp; Data</p>
           <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn-secondary" onclick="backupToDrive()" style="justify-content:flex-start;gap:10px;text-align:left">
+              ☁️ &nbsp;<span><strong>Backup to Drive</strong> — Save your data to Google Drive</span>
+            </button>
             <button class="btn-secondary" onclick="exportData()" style="justify-content:flex-start;gap:10px;text-align:left">
               📤 &nbsp;<span><strong>Export Backup</strong> — Download all data as JSON</span>
             </button>
@@ -524,6 +527,25 @@ function exportData() {
   a.href = url; a.download = `atworth_Backup_${today()}.json`; a.click();
   URL.revokeObjectURL(url);
   toast('✅ Full backup downloaded!', 'success');
+}
+
+// Share the JSON backup via the OS share sheet (on Android, lets you pick
+// "Save to Drive"). Full Drive-API/OAuth sync is a bigger future task; the
+// share sheet gets the file safely into Drive without extra permissions.
+async function backupToDrive() {
+  const fileName = `atworth_Backup_${today()}.json`;
+  const blob = new Blob([JSON.stringify(STATE, null, 2)], { type: 'application/json' });
+  try {
+    const file = new File([blob], fileName, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'atworth backup', text: 'atworth data backup — save to Google Drive' });
+      return;
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;   // user dismissed the sheet
+  }
+  exportData();   // fallback when the share API / files aren't supported
+  toast('Sharing not available — backup downloaded instead', 'info');
 }
 
 function importData(event) {

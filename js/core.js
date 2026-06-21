@@ -951,6 +951,7 @@ function _renderPage(page) {
     case 'tags':         renderTags();          break;
     case 'purchases':    renderPurchases();     break;
     case 'upcoming':     renderUpcoming();      break;
+    case 'renewals':     renderRenewals();      break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;
     default:
