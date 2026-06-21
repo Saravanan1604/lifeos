@@ -949,12 +949,11 @@ function _renderPage(page) {
     case 'category-detail': renderCategoryDetail(); break;
     case 'recurring':    renderRecurring();      break;
     case 'tags':         renderTags();          break;
+    case 'purchases':    renderPurchases();     break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;
     default:
-      if (typeof page === 'string' && page.startsWith('track-') && typeof renderTracker === 'function') {
-        renderTracker(page);
-      } else if (typeof isCustomPage === 'function' && isCustomPage(page) && typeof renderCustomPage === 'function') {
+      if (typeof isCustomPage === 'function' && isCustomPage(page) && typeof renderCustomPage === 'function') {
         renderCustomPage(page);
       } else {
         container.innerHTML = '<p style="padding:40px;color:rgba(255,255,255,0.4)">Page coming soon</p>';
