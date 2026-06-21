@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 574;
+const APP_BUILD = 575;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -229,7 +229,8 @@ const LIVE_SYNC_KEYS = [
   'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
   'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',
   'unlockedAchievements', 'deletedIds', 'categoryRules', 'notes',
-  'recurring', 'customCategories', 'customPages', 'customPageLayouts'
+  'recurring', 'customCategories', 'customPages', 'customPageLayouts',
+  'purchases', 'tagBudgets'
 ];
 
 let _syncTimer     = null;

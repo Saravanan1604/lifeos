@@ -2294,13 +2294,50 @@ function openTagDetail(tag) {
         <p style="margin:2px 0 0;font-size:12px;color:var(--text3)">${esc(t.category)} · ${fmtDate(t.date)}</p></div>
       <b style="white-space:nowrap;color:${t.type === 'income' ? '#10b981' : '#ef4444'}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</b>
     </div>`).join('');
+  // Per-tag budget (#6): track total spend on this tag against a target.
+  const tBudget = +((STATE.tagBudgets || {})[tag]) || 0;
+  let budgetHtml = '';
+  if (tBudget > 0) {
+    const pct = Math.min(100, Math.round(total / tBudget * 100));
+    const over = total > tBudget;
+    const col = over ? '#ef4444' : pct >= 80 ? '#f59e0b' : '#10b981';
+    budgetHtml = `<div style="padding:12px 14px;border-radius:12px;background:var(--glass);margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span style="font-weight:700">Tag budget ${fmt(tBudget)}</span><span style="color:${col};font-weight:700">${over ? 'over by ' + fmt(total - tBudget) : fmt(tBudget - total) + ' left'}</span></div>
+      <div style="height:8px;border-radius:5px;background:rgba(128,128,128,0.2);overflow:hidden"><div style="height:100%;width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }
   openModal(`# ${esc(tag)} — ${txns.length} item${txns.length === 1 ? '' : 's'}`, `
     <div class="mr-pop">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;background:var(--glass);margin-bottom:10px">
         <span style="font-weight:700">Total spent on this tag</span><b style="font-size:20px;color:#6366f1">${fmt(total)}</b></div>
+      ${budgetHtml}
       ${cats.length > 1 ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">${cats.map(([c, v]) => `<span style="font-size:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:5px 11px">${esc(c)} · ${fmt(v)}</span>`).join('')}</div>` : ''}
-      <div style="max-height:50vh;overflow-y:auto">${rows || '<p style="color:var(--text3);padding:14px 0">Nothing tagged yet.</p>'}</div>
+      <button class="btn-secondary" onclick="openTagBudget('${esc(tag).replace(/'/g, "\\'")}')" style="width:100%;margin-bottom:10px;font-size:13px">🎯 ${tBudget > 0 ? 'Edit' : 'Set'} tag budget</button>
+      <div style="max-height:45vh;overflow-y:auto">${rows || '<p style="color:var(--text3);padding:14px 0">Nothing tagged yet.</p>'}</div>
     </div>`);
+}
+
+// Set / edit a budget for a tag (lives in STATE.tagBudgets[tag]).
+function openTagBudget(tag) {
+  const cur = +((STATE.tagBudgets || {})[tag]) || 0;
+  openModal(`🎯 Budget for #${esc(tag)}`, `
+    <div class="form-group" style="margin-bottom:14px"><label class="form-label">Budget amount (₹)</label>
+      <input type="number" id="tagbud-amt" class="form-input" value="${cur || ''}" placeholder="e.g. 50000" step="0.01" autofocus/></div>
+    <div class="modal-actions" style="display:flex;gap:10px;justify-content:flex-end">
+      ${cur ? `<button class="btn-secondary" onclick="saveTagBudget('${esc(tag).replace(/'/g, "\\'")}',0)" style="color:#ef4444;margin-right:auto">Remove</button>` : ''}
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveTagBudget('${esc(tag).replace(/'/g, "\\'")}')">Save</button>
+    </div>`);
+  setTimeout(() => document.getElementById('tagbud-amt')?.focus(), 100);
+}
+function saveTagBudget(tag, forceVal) {
+  STATE.tagBudgets = STATE.tagBudgets || {};
+  const amt = (forceVal === 0) ? 0 : (+(document.getElementById('tagbud-amt')?.value) || 0);
+  if (amt > 0) STATE.tagBudgets[tag] = amt; else delete STATE.tagBudgets[tag];
+  if (typeof saveState === 'function') saveState();
+  closeModal();
+  toast(amt > 0 ? `Budget set for #${tag}` : 'Tag budget removed', 'success');
+  if (typeof openTagDetail === 'function') openTagDetail(tag);
 }
 // Tags overview page — every tag you've used with its total spend + count.
 // In the app it mirrors the Spending page (donut ring + category rows); on web
