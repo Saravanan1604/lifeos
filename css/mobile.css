@@ -15930,3 +15930,19 @@ html.is-app .sidebar .nav-item .nav-text { font-size: 17px !important; }
 html.is-app .sidebar .nav-item .nav-icon { flex: 0 0 40px !important; width: 40px !important; height: 40px !important; border-radius: 12px !important; }
 html.is-app .sidebar .nav-item .nav-icon svg { width: 20px !important; height: 20px !important; }
 html.is-app .sidebar .nav-group-label { font-size: 13px !important; }
+
+/* ============================================================
+   build 588 — Records (mm-*) row text sized to standard Android
+   list-item norms (like WhatsApp / Gmail): primary line ~16px,
+   secondary ~13px, date subheaders ~13px. The earlier compression
+   had shrunk these to 9–13px, which read too small for the main
+   content. Hero balance + section titles were already fine.
+   ============================================================ */
+html.is-app .mm-row .mm-cat { font-size: 16px !important; font-weight: 600 !important; }
+html.is-app .mm-row .mm-note { font-size: 13px !important; }
+html.is-app .mm-amt,
+html.is-app .mm-amt.pos,
+html.is-app .mm-amt.neg { font-size: 16px !important; }
+html.is-app .mm-day,
+html.is-app .mm-day span { font-size: 13px !important; }
+html.is-app .mm-day-total { font-size: 14px !important; }
