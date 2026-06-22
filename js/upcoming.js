@@ -31,19 +31,23 @@ function _upcomingItems(days) {
   const horizonS = _ymdLocal(horizon);
   const items = [];
 
-  // Recurring EXPENSE rules — project each occurrence into the window.
+  // Recurring EXPENSE rules — show only the NEXT due occurrence of each rule
+  // (not every future month), so a monthly bill appears once, not repeated.
   (STATE.recurring || []).forEach(r => {
     if (r.type === 'income') return;
     let d = r.nextDate, guard = 0;
-    while (d && d <= horizonS && guard < 60) {
-      if (d >= todayS) items.push({ date: d, amount: +r.amount || 0, name: r.description || r.category || 'Recurring', category: r.category || 'Other', sub: _freqLabel(r.frequency), kind: 'recurring' });
+    while (d && guard < 60) {
+      if (d >= todayS) {                       // first occurrence from today onward
+        if (d <= horizonS) items.push({ date: d, amount: +r.amount || 0, name: r.description || r.category || 'Recurring', category: r.category || 'Other', sub: _freqLabel(r.frequency), kind: 'recurring' });
+        break;
+      }
       d = (typeof _advanceDate === 'function') ? _advanceDate(d, r.frequency) : null;
       if (!r.frequency) break;
       guard++;
     }
   });
 
-  // Loan EMIs — next monthly due dates within the window.
+  // Loan EMIs — show only the next EMI due date (not every month in the window).
   (STATE.loans || []).forEach(l => {
     const emi = +l.emi || 0; if (emi <= 0) return;
     const start = l.startDate ? new Date(l.startDate + 'T00:00:00') : null;
@@ -51,10 +55,8 @@ function _upcomingItems(days) {
     let probe = new Date(t.getFullYear(), t.getMonth(), dom);
     let guard = 0;
     while (probe < t && guard < 3) { probe.setMonth(probe.getMonth() + 1); guard++; }
-    guard = 0;
-    while (_ymdLocal(probe) <= horizonS && guard < 12) {
+    if (_ymdLocal(probe) <= horizonS) {
       items.push({ date: _ymdLocal(probe), amount: emi, name: (l.name || l.type || 'Loan') + ' EMI', category: 'EMI', sub: 'Loan EMI', kind: 'emi' });
-      probe.setMonth(probe.getMonth() + 1); guard++;
     }
   });
 
