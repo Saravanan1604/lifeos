@@ -15895,6 +15895,13 @@ html.is-app #top-tools button svg { width: 19px !important; height: 19px !import
 html.is-app #bottom-nav .bn-item span { font-size: 11px !important; }
 html.is-app #bottom-nav .bn-item svg { width: 23px !important; height: 23px !important; }
 
+/* Bottom + (FAB): the fixed 104px ballooned on phones with a larger Screen
+   zoom / display size (it became ~31% of a narrow screen). Size it to the
+   screen instead so it's the SAME proportion on every phone (~24%), capped at
+   the original 104px so it looks unchanged on normal-width phones. */
+html.is-app #fab-add { width: min(104px, 24vw) !important; height: min(104px, 24vw) !important; }
+html.is-app #fab-add svg { width: min(54px, 12.5vw) !important; height: min(54px, 12.5vw) !important; }
+
 /* The All Assets page (.ia-*) and the drawer were built with their OWN
    absolute-px "2x" type blocks (build 370 / 372), which the root-size
    reduction above can't touch — so the net-worth hero overflowed the card
