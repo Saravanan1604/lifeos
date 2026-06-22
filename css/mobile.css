@@ -16020,15 +16020,15 @@ html.is-app #bottom-nav .bn-fab-slot {
    Styled as a round green circle with a white icon. */
 html.is-app #fab-add {
   position: fixed !important;
-  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  width: 50px !important;
-  height: 50px !important;
+  width: 44px !important;
+  height: 44px !important;
   border-radius: 50% !important;
   background: #00c9a7 !important;
   border: none !important;
-  box-shadow: 0 4px 14px rgba(0, 201, 167, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(0, 201, 167, 0.4) !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -16037,8 +16037,8 @@ html.is-app #fab-add {
   padding: 0 !important;
 }
 html.is-app #fab-add svg {
-  width: 26px !important;
-  height: 26px !important;
+  width: 22px !important;
+  height: 22px !important;
   stroke: #fff !important;
 }
 html.is-app #fab-add::after {
@@ -16047,10 +16047,51 @@ html.is-app #fab-add::after {
 
 /* 3. Compact bottom nav bar */
 html.is-app #bottom-nav {
-  padding: 10px 6px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 /* 4. Compact transaction list cards */
 html.is-app .mymoney-records .mm-row {
   padding: 10px 14px !important;
+}
+
+/* 5. Hide sidebar shadow bleed when closed */
+html.is-app .sidebar {
+  box-shadow: none !important;
+}
+html.is-app .sidebar.mobile-open {
+  box-shadow: 0 0 50px rgba(0,0,0,0.5) !important;
+}
+
+/* 6. Fit month navigation arrows to screen */
+html.is-app .mymoney-records .mm-monthbar {
+  padding-left: 60px !important;
+  padding-right: 80px !important;
+  gap: 12px !important;
+}
+html.is-app .mymoney-records .mm-month {
+  font-size: 1.5rem !important;
+}
+
+/* 7. Reduce top menu button sizes (mic / calc / sync / bell / hamburger) by 25% */
+html.is-app .mobile-menu-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+}
+html.is-app .mobile-menu-btn svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+html.is-app #top-tools {
+  top: 19px !important;
+}
+html.is-app #top-tools button {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 9px !important;
+}
+html.is-app #top-tools button svg {
+  width: 15px !important;
+  height: 15px !important;
 }
