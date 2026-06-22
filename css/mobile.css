@@ -15899,8 +15899,8 @@ html.is-app #bottom-nav .bn-item svg { width: 23px !important; height: 23px !imp
    proportion with the rest of the page (was dominating the Records screen).
    The app viewport is now locked to 412px (see index.html), so this fixed size
    renders the same on every phone. */
-html.is-app #fab-add { width: 74px !important; height: 74px !important; }
-html.is-app #fab-add svg { width: 36px !important; height: 36px !important; }
+html.is-app #fab-add { width: 60px !important; height: 60px !important; }
+html.is-app #fab-add svg { width: 30px !important; height: 30px !important; }
 
 /* The All Assets page (.ia-*) and the drawer were built with their OWN
    absolute-px "2x" type blocks (build 370 / 372), which the root-size
