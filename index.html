@@ -43,6 +43,17 @@
       // Same web layout — only enable larger text on mobile (via html.is-app
       // font rules in mobile.css). No layout/scale changes.
       document.documentElement.classList.add('is-app');
+      // Lock a fixed layout width inside the installed app so the UI renders
+      // the SAME on every phone regardless of the device's Screen zoom /
+      // Display size (which changes the CSS viewport width and makes the whole
+      // UI — text, icons, the + button — bigger or smaller). The page lays out
+      // at a fixed 412px and the browser scales it to fit the screen, so two
+      // phones with different Screen-zoom settings look identical. Web/desktop
+      // is untouched (this only runs when isApp).
+      try {
+        var vp = document.querySelector('meta[name="viewport"]');
+        if (vp) vp.setAttribute('content', 'width=412, viewport-fit=cover');
+      } catch (e) {}
       // Hide the ad slot inside the app (no ads).
       var st = document.createElement('style');
       st.textContent = '.ad-container{display:none!important}';
@@ -80,11 +91,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=584" />
-  <link rel="stylesheet" href="css/calc.css?v=584" />
-  <link rel="stylesheet" href="css/premium.css?v=584" />
+  <link rel="stylesheet" href="css/styles.css?v=585" />
+  <link rel="stylesheet" href="css/calc.css?v=585" />
+  <link rel="stylesheet" href="css/premium.css?v=585" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=584" />
+  <link rel="stylesheet" href="css/mobile.css?v=585" />
 </head>
 <body>
 
@@ -536,35 +547,35 @@
 
 <!-- (Old floating calculator removed — replaced by the full-screen calc page) -->
 
-<script src="js/storage.js?v=584"></script>
-<script src="js/core.js?v=584"></script>
-<script src="js/ai.js?v=584"></script>
-<script src="js/dashboard.js?v=584"></script>
-<script src="js/finance.js?v=584"></script>
-<script src="js/bank-tracker.js?v=584"></script>
-<script src="js/life.js?v=584"></script>
-<script src="js/growth.js?v=584"></script>
-<script src="js/calculator.js?v=584"></script>
-<script src="js/features.js?v=584"></script>
-<script src="js/premium.js?v=584"></script>
-<script src="js/categories.js?v=584"></script>
-<script src="js/pages.js?v=584"></script>
-<script src="js/help.js?v=584"></script>
-<script src="js/voice.js?v=584"></script>
-<script src="js/applock.js?v=584"></script>
-<script src="js/onboarding.js?v=584"></script>
-<script src="js/layout.js?v=584"></script>
-<script src="js/notes.js?v=584"></script>
-<script src="js/widgets.js?v=584"></script>
-<script src="js/custom-pages.js?v=584"></script>
-<script src="js/yearly.js?v=584"></script>
-<script src="js/heatmap.js?v=584"></script>
-<script src="js/purchases.js?v=584"></script>
-<script src="js/upcoming.js?v=584"></script>
-<script src="js/renewals.js?v=584"></script>
-<script src="js/split.js?v=584"></script>
-<script src="js/digest.js?v=584"></script>
-<script src="js/init.js?v=584"></script>
+<script src="js/storage.js?v=585"></script>
+<script src="js/core.js?v=585"></script>
+<script src="js/ai.js?v=585"></script>
+<script src="js/dashboard.js?v=585"></script>
+<script src="js/finance.js?v=585"></script>
+<script src="js/bank-tracker.js?v=585"></script>
+<script src="js/life.js?v=585"></script>
+<script src="js/growth.js?v=585"></script>
+<script src="js/calculator.js?v=585"></script>
+<script src="js/features.js?v=585"></script>
+<script src="js/premium.js?v=585"></script>
+<script src="js/categories.js?v=585"></script>
+<script src="js/pages.js?v=585"></script>
+<script src="js/help.js?v=585"></script>
+<script src="js/voice.js?v=585"></script>
+<script src="js/applock.js?v=585"></script>
+<script src="js/onboarding.js?v=585"></script>
+<script src="js/layout.js?v=585"></script>
+<script src="js/notes.js?v=585"></script>
+<script src="js/widgets.js?v=585"></script>
+<script src="js/custom-pages.js?v=585"></script>
+<script src="js/yearly.js?v=585"></script>
+<script src="js/heatmap.js?v=585"></script>
+<script src="js/purchases.js?v=585"></script>
+<script src="js/upcoming.js?v=585"></script>
+<script src="js/renewals.js?v=585"></script>
+<script src="js/split.js?v=585"></script>
+<script src="js/digest.js?v=585"></script>
+<script src="js/init.js?v=585"></script>
 
 <!-- ===== First-run Onboarding ===== -->
 <div id="onboarding" style="display:none">
