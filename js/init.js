@@ -118,6 +118,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // User object exists locally — go straight to app (works offline too)
     showApp();
     renderCalcBody();
+    if (typeof maybeShowMorningDigest === 'function') maybeShowMorningDigest();
   } else if (token) {
     // Token exists but user object missing — try auto-restore from cloud
     tryAutoRestore(token);

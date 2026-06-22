@@ -467,10 +467,11 @@ function renderRecordsMyMoney() {
           const topCat = Object.entries(byCat).sort((a, b) => b[1] - a[1])[0];
           const savedPct = pInc > 0 ? Math.round((pInc - pExp) / pInc * 100) : 0;
           recapHtml = `
-          <div class="mm-recap-card">
+          <div class="mm-recap-card" onclick="if(typeof showMonthReview==='function')showMonthReview('${pYm}')" style="cursor:pointer">
             <button class="mm-recap-x" onclick="event.stopPropagation();localStorage.setItem('${flag}','1');renderRecordsMyMoney()"><i data-lucide="x"></i></button>
             <p class="mm-recap-title">📊 ${prev.toLocaleString('default', { month: 'long' })} recap</p>
             <p class="mm-recap-line">Spent <b style="color:#ef4444">${fmt(pExp)}</b> · earned <b style="color:#10b981">${fmt(pInc)}</b>${pInc > 0 ? ` · saved <b style="color:${savedPct >= 0 ? '#00c9a7' : '#ef4444'}">${savedPct}%</b>` : ''}${topCat ? ` · top: <b>${esc(topCat[0])}</b> ${fmt(topCat[1])}` : ''}</p>
+            <p class="mm-recap-line" style="opacity:.7;font-size:12px;margin-top:4px">Tap for full review →</p>
           </div>`;
         } else localStorage.setItem(flag, '1');
       }
