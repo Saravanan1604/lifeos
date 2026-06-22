@@ -16121,3 +16121,21 @@ html.is-app .mymoney-records .mm-hs-lbl {
 html.is-app .mymoney-records .mm-hs-val {
   font-size: 1.6rem !important;
 }
+
+/* 10. Reduce total switch in balance card by 50% */
+html.is-app .mm-total-switch {
+  width: 23px !important;
+  height: 13px !important;
+}
+html.is-app .mm-total-switch span {
+  border-radius: 10px !important;
+}
+html.is-app .mm-total-switch span::before {
+  width: 9px !important;
+  height: 9px !important;
+  left: 2px !important;
+  top: 2px !important;
+}
+html.is-app .mm-total-switch input:checked+span::before {
+  transform: translateX(10px) !important;
+}
