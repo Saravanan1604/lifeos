@@ -15991,3 +15991,72 @@ html.is-app .mm-subhead-title {
   font-size: 1rem !important;
 }
 
+/* ============================================================
+   build 592 — Records page + bottom nav adjustments:
+   1. Spending ring button (mm-ring-btn) — shrink ~50%
+   2. FAB (+) sits inline with the 4 bottom nav tabs (same line, same size)
+   ============================================================ */
+
+/* 1. Spending ring icon — shrink ~50% */
+html.is-app .mm-ring-btn {
+  width: 28px !important;
+  height: 28px !important;
+}
+html.is-app .mm-ring-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* 2. FAB (+) — inline with bottom nav, same size as other tabs */
+html.is-app #fab-add {
+  position: static !important;
+  transform: none !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  padding: 6px 0 !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  color: #00c9a7 !important;
+}
+html.is-app #fab-add svg {
+  width: 23px !important;
+  height: 23px !important;
+}
+/* Add a "+" label below the icon to match the other tabs */
+html.is-app #fab-add::after {
+  content: 'Add';
+  font-size: 11px !important;
+  font-weight: 500;
+  color: #00c9a7;
+  line-height: 1;
+}
+
+/* Move FAB inside the bottom-nav bar (between Finance and Assets) */
+html.is-app #bottom-nav .bn-fab-slot {
+  display: none !important;
+}
+html.is-app #bottom-nav {
+  position: relative !important;
+}
+/* Re-parent FAB visually into the nav by making it sit inside */
+html.is-app #fab-add {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  /* Match the nav bar height */
+  height: auto !important;
+  width: 20% !important;
+  z-index: 9002 !important;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+  padding-top: 6px !important;
+}
