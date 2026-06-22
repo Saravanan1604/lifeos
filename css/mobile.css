@@ -16139,3 +16139,58 @@ html.is-app .mm-total-switch span::before {
 html.is-app .mm-total-switch input:checked+span::before {
   transform: translateX(10px) !important;
 }
+
+/* 11. Selection action bar fixes (Records Page select mode) */
+html.is-app .mymoney-records.selmode .mm-selbar {
+  background: var(--glass) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: var(--text) !important;
+  border-radius: 12px !important;
+  padding: 6px 10px !important;
+  margin: 6px 14px 8px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+html.is-app .mm-selbar .mm-selx {
+  background: var(--glass-border) !important;
+  color: var(--text) !important;
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 0.95rem !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+html.is-app .mm-selbar .mm-selcount {
+  color: var(--text) !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+}
+
+html.is-app .mm-selbar .mm-selact {
+  background: var(--glass-border) !important;
+  color: var(--text) !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+
+html.is-app .mm-selbar .mm-selact.del {
+  background: rgba(239, 68, 68, 0.85) !important;
+  color: #fff !important;
+}
+
+html.is-app .mm-selbar .mm-selact svg {
+  width: 14px !important;
+  height: 14px !important;
+  vertical-align: middle !important;
+}
+
