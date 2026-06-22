@@ -16017,39 +16017,40 @@ html.is-app #bottom-nav .bn-fab-slot {
 }
 
 /* Position the FAB fixed at the bottom, centered over the fab-slot.
-   Styled identically to .bn-item (column, icon + label, same size). */
+   Styled as a round green circle with a white icon. */
 html.is-app #fab-add {
   position: fixed !important;
-  bottom: 0 !important;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  width: 20% !important;
-  height: auto !important;
-  z-index: 100000 !important;
-  /* Strip the old circle / glow styles */
-  border-radius: 0 !important;
-  background: transparent !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  background: #00c9a7 !important;
   border: none !important;
-  box-shadow: none !important;
-  /* Match .bn-item layout */
+  box-shadow: 0 4px 14px rgba(0, 201, 167, 0.4) !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 4px !important;
-  padding: 34px 0 calc(34px + env(safe-area-inset-bottom, 0px)) !important;
-  color: #00c9a7 !important;
+  z-index: 100000 !important;
+  padding: 0 !important;
 }
 html.is-app #fab-add svg {
-  width: 23px !important;
-  height: 23px !important;
-  stroke: #00c9a7 !important;
+  width: 26px !important;
+  height: 26px !important;
+  stroke: #fff !important;
 }
-/* "Add" label below the + icon, matching the other tab labels */
 html.is-app #fab-add::after {
-  content: 'Add';
-  font-size: 11px !important;
-  font-weight: 500 !important;
-  color: #00c9a7 !important;
-  line-height: 1 !important;
+  content: none !important;
+}
+
+/* 3. Compact bottom nav bar */
+html.is-app #bottom-nav {
+  padding: 10px 6px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 4. Compact transaction list cards */
+html.is-app .mymoney-records .mm-row {
+  padding: 10px 14px !important;
 }
