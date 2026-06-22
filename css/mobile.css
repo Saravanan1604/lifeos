@@ -15908,7 +15908,15 @@ html.is-app #bottom-nav .bn-item svg { width: 23px !important; height: 23px !imp
 html.is-app #page-container[data-page="investments"],
 html.is-app #page-container[data-page="spending"],
 html.is-app #page-container[data-page="budget"],
-html.is-app #page-container[data-page="goals"] { zoom: 0.6 !important; }
+html.is-app #page-container[data-page="goals"],
+html.is-app #page-container[data-page="yearly"],
+html.is-app #page-container[data-page="habits"] { zoom: 0.6 !important; }
+
+/* Settings has the most aggressive own-size block (66px title), and Finance's
+   net-balance hero ran a little large — scale them to match the rest too. */
+html.is-app #page-container[data-page="settings"] { zoom: 0.5 !important; }
+html.is-app #page-container[data-page="finance"],
+html.is-app #page-container[data-page="bank-tracker"] { zoom: 0.8 !important; }
 
 /* Drawer — undo the build-370 2x so labels fit ("Dashboard", "Spending") */
 html.is-app .sidebar .nav-item .nav-text { font-size: 17px !important; }
