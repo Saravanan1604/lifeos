@@ -15869,3 +15869,28 @@ html.is-app .mr-inline-body .mr-pop > div:first-child b { font-size: 24px !impor
    ============================================================ */
 html.is-app .page-customize-btn { display: none !important; }
 html.is-app .create-page-btn { display: none !important; }
+
+/* ============================================================
+   build 580 — NORMALIZE app size. Earlier builds inflated the
+   whole app ~2x (root font-size 125% in build 130, enlarged
+   headings, px→rem bumps in the build-129 block, the 2x hamburger
+   in build 148), so it only looked right when the phone was zoomed
+   fully out and was huge on any phone at default settings. This
+   block (last in the cascade, so it wins) brings the base back to
+   a normal size: the "Default" Text Size now looks proper for
+   everyone, and Large / Extra-Large still scale up from here.
+   App-only (html.is-app) — web/desktop is completely untouched.
+   ============================================================ */
+html.is-app { font-size: 72% !important; }
+
+/* hamburger — back to a normal tap target (was 92px, build 148) */
+html.is-app .mobile-menu-btn { width: 48px !important; height: 48px !important; border-radius: 14px !important; }
+html.is-app .mobile-menu-btn svg { width: 26px !important; height: 26px !important; }
+
+/* top tools (mic / calc / globe / bell) */
+html.is-app #top-tools button { width: 40px !important; height: 40px !important; border-radius: 12px !important; }
+html.is-app #top-tools button svg { width: 19px !important; height: 19px !important; }
+
+/* bottom nav labels + icons — stop the labels overlapping */
+html.is-app #bottom-nav .bn-item span { font-size: 11px !important; }
+html.is-app #bottom-nav .bn-item svg { width: 23px !important; height: 23px !important; }
