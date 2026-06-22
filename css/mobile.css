@@ -15946,3 +15946,85 @@ html.is-app .mm-amt.neg { font-size: 16px !important; }
 html.is-app .mm-day,
 html.is-app .mm-day span { font-size: 13px !important; }
 html.is-app .mm-day-total { font-size: 14px !important; }
+
+/* ============================================================
+   build 589 — Records page element sizing adjustments:
+   1. Today strip ("Today: ₹0 spent · ₹7,588…") — shrink ~50%
+   2. Month label ("June 2026") — increase size
+   3. Filter buttons (select, AI, sliders) — shrink ~50%
+   4. Balance hero card — shrink ~50%
+   ============================================================ */
+
+/* 1. Today strip — smaller card + text */
+html.is-app .mm-today-strip {
+  font-size: 11px !important;
+  padding: 7px 10px !important;
+  gap: 6px !important;
+  border-radius: 10px !important;
+  margin-bottom: 8px !important;
+}
+html.is-app .mm-today-strip svg {
+  width: 13px !important;
+  height: 13px !important;
+}
+
+/* 2. Month label — increase size */
+html.is-app .mymoney-records .mm-month {
+  font-size: 1.8rem !important;
+  padding: 10px 22px !important;
+}
+html.is-app .mymoney-records .mm-month-chev {
+  font-size: 18px !important;
+}
+
+/* 3. Filter buttons (select · AI · sliders) — shrink ~50% */
+html.is-app .mm-subhead-filter {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 9px !important;
+}
+html.is-app .mm-subhead-filter svg.lucide {
+  width: 15px !important;
+  height: 15px !important;
+}
+html.is-app .mm-subhead-title {
+  font-size: 1rem !important;
+}
+
+/* 4. Balance hero card — shrink ~50% */
+html.is-app .mymoney-records .mm-hero {
+  padding: 14px 12px 12px !important;
+  margin: 3px 10px 6px !important;
+  border-radius: 16px !important;
+}
+html.is-app .mymoney-records .mm-hero-lbl {
+  font-size: 0.75rem !important;
+}
+html.is-app .mymoney-records .mm-hero-val {
+  font-size: 2.1rem !important;
+  margin: 4px 0 8px !important;
+}
+html.is-app .mymoney-records .mm-hs-lbl {
+  font-size: 0.7rem !important;
+  gap: 3px !important;
+}
+html.is-app .mymoney-records .mm-hs-val {
+  font-size: 1rem !important;
+}
+html.is-app .mymoney-records .mm-hs-lbl svg.lucide {
+  width: 0.6rem !important;
+  height: 0.6rem !important;
+}
+html.is-app .mymoney-records .mm-total-switch {
+  width: 30px !important;
+  height: 16px !important;
+}
+html.is-app .mymoney-records .mm-total-switch span::before {
+  width: 12px !important;
+  height: 12px !important;
+  left: 2px !important;
+  top: 2px !important;
+}
+html.is-app .mymoney-records .mm-total-switch input:checked+span::before {
+  transform: translateX(14px) !important;
+}
