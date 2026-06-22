@@ -16063,10 +16063,11 @@ html.is-app .sidebar.mobile-open {
   box-shadow: 0 0 50px rgba(0,0,0,0.5) !important;
 }
 
-/* 6. Fit month navigation arrows to screen */
+/* 6. Fit month navigation arrows to screen and reduce gap */
 html.is-app .mymoney-records .mm-monthbar {
-  padding-left: 60px !important;
-  padding-right: 80px !important;
+  padding: 4px 80px 8px 60px !important;
+  margin-top: 0px !important;
+  margin-bottom: 8px !important;
   gap: 12px !important;
 }
 html.is-app .mymoney-records .mm-month {
@@ -16094,4 +16095,29 @@ html.is-app #top-tools button {
 html.is-app #top-tools button svg {
   width: 15px !important;
   height: 15px !important;
+}
+
+/* 8. Reduce empty gap at top of page content */
+html.is-app .content {
+  padding-top: 68px !important;
+}
+
+/* 9. Reduce balance card (.mm-hero) size and fonts by 20% */
+html.is-app .mymoney-records .mm-hero {
+  margin: 4px 14px 10px !important;
+  padding: 18px 16px 16px !important;
+  border-radius: 18px !important;
+}
+html.is-app .mymoney-records .mm-hero-lbl {
+  font-size: 1.2rem !important;
+}
+html.is-app .mymoney-records .mm-hero-val {
+  font-size: 3.4rem !important;
+  margin: 6px 0 12px !important;
+}
+html.is-app .mymoney-records .mm-hs-lbl {
+  font-size: 1.05rem !important;
+}
+html.is-app .mymoney-records .mm-hs-val {
+  font-size: 1.6rem !important;
 }
