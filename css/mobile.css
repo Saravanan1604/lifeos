@@ -4173,16 +4173,18 @@ html.is-app #modal-overlay .modal-body b {
 }
 
 /* ============================================================
-   build 129 â€” text scales with the phone's system font size
-   (Display â†’ Font size). Root font-size is left relative and the
-   mobile type scale is expressed in rem, so raising the Android
-   font size enlarges the whole app like native Google apps do.
-   Same visual size at the default (1rem = 16px). App-only.
+   build 579 — LOCK the app to a consistent size regardless of the
+   phone's system Font size / Display size. Previously this used
+   text-size-adjust:auto, which let Android multiply all of the app's
+   (already large) text by the device font scale — so testers with a
+   big system font saw a giant, overflowing UI. Pinning to 100% means
+   everyone sees the same size; users who want bigger can still use the
+   in-app Text Size setting (appScale). App-only (html.is-app).
    ============================================================ */
 html.is-app {
   font-size: 100% !important;
-  -webkit-text-size-adjust: auto !important;
-  text-size-adjust: auto !important;
+  -webkit-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
 }
 
 html.is-app .page-title {
