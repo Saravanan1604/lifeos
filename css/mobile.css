@@ -16007,56 +16007,49 @@ html.is-app .mm-ring-btn svg {
   height: 14px !important;
 }
 
-/* 2. FAB (+) — inline with bottom nav, same size as other tabs */
-html.is-app #fab-add {
-  position: static !important;
-  transform: none !important;
-  width: auto !important;
-  height: auto !important;
-  border-radius: 0 !important;
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 7px !important;
-  padding: 6px 0 !important;
+/* 2. FAB (+) — flat item aligned in the bottom nav center slot */
+/* Keep the bn-fab-slot visible as a spacer so the 4 real tabs spread evenly */
+html.is-app #bottom-nav .bn-fab-slot {
   flex: 1 1 0 !important;
   min-width: 0 !important;
-  color: #00c9a7 !important;
-}
-html.is-app #fab-add svg {
-  width: 23px !important;
-  height: 23px !important;
-}
-/* Add a "+" label below the icon to match the other tabs */
-html.is-app #fab-add::after {
-  content: 'Add';
-  font-size: 11px !important;
-  font-weight: 500;
-  color: #00c9a7;
-  line-height: 1;
+  height: auto !important;
+  display: block !important;
 }
 
-/* Move FAB inside the bottom-nav bar (between Finance and Assets) */
-html.is-app #bottom-nav .bn-fab-slot {
-  display: none !important;
-}
-html.is-app #bottom-nav {
-  position: relative !important;
-}
-/* Re-parent FAB visually into the nav by making it sit inside */
+/* Position the FAB fixed at the bottom, centered over the fab-slot.
+   Styled identically to .bn-item (column, icon + label, same size). */
 html.is-app #fab-add {
   position: fixed !important;
   bottom: 0 !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  /* Match the nav bar height */
-  height: auto !important;
   width: 20% !important;
-  z-index: 9002 !important;
-  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
-  padding-top: 6px !important;
+  height: auto !important;
+  z-index: 100000 !important;
+  /* Strip the old circle / glow styles */
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  /* Match .bn-item layout */
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 34px 0 calc(34px + env(safe-area-inset-bottom, 0px)) !important;
+  color: #00c9a7 !important;
+}
+html.is-app #fab-add svg {
+  width: 23px !important;
+  height: 23px !important;
+  stroke: #00c9a7 !important;
+}
+/* "Add" label below the + icon, matching the other tab labels */
+html.is-app #fab-add::after {
+  content: 'Add';
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: #00c9a7 !important;
+  line-height: 1 !important;
 }
