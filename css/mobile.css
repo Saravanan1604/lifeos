@@ -17103,6 +17103,29 @@ html.is-app #fab-add {
 }
 html.is-app #fab-add svg { width: 22px !important; height: 22px !important; }
 
+/* ============================================================
+   build 616 — three fixes: (1) the active-tab "box" was #bn-indicator's
+   leftover white box-shadow (glowed in dark mode); (2) Records "June 2026"
+   month bar was too wide so the › arrow / Today crammed; (3) transaction
+   meta wrapped to 2 lines on long notes — keep it one line, truncate note.
+   ============================================================ */
+/* 1. kill the indicator's box-shadow (the "box") */
+html.is-app #bn-indicator { box-shadow: none !important; }
+
+/* 2. Records month bar fits cleanly */
+html.is-app .mymoney-records .mm-month { font-size: 1.2rem !important; padding: 6px 10px !important; }
+html.is-app .mymoney-records .mm-monthbar { gap: 4px !important; }
+html.is-app .mymoney-records .mm-navbtn { padding: 4px 5px !important; }
+html.is-app .mymoney-records .mm-today { margin-left: 8px !important; }
+
+/* 3. transaction meta (account chip · note · time) stays one line; long
+   notes truncate with an ellipsis instead of wrapping */
+html.is-app .mymoney-records .mm-meta { flex-wrap: nowrap !important; min-width: 0 !important; overflow: hidden !important; }
+html.is-app .mymoney-records .mm-note {
+  white-space: nowrap !important; overflow: hidden !important;
+  text-overflow: ellipsis !important; min-width: 0 !important; flex: 0 1 auto !important;
+}
+
 
 
 
