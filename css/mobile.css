@@ -16798,4 +16798,14 @@ html.is-app #page-container[data-page="bank-tracker"] .mm-hero-split {
   border-radius: 12px !important;
 }
 
+/* build 607 — Net Balance text truncation & layout wraps fix */
+html.is-app #page-container[data-page="finance"] .fin-netbal-hero .mm-hero-val,
+html.is-app #page-container[data-page="bank-tracker"] .fin-netbal-hero .mm-hero-val,
+html.is-app .fin-netbal-hero .mm-hero-val {
+  font-size: 2.2rem !important; /* was 4.5rem */
+  white-space: nowrap !important;
+  margin: 6px 0 10px !important;
+}
+
+
 
