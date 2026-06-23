@@ -16993,6 +16993,19 @@ html.is-app .fin-netbal-hero .mm-hero-lbl { color: rgba(255,255,255,0.72) !impor
 /* Dashboard heatmap month label (32px) overlapped the Today button */
 html.is-app #page-container[data-page="dashboard"] .mm-monthbar .mm-month { font-size: 21px !important; }
 
+/* ============================================================
+   build 611 — Records hero TYPE HIERARCHY fix
+   The balance value had ballooned to 77px and the "BALANCE" label to
+   26px, flattening the hierarchy (everything shouted, nothing read as
+   primary). Restore a proper Material scale: small overline label,
+   prominent-but-sane value, medium sub-values.
+   ============================================================ */
+html.is-app .mymoney-records .mm-hero-lbl { font-size: 13px !important; letter-spacing: 1.4px !important; font-weight: 700 !important; opacity: .6 !important; }
+html.is-app .mymoney-records .mm-hero-val { font-size: 42px !important; margin-bottom: 16px !important; }
+html.is-app .mymoney-records .mm-hs-val { font-size: 22px !important; }
+html.is-app .mymoney-records .mm-hs-lbl { font-size: 13px !important; }
+html.is-app .mymoney-records .mm-hero { padding: 20px !important; }
+
 
 
 
