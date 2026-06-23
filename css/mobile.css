@@ -17016,6 +17016,61 @@ html.is-app .mymoney-records .mm-row { padding: 12px 14px !important; gap: 13px 
 html.is-app .mymoney-records .mm-cat { font-size: 15.5px !important; font-weight: 600 !important; }
 html.is-app .mymoney-records .mm-amt { font-size: 16px !important; font-weight: 700 !important; }
 
+/* ============================================================
+   build 614 — CURVED / NOTCHED bottom nav with sliding animation.
+   Reuses #bn-indicator (already JS-positioned over the active tab):
+   its ::before is a bg-coloured circle that "cuts" a notch out of the
+   dark floating bar, and the active icon lifts up into it. Switching
+   page slides the notch to the new tab. Center + stays the add button.
+   ============================================================ */
+html.is-app #bottom-nav,
+html.is-app body.light #bottom-nav,
+html.is-app body:not(.light) #bottom-nav {
+  background: #161b2e !important;
+  margin: 0 12px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  border-radius: 30px !important;
+  border: none !important;
+  box-shadow: 0 14px 34px -10px rgba(0,0,0,0.5) !important;
+  overflow: visible !important;
+  height: 62px !important;
+  padding: 0 20px !important;
+}
+
+/* sliding notch — the bg-coloured circle carved into the bar */
+html.is-app #bn-indicator {
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important; bottom: auto !important; left: 0 !important; height: 100% !important;
+  background: transparent !important; border: none !important;
+  pointer-events: none; z-index: 1 !important;
+  transition: transform .42s cubic-bezier(.34,1.4,.5,1), opacity .2s ease !important;
+}
+/* hide the old active-tab dot — replaced by the notch */
+html.is-app #bottom-nav .bn-item.active::after { display: none !important; }
+html.is-app #bn-indicator::before {
+  content: ''; position: absolute; left: 50%; top: -16px;
+  width: 52px; height: 52px; border-radius: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+}
+
+/* inactive tabs — muted icon + label */
+html.is-app #bottom-nav .bn-item { position: relative; z-index: 2; color: rgba(255,255,255,0.55) !important; }
+html.is-app #bottom-nav .bn-item svg { color: inherit !important; transition: transform .42s cubic-bezier(.34,1.4,.5,1), background .25s ease, padding .25s ease; }
+html.is-app #bottom-nav .bn-item span { color: rgba(255,255,255,0.5) !important; transition: opacity .2s ease; }
+
+/* active tab — icon lifts into the notch inside a gradient circle */
+html.is-app #bottom-nav .bn-item.active { color: #fff !important; }
+html.is-app #bottom-nav .bn-item.active svg {
+  transform: translateY(-17px);
+  width: 21px !important; height: 21px !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #6C63FF, #00D4FF);
+  padding: 10px; border-radius: 50%; box-sizing: content-box;
+  box-shadow: 0 8px 18px -4px rgba(108,99,255,0.7);
+}
+html.is-app #bottom-nav .bn-item.active span { opacity: 0 !important; }
+
 
 
 
