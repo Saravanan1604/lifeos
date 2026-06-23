@@ -17010,7 +17010,7 @@ html.is-app .mymoney-records .mm-hero { padding: 20px !important; }
    for a list item), unbalancing the row. Right-size to a 44px Material list
    avatar, tidy the name/amount weight + row padding so icon · text · number
    read as one clean line. */
-html.is-app .mymoney-records .mm-ic { width: 44px !important; height: 44px !important; flex: 0 0 44px !important; border-radius: 13px !important; }
+html.is-app .mymoney-records .mm-ic { width: 44px !important; height: 44px !important; flex: 0 0 44px !important; border-radius: 50% !important; }
 html.is-app .mymoney-records .mm-ic svg { width: 22px !important; height: 22px !important; }
 html.is-app .mymoney-records .mm-row { padding: 12px 14px !important; gap: 13px !important; }
 html.is-app .mymoney-records .mm-cat { font-size: 15.5px !important; font-weight: 600 !important; }
