@@ -473,7 +473,7 @@ function renderGoals() {
         ? `<div class="glass-card" style="padding:40px"><div class="empty-state"><span class="empty-state-icon"><i data-lucide="rocket"></i></span><p>No goals yet. Set your first life goal!</p></div></div>`
         : `<div style="display:flex;flex-direction:column;gap:14px">
           ${goals.map(g => {
-            const pct = g.target > 0 ? Math.min(100, Math.round((g.current / g.target) * 100)) : 0;
+            const pct = g.target > 0 ? Math.min(100, Math.max(0, Math.round(((+g.current || 0) / g.target) * 100))) : 0;
             const daysLeft = g.deadline ? Math.ceil((new Date(g.deadline) - new Date()) / 86400000) : null;
             const done = pct >= 100;
             return `<div class="glass-card goal-card" style="padding:18px${done?';border-color:rgba(16,185,129,0.4)':''};cursor:pointer" onclick="openEditGoalModal('${g.id}')">

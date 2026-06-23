@@ -632,6 +632,44 @@ function renderDashBudgetChart() {
 }
 
 // ===== DASHBOARD =====
+// Premium dashboard home hero (build 610) — greeting + gradient wealth card
+// + quick actions. App-only; injected at the top of renderDashboard.
+function _pdHero(bank, cash, inv, cardOut, hasAccts, income, expense) {
+  const name = (STATE.settings && STATE.settings.name) || (STATE.user && STATE.user.name) || 'there';
+  const hr = new Date().getHours();
+  const greet = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  const initial = (String(name).trim()[0] || 'A').toUpperCase();
+  let wealth = bank + cash + (inv || 0) - cardOut;
+  if (!hasAccts && !(inv > 0)) wealth = income - expense;
+  const monthNet = income - expense;
+  const up = monthNet >= 0;
+  return `
+    <div class="pd-home">
+      <div class="pd-greet">
+        <div class="pd-avatar">${esc(initial)}</div>
+        <div class="pd-greet-txt">
+          <p class="pd-greet-sub">${greet},</p>
+          <p class="pd-greet-name">${esc(name)}</p>
+        </div>
+        <button class="pd-bell" onclick="navigate('upcoming')" title="Upcoming bills">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </button>
+      </div>
+      <div class="pd-hero-card">
+        <div class="pd-hero-glow"></div>
+        <p class="pd-hero-lbl">TOTAL WEALTH</p>
+        <p class="pd-hero-val">${fmt(wealth)}</p>
+        <span class="pd-hero-chg ${up ? 'up' : 'down'}">${up ? '▲ +' : '▼ −'}${fmt(Math.abs(monthNet))} · this month</span>
+        <div class="pd-actions">
+          <button class="pd-act" onclick="openTxPad()"><span class="pd-act-ic">−</span>Expense</button>
+          <button class="pd-act" onclick="openTxPad();if(typeof padSetType==='function')padSetType('income')"><span class="pd-act-ic">+</span>Income</button>
+          <button class="pd-act" onclick="navigate('finance')"><span class="pd-act-ic">⇄</span>Transfer</button>
+          <button class="pd-act" onclick="navigate('yearly')"><span class="pd-act-ic">📊</span>Reports</button>
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderDashboard() {
   try {
   const scores = calcLifeScore();
@@ -682,6 +720,7 @@ function renderDashboard() {
 
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
+      ${window.__IS_APP ? _pdHero(_bankTotal, _cashTotal, invValue, _cardOut, _hasAccts, totalIncome, totalExpense) : ''}
       <!-- Header -->
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div class="dash-title-block">
