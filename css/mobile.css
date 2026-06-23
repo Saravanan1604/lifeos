@@ -16586,4 +16586,216 @@ html.is-app #txpad .pad-cancel-btn {
   margin-top: 8px !important;
 }
 
+/* ============================================================
+   build 606 — scale down app font sizes and card spacing so everything fits cleanly on mobile screens
+   ============================================================ */
+
+/* 1. Global root scale & spacing reduction */
+html.is-app {
+  font-size: 118% !important; /* was 190%! Shrunk by 38% for compact layout */
+}
+
+html.is-app .glass-card {
+  margin-bottom: 14px !important; /* was 38px */
+}
+html.is-app .glass-card:not(:has(.fin-bank-grid, .fin-card-grid, .fin-cash-grid)) {
+  margin-bottom: 14px !important; /* was 38px */
+}
+html.is-app .fin-dark-card {
+  margin-bottom: 14px !important; /* was 38px */
+}
+html.is-app .kpi-grid {
+  margin-bottom: 14px !important; /* was 38px */
+}
+html.is-app #insight-bar {
+  margin-bottom: 14px !important; /* was 38px */
+}
+html.is-app .ia-hero,
+html.is-app .ia-stats,
+html.is-app .ia-toggle,
+html.is-app .ia-card,
+html.is-app button[onclick*="openNetWorthProjModal"] {
+  margin-bottom: 14px !important; /* was 34px */
+}
+html.is-app .mm-row {
+  padding: 10px 14px !important; /* was 18px 20px */
+}
+
+/* 2. Overriding bloated absolute px styles from build 129 */
+html.is-app [style*="font-size:15px"] { font-size: 15px !important; }
+html.is-app [style*="font-size:16px"] { font-size: 16px !important; }
+html.is-app [style*="font-size:17px"] { font-size: 16px !important; }
+html.is-app [style*="font-size:18px"] { font-size: 17px !important; }
+html.is-app [style*="font-size:19px"] { font-size: 18px !important; }
+html.is-app [style*="font-size:20px"] { font-size: 19px !important; }
+html.is-app [style*="font-size:22px"] { font-size: 21px !important; }
+html.is-app [style*="font-size:24px"] { font-size: 22px !important; }
+html.is-app [style*="font-size:26px"] { font-size: 24px !important; }
+html.is-app [style*="font-size:28px"] { font-size: 26px !important; }
+html.is-app [style*="font-size:32px"] { font-size: 28px !important; }
+html.is-app [style*="font-size:36px"] { font-size: 32px !important; }
+html.is-app [style*="font-size:48px"] { font-size: 40px !important; }
+
+html.is-app .content { font-size: 14px !important; }
+html.is-app .stat-card-value { font-size: 24px !important; }
+html.is-app .stat-card-label { font-size: 12px !important; }
+html.is-app .page-title { font-size: 22px !important; }
+html.is-app .page-subtitle { font-size: 12px !important; }
+html.is-app .section-title { font-size: 15px !important; }
+html.is-app .form-input,
+html.is-app input,
+html.is-app select,
+html.is-app textarea { font-size: 14px !important; }
+
+/* 3. Compact bottom navigation bar */
+html.is-app #bottom-nav {
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+}
+html.is-app #bottom-nav .bn-item svg {
+  width: 28px !important;
+  height: 28px !important;
+}
+html.is-app #bottom-nav .bn-item span {
+  font-size: 11px !important;
+}
+html.is-app #fab-add {
+  width: 60px !important;
+  height: 60px !important;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+}
+html.is-app #fab-add svg {
+  width: 30px !important;
+  height: 30px !important;
+}
+html.is-app .content {
+  padding-bottom: 96px !important; /* was 200px */
+}
+
+/* 4. Compact top toolbar & header elements */
+html.is-app #top-tools button {
+  width: 36px !important;
+  height: 36px !important;
+}
+html.is-app #top-tools button svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+html.is-app .mobile-menu-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+}
+html.is-app .mobile-menu-btn svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* 5. Help page premium sizing adjustments */
+html.is-app #page-container[data-page="help"] .page-title {
+  font-size: 24px !important;
+}
+html.is-app #page-container[data-page="help"] .page-subtitle {
+  font-size: 13px !important;
+}
+html.is-app #page-container[data-page="help"] input[placeholder*="Search"] {
+  font-size: 14px !important;
+}
+html.is-app #page-container[data-page="help"] .section-title {
+  font-size: 16px !important;
+}
+html.is-app #page-container[data-page="help"] .glass-card {
+  padding: 14px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid {
+  gap: 10px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid > div {
+  padding: 12px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid span[style*="font-size:12px"] {
+  font-size: 13px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid span[style*="font-size:16px"] {
+  font-size: 15px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid span[style*="width:22px"] {
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 12px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid p[style*="font-size:11px"] {
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  margin-top: 6px !important;
+}
+html.is-app #page-container[data-page="help"] .help-steps-grid p[style*="font-size:10px"] {
+  font-size: 12px !important;
+  margin-top: 6px !important;
+}
+html.is-app #page-container[data-page="help"] button[onclick*="toggleHelpAccordion"] {
+  padding: 10px 14px !important;
+}
+html.is-app #page-container[data-page="help"] button[onclick*="toggleHelpAccordion"] span[style*="font-size:13px"] {
+  font-size: 13px !important;
+}
+html.is-app #page-container[data-page="help"] button[onclick*="toggleHelpAccordion"] span[style*="font-size:18px"] {
+  font-size: 14px !important;
+}
+html.is-app #page-container[data-page="help"] button[onclick*="toggleHelpAccordion"] span[id^="hi-"] {
+  font-size: 16px !important;
+}
+html.is-app #page-container[data-page="help"] div[id^="ha-"] p {
+  font-size: 12px !important;
+}
+
+/* 6. Assets page & Loan/Asset details absolute pixel font sizes */
+html.is-app .ia-hero-lbl { font-size: 14px !important; }
+html.is-app .ia-hero-val { font-size: 32px !important; }
+html.is-app .ia-hero-chg { font-size: 14px !important; }
+html.is-app .ia-hs-lbl { font-size: 12px !important; }
+html.is-app .ia-hs-val { font-size: 16px !important; }
+html.is-app .ia-stat-lbl { font-size: 11px !important; }
+html.is-app .ia-stat-val { font-size: 15px !important; }
+html.is-app .ia-card-title { font-size: 16px !important; }
+html.is-app .ia-link { font-size: 12px !important; }
+html.is-app .ia-leg-name { font-size: 13px !important; }
+html.is-app .ia-leg-pct { font-size: 12px !important; }
+html.is-app .ia-donut-c span { font-size: 12px !important; }
+html.is-app .ia-donut-c b { font-size: 18px !important; }
+html.is-app .ia-name { font-size: 15px !important; }
+html.is-app .ia-sub { font-size: 12px !important; }
+html.is-app .ia-val { font-size: 15px !important; }
+html.is-app .ia-chg { font-size: 12px !important; }
+html.is-app .inv-add-lbl { font-size: 15px !important; }
+html.is-app .ld-kpi p.l { font-size: 12px !important; }
+html.is-app .ld-kpi p.v { font-size: 24px !important; }
+html.is-app .ld-sec { font-size: 14px !important; }
+html.is-app .ld-sch-row { font-size: 13px !important; }
+html.is-app .ld-sch-hd { font-size: 12px !important; }
+html.is-app .ld-sch-yr { font-size: 12px !important; }
+html.is-app .ld-head .catdet-name { font-size: 24px !important; }
+html.is-app .ld-head .catdet-sub { font-size: 12px !important; }
+html.is-app .ld-seg-b { font-size: 12px !important; }
+html.is-app .ld-page .form-label { font-size: 12px !important; }
+html.is-app .ld-page .form-input { font-size: 14px !important; }
+html.is-app .ld-page .btn-primary,
+html.is-app .ld-page .btn-secondary { font-size: 13px !important; }
+
+/* 7. Balance Log (Bank Tracker) hero card tweaks */
+html.is-app #page-container[data-page="finance"] .mm-hero,
+html.is-app #page-container[data-page="bank-tracker"] .mm-hero {
+  margin: 4px 8px 10px !important;
+  padding: 14px 16px 12px !important;
+  border-radius: 16px !important;
+}
+html.is-app #page-container[data-page="finance"] .mm-hero-val,
+html.is-app #page-container[data-page="bank-tracker"] .mm-hero-val {
+  margin: 4px 0 10px !important;
+}
+html.is-app #page-container[data-page="finance"] .mm-hero-split,
+html.is-app #page-container[data-page="bank-tracker"] .mm-hero-split {
+  padding: 8px 4px !important;
+  border-radius: 12px !important;
+}
+
 

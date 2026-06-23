@@ -795,8 +795,10 @@ function _mrNodeLabels(data, showPct = true) {
   const labels = {};
   nodes.forEach(n => {
     const pct = Math.round((val[n] / base) * 100);
+    const v = val[n];
+    const shortAmt = v >= 10000000 ? '₹' + (v / 10000000).toFixed(1) + 'Cr' : (v >= 100000 ? '₹' + (v / 100000).toFixed(1) + 'L' : (v >= 1000 ? '₹' + (v / 1000).toFixed(0) + 'k' : '₹' + Math.round(v)));
     // hide % when it's meaningless (mixed stock vs flow → absurd >150%)
-    labels[n] = (showPct && pct <= 150) ? `${n} · ${_mrINR(val[n])} · ${pct}%` : `${n} · ${_mrINR(val[n])}`;
+    labels[n] = (showPct && pct <= 150) ? `${n} · ${shortAmt} · ${pct}%` : `${n} · ${shortAmt}`;
   });
   return labels;
 }
@@ -1516,7 +1518,7 @@ function _mrDrawCharts(fh, strm, flow) {
         colorMode: 'gradient',
         labels: flowLabels,
         color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick,
-        font: { size: window.__IS_APP ? 13 : 11, weight: window.__IS_APP ? '900' : '700' },
+        font: { size: window.__IS_APP ? 11 : 10, weight: '700' },
         borderWidth: 0,
       }] },
       options: {
@@ -1557,7 +1559,7 @@ function _mrDrawCharts(fh, strm, flow) {
       if (fb) fb.style.display = 'none';
       if (wrap) wrap.style.display = '';
       try { chartInstances.mrWealth && chartInstances.mrWealth.destroy(); } catch (_) {}
-      const wcolor = { Bank: '#3b82f6', Cash: '#06b6d4', Investments: '#8b5cf6', 'Total Assets': '#22c55e', 'Net Worth': '#10b981', Debt: '#ef4444', 'Shortfall (negative)': '#ef4444' };
+      const wcolor = { Bank: '#3b82f6', Cash: '#06b6d4', Investments: '#8b5cf6', 'Total Assets': '#22c55e', 'Net Worth': '#10b981', Debt: '#ef4444', 'Shortfall': '#ef4444' };
       const wdata = [];
       if (n.bank > 0) wdata.push({ from: 'Bank', to: 'Total Assets', flow: Math.round(n.bank) });
       if (n.cash > 0) wdata.push({ from: 'Cash', to: 'Total Assets', flow: Math.round(n.cash) });
@@ -1572,8 +1574,8 @@ function _mrDrawCharts(fh, strm, flow) {
         // Deficit: assets only partly cover debt; the uncovered red "Shortfall"
         // band IS the negative net worth. Debt = assets + shortfall.
         wdata.push({ from: 'Total Assets', to: 'Debt', flow: Math.round(assets) });
-        wdata.push({ from: 'Shortfall (negative)', to: 'Debt', flow: Math.round(n.debt - assets) });
-        wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Shortfall (negative)': 1, Debt: 2 };
+        wdata.push({ from: 'Shortfall', to: 'Debt', flow: Math.round(n.debt - assets) });
+        wcol = { Bank: 0, Cash: 0, Investments: 0, 'Total Assets': 1, 'Shortfall': 1, Debt: 2 };
       }
       // Debt → individual loans + credit-card outstanding (this is the right place
       // for these large balances, at the wealth chart's own scale)
@@ -1593,7 +1595,7 @@ function _mrDrawCharts(fh, strm, flow) {
           data: wdata, column: wcol,
           colorFrom: (c) => wcolor[c.dataset.data[c.dataIndex].from] || '#64748b',
           colorTo: (c) => wcolor[c.dataset.data[c.dataIndex].to] || '#64748b',
-          colorMode: 'gradient', labels: wLabels, color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 13 : 11, weight: window.__IS_APP ? '900' : '700' }, borderWidth: 0,
+          colorMode: 'gradient', labels: wLabels, color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 11 : 10, weight: '700' }, borderWidth: 0,
         }] },
         options: {
           responsive: true, maintainAspectRatio: false, animation: false,
