@@ -408,13 +408,13 @@ function renderRecordsMyMoney() {
     ${byDay[d].sort(within).map(t => {
       const inc = t.type === 'income';
       const src = t.source ? _sourceLabel(t.source) : '';
-      // Strip emoji icon prefix — show only the account name (e.g. “ICICI” not “💳 ICICI”)
+      // Strip emoji icon prefix — show only the account name (e.g. "ICICI" not "💳 ICICI")
       const srcName = src.includes(' ') ? src.slice(src.indexOf(' ') + 1) : src;
-      const chip = srcName ? `<span class=”mm-chip”>${esc(srcName)}</span>` : '';
-      const note = t.description ? `<span class=”mm-note”>”${esc(t.description)}”</span>` : '';
-      const sub = t.subcategory ? `<span class=”mm-note”>› ${esc(t.subcategory)}</span>` : '';
-      const tagChip = t.tag ? `<span class=”mm-note mm-tag” onclick=”event.stopPropagation();openTagDetail('${esc(t.tag).replace(/'/g, “\\'”)}')” style=”color:#6366f1;font-weight:700;cursor:pointer”>#${esc(t.tag)}</span>` : '';
-      const tm = t.time ? `<span class=”mm-note”>🕒 ${_fmtTime(t.time)}</span>` : '';
+      const chip = srcName ? `<span class="mm-chip">${esc(srcName)}</span>` : '';
+      const note = t.description ? `<span class="mm-note">"${esc(t.description)}"</span>` : '';
+      const sub = t.subcategory ? `<span class="mm-note">› ${esc(t.subcategory)}</span>` : '';
+      const tagChip = t.tag ? `<span class="mm-note mm-tag" onclick="event.stopPropagation();openTagDetail('${esc(t.tag).replace(/'/g, "\\'")}')" style="color:#6366f1;font-weight:700;cursor:pointer">#${esc(t.tag)}</span>` : '';
+      const tm = t.time ? `<span class="mm-note">🕒 ${_fmtTime(t.time)}</span>` : '';
       const seld = _recSel.has(t.id);
       return `
       <div class="mm-rowwrap" data-id="${t.id}">
@@ -2120,7 +2120,7 @@ function runGlobalSearch(q) {
   if (notes.length) html += `<p class="gs-h">Notes</p>` + notes.map(n =>
     _gsRow(`closeModal();navigate('notes')`, 'sticky-note', '#eab308', n.title || (n.body || n.text || '').slice(0, 30), 'Note', '', '')).join('');
 
-  box.innerHTML = html || `<div class="gs-empty"><i data-lucide="search-x"></i><p>No matches for “${esc(q)}”</p></div>`;
+  box.innerHTML = html || `<div class="gs-empty"><i data-lucide="search-x"></i><p>No matches for "${esc(q)}"</p></div>`;
   _lucideRefresh();
 }
 
@@ -2384,7 +2384,7 @@ function renderTags() {
 
         <div style="display:flex;flex-direction:column;margin-bottom:28px">
           ${tags.length === 0 ? `
-            <div style="text-align:center;padding:32px 0;color:var(--text3)">No tags yet — add a Tag (e.g. “Marriage”, “Goa Trip”) when logging a transaction.</div>
+            <div style="text-align:center;padding:32px 0;color:var(--text3)">No tags yet — add a Tag (e.g. "Marriage", "Goa Trip") when logging a transaction.</div>
           ` : tags.map((t, idx) => {
             const pct = grand > 0 ? Math.round(t.total / grand * 100) : 0;
             const color = COLORS[idx % COLORS.length];
@@ -2440,7 +2440,7 @@ function renderTags() {
       <div class="glass-card" style="padding:48px 20px;text-align:center">
         <p style="font-size:40px;margin:0 0 10px">🏷️</p>
         <p style="margin:0 0 8px;color:var(--text2)">No tags yet.</p>
-        <p style="margin:0;font-size:13px;color:var(--text3)">Add a Tag when logging a transaction (e.g. “Marriage”, “Goa Trip”) to group spending across categories.</p>
+        <p style="margin:0;font-size:13px;color:var(--text3)">Add a Tag when logging a transaction (e.g. "Marriage", "Goa Trip") to group spending across categories.</p>
       </div>`}
     </div>`;
   if (typeof _lucideRefresh === 'function') _lucideRefresh();
@@ -4460,7 +4460,7 @@ function openImportMenu() {
     ${opt('openBulkEntry()', 'list-plus', '#10b981', 'Bulk Entry', 'Type many transactions quickly, one per line')}
     ${opt('openCsvImport()', 'file-spreadsheet', '#f59e0b', 'Import CSV / Excel', 'Upload a statement exported as CSV or Excel')}
     ${opt('openPdfImport()', 'file-text', '#ef4444', 'Import PDF Statement', 'Upload a bank/credit-card PDF statement')}
-    ${opt('openGeminiCategorize()', 'sparkles', '#8b5cf6', 'AI Fix Categories', 'Re-categorise “Other” entries with Gemini / ChatGPT')}
+    ${opt('openGeminiCategorize()', 'sparkles', '#8b5cf6', 'AI Fix Categories', 'Re-categorise "Other" entries with Gemini / ChatGPT')}
   `);
   setTimeout(() => { if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} } }, 20);
 }
@@ -6892,7 +6892,7 @@ function renderAssetDetail() {
         </div>
         ${daysHeld > 0 ? `<p class="ld-rnote">${annualize
           ? `Annualized average pace over ${daysHeld} days.`
-          : `“Per month” is the average pace so far. “So far” is the actual return since ${sinceTxt} — too early to annualize a full year.`}</p>` : ''}
+          : `"Per month" is the average pace so far. "So far" is the actual return since ${sinceTxt} — too early to annualize a full year.`}</p>` : ''}
       </div>` : ''}
 
       <div class="glass-card" style="padding:16px;margin-bottom:16px">
