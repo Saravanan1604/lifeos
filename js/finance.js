@@ -1663,7 +1663,7 @@ function recBulkCategoryConfirm() {
 }
 
 let _recOpenRow = null;          // currently swiped-open .mm-row
-const _REC_OPEN = 84;            // px of action drawer revealed (single delete button)
+const _REC_OPEN = 58;            // px of action drawer revealed (single delete button)
 let _recOpenDir = 0;             // -1 = right drawer open, +1 = left drawer open
 function _recCloseSwipe() {
   if (_recOpenRow) { _recOpenRow.style.transition = ''; _recOpenRow.style.transform = ''; _recOpenRow.classList.remove('swiped','swiped-left'); _recOpenRow = null; _recOpenDir = 0; }
