@@ -16194,3 +16194,77 @@ html.is-app .mm-selbar .mm-selact svg {
   vertical-align: middle !important;
 }
 
+/* 12. Records Filter modal styling overrides (compact sizing) */
+html.is-app #modal-overlay .rf-modal .form-group {
+  margin-bottom: 10px !important;
+}
+
+html.is-app #modal-overlay .rf-modal .form-label {
+  font-size: 0.95rem !important;
+  margin-bottom: 4px !important;
+}
+
+html.is-app #modal-overlay .rf-modal .form-input,
+html.is-app #modal-overlay .rf-modal select.form-input {
+  font-size: 0.95rem !important;
+  padding: 8px 12px !important;
+  min-height: 38px !important;
+  border-radius: 10px !important;
+}
+
+html.is-app #modal-overlay .rf-view {
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+  font-size: 0.9rem !important;
+}
+
+html.is-app #modal-overlay .rf-view svg.lucide {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+html.is-app #modal-overlay .rf-modal .modal-actions {
+  margin-top: 14px !important;
+}
+
+/* 13. AI Fix modal styling overrides (compact sizing) */
+html.is-app #modal-overlay:has(#gem-prompt) .form-group {
+  margin-bottom: 8px !important;
+}
+
+html.is-app #modal-overlay:has(#gem-prompt) .form-label {
+  font-size: 0.95rem !important;
+  margin-bottom: 4px !important;
+}
+
+html.is-app #modal-overlay #gem-prompt,
+html.is-app #modal-overlay #gem-answer {
+  font-size: 0.85rem !important;
+  padding: 8px 10px !important;
+  min-height: 80px !important;
+  border-radius: 10px !important;
+  line-height: 1.4 !important;
+}
+
+html.is-app #modal-overlay:has(#gem-prompt) p {
+  font-size: 0.9rem !important;
+  line-height: 1.4 !important;
+  margin-bottom: 8px !important;
+}
+
+html.is-app #modal-overlay:has(#gem-prompt) .btn-secondary.btn-sm {
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  min-height: 30px !important;
+}
+
+/* 14. Modal action button compact overrides */
+html.is-app #modal-overlay .modal-actions button {
+  padding: 8px 16px !important;
+  font-size: 0.95rem !important;
+  border-radius: 10px !important;
+  min-height: 38px !important;
+}
+
+
