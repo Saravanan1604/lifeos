@@ -16109,18 +16109,19 @@ html.is-app .mymoney-records .mm-hero {
   border-radius: 18px !important;
 }
 html.is-app .mymoney-records .mm-hero-lbl {
-  font-size: 1.2rem !important;
+  font-size: 1.4rem !important;
 }
 html.is-app .mymoney-records .mm-hero-val {
-  font-size: 3.4rem !important;
+  font-size: 4.1rem !important;
   margin: 6px 0 12px !important;
 }
 html.is-app .mymoney-records .mm-hs-lbl {
-  font-size: 1.05rem !important;
+  font-size: 1.25rem !important;
 }
 html.is-app .mymoney-records .mm-hs-val {
-  font-size: 1.6rem !important;
+  font-size: 1.9rem !important;
 }
+
 
 /* 10. Reduce total switch in balance card by 50% */
 html.is-app .mm-total-switch {
@@ -16306,4 +16307,62 @@ html.is-app .mm-row-actions .mm-act svg.lucide {
   width: 20px !important;
   height: 20px !important;
 }
+
+/* 19. Offline bottom toast popup size reduction */
+html.is-app .toast {
+  font-size: 0.95rem !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  max-width: 90vw !important;
+  gap: 8px !important;
+}
+html.is-app .toast span {
+  font-size: 0.95rem !important;
+}
+html.is-app .toast span:first-child {
+  font-size: 1.15rem !important;
+}
+
+/* 20. Notification Bell panel popup overrides (compact sizing) */
+html.is-app #notif-panel {
+  width: 80vw !important;
+  max-width: 300px !important;
+  border-left: 1px solid var(--glass-border) !important;
+}
+
+html.is-app #notif-panel div[style*="padding:16px 20px"] {
+  padding: 10px 14px !important;
+}
+
+html.is-app #notif-panel span[style*="font-size:14px"] {
+  font-size: 1.05rem !important;
+}
+
+html.is-app #notif-panel button[onclick="closeNotifPanel()"] {
+  font-size: 1.2rem !important;
+  padding: 0 4px !important;
+}
+
+html.is-app .notif-item {
+  padding: 10px !important;
+  margin-bottom: 8px !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+html.is-app .notif-item div[style*="font-size:22px"] {
+  font-size: 1.25rem !important;
+}
+
+html.is-app .notif-item p[style*="font-size:13px"] {
+  font-size: 0.85rem !important;
+  margin-bottom: 2px !important;
+  line-height: 1.3 !important;
+}
+
+html.is-app .notif-item p[style*="font-size:11px"] {
+  font-size: 0.75rem !important;
+  line-height: 1.3 !important;
+}
+
 
