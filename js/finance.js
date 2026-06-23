@@ -2566,10 +2566,10 @@ function renderTxPad() {
 
     <div class="pad-notes-wrap">
       <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
-    </div>
-    <div class="pad-notes-actions">
-      <button class="pad-calc-btn" onclick="event.stopPropagation();openCalcPage()" title="Calculator"><i data-lucide="calculator"></i></button>
-      <button class="pad-mic-btn" onclick="event.stopPropagation();openVoicePage()" title="Speak to add"><i data-lucide="mic"></i></button>
+      <div class="pad-notes-actions">
+        <button class="pad-calc-btn" onclick="event.stopPropagation();openCalcPage()" title="Calculator"><i data-lucide="calculator"></i></button>
+        <button class="pad-mic-btn" onclick="event.stopPropagation();openVoicePage()" title="Speak to add"><i data-lucide="mic"></i></button>
+      </div>
     </div>
     </div><!-- /pad-entry-zone -->
 
