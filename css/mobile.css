@@ -16267,4 +16267,43 @@ html.is-app #modal-overlay .modal-actions button {
   min-height: 38px !important;
 }
 
+/* 15. Pick a date button fixes (Filter popup) */
+html.is-app #modal-overlay .rf-view {
+  white-space: nowrap !important;
+}
+html.is-app #modal-overlay .rf-view input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* 16. Custom date range inputs: two in a row on mobile */
+html.is-app #modal-overlay .rf-modal .input-row {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+/* 17. Undo snackbar notification style fixes */
+#undo-snack {
+  font-size: 0.9rem !important;
+  padding: 8px 14px !important;
+  border-radius: 10px !important;
+  gap: 12px !important;
+}
+#undo-snack span {
+  white-space: nowrap !important;
+}
+#undo-snack button {
+  font-size: 0.95rem !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* 18. Swipe row actions: reduce red delete area and trash icon size */
+html.is-app .mm-row-actions .mm-act {
+  width: 58px !important;
+}
+html.is-app .mm-row-actions .mm-act svg.lucide {
+  width: 20px !important;
+  height: 20px !important;
+}
 
