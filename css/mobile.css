@@ -16807,28 +16807,6 @@ html.is-app .fin-netbal-hero .mm-hero-val {
   margin: 6px 0 10px !important;
 }
 
-/* build 608 — Redesign Net Balance card, compact account cards, and sticky header bar */
-
-/* Frosted glass top navigation bar to prevent text clashing on scroll */
-html.is-app body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 64px;
-  background: rgba(10, 11, 24, 0.8) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  backdrop-filter: blur(20px) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  z-index: 9000 !important;
-  pointer-events: none;
-}
-html.is-app body.light::before {
-  background: rgba(255, 255, 255, 0.85) !important;
-  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-}
-
 /* Premium Net Balance (Top Card) Redesign */
 html.is-app #page-container[data-page="finance"] .fin-netbal-hero,
 html.is-app #page-container[data-page="bank-tracker"] .fin-netbal-hero {
