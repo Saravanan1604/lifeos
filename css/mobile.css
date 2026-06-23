@@ -17071,6 +17071,38 @@ html.is-app #bottom-nav .bn-item.active svg {
 }
 html.is-app #bottom-nav .bn-item.active span { opacity: 0 !important; }
 
+/* ============================================================
+   build 615 — bottom nav: lighter theme-adaptive colours (clean white
+   bar in day, dark elevated bar at night), gentler lift so the edge tabs
+   don't escape the bar, and a smaller + simpler center +.
+   ============================================================ */
+/* day mode — white bar, muted slate icons, subtle notch */
+html.is-app body.light #bottom-nav { background: #ffffff !important; box-shadow: 0 8px 26px -8px rgba(20,30,60,0.2) !important; }
+html.is-app body.light #bottom-nav .bn-item,
+html.is-app body.light #bottom-nav .bn-item span { color: #98a1b1 !important; }
+html.is-app body.light #bn-indicator::before { background: #e3e7f1 !important; }
+/* night mode — dark elevated bar */
+html.is-app body:not(.light) #bottom-nav { background: #1a2236 !important; }
+html.is-app body:not(.light) #bottom-nav .bn-item,
+html.is-app body:not(.light) #bottom-nav .bn-item span { color: rgba(255,255,255,0.55) !important; }
+html.is-app body:not(.light) #bn-indicator::before { background: #0b0f19 !important; }
+
+/* gentler lift + smaller notch → edge tabs sit cleanly inside the bar */
+html.is-app #bn-indicator::before { width: 48px !important; height: 48px !important; top: -13px !important; }
+html.is-app #bottom-nav .bn-item.active svg {
+  transform: translateY(-13px) !important;
+  width: 20px !important; height: 20px !important; padding: 9px !important;
+  box-shadow: 0 8px 18px -3px rgba(108,99,255,0.55) !important;
+}
+
+/* simpler, ~25%-smaller center + */
+html.is-app #fab-add {
+  width: 45px !important; height: 45px !important;
+  box-shadow: 0 5px 14px -3px rgba(0,201,167,0.55) !important;
+  border: none !important;
+}
+html.is-app #fab-add svg { width: 22px !important; height: 22px !important; }
+
 
 
 
