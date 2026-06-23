@@ -17126,6 +17126,20 @@ html.is-app .mymoney-records .mm-note {
   text-overflow: ellipsis !important; min-width: 0 !important; flex: 0 1 auto !important;
 }
 
+/* ============================================================
+   build 617 — (1) txn meta: no card icon, order ICICI → time → note/sub;
+   (2) Today button −25%; (3) day-group top padding halved.
+   ============================================================ */
 
+/* 2. Today button ~25% smaller */
+html.is-app .mm-today {
+  font-size: 0.86rem !important;
+  padding: 6px 10px !important;
+  border-radius: 9px !important;
+}
 
+/* 3. Reduce top gap above date-group headers */
+html.is-app .mm-day {
+  padding-top: 8px !important;
+}
 

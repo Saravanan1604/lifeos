@@ -408,12 +408,13 @@ function renderRecordsMyMoney() {
     ${byDay[d].sort(within).map(t => {
       const inc = t.type === 'income';
       const src = t.source ? _sourceLabel(t.source) : '';
-      // _sourceLabel already includes the 🏦/💵/💳 icon — don't prepend another.
-      const chip = src ? `<span class="mm-chip">${esc(src)}</span>` : '';
-      const note = t.description ? `<span class="mm-note">“${esc(t.description)}”</span>` : '';
-      const sub = t.subcategory ? `<span class="mm-note">› ${esc(t.subcategory)}</span>` : '';
-      const tagChip = t.tag ? `<span class="mm-note mm-tag" onclick="event.stopPropagation();openTagDetail('${esc(t.tag).replace(/'/g, "\\'")}')" style="color:#6366f1;font-weight:700;cursor:pointer">#${esc(t.tag)}</span>` : '';
-      const tm = t.time ? `<span class="mm-note">🕒 ${_fmtTime(t.time)}</span>` : '';
+      // Strip emoji icon prefix — show only the account name (e.g. “ICICI” not “💳 ICICI”)
+      const srcName = src.includes(' ') ? src.slice(src.indexOf(' ') + 1) : src;
+      const chip = srcName ? `<span class=”mm-chip”>${esc(srcName)}</span>` : '';
+      const note = t.description ? `<span class=”mm-note”>”${esc(t.description)}”</span>` : '';
+      const sub = t.subcategory ? `<span class=”mm-note”>› ${esc(t.subcategory)}</span>` : '';
+      const tagChip = t.tag ? `<span class=”mm-note mm-tag” onclick=”event.stopPropagation();openTagDetail('${esc(t.tag).replace(/'/g, “\\'”)}')” style=”color:#6366f1;font-weight:700;cursor:pointer”>#${esc(t.tag)}</span>` : '';
+      const tm = t.time ? `<span class=”mm-note”>🕒 ${_fmtTime(t.time)}</span>` : '';
       const seld = _recSel.has(t.id);
       return `
       <div class="mm-rowwrap" data-id="${t.id}">
@@ -425,7 +426,7 @@ function renderRecordsMyMoney() {
           <div class="mm-ic" style="background:${catColor(t.category)}" onclick="event.stopPropagation();openCategoryDetail('${(t.category||'Other').replace(/'/g,"\\'")}')">${catIconHtml(t.category)}</div>
           <div class="mm-mid">
             <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' <i data-lucide="repeat" class="mm-recur-ic"></i>' : ''}</p>
-            <div class="mm-meta">${chip}${note}${sub}${tagChip}${tm}</div>
+            <div class="mm-meta">${chip}${tm}${note}${sub}${tagChip}</div>
           </div>
           <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
         </div>
