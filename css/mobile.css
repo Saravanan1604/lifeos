@@ -16807,5 +16807,141 @@ html.is-app .fin-netbal-hero .mm-hero-val {
   margin: 6px 0 10px !important;
 }
 
+/* build 608 — Redesign Net Balance card, compact account cards, and sticky header bar */
+
+/* Frosted glass top navigation bar to prevent text clashing on scroll */
+html.is-app body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 64px;
+  background: rgba(10, 11, 24, 0.8) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  z-index: 9000 !important;
+  pointer-events: none;
+}
+html.is-app body.light::before {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Premium Net Balance (Top Card) Redesign */
+html.is-app #page-container[data-page="finance"] .fin-netbal-hero,
+html.is-app #page-container[data-page="bank-tracker"] .fin-netbal-hero {
+  padding: 20px 18px 16px !important;
+  margin: 4px 8px 14px !important;
+  border-radius: 22px !important;
+  background: 
+    radial-gradient(135% 120% at 50% -25%, rgba(0, 201, 167, 0.22), transparent 65%),
+    linear-gradient(180deg, #161c2e 0%, #0a0e1a 100%) !important;
+  border: 1px solid rgba(0, 201, 167, 0.25) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Title Label "NET BALANCE" */
+html.is-app .fin-netbal-hero .mm-hero-lbl {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+  opacity: 1 !important;
+}
+
+/* Net Balance Value Number */
+html.is-app .fin-netbal-hero .mm-hero-val {
+  font-size: 2.0rem !important;
+  white-space: nowrap !important;
+  margin: 6px 0 12px !important;
+  letter-spacing: -1.2px !important;
+}
+
+/* Sub-panel columns (Bank / Cash / Card) */
+html.is-app .fin-netbal-hero .mm-accts3 .mm-hs-lbl {
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-weight: 600 !important;
+}
+
+html.is-app .fin-netbal-hero .mm-accts3 .mm-hs-lbl svg {
+  width: 12px !important;
+  height: 12px !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  margin-right: 3px !important;
+}
+
+html.is-app .fin-netbal-hero .mm-accts3 .mm-hs-val {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+/* Compact Account Cards */
+html.is-app .fin-bank-grid .fin-dark-card,
+html.is-app .fin-cash-grid .fin-dark-card {
+  min-height: 105px !important;
+  padding: 12px 14px !important;
+  border-radius: 18px !important;
+}
+
+html.is-app .fin-card-grid .fin-dark-card {
+  min-height: 125px !important;
+  padding: 12px 14px !important;
+  border-radius: 18px !important;
+}
+
+/* Account card typography overrides */
+html.is-app .fin-dark-card span[style*="0.75rem"] {
+  font-size: 11px !important;
+  letter-spacing: 1px !important;
+}
+
+html.is-app .fin-dark-card div[style*="2.6rem"] {
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.8px !important;
+}
+
+html.is-app .fin-dark-card div[style*="1.05rem"] {
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Options trigger button "..." */
+html.is-app .fin-dark-card .card-icon-trigger {
+  width: 28px !important;
+  height: 28px !important;
+  font-size: 13px !important;
+  line-height: 28px !important;
+}
+
+/* Add Card Carousel "+" buttons */
+html.is-app .fin-bank-grid .fin-add-card,
+html.is-app .fin-cash-grid .fin-add-card {
+  min-height: 105px !important;
+  border-radius: 18px !important;
+}
+
+html.is-app .fin-card-grid .fin-add-card {
+  min-height: 125px !important;
+  border-radius: 18px !important;
+}
+
+html.is-app .fin-add-card {
+  padding: 12px !important;
+}
+
+html.is-app .fin-add-card .fin-add-plus {
+  font-size: 18px !important;
+}
+
+html.is-app .fin-add-card p {
+  font-size: 11px !important;
+}
+
+
 
 
