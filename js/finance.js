@@ -1418,8 +1418,9 @@ function renderCategoryDetail() {
   }
 
   const chartItems = _catDetYearly ? years : months;
-  // Show ~4 bars per screen (rest scroll horizontally) so labels never overlap.
-  const containerWidth = chartItems.length > 4 ? `calc((${chartItems.length} / 4) * 100%)` : '100%';
+  // Fit all bars on screen (up to 6); only scroll when there are more than 6
+  // (e.g. a full 12-month / multi-year history) so they never get too thin.
+  const containerWidth = chartItems.length > 6 ? `calc((${chartItems.length} / 6) * 100%)` : '100%';
 
   let displayTx = [];
   let displayTotal = 0;
