@@ -17397,3 +17397,16 @@ html.is-app #budget-page .category-values,
 html.is-app #spending-page .category-values { font-size: 24px !important; }
 html.is-app #budget-page .category-values span,
 html.is-app #spending-page .category-values span { font-size: 18px !important; }
+
+/* ============================================================
+   build 630 — custom-category icons + Categories page size.
+   catIconHtml now emits .cat-emoji-ic (the raw emoji) for custom
+   categories that have no Lucide line-icon mapping, instead of a
+   generic circle. Size it to sit nicely inside the icon chips.
+   Categories page had no per-page compensation -> everything was
+   huge (title, AI Fix/Merge buttons, custom list); zoom:0.6 brings
+   it in line with habits/settings. Scoped html.is-app.
+   ============================================================ */
+html.is-app .cat-emoji-ic { font-size: 20px !important; line-height: 1 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+html.is-app .mm-ic .cat-emoji-ic { font-size: 22px !important; }
+html.is-app #page-container[data-page="categories"] { zoom: 0.6 !important; }

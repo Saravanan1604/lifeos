@@ -125,10 +125,15 @@ const EMOJI_LUCIDE = {
 function catLucide(name) {
   if (CAT_LUCIDE[name]) return CAT_LUCIDE[name];
   const emo = catIcon(name);
-  return EMOJI_LUCIDE[emo] || 'circle';
+  return EMOJI_LUCIDE[emo] || null;   // null = no line-icon match → render the emoji itself
 }
-// Returns an <i data-lucide> tag; call lucide.createIcons() after injecting.
-function catIconHtml(name) { return `<i data-lucide="${catLucide(name)}"></i>`; }
+// Returns an <i data-lucide> tag for mapped categories, or the raw emoji for
+// custom ones (e.g. 🌺/🎪/💍) so they no longer collapse to a generic circle.
+// Call lucide.createIcons() after injecting.
+function catIconHtml(name) {
+  const lu = catLucide(name);
+  return lu ? `<i data-lucide="${lu}"></i>` : `<span class="cat-emoji-ic">${catIcon(name)}</span>`;
+}
 function _lucideRefresh() { if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} } }
 
 // Global HTML-escape helper (some functions defined their own local `esc`;
