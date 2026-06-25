@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 619;
+const APP_BUILD = 620;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -223,7 +223,7 @@ function getGreeting(name) {
 
 // ===== LIVE SYNC ENGINE =====
 const LIVE_SYNC_KEYS = [
-  'investments', 'loans', 'transactions', 'bankAccounts',
+  'investments', 'loans', 'transactions', 'accounts', 'bankAccounts',
   'bankBalanceHistory', 'bankTransfers', 'creditCards', 'creditCardHistory', 'goals', 'habits',
   'habitCompletions', 'healthEntries', 'tasks', 'budgets',
   'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
@@ -270,13 +270,20 @@ async function _syncBtnTap() {
     let r = await pullFromCloud();
     // A background poll was mid-flight — give it a moment, then try again.
     if (r === 'busy') { await wait(1500); r = await pullFromCloud(); }
-    // Render's free tier sleeps when idle; the first request after a nap often
-    // fails while it boots (~30s). Tell the user and retry once so a real
-    // daily sync actually lands (and clears the "not backed up" nudge).
-    if (r === 'error') { toast('Waking the server… one moment', 'info'); await wait(5000); r = await pullFromCloud(); }
-    if (r === 'ok')          toast('Synced ✓', 'success');
+    // Render's free tier sleeps when idle; waking takes up to 30s.
+    // Retry up to 3 times with increasing waits (10s, 15s, 15s = ~40s total).
+    if (r === 'error') {
+      toast('Waking the server… please wait (~30s)', 'info');
+      const delays = [10000, 15000, 15000];
+      for (const delay of delays) {
+        await wait(delay);
+        r = await pullFromCloud();
+        if (r === 'ok') break;
+      }
+    }
+    if (r === 'ok')           toast('Synced ✓', 'success');
     else if (r === 'offline') toast("You're offline — sign in to sync", 'warning');
-    else                      toast('Sync failed — server busy, try again in a moment', 'error');
+    else                      toast('Sync failed — server may be down, try again later', 'error');
   } catch (_) {
     toast('Sync failed', 'error');
   } finally {
@@ -400,30 +407,46 @@ function startLiveSync() {
   // Pull immediately so laptop/desktop sees mobile changes right on open
   pullFromCloud();
 
-  // Poll every 3 seconds for near-real-time cross-device sync
+  // Poll for cross-device sync — but ONLY while the app is actually visible,
+  // and at a relaxed interval. The old 3s poll downloaded the entire STATE
+  // ~20×/min even when nothing changed AND kept firing with the app in your
+  // pocket (screen off). That burned ~5GB/month of bandwidth and got the
+  // Render backend suspended. Visibility-gated 30s polling cuts that ~95%
+  // while still feeling live (a focused tab also pulls instantly on
+  // visibilitychange below, so re-opening the app is still snappy).
   if (_syncTimer) clearInterval(_syncTimer);
-  _syncTimer = setInterval(pullFromCloud, 3000);
-
-  // Sync immediately when user returns to the tab/app
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) pullFromCloud();
-  });
-
-  // Sync when app regains network connection � push pending local changes first, then pull
-  window.addEventListener('online', async () => {
-    if (_pendingSave) {
-      const tok = localStorage.getItem('lifeos_token');
-      if (tok) {
-        try {
-          const r = await fetch(`${API_URL}/sync`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
-            body: _pendingSave
-          });
-          if (r.ok) { _pendingSave = null; setSyncDot('ok'); }
-        } catch {}
-      }
-    }
+  _syncTimer = setInterval(() => {
+    if (document.hidden) return;     // don't poll a backgrounded / screen-off app
     pullFromCloud();
-  });
+  }, 30000);
+
+  // Sync immediately when user returns to the tab/app, and when the network
+  // comes back. These are bound ONCE (guarded) — startLiveSync can run again
+  // on re-login, and re-adding the listeners each time stacked duplicate
+  // pullFromCloud calls that multiplied bandwidth.
+  if (!startLiveSync._eventsBound) {
+    startLiveSync._eventsBound = true;
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) pullFromCloud();
+    });
+
+    // Network restored — push any pending local changes first, then pull
+    window.addEventListener('online', async () => {
+      if (_pendingSave) {
+        const tok = localStorage.getItem('lifeos_token');
+        if (tok) {
+          try {
+            const r = await fetch(`${API_URL}/sync`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+              body: _pendingSave
+            });
+            if (r.ok) { _pendingSave = null; setSyncDot('ok'); }
+          } catch {}
+        }
+      }
+      pullFromCloud();
+    });
+  }
 }

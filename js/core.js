@@ -662,6 +662,8 @@ async function handleGoogleSignIn(response) {
       }
       if (data.user) STATE.user = data.user;
       DB.save(STATE);
+      // Push merged local data to cloud so other devices pick it up
+      if (typeof _syncStateToCloud === 'function') _syncStateToCloud();
       toast('Signed in with Google!', 'success');
       showApp();
       renderCalcBody();

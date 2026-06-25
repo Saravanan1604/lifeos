@@ -211,10 +211,18 @@ async function tryAutoRestore(token) {
         // Prefer local settings (theme, currency, name) if they exist
         if (localState.settings) STATE.settings = { ...cloud.settings, ...localState.settings };
 
+        // Clear any stale offline flag so live sync re-enables
+        if (STATE.user) STATE.user.offline = false;
+
         DB.save(STATE);
+        // Push the merged state back to cloud so the web app can pick it up
+        _syncStateToCloud();
       } else {
         // Cloud returned empty — keep local data entirely
         STATE = localState;
+        if (STATE.user) STATE.user.offline = false;
+        DB.save(STATE);
+        _syncStateToCloud();
       }
       if (!STATE.user && data.user) { STATE.user = data.user; saveState(); }
       showApp();
