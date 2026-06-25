@@ -17388,9 +17388,9 @@ html.is-app #spending-page .category-name { flex: 1 1 auto !important; min-width
    the Tags page (shares id=spending-page); names ellipsis-truncate.
    ============================================================ */
 html.is-app #budget-page .category-progress-bg,
-html.is-app #spending-page .category-progress-bg { height: 22px !important; border-radius: 11px !important; }
+html.is-app #spending-page .category-progress-bg { height: 13px !important; border-radius: 7px !important; }
 html.is-app #budget-page .category-progress-fill,
-html.is-app #spending-page .category-progress-fill { border-radius: 11px !important; }
+html.is-app #spending-page .category-progress-fill { border-radius: 7px !important; }
 html.is-app #budget-page .category-name,
 html.is-app #spending-page .category-name { font-size: 25px !important; }
 html.is-app #budget-page .category-values,
