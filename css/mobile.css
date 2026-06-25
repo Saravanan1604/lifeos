@@ -17240,3 +17240,42 @@ html.is-app #mr-flow-detail,
 html.is-app #mr-wealth-detail { scroll-margin-top: 84px !important; }
 html.is-app .mr-chips { scroll-margin-top: 84px !important; }
 
+/* ============================================================
+   build 624 — RECURRING page sane sizing (supersedes the 2x block
+   at ~L14800). That block set .rec-ic 90px, .rec-name 36px, .rec-amt
+   40px, .rec-item padding 32px — on a ~380px row the icon + huge
+   amount + switch left NEGATIVE width for .rec-body, so its meta text
+   ("Monthly · Interest") collapsed to one letter per line (vertical).
+   Also the top summary stats overlapped. Sane modular scale below.
+   Last in file = wins. Scoped html.is-app.
+   ============================================================ */
+html.is-app #page-container[data-page="recurring"] .rec-summary { margin: 12px 0 20px !important; gap: 8px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-sum-box { border-radius: 14px !important; padding: 12px 6px !important; gap: 4px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-sum-box span { font-size: 11px !important; letter-spacing: 0.4px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-sum-box b { font-size: 17px !important; letter-spacing: -0.5px !important; max-width: 100% !important; }
+html.is-app #page-container[data-page="recurring"] .rec-sec { margin-bottom: 22px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-sec-head { margin-bottom: 12px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-sec-title { font-size: 17px !important; gap: 8px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-sec-title svg { width: 18px !important; height: 18px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-sec-count { font-size: 12px !important; padding: 3px 9px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-sec-total { font-size: 18px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-item { display: flex !important; align-items: center !important; padding: 14px 16px !important; border-radius: 18px !important; margin-bottom: 12px !important; gap: 12px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-ic { flex: 0 0 44px !important; width: 44px !important; height: 44px !important; border-radius: 12px !important; font-size: 20px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-ic svg { width: 22px !important; height: 22px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-body { flex: 1 1 auto !important; min-width: 0 !important; }
+html.is-app #page-container[data-page="recurring"] .rec-name { font-size: 16px !important; font-weight: 800 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+html.is-app #page-container[data-page="recurring"] .rec-meta { font-size: 13px !important; margin-top: 3px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+html.is-app #page-container[data-page="recurring"] .rec-next { font-size: 13px !important; margin-top: 4px !important; gap: 5px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-next svg { width: 14px !important; height: 14px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-right { flex: 0 0 auto !important; gap: 8px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-amt { font-size: 18px !important; font-weight: 900 !important; white-space: nowrap !important; }
+html.is-app #page-container[data-page="recurring"] .rec-switch { width: 50px !important; height: 30px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-switch-track { border-radius: 30px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-switch-track::before { width: 24px !important; height: 24px !important; left: 3px !important; top: 3px !important; }
+html.is-app #page-container[data-page="recurring"] .rec-switch input:checked + .rec-switch-track::before { transform: translateX(20px) !important; }
+html.is-app #page-container[data-page="recurring"] .rec-post-btn { font-size: 16px !important; padding: 14px !important; border-radius: 14px !important; margin: 8px 0 16px !important; }
+html.is-app .rec-add-card { padding: 16px !important; gap: 12px !important; border-radius: 18px !important; border-width: 2px !important; }
+html.is-app .rec-add-ic { width: 44px !important; height: 44px !important; }
+html.is-app .rec-add-ic svg { width: 22px !important; height: 22px !important; }
+html.is-app .rec-add-lbl { font-size: 16px !important; }
+
