@@ -969,7 +969,7 @@ function mrShowNode(name) {
   const rows = matched.length ? matched.map(t => `
     <div onclick="mrEditTx('${t.id}')" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--glass-border);cursor:pointer">
       <div style="min-width:0"><p style="font-weight:600;font-size:14px">${esc(t.description || t.subcategory || name)}</p>
-        <p style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}${t.source ? ' · ' + esc(t.source) : ''}</p></div>
+        <p style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}${t.source ? ' · ' + esc(typeof _sourceLabel === 'function' ? _sourceLabel(t.source) : t.source) : ''}</p></div>
       <b style="color:${t.type === 'income' ? '#10b981' : '#ef4444'};white-space:nowrap;flex-shrink:0">${t.type === 'income' ? '' : '-'}${fmt(t.amount)}</b>
     </div>`).join('') : '<p style="color:var(--text3);padding:14px 0">No transactions in this period.</p>';
   const safe = String(name).replace(/'/g, "\\'");
