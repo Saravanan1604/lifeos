@@ -17279,3 +17279,38 @@ html.is-app .rec-add-ic { width: 44px !important; height: 44px !important; }
 html.is-app .rec-add-ic svg { width: 22px !important; height: 22px !important; }
 html.is-app .rec-add-lbl { font-size: 16px !important; }
 
+/* ============================================================
+   build 625 — CALCULATOR (full-screen #calc-page) sane sizing.
+   The base rules were unscoped and huge (title 50px, keys 80px,
+   expr 200px). With aspect-ratio:1/1 keys and default min-width:auto,
+   the giant glyphs forced the 4-col grid WIDER than the phone, clipping
+   the operator column off-screen and the "Use" button off the header.
+   App-only (html.is-app) so the web/desktop calc is untouched; the
+   min-width:0 on .cp-key is what lets the grid fit. ============ */
+html.is-app #calc-page { padding-left: 14px !important; padding-right: 14px !important; }
+html.is-app #calc-page .cp-title { font-size: 19px !important; }
+html.is-app #calc-page .cp-x { width: 40px !important; height: 40px !important; }
+html.is-app #calc-page .cp-x svg.lucide { width: 20px !important; height: 20px !important; }
+html.is-app #calc-page .cp-use { padding: 8px 16px !important; font-size: 14px !important; border-radius: 11px !important; }
+html.is-app #calc-page .cp-use svg.lucide { width: 16px !important; height: 16px !important; }
+html.is-app #calc-page .cp-display { padding: 14px 8px 12px !important; }
+html.is-app #calc-page .cp-expr { font-size: 52px !important; letter-spacing: -1px !important; }
+html.is-app #calc-page .cp-res { font-size: 26px !important; margin-top: 6px !important; }
+html.is-app #calc-page .cp-keys { gap: 10px !important; }
+html.is-app #calc-page .cp-key { font-size: 27px !important; min-width: 0 !important; }
+html.is-app #calc-page .cp-key.fn { font-size: 24px !important; }
+html.is-app #calc-page .cp-key.fn svg.lucide { width: 20px !important; height: 20px !important; }
+html.is-app #calc-page .cp-key.op { font-size: 30px !important; }
+html.is-app #calc-page .cp-key.zero { border-radius: 50px !important; padding-left: 26px !important; }
+/* light theme: #calc-page never got a light background (only .cp-key did),
+   so the whole calc stayed dark and the faint keys were invisible. */
+html.is-app body.light #calc-page { background: #f4f5f7 !important; color: #0f172a !important; }
+html.is-app body.light #calc-page .cp-title { color: #64748b !important; }
+html.is-app body.light #calc-page .cp-x { background: rgba(0,0,0,0.06) !important; color: #0f172a !important; }
+html.is-app body.light #calc-page .cp-expr { color: #0f172a !important; }
+html.is-app body.light #calc-page .cp-res { color: #64748b !important; }
+html.is-app body.light #calc-page .cp-key { background: rgba(0,0,0,0.05) !important; color: #0f172a !important; }
+html.is-app body.light #calc-page .cp-key.fn { background: rgba(0,0,0,0.10) !important; }
+html.is-app body.light #calc-page .cp-key.op { background: linear-gradient(135deg, #00c9a7, #0ea5e9) !important; color: #fff !important; }
+html.is-app body.light #calc-page .cp-key.op.eq { background: linear-gradient(135deg, #00c9a7, #6366f1) !important; }
+
