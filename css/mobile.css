@@ -17410,3 +17410,30 @@ html.is-app #spending-page .category-values span { font-size: 18px !important; }
 html.is-app .cat-emoji-ic { font-size: 20px !important; line-height: 1 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
 html.is-app .mm-ic .cat-emoji-ic { font-size: 22px !important; }
 html.is-app #page-container[data-page="categories"] { zoom: 0.6 !important; }
+
+/* ============================================================
+   build 631 — CATEGORY DETAIL page (.catdet) sane sizing. The
+   override block at ~L12369 inflated everything (name 42px, total
+   54px, tx name/amount 30px), so on dense categories (Food) the
+   transaction amounts clipped off-screen. Halve to a readable scale
+   and guard the tx row so the amount never gets cut. Last = wins.
+   ============================================================ */
+html.is-app .catdet-ic { width: 52px !important; height: 52px !important; }
+html.is-app .catdet-ic svg, html.is-app .catdet-ic i { width: 26px !important; height: 26px !important; }
+html.is-app .catdet-name { font-size: 24px !important; }
+html.is-app .catdet-sub { font-size: 14px !important; }
+html.is-app .catdet-total { font-size: 16px !important; }
+html.is-app .catdet-total b { font-size: 30px !important; }
+html.is-app .catdet-section { font-size: 14px !important; }
+html.is-app .catdet-sub-row { padding: 9px 0 !important; }
+html.is-app .catdet-sub-name { font-size: 15px !important; flex: 0 0 34% !important; }
+html.is-app .catdet-sub-amt { font-size: 15px !important; }
+html.is-app .catdet-sub-bar { height: 10px !important; }
+html.is-app .catdet-tx { padding: 11px 14px !important; gap: 10px !important; }
+html.is-app .catdet-tx > div:first-child { min-width: 0 !important; flex: 1 1 auto !important; }
+html.is-app .catdet-tx-name { font-size: 16px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+html.is-app .catdet-tx-meta { font-size: 12.5px !important; }
+html.is-app .catdet-tx-amt { font-size: 16px !important; flex: 0 0 auto !important; }
+html.is-app .catdet-budget-card span { font-size: 14px !important; }
+html.is-app .catdet-budget-card b { font-size: 19px !important; }
+html.is-app .catdet-budget-card p { font-size: 13px !important; }
