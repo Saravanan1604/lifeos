@@ -1418,7 +1418,8 @@ function renderCategoryDetail() {
   }
 
   const chartItems = _catDetYearly ? years : months;
-  const containerWidth = chartItems.length > 6 ? `calc((${chartItems.length} / 6) * 100%)` : '100%';
+  // Show ~4 bars per screen (rest scroll horizontally) so labels never overlap.
+  const containerWidth = chartItems.length > 4 ? `calc((${chartItems.length} / 4) * 100%)` : '100%';
 
   let displayTx = [];
   let displayTotal = 0;
