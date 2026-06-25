@@ -17232,3 +17232,11 @@ html.is-app .mr-inline-body .mr-pop > div { padding-top: 6px !important; padding
 html.is-app .mr-inline-title { font-size: 17px !important; font-weight: 800 !important; }
 html.is-app .mr-inline-x { font-size: 18px !important; }
 
+/* Chip-overlap fix: _mrEmit() calls scrollIntoView() on the detail box, which
+   yanks the box (and the .mr-chips row just above it) up UNDER the floating
+   #top-tools icons (~68px tall, no opaque bar). scroll-margin-top makes the
+   auto-scroll stop below the header so chips never collide with the icons. */
+html.is-app #mr-flow-detail,
+html.is-app #mr-wealth-detail { scroll-margin-top: 84px !important; }
+html.is-app .mr-chips { scroll-margin-top: 84px !important; }
+
