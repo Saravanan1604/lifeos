@@ -17362,3 +17362,22 @@ html.is-app #txpad .pad-notes-actions .pad-mic-btn svg.lucide {
   height: 19px !important;
 }
 
+
+/* ============================================================
+   build 627 — EMOTION JOURNAL + TAGS sizing.
+   Journal: no per-page compensation existed, so the global inflation
+   blew up its inline text ("How are you feeling?") and the quick-action
+   chips overflowed off-screen. zoom:0.6 matches the habits/settings
+   pattern and scales the whole page to a sane size in one shot.
+   Tags: the page borrows id="spending-page", inheriting category-name
+   40px / values 34px -> the tag name collapsed to "M..". Sane sizes
+   below let the full name show on Tags, Spending and Budget lists.
+   ============================================================ */
+html.is-app #page-container[data-page="journal"] { zoom: 0.62 !important; }
+html.is-app #budget-page .category-name,
+html.is-app #spending-page .category-name { font-size: 17px !important; }
+html.is-app #budget-page .category-values,
+html.is-app #spending-page .category-values { font-size: 16px !important; white-space: nowrap !important; }
+html.is-app #budget-page .category-values span,
+html.is-app #spending-page .category-values span { font-size: 12px !important; }
+html.is-app #spending-page .category-name { flex: 1 1 auto !important; min-width: 0 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
