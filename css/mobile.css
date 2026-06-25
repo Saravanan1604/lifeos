@@ -17314,3 +17314,51 @@ html.is-app body.light #calc-page .cp-key.fn { background: rgba(0,0,0,0.10) !imp
 html.is-app body.light #calc-page .cp-key.op { background: linear-gradient(135deg, #00c9a7, #0ea5e9) !important; color: #fff !important; }
 html.is-app body.light #calc-page .cp-key.op.eq { background: linear-gradient(135deg, #00c9a7, #6366f1) !important; }
 
+/* ============================================================
+   build 626 — Add-Transaction pad (#txpad): group the calculator +
+   mic buttons together at SAME size, kill the dead space. The old
+   layout put .pad-notes-actions as a column with justify:space-between
+   in a 150px-tall wrap, scattering calc to the top and mic to the
+   bottom with ~100px of empty gap. Now: notes textarea on top, then
+   calc+mic side-by-side at the bottom-right (equal 40px squares), and
+   a more compact amount box. Scoped html.is-app.
+   ============================================================ */
+html.is-app #txpad .pad-amt-wrap { min-height: 0 !important; padding: 12px 16px !important; }
+html.is-app #txpad .pad-notes-wrap {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+html.is-app #txpad .pad-notes,
+html.is-app #txpad .pad-notes-wrap .pad-notes {
+  width: 100% !important;
+  height: 64px !important;
+  min-height: 64px !important;
+}
+html.is-app #txpad .pad-notes-actions {
+  flex-direction: row !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 8px !important;
+  height: auto !important;
+  margin-top: 0 !important;
+}
+html.is-app #txpad .pad-notes-actions .pad-calc-btn,
+html.is-app #txpad .pad-notes-actions .pad-mic-btn {
+  width: 40px !important;
+  height: 40px !important;
+  min-height: 0 !important;
+  border-radius: 11px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+html.is-app #txpad .pad-notes-actions .pad-calc-btn svg.lucide,
+html.is-app #txpad .pad-notes-actions .pad-mic-btn svg.lucide {
+  width: 19px !important;
+  height: 19px !important;
+}
+
