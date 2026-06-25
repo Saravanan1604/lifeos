@@ -804,12 +804,9 @@ function renderCombinedSpendBudget(activeTab) {
       else if (pct >= 0.8) alerts.push({ cat: b.category, msg: `${Math.round(pct * 100)}% used · ${daysLeft}d left`, col: '#f59e0b' });
       else if (progress > 0.2 && spent / progress > limit * 1.1) alerts.push({ cat: b.category, msg: `pacing to overspend (~${fmt(Math.round(spent / progress))})`, col: '#f59e0b' });
     });
-    if (alerts.length) {
-      budgetAlertsHtml = `<div class="glass-card" style="padding:14px 16px;margin-bottom:16px;border:1px solid rgba(245,158,11,0.35);background:rgba(245,158,11,0.07)">
-        <p style="margin:0 0 8px;font-weight:800;font-size:14px;color:#f59e0b">⚠️ Budget alerts</p>
-        ${alerts.map(a => `<p style="margin:5px 0;font-size:13px;color:var(--text2)">• <b style="color:${a.col}">${esc(a.cat)}</b> — ${a.msg}</p>`).join('')}
-      </div>`;
-    }
+    // Budget alerts card removed per user request (build 628) — the per-row
+    // red/over-budget bars already surface this, so the list was redundant.
+    void alerts;
   }
 
   // Month-comparison chart (app)

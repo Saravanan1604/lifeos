@@ -17381,3 +17381,19 @@ html.is-app #spending-page .category-values { font-size: 16px !important; white-
 html.is-app #budget-page .category-values span,
 html.is-app #spending-page .category-values span { font-size: 12px !important; }
 html.is-app #spending-page .category-name { flex: 1 1 auto !important; min-width: 0 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+
+/* ============================================================
+   build 628 — Budget/Spending category rows: bars 25% thinner,
+   category name + price 50% bigger (per user request). Also covers
+   the Tags page (shares id=spending-page); names ellipsis-truncate.
+   ============================================================ */
+html.is-app #budget-page .category-progress-bg,
+html.is-app #spending-page .category-progress-bg { height: 22px !important; border-radius: 11px !important; }
+html.is-app #budget-page .category-progress-fill,
+html.is-app #spending-page .category-progress-fill { border-radius: 11px !important; }
+html.is-app #budget-page .category-name,
+html.is-app #spending-page .category-name { font-size: 25px !important; }
+html.is-app #budget-page .category-values,
+html.is-app #spending-page .category-values { font-size: 24px !important; }
+html.is-app #budget-page .category-values span,
+html.is-app #spending-page .category-values span { font-size: 18px !important; }
