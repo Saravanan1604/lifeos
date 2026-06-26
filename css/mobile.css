@@ -17479,3 +17479,13 @@ html.is-app #modal-overlay .pad-cats { grid-template-columns: repeat(3, 1fr) !im
 html.is-app #modal-overlay .pad-cats button { min-width: 0 !important; padding: 10px 3px !important; font-size: 11px !important; gap: 5px !important; border-radius: 11px !important; min-height: 70px !important; justify-content: center !important; }
 html.is-app #modal-overlay .pad-cats button span:last-child { white-space: normal !important; line-height: 1.15 !important; overflow-wrap: break-word !important; word-break: normal !important; text-align: center !important; }
 html.is-app #modal-overlay .pad-cats .pad-cat-lucide svg.lucide { width: 22px !important; height: 22px !important; }
+/* ============================================================
+   build 638 — Add pad: nudge the currency symbol inside the amount
+   box, and give the category icon breathing room (the lucide icon
+   was the SAME size as its coloured circle, filling it edge-to-edge).
+   ============================================================ */
+html.is-app #txpad .pad-amt-cur { left: 19px !important; }
+html.is-app #txpad .pad-cat-ic { width: 26px !important; height: 26px !important; border-radius: 50% !important; }
+html.is-app #txpad .pad-cat-ic svg.lucide,
+html.is-app #txpad .pad-cat-ic svg { width: 15px !important; height: 15px !important; }
+html.is-app #txpad .pad-cat-ic .cat-emoji-ic { font-size: 14px !important; }
