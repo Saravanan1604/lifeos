@@ -1418,9 +1418,9 @@ function renderCategoryDetail() {
   }
 
   const chartItems = _catDetYearly ? years : months;
-  // Fit all bars on screen (up to 6); only scroll when there are more than 6
-  // (e.g. a full 12-month / multi-year history) so they never get too thin.
-  const containerWidth = chartItems.length > 6 ? `calc((${chartItems.length} / 6) * 100%)` : '100%';
+  // Show 4 bars per screen (rest scroll horizontally) so bars stay chunky and
+  // value labels never crowd/overlap.
+  const containerWidth = chartItems.length > 4 ? `calc((${chartItems.length} / 4) * 100%)` : '100%';
 
   let displayTx = [];
   let displayTotal = 0;
@@ -1594,7 +1594,8 @@ function renderCategoryDetail() {
         id: 'catdetLabels',
         afterDatasetsDraw(ch) {
           const { ctx } = ch; const meta = ch.getDatasetMeta(0);
-          ctx.save(); ctx.fillStyle = '#e2e8f0'; ctx.font = '700 19px Inter, sans-serif'; ctx.textAlign = 'center';
+          const _lightTheme = document.body.classList.contains('light');
+          ctx.save(); ctx.fillStyle = _lightTheme ? '#1e293b' : '#e2e8f0'; ctx.font = '700 19px Inter, sans-serif'; ctx.textAlign = 'center';
           meta.data.forEach((bar, i) => {
             const v = chartItems[i].total;
             ctx.fillText(v ? shortK(v) : '0', bar.x, bar.y - 10);
