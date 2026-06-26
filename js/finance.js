@@ -629,6 +629,7 @@ function recEnterSelect(id) {
 // Shows a 7-month spending bar chart for that category (current month
 // highlighted) and the list of its transactions in the anchor month.
 let _catDetailCat = null;
+let _catDetailTag = null;         // when set, the detail page filters by TAG instead of category
 let _catDetailFrom = 'records';   // where back should return to
 let _spendAnchor = new Date();    // anchor for the spending overview
 let _spendPeriod = 'month';       // day | week | month | year | all
@@ -637,6 +638,7 @@ let _catDetYearly = false;
 function openCategoryDetail(cat, from) {
   _catDetYearly = false;
   _catDetailCat = cat;
+  _catDetailTag = null;          // category mode
   _catDetailFrom = from || 'records';
   // Route it as a real page so the 3s cloud-sync poll re-renders the detail
   // (not the parent page) — otherwise the detail flashed and reverted.
@@ -1361,9 +1363,12 @@ function renderSpendingOverview() {
   }, 50);
 }
 function renderCategoryDetail() {
-  const cat = _catDetailCat;
+  const isTag = !!_catDetailTag;
+  const cat = isTag ? _catDetailTag : _catDetailCat;
   if (!cat) { renderRecordsMyMoney(); return; }
-  const tx = (STATE.transactions || []).filter(t => (t.category || 'Other') === cat && t.type !== 'income');
+  const tx = (STATE.transactions || []).filter(t =>
+    (isTag ? (t.tag || '').toLowerCase() === String(cat).toLowerCase() : (t.category || 'Other') === cat)
+    && t.type !== 'income');
   const anchor = (_recAnchor instanceof Date && !isNaN(_recAnchor)) ? _recAnchor : new Date();
 
   // find earliest transaction month for this category to show data where we started to enter data
@@ -1439,22 +1444,28 @@ function renderCategoryDetail() {
     spentPeriodText = `Spent in ${anchor.toLocaleString('default', { month: 'short' })}`;
   }
 
-  const color = catColor(cat);
+  const color = isTag ? '#6366f1' : catColor(cat);
 
-  // sub-category split for display period
+  // breakdown for the display period: by CATEGORY for a tag, by sub-category otherwise
   const bySub = {};
-  displayTx.forEach(t => { const s = (t.subcategory || '').trim() || '—'; bySub[s] = (bySub[s] || 0) + (+t.amount || 0); });
+  displayTx.forEach(t => { const s = ((isTag ? (t.category || 'Other') : (t.subcategory || '')) + '').trim() || '—'; bySub[s] = (bySub[s] || 0) + (+t.amount || 0); });
   const subRows = Object.entries(bySub).sort((a, b) => b[1] - a[1]);
 
   const shortK = n => Math.abs(n) >= 1000 ? (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'K' : String(Math.round(n));
 
-  // Category Budget limit calculation and HTML
-  const catBudget = (STATE.budgets || []).find(b => b.category?.trim().toLowerCase() === cat.trim().toLowerCase());
-  const budgetIndex = (STATE.budgets || []).findIndex(b => b.category?.trim().toLowerCase() === cat.trim().toLowerCase());
+  // Budget limit calculation and HTML (category budget, or per-tag budget)
   let limit = null;
-  if (catBudget) {
-    limit = getBudgetLimit(catBudget, _catDetYearly ? 'year' : 'month');
+  let budgetIndex = -1;
+  if (isTag) {
+    const tb = +((STATE.tagBudgets || {})[cat]) || 0;
+    if (tb > 0) limit = tb;
+  } else {
+    const catBudget = (STATE.budgets || []).find(b => b.category?.trim().toLowerCase() === cat.trim().toLowerCase());
+    budgetIndex = (STATE.budgets || []).findIndex(b => b.category?.trim().toLowerCase() === cat.trim().toLowerCase());
+    if (catBudget) limit = getBudgetLimit(catBudget, _catDetYearly ? 'year' : 'month');
   }
+  const _editBudgetFn = isTag ? `openTagBudget('${esc(cat).replace(/'/g, "\\'")}')` : `openAddBudgetModal(${budgetIndex})`;
+  const _setBudgetFn  = isTag ? `openTagBudget('${esc(cat).replace(/'/g, "\\'")}')` : `openAddBudgetModalFor('${(cat + '').replace(/'/g, "\\'")}')`;
 
   let budgetHtml = '';
   if (limit !== null) {
@@ -1468,7 +1479,7 @@ function renderCategoryDetail() {
           <span style="font-size:18px;font-weight:700;color:var(--text2)">Budget Limit</span>
           <div style="display:flex;align-items:center;gap:8px">
             <b style="font-size:22px;font-weight:800;color:var(--text)">${fmt(limit)}</b>
-            <button onclick="openAddBudgetModal(${budgetIndex})" class="catdet-budget-edit-btn" style="background:rgba(255,255,255,0.06);border:none;cursor:pointer;color:var(--text2);font-size:16px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center"><i data-lucide="edit-2" style="width:16px;height:16px"></i></button>
+            <button onclick="${_editBudgetFn}" class="catdet-budget-edit-btn" style="background:rgba(255,255,255,0.06);border:none;cursor:pointer;color:var(--text2);font-size:16px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center"><i data-lucide="edit-2" style="width:16px;height:16px"></i></button>
           </div>
         </div>
         <div style="width:100%;height:12px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden">
@@ -1484,7 +1495,7 @@ function renderCategoryDetail() {
           <span style="font-size:18px;font-weight:700;color:var(--text2)">Budget Limit</span>
           <p style="font-size:14px;color:var(--text3);margin-top:4px">Set a limit to track your spending</p>
         </div>
-        <button class="btn-primary" onclick="openAddBudgetModalFor('${cat.replace(/'/g, "\\'")}')" style="padding:8px 16px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;margin:0"><i data-lucide="plus" style="width:16px;height:16px"></i> Set Budget</button>
+        <button class="btn-primary" onclick="${_setBudgetFn}" style="padding:8px 16px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;margin:0"><i data-lucide="plus" style="width:16px;height:16px"></i> Set Budget</button>
       </div>
     `;
   }
@@ -1492,10 +1503,10 @@ function renderCategoryDetail() {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in catdet">
       <div class="catdet-head">
-        <button class="catdet-back" onclick="navigate('${_catDetailFrom === 'spending' ? 'spending' : 'transactions'}')"><i data-lucide="arrow-left"></i></button>
+        <button class="catdet-back" onclick="navigate('${_catDetailFrom === 'tags' ? 'tags' : (_catDetailFrom === 'spending' ? 'spending' : 'transactions')}')"><i data-lucide="arrow-left"></i></button>
         <div class="catdet-title">
-          <span class="catdet-ic" style="background:${color}">${catIconHtml(cat)}</span>
-          <div><p class="catdet-name">${esc(cat)}</p><p class="catdet-sub">${_catDetYearly ? anchor.getFullYear() : anchor.toLocaleString('default', { month: 'long', year: 'numeric' })}</p></div>
+          <span class="catdet-ic" style="background:${color}">${isTag ? '<span style="font-weight:900;color:#fff;font-size:1em">#</span>' : catIconHtml(cat)}</span>
+          <div><p class="catdet-name">${isTag ? '#' + esc(cat) : esc(cat)}</p><p class="catdet-sub">${_catDetYearly ? anchor.getFullYear() : anchor.toLocaleString('default', { month: 'long', year: 'numeric' })}</p></div>
         </div>
       </div>
 
@@ -1522,7 +1533,7 @@ function renderCategoryDetail() {
       </div>
 
       ${subRows.length > 1 || (subRows.length === 1 && subRows[0][0] !== '—') ? `
-      <p class="catdet-section">By subcategory</p>
+      <p class="catdet-section">${isTag ? 'By category' : 'By subcategory'}</p>
       <div class="glass-card" style="padding:8px 16px;margin-bottom:16px">
         ${subRows.map(([s, v]) => {
           const pct = displayTotal > 0 ? Math.round(v / displayTotal * 100) : 0;
@@ -2286,42 +2297,16 @@ function padPickTag() {
 // Tag total view — every transaction with this tag, across all categories,
 // with the grand total + a per-category breakdown. This is the payoff of tags:
 // "how much did the whole marriage / trip cost?" regardless of category.
+// Open the full detail page for a tag (same layout as the category detail:
+// spending-history bars + breakdown + transactions), filtered by tag.
 function openTagDetail(tag) {
   if (!tag) return;
-  const tg = String(tag).toLowerCase();
-  const txns = (STATE.transactions || []).filter(t => (t.tag || '').toLowerCase() === tg)
-    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-  const total = txns.reduce((s, t) => s + (t.type === 'income' ? 0 : (+t.amount || 0)), 0);
-  const byCat = {};
-  txns.forEach(t => { if (t.type !== 'income') { const c = t.category || 'Other'; byCat[c] = (byCat[c] || 0) + (+t.amount || 0); } });
-  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
-  const rows = txns.map(t => `
-    <div onclick="closeModal();openTxPad('${t.type}','${t.id}')" style="display:flex;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--glass-border);cursor:pointer">
-      <div style="min-width:0"><p style="margin:0;font-weight:600;font-size:14px">${esc(t.description || t.category)}</p>
-        <p style="margin:2px 0 0;font-size:12px;color:var(--text3)">${esc(t.category)} · ${fmtDate(t.date)}</p></div>
-      <b style="white-space:nowrap;color:${t.type === 'income' ? '#10b981' : '#ef4444'}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</b>
-    </div>`).join('');
-  // Per-tag budget (#6): track total spend on this tag against a target.
-  const tBudget = +((STATE.tagBudgets || {})[tag]) || 0;
-  let budgetHtml = '';
-  if (tBudget > 0) {
-    const pct = Math.min(100, Math.round(total / tBudget * 100));
-    const over = total > tBudget;
-    const col = over ? '#ef4444' : pct >= 80 ? '#f59e0b' : '#10b981';
-    budgetHtml = `<div style="padding:12px 14px;border-radius:12px;background:var(--glass);margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span style="font-weight:700">Tag budget ${fmt(tBudget)}</span><span style="color:${col};font-weight:700">${over ? 'over by ' + fmt(total - tBudget) : fmt(tBudget - total) + ' left'}</span></div>
-      <div style="height:8px;border-radius:5px;background:rgba(128,128,128,0.2);overflow:hidden"><div style="height:100%;width:${pct}%;background:${col}"></div></div>
-    </div>`;
-  }
-  openModal(`# ${esc(tag)} — ${txns.length} item${txns.length === 1 ? '' : 's'}`, `
-    <div class="mr-pop">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;background:var(--glass);margin-bottom:10px">
-        <span style="font-weight:700">Total spent on this tag</span><b style="font-size:20px;color:#6366f1">${fmt(total)}</b></div>
-      ${budgetHtml}
-      ${cats.length > 1 ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">${cats.map(([c, v]) => `<span style="font-size:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:5px 11px">${esc(c)} · ${fmt(v)}</span>`).join('')}</div>` : ''}
-      <button class="btn-secondary" onclick="openTagBudget('${esc(tag).replace(/'/g, "\\'")}')" style="width:100%;margin-bottom:10px;font-size:13px">🎯 ${tBudget > 0 ? 'Edit' : 'Set'} tag budget</button>
-      <div style="max-height:45vh;overflow-y:auto">${rows || '<p style="color:var(--text3);padding:14px 0">Nothing tagged yet.</p>'}</div>
-    </div>`);
+  _catDetYearly = false;
+  _catDetailTag = tag;
+  _catDetailCat = null;
+  _catDetailFrom = 'tags';
+  if (typeof navigate === 'function') navigate('category-detail');
+  else renderCategoryDetail();
 }
 
 // Set / edit a budget for a tag (lives in STATE.tagBudgets[tag]).
@@ -2369,14 +2354,16 @@ function renderTags() {
   // ── App: same look as the Spending page (ring + category rows) ──
   if (window.__IS_APP) {
     const displayTotalText = grand > 0 ? fmt(Math.round(grand)) : '₹0';
-    const scoreFontSize = displayTotalText.length > 8 ? '40px' : (displayTotalText.length > 6 ? '52px' : (displayTotalText.length > 4 ? '64px' : '76px'));
+    // smaller ring on the Tags page → smaller centre total
+    const scoreFontSize = displayTotalText.length > 8 ? '24px' : (displayTotalText.length > 6 ? '30px' : (displayTotalText.length > 4 ? '36px' : '44px'));
     container.innerHTML = `
-      <div class="fade-in" id="spending-page" style="padding:16px 20px">
+      <div class="fade-in tags-view" id="spending-page" style="padding:16px 20px">
         <div class="ring-page-head">
           <button class="model-back-btn" onclick="navigate('finance')" title="Back to Finance">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
           </button>
           <h1 class="ring-page-title"># Tags</h1>
+          <button class="tags-add-btn" onclick="openTxPad('expense')" title="Add a tagged transaction"><i data-lucide="plus"></i> Add Tag</button>
         </div>
 
         ${tags.length ? `
