@@ -17491,32 +17491,45 @@ html.is-app #txpad .pad-cat-ic svg { width: 15px !important; height: 15px !impor
 html.is-app #txpad .pad-cat-ic .cat-emoji-ic { font-size: 14px !important; }
 
 /* ============================================================
-   build 639 — Bank Tracker (Finance) cards. The SBI/ICICI cards
-   were 170px+ min-height with justify-content:space-between, leaving
-   a huge empty gap around the balance. Shrink them; and give the
-   NET BALANCE hero a bit more height so it reads as the headline.
-   Scoped to [data-page="bank-tracker"].
+   build 640 — Bank Tracker cards. renderBankTracker() runs under BOTH
+   data-page="finance" (the bottom-nav Finance tab) AND "bank-tracker"
+   (net-balance card tap). Build 639 only scoped to bank-tracker, so via
+   the Finance tab the cards stayed 228px. Cover BOTH pages here.
    ============================================================ */
-html.is-app #page-container[data-page="bank-tracker"] .fin-bank-grid .fin-dark-card {
+html.is-app #page-container[data-page="finance"] .fin-bank-grid .fin-dark-card,
+html.is-app #page-container[data-page="bank-tracker"] .fin-bank-grid .fin-dark-card,
+html.is-app #page-container[data-page="finance"] .fin-cash-grid .fin-dark-card,
+html.is-app #page-container[data-page="bank-tracker"] .fin-cash-grid .fin-dark-card,
+html.is-app #page-container[data-page="finance"] .fin-card-grid .fin-dark-card,
+html.is-app #page-container[data-page="bank-tracker"] .fin-card-grid .fin-dark-card {
   min-height: 118px !important;
   height: auto !important;
   padding: 0.9rem 1.2rem !important;
   gap: 0.45rem !important;
 }
-html.is-app #page-container[data-page="bank-tracker"] .fin-bank-grid .fin-dark-card > div:nth-child(2) {
+html.is-app #page-container[data-page="finance"] .fin-bank-grid .fin-dark-card > div:nth-child(2),
+html.is-app #page-container[data-page="bank-tracker"] .fin-bank-grid .fin-dark-card > div:nth-child(2),
+html.is-app #page-container[data-page="finance"] .fin-cash-grid .fin-dark-card > div:nth-child(2),
+html.is-app #page-container[data-page="bank-tracker"] .fin-cash-grid .fin-dark-card > div:nth-child(2),
+html.is-app #page-container[data-page="finance"] .fin-card-grid .fin-dark-card > div:nth-child(2),
+html.is-app #page-container[data-page="bank-tracker"] .fin-card-grid .fin-dark-card > div:nth-child(2) {
   font-size: 2.1rem !important;
 }
+html.is-app #page-container[data-page="finance"] .fin-netbal-hero,
 html.is-app #page-container[data-page="bank-tracker"] .fin-netbal-hero {
   padding-top: 34px !important;
   padding-bottom: 34px !important;
 }
+html.is-app #page-container[data-page="finance"] .fin-netbal-hero .mm-hero-split,
 html.is-app #page-container[data-page="bank-tracker"] .fin-netbal-hero .mm-hero-split {
   margin-top: 16px !important;
 }
-/* the "+ Add Bank" card was still 228px (forced by an earlier rule),
-   leaving dead space below the short cards — match the compact height */
+/* match the "+ Add" card to the compact card height on both pages */
+html.is-app #page-container[data-page="finance"] .fin-bank-grid .fin-add-card,
 html.is-app #page-container[data-page="bank-tracker"] .fin-bank-grid .fin-add-card,
+html.is-app #page-container[data-page="finance"] .fin-cash-grid .fin-add-card,
 html.is-app #page-container[data-page="bank-tracker"] .fin-cash-grid .fin-add-card,
+html.is-app #page-container[data-page="finance"] .fin-card-grid .fin-add-card,
 html.is-app #page-container[data-page="bank-tracker"] .fin-card-grid .fin-add-card {
   min-height: 118px !important;
   height: 118px !important;
