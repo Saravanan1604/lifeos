@@ -17546,3 +17546,14 @@ html.is-app .dash-tab .dash-tab-icon svg {
   height: 22px !important;
   stroke-width: 2 !important;
 }
+
+/* ============================================================
+   build 644 — Dashboard full-page size pass. The page had no zoom
+   compensation, so the 5 mode tabs, month nav, Expense/Income toggle
+   and calendar were all oversized. Zoom the whole page down, and
+   shrink the 5 tabs (~half height) with smaller icon + label.
+   ============================================================ */
+html.is-app #page-container[data-page="dashboard"] { zoom: 0.85 !important; }
+html.is-app #page-container[data-page="dashboard"] .dash-tab { padding: 6px 3px !important; gap: 3px !important; }
+html.is-app #page-container[data-page="dashboard"] .dash-tab .dash-tab-icon svg { width: 15px !important; height: 15px !important; }
+html.is-app #page-container[data-page="dashboard"] .dash-tab .dash-tab-text { font-size: 11.5px !important; }
