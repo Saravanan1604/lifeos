@@ -17534,3 +17534,15 @@ html.is-app #page-container[data-page="bank-tracker"] .fin-card-grid .fin-add-ca
   min-height: 118px !important;
   height: 118px !important;
 }
+
+/* ============================================================
+   build 643 — Dashboard tab icons converted from emoji to Lucide
+   line icons (Heatmap / Money Flow / Wealth Flow / Health / 7 Income).
+   Size the SVGs and let them inherit the tab's active/inactive colour.
+   ============================================================ */
+html.is-app .dash-tab .dash-tab-icon svg.lucide,
+html.is-app .dash-tab .dash-tab-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke-width: 2 !important;
+}

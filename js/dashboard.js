@@ -655,18 +655,6 @@ function _pdHero(bank, cash, inv, cardOut, hasAccts, income, expense) {
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         </button>
       </div>
-      <div class="pd-hero-card">
-        <div class="pd-hero-glow"></div>
-        <p class="pd-hero-lbl">TOTAL WEALTH</p>
-        <p class="pd-hero-val">${fmt(wealth)}</p>
-        <span class="pd-hero-chg ${up ? 'up' : 'down'}">${up ? '▲ +' : '▼ −'}${fmt(Math.abs(monthNet))} · this month</span>
-        <div class="pd-actions">
-          <button class="pd-act" onclick="openTxPad()"><span class="pd-act-ic">−</span>Expense</button>
-          <button class="pd-act" onclick="openTxPad();if(typeof padSetType==='function')padSetType('income')"><span class="pd-act-ic">+</span>Income</button>
-          <button class="pd-act" onclick="navigate('finance')"><span class="pd-act-ic">⇄</span>Transfer</button>
-          <button class="pd-act" onclick="navigate('yearly')"><span class="pd-act-ic">📊</span>Reports</button>
-        </div>
-      </div>
     </div>`;
 }
 
@@ -800,23 +788,23 @@ function renderDashboard() {
       <div class="dash-tabs-container">
         <div class="dash-tabs">
           <button class="dash-tab ${_dashActiveTab===1?'active':''}" data-tab="1" onclick="switchDashTab(1)">
-            <span class="dash-tab-icon">📅</span>
+            <span class="dash-tab-icon"><i data-lucide="calendar-days"></i></span>
             <span class="dash-tab-text">Heatmap</span>
           </button>
           <button class="dash-tab ${_dashActiveTab===2?'active':''}" data-tab="2" onclick="switchDashTab(2)">
-            <span class="dash-tab-icon">🔄</span>
+            <span class="dash-tab-icon"><i data-lucide="arrow-left-right"></i></span>
             <span class="dash-tab-text">Money Flow</span>
           </button>
           <button class="dash-tab ${_dashActiveTab===3?'active':''}" data-tab="3" onclick="switchDashTab(3)">
-            <span class="dash-tab-icon">🏦</span>
+            <span class="dash-tab-icon"><i data-lucide="landmark"></i></span>
             <span class="dash-tab-text">Wealth Flow</span>
           </button>
           <button class="dash-tab ${_dashActiveTab===4?'active':''}" data-tab="4" onclick="switchDashTab(4)">
-            <span class="dash-tab-icon">⚡</span>
+            <span class="dash-tab-icon"><i data-lucide="activity"></i></span>
             <span class="dash-tab-text">Health</span>
           </button>
           <button class="dash-tab ${_dashActiveTab===5?'active':''}" data-tab="5" onclick="switchDashTab(5)">
-            <span class="dash-tab-icon">💰</span>
+            <span class="dash-tab-icon"><i data-lucide="banknote"></i></span>
             <span class="dash-tab-text">7 Income</span>
           </button>
         </div>
