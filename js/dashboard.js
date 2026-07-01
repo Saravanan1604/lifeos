@@ -815,6 +815,15 @@ function renderDashboard() {
         ${['day','week','month','year','all'].map(p => `<button class="dash-period-tab ${_dashPeriod===p?'active':''}" onclick="setDashPeriod('${p}')">${({day:'Day',week:'Week',month:'Month',year:'Year',all:'All'})[p]}</button>`).join('')}
       </div>
 
+      <!-- Date navigator (‹ label › + Today) — like the Records page -->
+      ${_dashPeriod === 'all' ? '' : `
+      <div class="dash-datenav">
+        <button class="dash-datenav-arrow" onclick="shiftDashPeriod(-1)" aria-label="Previous">‹</button>
+        <span class="dash-datenav-label" onclick="openDashPeriodSheet()">${_dashPeriodLabel()}</span>
+        <button class="dash-datenav-arrow" onclick="shiftDashPeriod(1)" aria-label="Next" ${dashAtPresent() ? 'disabled' : ''}>›</button>
+        ${!dashAtPresent() ? `<button class="dash-datenav-today" onclick="resetDashAnchor()">Today</button>` : ''}
+      </div>`}
+
       <!-- Tab 1: Money Heatmap Card -->
       <div id="dash-heatmap-card" style="margin-bottom:20px; display: ${_dashActiveTab===1?'block':'none'}">
         <div id="dash-heatmap-container"></div>

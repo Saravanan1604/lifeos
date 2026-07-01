@@ -17642,3 +17642,42 @@ html.is-app #page-container[data-page="dashboard"] .glass-card { margin-left: 0 
 /* (3) graph swap / loading animation */
 @keyframes dashSwapIn { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
 html.is-app #page-container[data-page="dashboard"] .dash-swap-in { animation: dashSwapIn 0.34s cubic-bezier(.22,.61,.36,1) both !important; }
+
+/* ============================================================
+   build 648 — Dashboard date navigator (‹ period label › + Today),
+   same function as the Records page. Uses the existing shift/reset
+   period logic. Sits under the Day/Week/Month/Year bar.
+   ============================================================ */
+html.is-app #page-container[data-page="dashboard"] .dash-datenav {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin: 0 0 16px !important;
+}
+html.is-app #page-container[data-page="dashboard"] .dash-datenav-arrow {
+  width: 32px !important; height: 32px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  background: rgba(255,255,255,0.04) !important;
+  color: #00c9a7 !important;
+  font-size: 20px !important; font-weight: 800 !important;
+  line-height: 1 !important; cursor: pointer !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+}
+html.is-app #page-container[data-page="dashboard"] .dash-datenav-arrow:disabled { opacity: .35 !important; cursor: default !important; color: var(--text3) !important; }
+html.is-app #page-container[data-page="dashboard"] .dash-datenav-label {
+  min-width: 140px !important; text-align: center !important;
+  font-size: 15px !important; font-weight: 800 !important; color: var(--text) !important;
+  padding: 7px 14px !important; border-radius: 10px !important;
+  background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.08) !important;
+  cursor: pointer !important;
+}
+html.is-app #page-container[data-page="dashboard"] .dash-datenav-today {
+  font-size: 12px !important; font-weight: 700 !important;
+  padding: 7px 12px !important; border-radius: 10px !important;
+  border: 1px solid rgba(0,201,167,0.35) !important;
+  background: rgba(0,201,167,0.12) !important; color: #00c9a7 !important; cursor: pointer !important;
+}
+html.is-app body.light #page-container[data-page="dashboard"] .dash-datenav-arrow,
+html.is-app body.light #page-container[data-page="dashboard"] .dash-datenav-label { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.08) !important; }
