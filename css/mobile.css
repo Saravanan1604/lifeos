@@ -17557,3 +17557,27 @@ html.is-app #page-container[data-page="dashboard"] { zoom: 0.85 !important; }
 html.is-app #page-container[data-page="dashboard"] .dash-tab { padding: 6px 3px !important; gap: 3px !important; }
 html.is-app #page-container[data-page="dashboard"] .dash-tab .dash-tab-icon svg { width: 15px !important; height: 15px !important; }
 html.is-app #page-container[data-page="dashboard"] .dash-tab .dash-tab-text { font-size: 11.5px !important; }
+
+/* ============================================================
+   build 645 — Heatmap Expense/Income/Net toggle was 1.25rem and
+   overflowed (Net cut off); the day-detail history card text was
+   1.25-1.35rem and oversized/overlapping. Shrink both. Scoped to
+   the dashboard page.
+   ============================================================ */
+html.is-app #page-container[data-page="dashboard"] .hm-mode-tabs .hm-tab-btn {
+  font-size: 13px !important;
+  padding: 8px 4px !important;
+  gap: 5px !important;
+}
+html.is-app #page-container[data-page="dashboard"] .hm-mode-tabs .hm-tab-btn svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+html.is-app #page-container[data-page="dashboard"] .hm-details-card h3 { font-size: 17px !important; }
+html.is-app #page-container[data-page="dashboard"] .hm-details-card p { font-size: 12px !important; }
+html.is-app #page-container[data-page="dashboard"] .hm-details-card > div:first-child span { font-size: 14px !important; }
+html.is-app #page-container[data-page="dashboard"] .hm-tx-list .tx-row { padding: 9px 12px !important; }
+html.is-app #page-container[data-page="dashboard"] .hm-tx-list .tx-row > div:first-child { min-width: 0 !important; }
+html.is-app #page-container[data-page="dashboard"] .hm-tx-list .tx-row p { font-size: 13px !important; }
+html.is-app #page-container[data-page="dashboard"] .hm-tx-list .tx-row > span { font-size: 15px !important; flex-shrink: 0 !important; }
+html.is-app #page-container[data-page="dashboard"] .hm-tx-list .tx-ic { width: 32px !important; height: 32px !important; }
