@@ -1386,7 +1386,7 @@ function _mrDrawCharts(fh, strm, flow) {
         scales: { r: {
           min: 0, max: 100, ticks: { stepSize: 20, color: tick, backdropColor: 'transparent', font: { size: 10 } },
           grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 16 : 12, weight: window.__IS_APP ? '900' : '700' } }
+          pointLabels: { color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 11 : 12, weight: '700' } }
         } }
       }
     });
@@ -1414,7 +1414,7 @@ function _mrDrawCharts(fh, strm, flow) {
         scales: { r: {
           min: 0, max: 100, ticks: { display: false, stepSize: 25 },
           grid: { color: grid }, angleLines: { color: grid },
-          pointLabels: { color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 16 : 12, weight: window.__IS_APP ? '900' : '700' } }
+          pointLabels: { color: window.__IS_APP ? (isLight ? '#0f172a' : '#f1f5f9') : tick, font: { size: window.__IS_APP ? 11 : 12, weight: '700' } }
         } }
       }
     });

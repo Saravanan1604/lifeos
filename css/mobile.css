@@ -17581,3 +17581,23 @@ html.is-app #page-container[data-page="dashboard"] .hm-tx-list .tx-row > div:fir
 html.is-app #page-container[data-page="dashboard"] .hm-tx-list .tx-row p { font-size: 13px !important; }
 html.is-app #page-container[data-page="dashboard"] .hm-tx-list .tx-row > span { font-size: 15px !important; flex-shrink: 0 !important; }
 html.is-app #page-container[data-page="dashboard"] .hm-tx-list .tx-ic { width: 32px !important; height: 32px !important; }
+
+/* ============================================================
+   build 646 — Dashboard Health + 7 Income tabs. Radar labels were
+   size-16/900 (clipped) -> reduced in JS; scores/charts shrunk in JS.
+   Here: the 7-Income stream cards had inline 13px that the global
+   inflation blew up, collapsing the "Earned" label to vertical text.
+   Force sane size + single-line labels.
+   ============================================================ */
+html.is-app #page-container[data-page="dashboard"] #dash-mr-stream > div:last-child > div {
+  font-size: 12px !important;
+  padding: 7px 10px !important;
+}
+html.is-app #page-container[data-page="dashboard"] #dash-mr-stream > div:last-child > div span {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+html.is-app #page-container[data-page="dashboard"] #dash-mr-stream > div:last-child > div b {
+  font-size: 11px !important;
+}
