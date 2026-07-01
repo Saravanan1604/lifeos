@@ -17601,3 +17601,44 @@ html.is-app #page-container[data-page="dashboard"] #dash-mr-stream > div:last-ch
 html.is-app #page-container[data-page="dashboard"] #dash-mr-stream > div:last-child > div b {
   font-size: 11px !important;
 }
+
+/* ============================================================
+   build 647 — Dashboard: (1) Day/Week/Month/Year/All period bar for
+   all tabs, (2) less left/right dead space, (3) graph swap animation.
+   ============================================================ */
+/* (1) period bar */
+html.is-app #page-container[data-page="dashboard"] .dash-period-bar {
+  display: flex !important;
+  gap: 5px !important;
+  margin: 0 0 16px !important;
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+}
+html.is-app #page-container[data-page="dashboard"] .dash-period-tab {
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--text3) !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  padding: 7px 4px !important;
+  border-radius: 9px !important;
+  cursor: pointer !important;
+  transition: all .15s ease !important;
+}
+html.is-app #page-container[data-page="dashboard"] .dash-period-tab.active {
+  background: linear-gradient(135deg,#00c9a7,#0acf83) !important;
+  color: #04211a !important;
+}
+html.is-app body.light #page-container[data-page="dashboard"] .dash-period-bar {
+  background: rgba(0,0,0,0.03) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+/* (2) reduce side dead space on the dashboard */
+html.is-app #page-container[data-page="dashboard"] { padding-left: 12px !important; padding-right: 12px !important; }
+html.is-app #page-container[data-page="dashboard"] .glass-card { margin-left: 0 !important; margin-right: 0 !important; }
+/* (3) graph swap / loading animation */
+@keyframes dashSwapIn { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
+html.is-app #page-container[data-page="dashboard"] .dash-swap-in { animation: dashSwapIn 0.34s cubic-bezier(.22,.61,.36,1) both !important; }

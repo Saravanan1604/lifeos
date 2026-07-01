@@ -810,6 +810,11 @@ function renderDashboard() {
         </div>
       </div>
 
+      <!-- Period selector (Day/Week/Month/Year/All) — applies to all tabs -->
+      <div class="dash-period-bar">
+        ${['day','week','month','year','all'].map(p => `<button class="dash-period-tab ${_dashPeriod===p?'active':''}" onclick="setDashPeriod('${p}')">${({day:'Day',week:'Week',month:'Month',year:'Year',all:'All'})[p]}</button>`).join('')}
+      </div>
+
       <!-- Tab 1: Money Heatmap Card -->
       <div id="dash-heatmap-card" style="margin-bottom:20px; display: ${_dashActiveTab===1?'block':'none'}">
         <div id="dash-heatmap-container"></div>
@@ -1048,6 +1053,10 @@ function switchDashTab(tabIdx) {
   if (card4) card4.style.display = tabIdx === 4 ? 'block' : 'none';
   if (card5) card5.style.display = tabIdx === 5 ? 'block' : 'none';
   if (bottomCards) bottomCards.style.display = tabIdx === 1 ? 'none' : 'block';
+
+  // Loading/swap animation: fade+rise the newly-shown card as the graph redraws
+  const _active = [card1, card2, card3, card4, card5][tabIdx - 1];
+  if (_active) { _active.classList.remove('dash-swap-in'); void _active.offsetWidth; _active.classList.add('dash-swap-in'); }
 
   // Redraw charts for the visible tab
   if (tabIdx === 1) {
