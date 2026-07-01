@@ -64,6 +64,18 @@ function renderHeatmap() {
   const container = document.getElementById('dash-heatmap-container');
   if (!container) return;
 
+  // Follow the dashboard's shared date navigator (single source of truth) so
+  // the heatmap month matches the ‹ label › nav above — no duplicate control.
+  if (typeof _dashAnchorDate !== 'undefined') {
+    _heatmapAnchorDate = _dashAnchorDate ? new Date(_dashAnchorDate + 'T00:00:00') : new Date();
+    // keep the selected day (and its detail card) inside the shown month
+    const _shownYm = `${_heatmapAnchorDate.getFullYear()}-${String(_heatmapAnchorDate.getMonth() + 1).padStart(2, '0')}`;
+    if (!(_heatmapSelectedDateYmd || '').startsWith(_shownYm)) {
+      const _t = today();
+      _heatmapSelectedDateYmd = _t.startsWith(_shownYm) ? _t : _shownYm + '-01';
+    }
+  }
+
   const yr = _heatmapAnchorDate.getFullYear();
   const mo = _heatmapAnchorDate.getMonth();
   const mLabel = _heatmapAnchorDate.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -228,13 +240,7 @@ function renderHeatmap() {
         <p style="font-size:11px;color:var(--text3);margin:0">Visual month activity analyzer</p>
       </div>
 
-      <!-- Month Selector Row -->
-      <div class="mm-monthbar" style="margin-bottom:16px">
-        <button class="mm-navbtn" onclick="shiftHeatmapPeriod(-1)">‹</button>
-        <button class="mm-month" onclick="_openHeatmapMonthPicker()" style="cursor:pointer">${mLabel}</button>
-        <button class="mm-navbtn" onclick="shiftHeatmapPeriod(1)">›</button>
-        <button class="mm-today" onclick="resetHeatmapAnchor()">Today</button>
-      </div>
+      <!-- Month nav removed — the dashboard's shared ‹ label › navigator drives the month now -->
 
       <!-- Segment Tabs (Mode selection) -->
       <div class="hm-mode-tabs glass-card" style="margin-bottom: 20px; display: flex; padding: 6px; border-radius: 14px; gap: 4px;">
