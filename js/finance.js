@@ -1940,6 +1940,7 @@ function _recAccountChips() {
 
 // (9) Recurring reminders due soon
 function _recReminders() {
+  return '';  // disabled per user request — the due-soon banner was too big/intrusive
   const rec = STATE.recurring || []; if (!rec.length) return '';
   const today = new Date(); const soon = new Date(); soon.setDate(today.getDate() + 3);
   const due = rec.filter(r => { const d = new Date(r.nextDate + 'T00:00:00'); return d <= soon; });
