@@ -17861,3 +17861,83 @@ html.is-app #page-container[data-page="finance"] #cc-chat span[style*="font-size
 html.is-app #page-container[data-page="bank-tracker"] #cc-chat span[style*="font-size:11px"],
 html.is-app #page-container[data-page="finance"] #cash-chat span[style*="font-size:11px"],
 html.is-app #page-container[data-page="bank-tracker"] #cash-chat span[style*="font-size:11px"] { font-size: 12px !important; }
+
+/* ============================================================
+   build 656 - Settings page: compact rebalance (app-only).
+   The page was styled by a ~3x inflate block (build 546: 66px title,
+   38px buttons, 58px card padding) corrected by zoom:0.5 (build 580).
+   On the device that still read oversized, and app-wide button rules
+   (white-space:nowrap + justify-content:center) clipped the long
+   Backup/Legal button labels on BOTH sides. This block wins the
+   cascade (mirrors the 546 selectors, later in file), removes the
+   zoom trick and sets real sizes matching the rest of the app.
+   ============================================================ */
+html.is-app #page-container[data-page="settings"] {
+  zoom: 1 !important;
+  padding: 10px 12px 30px !important;
+}
+html.is-app #page-container[data-page="settings"] .page-header {
+  margin-bottom: 18px !important;
+  padding: 0 4px !important;
+}
+html.is-app #page-container[data-page="settings"] .page-title { font-size: 28px !important; }
+html.is-app #page-container[data-page="settings"] .page-subtitle { font-size: 15px !important; }
+html.is-app #page-container[data-page="settings"] .glass-card {
+  padding: 20px 18px !important;
+  margin-bottom: 16px !important;
+  border-radius: 20px !important;
+}
+html.is-app #page-container[data-page="settings"] .glass-card p {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  margin-bottom: 12px !important;
+}
+html.is-app #page-container[data-page="settings"] .glass-card p.section-title {
+  font-size: 19px !important;
+  margin-bottom: 10px !important;
+  line-height: 1.2 !important;
+}
+html.is-app #page-container[data-page="settings"] .form-label { font-size: 14px !important; margin-bottom: 6px !important; }
+html.is-app #page-container[data-page="settings"] .form-group { margin-top: 14px !important; }
+html.is-app #page-container[data-page="settings"] .form-input,
+html.is-app #page-container[data-page="settings"] select {
+  font-size: 17px !important;
+  padding: 12px 14px !important;
+}
+/* Buttons: compact, and labels may WRAP instead of clipping */
+html.is-app #page-container[data-page="settings"] button,
+html.is-app #page-container[data-page="settings"] .btn-primary,
+html.is-app #page-container[data-page="settings"] .btn-secondary,
+html.is-app #page-container[data-page="settings"] .btn-danger {
+  font-size: 15px !important;
+  padding: 13px 16px !important;
+  white-space: normal !important;
+  line-height: 1.4 !important;
+}
+/* Backup & Legal list buttons: honour their inline left alignment */
+html.is-app #page-container[data-page="settings"] .btn-secondary[style*="justify-content:flex-start"],
+html.is-app #page-container[data-page="settings"] a.btn-secondary[style*="justify-content:flex-start"] {
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+/* Theme picker + background-animation labels */
+html.is-app #page-container[data-page="settings"] div[onclick*="setTheme"] span { font-size: 14px !important; }
+html.is-app #page-container[data-page="settings"] div[onclick*="setTheme"] span[style*="width:11px"] { width: 11px !important; height: 11px !important; }
+html.is-app #page-container[data-page="settings"] div[onclick*="setTheme"] span[style*="width:22px"] { width: 22px !important; height: 22px !important; }
+html.is-app #page-container[data-page="settings"] .set-theme-prev { height: 84px !important; }
+html.is-app #page-container[data-page="settings"] button[onclick*="setBgAnim"] span { font-size: 13px !important; }
+html.is-app #page-container[data-page="settings"] button[onclick*="setBgAnim"] span[style*="font-size:22px"] { font-size: 22px !important; }
+/* Number Style swatches: big number, small caption */
+html.is-app #page-container[data-page="settings"] button[onclick*="setNumFont"] { padding: 14px 10px !important; }
+html.is-app #page-container[data-page="settings"] button[onclick*="setNumFont"] span[style*="font-size:24px"] { font-size: 22px !important; }
+html.is-app #page-container[data-page="settings"] button[onclick*="setNumFont"] span[style*="font-size:12px"] { font-size: 12px !important; }
+/* Your Stats rows */
+html.is-app #page-container[data-page="settings"] div[style*="font-size:13px"] span { font-size: 14px !important; }
+html.is-app #page-container[data-page="settings"] div[style*="font-size:13px"] div { padding: 10px 0 !important; }
+/* Legal links */
+html.is-app #page-container[data-page="settings"] a.btn-secondary,
+html.is-app #page-container[data-page="settings"] a.btn-secondary span { font-size: 14px !important; }
+html.is-app #page-container[data-page="settings"] a.btn-secondary { padding: 13px 16px !important; }
+/* Footer credits */
+html.is-app #page-container[data-page="settings"] div[style*="text-align:center"] span { font-size: 13px !important; }
+html.is-app #page-container[data-page="settings"] div[style*="text-align:center"] p { font-size: 12px !important; }
