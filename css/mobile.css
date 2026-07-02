@@ -17682,3 +17682,34 @@ html.is-app #page-container[data-page="dashboard"] .dash-datenav-today {
 }
 html.is-app body.light #page-container[data-page="dashboard"] .dash-datenav-arrow,
 html.is-app body.light #page-container[data-page="dashboard"] .dash-datenav-label { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.08) !important; }
+
+/* ============================================================
+   build 652 — Asset/Loan detail header fix. The "Live Update" + "Edit"
+   buttons were 1.45rem (~29px) and squeezed the title so "ITC" and
+   "Stocks · May 2026" collapsed to one-letter-per-line vertical text.
+   Shrink the buttons, let the header wrap, and make the title truncate.
+   ============================================================ */
+html.is-app .ld-head { flex-wrap: wrap !important; row-gap: 10px !important; align-items: center !important; }
+html.is-app .ld-head .catdet-title { min-width: 0 !important; }
+html.is-app .ld-head .catdet-name {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+html.is-app .ld-head .catdet-sub {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+html.is-app .ld-edit-btn {
+  font-size: 14px !important;
+  padding: 8px 13px !important;
+  margin-left: 0 !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+/* give the title room: smaller icon + let the action buttons wrap below */
+html.is-app .ld-head .catdet-ic { width: 44px !important; height: 44px !important; flex-shrink: 0 !important; }
+html.is-app .ld-head .catdet-ic svg { width: 22px !important; height: 22px !important; }
+html.is-app .ld-head .catdet-title { flex: 1 1 auto !important; }
+html.is-app .ld-head > div:last-child { flex: 1 0 100% !important; justify-content: flex-end !important; }
