@@ -407,6 +407,25 @@ function renderSettings() {
           <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:10px">Tap a card to switch · Auto follows time of day</p>
         </div>
 
+        ${window.__IS_APP ? (() => {
+          const curNf = (STATE.settings && STATE.settings.numFont) || 'default';
+          const curSym = (STATE.settings && STATE.settings.currency) || '₹';
+          const nfOpt = (mode, label, ff) => `
+            <button onclick="setNumFont('${mode}')" class="btn-secondary" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;${curNf === mode ? 'border:1.5px solid #00c9a7;background:rgba(0,201,167,0.12)' : ''}">
+              <span style="font-family:${ff};font-size:24px;font-weight:700;letter-spacing:-0.5px;font-variant-numeric:tabular-nums">${curSym}84,250</span>
+              <span style="font-size:12px;font-weight:600">${label}</span>
+            </button>`;
+          return `
+        <div class="glass-card" style="padding:22px">
+          <p class="section-title" style="margin-bottom:12px">🔢 Number Style</p>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Font used for the big balance numbers — compare and pick.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            ${nfOpt('default', 'Classic', 'inherit')}
+            ${nfOpt('grotesk', 'Futuristic', "'Space Grotesk','Inter',sans-serif")}
+          </div>
+        </div>`;
+        })() : ''}
+
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🌌 Background Animation</p>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
@@ -505,6 +524,16 @@ function setTheme(mode) {
   const btn = document.querySelector('.theme-toggle');
   if (btn) btn.textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
   toast(`Theme: ${mode} ✅`, 'success');
+  if (typeof currentPage !== 'undefined' && currentPage === 'settings' && typeof navigate === 'function') navigate('settings', true);
+}
+// Display font for hero numbers (Settings > Number Style). CSS is app-only
+// (html.is-app body.numfont ...), so the web layout is never affected.
+function setNumFont(mode) {
+  STATE.settings = STATE.settings || {};
+  STATE.settings.numFont = mode;
+  saveState();
+  document.body.classList.toggle('numfont', mode === 'grotesk');
+  toast(mode === 'grotesk' ? 'Number style: Futuristic ✅' : 'Number style: Classic ✅', 'success');
   if (typeof currentPage !== 'undefined' && currentPage === 'settings' && typeof navigate === 'function') navigate('settings', true);
 }
 // Apply a theme by toggling body classes (dark is the default = no class)

@@ -104,6 +104,9 @@ window.addEventListener('DOMContentLoaded', () => {
   if (typeof applyThemeClass === 'function') applyThemeClass(STATE.settings?.theme || 'amoled');
   else if (STATE.settings?.theme === 'light') document.body.classList.add('light');
 
+  // Apply saved hero-number display font (Settings > Number Style, app-only CSS)
+  if (window.__IS_APP) document.body.classList.toggle('numfont', STATE.settings?.numFont === 'grotesk');
+
   // Inject the floating theme toggle (sun/moon). On web it floats top-right;
   // in the app, CSS pins it top-right next to the notification bell.
   document.body.appendChild(_makeThemeBtn());
