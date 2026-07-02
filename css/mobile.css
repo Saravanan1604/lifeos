@@ -17713,3 +17713,65 @@ html.is-app .ld-head .catdet-ic { width: 44px !important; height: 44px !importan
 html.is-app .ld-head .catdet-ic svg { width: 22px !important; height: 22px !important; }
 html.is-app .ld-head .catdet-title { flex: 1 1 auto !important; }
 html.is-app .ld-head > div:last-child { flex: 1 0 100% !important; justify-content: flex-end !important; }
+
+/* ============================================================
+   build 653 - Futuristic flat polish pass (app-only).
+   Stays flat per the app's design language: no glow, no sheen,
+   no animated backgrounds.
+   1) Tabular numerals app-wide so every amount and digit column
+      lines up like an instrument cluster.
+   2) Press feedback extended to buttons, tabs, chips and tappable
+      cards (bn-item / tx-row already had it). No !important so a
+      JS-driven swipe/drag transform still wins.
+   3) Input focus ring in the app accent (teal) instead of the web
+      indigo - flat ring, no blur.
+   4) Positive hero balances (Records / Finance / All Assets) get a
+      flat emerald-to-teal gradient text fill; negatives stay red.
+      Darker gradient variant for light mode.
+   ============================================================ */
+/* 1) precision numerals */
+html.is-app body { font-variant-numeric: tabular-nums; }
+
+/* 2) press feedback: controls */
+html.is-app .btn-primary, html.is-app .btn-secondary, html.is-app .btn-danger, html.is-app .btn-icon,
+html.is-app #fab-add, html.is-app .dash-tab, html.is-app .dash-period-tab, html.is-app .rpt-tab,
+html.is-app .spov-tab, html.is-app .hm-tab-btn, html.is-app .tags-add-btn, html.is-app .ld-edit-btn,
+html.is-app .dash-datenav-arrow, html.is-app .dash-datenav-label, html.is-app .dash-datenav-today {
+  transition: transform .13s cubic-bezier(.2, .7, .3, 1), background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+html.is-app .btn-primary:active, html.is-app .btn-secondary:active, html.is-app .btn-danger:active, html.is-app .btn-icon:active,
+html.is-app #fab-add:active, html.is-app .dash-tab:active, html.is-app .dash-period-tab:active, html.is-app .rpt-tab:active,
+html.is-app .spov-tab:active, html.is-app .hm-tab-btn:active, html.is-app .tags-add-btn:active, html.is-app .ld-edit-btn:active,
+html.is-app .dash-datenav-arrow:active, html.is-app .dash-datenav-label:active, html.is-app .dash-datenav-today:active {
+  transform: scale(.96);
+}
+/* press feedback: large tappable cards (gentler) */
+html.is-app .fin-dark-card, html.is-app .blog-card, html.is-app .ia-card, html.is-app .rec-item, html.is-app .mm-hero {
+  transition: transform .15s cubic-bezier(.2, .7, .3, 1), background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+html.is-app .fin-dark-card:active, html.is-app .blog-card:active, html.is-app .ia-card:active, html.is-app .rec-item:active, html.is-app .mm-hero:active {
+  transform: scale(.985);
+}
+
+/* 3) teal focus ring on inputs */
+html.is-app .form-input:focus {
+  border-color: rgba(0, 201, 167, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(0, 201, 167, 0.16) !important;
+}
+html.is-app body.light .form-input:focus {
+  border-color: rgba(13, 148, 136, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.14) !important;
+}
+
+/* 4) hero balance gradient fill (positive values only) */
+html.is-app .mm-hero-val.pos,
+html.is-app .ia-hero-val.pos {
+  background-image: linear-gradient(115deg, #4ade80 0%, #00c9a7 55%, #2dd4bf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+html.is-app body.light .mm-hero-val.pos,
+html.is-app body.light .ia-hero-val.pos {
+  background-image: linear-gradient(115deg, #059669 0%, #0d9488 55%, #0f766e 100%);
+}
