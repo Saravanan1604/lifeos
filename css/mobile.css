@@ -16748,25 +16748,26 @@ html.is-app #page-container[data-page="help"] div[id^="ha-"] p {
   font-size: 12px !important;
 }
 
-/* 6. Assets page & Loan/Asset details absolute pixel font sizes */
-html.is-app .ia-hero-lbl { font-size: 14px !important; }
-html.is-app .ia-hero-val { font-size: 32px !important; }
-html.is-app .ia-hero-chg { font-size: 14px !important; }
-html.is-app .ia-hs-lbl { font-size: 12px !important; }
-html.is-app .ia-hs-val { font-size: 16px !important; }
-html.is-app .ia-stat-lbl { font-size: 11px !important; }
-html.is-app .ia-stat-val { font-size: 15px !important; }
-html.is-app .ia-card-title { font-size: 16px !important; }
-html.is-app .ia-link { font-size: 12px !important; }
-html.is-app .ia-leg-name { font-size: 13px !important; }
-html.is-app .ia-leg-pct { font-size: 12px !important; }
-html.is-app .ia-donut-c span { font-size: 12px !important; }
-html.is-app .ia-donut-c b { font-size: 18px !important; }
-html.is-app .ia-name { font-size: 15px !important; }
-html.is-app .ia-sub { font-size: 12px !important; }
-html.is-app .ia-val { font-size: 15px !important; }
-html.is-app .ia-chg { font-size: 12px !important; }
-html.is-app .inv-add-lbl { font-size: 15px !important; }
+/* 6. Assets page & Loan/Asset details font sizes — build 651: scaled up
+   ~2x per user request (hero number capped so the long value still fits). */
+html.is-app .ia-hero-lbl { font-size: 21px !important; }
+html.is-app .ia-hero-val { font-size: 44px !important; }
+html.is-app .ia-hero-chg { font-size: 20px !important; }
+html.is-app .ia-hs-lbl { font-size: 18px !important; }
+html.is-app .ia-hs-val { font-size: 26px !important; }
+html.is-app .ia-stat-lbl { font-size: 15px !important; }
+html.is-app .ia-stat-val { font-size: 21px !important; }
+html.is-app .ia-card-title { font-size: 24px !important; }
+html.is-app .ia-link { font-size: 17px !important; }
+html.is-app .ia-leg-name { font-size: 19px !important; }
+html.is-app .ia-leg-pct { font-size: 18px !important; }
+html.is-app .ia-donut-c span { font-size: 15px !important; }
+html.is-app .ia-donut-c b { font-size: 25px !important; }
+html.is-app .ia-name { font-size: 24px !important; }
+html.is-app .ia-sub { font-size: 17px !important; }
+html.is-app .ia-val { font-size: 24px !important; }
+html.is-app .ia-chg { font-size: 17px !important; }
+html.is-app .inv-add-lbl { font-size: 24px !important; }
 html.is-app .ld-kpi p.l { font-size: 12px !important; }
 html.is-app .ld-kpi p.v { font-size: 24px !important; }
 html.is-app .ld-sec { font-size: 14px !important; }
