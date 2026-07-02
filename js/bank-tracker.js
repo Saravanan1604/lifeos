@@ -369,13 +369,13 @@ function renderBankTracker() {
       <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
         <!-- Chat header -->
         <div style="padding:14px 20px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.25)">
-          <div style="display:flex;align-items:center;gap:10px">
+          <div class="tlog-hd-left" style="display:flex;align-items:center;gap:10px">
             ${selId
-              ? `<div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,${getAccountById(selId)?.color||'#1e293b'},${getAccountById(selId)?.color2||'#0f172a'});font-size:18px">${getAccountById(selId)?.icon||'🏦'}</div>`
-              : `<div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(99,102,241,0.2);font-size:18px">🏦</div>`}
-            <div>
-              <p style="font-size:14px;font-weight:700">${selId?(getAccountById(selId)?.bankName||'Account'):'All Banks'} — Balance Log</p>
-              <p style="font-size:11px;color:var(--text3)">${filteredHistory.length} entries · newest at bottom</p>
+              ? `<div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,${getAccountById(selId)?.color||'#1e293b'},${getAccountById(selId)?.color2||'#0f172a'});font-size:18px;flex-shrink:0">${getAccountById(selId)?.icon||'🏦'}</div>`
+              : `<div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(99,102,241,0.2);font-size:18px;flex-shrink:0">🏦</div>`}
+            <div class="tlog-hd-text">
+              <p class="tlog-hd-title" style="font-size:14px;font-weight:700">${selId?(getAccountById(selId)?.bankName||'Account'):'All Banks'} — Balance Log</p>
+              <p class="tlog-hd-sub" style="font-size:11px;color:var(--text3)">${filteredHistory.length} entries · newest at bottom</p>
             </div>
           </div>
           <button class="btn-primary btn-sm" onclick="openQuickBalanceModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#00c9a7,#0acf83)">+ Log</button>
@@ -931,11 +931,11 @@ function renderCCTracker() {
       <!-- Chat-style History -->
       <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
         <div style="padding:14px 20px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.25)">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(239,68,68,0.2);font-size:18px">💳</div>
-            <div>
-              <p style="font-size:14px;font-weight:700">${selId?(getCardById(selId)?.bankName||'Card'):'All Cards'} — Outstanding Log</p>
-              <p style="font-size:11px;color:var(--text3)">${filteredHistory.length} entries · newest at bottom</p>
+          <div class="tlog-hd-left" style="display:flex;align-items:center;gap:10px">
+            <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(239,68,68,0.2);font-size:18px;flex-shrink:0">💳</div>
+            <div class="tlog-hd-text">
+              <p class="tlog-hd-title" style="font-size:14px;font-weight:700">${selId?(getCardById(selId)?.bankName||'Card'):'All Cards'} — Outstanding Log</p>
+              <p class="tlog-hd-sub" style="font-size:11px;color:var(--text3)">${filteredHistory.length} entries · newest at bottom</p>
             </div>
           </div>
           ${selId ? `<button class="btn-primary btn-sm" onclick="openUpdateCCModal('${selId}')" style="background:linear-gradient(135deg,#ef4444,#b91c1c)">+ Log</button>` : ''}
@@ -1266,11 +1266,11 @@ function renderCashTracker() {
       <!-- Chat-style Cash Balance History -->
       <div class="glass-card" style="overflow:hidden;margin-bottom:20px">
         <div style="padding:14px 20px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.25)">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#78350f,#92400e);font-size:18px">💵</div>
-            <div>
-              <p style="font-size:14px;font-weight:700">${selId?(getById(selId)?.name||'Wallet'):'All Wallets'} — Cash Log</p>
-              <p style="font-size:11px;color:var(--text3)">${filteredHistory.length} entries · newest at bottom</p>
+          <div class="tlog-hd-left" style="display:flex;align-items:center;gap:10px">
+            <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#78350f,#92400e);font-size:18px;flex-shrink:0">💵</div>
+            <div class="tlog-hd-text">
+              <p class="tlog-hd-title" style="font-size:14px;font-weight:700">${selId?(getById(selId)?.name||'Wallet'):'All Wallets'} — Cash Log</p>
+              <p class="tlog-hd-sub" style="font-size:11px;color:var(--text3)">${filteredHistory.length} entries · newest at bottom</p>
             </div>
           </div>
           <button class="btn-primary btn-sm" onclick="openQuickCashModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#f59e0b,#d97706)">+ Log</button>
