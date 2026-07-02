@@ -810,12 +810,9 @@ function renderDashboard() {
         </div>
       </div>
 
-      <!-- Period selector (Day/Week/Month/Year/All) — applies to all tabs -->
-      <div class="dash-period-bar">
-        ${['day','week','month','year','all'].map(p => `<button class="dash-period-tab ${_dashPeriod===p?'active':''}" onclick="setDashPeriod('${p}')">${({day:'Day',week:'Week',month:'Month',year:'Year',all:'All'})[p]}</button>`).join('')}
-      </div>
-
-      <!-- Date navigator (‹ label › + Today) — like the Records page -->
+      <!-- Date navigator (‹ label › + Today) — like the Records page.
+           Tapping the label opens the Day/Week/Month/Year period sheet,
+           so no separate period-tab bar is needed. -->
       ${_dashPeriod === 'all' ? '' : `
       <div class="dash-datenav">
         <button class="dash-datenav-arrow" onclick="shiftDashPeriod(-1)" aria-label="Previous">‹</button>
