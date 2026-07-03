@@ -18053,3 +18053,51 @@ html.is-app #page-container[data-page="goals"] .goal-x { width: 40px !important;
 html.is-app #page-container[data-page="goals"] .goal-x svg { width: 18px !important; height: 18px !important; }
 html.is-app #page-container[data-page="goals"] .goal-ic { width: 52px !important; height: 52px !important; border-radius: 15px !important; }
 html.is-app #page-container[data-page="goals"] .goal-ic svg { width: 26px !important; height: 26px !important; }
+
+/* ============================================================
+   build 658 - Notes + Report text down to size (app-only).
+   From device screenshots: Notes card titles were 42px / body 30px
+   (huge "Hi" cards), and the Report (yearly) table was 24px which,
+   with 4 columns of long ₹ values, ran past the screen and clipped
+   the Balance column. Compact both; later-in-file so it wins.
+   ============================================================ */
+
+/* ---- Notes: Keep-style compact masonry (2 columns) ---- */
+html.is-app .notes-grid { column-count: 2 !important; column-gap: 12px !important; }
+html.is-app .notes-section-lbl { font-size: 15px !important; }
+html.is-app .notes-grid .note-card {
+  padding: 14px !important;
+  border-radius: 16px !important;
+  margin: 0 0 12px !important;
+}
+html.is-app .note-card .note-title {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  margin-bottom: 6px !important;
+  line-height: 1.2 !important;
+}
+html.is-app .note-card .note-body {
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  -webkit-line-clamp: 12 !important;
+}
+html.is-app .note-card .note-pin { width: 30px !important; height: 30px !important; top: 12px !important; right: 12px !important; }
+html.is-app .note-card .note-pin svg { width: 16px !important; height: 16px !important; }
+
+/* ---- Report (yearly) table: shrink so all 4 columns fit on one
+   screen (no clipped Balance). Page runs at zoom:0.6, so these are
+   layout px; smaller font + tighter padding keeps the ₹ values in
+   view without a horizontal scroll. ---- */
+html.is-app #page-container[data-page="yearly"] .yearly-tbl { font-size: 17px !important; }
+html.is-app #page-container[data-page="yearly"] .yearly-tbl th,
+html.is-app #page-container[data-page="yearly"] .yearly-tbl td {
+  font-size: 17px !important;
+  padding: 9px 8px !important;
+  white-space: nowrap !important;
+}
+html.is-app #page-container[data-page="yearly"] .yearly-tbl thead th,
+html.is-app #page-container[data-page="yearly"] .yearly-tbl tfoot th { font-size: 15px !important; }
+/* first column (month) can be a touch narrower */
+html.is-app #page-container[data-page="yearly"] .yearly-tbl th:first-child,
+html.is-app #page-container[data-page="yearly"] .yearly-tbl td:first-child { padding-left: 4px !important; }
+html.is-app #page-container[data-page="yearly"] .page-title { font-size: 30px !important; }
