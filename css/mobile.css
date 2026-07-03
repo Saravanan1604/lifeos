@@ -17941,3 +17941,115 @@ html.is-app #page-container[data-page="settings"] a.btn-secondary { padding: 13p
 /* Footer credits */
 html.is-app #page-container[data-page="settings"] div[style*="text-align:center"] span { font-size: 13px !important; }
 html.is-app #page-container[data-page="settings"] div[style*="text-align:center"] p { font-size: 12px !important; }
+
+/* ============================================================
+   build 657 - "More" pages size/placement rebalance (app-only):
+   Split, Renewals & Expiry, Upcoming, Purchases, Goals.
+   From device screenshots: card meta lines wrapped to two lines,
+   summary numbers/labels were oversized, and Goals rendered a
+   giant "Gold" title + huge "0%" (an old 5X block shrunk by
+   zoom:0.6). Fix: single-line truncating meta, compact summary
+   grid, and real Goals sizes with zoom removed. Later-in-file so
+   it wins the cascade.
+   ============================================================ */
+
+/* ---- The four list pages share the same row + summary markup ---- */
+/* Summary stat card: even auto-fit columns instead of a wrapping flex
+   row (was dropping "ITEMS" onto a lonely second line on Upcoming) */
+html.is-app #page-container[data-page="split"] .glass-card[style*="flex-wrap:wrap"],
+html.is-app #page-container[data-page="renewals"] .glass-card[style*="flex-wrap:wrap"],
+html.is-app #page-container[data-page="upcoming"] .glass-card[style*="flex-wrap:wrap"],
+html.is-app #page-container[data-page="purchases"] .glass-card[style*="flex-wrap:wrap"] {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)) !important;
+  gap: 8px 16px !important;
+}
+/* Summary numbers + labels: sane sizes (bump had blown 24px->34px) */
+html.is-app #page-container[data-page="split"] .glass-card[style*="flex-wrap:wrap"] p[style*="font-size:24px"],
+html.is-app #page-container[data-page="renewals"] .glass-card[style*="flex-wrap:wrap"] p[style*="font-size:24px"],
+html.is-app #page-container[data-page="upcoming"] .glass-card[style*="flex-wrap:wrap"] p[style*="font-size:24px"],
+html.is-app #page-container[data-page="purchases"] .glass-card[style*="flex-wrap:wrap"] p[style*="font-size:22px"] {
+  font-size: 20px !important;
+}
+html.is-app #page-container[data-page="split"] .glass-card[style*="flex-wrap:wrap"] p[style*="font-size:12px"],
+html.is-app #page-container[data-page="renewals"] .glass-card[style*="flex-wrap:wrap"] p[style*="font-size:12px"],
+html.is-app #page-container[data-page="upcoming"] .glass-card[style*="flex-wrap:wrap"] p[style*="font-size:12px"],
+html.is-app #page-container[data-page="purchases"] .glass-card[style*="flex-wrap:wrap"] p[style*="font-size:12px"] {
+  font-size: 12px !important;
+}
+
+/* Row cards: title 15px, meta forced to ONE truncating line ~12.5px.
+   The text column is the div with min-width:0, so this never touches
+   the summary card's inner columns. */
+html.is-app #page-container[data-page="split"] .glass-card > div[style*="min-width:0"] > p:first-child,
+html.is-app #page-container[data-page="renewals"] .glass-card > div[style*="min-width:0"] > p:first-child,
+html.is-app #page-container[data-page="upcoming"] .glass-card > div[style*="min-width:0"] > p:first-child,
+html.is-app #page-container[data-page="purchases"] .glass-card > div[style*="min-width:0"] > p:first-child {
+  font-size: 15px !important;
+}
+html.is-app #page-container[data-page="split"] .glass-card > div[style*="min-width:0"] > p:last-child,
+html.is-app #page-container[data-page="renewals"] .glass-card > div[style*="min-width:0"] > p:last-child,
+html.is-app #page-container[data-page="upcoming"] .glass-card > div[style*="min-width:0"] > p:last-child,
+html.is-app #page-container[data-page="purchases"] .glass-card > div[style*="min-width:0"] > p:last-child {
+  font-size: 12.5px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+/* Row trailing amount + Settled/owed text: keep readable, not huge */
+html.is-app #page-container[data-page="split"] .glass-card > span[style*="font-size:13px"] { font-size: 12.5px !important; }
+html.is-app #page-container[data-page="upcoming"] .glass-card b[style*="font-size:16px"],
+html.is-app #page-container[data-page="purchases"] .glass-card b[style*="font-size:16px"] { font-size: 16px !important; }
+/* Row icon chips: consistent compact size */
+html.is-app #page-container[data-page="split"] .glass-card > span[style*="width:46px"],
+html.is-app #page-container[data-page="renewals"] .glass-card > span[style*="width:46px"],
+html.is-app #page-container[data-page="upcoming"] .glass-card > span[style*="width:46px"],
+html.is-app #page-container[data-page="purchases"] .glass-card > span[style*="width:46px"] {
+  width: 44px !important; height: 44px !important; font-size: 20px !important;
+}
+
+/* Upcoming footnote (standalone centered <p>, outside the summary card) */
+html.is-app #page-container[data-page="upcoming"] .fade-in > p[style*="text-align:center"] {
+  font-size: 12px !important;
+  margin: 12px 0 24px !important;
+}
+
+/* Empty-state descriptions on these pages (was 13px -> 20px via bump) */
+html.is-app #page-container[data-page="split"] .glass-card[style*="text-align:center"] p,
+html.is-app #page-container[data-page="renewals"] .glass-card[style*="text-align:center"] p,
+html.is-app #page-container[data-page="upcoming"] .glass-card[style*="text-align:center"] p,
+html.is-app #page-container[data-page="purchases"] .glass-card[style*="text-align:center"] p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+html.is-app #page-container[data-page="split"] .glass-card[style*="text-align:center"] p[style*="font-size:40px"],
+html.is-app #page-container[data-page="renewals"] .glass-card[style*="text-align:center"] p[style*="font-size:40px"],
+html.is-app #page-container[data-page="upcoming"] .glass-card[style*="text-align:center"] p[style*="font-size:40px"],
+html.is-app #page-container[data-page="purchases"] .glass-card[style*="text-align:center"] p[style*="font-size:40px"] {
+  font-size: 40px !important;
+}
+
+/* ---- Goals: undo the old 5X block + zoom:0.6, use real sizes ---- */
+html.is-app #page-container[data-page="goals"] { zoom: 1 !important; }
+html.is-app #page-container[data-page="goals"] .goal-card {
+  padding: 16px !important;
+  border-radius: 20px !important;
+  margin-bottom: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+html.is-app #page-container[data-page="goals"] .goal-card p:first-of-type { font-size: 18px !important; margin-bottom: 3px !important; }
+html.is-app #page-container[data-page="goals"] .goal-card p:nth-of-type(2) { font-size: 13px !important; margin-top: 2px !important; }
+html.is-app #page-container[data-page="goals"] .goal-card .goal-chips { gap: 8px !important; margin-bottom: 14px !important; }
+html.is-app #page-container[data-page="goals"] .goal-card .goal-chips .tag { font-size: 12px !important; padding: 5px 12px !important; border-radius: 10px !important; }
+html.is-app #page-container[data-page="goals"] .goal-card .goal-chips .goal-chip-btn { font-size: 12px !important; padding: 6px 14px !important; border-radius: 20px !important; }
+html.is-app #page-container[data-page="goals"] .goal-card div[style*="font-size:13px"] { font-size: 14px !important; margin-bottom: 8px !important; }
+html.is-app #page-container[data-page="goals"] .goal-card div[style*="font-size:13px"] span:first-child { min-width: 0 !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+html.is-app #page-container[data-page="goals"] .goal-card div[style*="font-size:13px"] span:last-child { font-size: 26px !important; line-height: 1.05 !important; flex-shrink: 0 !important; }
+html.is-app #page-container[data-page="goals"] .goal-card .progress-bar { height: 12px !important; border-radius: 8px !important; margin-bottom: 6px !important; }
+html.is-app #page-container[data-page="goals"] .goal-card p[style*="font-size:11px"] { font-size: 12px !important; margin-top: 10px !important; }
+html.is-app #page-container[data-page="goals"] .goal-card .form-input { font-size: 15px !important; padding: 12px 14px !important; height: auto !important; border-radius: 12px !important; }
+html.is-app #page-container[data-page="goals"] .goal-card .btn-primary { font-size: 14px !important; padding: 12px 18px !important; height: auto !important; border-radius: 12px !important; }
+html.is-app #page-container[data-page="goals"] .goal-x { width: 40px !important; height: 40px !important; }
+html.is-app #page-container[data-page="goals"] .goal-x svg { width: 18px !important; height: 18px !important; }
+html.is-app #page-container[data-page="goals"] .goal-ic { width: 52px !important; height: 52px !important; border-radius: 15px !important; }
+html.is-app #page-container[data-page="goals"] .goal-ic svg { width: 26px !important; height: 26px !important; }
