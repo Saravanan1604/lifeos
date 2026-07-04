@@ -18101,3 +18101,39 @@ html.is-app #page-container[data-page="yearly"] .yearly-tbl tfoot th { font-size
 html.is-app #page-container[data-page="yearly"] .yearly-tbl th:first-child,
 html.is-app #page-container[data-page="yearly"] .yearly-tbl td:first-child { padding-left: 4px !important; }
 html.is-app #page-container[data-page="yearly"] .page-title { font-size: 30px !important; }
+
+/* ============================================================
+   build 659 - Health Hub oversized text + quick-action clip.
+   From device screenshot: the "Log Today / Log Mood / Log Water"
+   quick-action chips were 24px on a forced single non-wrapping row,
+   so "Log Mood" clipped off the edge (and pushed the page sideways);
+   and the History date headers (13px inline -> 20px via the global
+   bump) wrapped to 2-3 lines. Shrink the chips so they fit, and
+   compact the History rows. App only.
+   ============================================================ */
+/* Quick-action chips (default set = Health / Journal / Analytics):
+   were 24px text + 30px icon on one row. Compact + allow wrapping so
+   they never clip. Finance/Bank/Assets hide or override their own. */
+html.is-app #page-quick-actions { flex-wrap: wrap !important; }
+html.is-app #page-quick-actions button {
+  font-size: 13px !important;
+  padding: 9px 14px !important;
+  border-radius: 22px !important;
+  flex: 0 1 auto !important;
+}
+html.is-app #page-quick-actions button span { font-size: 15px !important; }
+
+/* Health History rows: date one line ~13px, note + stat values 11px,
+   stat emojis 15px (bump had blown these to 20/17/21px). */
+html.is-app #page-container[data-page="health"] .glass-card p[style*="font-size:13px"] {
+  font-size: 13px !important;
+  white-space: nowrap !important;
+}
+html.is-app #page-container[data-page="health"] .glass-card p[style*="font-size:11px"] { font-size: 11px !important; }
+html.is-app #page-container[data-page="health"] .glass-card p[style*="font-size:14px"] { font-size: 15px !important; }
+/* tighten the 4-stat cluster (sleep/mood/steps/water) so it never
+   crowds the date on narrower screens */
+html.is-app #page-container[data-page="health"] .glass-card div[style*="gap:12px"][style*="text-align:center"] { gap: 9px !important; }
+/* Health hero stat numbers: 38px -> 30px so long values sit clean */
+html.is-app #page-container[data-page="health"] .stat-card-value { font-size: 30px !important; }
+html.is-app #page-container[data-page="health"] .stat-card-label { font-size: 13px !important; }
