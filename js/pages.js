@@ -389,8 +389,8 @@ function renderSettings() {
               { m:'dark',   label:'Dark',   bg:'#161b2b', card:'#28304a', line:'#3a425c' },
               { m:'amoled', label:'AMOLED', bg:'#000000', card:'#101010', line:'#2a2a2a' },
               { m:'ocean',  label:'Ocean',  bg:'#07172a', card:'#0e2a44', line:'#1d4d6b' },
-              { m:'auto',   label:'Auto',   bg:'linear-gradient(120deg,#e9edf2 0 50%,#161b2b 50% 100%)', card:'rgba(128,128,128,0.5)', line:'rgba(255,255,255,0.4)' },
-            ].map(t => { const active = (STATE.settings?.theme || 'amoled') === t.m; return `
+              { m:'auto',   label:'System', bg:'linear-gradient(120deg,#e9edf2 0 50%,#000000 50% 100%)', card:'rgba(128,128,128,0.5)', line:'rgba(255,255,255,0.4)' },
+            ].map(t => { const active = (STATE.settings?.theme || 'auto') === t.m; return `
               <div class="set-theme-card" onclick="setTheme('${t.m}')" style="cursor:pointer">
                 <div class="set-theme-prev" style="height:120px;border-radius:16px;background:${t.bg};border:2px solid ${active ? '#3b82f6' : 'rgba(255,255,255,0.10)'};display:flex;align-items:center;justify-content:center;overflow:hidden">
                   <div style="width:76%;background:${t.card};border-radius:10px;padding:11px;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.25)">
@@ -404,7 +404,7 @@ function renderSettings() {
                 </div>
               </div>`; }).join('')}
           </div>
-          <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:10px">Tap a card to switch · Auto follows time of day</p>
+          <p style="font-size:11px;color:rgba(241,245,249,0.4);margin-top:10px">Tap a card to switch · System follows your device's light/dark setting</p>
         </div>
 
         ${window.__IS_APP ? (() => {
@@ -540,12 +540,16 @@ function setNumFont(mode) {
 function applyThemeClass(mode) {
   const body = document.body;
   body.classList.remove('light', 'amoled', 'ocean', 'sunset');
-  const h = new Date().getHours();
   if (mode === 'light') body.classList.add('light');
   else if (mode === 'amoled') body.classList.add('amoled');
   else if (mode === 'ocean') body.classList.add('ocean');
   else if (mode === 'sunset') body.classList.add('sunset');
-  else if (mode === 'auto') { if (h >= 6 && h < 19) body.classList.add('light'); }
+  else if (mode === 'auto' || mode === 'system') {
+    // "System" — follow the device's light/dark setting. Dark maps to
+    // AMOLED (true black) to keep the app's established dark look.
+    const dark = !(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+    body.classList.add(dark ? 'amoled' : 'light');
+  }
   // 'dark' → no class
 }
 

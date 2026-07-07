@@ -100,9 +100,22 @@ window.addEventListener('DOMContentLoaded', () => {
   // Apply saved global text-size (Default / Large / XL)
   if (typeof applyAppScale === 'function') { try { applyAppScale(); } catch (_) {} }
 
-  // Apply saved theme (dark | light | auto | amoled | ocean | sunset)
-  if (typeof applyThemeClass === 'function') applyThemeClass(STATE.settings?.theme || 'amoled');
+  // Apply saved theme. Default is 'auto' = follow the device's system
+  // (light/dark) setting.
+  if (typeof applyThemeClass === 'function') applyThemeClass(STATE.settings?.theme || 'auto');
   else if (STATE.settings?.theme === 'light') document.body.classList.add('light');
+
+  // Live-update when the device switches light/dark, but only while the
+  // theme is set to System ('auto'). Explicit themes stay put.
+  if (window.matchMedia) {
+    try {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+        if ((STATE.settings && STATE.settings.theme ? STATE.settings.theme : 'auto') === 'auto' && typeof applyThemeClass === 'function') {
+          applyThemeClass('auto');
+        }
+      });
+    } catch (_) {}
+  }
 
   // Apply saved hero-number display font (Settings > Number Style, app-only CSS)
   if (window.__IS_APP) document.body.classList.toggle('numfont', STATE.settings?.numFont === 'grotesk');
