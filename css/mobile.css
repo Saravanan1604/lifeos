@@ -18175,6 +18175,32 @@ html.is-app #income-page #incov-chart {
 }
 html.is-app #income-page .ring-center-text { width: 220px !important; }
 html.is-app #income-page .section-heading { font-size: 30px !important; }
+/* "July 2026" period pill: push it to the right + dark chip / white text,
+   same as the Spending page (those rules are #spending-page scoped). */
+html.is-app #income-page .section-heading-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 16px !important;
+}
+html.is-app #income-page .section-filter-btn {
+  background: #121420 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 16px !important;
+  padding: 12px 22px !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  gap: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+}
+html.is-app #income-page .section-filter-btn span[style*="font-size:8px"] {
+  font-size: 15px !important;
+}
 html.is-app #income-page .category-row { gap: 16px !important; padding: 24px 0 !important; }
 /* Row layout: icon | name (fills) | amount (right) — same as Spending.
    Without this the amount stacked under the name on the left. */
