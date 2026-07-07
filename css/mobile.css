@@ -18137,3 +18137,49 @@ html.is-app #page-container[data-page="health"] .glass-card div[style*="gap:12px
 /* Health hero stat numbers: 38px -> 30px so long values sit clean */
 html.is-app #page-container[data-page="health"] .stat-card-value { font-size: 30px !important; }
 html.is-app #page-container[data-page="health"] .stat-card-label { font-size: 13px !important; }
+
+/* ============================================================
+   build 662 - Combined Spending page: add a third "Income" tab to
+   the Budget / Spending segmented control (swipeable), mirroring the
+   spending view for income transactions. The 2-panel slider becomes
+   3 panels. App only.
+   ============================================================ */
+html.is-app .sb-segmented-control.sb-3 {
+  width: auto !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+html.is-app .sb-segmented-control.sb-3 .sb-segmented-bg {
+  width: calc(33.333% - 4px) !important;
+}
+html.is-app .sb-segmented-control.sb-3 .sb-segmented-btn {
+  font-size: 19px !important;
+  padding: 12px 2px !important;
+}
+html.is-app .sb-wrapper.sb-3 { width: 300% !important; }
+html.is-app .sb-wrapper.sb-3 .sb-panel { width: 33.333% !important; }
+
+/* Income panel mirrors the Spending panel's ring + list sizing (those
+   rules are scoped to #spending-page only, so #income-page collapsed
+   the donut to a thin sliver without these). */
+html.is-app #income-page .ring-container {
+  position: relative !important;
+  width: 98vw !important; height: 98vw !important;
+  max-width: 600px !important; max-height: 600px !important;
+  margin: 0 auto 26px !important;
+}
+html.is-app #income-page #incov-chart {
+  position: absolute !important; top: 0 !important; left: 0 !important;
+  width: 100% !important; height: 100% !important;
+}
+html.is-app #income-page .ring-center-text { width: 220px !important; }
+html.is-app #income-page .section-heading { font-size: 30px !important; }
+html.is-app #income-page .category-row { gap: 18px !important; padding: 24px 0 !important; }
+html.is-app #income-page .category-icon-wrap { width: 62px !important; height: 62px !important; font-size: 30px !important; }
+html.is-app #income-page .category-icon-wrap svg,
+html.is-app #income-page .category-icon-wrap i { width: 30px !important; height: 30px !important; }
+html.is-app #income-page .category-name { font-size: 30px !important; margin-bottom: 12px !important; line-height: 1.15 !important; overflow-wrap: anywhere !important; }
+html.is-app #income-page .category-progress-bg { height: 22px !important; border-radius: 11px !important; }
+html.is-app #income-page .category-progress-fill { border-radius: 11px !important; }
+html.is-app #income-page .category-values { font-size: 28px !important; }
+html.is-app #income-page .category-values span { font-size: 17px !important; }

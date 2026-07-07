@@ -634,6 +634,7 @@ let _catDetailFrom = 'records';   // where back should return to
 let _spendAnchor = new Date();    // anchor for the spending overview
 let _spendPeriod = 'month';       // day | week | month | year | all
 let _catDetYearly = false;
+let _sbTab = 'spending';          // combined view active tab: budget | spending | income
 
 function openCategoryDetail(cat, from) {
   _catDetYearly = false;
@@ -701,26 +702,31 @@ function _spendPeriodLabel() {
   return `${mon.toLocaleDateString('en-IN', o)} – ${sun.toLocaleDateString('en-IN', o)}`;
 }
 function renderCombinedSpendBudget(activeTab) {
-  if (!activeTab) activeTab = currentPage === 'budget' ? 'budget' : 'spending';
-  
+  if (!activeTab) activeTab = _sbTab || (currentPage === 'budget' ? 'budget' : 'spending');
+  _sbTab = activeTab;
+
   // Initialize window function if not done
   if (!window.switchSpendBudgetTab) {
     window.switchSpendBudgetTab = function(tab) {
-      if (currentPage === tab) return;
-      currentPage = tab;
-      STATE._currentPage = tab;
-      history.replaceState({ page: tab }, '', '#' + tab);
-      
+      // 'income' has no route of its own — it lives on the spending page.
+      const realPage = (tab === 'income') ? 'spending' : tab;
+      _sbTab = tab;
+      if (currentPage !== realPage) {
+        currentPage = realPage;
+        STATE._currentPage = realPage;
+        history.replaceState({ page: realPage }, '', '#' + realPage);
+      }
+
       document.querySelectorAll('.nav-item').forEach(el => {
-        el.classList.toggle('active', el.dataset.page === tab);
+        el.classList.toggle('active', el.dataset.page === realPage);
       });
       const bnItems = [...document.querySelectorAll('#bottom-nav .bn-item')]
         .filter(el => getComputedStyle(el).display !== 'none');
-      bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === tab));
-      
+      bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === realPage));
+
       const ind = document.getElementById('bn-indicator');
       if (ind) {
-        const active = bnItems.find(el => el.dataset.page === tab);
+        const active = bnItems.find(el => el.dataset.page === realPage);
         if (active && active.offsetWidth) {
           ind.style.opacity = '1';
           ind.style.width = active.offsetWidth + 'px';
@@ -737,14 +743,16 @@ function renderCombinedSpendBudget(activeTab) {
       const addSpacer = document.getElementById('sb-header-add-spacer');
 
       if (slider && segmentBg) {
-        slider.style.transform = tab === 'spending' ? 'translateX(-50%)' : 'translateX(0)';
-        segmentBg.style.transform = tab === 'spending' ? 'translateX(100%)' : 'translateX(0)';
+        const wx = tab === 'income' ? '-66.666%' : tab === 'spending' ? '-33.333%' : '0';
+        const bx = tab === 'income' ? '200%' : tab === 'spending' ? '100%' : '0';
+        slider.style.transform = `translateX(${wx})`;
+        segmentBg.style.transform = `translateX(${bx})`;
         btns.forEach(btn => {
           btn.classList.toggle('active', btn.innerText.toLowerCase() === tab.toLowerCase());
         });
         if (addBtn && addSpacer) {
           addBtn.style.display = tab === 'budget' ? 'flex' : 'none';
-          addSpacer.style.display = tab === 'spending' ? 'block' : 'none';
+          addSpacer.style.display = tab === 'budget' ? 'none' : 'block';
         }
       } else {
         renderCombinedSpendBudget(tab);
@@ -766,6 +774,19 @@ function renderCombinedSpendBudget(activeTab) {
   const colors = rows.map(r => catColor(r.cat));
   const displayTotalText = grand > 0 ? fmt(Math.round(grand)) : '₹0';
   const scoreFontSize = displayTotalText.length > 8 ? '40px' : (displayTotalText.length > 6 ? '52px' : (displayTotalText.length > 4 ? '64px' : '76px'));
+
+  // 1b) INCOME DATA (mirrors spending, but income transactions) — same period
+  const incTx = (_spendPeriod === 'all'
+    ? [...(STATE.transactions || [])]
+    : filterTxByAnchor([...(STATE.transactions || [])], _spendPeriod, _ymdLocal(a))
+  ).filter(t => t.type === 'income');
+  const incByCat = {};
+  incTx.forEach(t => { const c = t.category || 'Other'; if (!incByCat[c]) incByCat[c] = { total: 0, n: 0 }; incByCat[c].total += (+t.amount || 0); incByCat[c].n++; });
+  const incRows = Object.entries(incByCat).map(([c, v]) => ({ cat: c, total: v.total, n: v.n })).sort((x, y) => y.total - x.total);
+  const incGrand = incRows.reduce((s, r) => s + r.total, 0);
+  const incColors = incRows.map(r => catColor(r.cat));
+  const incDisplayTotalText = incGrand > 0 ? fmt(Math.round(incGrand)) : '₹0';
+  const incScoreFontSize = incDisplayTotalText.length > 8 ? '40px' : (incDisplayTotalText.length > 6 ? '52px' : (incDisplayTotalText.length > 4 ? '64px' : '76px'));
 
   // 2) BUDGET DATA
   const budgets = STATE.budgets || [];
@@ -902,27 +923,25 @@ function renderCombinedSpendBudget(activeTab) {
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in" id="combined-spend-budget-page" style="padding:16px 20px 80px; overflow-x: hidden; position: relative; width: 100%; box-sizing: border-box;">
       <!-- Combined Header -->
-      <div class="ring-page-head" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; position: relative;">
-        <!-- Balanced Spacer (balances the 60px plus button on the right so tabs center perfectly) -->
-        <div style="width: 60px; flex-shrink: 0;"></div>
-        
-        <!-- Segmented Tab Toggle -->
-        <div class="sb-segmented-control" style="margin: 0 auto;">
-          <div class="sb-segmented-bg" style="transform: translateX(${activeTab === 'spending' ? '100%' : '0'});"></div>
+      <div class="ring-page-head" style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:16px; position: relative;">
+        <!-- Segmented Tab Toggle (Budget · Spending · Income) -->
+        <div class="sb-segmented-control sb-3" style="flex:1; margin:0;">
+          <div class="sb-segmented-bg" style="transform: translateX(${activeTab === 'income' ? '200%' : activeTab === 'spending' ? '100%' : '0'});"></div>
           <button class="sb-segmented-btn ${activeTab === 'budget' ? 'active' : ''}" onclick="switchSpendBudgetTab('budget')">Budget</button>
           <button class="sb-segmented-btn ${activeTab === 'spending' ? 'active' : ''}" onclick="switchSpendBudgetTab('spending')">Spending</button>
+          <button class="sb-segmented-btn ${activeTab === 'income' ? 'active' : ''}" onclick="switchSpendBudgetTab('income')">Income</button>
         </div>
-        
-        <!-- Top Right Plus Button -->
-        <button id="sb-header-add-btn" onclick="openAddBudgetModal(-1)" style="display: ${activeTab === 'budget' ? 'flex' : 'none'}; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #00b09b, #00c9a7); border: none; cursor: pointer; color: #ffffff; box-shadow: 0 4px 12px rgba(0, 201, 167, 0.35); flex-shrink: 0;" title="Add Budget">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+
+        <!-- Top Right Plus Button (Budget only) -->
+        <button id="sb-header-add-btn" onclick="openAddBudgetModal(-1)" style="display: ${activeTab === 'budget' ? 'flex' : 'none'}; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00b09b, #00c9a7); border: none; cursor: pointer; color: #ffffff; box-shadow: 0 4px 12px rgba(0, 201, 167, 0.35); flex-shrink: 0;" title="Add Budget">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-        <div id="sb-header-add-spacer" style="width: 60px; display: ${activeTab === 'spending' ? 'block' : 'none'}; flex-shrink: 0;"></div>
+        <div id="sb-header-add-spacer" style="width: 48px; display: ${activeTab === 'budget' ? 'none' : 'block'}; flex-shrink: 0;"></div>
       </div>
 
       <!-- Swipeable Viewport -->
       <div class="sb-viewport" id="sb-viewport">
-        <div class="sb-wrapper" id="sb-panels-slider" style="transform: translateX(${activeTab === 'spending' ? '-50%' : '0'});">
+        <div class="sb-wrapper sb-3" id="sb-panels-slider" style="transform: translateX(${activeTab === 'income' ? '-66.666%' : activeTab === 'spending' ? '-33.333%' : '0'});">
           <!-- LEFT PANEL: BUDGET -->
           <div class="sb-panel">
             <div id="budget-page" style="padding:0">
@@ -1025,12 +1044,57 @@ function renderCombinedSpendBudget(activeTab) {
               </div>
             </div>
           </div>
+          <!-- THIRD PANEL: INCOME -->
+          <div class="sb-panel">
+            <div id="income-page" style="padding:0">
+              <div class="ring-container">
+                <canvas id="incov-chart" style="width:100%;height:100%;display:block"></canvas>
+                <div class="ring-center-text">
+                  <span class="ring-score" style="font-size:${incScoreFontSize} !important;color:#10b981">${incDisplayTotalText}</span>
+                </div>
+              </div>
+
+              <div class="section-heading-row">
+                <span class="section-heading">Income Categories</span>
+                <button class="section-filter-btn" onclick="openSpendPeriodSheet()">
+                  <span>${lbl}</span> <span style="font-size:8px">▼</span>
+                </button>
+              </div>
+
+              <div style="display:flex;flex-direction:column;margin-bottom:28px">
+                ${incRows.length === 0 ? `
+                  <div style="text-align:center;padding:32px 0;color:var(--text3)">
+                    No income in ${lbl}.
+                  </div>
+                ` : incRows.map((r, idx) => {
+                  const pct = incGrand > 0 ? Math.round(r.total / incGrand * 100) : 0;
+                  const color = incColors[idx % incColors.length];
+                  return `
+                    <div class="category-row" onclick="openCategoryDetail('${r.cat.replace(/'/g, "\\'")}','spending')">
+                      <div class="cat-head">
+                        <div class="category-icon-wrap" style="background:${color}15;color:${color}">
+                          ${catIconHtml(r.cat)}
+                        </div>
+                        <div class="category-name">${r.cat}</div>
+                        <div class="category-values">
+                          ${fmt(Math.round(r.total))}<span>${pct}% · ${r.n} ${r.n === 1 ? 'time' : 'times'}</span>
+                        </div>
+                      </div>
+                      <div class="category-progress-bg">
+                        <div class="category-progress-fill" style="width:${pct}%;background:${color}"></div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   `;
 
-  // Setup touch swipe event listeners on mobile
+  // Setup touch swipe event listeners on mobile (3-way: Budget · Spending · Income)
   setTimeout(() => {
     const el = document.getElementById('sb-viewport');
     if (!el) return;
@@ -1051,14 +1115,13 @@ function renderCombinedSpendBudget(activeTab) {
       const diffY = touch.clientY - startY;
       const elapsed = new Date().getTime() - startTime;
 
-      // Check if horizontal swipe
       if (elapsed < 300 && Math.abs(diffX) > 60 && Math.abs(diffY) < 60) {
-        if (diffX < 0 && currentPage === 'budget') {
-          // Swipe left -> Spending
-          switchSpendBudgetTab('spending');
-        } else if (diffX > 0 && currentPage === 'spending') {
-          // Swipe right -> Budget
-          switchSpendBudgetTab('budget');
+        const order = ['budget', 'spending', 'income'];
+        let idx = order.indexOf(_sbTab); if (idx < 0) idx = 1;
+        if (diffX < 0 && idx < order.length - 1) {
+          switchSpendBudgetTab(order[idx + 1]);   // swipe left → next tab (toward Income)
+        } else if (diffX > 0 && idx > 0) {
+          switchSpendBudgetTab(order[idx - 1]);    // swipe right → previous tab (toward Budget)
         }
       }
     }, { passive: true });
@@ -1164,13 +1227,50 @@ function renderCombinedSpendBudget(activeTab) {
       });
     }
 
+    // 4) Income Donut Chart
+    const incCanvas = document.getElementById('incov-chart');
+    if (incCanvas && typeof Chart !== 'undefined') {
+      if (chartInstances['incov']) { chartInstances['incov'].destroy(); delete chartInstances['incov']; }
+      chartInstances['incov'] = new Chart(incCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: incRows.map(r => r.cat),
+          datasets: [{
+            data: incRows.map(r => r.total),
+            backgroundColor: incColors,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          cutout: '72%',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              padding: 16,
+              titleFont: { size: 24, weight: 'bold' },
+              bodyFont: { size: 22 },
+              callbacks: {
+                label: c => ' ' + c.label + ': ' + fmt(Math.round(c.parsed))
+              }
+            }
+          }
+        }
+      });
+    }
+
     _lucideRefresh();
   }, 60);
 }
 
 function renderSpendingOverview() {
   if (window.__IS_APP) {
-    renderCombinedSpendBudget('spending');
+    // Preserve the Income sub-tab across soft re-renders (the 3s sync poll
+    // calls navigate('spending', true) — without this it snapped back to
+    // Spending). Income lives on the spending page.
+    renderCombinedSpendBudget(_sbTab === 'income' ? 'income' : 'spending');
     return;
   }
   const a = (_spendAnchor instanceof Date && !isNaN(_spendAnchor)) ? _spendAnchor : new Date();
