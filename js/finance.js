@@ -656,6 +656,14 @@ function setCatDetYearly(yearly) {
 // month + tappable category list → drills into the category detail page. ──
 function setSpendPeriod(p) { _spendPeriod = p; renderSpendingOverview(); }
 function spendToday() { _spendAnchor = new Date(); renderSpendingOverview(); }
+
+// The header "+" on the combined Budget/Spending/Income page adds the thing
+// that matches the active tab.
+function sbHeaderAdd() {
+  if (_sbTab === 'budget') { if (typeof openAddBudgetModal === 'function') openAddBudgetModal(-1); }
+  else if (_sbTab === 'income') { if (typeof openAddTxModal === 'function') openAddTxModal('income'); }
+  else { if (typeof openAddTxModal === 'function') openAddTxModal('expense'); }
+}
 function spendPickDate(v) {
   if (!v) return;
   const d = new Date(v + 'T00:00:00');
@@ -922,8 +930,11 @@ function renderCombinedSpendBudget(activeTab) {
   // Construct combined layout
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in" id="combined-spend-budget-page" style="padding:16px 20px 80px; overflow-x: hidden; position: relative; width: 100%; box-sizing: border-box;">
-      <!-- Combined Header -->
+      <!-- Combined Header: centered toggle, + pinned to the right corner -->
       <div class="ring-page-head" style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:16px; position: relative;">
+        <!-- Left spacer balances the + so the toggle sits centered -->
+        <div style="width: 44px; flex-shrink: 0;"></div>
+
         <!-- Segmented Tab Toggle (Budget · Spending · Income) -->
         <div class="sb-segmented-control sb-3" style="flex:1; margin:0;">
           <div class="sb-segmented-bg" style="transform: translateX(${activeTab === 'income' ? '200%' : activeTab === 'spending' ? '100%' : '0'});"></div>
@@ -932,11 +943,10 @@ function renderCombinedSpendBudget(activeTab) {
           <button class="sb-segmented-btn ${activeTab === 'income' ? 'active' : ''}" onclick="switchSpendBudgetTab('income')">Income</button>
         </div>
 
-        <!-- Top Right Plus Button (Budget only) -->
-        <button id="sb-header-add-btn" onclick="openAddBudgetModal(-1)" style="display: ${activeTab === 'budget' ? 'flex' : 'none'}; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00b09b, #00c9a7); border: none; cursor: pointer; color: #ffffff; box-shadow: 0 4px 12px rgba(0, 201, 167, 0.35); flex-shrink: 0;" title="Add Budget">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <!-- Right-corner + : adds a budget / expense / income to match the active tab -->
+        <button id="sb-header-add-btn" onclick="sbHeaderAdd()" style="display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#00b09b,#00c9a7); border:none; cursor:pointer; color:#ffffff; box-shadow:0 4px 12px rgba(0,201,167,0.35); flex-shrink:0;" title="Add">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
-        <div id="sb-header-add-spacer" style="width: 48px; display: ${activeTab === 'budget' ? 'none' : 'block'}; flex-shrink: 0;"></div>
       </div>
 
       <!-- Swipeable Viewport -->
