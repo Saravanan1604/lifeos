@@ -1366,9 +1366,18 @@ function renderCategoryDetail() {
   const isTag = !!_catDetailTag;
   const cat = isTag ? _catDetailTag : _catDetailCat;
   if (!cat) { renderRecordsMyMoney(); return; }
-  const tx = (STATE.transactions || []).filter(t =>
-    (isTag ? (t.tag || '').toLowerCase() === String(cat).toLowerCase() : (t.category || 'Other') === cat)
-    && t.type !== 'income');
+  // Decide whether this is an INCOME category so income drill-ins show data
+  // (was hard-filtered to expenses only, so income categories rendered blank).
+  const _catTxAll = (STATE.transactions || []).filter(t =>
+    isTag ? (t.tag || '').toLowerCase() === String(cat).toLowerCase() : (t.category || 'Other') === cat);
+  const _catDef = (typeof getAllCategories === 'function') ? getAllCategories().find(c => c.name === cat) : null;
+  const _incCount = _catTxAll.filter(t => t.type === 'income').length;
+  const _expCount = _catTxAll.length - _incCount;
+  const isIncome = _catDef ? _catDef.type === 'income' : (_incCount > _expCount);
+  const tx = _catTxAll.filter(t => isIncome ? t.type === 'income' : t.type !== 'income');
+  const amtSign = isIncome ? '+' : '-';
+  const histLabel = isIncome ? 'Income History' : 'Spending History';
+  const periodVerb = isIncome ? 'Earned' : 'Spent';
   const anchor = (_recAnchor instanceof Date && !isNaN(_recAnchor)) ? _recAnchor : new Date();
 
   // find earliest transaction month for this category to show data where we started to enter data
@@ -1435,13 +1444,13 @@ function renderCategoryDetail() {
     displayTx = tx.filter(t => (t.date || '').slice(0, 4) === String(anchor.getFullYear()))
       .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     displayTotal = displayTx.reduce((s, t) => s + (+t.amount || 0), 0);
-    spentPeriodText = `Spent in ${anchor.getFullYear()}`;
+    spentPeriodText = `${periodVerb} in ${anchor.getFullYear()}`;
   } else {
     const anchorYm = `${anchor.getFullYear()}-${String(anchor.getMonth() + 1).padStart(2, '0')}`;
     displayTx = tx.filter(t => (t.date || '').slice(0, 7) === anchorYm)
       .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     displayTotal = displayTx.reduce((s, t) => s + (+t.amount || 0), 0);
-    spentPeriodText = `Spent in ${anchor.toLocaleString('default', { month: 'short' })}`;
+    spentPeriodText = `${periodVerb} in ${anchor.toLocaleString('default', { month: 'short' })}`;
   }
 
   const color = isTag ? '#6366f1' : catColor(cat);
@@ -1468,7 +1477,10 @@ function renderCategoryDetail() {
   const _setBudgetFn  = isTag ? `openTagBudget('${esc(cat).replace(/'/g, "\\'")}')` : `openAddBudgetModalFor('${(cat + '').replace(/'/g, "\\'")}')`;
 
   let budgetHtml = '';
-  if (limit !== null) {
+  if (isIncome) {
+    // Income categories don't have spending budgets — skip the budget card.
+    budgetHtml = '';
+  } else if (limit !== null) {
     const pct = limit > 0 ? Math.min(100, (displayTotal / limit) * 100) : 0;
     const remaining = limit - displayTotal;
     const statusColor = remaining >= 0 ? color : '#ef4444';
@@ -1512,7 +1524,7 @@ function renderCategoryDetail() {
 
       <div class="glass-card" style="padding:18px;margin-bottom:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <span style="font-size:18px;font-weight:700;color:var(--text2)">Spending History</span>
+          <span style="font-size:18px;font-weight:700;color:var(--text2)">${histLabel}</span>
           <div class="period-tabs" style="margin:0;display:flex;gap:4px">
             <button class="period-tab ${!_catDetYearly?'active':''}" onclick="setCatDetYearly(false)" style="padding:6px 12px;font-size:13px;border-radius:6px">Monthly</button>
             <button class="period-tab ${_catDetYearly?'active':''}" onclick="setCatDetYearly(true)" style="padding:6px 12px;font-size:13px;border-radius:6px">Yearly</button>
@@ -1553,9 +1565,9 @@ function renderCategoryDetail() {
               <p class="catdet-tx-name">${esc(t.subcategory || t.description || cat)}</p>
               <p class="catdet-tx-meta">${t.source && typeof _sourceLabel === 'function' ? esc(_sourceLabel(t.source)) + ' · ' : ''}${fmtDate(t.date)}</p>
             </div>
-            <span class="catdet-tx-amt">-${fmt(t.amount)}</span>
+            <span class="catdet-tx-amt"${isIncome ? ' style="color:#10b981"' : ''}>${amtSign}${fmt(t.amount)}</span>
           </div>`).join('')
-          : `<div class="empty-state" style="padding:30px 0"><p>No ${esc(cat)} spending in this period.</p></div>`}
+          : `<div class="empty-state" style="padding:30px 0"><p>No ${esc(cat)} ${isIncome ? 'income' : 'spending'} in this period.</p></div>`}
       </div>
     </div>`;
 
@@ -9160,10 +9172,72 @@ function renderPdfResults() {
       </div>` : ''}
     </div>`).join('');
   wrap.style.display = '';
+  _renderPdfDateFilter();
+  updatePdfSummary();
+}
+
+// Date-range filter for the import review: pick which days to bring in
+// (e.g. only the last 3 days of a long PhonePe statement). Cards outside
+// the range are hidden, so saveAllPdfTx skips them.
+function _renderPdfDateFilter() {
+  const list = document.getElementById('pdf-results-list');
+  if (!list) return;
+  const dates = _pdfResults.map(r => r.date).filter(Boolean).sort();
+  if (!dates.length) return;
+  const minD = dates[0], maxD = dates[dates.length - 1];
+  let el = document.getElementById('pdf-date-filter');
+  if (!el) { el = document.createElement('div'); el.id = 'pdf-date-filter'; list.parentNode.insertBefore(el, list); }
+  const curFrom = document.getElementById('pdf-df-from')?.value || minD;
+  const curTo   = document.getElementById('pdf-df-to')?.value   || maxD;
+  const chip = (d, l) => `<button type="button" onclick="pdfDatePreset(${d})" style="flex:1;min-width:64px;padding:6px 6px;font-size:11px;font-weight:700;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(--glass-border);color:var(--text2);cursor:pointer">${l}</button>`;
+  el.innerHTML = `
+    <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px">📅 Import only this date range</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <input type="date" id="pdf-df-from" value="${curFrom}" min="${minD}" max="${maxD}" onchange="applyPdfDateFilter()" class="form-input" style="flex:1;font-size:12px;padding:6px 8px"/>
+        <span style="font-size:12px;color:var(--text3)">to</span>
+        <input type="date" id="pdf-df-to" value="${curTo}" min="${minD}" max="${maxD}" onchange="applyPdfDateFilter()" class="form-input" style="flex:1;font-size:12px;padding:6px 8px"/>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${chip(3, 'Last 3 days')}${chip(7, '7 days')}${chip(30, '30 days')}${chip(0, 'All')}</div>
+    </div>`;
+}
+
+// Preset: last N days relative to the statement's latest date (0 = all).
+function pdfDatePreset(days) {
+  const dates = _pdfResults.map(r => r.date).filter(Boolean).sort();
+  if (!dates.length) return;
+  const minD = dates[0], maxD = dates[dates.length - 1];
+  const from = document.getElementById('pdf-df-from');
+  const to = document.getElementById('pdf-df-to');
+  if (!from || !to) return;
+  to.value = maxD;
+  if (days === 0) { from.value = minD; }
+  else {
+    const d = new Date(maxD + 'T00:00:00'); d.setDate(d.getDate() - (days - 1));
+    // Local Y-M-D (avoid toISOString's UTC shift that moved the date a day back)
+    const iso = (typeof _ymdLocal === 'function')
+      ? _ymdLocal(d)
+      : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    from.value = iso < minD ? minD : iso;
+  }
+  applyPdfDateFilter();
+}
+
+// Hide cards whose date falls outside [from, to] (respecting manual removals).
+function applyPdfDateFilter() {
+  const from = document.getElementById('pdf-df-from')?.value;
+  const to   = document.getElementById('pdf-df-to')?.value;
+  _pdfResults.forEach((r, i) => {
+    const card = document.getElementById(`pdf-card-${i}`);
+    if (!card) return;
+    const inRange = (!from || (r.date || '') >= from) && (!to || (r.date || '') <= to);
+    card.style.display = (inRange && !r._removed) ? '' : 'none';
+  });
   updatePdfSummary();
 }
 
 function removePdfResult(i) {
+  if (_pdfResults[i]) _pdfResults[i]._removed = true;
   const card = document.getElementById(`pdf-card-${i}`);
   if (card) card.style.display = 'none';
   updatePdfSummary();
