@@ -449,10 +449,24 @@ function renderRecordsMyMoney() {
   const _mSpent = filterTxByAnchor([...(STATE.transactions || [])], 'month', _todayYmd)
     .filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
   const _budLeft = _budTot - _mSpent;
-  const todayStripHtml = `
+  const _pctSpent  = _budTot > 0 ? Math.min(100, Math.round(_mSpent / _budTot * 100)) : 0;
+  const _pctRemain = _budTot > 0 ? Math.max(0, Math.round(_budLeft / _budTot * 100)) : 0;
+  // Monthly Budget card (reference-design style) when a budget is set; else a slim prompt.
+  const todayStripHtml = _budTot > 0 ? `
+    <div class="mm-budget-card${_budLeft < 0 ? ' over' : ''}" onclick="navigate('budget')">
+      <div class="mm-bc-top">
+        <span class="mm-bc-title"><span class="mm-bc-ic"><i data-lucide="pie-chart"></i></span>Monthly Budget</span>
+        <div class="mm-bc-total"><b>${fmt(_budTot)}</b><span>Total Budget</span></div>
+      </div>
+      <div class="mm-bc-bar"><div class="mm-bc-fill" style="width:${_pctSpent}%"></div></div>
+      <div class="mm-bc-bottom">
+        <div class="mm-bc-left"><b>${fmt(Math.abs(_budLeft))}</b> ${_budLeft >= 0 ? 'left' : 'over'}<span>of ${fmt(_budTot)} this month</span></div>
+        <div class="mm-bc-right"><b>${_pctRemain}%</b><span>${_budLeft >= 0 ? 'remaining' : 'spent'}</span></div>
+      </div>
+    </div>` : `
     <div class="mm-today-strip" onclick="navigate('budget')">
       <i data-lucide="sun"></i>
-      <span>Today: <b>${fmt(_todaySpent)}</b> spent${_budTot > 0 ? ` · <b style="color:${_budLeft >= 0 ? '#10b981' : '#ef4444'}">${fmt(Math.abs(_budLeft))}</b> ${_budLeft >= 0 ? 'left of' : 'over'} ${fmt(_budTot)} this month` : ''}</span>
+      <span>Today: <b>${fmt(_todaySpent)}</b> spent · <b style="color:#00c9a7">Tap to set a budget</b></span>
     </div>`;
 
   // ── Month-end recap (shows on the 1st–3rd, once per month, dismissible) ──

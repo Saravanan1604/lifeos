@@ -18243,3 +18243,48 @@ html.is-app #income-page .category-values span {
   font-size: 18px !important;
   margin-top: 3px !important;
 }
+
+/* ============================================================
+   build 665 — Monthly Budget card on the Records/home screen,
+   styled to the reference design (screenshot 1): soft rounded
+   mint card, progress bar, "₹X left · N% remaining". Theme-aware
+   so it works with the system-default light/dark. html.is-app.
+   ============================================================ */
+html.is-app .mm-budget-card {
+  background: linear-gradient(135deg, rgba(0,201,167,0.16), rgba(16,185,129,0.06)) !important;
+  border: 1px solid rgba(0,201,167,0.22) !important;
+  border-radius: 20px !important;
+  padding: 16px 18px 15px !important;
+  margin: 10px 0 14px !important;
+  cursor: pointer !important;
+}
+html.is-app body.light .mm-budget-card {
+  background: linear-gradient(135deg, #d7f7ec, #b7f0dd) !important;
+  border-color: rgba(0,201,167,0.30) !important;
+}
+html.is-app .mm-bc-top { display: flex !important; justify-content: space-between !important; align-items: flex-start !important; margin-bottom: 13px !important; }
+html.is-app .mm-bc-title { display: inline-flex !important; align-items: center !important; gap: 10px !important; font-size: 17px !important; font-weight: 800 !important; }
+html.is-app .mm-bc-ic { width: 34px !important; height: 34px !important; border-radius: 11px !important; background: rgba(0,201,167,0.22) !important; color: #0d9488 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+html.is-app body:not(.light) .mm-bc-ic { color: #2dd4bf !important; }
+html.is-app .mm-bc-ic svg { width: 19px !important; height: 19px !important; }
+html.is-app .mm-bc-total { text-align: right !important; line-height: 1.15 !important; }
+html.is-app .mm-bc-total b { font-size: 19px !important; font-weight: 800 !important; display: block !important; color: #0d9488 !important; }
+html.is-app body:not(.light) .mm-bc-total b { color: #2dd4bf !important; }
+html.is-app .mm-bc-total span { font-size: 11.5px !important; color: var(--text3) !important; }
+html.is-app .mm-bc-bar { height: 10px !important; border-radius: 6px !important; background: rgba(0,0,0,0.08) !important; overflow: hidden !important; margin-bottom: 12px !important; }
+html.is-app body:not(.light) .mm-bc-bar { background: rgba(255,255,255,0.10) !important; }
+html.is-app .mm-bc-fill { height: 100% !important; border-radius: 6px !important; background: linear-gradient(90deg, #00c9a7, #0acf83) !important; transition: width .4s ease !important; }
+html.is-app .mm-bc-bottom { display: flex !important; justify-content: space-between !important; align-items: flex-end !important; }
+html.is-app .mm-bc-left b { font-size: 24px !important; font-weight: 800 !important; color: #0d9488 !important; }
+html.is-app body:not(.light) .mm-bc-left b { color: #2dd4bf !important; }
+html.is-app .mm-bc-left span { display: block !important; font-size: 12px !important; color: var(--text3) !important; margin-top: 2px !important; }
+html.is-app .mm-bc-right { text-align: right !important; line-height: 1.2 !important; }
+html.is-app .mm-bc-right b { font-size: 21px !important; font-weight: 800 !important; color: #0d9488 !important; }
+html.is-app body:not(.light) .mm-bc-right b { color: #2dd4bf !important; }
+html.is-app .mm-bc-right span { display: block !important; font-size: 12px !important; color: var(--text3) !important; }
+/* over budget → red accents */
+html.is-app .mm-budget-card.over .mm-bc-fill { background: linear-gradient(90deg, #ef4444, #f87171) !important; }
+html.is-app .mm-budget-card.over .mm-bc-left b,
+html.is-app .mm-budget-card.over .mm-bc-right b,
+html.is-app .mm-budget-card.over .mm-bc-total b,
+html.is-app .mm-budget-card.over .mm-bc-ic { color: #ef4444 !important; }
