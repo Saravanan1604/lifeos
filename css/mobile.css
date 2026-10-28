@@ -15924,6 +15924,9 @@ html.is-app #page-container[data-page="habits"] { zoom: 0.6 !important; }
 html.is-app #page-container[data-page="settings"] { zoom: 0.5 !important; }
 html.is-app #page-container[data-page="finance"],
 html.is-app #page-container[data-page="bank-tracker"] { zoom: 0.8 !important; }
+/* build 666 — bank-tracker (Records) read oversized; tighten its own zoom
+   a notch below Finance so balance cards / Transfer Log sit compact. */
+html.is-app #page-container[data-page="bank-tracker"] { zoom: 0.7 !important; }
 
 /* Drawer — undo the build-370 2x so labels fit ("Dashboard", "Spending") */
 html.is-app .sidebar .nav-item .nav-text { font-size: 17px !important; }
@@ -18288,3 +18291,13 @@ html.is-app .mm-budget-card.over .mm-bc-left b,
 html.is-app .mm-budget-card.over .mm-bc-right b,
 html.is-app .mm-budget-card.over .mm-bc-total b,
 html.is-app .mm-budget-card.over .mm-bc-ic { color: #ef4444 !important; }
+
+/* build 666 — smooth soft mint-green background (reference design), app-only, */
+/* theme-aware and STATIC (no animation / glare). Custom themes (amoled/ocean/ */
+/* sunset) set background with !important above, so they are untouched. */
+html.is-app body:not(.light):not(.amoled):not(.ocean):not(.sunset) {
+  background: linear-gradient(180deg, #071613 0%, #0a0c14 46%, #0a0a12 100%) !important;
+}
+html.is-app body.light {
+  background: linear-gradient(180deg, #e8f7ef 0%, #eef9f3 42%, #f6fbf8 100%) !important;
+}
