@@ -18301,3 +18301,29 @@ html.is-app body:not(.light):not(.amoled):not(.ocean):not(.sunset) {
 html.is-app body.light {
   background: linear-gradient(180deg, #e8f7ef 0%, #eef9f3 42%, #f6fbf8 100%) !important;
 }
+
+/* ============================================================
+   build 667 — Records (bank-tracker) premium polish, app-only.
+   Two rough edges sat on OLD inflated base sizes that the page's
+   zoom:0.7 then scaled up: the bottom "Log balance…" input bar
+   (24px, wrapped to 2 lines) and the Transfer Log row (26px title
+   + 52px icon). Page-scoped so they win the cascade; sizes chosen
+   to read compact AT the 0.7 page zoom. Verified in light + dark.
+   ============================================================ */
+html.is-app #page-container[data-page="bank-tracker"] .tlog-ic {
+  width: 40px !important; height: 40px !important; border-radius: 12px !important;
+}
+html.is-app #page-container[data-page="bank-tracker"] .tlog-ic svg.lucide {
+  width: 19px !important; height: 19px !important;
+}
+html.is-app #page-container[data-page="bank-tracker"] .tlog-title {
+  font-size: 17px !important;
+  white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+}
+html.is-app #page-container[data-page="bank-tracker"] .tlog-meta { font-size: 13px !important; }
+html.is-app #page-container[data-page="bank-tracker"] .tlog-amt  { font-size: 17px !important; }
+/* bottom quick-log input bar placeholder — single line, compact */
+html.is-app #page-container[data-page="bank-tracker"] div[onclick*="openQuickBalanceModal"]:not(button) {
+  font-size: 17px !important;
+  white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+}
