@@ -1229,12 +1229,12 @@ function buildNotifications() {
   // ── Budget warnings ──
   const budgets = STATE.budgets || [];
   const txns = STATE.transactions || [];
-  const monthExp = txns.filter(t => t.type==='expense' && t.date.startsWith(monthStr));
+  const monthExp = txns.filter(t => t.type!=='income' && (t.date||'').startsWith(monthStr));
   const spentMap = {};
   monthExp.forEach(t => { const k=(t.category||'').toLowerCase(); spentMap[k]=(spentMap[k]||0)+t.amount; });
 
   budgets.forEach(b => {
-    const limit = b.amount ?? b.limit ?? 0;
+    const limit = (typeof _budgetLimitMonthly === 'function') ? _budgetLimitMonthly(b) : (b.amount ?? b.limit ?? 0);
     const used  = spentMap[(b.category||'').toLowerCase()] || 0;
     const pct   = limit > 0 ? Math.round(used/limit*100) : 0;
     if (pct > 100) {
@@ -1245,15 +1245,11 @@ function buildNotifications() {
   });
 
   // ── Upcoming recurring transactions ──
-  const recurring = STATE.recurringTxns || [];
-  const todayStr = now.toISOString().slice(0,10);
-  recurring.forEach(r => {
-    const nextDue = _calcNextRecurringDate(r);
-    if (!nextDue) return;
-    const daysLeft = Math.round((new Date(nextDue) - now) / 86400000);
-    if (daysLeft >= 0 && daysLeft <= 3) {
-      notifs.push({ type: daysLeft === 0 ? 'danger' : 'warning', icon:'🔄', title:`${r.description || r.category} due ${daysLeft===0?'today':`in ${daysLeft} day${daysLeft>1?'s':''}`}`, sub:`${r.type==='expense'?'−':'+'} ${fmt(r.amount)} · ${r.category}`, action:`navigate('finance')` });
-    }
+  // (was reading STATE.recurringTxns, which never exists — bills never showed)
+  if (typeof _billsDue === 'function') _billsDue(3).forEach(({ r, days }) => {
+    notifs.push({ type: days === 0 ? 'danger' : 'warning', icon:'🔔', bill: r.id,
+      title:`${r.description || r.category} due ${days===0?'today':days===1?'tomorrow':`in ${days} days`}`,
+      sub:`− ${fmt(r.amount)} · ${r.category} · auto-posts on ${fmtDate(r.nextDate)}`, action:`navigate('recurring')` });
   });
 
   // ── Goal progress encouragement ──
@@ -1322,6 +1318,7 @@ function openNotifPanel() {
       <div style="flex:1;min-width:0">
         <p style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">${n.title}</p>
         <p style="font-size:11px;color:var(--text3)">${n.sub}</p>
+        ${n.bill ? `<div class="notif-bill-acts"><button onclick="event.stopPropagation();billPayNow('${n.bill}')">✓ Paid now</button><button onclick="event.stopPropagation();billSkip('${n.bill}')">Skip once</button></div>` : ''}
       </div>
     </div>`).join('');
 
@@ -1338,9 +1335,10 @@ function closeNotifPanel() {
 }
 
 function _updateNotifBadge() {
+  const notifs = buildNotifications();
+  if (typeof _mobileBellBadge === 'function') _mobileBellBadge(notifs.filter(n => n.type === 'danger' || n.type === 'warning').length);
   const badge = document.getElementById('notif-badge');
   if (!badge) return;
-  const notifs = buildNotifications();
   const alerts = notifs.filter(n => n.type === 'danger' || n.type === 'warning');
   if (alerts.length > 0) {
     badge.style.cssText = badge.style.cssText.replace('display:none','');

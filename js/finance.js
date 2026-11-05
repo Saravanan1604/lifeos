@@ -379,9 +379,10 @@ function renderRecordsMyMoney() {
   // apply our existing filters (type / category / search)
   const q = _recSearch.trim().toLowerCase();
   let all = periodTxns;
+  if (q && typeof _parseSmartQuery === 'function') all = _applySmartQuery(periodTxns, _parseSmartQuery(q));
   if (_finType !== 'all')     all = all.filter(t => t.type === _finType);
   if (_finCategory !== 'all') all = all.filter(t => t.category === _finCategory);
-  if (q) all = all.filter(t =>
+  if (q && typeof _parseSmartQuery !== 'function') all = all.filter(t =>
     (t.description || '').toLowerCase().includes(q) ||
     (t.category || '').toLowerCase().includes(q) ||
     (t.subcategory || '').toLowerCase().includes(q));
@@ -428,7 +429,7 @@ function renderRecordsMyMoney() {
         </div>
         <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
           ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
-          <div class="mm-ic" style="background:${catColor(t.category)}" onclick="event.stopPropagation();openCategoryDetail('${(t.category||'Other').replace(/'/g,"\\'")}')">${catIconHtml(t.category)}</div>
+          <div class="mm-ic" style="background:${catColor(t.category)}" onclick="event.stopPropagation();if(typeof openQuickCat==='function'&&!_recSelectMode)openQuickCat('${t.id}');else openCategoryDetail('${(t.category||'Other').replace(/'/g,"\\'")}')">${catIconHtml(t.category)}</div>
           <div class="mm-mid">
             <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' <i data-lucide="repeat" class="mm-recur-ic"></i>' : ''}</p>
             <div class="mm-meta">${chip}${tm}${note}${sub}${tagChip}</div>
@@ -2649,6 +2650,7 @@ function padSave() {
     if (typeof addXP === 'function') addXP(10, 'Transaction logged');
   }
   saveState();
+  if (_pad.type !== 'income' && typeof _budgetAlertCheck === 'function') _budgetAlertCheck(_pad.category);
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   padClose();
   toast('Saved ✅', 'success');
@@ -2757,7 +2759,9 @@ function openRecordsFilter() {
           <input type="date" id="rf-to" class="form-input" value="${_recDateTo}"/></div>
       </div></div>
     <div class="form-group"><label class="form-label">Search</label>
-      <input type="text" id="rf-search" class="form-input" value="${esc(_recSearch)}" placeholder="Name, category or note" oninput="_recSearch=this.value; if(typeof renderRecordsMyMoney==='function')renderRecordsMyMoney();"/></div>
+      <input type="text" id="rf-search" class="form-input" value="${esc(_recSearch)}" placeholder="Try: food > 500 last month" oninput="_recSearch=this.value; if(typeof renderRecordsMyMoney==='function')renderRecordsMyMoney();"/>
+      <div class="rf-chips">${['last month','this week','today','> 1000','income','last 7 days','food this month'].map(c => `<button type="button" class="rf-chip" onclick="setRecSmartSearch('${c}')">${c}</button>`).join('')}</div>
+      <p class="rf-hint">Mix words, amounts and dates — e.g. <b>swiggy under 300</b>, <b>shopping above 2k march</b>, <b>income last month</b>.</p></div>
     <div class="form-group"><label class="form-label">Type</label>
       <select id="rf-type" class="form-input">
         <option value="all" ${sel('all', _finType)}>All types</option>
@@ -2884,7 +2888,7 @@ function acctSection(type) {
                   <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openAccountMenu('bank', ${i})" title="Account options" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.5rem;font-weight:700;line-height:1">⋯</div>
                 </div>
               </div>
-              <div style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(b.balance)}</div>
+              <div class="card-icon-trigger fin-bal-tap" onclick="event.stopPropagation();openQuickBalanceModal('${b.id}')" title="Tap to update balance" style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(b.balance)}</div>
               <div style="font-size:1.05rem;color:rgba(255,255,255,0.6);letter-spacing:0.3px">${b.type||'Savings'}${b.lastFour ? ` •••• ${b.lastFour}` : ''}</div>
             </div>`;
           } else {
@@ -4016,6 +4020,7 @@ function _commitTx(tx) {
     });
   }
   saveState();
+  if (newTx.type !== 'income' && typeof _budgetAlertCheck === 'function') _budgetAlertCheck(newTx.category);
   addXP(10, 'Transaction logged');
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();
@@ -4638,8 +4643,9 @@ function openSmsParser() {
       <strong>Separate multiple SMS with a blank line.</strong> Works with HDFC, SBI, ICICI, Axis, Kotak, UPI and most Indian banks.
     </div>
 
+    <button class="btn-primary sms-paste-btn" onclick="smsPasteClipboard()" style="width:100%;margin-bottom:12px">📋 Paste from clipboard &amp; scan</button>
     <div class="form-group" style="margin-bottom:12px">
-      <label class="form-label">Paste SMS messages</label>
+      <label class="form-label">…or paste SMS messages here</label>
       <textarea id="sms-raw" class="form-input" rows="5"
         placeholder="Paste one SMS — or paste many, separated by a blank line between each message..."
         style="font-size:12px;line-height:1.6;resize:vertical"></textarea>
@@ -5209,6 +5215,7 @@ function renderInvestmentsApp() {
       <div class="ia-mid">
         <p class="ia-name">${esc(item.name)}</p>
         <p class="ia-sub">${lsub}</p>
+        ${typeof _loanPayoffLine === 'function' ? _loanPayoffLine(item) : ''}
       </div>
       <div class="ia-right">
         <p class="ia-val neg">${fmt(out)}</p>
@@ -5306,6 +5313,7 @@ function renderInvestmentsApp() {
         </div>
       </div>` : ''}
 
+      ${!isAssets && typeof _debtFreeCardHtml === 'function' ? _debtFreeCardHtml() : ''}
       <!-- RECENT LIST -->
       <div class="ia-card">
         <div class="ia-card-head">

@@ -18873,3 +18873,93 @@ html.is-app body:not(#_cx):not(#_cy) #rec-top-btn {
   box-shadow: 0 10px 22px -8px rgba(79, 70, 229, 0.6) !important;
 }
 html.is-app body:not(#_cx):not(#_cy) #rec-top-btn svg { width: 22px !important; height: 22px !important; }
+
+/* ============================================================
+   build 671 — feature pack styling (app-only): bell badge, bill
+   actions, quick category sheet, smart-search chips, loan payoff,
+   debt-free card, tap-to-edit balance.
+   ============================================================ */
+html.is-app body:not(#_cx):not(#_cy) #mobile-notif-btn { position: relative !important; }
+html.is-app body:not(#_cx):not(#_cy) #mobile-notif-btn .mnb-badge {
+  position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 4px;
+  border-radius: 9px; background: #ef4444; color: #fff; font-size: 10px; font-weight: 800;
+  display: none; align-items: center; justify-content: center; border: 2px solid #fff; line-height: 1;
+}
+html.is-app body:not(#_cx):not(#_cy) .notif-bill-acts { display: flex; gap: 8px; margin-top: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .notif-bill-acts button {
+  flex: 1; min-height: 34px !important; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+  border: 1px solid var(--cx-line); background: var(--cx-chip); color: var(--cx-ink);
+}
+html.is-app body:not(#_cx):not(#_cy) .notif-bill-acts button:first-child { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+
+html.is-app body:not(#_cx):not(#_cy) .qc-for { font-size: 14px; color: var(--cx-ink2); margin: 0 0 10px; }
+html.is-app body:not(#_cx):not(#_cy) .qc-same { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--cx-ink); background: var(--cx-chip); border: 1px solid var(--cx-line); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.4; }
+html.is-app body:not(#_cx):not(#_cy) .qc-same input { width: 18px; height: 18px; accent-color: #4f46e5; flex-shrink: 0; margin-top: 1px; }
+html.is-app body:not(#_cx):not(#_cy) .qc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-height: 46vh; overflow-y: auto; padding: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .qc-chip {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; min-height: 0 !important;
+  border-radius: 14px; border: 1.5px solid transparent; background: transparent; cursor: pointer;
+}
+html.is-app body:not(#_cx):not(#_cy) .qc-chip.on { border-color: #8b5cf6; background: var(--cx-chip); }
+html.is-app body:not(#_cx):not(#_cy) .qc-ic { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .qc-ic svg { width: 20px; height: 20px; }
+html.is-app body:not(#_cx):not(#_cy) .qc-nm { font-size: 11.5px; font-weight: 600; color: var(--cx-ink); text-align: center; line-height: 1.2; word-break: break-word; }
+html.is-app body:not(#_cx):not(#_cy) .qc-detail { width: 100%; margin-top: 12px; }
+
+html.is-app body:not(#_cx):not(#_cy) .rf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .rf-chip {
+  padding: 6px 12px; min-height: 0 !important; border-radius: 999px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  background: var(--cx-chip); color: #6d28d9; border: 1px solid var(--cx-line);
+}
+html.is-app body:not(#_cx):not(#_cy) .rf-hint { font-size: 12px; color: var(--cx-ink2); margin-top: 8px; line-height: 1.45; }
+
+html.is-app body:not(#_cx):not(#_cy) .ia-payoff { font-size: 12px; color: #4f46e5; margin-top: 3px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .ia-payoff b { font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .ia-payoff.bad { color: #dc2626; white-space: normal; }
+html.is-app body:not(#_cx):not(#_cy) .ia-payoff.ok { color: #059669; }
+html.is-app body:not(.light):not(#_cx):not(#_cy) .ia-payoff { color: #a5b4fc; }
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; color: #fff !important; border: none !important;
+  padding: 18px 20px !important;
+}
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card .df-lbl { font-size: 13px; opacity: .8; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card .df-val { font-size: 28px; font-weight: 800; margin: 2px 0 12px; letter-spacing: -0.02em; }
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card .df-row { display: flex; gap: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card .df-row > div { flex: 1; background: rgba(255,255,255,0.14); border-radius: 12px; padding: 8px 10px; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card .df-row span { display: block; font-size: 11.5px; opacity: .8; }
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card .df-row b { font-size: 16px; font-weight: 800; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card .df-tip,
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card .df-warn { font-size: 12px; margin-top: 10px; opacity: .9; line-height: 1.4; }
+html.is-app body:not(#_cx):not(#_cy) .fin-bal-tap { cursor: pointer; text-decoration: underline dotted rgba(255,255,255,0.35); text-underline-offset: 6px; }
+/* 671: alerts panel — solid sheet above the header strip, readable rows */
+html.is-app body:not(#_cx):not(#_cy) #notif-panel {
+  width: 88vw !important; max-width: 400px !important;
+  background: var(--cx-card) !important;
+  border-left: 1px solid var(--cx-line) !important;
+  z-index: 100001 !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  box-shadow: -20px 0 50px -10px rgba(30, 20, 80, 0.35) !important;
+}
+html.is-app body:not(#_cx):not(#_cy) #notif-backdrop { z-index: 100000 !important; }
+html.is-app body:not(#_cx):not(#_cy) #notif-panel .notif-item {
+  background: var(--cx-card) !important; box-shadow: var(--cx-shadow) !important;
+  border: 1px solid var(--cx-line) !important; border-radius: 16px !important; align-items: flex-start !important;
+}
+html.is-app body:not(#_cx):not(#_cy) #notif-panel .notif-item.notif-danger { border-left: 4px solid #ef4444 !important; }
+html.is-app body:not(#_cx):not(#_cy) #notif-panel .notif-item.notif-warning { border-left: 4px solid #f59e0b !important; }
+html.is-app body:not(#_cx):not(#_cy) #notif-panel .notif-item.notif-success { border-left: 4px solid #10b981 !important; }
+html.is-app body:not(#_cx):not(#_cy) #notif-panel .notif-item p { color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) #notif-panel .notif-item p + p { color: var(--cx-ink2) !important; }
+
+/* 671: quick-category sheet — normal checkbox, grid that fits */
+html.is-app body:not(#_cx):not(#_cy) .qc-same input[type="checkbox"] {
+  width: 20px !important; height: 20px !important; min-width: 20px !important; min-height: 0 !important;
+  transform: none !important; margin: 1px 0 0 !important; padding: 0 !important; -webkit-appearance: checkbox !important; appearance: auto !important;
+}
+html.is-app body:not(#_cx):not(#_cy) .qc-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)) !important; width: 100% !important; box-sizing: border-box !important; }
+
+/* 671: filter sheet — From / To dates side by side without overflowing */
+html.is-app body:not(#_cx):not(#_cy) .rf-modal .input-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+html.is-app body:not(#_cx):not(#_cy) .rf-modal .input-row > .form-group { min-width: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) .rf-modal input[type="date"] { width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; }
+html.is-app body:not(#_cx):not(#_cy) #notif-panel { height: 100vh !important; height: 100dvh !important; max-height: none !important; }
