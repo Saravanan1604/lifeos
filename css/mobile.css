@@ -18645,3 +18645,54 @@ html.is-app body:not(#_cx):not(#_cy) .mm-today-strip span { color: #c026d3 !impo
 html.is-app body:not(#_cx):not(#_cy) .fin-netbal-hero .mm-hero-val.pos,
 html.is-app body:not(#_cx):not(#_cy) .fin-netbal-hero .mm-hero-val.neg { color: #fff !important; }
 html.is-app body:not(#_cx):not(#_cy) button[onclick^="setTrendPeriod"] { border-radius: 12px !important; }
+
+/* ============================================================
+   build 669 — CLASSIC bottom nav (user: the gradient bar was too
+   colourful). Calm solid bar: white in light mode, deep navy in dark,
+   slate icons, the current tab shown as a soft indigo pill with an
+   indigo icon + label. Centre + is solid indigo. App-only.
+   Also: the month bar's › arrow was hidden under the Today button.
+   ============================================================ */
+html.is-app body:not(#_cx):not(#_cy) #bottom-nav,
+html.is-app body.light:not(#_cx):not(#_cy) #bottom-nav {
+  background: #ffffff !important;
+  border: 1px solid #e6e8f0 !important;
+  box-shadow: 0 10px 28px -12px rgba(15, 23, 42, 0.28) !important;
+}
+html.is-app body:not(.light):not(#_cx):not(#_cy) #bottom-nav {
+  background: #161b2e !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.7) !important;
+}
+html.is-app body:not(#_cx):not(#_cy) #bottom-nav .bn-item,
+html.is-app body:not(#_cx):not(#_cy) #bottom-nav .bn-item span,
+html.is-app body.light:not(#_cx):not(#_cy) #bottom-nav .bn-item,
+html.is-app body.light:not(#_cx):not(#_cy) #bottom-nav .bn-item span { color: #64748b !important; }
+html.is-app body:not(.light):not(#_cx):not(#_cy) #bottom-nav .bn-item,
+html.is-app body:not(.light):not(#_cx):not(#_cy) #bottom-nav .bn-item span { color: #94a3b8 !important; }
+html.is-app body:not(#_cx):not(#_cy) #bottom-nav .bn-item.active { background: #eef2ff !important; }
+html.is-app body:not(#_cx):not(#_cy) #bottom-nav .bn-item.active,
+html.is-app body:not(#_cx):not(#_cy) #bottom-nav .bn-item.active span,
+html.is-app body.light:not(#_cx):not(#_cy) #bottom-nav .bn-item.active,
+html.is-app body.light:not(#_cx):not(#_cy) #bottom-nav .bn-item.active span { color: #4f46e5 !important; }
+html.is-app body:not(.light):not(#_cx):not(#_cy) #bottom-nav .bn-item.active { background: rgba(129, 140, 248, 0.16) !important; }
+html.is-app body:not(.light):not(#_cx):not(#_cy) #bottom-nav .bn-item.active,
+html.is-app body:not(.light):not(#_cx):not(#_cy) #bottom-nav .bn-item.active span { color: #a5b4fc !important; }
+html.is-app body:not(#_cx):not(#_cy) #bottom-nav .bn-item.active::after { background: currentColor !important; }
+html.is-app body:not(#_cx):not(#_cy) #fab-add {
+  background: #4f46e5 !important;
+  border: 4px solid #ffffff !important;
+  box-shadow: 0 8px 18px -6px rgba(79, 70, 229, 0.55) !important;
+}
+html.is-app body:not(.light):not(#_cx):not(#_cy) #fab-add { background: #6366f1 !important; border-color: #161b2e !important; }
+
+/* month bar: keep the › arrow clear of the Today button */
+html.is-app body:not(#_cx):not(#_cy) .mymoney-records .mm-monthbar { padding-right: 92px !important; padding-left: 58px !important; gap: 2px !important; }
+html.is-app body:not(#_cx):not(#_cy) .mymoney-records .mm-month { padding: 6px 4px !important; white-space: nowrap !important; min-width: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) .mymoney-records .mm-month-chev { display: none !important; }
+
+/* Finance net balance: solid white number on the gradient card */
+html.is-app body:not(#_cx):not(#_cy) .fin-netbal-hero .mm-hero-val {
+  background: none !important; background-image: none !important;
+  -webkit-text-fill-color: #ffffff !important; color: #ffffff !important;
+}
