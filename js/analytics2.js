@@ -123,6 +123,7 @@ function renderAnalyticsApp() {
         <h1 class="an-title">Analytics</h1>
         <button class="an-more" onclick="navigate('spending')"><i data-lucide="layout-grid"></i> Budget &amp; categories</button>
       </div>
+      <button class="an-smart" onclick="navigate('smart')"><span><i data-lucide="sparkles"></i></span><div><b>Forecast &amp; automation</b><em>30/90-day cash-flow forecast · subscriptions found · unusual spends</em></div><i data-lucide="chevron-right"></i></button>
       <div class="hx-seg an-seg">${tabs.map(([k, l]) => `<button class="${P === k ? 'on' : ''}" onclick="setAnPeriod('${k}')">${l}</button>`).join('')}</div>
       <div class="an-nav"><button onclick="anNav(-1)"><i data-lucide="chevron-left"></i></button><span>${_anLabel(P, r)}</span><button onclick="anNav(1)" ${_anOffset >= 0 ? 'disabled' : ''}><i data-lucide="chevron-right"></i></button></div>
 

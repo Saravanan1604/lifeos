@@ -2658,6 +2658,7 @@ function padSave() {
   }
   saveState();
   if (_pad.type !== 'income' && typeof _budgetAlertCheck === 'function') _budgetAlertCheck(_pad.category);
+  if (_pad.type !== 'income' && typeof _unusualCheck === 'function') { const _lt = _pad.mode === 'edit' ? (STATE.transactions || []).find(t => t.id === _pad.id) : (STATE.transactions || [])[0]; if (_lt) _unusualCheck(_lt); }
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   padClose();
   toast('Saved ✅', 'success');
@@ -4028,6 +4029,7 @@ function _commitTx(tx) {
   }
   saveState();
   if (newTx.type !== 'income' && typeof _budgetAlertCheck === 'function') _budgetAlertCheck(newTx.category);
+  if (newTx.type !== 'income' && typeof _unusualCheck === 'function') _unusualCheck(newTx);
   addXP(10, 'Transaction logged');
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   closeModal();

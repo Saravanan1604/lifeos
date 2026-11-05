@@ -937,6 +937,7 @@ function _renderPage(page) {
 
     case 'categories':   renderCategories();    break;
     case 'spending':     renderSpendingOverview(); break;
+    case 'smart':        if (typeof renderSmartApp === 'function') renderSmartApp(); break;
     case 'insights':     if (window.__IS_APP && typeof renderAnalyticsApp === 'function') renderAnalyticsApp(); else renderSpendingOverview(); break;
     case 'category-detail': renderCategoryDetail(); break;
     case 'recurring':    renderRecurring();      break;
@@ -968,7 +969,7 @@ function _renderPage(page) {
   const _bnItems = [...document.querySelectorAll('#bottom-nav .bn-item')]
     .filter(el => getComputedStyle(el).display !== 'none');
   // sub-pages light up their parent tab (Analytics = spending/budget/income)
-  const _navKey = ({ budget: 'insights', income: 'insights', spending: 'insights', analytics: 'insights' })[page] || page;
+  const _navKey = ({ smart: 'insights', budget: 'insights', income: 'insights', spending: 'insights', analytics: 'insights' })[page] || page;
   _bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === _navKey));
   const _ind = document.getElementById('bn-indicator');
   if (_ind) {

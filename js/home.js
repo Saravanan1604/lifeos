@@ -186,9 +186,19 @@ function _homeInsights(F) {
     out.push({ ic: 'line-chart', c: '#22D3EE', est: true,
       t: `At this pace you'll spend about <b>${_H.short(projSpend)}</b> this month${F.income + F.incomeLeft > 0 ? ` and ${projNet >= 0 ? 'save' : 'overspend by'} about <b>${_H.short(Math.abs(projNet))}</b>` : ''}.` });
   }
+  // unusual spend this month
+  if (typeof unusualThisMonth === 'function') {
+    const u = unusualThisMonth()[0];
+    if (u) out.push({ ic: 'scan-eye', c: '#F05260', t: `Unusual: <b>${fmt(u.t.amount)}</b> on ${esc(u.t.category)} is ${u.u.x.toFixed(1)}× your typical ${fmt(Math.round(u.u.typical))}.` });
+  }
+  // untracked subscriptions → potential savings
+  if (typeof detectSubscriptions === 'function') {
+    const subs = detectSubscriptions();
+    if (subs.length) out.push({ ic: 'repeat', c: '#22D3EE', t: `Found <b>${subs.length}</b> repeating payment${subs.length > 1 ? 's' : ''} (~${fmt(Math.round(subs.reduce((s, x) => s + x.monthly, 0)))}/mo) you aren't tracking. <a onclick="navigate('smart')" class="hx-inl">Review</a>` });
+  }
   // bills
   if (F.billsLeft > 0) out.push({ ic: 'calendar-clock', c: '#8B5CF6', t: `<b>${fmt(Math.round(F.billsLeft))}</b> in recurring bills/EMIs still due before month end.` });
-  return out.slice(0, 4);
+  return out.slice(0, 5);
 }
 function _homeInsightsHtml(F) {
   const ins = _homeInsights(F), h = _homeHealth(F);

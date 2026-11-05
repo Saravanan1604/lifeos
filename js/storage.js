@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 675;
+const APP_BUILD = 676;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -225,7 +225,7 @@ const LIVE_SYNC_KEYS = [
   'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',
   'unlockedAchievements', 'deletedIds', 'categoryRules', 'notes',
   'recurring', 'customCategories', 'customPages', 'customPageLayouts',
-  'purchases', 'tagBudgets', 'splits'
+  'purchases', 'tagBudgets', 'splits', 'dismissedSubs'
 ];
 
 let _syncTimer     = null;

@@ -32,6 +32,7 @@ function _budgetLimitMonthly(b) {
 function _budgetAlertCheck(cat) {
   try {
     if (!cat) return;
+    if (typeof _smartPrefs === 'function' && !_smartPrefs().budget) return;
     const b = (STATE.budgets || []).find(x => (x.category || '').toLowerCase() === String(cat).toLowerCase());
     if (!b) return;
     const limit = _budgetLimitMonthly(b);
@@ -170,6 +171,7 @@ function _afterBillAction() {
 function _billDailyCheck() {
   try {
     if (!STATE.user) return;
+    if (typeof _smartPrefs === 'function' && !_smartPrefs().bills) return;
     const key = 'lifeos_billcheck_' + today();
     if (localStorage.getItem(key)) return;
     const due = _billsDue(1);

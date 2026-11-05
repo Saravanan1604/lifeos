@@ -19340,3 +19340,52 @@ html.is-app body:not(#_cx):not(#_cy) .debtfree-card { background: linear-gradien
 html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .nw-trend,
 html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .nw-ratio,
 html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .nw-df { zoom: 1.6667; }
+
+/* ============================================================
+   build 676 — Forecast & automation page (app-only)
+   ============================================================ */
+html.is-app body:not(#_cx):not(#_cy) .an-smart { display: flex; align-items: center; gap: 12px; width: calc(100% - 24px); margin: 0 12px 12px; min-height: 0 !important; padding: 12px 14px; border-radius: 18px; border: 1px solid color-mix(in srgb, var(--cx-pri) 30%, var(--cx-line)); background: color-mix(in srgb, var(--cx-pri) 8%, var(--cx-card)); color: var(--cx-ink); text-align: left; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .an-smart > span { width: 36px; height: 36px; border-radius: 11px; background: var(--cx-pri); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .an-smart > span svg { width: 18px; height: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .an-smart div { flex: 1; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .an-smart b { display: block; font-size: 14.5px; font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .an-smart em { display: block; font-style: normal; font-size: 12px; color: var(--cx-ink2); margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .an-smart > svg { width: 18px; height: 18px; color: var(--cx-ink2); flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .hx-inl { color: var(--cx-pri); font-weight: 700; cursor: pointer; text-decoration: underline; }
+html.is-app body:not(#_cx):not(#_cy) .sm-est { font-style: normal; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--cx-acc); background: color-mix(in srgb, var(--cx-acc) 14%, transparent); padding: 2px 6px; border-radius: 6px; margin-left: 6px; vertical-align: middle; }
+html.is-app body:not(#_cx):not(#_cy) .sm-fc-top { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .sm-fc-top span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--cx-ink2); font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .sm-fc-top b { display: block; font-size: 18px; font-weight: 800; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .sm-fc-top em { font-style: normal; font-size: 11px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .sm-note { font-size: 13.5px; line-height: 1.45; color: var(--cx-ink); margin: 10px 0 4px; }
+html.is-app body:not(#_cx):not(#_cy) .sm-how { font-size: 11.5px; line-height: 1.45; color: var(--cx-ink2); margin: 6px 0 0; }
+html.is-app body:not(#_cx):not(#_cy) .sm-ev { margin-top: 10px; border-top: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .sm-ev > div { display: grid; grid-template-columns: 74px 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .sm-ev span { font-size: 12px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .sm-ev p { margin: 0; font-size: 13.5px; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .sm-ev b { font-size: 13.5px; font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .sm-ev b.inc { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .sm-ev b.exp { color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .sm-sub { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .sm-sub:first-of-type { border-top: none; }
+html.is-app body:not(#_cx):not(#_cy) .sm-sub-m { flex: 1; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .sm-sub-m b { display: block; font-size: 14px; font-weight: 700; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .sm-sub-m span { font-size: 12px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .sm-sub-a { display: flex; gap: 6px; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .sm-sub-a button { min-height: 32px !important; padding: 0 10px; border-radius: 9px; border: 1px solid var(--cx-line); background: var(--cx-chip); color: var(--cx-ink2); font-size: 12px; font-weight: 700; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .sm-sub-a button.on { background: var(--cx-pri); border-color: var(--cx-pri); color: #fff; }
+html.is-app body:not(#_cx):not(#_cy) .sm-un { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--cx-line); cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .sm-un:first-of-type { border-top: none; }
+html.is-app body:not(#_cx):not(#_cy) .sm-un b { display: block; font-size: 14px; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .sm-un span { font-size: 12px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .sm-un em { font-style: normal; font-size: 12px; font-weight: 800; color: var(--cx-exp); background: color-mix(in srgb, var(--cx-exp) 12%, transparent); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--cx-line); cursor: pointer; position: relative; }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg:first-of-type { border-top: none; }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg div { flex: 1; }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg b { display: block; font-size: 14px; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg span { font-size: 12px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg input { position: absolute; opacity: 0; pointer-events: none; }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg i { width: 44px; height: 26px; border-radius: 13px; background: var(--cx-chip); border: 1px solid var(--cx-line); position: relative; flex-shrink: 0; transition: background .2s; }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg input:checked + i { background: var(--cx-pri); border-color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .sm-tg input:checked + i::after { transform: translateX(18px); }
