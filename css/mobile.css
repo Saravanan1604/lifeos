@@ -19395,3 +19395,124 @@ html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .i
 html.is-app body:not(#_cx):not(#_cy) .an-cmp { font-size: 11.5px; color: var(--cx-ink2); margin: -4px 14px 8px; }
 /* one navigation system: no extra floating buttons in the app */
 html.is-app body:not(#_cx):not(#_cy) #rec-top-btn, html.is-app body:not(#_cx):not(#_cy) #undo-btn { display: none !important; }
+
+/* ============================================================
+   build 678 — LIFE OS 3.0 THEMES (app-only)
+   NIGHT: futuristic OLED.  DAY: bright Apple-style fintech.
+   Each designed separately, driven by the same token names so every
+   component switches instantly. Exact tokens from the 3.0 brief.
+   ============================================================ */
+html.is-app body:not(.light):not(#_cx):not(#_cy) {
+  --cx-bg: #090D18; --cx-bg2: #101728; --cx-card: #151F33; --cx-elev: #1C2940; --cx-chip: #1C2940; --cx-line: #24314A;
+  --cx-pri: #8B5CF6; --cx-pri2: #A78BFA; --cx-acc: #22D3EE; --cx-inc: #10B981; --cx-exp: #F05260; --cx-warn: #F59E0B;
+  --cx-ink: #F8FAFC; --cx-ink2: #94A3B8; --cx-mute: #64748B;
+  --cx-inc-bg: rgba(16,185,129,.12); --cx-exp-bg: rgba(240,82,96,.12); --cx-warn-bg: rgba(245,158,11,.12); --cx-info-bg: rgba(34,211,238,.10);
+  --cx-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 12px 32px -20px rgba(0,0,0,0.9);
+}
+html.is-app body.light:not(#_cx):not(#_cy) {
+  --cx-bg: #F5F6FC; --cx-bg2: #EEF0F8; --cx-card: #FFFFFF; --cx-card2: #F9FAFF; --cx-elev: #FFFFFF; --cx-chip: #EEF0F8; --cx-line: #E7E9F2;
+  --cx-pri: #6D3BEA; --cx-pri2: #9B6CFA; --cx-acc: #0891B2; --cx-inc: #059669; --cx-exp: #DC4653; --cx-warn: #D97706;
+  --cx-ink: #182238; --cx-ink2: #64748B; --cx-mute: #94A3B8;
+  --cx-inc-bg: #DDF8F0; --cx-exp-bg: #FDE8EA; --cx-warn-bg: #FFF2D8; --cx-info-bg: #E3F2FD;
+  --cx-shadow: 0 1px 2px rgba(24,34,56,0.04), 0 8px 24px -14px rgba(76,52,190,0.16);
+}
+html.is-app body:not(#_cx):not(#_cy) { transition: background-color .25s ease, color .25s ease; }
+/* NIGHT background: OLED with a faint violet glow at the top */
+html.is-app body:not(.light):not(.ocean):not(.sunset):not(#_cx):not(#_cy) {
+  background: radial-gradient(90% 40% at 50% -5%, rgba(139,92,246,.16), transparent 70%), #090D18 !important; background-attachment: fixed !important;
+}
+html.is-app body.amoled:not(#_cx):not(#_cy) { background: #000 !important; --cx-bg: #000000; --cx-card: #0E1220; --cx-chip: #161B2B; }
+/* DAY background: soft lavender wash */
+html.is-app body.light:not(#_cx):not(#_cy) {
+  background: radial-gradient(100% 45% at 50% -10%, #ECE7FF, transparent 70%), #F5F6FC !important; background-attachment: fixed !important;
+}
+
+/* ── DAY: floating white bottom bar with soft shadow (Night stays docked) ── */
+html.is-app body.light:not(#_cx):not(#_cy) #bottom-nav {
+  margin: 0 12px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  height: 66px !important; padding: 0 10px !important; border-radius: 24px !important;
+  background: #FFFFFF !important; border: 1px solid #E7E9F2 !important;
+  box-shadow: 0 12px 32px -12px rgba(76,52,190,.28), 0 2px 6px rgba(24,34,56,.06) !important;
+}
+html.is-app body.light:not(#_cx):not(#_cy) #bottom-nav .bn-item.active::after { display: none !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #bottom-nav .bn-item.active { background: #F1ECFF !important; border-radius: 16px !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #fab-add { border-color: #FFFFFF !important; box-shadow: 0 10px 22px -6px rgba(109,59,234,.55) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .content { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #as-dock .as-bar { bottom: calc(86px + env(safe-area-inset-bottom, 0px)) !important; }
+
+/* ── DAY: white header, purple AI shortcut ── */
+html.is-app body.light:not(#_cx):not(#_cy) #main-app::before { background: rgba(255,255,255,.88) !important; border-bottom-color: #E7E9F2 !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #top-tools > button[data-hdr="ai"] { background: #6D3BEA !important; color: #fff !important; border-color: #6D3BEA !important; }
+html.is-app body:not(.light):not(#_cx):not(#_cy) #top-tools > button[data-hdr="ai"] { background: color-mix(in srgb, #8B5CF6 18%, #151F33) !important; }
+
+/* ── HERO: Day = clean white with a lavender corner; Night = OLED glow ── */
+html.is-app body.light:not(#_cx):not(#_cy) .mymoney-records .mm-hero,
+html.is-app body.light:not(#_cx):not(#_cy) .ia-hero {
+  background: radial-gradient(90% 80% at 100% 0%, #EFE9FF, transparent 60%), #FFFFFF !important;
+  border: 1px solid #E7E9F2 !important;
+}
+html.is-app body.light:not(#_cx):not(#_cy) .mymoney-records .mm-hero-split { background: #F9FAFF !important; }
+/* income / expense indicator chips */
+html.is-app body:not(#_cx):not(#_cy) .mymoney-records .mm-hs:first-child .mm-hs-lbl svg { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .mymoney-records .mm-hs:last-child .mm-hs-lbl svg { color: var(--cx-exp); }
+
+/* ── AI insights: Day = pastel lavender, Night = violet glow ── */
+html.is-app body.light:not(#_cx):not(#_cy) .hx-ai { background: linear-gradient(160deg, #F3EEFF 0%, #FFFFFF 60%) !important; border-color: #E4DAFF !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .as-msg.ai > div { background: #FFFFFF; }
+html.is-app body.light:not(#_cx):not(#_cy) .as-hero h1 span { background: linear-gradient(90deg, #0891B2, #6D3BEA); -webkit-background-clip: text; background-clip: text; }
+
+/* ── charts per theme ── */
+html.is-app body.light:not(#_cx):not(#_cy) .hx-bar i { background: #E4DAFF; }
+html.is-app body.light:not(#_cx):not(#_cy) .hx-bar.today i { background: #6D3BEA; }
+html.is-app body.light:not(#_cx):not(#_cy) .an-cur[stroke="#22D3EE"] { stroke: #6D3BEA; }
+html.is-app body.light:not(#_cx):not(#_cy) .hx-seg button.on { background: #FFFFFF; color: #6D3BEA; box-shadow: 0 1px 4px rgba(24,34,56,.10); }
+
+/* ── debt-free card readable in both ── */
+html.is-app body.light:not(#_cx):not(#_cy) .debtfree-card { background: linear-gradient(135deg, #6D3BEA, #9B6CFA) !important; }
+
+/* ── modal sheets follow the theme ── */
+html.is-app body:not(#_cx):not(#_cy) .modal-box { background: var(--cx-card) !important; color: var(--cx-ink) !important; border: 1px solid var(--cx-line) !important; }
+html.is-app body:not(#_cx):not(#_cy) .modal-box #modal-title, html.is-app body:not(#_cx):not(#_cy) .modal-box .modal-title-text { color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .modal-box .form-input { background: var(--cx-card2, var(--cx-chip)) !important; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .modal-box .form-label { color: var(--cx-ink2) !important; }
+html.is-app body:not(.light):not(.amoled):not(.ocean):not(.sunset):not(#_cx):not(#_cy) { background: radial-gradient(90% 40% at 50% -5%, rgba(139,92,246,.16), transparent 70%), #090D18 !important; background-attachment: fixed !important; }
+
+/* ── Alerts center (build 678) ── */
+html.is-app body:not(#_cx):not(#_cy) #notif-panel > div:first-child { display: none !important; }
+html.is-app body:not(#_cx):not(#_cy) #notif-panel #notif-panel-body { padding: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) #notif-panel { background: var(--cx-bg) !important; }
+html.is-app body:not(#_cx):not(#_cy) .al-wrap { padding: calc(14px + env(safe-area-inset-top, 0px)) 14px 20px; }
+html.is-app body:not(#_cx):not(#_cy) .al-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .al-top > div { flex: 1; }
+html.is-app body:not(#_cx):not(#_cy) .al-top b { display: block; font-size: 20px; font-weight: 800; color: var(--cx-ink); letter-spacing: -0.02em; }
+html.is-app body:not(#_cx):not(#_cy) .al-top span { font-size: 12.5px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .al-link { background: none; border: none; color: var(--cx-pri); font-weight: 700; font-size: 13px; min-height: 0 !important; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .al-close { width: 36px; height: 36px; min-height: 0 !important; border-radius: 11px; border: 1px solid var(--cx-line); background: var(--cx-card); color: var(--cx-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .al-close svg { width: 18px; height: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .al-filters { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .al-f { flex-shrink: 0; min-height: 32px !important; padding: 0 11px; border-radius: 999px; border: 1px solid var(--cx-line); background: var(--cx-card); color: var(--cx-ink2); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .al-f i { font-style: normal; margin-left: 3px; opacity: .8; }
+html.is-app body:not(#_cx):not(#_cy) .al-f.on { background: var(--cx-pri); border-color: var(--cx-pri); color: #fff; }
+html.is-app body:not(#_cx):not(#_cy) .al-item { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 16px; margin-bottom: 10px; border: 1px solid var(--cx-line); border-left-width: 4px; position: relative; }
+html.is-app body:not(#_cx):not(#_cy) .al-item.sev-critical { background: var(--cx-exp-bg); border-left-color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .al-item.sev-warning { background: var(--cx-warn-bg); border-left-color: var(--cx-warn); }
+html.is-app body:not(#_cx):not(#_cy) .al-item.sev-info { background: var(--cx-info-bg); border-left-color: var(--cx-acc); }
+html.is-app body:not(#_cx):not(#_cy) .al-item.sev-success { background: var(--cx-inc-bg); border-left-color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .al-item.read { opacity: .72; }
+html.is-app body:not(#_cx):not(#_cy) .al-ic { width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--cx-card); }
+html.is-app body:not(#_cx):not(#_cy) .sev-critical .al-ic { color: var(--cx-exp); } html.is-app body:not(#_cx):not(#_cy) .sev-warning .al-ic { color: var(--cx-warn); }
+html.is-app body:not(#_cx):not(#_cy) .sev-info .al-ic { color: var(--cx-acc); } html.is-app body:not(#_cx):not(#_cy) .sev-success .al-ic { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .al-ic svg { width: 16px; height: 16px; }
+html.is-app body:not(#_cx):not(#_cy) .al-body { flex: 1; min-width: 0; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .al-sev { margin: 0; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .al-sev b { color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .al-t { margin: 2px 0 3px; font-size: 14.5px; font-weight: 800; color: var(--cx-ink) !important; line-height: 1.3; }
+html.is-app body:not(#_cx):not(#_cy) .al-s { margin: 0; font-size: 12.5px; color: var(--cx-ink2) !important; line-height: 1.45; }
+html.is-app body:not(#_cx):not(#_cy) .al-go { display: inline-block; margin-top: 6px; font-size: 12.5px; font-weight: 700; color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .al-x { width: 28px; height: 28px; min-height: 0 !important; border-radius: 9px; border: none; background: transparent; color: var(--cx-ink2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .al-x svg { width: 16px; height: 16px; }
+html.is-app body:not(#_cx):not(#_cy) .al-empty { text-align: center; padding: 30px 10px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .al-empty svg { width: 34px; height: 34px; color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .al-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .al-foot button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px !important; padding: 0 12px; border-radius: 11px; border: 1px solid var(--cx-line); background: var(--cx-card); color: var(--cx-ink); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .al-foot svg { width: 15px; height: 15px; }

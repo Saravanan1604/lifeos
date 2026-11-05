@@ -104,13 +104,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=677" />
-  <link rel="stylesheet" href="css/calc.css?v=677" />
-  <link rel="stylesheet" href="css/premium.css?v=677" />
+  <link rel="stylesheet" href="css/styles.css?v=678" />
+  <link rel="stylesheet" href="css/calc.css?v=678" />
+  <link rel="stylesheet" href="css/premium.css?v=678" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=677" />
+  <link rel="stylesheet" href="css/mobile.css?v=678" />
 </head>
 <body>
+<script>
+/* Apply the saved theme BEFORE first paint (no wrong-theme flash). */
+(function () { try {
+  var st = JSON.parse(localStorage.getItem('lifeos_v1') || '{}'), m = (st.settings && st.settings.theme) || 'auto', b = document.body;
+  if (m === 'auto' || m === 'system') { if (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) b.classList.add('light'); }
+  else if (m === 'light' || m === 'amoled' || m === 'ocean' || m === 'sunset') b.classList.add(m);
+} catch (e) {} })();
+</script>
 
 <!-- Particle Background -->
 <canvas id="particles-canvas"></canvas>
@@ -569,40 +577,40 @@
 
 <!-- (Old floating calculator removed — replaced by the full-screen calc page) -->
 
-<script src="js/storage.js?v=677"></script>
-<script src="js/core.js?v=677"></script>
-<script src="js/ai.js?v=677"></script>
-<script src="js/dashboard.js?v=677"></script>
-<script src="js/finance.js?v=677"></script>
-<script src="js/bank-tracker.js?v=677"></script>
-<script src="js/life.js?v=677"></script>
-<script src="js/growth.js?v=677"></script>
-<script src="js/calculator.js?v=677"></script>
-<script src="js/features.js?v=677"></script>
-<script src="js/premium.js?v=677"></script>
-<script src="js/categories.js?v=677"></script>
-<script src="js/pages.js?v=677"></script>
-<script src="js/help.js?v=677"></script>
-<script src="js/voice.js?v=677"></script>
-<script src="js/applock.js?v=677"></script>
-<script src="js/onboarding.js?v=677"></script>
-<script src="js/layout.js?v=677"></script>
-<script src="js/notes.js?v=677"></script>
-<script src="js/widgets.js?v=677"></script>
-<script src="js/custom-pages.js?v=677"></script>
-<script src="js/yearly.js?v=677"></script>
-<script src="js/heatmap.js?v=677"></script>
-<script src="js/purchases.js?v=677"></script>
-<script src="js/upcoming.js?v=677"></script>
-<script src="js/renewals.js?v=677"></script>
-<script src="js/split.js?v=677"></script>
-<script src="js/digest.js?v=677"></script>
-<script src="js/smart.js?v=677"></script>
-<script src="js/home.js?v=677"></script>
-<script src="js/assistant.js?v=677"></script>
-<script src="js/analytics2.js?v=677"></script>
-<script src="js/automation.js?v=677"></script>
-<script src="js/init.js?v=677"></script>
+<script src="js/storage.js?v=678"></script>
+<script src="js/core.js?v=678"></script>
+<script src="js/ai.js?v=678"></script>
+<script src="js/dashboard.js?v=678"></script>
+<script src="js/finance.js?v=678"></script>
+<script src="js/bank-tracker.js?v=678"></script>
+<script src="js/life.js?v=678"></script>
+<script src="js/growth.js?v=678"></script>
+<script src="js/calculator.js?v=678"></script>
+<script src="js/features.js?v=678"></script>
+<script src="js/premium.js?v=678"></script>
+<script src="js/categories.js?v=678"></script>
+<script src="js/pages.js?v=678"></script>
+<script src="js/help.js?v=678"></script>
+<script src="js/voice.js?v=678"></script>
+<script src="js/applock.js?v=678"></script>
+<script src="js/onboarding.js?v=678"></script>
+<script src="js/layout.js?v=678"></script>
+<script src="js/notes.js?v=678"></script>
+<script src="js/widgets.js?v=678"></script>
+<script src="js/custom-pages.js?v=678"></script>
+<script src="js/yearly.js?v=678"></script>
+<script src="js/heatmap.js?v=678"></script>
+<script src="js/purchases.js?v=678"></script>
+<script src="js/upcoming.js?v=678"></script>
+<script src="js/renewals.js?v=678"></script>
+<script src="js/split.js?v=678"></script>
+<script src="js/digest.js?v=678"></script>
+<script src="js/smart.js?v=678"></script>
+<script src="js/home.js?v=678"></script>
+<script src="js/assistant.js?v=678"></script>
+<script src="js/analytics2.js?v=678"></script>
+<script src="js/automation.js?v=678"></script>
+<script src="js/init.js?v=678"></script>
 
 <!-- ===== First-run Onboarding ===== -->
 <div id="onboarding" style="display:none">

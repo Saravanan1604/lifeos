@@ -229,3 +229,75 @@ function renderSmartApp() {
     </div>`;
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
 }
+
+// ══════════════════════════════════════════════════════════
+// ALERTS CENTER (build 678) — severity filter, read / dismiss,
+// history, no repeat for an unchanged condition (stable keys).
+// Overrides the older bell panel from features.js.
+// ══════════════════════════════════════════════════════════
+const _SEV = { danger: { k: 'critical', l: 'Critical', ic: 'octagon-alert' }, warning: { k: 'warning', l: 'Warning', ic: 'triangle-alert' }, info: { k: 'info', l: 'Information', ic: 'info' }, success: { k: 'success', l: 'Success', ic: 'circle-check' } };
+let _alFilter = 'all', _alShowDismissed = false;
+function _alState() { STATE.alertState = STATE.alertState || {}; STATE.alertState.read = STATE.alertState.read || {}; STATE.alertState.dismissed = STATE.alertState.dismissed || {}; return STATE.alertState; }
+function _alKey(n) { return n.key || ('t_' + (n.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').slice(0, 60)); }
+function _alList() {
+  const st = _alState();
+  return (typeof buildNotifications === 'function' ? buildNotifications() : [])
+    .filter(n => !/all clear/i.test(n.title || ''))
+    .map(n => ({ ...n, _k: _alKey(n), _read: !!st.read[_alKey(n)], _dis: !!st.dismissed[_alKey(n)] }))
+    .sort((a, b) => ({ danger: 0, warning: 1, info: 2, success: 3 }[a.type] ?? 2) - ({ danger: 0, warning: 1, info: 2, success: 3 }[b.type] ?? 2) || (a._read - b._read));
+}
+function alertMarkRead(k) { _alState().read[k] = Date.now(); saveState(); }
+function alertDismiss(k) { const s = _alState(); s.dismissed[k] = Date.now(); s.read[k] = s.read[k] || Date.now(); saveState(); openNotifPanel(); }
+function alertRestore(k) { delete _alState().dismissed[k]; saveState(); openNotifPanel(); }
+function alertReadAll() { const s = _alState(); _alList().forEach(a => { s.read[a._k] = s.read[a._k] || Date.now(); }); saveState(); openNotifPanel(); }
+function alertOpen(k, js) { alertMarkRead(k); closeNotifPanel(); try { (new Function(js))(); } catch (_) {} }
+function setAlFilter(f) { _alFilter = f; openNotifPanel(); }
+function toggleAlDismissed() { _alShowDismissed = !_alShowDismissed; openNotifPanel(); }
+
+function openNotifPanel() {
+  const panel = document.getElementById('notif-panel'), backdrop = document.getElementById('notif-backdrop'), body = document.getElementById('notif-panel-body');
+  if (!panel || !body) return;
+  const all = _alList();
+  const live = all.filter(a => !a._dis), gone = all.filter(a => a._dis);
+  const counts = { critical: 0, warning: 0, info: 0, success: 0 };
+  live.forEach(a => { counts[(_SEV[a.type] || _SEV.info).k]++; });
+  const list = (_alShowDismissed ? gone : live).filter(a => _alFilter === 'all' || (_SEV[a.type] || _SEV.info).k === _alFilter);
+  const unread = live.filter(a => !a._read).length;
+  body.innerHTML = `
+    <div class="al-wrap">
+      <div class="al-top"><div><b>Alerts &amp; insights</b><span>${unread ? `${unread} unread` : 'All caught up'}</span></div>
+        ${unread ? `<button class="al-link" onclick="alertReadAll()">Mark all read</button>` : ''}<button class="al-close" onclick="closeNotifPanel()" title="Close"><i data-lucide="x"></i></button></div>
+      <div class="al-filters">
+        ${[['all', 'All', live.length], ['critical', 'Critical', counts.critical], ['warning', 'Warning', counts.warning], ['info', 'Info', counts.info], ['success', 'Success', counts.success]]
+          .map(([k, l, n]) => `<button class="al-f ${k} ${_alFilter === k ? 'on' : ''}" onclick="setAlFilter('${k}')">${l}${n ? ` <i>${n}</i>` : ''}</button>`).join('')}
+      </div>
+      ${list.length ? list.map(a => { const sv = _SEV[a.type] || _SEV.info; const js = (a.action || '').replace(/"/g, '&quot;');
+        return `<div class="al-item sev-${sv.k} ${a._read ? 'read' : ''}">
+          <span class="al-ic"><i data-lucide="${sv.ic}"></i></span>
+          <div class="al-body" onclick="alertOpen('${a._k}', &quot;${(a.action || '').replace(/"/g, '\\x22')}&quot;)">
+            <p class="al-sev">${sv.l}${a._read ? '' : ' · <b>new</b>'}</p>
+            <p class="al-t">${a.title}</p>
+            <p class="al-s">${a.sub || ''}</p>
+            ${a.bill ? `<div class="notif-bill-acts"><button onclick="event.stopPropagation();billPayNow('${a.bill}')">✓ Paid now</button><button onclick="event.stopPropagation();billSkip('${a.bill}')">Skip once</button></div>` : ''}
+            ${a.action ? `<span class="al-go">Open →</span>` : ''}
+          </div>
+          ${_alShowDismissed ? `<button class="al-x" title="Restore" onclick="alertRestore('${a._k}')"><i data-lucide="rotate-ccw"></i></button>` : `<button class="al-x" title="Dismiss" onclick="alertDismiss('${a._k}')"><i data-lucide="x"></i></button>`}
+        </div>`; }).join('')
+        : `<div class="al-empty"><i data-lucide="${_alShowDismissed ? 'archive' : 'party-popper'}"></i><p>${_alShowDismissed ? 'No dismissed alerts.' : _alFilter === 'all' ? "You're on track — no alerts right now." : 'Nothing in this category.'}</p></div>`}
+      <div class="al-foot">
+        <button onclick="toggleAlDismissed()">${_alShowDismissed ? '← Back to alerts' : `Dismissed (${gone.length})`}</button>
+        <button onclick="closeNotifPanel();navigate('smart')"><i data-lucide="sliders-horizontal"></i> Alert settings</button>
+      </div>
+    </div>`;
+  panel.classList.add('notif-open');
+  if (backdrop) backdrop.style.display = 'block';
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+  _updateNotifBadge();
+}
+// badge = unread, not dismissed, critical or warning
+function _updateNotifBadge() {
+  const n = _alList().filter(a => !a._dis && !a._read && (a.type === 'danger' || a.type === 'warning')).length;
+  if (typeof _mobileBellBadge === 'function') _mobileBellBadge(n);
+  const badge = document.getElementById('notif-badge');
+  if (badge) { badge.style.display = n ? 'flex' : 'none'; badge.textContent = n > 9 ? '9+' : String(n); }
+}

@@ -385,11 +385,11 @@ function renderSettings() {
           <p class="section-title" style="margin-bottom:12px">🎨 Theme</p>
           <div class="set-theme-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
             ${[
-              { m:'light',  label:'Light',  bg:'#e9edf2', card:'#ffffff', line:'#d4d9e0' },
-              { m:'dark',   label:'Dark',   bg:'#161b2b', card:'#28304a', line:'#3a425c' },
+              { m:'light',  label:'Day',    bg:'#F5F6FC', card:'#ffffff', line:'#E7E9F2' },
+              { m:'dark',   label:'Night',  bg:'#090D18', card:'#151F33', line:'#24314A' },
+              { m:'auto',   label:'System', bg:'linear-gradient(120deg,#F5F6FC 0 50%,#090D18 50% 100%)', card:'rgba(128,128,128,0.5)', line:'rgba(255,255,255,0.4)' },
               { m:'amoled', label:'AMOLED', bg:'#000000', card:'#101010', line:'#2a2a2a' },
               { m:'ocean',  label:'Ocean',  bg:'#07172a', card:'#0e2a44', line:'#1d4d6b' },
-              { m:'auto',   label:'System', bg:'linear-gradient(120deg,#e9edf2 0 50%,#000000 50% 100%)', card:'rgba(128,128,128,0.5)', line:'rgba(255,255,255,0.4)' },
             ].map(t => { const active = (STATE.settings?.theme || 'auto') === t.m; return `
               <div class="set-theme-card" onclick="setTheme('${t.m}')" style="cursor:pointer">
                 <div class="set-theme-prev" style="height:120px;border-radius:16px;background:${t.bg};border:2px solid ${active ? '#3b82f6' : 'rgba(255,255,255,0.10)'};display:flex;align-items:center;justify-content:center;overflow:hidden">
@@ -523,7 +523,7 @@ function setTheme(mode) {
   applyThemeClass(mode);
   const btn = document.querySelector('.theme-toggle');
   if (btn) btn.textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
-  toast(`Theme: ${mode} ✅`, 'success');
+  toast(`Theme: ${({ light: 'Day', dark: 'Night', auto: 'System' })[mode] || mode} ✅`, 'success');
   if (typeof currentPage !== 'undefined' && currentPage === 'settings' && typeof navigate === 'function') navigate('settings', true);
 }
 // Display font for hero numbers (Settings > Number Style). CSS is app-only
@@ -547,8 +547,9 @@ function applyThemeClass(mode) {
   else if (mode === 'auto' || mode === 'system') {
     // "System" — follow the device's light/dark setting. Dark maps to
     // AMOLED (true black) to keep the app's established dark look.
+    // Dark → the Life OS Night theme (no class); light → Day.
     const dark = !(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
-    body.classList.add(dark ? 'amoled' : 'light');
+    if (!dark) body.classList.add('light');
   }
   // 'dark' → no class
 }

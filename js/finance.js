@@ -5292,7 +5292,7 @@ function renderInvestmentsApp() {
             .filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
           const ratio = mInc > 0 ? emiMonth / mInc : 0;
           const c = ratio > 0.4 ? '#ef4444' : ratio > 0.3 ? '#f59e0b' : '#a855f7';
-          const warn = mInc > 0 && ratio > 0.3 ? ` <span style="font-size:13px;color:${c}">${Math.round(ratio * 100)}%</span>` : '';
+          const warn = mInc > 0 && ratio > 0.3 ? ` <span style="font-size:13px;color:${c}">${ratio > 3 ? '> income' : Math.round(ratio * 100) + '%'}</span>` : '';
           return `<div class="ia-stat"><span class="ia-stat-ic" style="color:${c}"><i data-lucide="calendar"></i></span><div><p class="ia-stat-lbl">EMI / Month</p><p class="ia-stat-val" style="${ratio > 0.3 && mInc > 0 ? 'color:' + c : ''}">${shortAmt(emiMonth)}${warn}</p></div></div>`;
         })()}
       </div>
