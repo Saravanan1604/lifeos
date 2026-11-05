@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 667;
+const APP_BUILD = 668;
 
 // ===== STORAGE UTILITIES =====
 const DB = {
@@ -53,28 +53,45 @@ const API_URL = 'https://lifeos-backend-mangodb.onrender.com/api';
 
 const stateHistory = []; // Keeps last 5 states for undo
 
+let _skipHistory = false;   // set by undo/redo so they don't re-push onto the undo stack
+
 function saveState() {
   const lastSavedStr = localStorage.getItem(DB.KEY);
+  const now = Date.now();
 
-  // Auto-tombstone: any id that was present last save but is gone now was deleted.
-  // This lets deletions propagate across devices (the union-merge can't otherwise
-  // represent a removal, so the item would resurrect on the next pull).
   if (lastSavedStr) {
     try {
       const prev = JSON.parse(lastSavedStr);
       STATE.deletedIds = STATE.deletedIds || [];
       const tombId = new Set(STATE.deletedIds.map(d => d.id));
-      const now = Date.now();
+      const resurrected = new Set();
       LIVE_SYNC_KEYS.forEach(k => {
-        if (!Array.isArray(prev[k]) || !Array.isArray(STATE[k])) return;
-        const curIds = new Set(STATE[k].map(x => x && x.id).filter(Boolean));
-        prev[k].forEach(item => {
+        if (k === 'deletedIds' || !Array.isArray(STATE[k])) return;
+        const prevArr = Array.isArray(prev[k]) ? prev[k] : [];
+        const prevById = new Map();
+        prevArr.forEach(x => { if (x && x.id) prevById.set(x.id, x); });
+        const curIds = new Set();
+        STATE[k].forEach(item => {
+          if (!item || typeof item !== 'object' || !item.id) return;
+          curIds.add(item.id);
+          // Edit-stamp: any new or changed item gets _u = now. The merge uses
+          // it so the NEWEST edit wins across devices (before, the cloud copy
+          // always won, so an edit made while the server was asleep got
+          // silently reverted on the next pull).
+          const old = prevById.get(item.id);
+          if (!old || JSON.stringify(old) !== JSON.stringify(item)) item._u = now;
+          // Undo of a delete → lift the tombstone so the item isn't eaten again.
+          if (tombId.has(item.id)) { resurrected.add(item.id); item._u = now; }
+        });
+        // Auto-tombstone: present last save, gone now → deleted.
+        prevArr.forEach(item => {
           if (item && item.id && !curIds.has(item.id) && !tombId.has(item.id)) {
             STATE.deletedIds.push({ id: item.id, at: now });
             tombId.add(item.id);
           }
         });
       });
+      if (resurrected.size) STATE.deletedIds = STATE.deletedIds.filter(d => !resurrected.has(d.id));
       // Prune tombstones older than 60 days (longer than any realistic offline gap)
       const cutoff = now - 60 * 24 * 60 * 60 * 1000;
       STATE.deletedIds = STATE.deletedIds.filter(d => d.at >= cutoff);
@@ -83,29 +100,15 @@ function saveState() {
 
   // Store current state for undo (after tombstone bookkeeping)
   const currentStr = JSON.stringify(STATE);
-  if (lastSavedStr && currentStr !== lastSavedStr) {
+  if (!_skipHistory && lastSavedStr && currentStr !== lastSavedStr) {
     stateHistory.push(lastSavedStr);
     if (stateHistory.length > 5) stateHistory.shift();
   }
 
   DB.save(STATE);
 
-  // Push to cloud immediately (only when logged in)
-  const token = localStorage.getItem('lifeos_token');
-  if (token && STATE.user && !STATE.user.offline) {
-    setSyncDot('syncing');
-    const payload = JSON.stringify({ state: STATE });
-    fetch(`${API_URL}/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: payload
-    })
-      .then(r => {
-        if (r.ok) { setSyncDot('ok'); _pendingSave = null; }
-        else       { setSyncDot('error'); _pendingSave = payload; }
-      })
-      .catch(() => { setSyncDot('error'); _pendingSave = payload; });
-  }
+  // Queue a cloud push (debounced; survives app restarts via the dirty flag)
+  if (_canSync()) { _markDirty(); _schedulePush(); }
 
   // Auto-refresh custom pages on save so they update in real-time
   if (typeof currentPage !== 'undefined' && typeof navigate === 'function' && typeof isCustomPage === 'function' && isCustomPage(currentPage)) {
@@ -118,15 +121,9 @@ function saveState() {
 // ===== UNDO / REDO =====
 const redoHistory = [];
 
+// Kept for older call sites (login / restore): queue a safe pull-merge-push.
 function _syncStateToCloud() {
-  const token = localStorage.getItem('lifeos_token');
-  if (token && STATE.user) {
-    fetch(`${API_URL}/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ state: STATE })
-    }).catch(() => {});
-  }
+  if (_canSync()) { _markDirty(); _schedulePush(50); }
 }
 
 function undoLastAction() {
@@ -135,8 +132,7 @@ function undoLastAction() {
     if (redoHistory.length > 10) redoHistory.shift();
     const prevStateStr = stateHistory.pop();
     STATE = JSON.parse(prevStateStr);
-    DB.save(STATE);
-    _syncStateToCloud();
+    _skipHistory = true; try { saveState(); } finally { _skipHistory = false; }
     toast('Action undone', 'success');
     if (typeof navigate === 'function') navigate(currentPage || 'dashboard', true);
   } else {
@@ -149,8 +145,7 @@ function redoLastAction() {
     stateHistory.push(JSON.stringify(STATE));   // so undo works again
     const nextStateStr = redoHistory.pop();
     STATE = JSON.parse(nextStateStr);
-    DB.save(STATE);
-    _syncStateToCloud();
+    _skipHistory = true; try { saveState(); } finally { _skipHistory = false; }
     toast('Action redone', 'success');
     if (typeof navigate === 'function') navigate(currentPage || 'dashboard', true);
   } else {
@@ -180,7 +175,7 @@ function filterTxByPeriod(txns, period) {
   return filterTxByAnchor(txns, period, null);
 }
 
-// Local YYYY-MM-DD (no UTC shift � important so an anchored date isn't off by a day).
+// Local YYYY-MM-DD (no UTC shift — important so an anchored date isn't off by a day).
 function _ymdLocal(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
@@ -217,7 +212,7 @@ function periodLabel(period) {
 
 function getGreeting(name) {
   const h = new Date().getHours();
-  const g = h < 12 ? '?? Good morning' : h < 17 ? '?? Good afternoon' : h < 20 ? '?? Good evening' : '?? Good night';
+  const g = h < 12 ? '☀️ Good morning' : h < 17 ? '🌤️ Good afternoon' : h < 20 ? '🌇 Good evening' : '🌙 Good night';
   return `${g}, ${name}!`;
 }
 
@@ -236,7 +231,6 @@ const LIVE_SYNC_KEYS = [
 let _syncTimer     = null;
 let _syncBusy      = false;
 let _lastCloudHash = '';
-let _pendingSave   = null; // queued when cloud push fails (Render sleeping)
 
 // Sync dot indicator in sidebar + sync button (mobile top-tools)
 function setSyncDot(status) {
@@ -244,8 +238,8 @@ function setSyncDot(status) {
   // days" nudge on the Records page).
   if (status === 'ok') { try { localStorage.setItem('lifeos_lastSyncOk', String(Date.now())); } catch (_) {} }
   const cfg = {
-    syncing: { bg: '#f59e0b', title: 'Syncing�',     anim: 'pulse 1s infinite', btnColor: '#f59e0b', spin: true  },
-    ok:      { bg: '#10b981', title: 'Live � synced', anim: 'none',              btnColor: '#10b981', spin: false },
+    syncing: { bg: '#f59e0b', title: 'Syncing…',     anim: 'pulse 1s infinite', btnColor: '#f59e0b', spin: true  },
+    ok:      { bg: '#10b981', title: 'Live · synced', anim: 'none',              btnColor: '#10b981', spin: false },
     offline: { bg: '#64748b', title: 'Offline mode',  anim: 'none',              btnColor: '#64748b', spin: false },
     error:   { bg: '#ef4444', title: 'Sync failed',   anim: 'none',              btnColor: '#ef4444', spin: false },
   };
@@ -260,7 +254,7 @@ function setSyncDot(status) {
   if (icon) { icon.style.animation = c.spin ? 'syncSpin 1s linear infinite' : 'none'; }
 }
 
-// Manual sync tap � spin the icon and pull from cloud
+// Manual sync tap — spin the icon and pull from cloud
 async function _syncBtnTap() {
   if (typeof pullFromCloud !== 'function') return;
   const icon = document.getElementById('sync-btn-icon');
@@ -291,22 +285,103 @@ async function _syncBtnTap() {
   }
 }
 
-// Merge two arrays by id.
-// Strategy: cloud wins for items that exist in cloud (so edits from any device propagate).
-//           items that are ONLY local (not yet pushed) are preserved.
-// deletedSet (Set of tombstoned ids) is excluded from BOTH sides.
-function _mergeById(local, cloud, deletedSet) {
-  const del = deletedSet || new Set();
-  const l = (Array.isArray(local) ? local : []).filter(x => !(x && x.id && del.has(x.id)));
-  const c = (Array.isArray(cloud) ? cloud : []).filter(x => !(x && x.id && del.has(x.id)));
+// ── Sync helpers ────────────────────────────────────────────────────────────
+function _canSync() {
+  return !!(localStorage.getItem('lifeos_token') && STATE.user && !STATE.user.offline);
+}
+function _markDirty()  { try { localStorage.setItem('lifeos_dirty', '1'); } catch (_) {} }
+function _clearDirty() { try { localStorage.removeItem('lifeos_dirty'); } catch (_) {} }
+function _isDirty()    { try { return localStorage.getItem('lifeos_dirty') === '1'; } catch (_) { return false; } }
+
+let _pushTimer = null;
+let _lastPullOk = 0;     // ms timestamp of the last successful pull
+let _pushRetry = 0;
+function _schedulePush(delay) {
+  clearTimeout(_pushTimer);
+  _pushTimer = setTimeout(_pushToCloud, delay == null ? 1200 : delay);
+}
+
+// Tombstone-aware: an item is dropped only if it wasn't edited AFTER it was deleted.
+function _isDeleted(x, delMap) {
+  if (!x || !x.id || !delMap) return false;
+  const at = delMap instanceof Map ? delMap.get(x.id) : (delMap[x.id]);
+  if (at == null) return false;
+  return (x._u || 0) <= at;
+}
+
+// Merge two arrays by id. For items on both sides the NEWER edit (_u stamp)
+// wins (ties → cloud). Local-only items (not pushed yet) are kept.
+// delMap: Map/obj of tombstoned id → deletedAt (or a Set, legacy).
+function _mergeById(local, cloud, delMap) {
+  if (delMap instanceof Set) { const m = new Map(); delMap.forEach(id => m.set(id, Infinity)); delMap = m; }
+  const l = (Array.isArray(local) ? local : []).filter(x => !_isDeleted(x, delMap));
+  const c = (Array.isArray(cloud) ? cloud : []).filter(x => !_isDeleted(x, delMap));
   if (!c.length) return l;
   if (!l.length) return c;
+  const localMap = new Map(l.filter(x => x && x.id).map(x => [x.id, x]));
+  const cloudIds = new Set();
+  const out = c.map(x => {
+    if (!x || !x.id) return x;
+    cloudIds.add(x.id);
+    const mine = localMap.get(x.id);
+    return (mine && (mine._u || 0) > (x._u || 0)) ? mine : x;
+  });
+  l.forEach(x => { if (x && x.id && !cloudIds.has(x.id)) out.push(x); });
+  return out;
+}
 
-  const cloudMap = new Map(c.filter(x => x.id).map(x => [x.id, x]));
-  // Keep local-only items (created offline, not yet pushed to cloud)
-  const localOnly = l.filter(x => x.id && !cloudMap.has(x.id));
-  // Cloud is authoritative for everything it knows about � edits propagate across devices
-  return [...c, ...localOnly];
+// Merge a cloud state object into STATE. Returns { changed, needPush }.
+function _mergeCloudIntoState(cloudState) {
+  const delMap = new Map();
+  [...(STATE.deletedIds || []), ...(cloudState.deletedIds || [])].forEach(d => {
+    if (d && d.id) delMap.set(d.id, Math.max(delMap.get(d.id) || 0, d.at || 0));
+  });
+  const mergedDel = [...delMap.entries()].map(([id, at]) => ({ id, at }));
+  let changed = JSON.stringify(mergedDel) !== JSON.stringify(STATE.deletedIds || []);
+  let needPush = mergedDel.length !== (cloudState.deletedIds || []).length;
+  STATE.deletedIds = mergedDel;
+
+  LIVE_SYNC_KEYS.forEach(k => {
+    if (k === 'deletedIds') return;
+    const cloud = cloudState[k];
+    const local = STATE[k];
+    if (Array.isArray(cloud) || Array.isArray(local)) {
+      const merged = _mergeById(local, cloud, delMap);
+      const mStr = JSON.stringify(merged);
+      if (mStr !== JSON.stringify(local || [])) { STATE[k] = merged; changed = true; }
+      if (mStr !== JSON.stringify(cloud || [])) needPush = true;
+    } else if (cloud && typeof cloud === 'object') {
+      // Plain objects (categoryRules, customPageLayouts): key-union, local wins on clash
+      const merged = Object.assign({}, cloud, (local && typeof local === 'object') ? local : {});
+      const mStr = JSON.stringify(merged);
+      if (mStr !== JSON.stringify(local || {})) { STATE[k] = merged; changed = true; }
+      if (mStr !== JSON.stringify(cloud)) needPush = true;
+    } else if (local && typeof local === 'object') {
+      needPush = true;
+    } else if (typeof cloud === 'number' || typeof local === 'number') {
+      const c = +cloud || 0, l = +local || 0;
+      if (c > l) { STATE[k] = c; changed = true; }
+      else if (l > c) needPush = true;
+    }
+  });
+  return { changed, needPush };
+}
+
+async function _fetchCloud(token) {
+  const res = await fetch(`${API_URL}/me`, { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' });
+  if (res.status === 401 || res.status === 403) { _onAuthExpired(); return { status: 'auth' }; }
+  if (!res.ok) return { status: 'error' };
+  const data = await res.json();
+  return { status: 'ok', state: (data && data.state) || {} };
+}
+
+let _authWarned = false;
+function _onAuthExpired() {
+  setSyncDot('error');
+  if (!_authWarned && typeof toast === 'function') {
+    _authWarned = true;
+    toast('Sync paused — your login expired. Log out and sign in again to resume sync (your data is safe on this device).', 'warning');
+  }
 }
 
 // Pull latest state from cloud and merge into local STATE
@@ -317,81 +392,96 @@ async function pullFromCloud() {
 
   _syncBusy = true;
   try {
-    const res = await fetch(`${API_URL}/me`, {
-      headers: { 'Authorization': `Bearer ${token}` },
-      cache: 'no-store'
-    });
-    if (!res.ok) { setSyncDot('error'); return 'error'; }
+    const r = await _fetchCloud(token);
+    if (r.status !== 'ok') { if (r.status !== 'auth') setSyncDot('error'); return 'error'; }
+    _lastPullOk = Date.now();
+    if (!Object.keys(r.state).length) {
+      // Empty cloud: seed it from this device
+      if (_hasAnyData(STATE)) { _markDirty(); _schedulePush(50); }
+      setSyncDot('ok'); return 'ok';
+    }
 
-    const data = await res.json();
-    if (!data.state || !Object.keys(data.state).length) { setSyncDot('ok'); return 'ok'; }
-
-    // Hash based on content checksum � detects edits to existing items, not just length changes
-    const hashObj = {};
-    LIVE_SYNC_KEYS.forEach(k => {
-      if (Array.isArray(data.state[k])) {
-        // Checksum: length + sum of each item's serialized size (catches edits without full JSON cost)
-        const arr = data.state[k];
-        const checksum = arr.reduce((s, x) => s + JSON.stringify(x).length, arr.length);
-        hashObj[k] = checksum;
-      } else {
-        hashObj[k] = data.state[k] ?? null;
-      }
-    });
-    const hash = JSON.stringify(hashObj);
-    if (hash === _lastCloudHash) { setSyncDot('ok'); return 'ok'; }
+    const hash = JSON.stringify(r.state).length + ':' + _quickHash(JSON.stringify(r.state));
+    if (hash === _lastCloudHash && !_isDirty()) { setSyncDot('ok'); return 'ok'; }
     _lastCloudHash = hash;
 
-    // Union tombstones (local + cloud), keeping the newest timestamp per id.
-    const delMap = {};
-    [...(STATE.deletedIds || []), ...(data.state.deletedIds || [])].forEach(d => {
-      if (d && d.id) delMap[d.id] = Math.max(delMap[d.id] || 0, d.at || 0);
-    });
-    STATE.deletedIds = Object.entries(delMap).map(([id, at]) => ({ id, at }));
-    const deletedSet = new Set(Object.keys(delMap));
-
-    // Merge cloud into current STATE
-    let changed = false;
-    LIVE_SYNC_KEYS.forEach(k => {
-      if (k === 'deletedIds') return; // handled above via delMap union
-      const cloud = data.state[k];
-      if (Array.isArray(cloud)) {
-        const merged = _mergeById(STATE[k], cloud, deletedSet);
-        // Compare content (not just length) so edits to existing items are detected
-        if (JSON.stringify(merged) !== JSON.stringify(STATE[k] || [])) {
-          STATE[k] = merged;
-          changed = true;
-        }
-      } else if (cloud !== undefined && typeof cloud !== 'object') {
-        if (cloud > (STATE[k] || 0)) { STATE[k] = cloud; changed = true; }
-      }
-    });
-
+    const { changed, needPush } = _mergeCloudIntoState(r.state);
     if (changed) {
       DB.save(STATE);
-      if (typeof currentPage !== 'undefined' && typeof navigate === 'function') {
+      if (typeof currentPage !== 'undefined' && typeof navigate === 'function' && !document.getElementById('txpad') && !_modalOpen()) {
         navigate(currentPage, true);
       }
       if (typeof updateSidebar === 'function') updateSidebar();
-      // Silently refresh � dot flashes green; no toast spam on 3-second polls
     }
+    // This device holds things the cloud doesn't (offline edits, failed pushes)
+    if (needPush || _isDirty()) { _markDirty(); _schedulePush(300); }
     setSyncDot('ok');
-
-    // Retry any save that failed while Render was sleeping
-    if (_pendingSave) {
-      const tok = localStorage.getItem('lifeos_token');
-      if (tok) {
-        fetch(`${API_URL}/sync`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
-          body: _pendingSave
-        }).then(r => { if (r.ok) { _pendingSave = null; setSyncDot('ok'); } }).catch(() => {});
-      }
-    }
     return 'ok';
   } catch {
     setSyncDot('error');
     return 'error';
+  } finally {
+    _syncBusy = false;
+  }
+}
+
+function _modalOpen() {
+  const ov = document.getElementById('modal-overlay');
+  return !!(ov && ov.style.display === 'flex');
+}
+function _hasAnyData(st) {
+  return ['transactions', 'bankAccounts', 'notes', 'budgets', 'investments', 'loans', 'creditCards']
+    .some(k => Array.isArray(st[k]) && st[k].length);
+}
+function _quickHash(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+
+// Safe push: pull + merge first (so we never overwrite another device's newer
+// data on the server, which replaces the whole state), then POST the result.
+async function _pushToCloud() {
+  if (!_canSync()) return;
+  if (_syncBusy) { _schedulePush(800); return; }
+  const token = localStorage.getItem('lifeos_token');
+  _syncBusy = true;
+  setSyncDot('syncing');
+  try {
+    if (Date.now() - _lastPullOk > 15000) {
+      const r = await _fetchCloud(token);
+      if (r.status === 'auth') return;
+      if (r.status !== 'ok') throw new Error('pull failed');
+      _lastPullOk = Date.now();
+      if (Object.keys(r.state).length) {
+        const { changed } = _mergeCloudIntoState(r.state);
+        if (changed) {
+          DB.save(STATE);
+          if (typeof currentPage !== 'undefined' && typeof navigate === 'function' && !document.getElementById('txpad')) navigate(currentPage, true);
+        }
+      }
+    }
+    const res = await fetch(`${API_URL}/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ state: STATE })
+    });
+    if (res.status === 401 || res.status === 403) { _onAuthExpired(); return; }
+    if (res.status === 413) {
+      setSyncDot('error');
+      if (typeof toast === 'function') toast('Sync failed: data too large for the server. Remove big receipts/photos and try again.', 'error');
+      return;
+    }
+    if (!res.ok) throw new Error('push ' + res.status);
+    _clearDirty();
+    _pushRetry = 0;
+    _lastCloudHash = '';     // force the next pull to re-read
+    setSyncDot('ok');
+  } catch (_) {
+    setSyncDot('error');
+    // Render's free tier sleeps — back off and retry (5s, 10s, 20s … max 60s)
+    _pushRetry = Math.min(_pushRetry + 1, 5);
+    _schedulePush(Math.min(60000, 2500 * Math.pow(2, _pushRetry)));
   } finally {
     _syncBusy = false;
   }
@@ -404,7 +494,9 @@ function startLiveSync() {
 
   setSyncDot('ok');
 
-  // Pull immediately so laptop/desktop sees mobile changes right on open
+  _authWarned = false;
+  // Pull immediately so laptop/desktop sees mobile changes right on open.
+  // pullFromCloud also pushes anything left unsent from last session.
   pullFromCloud();
 
   // Poll for cross-device sync — but ONLY while the app is actually visible,
@@ -431,22 +523,13 @@ function startLiveSync() {
       if (!document.hidden) pullFromCloud();
     });
 
-    // Network restored — push any pending local changes first, then pull
-    window.addEventListener('online', async () => {
-      if (_pendingSave) {
-        const tok = localStorage.getItem('lifeos_token');
-        if (tok) {
-          try {
-            const r = await fetch(`${API_URL}/sync`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
-              body: _pendingSave
-            });
-            if (r.ok) { _pendingSave = null; setSyncDot('ok'); }
-          } catch {}
-        }
-      }
-      pullFromCloud();
+    // Network restored — pull-merge, then push anything pending
+    window.addEventListener('online', () => {
+      pullFromCloud().then(() => { if (_isDirty()) _schedulePush(200); });
+    });
+    // Leaving / backgrounding the app with unsent changes → push right away
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && _isDirty() && _canSync()) { clearTimeout(_pushTimer); _pushToCloud(); }
     });
   }
 }

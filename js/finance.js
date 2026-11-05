@@ -1809,8 +1809,12 @@ function recBulkCategoryConfirm() {
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
   const icon = allCats.find(c => c.name === cat)?.icon || '💳';
   const ids = [..._recSel];
-  (STATE.transactions || []).forEach(t => { if (ids.includes(t.id)) { t.category = cat; t.icon = icon; } });
+  const names = new Set();
+  (STATE.transactions || []).forEach(t => { if (ids.includes(t.id)) { t.category = cat; t.icon = icon; if ((t.description || '').trim()) names.add(t.description); } });
+  let more = 0;
+  names.forEach(n => { more += applyCategoryToSameName(n, cat, null, false); });
   saveState();
+  if (more) setTimeout(() => toast(`${more} more same-name entr${more > 1 ? 'ies' : 'y'} moved to ${cat}`, 'success'), 400);
   _recSelectMode = false; _recSel = new Set();
   closeModal(); toast('Category updated', 'success'); renderRecordsMyMoney();
 }
@@ -2596,10 +2600,16 @@ function padSave() {
   const icon = getAllCategories().find(c => c.name === _pad.category)?.icon || catIcon(_pad.category) || '💳';
   if (_pad.mode === 'edit') {
     const tx = (STATE.transactions || []).find(t => t.id === _pad.id);
+    const _prevCat = tx ? tx.category : null;
     if (tx) {
       _reverseTxFromAccount(tx);
       Object.assign(tx, { type: _pad.type, amount, date: _pad.date, time: _pad.time, category: _pad.category, icon, description: _pad.notes, subcategory: _pad.subcategory, tag: _pad.tag || '', source: _pad.source, receipt: _pad.receipt });
       _applyTxToAccount(tx);
+      // Category changed → every transaction with the same name follows it
+      if (_pad.notes && _prevCat !== _pad.category) {
+        const n = applyCategoryToSameName(_pad.notes, _pad.category, tx.id, false);
+        if (n) setTimeout(() => toast(`${n} more "${_pad?.notes || tx.description}" entr${n > 1 ? 'ies' : 'y'} moved to ${tx.category}`, 'success'), 400);
+      }
     }
     // Repeat on an existing transaction → create OR update its linked rule (no duplicates)
     STATE.recurring = STATE.recurring || [];
@@ -2634,6 +2644,8 @@ function padSave() {
       STATE.recurring.push(rule);
       newTx.recurringId = rule.id;
     }
+    // Learn "name → category" and fix older same-named rows still in Other
+    if (_pad.notes && !/^others?$/i.test(_pad.category)) applyCategoryToSameName(_pad.notes, _pad.category, newTx.id, true);
     if (typeof addXP === 'function') addXP(10, 'Transaction logged');
   }
   saveState();
@@ -2695,7 +2707,7 @@ function renderTxPad() {
     </div>` : ''; })()}
 
     <div class="pad-notes-wrap">
-      <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value">${esc(_pad.notes)}</textarea>
+      <textarea class="pad-notes" placeholder="Add notes…" oninput="_pad.notes=this.value" onblur="_padNotesRule()">${esc(_pad.notes)}</textarea>
       <div class="pad-notes-actions">
         <button class="pad-calc-btn" onclick="event.stopPropagation();openCalcPage()" title="Calculator"><i data-lucide="calculator"></i></button>
         <button class="pad-mic-btn" onclick="event.stopPropagation();openVoicePage()" title="Speak to add"><i data-lucide="mic"></i></button>
@@ -3824,6 +3836,35 @@ function setCategoryRule(desc, cat) {
   STATE.categoryRules[desc.trim().toLowerCase()] = cat;
 }
 
+// Re-categorise every transaction whose name matches `desc` (trimmed,
+// case-insensitive — so "Surya", "surya " and "SURYA" all match) and remember
+// the rule so future entries / imports with that name land in `cat` too.
+// onlyWeak = true → only touch rows still in "Other"/uncategorised (used when
+// a NEW entry is added, so we never override a deliberate earlier choice).
+// Returns how many OTHER transactions were changed.
+function applyCategoryToSameName(desc, cat, excludeId, onlyWeak) {
+  const key = (desc || '').trim().toLowerCase();
+  if (!key || !cat) return 0;
+  setCategoryRule(key, cat);
+  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
+  const icon = allCats.find(c => c.name === cat)?.icon || '💳';
+  let n = 0;
+  (STATE.transactions || []).forEach(t => {
+    if (t.id === excludeId) return;
+    if ((t.description || '').trim().toLowerCase() !== key) return;
+    if (t.category === cat) return;
+    if (onlyWeak && t.category && !/^others?$/i.test(t.category)) return;
+    t.category = cat; t.icon = icon; n++;
+  });
+  return n;
+}
+// Pad notes field lost focus → if this name has a remembered category, pick it.
+function _padNotesRule() {
+  if (!_pad || _pad.mode !== 'add') return;
+  const ruled = getCategoryRule(_pad.notes);
+  if (ruled && ruled !== _pad.category) { _pad.category = ruled; renderTxPad(); }
+}
+
 function openBulkTypeChange() {
   const ids = getSelectedTxIds();
   if (!ids.length) { toast('Select at least one transaction', 'error'); return; }
@@ -3955,7 +3996,7 @@ function _commitTx(tx) {
   delete tx.frequency;
   // Auto-apply a remembered category rule for this name (if one exists)
   const ruled = getCategoryRule(tx.description);
-  if (ruled) {
+  if (ruled && /^others?$/i.test(tx.category || '')) {
     tx = { ...tx, category: ruled };
     const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
     tx.icon = allCats.find(c => c.name === ruled)?.icon || tx.icon || '💳';
@@ -3963,6 +4004,7 @@ function _commitTx(tx) {
   const newTx = { id: genId(), ...tx, createdAt: new Date().toISOString() };
   STATE.transactions.unshift(newTx);
   _applyTxToAccount(newTx);
+  if (newTx.description && !/^others?$/i.test(newTx.category || '')) applyCategoryToSameName(newTx.description, newTx.category, newTx.id, true);
   // Register a recurring rule (next occurrence after this one)
   if (frequency) {
     STATE.recurring = STATE.recurring || [];
@@ -4085,6 +4127,7 @@ function saveEditTx(id) {
 
   if (!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
 
+  const _prevEditCat = tx.category;
   _reverseTxFromAccount(tx); // undo old balance effect before changing fields
 
   const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
@@ -4102,15 +4145,8 @@ function saveEditTx(id) {
   _applyTxToAccount(tx); // apply new balance effect
 
   let extraMsg = '';
-  if (applyAll && desc) {
-    let count = 0;
-    STATE.transactions.forEach(t => {
-      if (t.id !== id && t.description === desc && t.category !== cat) {
-        t.category = cat;
-        t.icon = tx.icon;
-        count++;
-      }
-    });
+  if (desc && (applyAll || _prevEditCat !== cat)) {
+    const count = applyCategoryToSameName(desc, cat, id, false);
     if (count > 0) extraMsg = ` & ${count} others updated`;
   }
 

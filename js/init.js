@@ -208,25 +208,15 @@ async function tryAutoRestore(token) {
     if (res.ok) {
       const data = await res.json();
       if (data.state && Object.keys(data.state).length > 0) {
-        // Base: cloud state merged over defaults
-        const cloud = { ...DB.defaults(), ...data.state };
-
-        // For every array field, merge local + cloud so neither wipes the other
-        const ARRAY_KEYS = [
-          'investments', 'loans', 'transactions', 'bankAccounts',
-          'bankBalanceHistory', 'bankTransfers', 'goals', 'habits',
-          'habitCompletions', 'healthEntries', 'tasks', 'budgets',
-          'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
-          'customAssetTypes', 'customLoanTypes'
-        ];
-        STATE = cloud;
-        ARRAY_KEYS.forEach(k => {
-          STATE[k] = mergeById(localState[k], cloud[k]);
-        });
+        // Merge every synced key, newest edit wins (see storage.js)
+        STATE = { ...DB.defaults(), ...data.state, ...localState };
+        _mergeCloudIntoState(data.state);
+        const cloud = data.state;
 
         // Prefer local settings (theme, currency, name) if they exist
         if (localState.settings) STATE.settings = { ...cloud.settings, ...localState.settings };
 
+        if (!STATE.user && data.user) STATE.user = data.user;
         // Clear any stale offline flag so live sync re-enables
         if (STATE.user) STATE.user.offline = false;
 
@@ -236,6 +226,7 @@ async function tryAutoRestore(token) {
       } else {
         // Cloud returned empty — keep local data entirely
         STATE = localState;
+        if (!STATE.user && data.user) STATE.user = data.user;
         if (STATE.user) STATE.user.offline = false;
         DB.save(STATE);
         _syncStateToCloud();

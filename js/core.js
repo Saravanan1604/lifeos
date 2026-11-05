@@ -536,24 +536,20 @@ async function handleLogin() {
 
     // Merge cloud + local so neither overwrites the other
     if (data.state && Object.keys(data.state).length > 0) {
-      const cloud = { ...DB.defaults(), ...data.state };
-      const KEYS  = [
-        'investments', 'loans', 'transactions', 'bankAccounts',
-        'bankBalanceHistory', 'bankTransfers', 'goals', 'habits',
-        'habitCompletions', 'healthEntries', 'tasks', 'budgets',
-        'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
-        'customAssetTypes', 'customLoanTypes'
-      ];
-      STATE = cloud;
-      KEYS.forEach(k => { STATE[k] = _mergeById(localState[k], cloud[k]); });
-      if (localState.settings) STATE.settings = { ...cloud.settings, ...localState.settings };
+      // Merge EVERY synced key (notes, categories, cards, rules… not just a
+      // hand-picked few) with newest-edit-wins, then push the union back.
+      STATE = { ...DB.defaults(), ...data.state, ...localState };
+      _mergeCloudIntoState(data.state);
+      if (localState.settings) STATE.settings = { ...data.state.settings, ...localState.settings };
     } else {
       // Cloud has no data — keep all local data, just update user
       STATE = { ...localState, user: data.user || localState.user };
     }
 
     if (data.user) STATE.user = data.user;
+    if (STATE.user) STATE.user.offline = false;
     DB.save(STATE);
+    _syncStateToCloud();
 
     toast('✅ Logged in successfully!', 'success');
     showApp();
@@ -645,22 +641,15 @@ async function handleGoogleSignIn(response) {
 
     if (data && res.ok) {
       localStorage.setItem('lifeos_token', data.token);
-      const KEYS = [
-        'investments', 'loans', 'transactions', 'bankAccounts',
-        'bankBalanceHistory', 'bankTransfers', 'goals', 'habits',
-        'habitCompletions', 'healthEntries', 'tasks', 'budgets',
-        'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
-        'customAssetTypes', 'customLoanTypes'
-      ];
       if (data.state && Object.keys(data.state).length > 0) {
-        const cloud = { ...DB.defaults(), ...data.state };
-        STATE = cloud;
-        KEYS.forEach(k => { STATE[k] = mergeById(localState[k], cloud[k]); });
-        if (localState.settings) STATE.settings = { ...cloud.settings, ...localState.settings };
+        STATE = { ...DB.defaults(), ...data.state, ...localState };
+        _mergeCloudIntoState(data.state);
+        if (localState.settings) STATE.settings = { ...data.state.settings, ...localState.settings };
       } else {
-        STATE = { ...localState };
+        STATE = { ...DB.defaults(), ...localState };
       }
       if (data.user) STATE.user = data.user;
+      if (STATE.user) STATE.user.offline = false;
       DB.save(STATE);
       // Push merged local data to cloud so other devices pick it up
       if (typeof _syncStateToCloud === 'function') _syncStateToCloud();

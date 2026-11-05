@@ -630,3 +630,78 @@ body.light kbd {
   50%       { transform: scale(1.3); }
 }
 #notif-badge { animation: badge-pulse 2s ease-in-out infinite; }
+
+/* ============================================================
+   build 668 — COLOURFUL THEME for the WEBSITE (desktop/browser).
+   Colours only — no sizes, spacing or layout change. Scoped to
+   html:not(.is-app) so the installed app (mobile.css) is separate.
+   Same palette as the app: indigo → violet → magenta gradient for
+   primary actions & active nav, rainbow icon chips, soft lavender
+   page in light mode, white cards with a lavender hairline.
+   ============================================================ */
+html:not(.is-app) {
+  --cx-grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 52%, #c026d3 100%);
+  --cx-warm: linear-gradient(135deg, #fb923c 0%, #f43f5e 100%);
+}
+html:not(.is-app) body.light:not(#_cx) {
+  background:
+    radial-gradient(70% 50% at 0% 0%, #ece6ff 0%, transparent 60%),
+    radial-gradient(60% 40% at 100% 0%, #fde4f3 0%, transparent 60%),
+    radial-gradient(70% 50% at 100% 100%, #dff1ff 0%, transparent 60%),
+    #f7f5ff !important;
+  background-attachment: fixed !important;
+}
+html:not(.is-app) body.light:not(#_cx) .glass-card {
+  background: #ffffff !important;
+  border: 1px solid #e9e4fb !important;
+  box-shadow: 0 8px 24px -12px rgba(76, 52, 190, 0.22) !important;
+}
+html:not(.is-app) body.light:not(#_cx) .page-title,
+html:not(.is-app) body.light:not(#_cx) .section-title { color: #2a1b6e !important; }
+html:not(.is-app) body.light:not(#_cx) .sidebar { background: #fbfaff !important; border-right: 1px solid #e9e4fb !important; }
+
+/* primary buttons + active tabs */
+html:not(.is-app) body:not(#_cx) .btn-primary {
+  background: var(--cx-grad) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 8px 18px -8px rgba(124, 58, 237, 0.6) !important;
+}
+html:not(.is-app) body:not(#_cx) .period-tab.active,
+html:not(.is-app) body:not(#_cx) .dash-tab.active {
+  background: var(--cx-grad) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+html:not(.is-app) body:not(#_cx) .dash-tab.active * { color: #fff !important; }
+
+/* sidebar: gradient active pill + rainbow icon chips */
+html:not(.is-app) body:not(#_cx) .sidebar .nav-item.active {
+  background: var(--cx-grad) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 8px 18px -10px rgba(124, 58, 237, 0.8) !important;
+}
+html:not(.is-app) body:not(#_cx) .sidebar .nav-item.active .nav-text,
+html:not(.is-app) body:not(#_cx) .sidebar .nav-item.active .nav-icon { color: #fff !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-item.active .nav-icon svg { stroke: #fff !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-group .nav-item:not(.active):nth-of-type(8n+1) .nav-icon { color: #7c3aed !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-group .nav-item:not(.active):nth-of-type(8n+2) .nav-icon { color: #db2777 !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-group .nav-item:not(.active):nth-of-type(8n+3) .nav-icon { color: #0284c7 !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-group .nav-item:not(.active):nth-of-type(8n+4) .nav-icon { color: #ea580c !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-group .nav-item:not(.active):nth-of-type(8n+5) .nav-icon { color: #16a34a !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-group .nav-item:not(.active):nth-of-type(8n+6) .nav-icon { color: #4f46e5 !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-group .nav-item:not(.active):nth-of-type(8n+7) .nav-icon { color: #ca8a04 !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-group .nav-item:not(.active):nth-of-type(8n+8) .nav-icon { color: #0d9488 !important; }
+html:not(.is-app) body:not(#_cx) .sidebar .nav-item .nav-icon svg { stroke: currentColor !important; }
+
+/* top-right tool icons: colourful */
+html:not(.is-app) body:not(#_cx) #top-tools button:nth-child(6n+1) { color: #7c3aed !important; }
+html:not(.is-app) body:not(#_cx) #top-tools button:nth-child(6n+2) { color: #ec4899 !important; }
+html:not(.is-app) body:not(#_cx) #top-tools button:nth-child(6n+3) { color: #0ea5e9 !important; }
+html:not(.is-app) body:not(#_cx) #top-tools button:nth-child(6n+4) { color: #f59e0b !important; }
+html:not(.is-app) body:not(#_cx) #top-tools button:nth-child(6n+5) { color: #10b981 !important; }
+html:not(.is-app) body:not(#_cx) #top-tools button:nth-child(6n+6) { color: #6366f1 !important; }
+
+/* progress tracks */
+html:not(.is-app) body.light:not(#_cx) .category-progress-bg { background: #f1edff !important; }
