@@ -19301,3 +19301,42 @@ html.is-app body:not(#_cx):not(#_cy) .an-habits span { display: block; font-size
 html.is-app body:not(#_cx):not(#_cy) .an-habits b { display: block; font-size: 17px; font-weight: 800; color: var(--cx-ink); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 html.is-app body:not(#_cx):not(#_cy) .an-habits em { font-style: normal; font-size: 11.5px; color: var(--cx-ink2); }
 html.is-app body:not(#_cx):not(#_cy) .hx-card button.an-cat { display: grid !important; grid-template-columns: 10px minmax(0,1fr) auto auto 56px !important; justify-content: stretch !important; width: 100% !important; text-align: left !important; }
+
+/* ============================================================
+   build 675 — Assets & Liabilities 2.0 (app-only)
+   ============================================================ */
+html.is-app body:not(#_cx):not(#_cy) .ia-hero {
+  background: radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--cx-pri) 20%, transparent), transparent 60%),
+              radial-gradient(80% 80% at 0% 100%, color-mix(in srgb, var(--cx-acc) 12%, transparent), transparent 60%), var(--cx-card) !important;
+  border: 1px solid var(--cx-line) !important; border-radius: 24px !important;
+}
+html.is-app body:not(#_cx):not(#_cy) .ia-hero-lbl { color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) .ia-hero-val { color: var(--cx-ink) !important; -webkit-text-fill-color: currentColor !important; background: none !important; }
+html.is-app body:not(#_cx):not(#_cy) .ia-hero-val.neg { color: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .ia-hero-split .ia-hs-ic { background: var(--cx-chip) !important; }
+html.is-app body:not(#_cx):not(#_cy) .ia-stat { background: var(--cx-chip) !important; box-shadow: none !important; }
+html.is-app body:not(#_cx):not(#_cy) .ia-proj-btn { background: var(--cx-card) !important; border: 1px solid var(--cx-line) !important; color: var(--cx-pri) !important; }
+html.is-app body:not(#_cx):not(#_cy) .nw-trend { margin: 10px 0 4px; }
+html.is-app body:not(#_cx):not(#_cy) .nw-trend-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--cx-ink2); font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .nw-chips { display: flex; gap: 4px; background: var(--cx-chip); border-radius: 9px; padding: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .nw-chips button { min-height: 24px !important; padding: 0 9px; border: none; border-radius: 7px; background: transparent; color: var(--cx-ink2); font-size: 11.5px; font-weight: 700; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .nw-chips button.on { background: var(--cx-pri); color: #fff; }
+html.is-app body:not(#_cx):not(#_cy) .nw-svg { width: 100%; height: 72px; display: block; margin-top: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .nw-axis { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--cx-ink2); margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .nw-empty { font-size: 12px; color: var(--cx-ink2); margin: 8px 0 0; }
+html.is-app body:not(#_cx):not(#_cy) .nw-ratio { margin-top: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .nw-ratio-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--cx-chip); gap: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .nw-ratio-bar i { display: block; height: 100%; }
+html.is-app body:not(#_cx):not(#_cy) .nw-ratio i.a, html.is-app body:not(#_cx):not(#_cy) .nw-ratio-l i.a { background: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .nw-ratio i.l, html.is-app body:not(#_cx):not(#_cy) .nw-ratio-l i.l { background: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .nw-ratio-l { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--cx-ink2); margin-top: 6px; font-weight: 600; }
+html.is-app body:not(#_cx):not(#_cy) .nw-ratio-l i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+html.is-app body:not(#_cx):not(#_cy) .nw-df { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 12px; min-height: 40px !important; padding: 0 12px; border-radius: 12px; border: 1px solid var(--cx-line); background: var(--cx-chip); color: var(--cx-ink); font-size: 13.5px; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .nw-df b { font-weight: 800; color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .nw-df svg { width: 16px; height: 16px; color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .nw-df svg:last-child { margin-left: auto; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .debtfree-card { background: linear-gradient(135deg, #6D28D9, #8B5CF6) !important; }
+/* Assets page runs at zoom .6 — scale the new hero pieces back to true size */
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .nw-trend,
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .nw-ratio,
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .nw-df { zoom: 1.6667; }

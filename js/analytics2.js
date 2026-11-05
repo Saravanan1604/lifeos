@@ -165,3 +165,44 @@ function renderAnalyticsApp() {
     </div>`;
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
 }
+
+// ══════════════════════════════════════════════════════════
+// Assets 2.0 helpers (build 675): net-worth trend, A/L ratio,
+// debt-free shortcut — injected into renderInvestmentsApp's hero.
+// ══════════════════════════════════════════════════════════
+let _nwRange = 90;
+function setNwRange(d) { _nwRange = d; if (typeof navigate === 'function') navigate('investments', true); }
+function nwTrendHtml() {
+  const hist = (STATE.netWorthHistory || []).filter(p => p && p.date && isFinite(p.value));
+  const cut = new Date(); cut.setDate(cut.getDate() - _nwRange);
+  const pts = hist.filter(p => p.date >= _ymdLocal(cut));
+  const chips = [[30, '1M'], [90, '3M'], [180, '6M']].map(([d, l]) => `<button class="${_nwRange === d ? 'on' : ''}" onclick="event.stopPropagation();setNwRange(${d})">${l}</button>`).join('');
+  if (pts.length < 2) return `<div class="nw-trend"><div class="nw-trend-h"><span>Net-worth trend</span><div class="nw-chips">${chips}</div></div><p class="nw-empty">Your trend builds up as you open this page — one snapshot a day.</p></div>`;
+  const W = 300, H = 70, lo = Math.min(...pts.map(p => p.value)), hi = Math.max(...pts.map(p => p.value));
+  const x = i => (i / (pts.length - 1)) * W, y = v => H - 4 - (v - lo) / ((hi - lo) || 1) * (H - 8);
+  const line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(' ');
+  const up = pts[pts.length - 1].value >= pts[0].value, c = up ? '#10B981' : '#F05260';
+  const d = pts[pts.length - 1].value - pts[0].value;
+  return `<div class="nw-trend">
+    <div class="nw-trend-h"><span>Net-worth trend <b style="color:${c}">${d >= 0 ? '+' : '-'}${typeof _H !== 'undefined' ? _H.short(Math.abs(d)) : fmt(Math.abs(d))}</b></span><div class="nw-chips">${chips}</div></div>
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="nw-svg">
+      <defs><linearGradient id="nwG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c}" stop-opacity=".3"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs>
+      <polygon points="0,${H} ${line} ${W},${H}" fill="url(#nwG)"/>
+      <polyline points="${line}" fill="none" stroke="${c}" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="nw-axis"><span>${fmtDate(pts[0].date)}</span><span>Today</span></div>
+  </div>`;
+}
+function nwRatioHtml(assets, liab) {
+  const tot = assets + liab;
+  if (!(tot > 0)) return '';
+  const ap = Math.round(assets / tot * 100);
+  let df = '';
+  if ((STATE.loans || []).length && typeof _loanPayoff === 'function') {
+    let last = null;
+    (STATE.loans || []).forEach(l => { const p = _loanPayoff(l); if (p.months && (!last || p.end > last)) last = p.end; });
+    if (last) df = `<button class="nw-df" onclick="invSetView('liabilities')"><i data-lucide="flag"></i> Debt-free by <b>${last.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</b><i data-lucide="chevron-right"></i></button>`;
+  }
+  return `<div class="nw-ratio"><div class="nw-ratio-bar"><i class="a" style="width:${ap}%"></i><i class="l" style="width:${100 - ap}%"></i></div>
+    <div class="nw-ratio-l"><span><i class="a"></i>Assets ${ap}%</span><span><i class="l"></i>Liabilities ${100 - ap}%</span></div></div>${df}`;
+}

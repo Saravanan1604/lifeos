@@ -5252,6 +5252,7 @@ function renderInvestmentsApp() {
             <p class="ia-hero-chg ${chg >= 0 ? 'pos' : 'neg'}"><i data-lucide="${chg >= 0 ? 'arrow-up' : 'arrow-down'}"></i> ${chg >= 0 ? '+' : '-'}${fmt(Math.abs(Math.round(chg)))} (${chg >= 0 ? '+' : ''}${chgPct.toFixed(1)}%) <span>This Month</span></p>
           </div>
         </div>
+        ${typeof nwTrendHtml === 'function' ? nwTrendHtml() : ''}
         <div class="ia-hero-div"></div>
         <div class="ia-hero-split">
           <div class="ia-hs">
@@ -5263,6 +5264,7 @@ function renderInvestmentsApp() {
             <div><p class="ia-hs-lbl">TOTAL LIABILITIES</p><p class="ia-hs-val neg">${fmt(totalLoan)}</p></div>
           </div>
         </div>
+        ${typeof nwRatioHtml === 'function' ? nwRatioHtml(totalCurrent, totalLoan) : ''}
       </div>
 
       <!-- QUICK STATS STRIP -->
