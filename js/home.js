@@ -251,7 +251,7 @@ function _homeAnalyticsHtml(F) {
     }
   }
   return `<div class="hx-card hx-an" id="hx-analytics">
-    <div class="hx-an-head"><p class="hx-t">Spending analytics</p><button class="hx-link" onclick="navigate('spending')">Details <i data-lucide="chevron-right"></i></button></div>
+    <div class="hx-an-head"><p class="hx-t">Spending analytics</p><button class="hx-link" onclick="navigate('insights')">Details <i data-lucide="chevron-right"></i></button></div>
     <div class="hx-seg">${tabs.map(([k, l]) => `<button class="${_homeTab === k ? 'on' : ''}" onclick="setHomeTab('${k}')">${l}</button>`).join('')}</div>
     ${body}
     <p class="hx-cap">${cap}</p>

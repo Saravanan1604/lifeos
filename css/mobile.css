@@ -19239,3 +19239,65 @@ html.is-app body:not(#_cx):not(#_cy) .as-chips { margin-top: 6px; }
 html.is-app body:not(#_cx):not(#_cy) #as-dock .as-bar { position: fixed !important; z-index: 9000 !important; }
 html:not(.is-app) #as-dock { display: none !important; }
 html.is-app body:not(#_cx):not(#_cy) .as-page { padding-bottom: 120px !important; }
+
+/* ============================================================
+   build 674 — Analytics 2.0 page (app-only)
+   ============================================================ */
+html.is-app body:not(#_cx):not(#_cy) .an-page { padding: 0 2px; }
+html.is-app body:not(#_cx):not(#_cy) .an-top { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px 10px; }
+html.is-app body:not(#_cx):not(#_cy) .an-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; color: var(--cx-ink); margin: 0; }
+html.is-app body:not(#_cx):not(#_cy) .an-more { display: inline-flex; align-items: center; gap: 6px; min-height: 36px !important; padding: 0 12px; border-radius: 12px; border: 1px solid var(--cx-line); background: var(--cx-card); color: var(--cx-ink); font-size: 13px; font-weight: 700; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .an-more svg { width: 15px; height: 15px; color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .an-seg { margin: 0 12px 10px; }
+html.is-app body:not(#_cx):not(#_cy) .an-nav { display: flex; align-items: center; justify-content: space-between; margin: 0 12px 12px; }
+html.is-app body:not(#_cx):not(#_cy) .an-nav span { font-size: 15px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .an-nav button { width: 36px; height: 36px; min-height: 0 !important; border-radius: 11px; border: 1px solid var(--cx-line); background: var(--cx-card); color: var(--cx-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .an-nav button:disabled { opacity: .35; }
+html.is-app body:not(#_cx):not(#_cy) .an-nav svg { width: 18px; height: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .an-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 12px 12px; }
+html.is-app body:not(#_cx):not(#_cy) .an-kpi { background: var(--cx-card); border: 1px solid var(--cx-line); border-radius: 18px; padding: 12px 14px; box-shadow: var(--cx-shadow); min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .an-kpi > span:first-child { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--cx-ink2); font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .an-kpi b { display: block; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--cx-ink); margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .an-kpi b.inc { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .an-kpi b.exp { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .an-d { font-size: 12px; font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .an-d.good { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .an-d.bad { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .an-d.none { color: var(--cx-ink2); font-weight: 600; }
+html.is-app body:not(#_cx):not(#_cy) .an-line { width: 100%; height: 140px; display: block; overflow: visible; }
+html.is-app body:not(#_cx):not(#_cy) .an-zero { stroke: var(--cx-line); stroke-width: 1; stroke-dasharray: 4 4; }
+html.is-app body:not(#_cx):not(#_cy) .an-ghost { fill: none; stroke: var(--cx-ink2); stroke-width: 1.5; stroke-dasharray: 3 4; opacity: .55; vector-effect: non-scaling-stroke; }
+html.is-app body:not(#_cx):not(#_cy) .an-cur { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+html.is-app body:not(#_cx):not(#_cy) .an-legend { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .an-legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-left: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .an-legend i.c { background: #22D3EE; }
+html.is-app body:not(#_cx):not(#_cy) .an-legend i.g { background: var(--cx-ink2); opacity: .55; }
+html.is-app body:not(#_cx):not(#_cy) .an-bars { height: 140px; }
+html.is-app body:not(#_cx):not(#_cy) .an-bars .hx-pair span { font-size: 10px; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .an-bud { padding: 8px 0; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .an-bud-h { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .an-bud-h span { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .an-bud-h b { font-weight: 800; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .an-bud-h em { font-style: normal; font-weight: 600; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .an-bud-bar { position: relative; height: 8px; border-radius: 4px; background: var(--cx-chip); margin-top: 6px; overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .an-bud-bar i { display: block; height: 100%; border-radius: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .an-bud-bar s { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .an-a { color: var(--cx-pri); font-weight: 700; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .an-sub { font-size: 12px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .an-cat { display: grid; grid-template-columns: 10px 1fr auto auto 54px; align-items: center; gap: 8px; width: 100%; background: none; border: none; border-top: 1px solid var(--cx-line); padding: 10px 0; min-height: 0 !important; cursor: pointer; text-align: left; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .an-cat:first-of-type { border-top: none; }
+html.is-app body:not(#_cx):not(#_cy) .an-cat i { width: 10px; height: 10px; border-radius: 3px; }
+html.is-app body:not(#_cx):not(#_cy) .an-cat span { font-size: 14px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .an-cat em { font-style: normal; font-size: 12px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .an-cat b { font-size: 14px; font-weight: 800; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .an-cat .an-d { text-align: right; font-size: 11.5px; }
+html.is-app body:not(#_cx):not(#_cy) .an-movers { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .an-movers span { font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 999px; }
+html.is-app body:not(#_cx):not(#_cy) .an-movers .bad { color: var(--cx-exp); background: color-mix(in srgb, var(--cx-exp) 12%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .an-movers .good { color: var(--cx-inc); background: color-mix(in srgb, var(--cx-inc) 12%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .an-habits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .an-habits > div { min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .an-habits span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--cx-ink2); font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .an-habits b { display: block; font-size: 17px; font-weight: 800; color: var(--cx-ink); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .an-habits em { font-style: normal; font-size: 11.5px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .hx-card button.an-cat { display: grid !important; grid-template-columns: 10px minmax(0,1fr) auto auto 56px !important; justify-content: stretch !important; width: 100% !important; text-align: left !important; }

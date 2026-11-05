@@ -752,7 +752,7 @@ function renderCombinedSpendBudget(activeTab) {
       });
       const bnItems = [...document.querySelectorAll('#bottom-nav .bn-item')]
         .filter(el => getComputedStyle(el).display !== 'none');
-      bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === realPage));
+      bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === (window.__IS_APP ? 'insights' : realPage)));
 
       const ind = document.getElementById('bn-indicator');
       if (ind) {
