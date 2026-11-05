@@ -305,6 +305,7 @@ function _buildKPICards() {
 }
 
 function renderAICoach() {
+  if (window.__IS_APP && typeof renderAssistantApp === 'function') { try { return renderAssistantApp(); } catch (e) { console.log(e); } }
   const history = STATE.chatHistory || [];
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
