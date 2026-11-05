@@ -461,7 +461,7 @@ function renderRecordsMyMoney() {
       <div class="mm-bc-bar"><div class="mm-bc-fill" style="width:${_pctSpent}%"></div></div>
       <div class="mm-bc-bottom">
         <div class="mm-bc-left"><b>${fmt(Math.abs(_budLeft))}</b> ${_budLeft >= 0 ? 'left' : 'over'}<span>of ${fmt(_budTot)} this month</span></div>
-        <div class="mm-bc-right"><b>${_pctRemain}%</b><span>${_budLeft >= 0 ? 'remaining' : 'spent'}</span></div>
+        <div class="mm-bc-right"><b>${_budLeft >= 0 ? _pctRemain : Math.round(_mSpent / _budTot * 100)}%</b><span>${_budLeft >= 0 ? 'remaining' : 'spent'}</span></div>
       </div>
     </div>` : `
     <div class="mm-today-strip" onclick="navigate('budget')">

@@ -18696,3 +18696,180 @@ html.is-app body:not(#_cx):not(#_cy) .fin-netbal-hero .mm-hero-val {
   background: none !important; background-image: none !important;
   -webkit-text-fill-color: #ffffff !important; color: #ffffff !important;
 }
+
+/* ============================================================
+   build 670 — full-app consistency pass (from a page-by-page audit
+   with real-size data). App-only.
+   1. Header strip behind the floating menu + top icons, so scrolled
+      content no longer slides UNDER the icons (TNEB-style header).
+   2. One page-title style everywhere (titles were randomly indented by
+      a leftover 60px padding and ranged 22px → 50px).
+   3. Spending/Budget category rows: amounts no longer touch the edge.
+   4. Monthly Budget card, add-entry pad, popups, Bank Options sheet,
+      Notes cards, "Add recurring" — moved off the old mint/teal onto
+      the indigo theme; Bank Options buttons were white-on-white.
+   5. Finance page: balance-log bar one line, Transfer Log compact.
+   6. Assets hero: long amounts no longer collide with the next icon.
+   7. Buttons: tactile press animation + 44px touch targets.
+   ============================================================ */
+
+/* 1. header strip */
+html.is-app body:not(#_cx):not(#_cy) #main-app::before {
+  content: '' !important;
+  position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;
+  height: calc(64px + env(safe-area-inset-top, 0px)) !important;
+  background: rgba(250, 249, 255, 0.86) !important;
+  -webkit-backdrop-filter: saturate(160%) blur(14px) !important;
+  backdrop-filter: saturate(160%) blur(14px) !important;
+  border-bottom: 1px solid var(--cx-line) !important;
+  z-index: 9990 !important;
+  pointer-events: none !important;
+}
+html.is-app body:not(.light):not(#_cx):not(#_cy) #main-app::before { background: rgba(14, 10, 36, 0.86) !important; }
+
+/* 2. page titles */
+html.is-app body:not(#_cx):not(#_cy) #page-container .page-header {
+  padding: 4px 6px 0 !important;
+  margin-bottom: 14px !important;
+  align-items: center !important;
+}
+html.is-app body:not(#_cx):not(#_cy) #page-container .page-title {
+  font-size: 26px !important; line-height: 1.15 !important;
+  font-weight: 800 !important; letter-spacing: -0.02em !important;
+}
+html.is-app body:not(#_cx):not(#_cy) #page-container .page-subtitle {
+  font-size: 14px !important; line-height: 1.35 !important; margin-top: 2px !important;
+  color: var(--cx-ink2) !important;
+}
+
+/* 3. category rows breathing room */
+html.is-app body:not(#_cx):not(#_cy) #page-container .sb-panel { padding: 2px 16px 8px !important; box-sizing: border-box !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container .category-row { padding: 16px 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container .category-values { text-align: right !important; flex-shrink: 0 !important; }
+
+/* 4a. Monthly Budget card */
+html.is-app body:not(#_cx):not(#_cy) .mm-budget-card {
+  background: var(--cx-card) !important;
+  border: 1px solid var(--cx-line) !important;
+  box-shadow: var(--cx-shadow) !important;
+  border-radius: 22px !important;
+}
+html.is-app body:not(#_cx):not(#_cy) .mm-budget-card .mm-bc-ic { background: var(--cx-chip) !important; color: #7c3aed !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-budget-card .mm-bc-title { color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-budget-card:not(.over) .mm-bc-total b,
+html.is-app body:not(#_cx):not(#_cy) .mm-budget-card:not(.over) .mm-bc-left b,
+html.is-app body:not(#_cx):not(#_cy) .mm-budget-card:not(.over) .mm-bc-right b { color: #4f46e5 !important; }
+html.is-app body:not(.light):not(#_cx):not(#_cy) .mm-budget-card:not(.over) .mm-bc-total b,
+html.is-app body:not(.light):not(#_cx):not(#_cy) .mm-budget-card:not(.over) .mm-bc-left b,
+html.is-app body:not(.light):not(#_cx):not(#_cy) .mm-budget-card:not(.over) .mm-bc-right b { color: #a5b4fc !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-budget-card:not(.over) .mm-bc-fill { background: linear-gradient(90deg, #6366f1, #8b5cf6) !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-budget-card.over .mm-bc-fill { background: var(--cx-warm) !important; }
+
+/* 4b. add / edit entry pad */
+html.is-app body:not(#_cx):not(#_cy) #txpad .pad-save-btn {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  box-shadow: 0 10px 22px -10px rgba(79, 70, 229, 0.7) !important;
+  color: #fff !important;
+}
+html.is-app body:not(#_cx):not(#_cy) #txpad .pad-amt-wrap .pad-amt-input,
+html.is-app body:not(#_cx):not(#_cy) #txpad .pad-amt-wrap input { border-color: #8b5cf6 !important; }
+html.is-app body:not(#_cx):not(#_cy) #txpad .pad-tools-label { color: #7c3aed !important; }
+html.is-app body:not(#_cx):not(#_cy) #txpad .pad-tool .pad-tool-ic { background: var(--cx-chip) !important; color: #7c3aed !important; }
+html.is-app body:not(#_cx):not(#_cy) #txpad .pad-mic-btn { background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) #txpad .pad-calc-btn { background: var(--cx-chip) !important; color: #7c3aed !important; }
+
+/* 4c. popups */
+html.is-app body:not(#_cx):not(#_cy) .modal-accent-line { background: linear-gradient(90deg, #4f46e5, #8b5cf6, #ec4899) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .btn-action {
+  background: #f6f4ff !important;
+  border: 1px solid var(--cx-line) !important;
+  color: var(--cx-ink) !important;
+  border-radius: 16px !important;
+  font-weight: 600 !important;
+}
+html.is-app body.light:not(#_cx):not(#_cy) .btn-action svg { stroke: currentColor !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .account-options-menu .btn-action:first-child { background: #eef2ff !important; color: #4f46e5 !important; border-color: #c7d2fe !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .account-options-menu .btn-action[onclick*="delete"] { background: #fef2f2 !important; color: #dc2626 !important; border-color: #fecaca !important; }
+
+/* 4d. notes + add-recurring */
+html.is-app body.light:not(#_cx):not(#_cy) .note-card.note-default {
+  background: #ffffff !important; border: 1px solid var(--cx-line) !important; box-shadow: var(--cx-shadow) !important;
+}
+html.is-app body:not(#_cx):not(#_cy) .rec-add-card {
+  background: transparent !important;
+  border: 2px dashed #c4b5fd !important;
+  color: #7c3aed !important; opacity: 1 !important;
+}
+html.is-app body:not(#_cx):not(#_cy) .rec-add-card * { color: #7c3aed !important; opacity: 1 !important; }
+
+/* 5. Finance page — same compact rules build 667 gave bank-tracker */
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .tlog-ic { width: 40px !important; height: 40px !important; border-radius: 12px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .tlog-ic svg.lucide { width: 19px !important; height: 19px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .tlog-title { font-size: 17px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .tlog-meta { font-size: 13px !important; white-space: nowrap !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .tlog-amt  { font-size: 17px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] div[onclick*="openQuickBalanceModal"]:not(button),
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="bank-tracker"] div[onclick*="openQuickBalanceModal"]:not(button) {
+  font-size: 15px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+  background: var(--cx-chip) !important; border: 1px solid var(--cx-line) !important; color: var(--cx-ink2) !important;
+  border-radius: 14px !important;
+}
+
+/* 6. Assets hero stats */
+html.is-app body:not(#_cx):not(#_cy) .ia-hs { min-width: 0 !important; flex: 1 1 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) .ia-hs > div { min-width: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) .ia-hs-val { font-size: clamp(14px, 4.3vw, 19px) !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+html.is-app body:not(#_cx):not(#_cy) .ia-hs-ic { flex-shrink: 0 !important; }
+
+/* 7. tactile buttons */
+html.is-app body:not(#_cx):not(#_cy) button,
+html.is-app body:not(#_cx):not(#_cy) .btn-primary,
+html.is-app body:not(#_cx):not(#_cy) .btn-secondary,
+html.is-app body:not(#_cx):not(#_cy) .btn-action,
+html.is-app body:not(#_cx):not(#_cy) .glass-card[onclick],
+html.is-app body:not(#_cx):not(#_cy) .mm-row {
+  transition: transform .14s cubic-bezier(.3,.7,.4,1), box-shadow .2s ease, background-color .2s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+html.is-app body:not(#_cx):not(#_cy) button:active:not(:disabled),
+html.is-app body:not(#_cx):not(#_cy) .btn-primary:active,
+html.is-app body:not(#_cx):not(#_cy) .btn-action:active,
+html.is-app body:not(#_cx):not(#_cy) .glass-card[onclick]:active { transform: scale(0.965) !important; }
+html.is-app body:not(#_cx):not(#_cy) #bottom-nav .bn-item:active { transform: scale(0.92) !important; }
+html.is-app body:not(#_cx):not(#_cy) #fab-add:active { transform: scale(0.9) !important; }
+html.is-app body:not(#_cx):not(#_cy) .btn-primary,
+html.is-app body:not(#_cx):not(#_cy) .btn-secondary,
+html.is-app body:not(#_cx):not(#_cy) .btn-action { min-height: 44px !important; }
+html.is-app body:not(#_cx):not(#_cy) #txpad .pad-amount-input,
+html.is-app body:not(#_cx):not(#_cy) #txpad .pad-amount-input:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.16) !important;
+  outline: none !important;
+}
+/* 670: pages that run at a CSS zoom (measured) get title sizes divided by it, so every page title LOOKS 26px / 14px */
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="dashboard"] .page-title { font-size: 30.6px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="dashboard"] .page-subtitle { font-size: 16.5px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .page-title { font-size: 43.3px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .page-subtitle { font-size: 23.3px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .page-title { font-size: 32.5px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .page-subtitle { font-size: 17.5px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="yearly"] .page-title { font-size: 43.3px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="yearly"] .page-subtitle { font-size: 23.3px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="habits"] .page-title { font-size: 43.3px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="habits"] .page-subtitle { font-size: 23.3px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="journal"] .page-title { font-size: 41.9px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="journal"] .page-subtitle { font-size: 22.6px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="categories"] .page-title { font-size: 43.3px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="categories"] .page-subtitle { font-size: 23.3px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="bank-tracker"] .page-title { font-size: 37.1px !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="bank-tracker"] .page-subtitle { font-size: 20.0px !important; }
+/* 670: scroll-to-top button sat on top of the "More" tab — lift it above the bar */
+html.is-app body:not(#_cx):not(#_cy) #rec-top-btn {
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+  right: 18px !important;
+  width: 46px !important; height: 46px !important;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 22px -8px rgba(79, 70, 229, 0.6) !important;
+}
+html.is-app body:not(#_cx):not(#_cy) #rec-top-btn svg { width: 22px !important; height: 22px !important; }

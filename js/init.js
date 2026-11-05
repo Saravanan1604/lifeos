@@ -245,6 +245,17 @@ async function tryAutoRestore(token) {
   toast('⚠️ Server unreachable. Use Saved Data to continue offline.', 'warning');
 }
 
+// Keep the browser/PWA status-bar colour in step with the theme.
+function _syncThemeColor() {
+  const m = document.querySelector('meta[name="theme-color"]'); if (!m) return;
+  const light = document.body.classList.contains('light');
+  m.setAttribute('content', window.__IS_APP ? (light ? '#f5f3ff' : '#0e0a24') : (light ? '#f7f5ff' : '#080818'));
+}
+try {
+  new MutationObserver(_syncThemeColor).observe(document.body || document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  document.addEventListener('DOMContentLoaded', _syncThemeColor);
+} catch (_) {}
+
 // ===== THEME TOGGLE =====
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
