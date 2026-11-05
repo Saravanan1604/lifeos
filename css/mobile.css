@@ -19516,3 +19516,9 @@ html.is-app body:not(#_cx):not(#_cy) .al-empty svg { width: 34px; height: 34px; 
 html.is-app body:not(#_cx):not(#_cy) .al-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
 html.is-app body:not(#_cx):not(#_cy) .al-foot button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px !important; padding: 0 12px; border-radius: 11px; border: 1px solid var(--cx-line); background: var(--cx-card); color: var(--cx-ink); font-size: 12.5px; font-weight: 700; cursor: pointer; }
 html.is-app body:not(#_cx):not(#_cy) .al-foot svg { width: 15px; height: 15px; }
+/* 679: headings readable in both themes */
+html.is-app body:not(#_cx):not(#_cy) .section-heading, html.is-app body:not(#_cx):not(#_cy) .section-title, html.is-app body:not(#_cx):not(#_cy) .page-title,
+html.is-app body:not(#_cx):not(#_cy) .ia-card-title, html.is-app body:not(#_cx):not(#_cy) .tlog-hd-title, html.is-app body:not(#_cx):not(#_cy) .mm-subhead-title { color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .page-subtitle { color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) .rec-add-card .rec-add-ic, html.is-app body:not(#_cx):not(#_cy) .rec-add-card span:first-child { background: color-mix(in srgb, var(--cx-pri) 14%, transparent) !important; }
+html.is-app body:not(#_cx):not(#_cy) button[onclick^="setTrendPeriod"] { border-color: var(--cx-line) !important; color: var(--cx-ink2) !important; background: transparent !important; }

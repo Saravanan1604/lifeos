@@ -2896,7 +2896,7 @@ function acctSection(type) {
                   <div class="card-icon-trigger card-log-btn" onclick="event.stopPropagation(); openAccountMenu('bank', ${i})" title="Account options" style="flex-shrink:0;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.5rem;font-weight:700;line-height:1">⋯</div>
                 </div>
               </div>
-              <div class="card-icon-trigger fin-bal-tap" onclick="event.stopPropagation();openQuickBalanceModal('${b.id}')" title="Tap to update balance" style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(b.balance)}</div>
+              <div class="fin-bal-tap" onclick="event.stopPropagation();openQuickBalanceModal('${b.id}')" title="Tap to update balance" style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(b.balance)}</div>
               <div style="font-size:1.05rem;color:rgba(255,255,255,0.6);letter-spacing:0.3px">${b.type||'Savings'}${b.lastFour ? ` •••• ${b.lastFour}` : ''}</div>
             </div>`;
           } else {
