@@ -59,6 +59,15 @@ function anNav(d) { _anOffset = Math.min(0, _anOffset + d); renderAnalyticsApp()
 
 function renderAnalyticsApp() {
   const P = _anPeriod, r = _anRange(P, _anOffset), pr = _anRange(P, _anOffset - 1);
+  // Like-for-like: while the current period is still running, compare with
+  // the same number of elapsed days of the previous period (so day 5 of this
+  // month is compared to days 1–5 of last month, not all of last month).
+  let _partial = false;
+  if (_anOffset === 0) {
+    const el = Math.round((new Date().setHours(0, 0, 0, 0) - r.a) / 864e5);
+    const pe = new Date(pr.a); pe.setDate(pe.getDate() + el);
+    if (pe < pr.b) { pr.b = pe; pr.to = _ymdLocal(pe); _partial = true; }
+  }
   const tx = _anTx(r), ptx = _anTx(pr);
   const inc = _anSum(tx.filter(t => t.type === 'income')), exp = _anSum(tx.filter(t => t.type !== 'income'));
   const pinc = _anSum(ptx.filter(t => t.type === 'income')), pexp = _anSum(ptx.filter(t => t.type !== 'income'));
@@ -127,6 +136,7 @@ function renderAnalyticsApp() {
       <div class="hx-seg an-seg">${tabs.map(([k, l]) => `<button class="${P === k ? 'on' : ''}" onclick="setAnPeriod('${k}')">${l}</button>`).join('')}</div>
       <div class="an-nav"><button onclick="anNav(-1)"><i data-lucide="chevron-left"></i></button><span>${_anLabel(P, r)}</span><button onclick="anNav(1)" ${_anOffset >= 0 ? 'disabled' : ''}><i data-lucide="chevron-right"></i></button></div>
 
+      <p class="an-cmp">Changes compare with ${_partial ? `the same point last ${P} (${fmtDate(pr.from)} – ${fmtDate(pr.to)})` : `the previous ${P}`}.</p>
       <div class="an-kpis">
         <div class="an-kpi"><span>Income</span><b class="inc">${S(inc)}</b>${_anDelta(inc, pinc, true)}</div>
         <div class="an-kpi"><span>Spent</span><b class="exp">${S(exp)}</b>${_anDelta(exp, pexp, false)}</div>
@@ -153,7 +163,7 @@ function renderAnalyticsApp() {
       </div>
 
       <div class="hx-card">
-        <div class="hx-an-head"><p class="hx-t">Where it went</p><span class="an-sub">vs previous ${P}</span></div>
+        <div class="hx-an-head"><p class="hx-t">Where it went</p><span class="an-sub">vs ${_partial ? 'same point last ' + P : 'previous ' + P}</span></div>
         ${catRows || '<p class="hx-s">No spending in this period.</p>'}
         ${movers.length ? `<div class="an-movers">${movers.map(m => `<span class="${m.d > 0 ? 'bad' : 'good'}">${esc(m.c)} ${m.d > 0 ? '+' : '-'}${S(Math.abs(m.d))}</span>`).join('')}</div>` : ''}
       </div>

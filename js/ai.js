@@ -205,7 +205,7 @@ function _buildComparisonWidget() {
   const rows = [
     { label:'Income',  curr:curr.income,  prev:prev.income,  good:true },
     { label:'Expense', curr:curr.expense, prev:prev.expense, good:false },
-    { label:'Savings', curr:curr.savings, prev:prev.savings, good:true },
+    { label:(curr.savings < 0 ? 'Deficit' : 'Savings'), curr:curr.savings, prev:prev.savings, good:true },
   ];
   return rows.map(r=>{
     const chg = _pctChg(r.curr, r.prev);
@@ -278,7 +278,7 @@ function _buildKPICards() {
   return [
     { label:'Income',   icon:'💰', curr:m0.income,  p1:m1.income,  p2:m2.income,  good:true },
     { label:'Expenses', icon:'💳', curr:m0.expense, p1:m1.expense, p2:m2.expense, good:false },
-    { label:'Savings',  icon:'🏦', curr:m0.savings, p1:m1.savings, p2:m2.savings, good:true },
+    { label:(m0.savings < 0 ? 'Deficit' : 'Savings'),  icon:'🏦', curr:m0.savings, p1:m1.savings, p2:m2.savings, good:true },
   ].map(r => {
     const c1 = _arrowColor(r.curr,r.p1,r.good), c2 = _arrowColor(r.curr,r.p2,r.good);
     const rising = r.curr > r.p1 && r.curr > r.p2, falling = r.curr < r.p1 && r.curr < r.p2;

@@ -538,7 +538,7 @@ function renderRecordsMyMoney() {
       ${(() => {
         return `<div class="mm-hero ${showTotal ? '' : 'mm-hero-noTotal'}">
           <div class="mm-hero-top">
-            <p class="mm-hero-lbl">${showTotal ? (carryForward ? 'Total Balance' : (_homeDash ? 'Balance this month' : 'Balance')) : periodLabelTxt}</p>
+            <p class="mm-hero-lbl">${showTotal ? (carryForward ? 'Total Balance' : (_homeDash ? (total < 0 ? 'Deficit this month' : 'Surplus this month') : 'Balance')) : periodLabelTxt}</p>
             ${_homeDash ? `<button class="hx-eye" onclick="event.stopPropagation();recToggleTotal()" title="${showTotal ? 'Hide' : 'Show'} balance"><i data-lucide="${showTotal ? 'eye' : 'eye-off'}"></i></button>` : `<label class="mm-total-switch" title="Show / hide total balance">
               <input type="checkbox" ${showTotal ? 'checked' : ''} onclick="event.stopPropagation();recToggleTotal()"/><span></span>
             </label>`}
@@ -3095,12 +3095,22 @@ function openAccountMenu(type, i) {
       <button class="btn-action" onclick="closeModal(); ${cfg.edit}" style="padding:16px;font-size:1.2rem"><i data-lucide="edit" style="margin-right:8px"></i> Edit Details</button>
       <button class="btn-action" onclick="closeModal(); openBalanceImport('${cfg.importMode}')" style="padding:16px;font-size:1.2rem"><i data-lucide="upload" style="margin-right:8px"></i> Upload (Import)</button>
       <button class="btn-action" onclick="closeModal(); if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()" style="padding:16px;font-size:1.2rem"><i data-lucide="download" style="margin-right:8px"></i> Download (Export)</button>
+      ${type === 'bank' ? `<button class="btn-action" onclick="closeModal(); toggleBankInactive(${i})" style="padding:16px;font-size:1.2rem"><i data-lucide="${acct.inactive ? 'play-circle' : 'pause-circle'}" style="margin-right:8px"></i> ${acct.inactive ? 'Mark as active' : 'Mark as inactive (no alerts)'}</button>` : ''}
       <button class="btn-action" onclick="closeModal(); ${cfg.del}" style="padding:16px;font-size:1.2rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444"><i data-lucide="trash-2" style="margin-right:8px"></i> ${cfg.delLabel}</button>
       <button class="btn-action" onclick="closeModal(); ${cfg.add}" style="padding:16px;font-size:1.2rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)"><i data-lucide="plus" style="margin-right:8px"></i> ${cfg.addLabel}</button>
       <button class="btn-action" onclick="closeModal()" style="padding:16px;font-size:1.2rem;background:transparent;border:1px solid rgba(255,255,255,0.08)"><i data-lucide="x" style="margin-right:8px"></i> Cancel</button>
     </div>
   `);
   if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+}
+
+function toggleBankInactive(i) {
+  const a = (STATE.bankAccounts || [])[i]; if (!a) return;
+  a.inactive = !a.inactive;
+  saveState();
+  toast(a.inactive ? `${a.bankName} marked inactive — no low-balance alerts` : `${a.bankName} is active again`, 'success');
+  if (typeof _updateNotifBadge === 'function') _updateNotifBadge();
+  if (typeof navigate === 'function') navigate(currentPage, true);
 }
 
 // Back-compat aliases (in case any older handler still references these).
@@ -5251,6 +5261,7 @@ function renderInvestmentsApp() {
           <div>
             <p class="ia-hero-lbl">TOTAL NET WORTH <i data-lucide="info"></i></p>
             <p class="ia-hero-val ${netWorth < 0 ? 'neg' : 'pos'}">${netWorth < 0 ? '- ' : ''}${fmt(Math.abs(netWorth))}</p>
+            ${netWorth < 0 ? `<p class="ia-hero-why">Liabilities ${fmt(Math.round(totalLoan))} are more than assets ${fmt(Math.round(totalCurrent))} — net worth = assets − liabilities.</p>` : ''}
             <p class="ia-hero-chg ${chg >= 0 ? 'pos' : 'neg'}"><i data-lucide="${chg >= 0 ? 'arrow-up' : 'arrow-down'}"></i> ${chg >= 0 ? '+' : '-'}${fmt(Math.abs(Math.round(chg)))} (${chg >= 0 ? '+' : ''}${chgPct.toFixed(1)}%) <span>This Month</span></p>
           </div>
         </div>

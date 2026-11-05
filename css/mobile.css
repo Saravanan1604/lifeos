@@ -19389,3 +19389,9 @@ html.is-app body:not(#_cx):not(#_cy) .sm-tg i { width: 44px; height: 26px; borde
 html.is-app body:not(#_cx):not(#_cy) .sm-tg i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
 html.is-app body:not(#_cx):not(#_cy) .sm-tg input:checked + i { background: var(--cx-pri); border-color: var(--cx-pri); }
 html.is-app body:not(#_cx):not(#_cy) .sm-tg input:checked + i::after { transform: translateX(18px); }
+/* build 677 — 3.0 corrections */
+html.is-app body:not(#_cx):not(#_cy) .ia-hero-why { font-size: 12px; color: var(--cx-ink2); margin: 2px 0 6px; line-height: 1.4; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .ia-hero-why { zoom: 1.6667; }
+html.is-app body:not(#_cx):not(#_cy) .an-cmp { font-size: 11.5px; color: var(--cx-ink2); margin: -4px 14px 8px; }
+/* one navigation system: no extra floating buttons in the app */
+html.is-app body:not(#_cx):not(#_cy) #rec-top-btn, html.is-app body:not(#_cx):not(#_cy) #undo-btn { display: none !important; }

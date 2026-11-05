@@ -1237,10 +1237,13 @@ function buildNotifications() {
     const limit = (typeof _budgetLimitMonthly === 'function') ? _budgetLimitMonthly(b) : (b.amount ?? b.limit ?? 0);
     const used  = spentMap[(b.category||'').toLowerCase()] || 0;
     const pct   = limit > 0 ? Math.round(used/limit*100) : 0;
-    if (pct > 100) {
-      notifs.push({ type:'danger',  icon:'🚨', title:`${b.category} budget exceeded!`, sub:`Spent ${fmt(used)} of ${fmt(limit)} (${pct}%)`, action:`navigate('budget')` });
+    // Fixed costs (EMI / rent / insurance) used exactly to the limit = paid as planned, not an emergency
+    if (pct >= 100 && pct <= 102 && /emi|loan|rent|insurance/i.test(b.category || '')) {
+      notifs.push({ type:'success', icon:'✅', key:`budfix_${b.category}_${monthStr}`, title:`${b.category} paid for this month`, sub:`${fmt(Math.round(used))} of the planned ${fmt(Math.round(limit))} — right on budget.`, action:`navigate('budget')` });
+    } else if (pct >= 100) {
+      notifs.push({ type:'danger',  icon:'🚨', key:`bud100_${b.category}_${monthStr}`, title:`${b.category} budget ${pct > 100 ? 'exceeded' : 'fully used'}`, sub:`Spent ${fmt(Math.round(used))} of your ${fmt(Math.round(limit))} monthly ${b.category} budget (${pct}%)${pct > 100 ? ` — ${fmt(Math.round(used - limit))} over` : ''}. Alerts fire at 80% and 100%. Tip: pause non-essential ${b.category} spends or raise the limit.`, action:`navigate('budget')` });
     } else if (pct >= 80) {
-      notifs.push({ type:'warning', icon:'⚠️', title:`${b.category} at ${pct}% of budget`, sub:`${fmt(used)} spent / ${fmt(limit)} limit`, action:`navigate('budget')` });
+      notifs.push({ type:'warning', icon:'⚠️', key:`bud80_${b.category}_${monthStr}`, title:`${b.category} at ${pct}% of budget`, sub:`${fmt(Math.round(used))} of ${fmt(Math.round(limit))} used — ${fmt(Math.round(limit - used))} left this month (warning level: 80%).`, action:`navigate('budget')` });
     }
   });
 
@@ -1277,9 +1280,13 @@ function buildNotifications() {
 
   // ── Low balance warning ──
   const banks = STATE.bankAccounts || [];
+  // ₹0 is treated as an unused / closed account (not an emergency); accounts
+  // marked inactive are skipped entirely.
+  const LOW = (STATE.settings && +STATE.settings.lowBalance) || 5000;
   banks.forEach(b => {
-    if (b.balance >= 0 && b.balance < 5000) {
-      notifs.push({ type:'danger', icon:'🏦', title:`Low balance in ${b.bankName}`, sub:`Only ${fmt(b.balance)} remaining`, action:`navigate('bank-tracker')` });
+    if (b.inactive || b.closed) return;
+    if (b.balance > 0 && b.balance < LOW) {
+      notifs.push({ type:'warning', icon:'🏦', key:`low_${b.id}_${Math.round(b.balance)}`, title:`Low balance in ${b.bankName}`, sub:`${fmt(b.balance)} left — below your ${fmt(LOW)} alert level. Top it up before upcoming debits.`, action:`navigate('bank-tracker')` });
     }
   });
 
@@ -1290,7 +1297,7 @@ function buildNotifications() {
   if (thisInc > 0 && savRate >= 30) {
     notifs.push({ type:'success', icon:'💚', title:`Great savings rate this month!`, sub:`${savRate.toFixed(1)}% savings rate — you're crushing it!`, action:`navigate('finance')` });
   } else if (thisInc > 0 && savRate < 0) {
-    notifs.push({ type:'danger', icon:'📉', title:`Spending more than you earn!`, sub:`Expenses exceed income this month`, action:`navigate('finance')` });
+    notifs.push({ type:'danger', icon:'📉', key:`deficit_${monthStr}`, title:`Spending more than you earn`, sub:`This month: ${fmt(Math.round(thisExp))} spent vs ${fmt(Math.round(thisInc))} income — a deficit of ${fmt(Math.round(thisExp - thisInc))}.`, action:`navigate('insights')` });
   }
 
   if (!notifs.length) {

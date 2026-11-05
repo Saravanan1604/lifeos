@@ -65,12 +65,12 @@ function buildTrendSeries(period, items, history, idField, valField) {
     for (let i = 11; i >= 0; i--) {
       const m    = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const last = new Date(m.getFullYear(), m.getMonth() + 1, 0); // last calendar day of that month
-      buckets.push({ label: m.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }), date: last.toISOString().slice(0, 10) });
+      buckets.push({ label: m.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }), date: _ymdLocal(last) });
     }
   } else {
     for (let i = 29; i >= 0; i--) {
       const d  = new Date(); d.setDate(d.getDate() - i);
-      const ds = d.toISOString().slice(0, 10);
+      const ds = _ymdLocal(d);
       buckets.push({ label: new Date(ds).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }), date: ds });
     }
   }
@@ -80,7 +80,16 @@ function buildTrendSeries(period, items, history, idField, valField) {
     let total = 0, has = false;
     items.forEach(it => {
       const first = firstDateOf(it.id);
-      if (!first || b.date < first) return;
+      if (!first) return;
+      // Before an account's first log, use the balance it had BEFORE that log
+      // (prevBalance) — otherwise the total "drops"/"jumps" on the day logging
+      // of a second account starts, which isn't a real change in money.
+      if (b.date < first) {
+        const f = history.filter(h => h[idField] === it.id).sort((a, c) => a.date.localeCompare(c.date))[0];
+        const pv = f && f.prevBalance != null && isFinite(+f.prevBalance) ? +f.prevBalance : null;
+        if (pv !== null) { total += pv; has = true; }
+        return;
+      }
       const v = valOnDate(it.id, b.date);
       if (v !== null) { total += v; has = true; }
     });
