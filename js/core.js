@@ -966,10 +966,12 @@ function _renderPage(page) {
   // Only count visible tabs (the center slot is the Add FAB in the app).
   const _bnItems = [...document.querySelectorAll('#bottom-nav .bn-item')]
     .filter(el => getComputedStyle(el).display !== 'none');
-  _bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  // sub-pages light up their parent tab (Analytics = spending/budget/income)
+  const _navKey = ({ budget: 'spending', income: 'spending', analytics: 'spending' })[page] || page;
+  _bnItems.forEach(el => el.classList.toggle('active', el.dataset.page === _navKey));
   const _ind = document.getElementById('bn-indicator');
   if (_ind) {
-    const active = _bnItems.find(el => el.dataset.page === page);
+    const active = _bnItems.find(el => el.dataset.page === _navKey);
     if (active && active.offsetWidth) {
       _ind.style.opacity = '1';
       _ind.style.width = active.offsetWidth + 'px';

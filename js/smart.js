@@ -184,7 +184,7 @@ function _billDailyCheck() {
 
 // mobile bell badge (the app's bell had none)
 function _mobileBellBadge(n) {
-  const btn = document.getElementById('mobile-notif-btn'); if (!btn) return;
+  const btn = document.getElementById('tt-bell') || document.getElementById('mobile-notif-btn'); if (!btn) return;
   let b = btn.querySelector('.mnb-badge');
   if (!b) { b = document.createElement('span'); b.className = 'mnb-badge'; btn.appendChild(b); }
   b.textContent = n > 9 ? '9+' : String(n);

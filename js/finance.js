@@ -504,6 +504,10 @@ function renderRecordsMyMoney() {
   const backupHtml = '';
 
   const showTotal = !(STATE.settings && STATE.settings.showTotal === false);
+  // Life OS 2.0 home dashboard: only on the default view (current month, no
+  // filters / selection) so Records stays a plain list for any other period.
+  const _homeDash = !!window.__IS_APP && _recPeriod === 'month' && !filterActive && !_recSelectMode
+    && _recAnchor.getFullYear() === new Date().getFullYear() && _recAnchor.getMonth() === new Date().getMonth();
   const tabs = ['day', 'week', 'month', 'year', 'all'];
   const tabLabels = { day: 'Day', week: 'Week', month: 'Month', year: 'Year', all: 'All' };
   const periodTabs = tabs.map(p =>
@@ -530,14 +534,14 @@ function renderRecordsMyMoney() {
       </div>
       ${backupHtml}
       ${recapHtml}
-      ${todayStripHtml}
+      ${_homeDash ? '' : todayStripHtml}
       ${(() => {
         return `<div class="mm-hero ${showTotal ? '' : 'mm-hero-noTotal'}">
           <div class="mm-hero-top">
-            <p class="mm-hero-lbl">${showTotal ? (carryForward ? 'Total Balance' : 'Balance') : periodLabelTxt}</p>
-            <label class="mm-total-switch" title="Show / hide total balance">
+            <p class="mm-hero-lbl">${showTotal ? (carryForward ? 'Total Balance' : (_homeDash ? 'Balance this month' : 'Balance')) : periodLabelTxt}</p>
+            ${_homeDash ? `<button class="hx-eye" onclick="event.stopPropagation();recToggleTotal()" title="${showTotal ? 'Hide' : 'Show'} balance"><i data-lucide="${showTotal ? 'eye' : 'eye-off'}"></i></button>` : `<label class="mm-total-switch" title="Show / hide total balance">
               <input type="checkbox" ${showTotal ? 'checked' : ''} onclick="event.stopPropagation();recToggleTotal()"/><span></span>
-            </label>
+            </label>`}
           </div>
           ${showTotal ? `<p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</p>` : ''}
           <div class="mm-hero-split ${showTotal ? '' : 'mm-split-big'}">
@@ -545,8 +549,10 @@ function renderRecordsMyMoney() {
             <div class="mm-hs-div"></div>
             <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val neg">-${fmt(expense)}</span></div>
           </div>
+          ${_homeDash && typeof homeHeroExtra === 'function' ? homeHeroExtra() : ''}
         </div>`;
       })()}
+      ${_homeDash && typeof homeDashboardHtml === 'function' ? homeDashboardHtml() : ''}
       <div class="mm-subhead">
         <span class="mm-subhead-title">Recent Transactions</span>
         <div style="display:flex;gap:8px;align-items:center">
@@ -562,6 +568,7 @@ function renderRecordsMyMoney() {
       </div>
     </div>`;
   _lucideRefresh();
+  if (_homeDash && typeof _homeAfterRender === 'function') _homeAfterRender();
   _recHeroDots();
   if (typeof initRecordsGestures === 'function') initRecordsGestures();
   if (typeof _recInitScrollTop === 'function') _recInitScrollTop();

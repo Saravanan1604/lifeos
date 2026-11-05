@@ -104,11 +104,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="css/styles.css?v=671" />
-  <link rel="stylesheet" href="css/calc.css?v=671" />
-  <link rel="stylesheet" href="css/premium.css?v=671" />
+  <link rel="stylesheet" href="css/styles.css?v=672" />
+  <link rel="stylesheet" href="css/calc.css?v=672" />
+  <link rel="stylesheet" href="css/premium.css?v=672" />
   <!-- Premium mobile theme — scoped to html.is-app (installed app only; never affects web) -->
-  <link rel="stylesheet" href="css/mobile.css?v=671" />
+  <link rel="stylesheet" href="css/mobile.css?v=672" />
 </head>
 <body>
 
@@ -387,8 +387,17 @@
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
     </button>
 
+    <!-- Greeting next to the menu (installed app only) -->
+    <div id="hdr-greet" onclick="openMobileDrawer()"></div>
+
     <!-- Top tools cluster (installed app only) — replaces the floating dock -->
     <div id="top-tools">
+      <button data-hdr="ai" onclick="navigate('ai-coach')" title="AI assistant">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
+      </button>
+      <button data-hdr="search" onclick="if(typeof openGlobalSearch==='function')openGlobalSearch()" title="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
       <button onclick="if(typeof undoLastAction==='function')undoLastAction()" title="Undo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
       </button>
@@ -407,7 +416,7 @@
       <button id="sync-btn" onclick="_syncBtnTap()" title="Sync now">
         <svg id="sync-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
       </button>
-      <button onclick="if(typeof openNotifPanel==='function')openNotifPanel()" title="Notifications">
+      <button id="tt-bell" data-hdr="bell" onclick="if(typeof openNotifPanel==='function')openNotifPanel()" title="Notifications">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       </button>
     </div>
@@ -417,12 +426,12 @@
       <div id="bn-indicator"></div>
       <div class="bn-group">
         <button class="bn-item" data-page="transactions" onclick="navigate('transactions')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
-          <span>Records</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>
+          <span>Home</span>
         </button>
-        <button class="bn-item" data-page="finance" onclick="navigate('finance')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-          <span>Finance</span>
+        <button class="bn-item" data-page="spending" onclick="navigate('spending')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          <span>Analytics</span>
         </button>
       </div>
       <div class="bn-fab-slot" aria-hidden="true"></div>
@@ -560,36 +569,37 @@
 
 <!-- (Old floating calculator removed — replaced by the full-screen calc page) -->
 
-<script src="js/storage.js?v=671"></script>
-<script src="js/core.js?v=671"></script>
-<script src="js/ai.js?v=671"></script>
-<script src="js/dashboard.js?v=671"></script>
-<script src="js/finance.js?v=671"></script>
-<script src="js/bank-tracker.js?v=671"></script>
-<script src="js/life.js?v=671"></script>
-<script src="js/growth.js?v=671"></script>
-<script src="js/calculator.js?v=671"></script>
-<script src="js/features.js?v=671"></script>
-<script src="js/premium.js?v=671"></script>
-<script src="js/categories.js?v=671"></script>
-<script src="js/pages.js?v=671"></script>
-<script src="js/help.js?v=671"></script>
-<script src="js/voice.js?v=671"></script>
-<script src="js/applock.js?v=671"></script>
-<script src="js/onboarding.js?v=671"></script>
-<script src="js/layout.js?v=671"></script>
-<script src="js/notes.js?v=671"></script>
-<script src="js/widgets.js?v=671"></script>
-<script src="js/custom-pages.js?v=671"></script>
-<script src="js/yearly.js?v=671"></script>
-<script src="js/heatmap.js?v=671"></script>
-<script src="js/purchases.js?v=671"></script>
-<script src="js/upcoming.js?v=671"></script>
-<script src="js/renewals.js?v=671"></script>
-<script src="js/split.js?v=671"></script>
-<script src="js/digest.js?v=671"></script>
-<script src="js/smart.js?v=671"></script>
-<script src="js/init.js?v=671"></script>
+<script src="js/storage.js?v=672"></script>
+<script src="js/core.js?v=672"></script>
+<script src="js/ai.js?v=672"></script>
+<script src="js/dashboard.js?v=672"></script>
+<script src="js/finance.js?v=672"></script>
+<script src="js/bank-tracker.js?v=672"></script>
+<script src="js/life.js?v=672"></script>
+<script src="js/growth.js?v=672"></script>
+<script src="js/calculator.js?v=672"></script>
+<script src="js/features.js?v=672"></script>
+<script src="js/premium.js?v=672"></script>
+<script src="js/categories.js?v=672"></script>
+<script src="js/pages.js?v=672"></script>
+<script src="js/help.js?v=672"></script>
+<script src="js/voice.js?v=672"></script>
+<script src="js/applock.js?v=672"></script>
+<script src="js/onboarding.js?v=672"></script>
+<script src="js/layout.js?v=672"></script>
+<script src="js/notes.js?v=672"></script>
+<script src="js/widgets.js?v=672"></script>
+<script src="js/custom-pages.js?v=672"></script>
+<script src="js/yearly.js?v=672"></script>
+<script src="js/heatmap.js?v=672"></script>
+<script src="js/purchases.js?v=672"></script>
+<script src="js/upcoming.js?v=672"></script>
+<script src="js/renewals.js?v=672"></script>
+<script src="js/split.js?v=672"></script>
+<script src="js/digest.js?v=672"></script>
+<script src="js/smart.js?v=672"></script>
+<script src="js/home.js?v=672"></script>
+<script src="js/init.js?v=672"></script>
 
 <!-- ===== First-run Onboarding ===== -->
 <div id="onboarding" style="display:none">
