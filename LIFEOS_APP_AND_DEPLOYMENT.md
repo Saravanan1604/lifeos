@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **689** (6 Nov 2026).*
+*Status as of build **690** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -239,6 +239,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 687 | Assets page overview rebuilt around "You own vs You owe": plain-language net worth, tappable own/owe tiles, ₹-per-₹100 ratio, EMI as % of income, debt-free date, trend with an explanation |
 | 688 | In-app Guide ("How to use"): quick-start checklist, how-to topics with Show me, gestures, FAQ, search; 1-minute spotlight tour; variable-radius ring on Spending/Income |
 | 689 | Budget tab gets the same ring (% used, amount left/over in the centre); over-budget rows show the real % and amount over (e.g. Gifts 200% · ₹1,000 over, was "100%") |
+| 690 | Motion + daily use: cards glide in, rings sweep and bars grow (off with "reduce motion", not replayed on sync); **Today** card on Home (spent today vs daily allowance, ring, 🔥 logging streak); **Recent** chips on the add screen to repeat an entry in one tap; success check + haptic after saving (new `js/motion.js`) |
 
 ### Testing locally
 

@@ -351,7 +351,7 @@ function _homeAfterRender() {
 function homeDashboardHtml() {
   try {
     const F = _homeFacts();
-    return _homeBudgetHtml(F) + _homeInsightsHtml(F) + _homeAnalyticsHtml(F);
+    return (typeof homeTodayHtml === 'function' ? homeTodayHtml(F) : '') + _homeBudgetHtml(F) + _homeInsightsHtml(F) + _homeAnalyticsHtml(F);
   } catch (e) { console.log('home dash', e); return ''; }
 }
 function homeHeroExtra() { try { return _homeHeroExtraHtml(_homeFacts()); } catch (_) { return ''; } }

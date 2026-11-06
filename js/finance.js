@@ -2733,7 +2733,7 @@ function padSave() {
   if (_pad.type !== 'income' && typeof _unusualCheck === 'function') { const _lt = _pad.mode === 'edit' ? (STATE.transactions || []).find(t => t.id === _pad.id) : (STATE.transactions || [])[0]; if (_lt) _unusualCheck(_lt); }
   if (typeof autoSyncGoals === 'function') autoSyncGoals();
   padClose();
-  toast('Saved ✅', 'success');
+  if (window.__IS_APP && typeof successBurst === 'function') successBurst(); else toast('Saved ✅', 'success');
   // Re-render whichever page the user was on (don't force them to Records).
   if (window.__IS_APP) {
     if (typeof navigate === 'function') navigate(currentPage || 'transactions', true);
@@ -2841,6 +2841,7 @@ function _padAppHtml(acctLabel, dateLabel, isIncome) {
       <input type="number" inputmode="decimal" step="0.01" min="0" id="pad-amount-input" placeholder="0" value="${esc(_pad.expr)}" oninput="_pad.expr=this.value"/>
     </div>
     ${tops.length ? `<div class="px-chips">${tops.map(a => `<button type="button" onclick="padChipAmt(${a})">${cur}${a.toLocaleString('en-IN')}</button>`).join('')}</div>` : '<div class="px-chips-sp"></div>'}
+    ${_pad.mode === 'add' && typeof padRecentHtml === 'function' ? padRecentHtml() : ''}
     <div class="px-card">
       ${row('shapes', 'Category', `<span class="px-cat" style="--c:${catColor(_pad.category)}">${catIconHtml(_pad.category)}</span>${esc(_pad.category)}`, 'padPickCategory()')}
       ${row('wallet', 'Account', esc(acctLabel), 'padPickAccount()')}
