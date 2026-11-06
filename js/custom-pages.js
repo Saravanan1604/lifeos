@@ -271,8 +271,8 @@ function _cpBuildLifeScore() {
 
 function _cpBuildKpi() {
   var txns = STATE.transactions || [];
-  var totalIncome = txns.filter(function(t) { return t.type === 'income'; }).reduce(function(s, t) { return s + t.amount; }, 0);
-  var totalExpense = txns.filter(function(t) { return t.type === 'expense'; }).reduce(function(s, t) { return s + t.amount; }, 0);
+  var totalIncome = txns.filter(function(t) { return t.type === 'income'; }).reduce(function(s, t) { return s + Money.amt(t); }, 0);
+  var totalExpense = txns.filter(function(t) { return t.type !== 'income'; }).reduce(function(s, t) { return s + Money.amt(t); }, 0);
   var net = totalIncome - totalExpense;
   return '<div class="section-header" style="margin-bottom:12px"><p class="section-title">\u{1F4CA} Financial Summary</p></div>' +
     '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">' +
@@ -450,7 +450,7 @@ function _cpBuildBudgetProgressList() {
     var limit = b.amount || b.limit || 0;
     var spent = filteredTxns.filter(function(t) {
       return t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase();
-    }).reduce(function(s, t) { return s + t.amount; }, 0);
+    }).reduce(function(s, t) { return s + Money.amt(t); }, 0);
     var pct = limit > 0 ? Math.min(100, (spent / limit) * 100) : 0;
     return { b: b, limit: limit, spent: spent, pct: pct };
   });

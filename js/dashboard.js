@@ -142,8 +142,8 @@ function _pickerToAnchor(val) {
 // ===== LIFE SCORE =====
 function calcLifeScore() {
   const txns = STATE.transactions || [];
-  const income = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const expense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const income = txns.filter(t => t.type === 'income').reduce((s, t) => s + Money.amt(t), 0);
+  const expense = txns.filter(t => t.type !== 'income').reduce((s, t) => s + Money.amt(t), 0);
   const savRate = income > 0 ? ((income - expense) / income) * 100 : 0;
   const wealthScore = Math.max(0, Math.min(100, Math.round(savRate * 1.5 + (STATE.investments?.length || 0) * 5)));
 
@@ -176,8 +176,8 @@ function generateInsights() {
   const txns = STATE.transactions || [];
   const now = new Date();
   const monthTxns = txns.filter(t => { const d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
-  const income = monthTxns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const expense = monthTxns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const income = monthTxns.filter(t => t.type === 'income').reduce((s, t) => s + Money.amt(t), 0);
+  const expense = monthTxns.filter(t => t.type !== 'income').reduce((s, t) => s + Money.amt(t), 0);
   const savRate = income > 0 ? ((income - expense) / income) * 100 : 0;
   const insights = [];
 
@@ -189,7 +189,7 @@ function generateInsights() {
     else if (income > 0) insights.push({ emoji: '⚠️', title: 'Low Savings Alert', msg: `Only ${savRate.toFixed(1)}% saved this month. Review discretionary expenses.` });
 
     const catMap = {};
-    monthTxns.filter(t => t.type === 'expense').forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
+    monthTxns.filter(t => t.type !== 'income').forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + Money.amt(t); });
     const topCat = Object.entries(catMap).sort(([, a], [, b]) => b - a)[0];
     if (topCat) insights.push({ emoji: '📊', title: `Top Spend: ${topCat[0]}`, msg: `₹${topCat[1].toLocaleString('en-IN')} on ${topCat[0]} this month.` });
 
@@ -667,8 +667,8 @@ function renderDashboard() {
   // For day/week views income (salary) is monthly — fall back to the anchor's month.
   const _incPeriod = (_dashPeriod === 'day' || _dashPeriod === 'week') ? 'month' : _dashPeriod;
   const incomeTxns = _incPeriod === _dashPeriod ? txns : filterTxByAnchor(txnsAll, _incPeriod, _dashAnchorDate);
-  const totalIncome = incomeTxns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const totalExpense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const totalIncome = incomeTxns.filter(t => t.type === 'income').reduce((s, t) => s + Money.amt(t), 0);
+  const totalExpense = txns.filter(t => t.type !== 'income').reduce((s, t) => s + Money.amt(t), 0);
   const _banks = STATE.bankAccounts || [];
   const _cash  = STATE.cashAccounts || [];
   const _cards = STATE.creditCards  || [];

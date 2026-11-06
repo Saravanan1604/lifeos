@@ -139,8 +139,8 @@ function _503020() {
   const curr = _monthData(0);
   let needs=0, wants=0;
   curr.txns.filter(t=>t.type==='expense').forEach(t=>{
-    if (NEEDS_CATS.includes(t.category)) needs+=t.amount;
-    else if (WANTS_CATS.includes(t.category)) wants+=t.amount;
+    if (NEEDS_CATS.includes(t.category)) needs+=Money.amt(t);
+    else if (WANTS_CATS.includes(t.category)) wants+=Money.amt(t);
   });
   const totalExp = curr.txns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const other = totalExp - needs - wants;

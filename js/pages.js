@@ -304,7 +304,7 @@ function renderAnalyticsFinanceChart(txns) {
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
     const label = d.toLocaleString('default',{month:'short',year:'2-digit'});
     if (!monthMap[key]) monthMap[key] = {label,income:0,expense:0};
-    if (t.type==='income') monthMap[key].income+=t.amount; else monthMap[key].expense+=t.amount;
+    if (t.type==='income') monthMap[key].income+=Money.amt(t); else monthMap[key].expense+=Money.amt(t);
   });
   const gridCol = document.body.classList.contains('light') ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
   const sorted = Object.entries(monthMap).sort(([a],[b])=>a.localeCompare(b)).slice(-12);
@@ -764,7 +764,7 @@ function _mrFinHealth(flowTxs, monthly, allTxs) {
   let budgetScore = 50;
   if (budgets.length) {
     const ok = budgets.filter(b => {
-      const spent = txs.filter(t => t.type === 'expense' && t.category === b.category && (t.date || '').startsWith(today().slice(0, 7))).reduce((a, t) => a + (+t.amount || 0), 0);
+      const spent = txs.filter(t => t.type !== 'income' && t.category === b.category && (t.date || '').startsWith(today().slice(0, 7))).reduce((a, t) => a + (+t.amount || 0), 0);
       return spent <= (+b.limit || +b.amount || Infinity);
     }).length;
     budgetScore = (ok / budgets.length) * 100;

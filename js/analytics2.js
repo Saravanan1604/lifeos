@@ -33,7 +33,7 @@ function _anLabel(period, r) {
   return String(r.a.getFullYear());
 }
 function _anTx(r) { return (STATE.transactions || []).filter(t => { const d = (t.date || '').slice(0, 10); return d >= r.from && d <= r.to; }); }
-function _anSum(l) { return l.reduce((s, t) => s + (+t.amount || 0), 0); }
+function _anSum(l) { return l.reduce((s, t) => s + Money.amt(t), 0); }
 function _anBuckets(period, r, mode) {
   // mode 'flow' = finer (line); 'bars' = coarser (paired bars)
   const out = [];

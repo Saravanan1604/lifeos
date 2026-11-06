@@ -15,7 +15,7 @@ function _hwMonths(n) {
     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     let inc = 0, exp = 0;
     (STATE.transactions || []).forEach(t => {
-      if ((t.date || '').startsWith(ym)) { if (t.type === 'income') inc += t.amount; else exp += t.amount; }
+      if ((t.date || '').startsWith(ym)) { if (t.type === 'income') inc += Money.amt(t); else exp += Money.amt(t); }
     });
     arr.push({ ym, inc, exp, sav: inc - exp, label: d.toLocaleString('default', { month: 'short' }) });
   }
@@ -24,7 +24,7 @@ function _hwMonths(n) {
 function _hwCatSpend(ym) {
   const m = {};
   (STATE.transactions || []).forEach(t => {
-    if (t.type === 'expense' && (t.date || '').startsWith(ym)) m[t.category] = (m[t.category] || 0) + t.amount;
+    if (t.type !== 'income' && (t.date || '').startsWith(ym)) m[t.category] = (m[t.category] || 0) + Money.amt(t);
   });
   return Object.entries(m).sort(([, a], [, b]) => b - a);
 }

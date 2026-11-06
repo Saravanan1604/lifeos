@@ -97,7 +97,7 @@ function assistantVoice() {
 // ══════════════════════════════════════════════════════════
 // THE ANSWER ENGINE
 // ══════════════════════════════════════════════════════════
-function _asSum(list) { return list.reduce((s, t) => s + (+t.amount || 0), 0); }
+function _asSum(list) { return list.reduce((s, t) => s + Money.amt(t), 0); }
 function _asRangeLabel(sq) {
   if (!sq.from) return 'this month';
   const a = new Date(sq.from + 'T00:00:00'), b = new Date(sq.to + 'T00:00:00'), n = new Date();

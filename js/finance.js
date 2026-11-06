@@ -845,7 +845,7 @@ function renderCombinedSpendBudget(activeTab) {
 
   const budgetRows = budgets.map((b, bi) => {
     const limit = getBudgetLimit(b, _budgetPeriod);
-    const spent = filteredTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
+    const spent = filteredTxns.filter(t => Money.isSpend(t) && t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
     return { b, bi, limit, spent };
   });
   const totalLimit = budgetRows.reduce((s, r) => s + r.limit, 0);
@@ -2219,7 +2219,7 @@ function _recBudgetBars() {
   const txns = filterTxByAnchor([...(STATE.transactions || [])], _recPeriod, _ymdLocal(_recAnchor)).filter(t => t.type === 'expense');
   const rows = budgets.map(b => {
     const limit = getBudgetLimit(b, _recPeriod === 'all' ? 'year' : _recPeriod) || 1;
-    const spent = txns.filter(t => (t.category || '').trim().toLowerCase() === (b.category || '').trim().toLowerCase()).reduce((s, t) => s + t.amount, 0);
+    const spent = txns.filter(t => Money.isSpend(t) && (t.category || '').trim().toLowerCase() === (b.category || '').trim().toLowerCase()).reduce((s, t) => s + Money.amt(t), 0);
     if (spent <= 0) return '';
     const pct = Math.min(100, Math.round((spent / limit) * 100));
     const col = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f59e0b' : '#10b981';
@@ -3335,8 +3335,8 @@ function renderFinance() {
   if (typeof reconcileCurrentBalances === 'function') reconcileCurrentBalances();
   const txnsAll = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
   const txns    = filterTxByPeriod(txnsAll, _finPeriod);
-  const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const expense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + Money.amt(t), 0);
+  const expense = txns.filter(t => t.type !== 'income').reduce((s, t) => s + Money.amt(t), 0);
   const savings = income - expense;
   const savingsRate = income > 0 ? ((savings / income) * 100).toFixed(1) : 0;
   const savingsOk = savings >= 0;
@@ -3352,7 +3352,7 @@ function renderFinance() {
   // Build category spending map for "Spending by Category"
   const catMap = {};
   txns.filter(t => t.type === 'expense').forEach(t => {
-    catMap[t.category] = (catMap[t.category] || 0) + t.amount;
+    catMap[t.category] = (catMap[t.category] || 0) + Money.amt(t);
   });
   const topCats = Object.entries(catMap).sort(([,a],[,b]) => b - a).slice(0, 6);
 
@@ -3650,8 +3650,8 @@ function renderFinanceChart(txns) {
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
     const label = d.toLocaleString('default', { month: 'short', year: '2-digit' });
     if (!monthMap[key]) monthMap[key] = { label, income: 0, expense: 0 };
-    if (t.type === 'income') monthMap[key].income += t.amount;
-    else monthMap[key].expense += t.amount;
+    if (t.type === 'income') monthMap[key].income += Money.amt(t);
+    else monthMap[key].expense += Money.amt(t);
   });
   const sorted = Object.entries(monthMap).sort(([a],[b])=>a.localeCompare(b)).slice(-8);
   const labels = sorted.map(([,v])=>v.label);
@@ -3714,8 +3714,8 @@ function refreshFinancePage() {
 
   const txnsAll = [...(STATE.transactions || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
   const txns    = filterTxByPeriod(txnsAll, _finPeriod);
-  const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const expense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + Money.amt(t), 0);
+  const expense = txns.filter(t => t.type !== 'income').reduce((s, t) => s + Money.amt(t), 0);
   const savings = income - expense;
   const savingsOk = savings >= 0;
   const rate    = income > 0 ? ((savings / income) * 100).toFixed(1) : 0;
@@ -4073,6 +4073,10 @@ function applyCategoryToSameName(desc, cat, excludeId, onlyWeak) {
     if ((t.description || '').trim().toLowerCase() !== key) return;
     if (t.category === cat) return;
     if (onlyWeak && t.category && !/^others?$/i.test(t.category)) return;
+    // never put an income-only category on a spend (or the reverse) — that
+    // silently broke totals ("Interest spending")
+    const ct = typeof Money !== 'undefined' ? Money.catType(cat) : null;
+    if ((ct === 'income' && t.type !== 'income') || (ct === 'expense' && t.type === 'income')) return;
     t.category = cat; t.icon = icon; n++;
   });
   return n;
@@ -4081,6 +4085,8 @@ function applyCategoryToSameName(desc, cat, excludeId, onlyWeak) {
 function _padNotesRule() {
   if (!_pad || _pad.mode !== 'add') return;
   const ruled = getCategoryRule(_pad.notes);
+  const rt = ruled && typeof Money !== 'undefined' ? Money.catType(ruled) : null;
+  if (rt && rt !== 'both' && rt !== (_pad.type === 'income' ? 'income' : 'expense')) return;
   if (ruled && ruled !== _pad.category) { _pad.category = ruled; renderTxPad(); }
 }
 
@@ -7540,7 +7546,7 @@ function renderBudget() {
   // Compute per-budget totals
   const budgetRows = budgets.map((b, bi) => {
     const limit = getBudgetLimit(b, _budgetPeriod);
-    const spent = filteredTxns.filter(t => t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
+    const spent = filteredTxns.filter(t => Money.isSpend(t) && t.category?.trim().toLowerCase() === b.category?.trim().toLowerCase()).reduce((s,t) => s+t.amount, 0);
     return { b, bi, limit, spent };
   });
   const totalLimit = budgetRows.reduce((s, r) => s + r.limit, 0);

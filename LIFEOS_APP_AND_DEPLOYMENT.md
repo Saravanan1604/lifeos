@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **710** (6 Nov 2026).*
+*Status as of build **711** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -260,6 +260,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 708 | **Select mode**: floating bar above the bottom nav (✕ · “N selected” · Select all · Category · Delete as soft tinted buttons, lifted to `<body>` because the page container is transformed), rounded-square checkboxes, soft purple selected rows. **Filter popup** redesigned: search box first + quick chips, Type and Sort as segmented controls, categories as colour-dot chips, compact From/To, “Jump to a day” link, Clear all / Show results. Records hero rounds to whole rupees in every view |
 | 709 | **One modern style for all 71 popups** (app + desktop): shared rules in `#modal-body` for labels, 48px inputs/selects (custom chevron), textareas, focus ring, 2-column rows, info boxes, dashed file pickers and a full-width action row (secondary + wider gradient primary, soft red delete). Transaction detail card rebuilt (icon buttons, 36px amount, clean rows); Carry Forward card readable; delete confirmations use a clear question style |
 | 710 | Full-app sweep (no screenshot needed): **Savings Goals** rebuilt (saved-so-far summary, goal cards with progress ring, days-left / auto-sync pills, tidy “Add money saved” row; 2 columns on desktop). **Notes** rebuilt (header, guided empty state, 2-column card grid). Budget/Spending “Total budget progress” box restyled. Audit covered 20 pages + 18 popups in Night and Day |
+| 711 | **One money engine** (`js/money.js`): `Money.amt / isIncome / isSpend / totals / monthTotals / byCategory`; 30 hand-rolled sums across 9 files now go through it (text amounts can no longer concatenate, entries without a type count as spending everywhere, budget spend ignores income). Verified Home = Report = Analytics for the same month. **Data check**: `Money.mismatches()` finds entries whose type disagrees with their category (e.g. Interest saved as expense) → Home card + Settings → “Check my entries” to fix or keep per category. Same-name category rules and the notes rule can no longer put an income category on a spend (or the reverse) |
 
 ### Testing locally
 

@@ -411,8 +411,8 @@ function _goalSyncSourceLabel(g) {
 // Auto-sync savings goals with transaction data & custom sources (bank/investments/etc)
 function autoSyncGoals() {
   const txns = STATE.transactions || [];
-  const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const expense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + Money.amt(t), 0);
+  const expense = txns.filter(t => t.type !== 'income').reduce((s, t) => s + Money.amt(t), 0);
   const netSavings = Math.max(0, income - expense);
   
   const bankAccounts = STATE.bankAccounts || [];

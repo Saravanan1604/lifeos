@@ -97,6 +97,8 @@ function renderSettingsApp() {
     `<label class="st-row"><span class="st-ic t-acc"><i data-lucide="languages"></i></span><span class="st-tx"><b>Language</b><small>Also used for voice commands</small></span>
       <select class="st-sel" onchange="setLanguage(this.value)">${Object.keys(langs).map(c => `<option value="${c}" ${lang === c ? 'selected' : ''}>${langs[c].flag} ${langs[c].label}</option>`).join('')}</select></label>`,
     _stRow({ ic: 'bell-ring', tone: 'warn', t: 'Smart alerts', s: 'Budget, bills, unusual spends', on: "navigate('smart')" }),
+    (() => { const n = typeof Money !== 'undefined' ? Money.mismatches().reduce((a, g) => a + g.ids.length, 0) : 0;
+      return _stRow({ ic: 'shield-check', tone: n ? 'exp' : 'inc', t: 'Check my entries', s: n ? `${n} entries have the wrong type — tap to fix` : 'Finds income saved as expense and the reverse', right: n ? `<span class="st-pill">${n}</span>` : null, on: 'openDataCheck()' }); })(),
   ]);
 
   const security = _stGroup('Security', lockOn ? [

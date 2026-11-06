@@ -19,7 +19,7 @@ function _reportData(period, anchor) {
     for (let m = 0; m < 12; m++) {
       const ym = `${year}-${String(m + 1).padStart(2, '0')}`;
       let inc = 0, exp = 0;
-      tx.forEach(t => { if ((t.date || '').startsWith(ym)) { if (t.type === 'income') inc += t.amount; else exp += t.amount; } });
+      tx.forEach(t => { if ((t.date || '').startsWith(ym)) { if (t.type === 'income') inc += Money.amt(t); else exp += Money.amt(t); } });
       bal += inc - exp;
       rows.push({ label: new Date(year, m, 1).toLocaleString('default', { month: 'short' }), inc, exp, bal });
     }
@@ -32,7 +32,7 @@ function _reportData(period, anchor) {
     for (let d = 1; d <= days; d++) {
       const ds = `${y}-${String(mo + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       let inc = 0, exp = 0;
-      tx.forEach(t => { if ((t.date || '').slice(0, 10) === ds) { if (t.type === 'income') inc += t.amount; else exp += t.amount; } });
+      tx.forEach(t => { if ((t.date || '').slice(0, 10) === ds) { if (t.type === 'income') inc += Money.amt(t); else exp += Money.amt(t); } });
       bal += inc - exp;
       rows.push({ label: String(d), inc, exp, bal });
     }
@@ -45,7 +45,7 @@ function _reportData(period, anchor) {
     for (let i = 0; i < 7; i++) {
       const d = new Date(mon); d.setDate(mon.getDate() + i); const ds = _rptYmd(d);
       let inc = 0, exp = 0;
-      tx.forEach(t => { if ((t.date || '').slice(0, 10) === ds) { if (t.type === 'income') inc += t.amount; else exp += t.amount; } });
+      tx.forEach(t => { if ((t.date || '').slice(0, 10) === ds) { if (t.type === 'income') inc += Money.amt(t); else exp += Money.amt(t); } });
       bal += inc - exp;
       rows.push({ label: d.toLocaleDateString('en-IN', { weekday: 'short' }), inc, exp, bal });
     }
@@ -58,7 +58,7 @@ function _reportData(period, anchor) {
   tx.forEach(t => {
     if ((t.date || '').slice(0, 10) !== ds) return;
     const c = t.category || 'Other'; if (!byCat[c]) byCat[c] = { inc: 0, exp: 0 };
-    if (t.type === 'income') byCat[c].inc += t.amount; else byCat[c].exp += t.amount;
+    if (t.type === 'income') byCat[c].inc += Money.amt(t); else byCat[c].exp += Money.amt(t);
   });
   const rows = Object.entries(byCat).map(([c, v]) => ({ label: c, inc: v.inc, exp: v.exp, bal: v.inc - v.exp }))
     .sort((a, b) => (b.inc + b.exp) - (a.inc + a.exp));
