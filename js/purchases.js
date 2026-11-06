@@ -26,6 +26,7 @@ function _trkDueBadge(dueStr) {
 }
 
 function renderPurchases() {
+  if (window.__IS_APP && typeof renderPurchasesApp === 'function') return renderPurchasesApp();
   const container = document.getElementById('page-container');
   if (!container) return;
   const items = [..._purchaseList()].sort((a, b) => (b.date || '') < (a.date || '') ? -1 : 1);

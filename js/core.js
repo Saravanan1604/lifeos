@@ -916,7 +916,7 @@ function renderTransactions() {
 
 function _renderPage(page) {
   const container = document.getElementById('page-container');
-  if (container) container.setAttribute('data-page', page);
+  if (container) { container.setAttribute('data-page', page); container.removeAttribute('data-pk'); }
   switch (page) {
     case 'dashboard':    renderDashboard();    break;
     case 'finance':      renderBankTracker();   break;

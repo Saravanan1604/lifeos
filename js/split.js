@@ -23,6 +23,7 @@ function _splitMyNet(s) {
 }
 
 function renderSplit() {
+  if (window.__IS_APP && typeof renderSplitApp === 'function') return renderSplitApp();
   const container = document.getElementById('page-container');
   if (!container) return;
   const splits = [..._splitList()].sort((a, b) => (b.date || '') < (a.date || '') ? -1 : 1);

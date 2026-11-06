@@ -34,6 +34,7 @@ function _renewalItems() {
 }
 
 function renderRenewals() {
+  if (window.__IS_APP && typeof renderRenewalsApp === 'function') return renderRenewalsApp();
   const container = document.getElementById('page-container');
   if (!container) return;
   const items = _renewalItems();

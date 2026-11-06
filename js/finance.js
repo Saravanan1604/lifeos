@@ -2557,6 +2557,7 @@ function saveTagBudget(tag, forceVal) {
 // In the app it mirrors the Spending page (donut ring + category rows); on web
 // it's a simple list. Tap a tag to drill into its breakdown (openTagDetail).
 function renderTags() {
+  if (window.__IS_APP && typeof renderTagsApp === 'function') return renderTagsApp();
   const container = document.getElementById('page-container');
   if (!container) return;
   const byTag = {};
