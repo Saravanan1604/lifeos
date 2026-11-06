@@ -217,3 +217,51 @@ function nwRatioHtml(assets, liab) {
   return `<div class="nw-ratio"><div class="nw-ratio-bar"><i class="a" style="width:${ap}%"></i><i class="l" style="width:${100 - ap}%"></i></div>
     <div class="nw-ratio-l"><span><i class="a"></i>Assets ${ap}%</span><span><i class="l"></i>Liabilities ${100 - ap}%</span></div></div>${df}`;
 }
+
+// ══════════════════════════════════════════════════════════
+// build 687 — clearer net-worth overview for the Assets page.
+// One idea: what you OWN vs what you OWE. Each number says what it is.
+// ══════════════════════════════════════════════════════════
+function nwOverviewHtml(o) {
+  const S = typeof _H !== 'undefined' ? _H.short.bind(_H) : (v => fmt(Math.round(v)));
+  const nw = o.netWorth, own = o.totalCurrent + Math.max(0, o.netCash), owe = o.totalLoan;
+  const nwAll = own - owe;                                    // includes cash & bank
+  const tot = own + owe, ap = tot > 0 ? Math.round(own / tot * 100) : 0;
+  const n = new Date(), ym = _ymdLocal(n).slice(0, 7), pm = _ymdLocal(new Date(n.getFullYear(), n.getMonth() - 1, 1)).slice(0, 7);
+  const incOf = m => (STATE.transactions || []).filter(t => t.type === 'income' && (t.date || '').startsWith(m)).reduce((s, t) => s + (+t.amount || 0), 0);
+  const inc = incOf(ym) || incOf(pm);
+  const emiPct = inc > 0 && o.emiMonth > 0 ? Math.round(o.emiMonth / inc * 100) : null;
+  let df = null;
+  if (typeof _loanPayoff === 'function') (STATE.loans || []).forEach(l => { const p = _loanPayoff(l); if (p.months && (!df || p.end > df)) df = p.end; });
+  const neg = nwAll < 0;
+  const sentence = !tot ? 'Add your assets and loans to see your net worth.'
+    : neg ? `You owe <b>${S(-nwAll)}</b> more than you own.`
+    : `You own <b>${S(nwAll)}</b> more than you owe.`;
+  return `<div class="nw2">
+    <div class="nw2-hero ${neg ? 'neg' : 'pos'}">
+      <p class="nw2-lbl">Your net worth</p>
+      <b class="nw2-val">${neg ? '−' : ''}${fmt(Math.abs(Math.round(nwAll)))}</b>
+      <p class="nw2-say">${sentence}</p>
+      ${o.chg ? `<span class="nw2-chg ${o.chg >= 0 ? 'up' : 'down'}">${o.chg >= 0 ? '▲' : '▼'} ${S(Math.abs(o.chg))} this month</span>` : ''}
+    </div>
+    <div class="nw2-tiles">
+      <button class="nw2-tile own ${o.isAssets ? 'on' : ''}" onclick="invSetView('assets')">
+        <span class="nw2-t">You own</span><b>${S(own)}</b>
+        <span class="nw2-s">Investments ${S(o.totalCurrent)}${o.netCash > 0 ? ` + cash & bank ${S(o.netCash)}` : ''}</span>
+      </button>
+      <button class="nw2-tile owe ${!o.isAssets ? 'on' : ''}" onclick="invSetView('liabilities')">
+        <span class="nw2-t">You owe</span><b>${S(owe)}</b>
+        <span class="nw2-s">${(STATE.loans || []).length} loan${(STATE.loans || []).length === 1 ? '' : 's'} outstanding</span>
+      </button>
+    </div>
+    ${tot ? `<div class="nw2-bar"><i class="a" style="width:${ap}%"></i><i class="l" style="width:${100 - ap}%"></i></div>
+    <p class="nw2-bar-l">For every ₹100 you own, you owe ₹${own > 0 ? Math.round(owe / own * 100) : '—'}.</p>` : ''}
+    <div class="nw2-facts">
+      <div><span>Monthly EMIs</span><b>${o.emiMonth ? fmt(Math.round(o.emiMonth)) : '—'}</b><em>${emiPct == null ? 'no income logged' : emiPct + '% of your income' + (emiPct > 40 ? ' · high' : '')}</em></div>
+      <div onclick="invSetView('liabilities')"><span>Debt-free by</span><b>${df ? df.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '—'}</b><em>${df ? 'at current EMIs →' : 'add EMIs to estimate'}</em></div>
+    </div>
+    <div class="nw2-trend">${typeof nwTrendHtml === 'function' ? nwTrendHtml() : ''}
+      <p class="nw2-hint">A sudden jump usually means an asset or loan was added or edited, not money gained or lost.</p>
+      <button class="nw2-proj" onclick="openNetWorthProjModal()"><i data-lucide="trending-up"></i> Net-worth projection</button></div>
+  </div>`;
+}

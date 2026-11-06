@@ -19830,3 +19830,51 @@ html.is-app body:not(#_cx):not(#_cy) .px-imp svg { width: 14px; height: 14px; co
 html.is-app body:not(#_cx):not(#_cy) .px-foot { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(transparent, var(--cx-bg) 35%); z-index: 2; }
 html.is-app body:not(#_cx):not(#_cy) .px-save { width: 100%; min-height: 54px !important; border: none; border-radius: 16px; color: #fff; font-size: 16.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--cx-pri); box-shadow: 0 12px 26px -12px var(--cx-pri); }
 html.is-app body:not(#_cx):not(#_cy) .px-save svg { width: 20px; height: 20px; }
+
+/* ============================================================
+   build 687 — Assets page: own vs owe overview (app-only).
+   The page runs at zoom .6, so the block is scaled back to 1.
+   ============================================================ */
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .nw2 { zoom: 1.6667; }
+html.is-app body:not(#_cx):not(#_cy) .nw2 { margin: 0 0 12px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-hero { background: var(--cx-card); border: 1px solid var(--cx-line); border-radius: 22px; box-shadow: var(--cx-shadow); padding: 18px 18px 16px; text-align: center; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-hero.neg { background: radial-gradient(90% 90% at 50% 0%, color-mix(in srgb, var(--cx-exp) 10%, transparent), transparent 70%), var(--cx-card); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-hero.pos { background: radial-gradient(90% 90% at 50% 0%, color-mix(in srgb, var(--cx-inc) 10%, transparent), transparent 70%), var(--cx-card); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-lbl { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-val { display: block; font-size: 34px; font-weight: 800; letter-spacing: -0.03em; margin: 4px 0 4px; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-hero.neg .nw2-val { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-hero.pos .nw2-val { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-say { margin: 0; font-size: 14.5px; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-chg { display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-chg.up { color: var(--cx-inc); background: color-mix(in srgb, var(--cx-inc) 12%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-chg.down { color: var(--cx-exp); background: color-mix(in srgb, var(--cx-exp) 12%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile { text-align: left; min-height: 0 !important; padding: 14px; border-radius: 18px; border: 1.5px solid var(--cx-line); background: var(--cx-card); box-shadow: var(--cx-shadow); cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile .nw2-t { font-size: 12.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile.own .nw2-t { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile.owe .nw2-t { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile b { font-size: 24px; font-weight: 800; color: var(--cx-ink); letter-spacing: -0.02em; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile .nw2-s { font-size: 11.5px; color: var(--cx-ink2); line-height: 1.35; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile.own.on { border-color: var(--cx-inc); background: color-mix(in srgb, var(--cx-inc) 7%, var(--cx-card)); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile.owe.on { border-color: var(--cx-exp); background: color-mix(in srgb, var(--cx-exp) 7%, var(--cx-card)); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-bar { display: flex; gap: 3px; height: 8px; border-radius: 4px; overflow: hidden; margin: 12px 2px 6px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-bar i { display: block; height: 100%; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-bar i.a { background: var(--cx-inc); border-radius: 4px 0 0 4px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-bar i.l { background: var(--cx-exp); border-radius: 0 4px 4px 0; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-bar-l { margin: 0 2px; font-size: 12.5px; color: var(--cx-ink2); text-align: center; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-facts > div { background: var(--cx-card); border: 1px solid var(--cx-line); border-radius: 16px; padding: 12px 14px; box-shadow: var(--cx-shadow); min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-facts > div:last-child { cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-facts span { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; font-weight: 800; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-facts b { display: block; font-size: 19px; font-weight: 800; color: var(--cx-ink); margin: 2px 0; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-facts em { font-style: normal; font-size: 11.5px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-trend { margin-top: 12px; background: var(--cx-card); border: 1px solid var(--cx-line); border-radius: 18px; box-shadow: var(--cx-shadow); padding: 12px 14px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-trend .nw-trend { margin: 0; zoom: 1 !important; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-hint { margin: 6px 0 0; font-size: 11.5px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .nw2-proj { margin-top: 10px; width: 100%; min-height: 40px !important; border-radius: 12px; border: 1px solid var(--cx-line); background: var(--cx-chip); color: var(--cx-pri); font-weight: 700; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-proj svg { width: 16px; height: 16px; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tiles, html.is-app body:not(#_cx):not(#_cy) .nw2-facts { grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile { min-width: 0; overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .nw2-tile .nw2-s { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* the own / owe tiles switch the list now — the old toggle is redundant */
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .ia-toggle { display: none !important; }

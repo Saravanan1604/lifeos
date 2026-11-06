@@ -5361,52 +5361,8 @@ function renderInvestmentsApp() {
         </button>
       </div>
 
-      <!-- NET WORTH HERO -->
-      <div class="ia-hero">
-        <div class="ia-hero-top">
-          <div>
-            <p class="ia-hero-lbl">TOTAL NET WORTH <i data-lucide="info"></i></p>
-            <p class="ia-hero-val ${netWorth < 0 ? 'neg' : 'pos'}">${netWorth < 0 ? '- ' : ''}${fmt(Math.abs(netWorth))}</p>
-            ${netWorth < 0 ? `<p class="ia-hero-why">Liabilities ${fmt(Math.round(totalLoan))} are more than assets ${fmt(Math.round(totalCurrent))} — net worth = assets − liabilities.</p>` : ''}
-            <p class="ia-hero-chg ${chg >= 0 ? 'pos' : 'neg'}"><i data-lucide="${chg >= 0 ? 'arrow-up' : 'arrow-down'}"></i> ${chg >= 0 ? '+' : '-'}${fmt(Math.abs(Math.round(chg)))} (${chg >= 0 ? '+' : ''}${chgPct.toFixed(1)}%) <span>This Month</span></p>
-          </div>
-        </div>
-        ${typeof nwTrendHtml === 'function' ? nwTrendHtml() : ''}
-        <div class="ia-hero-div"></div>
-        <div class="ia-hero-split">
-          <div class="ia-hs">
-            <span class="ia-hs-ic asset"><i data-lucide="wallet"></i></span>
-            <div><p class="ia-hs-lbl">TOTAL ASSETS</p><p class="ia-hs-val pos">+${fmt(totalCurrent)}</p></div>
-          </div>
-          <div class="ia-hs">
-            <span class="ia-hs-ic liab"><i data-lucide="file-text"></i></span>
-            <div><p class="ia-hs-lbl">TOTAL LIABILITIES</p><p class="ia-hs-val neg">${fmt(totalLoan)}</p></div>
-          </div>
-        </div>
-        ${typeof nwRatioHtml === 'function' ? nwRatioHtml(totalCurrent, totalLoan) : ''}
-      </div>
-
-      <!-- QUICK STATS STRIP -->
-      <div class="ia-stats">
-        <div class="ia-stat"><span class="ia-stat-ic" style="color:#10b981"><i data-lucide="wallet"></i></span><div><p class="ia-stat-lbl">Net Cash</p><p class="ia-stat-val">${shortAmt(netCash)}</p></div></div>
-        <div class="ia-stat"><span class="ia-stat-ic" style="color:#3b82f6"><i data-lucide="trending-up"></i></span><div><p class="ia-stat-lbl">Investments</p><p class="ia-stat-val">${shortAmt(totalCurrent)}</p></div></div>
-        <div class="ia-stat"><span class="ia-stat-ic" style="color:#f59e0b"><i data-lucide="landmark"></i></span><div><p class="ia-stat-lbl">Loans</p><p class="ia-stat-val">${shortAmt(totalLoan)}</p></div></div>
-        ${(() => {
-          // Traffic-light the EMI load vs this month's income (40% rule):
-          // green < 30%, amber 30–40%, red > 40%.
-          const mInc = filterTxByAnchor([...(STATE.transactions || [])], 'month', _ymdLocal(new Date()))
-            .filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0);
-          const ratio = mInc > 0 ? emiMonth / mInc : 0;
-          const c = ratio > 0.4 ? '#ef4444' : ratio > 0.3 ? '#f59e0b' : '#a855f7';
-          const warn = mInc > 0 && ratio > 0.3 ? ` <span style="font-size:13px;color:${c}">${ratio > 3 ? '> income' : Math.round(ratio * 100) + '%'}</span>` : '';
-          return `<div class="ia-stat"><span class="ia-stat-ic" style="color:${c}"><i data-lucide="calendar"></i></span><div><p class="ia-stat-lbl">EMI / Month</p><p class="ia-stat-val" style="${ratio > 0.3 && mInc > 0 ? 'color:' + c : ''}">${shortAmt(emiMonth)}${warn}</p></div></div>`;
-        })()}
-      </div>
-
-      <!-- PROJECTION BUTTON -->
-      <button class="ia-proj-btn" onclick="openNetWorthProjModal()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.4);border-radius:16px;background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.12));color:#a5b4fc;font-size:15px;font-weight:700;cursor:pointer">
-        <i data-lucide="trending-up"></i> Net-Worth Projection
-      </button>
+      <!-- NET WORTH OVERVIEW (build 687: own vs owe, every number explained) -->
+      ${typeof nwOverviewHtml === 'function' ? nwOverviewHtml({ netWorth, totalCurrent, totalLoan, netCash, emiMonth, chg, isAssets }) : ''}
 
       <!-- ASSETS / LIABILITIES TOGGLE -->
       <div class="ia-toggle">
