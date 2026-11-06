@@ -410,7 +410,11 @@ function renderRecordsMyMoney() {
   const rows = days.map(d => {
     const dayExp = byDay[d].filter(t => t.type !== 'income').reduce((s, t) => s + (+t.amount || 0), 0);
     return `
-    <div class="mm-day"><span>${dayHeader(d)}</span><span class="mm-day-total">-${fmt(dayExp)}</span></div>
+    ${window.__IS_APP ? (() => { const dayInc = byDay[d].filter(t => t.type === 'income').reduce((s, t) => s + (+t.amount || 0), 0); const n = dayInc - dayExp;
+      const td = _ymdLocal(new Date()), y = new Date(); y.setDate(y.getDate() - 1);
+      const lbl = d === td ? 'Today' : d === _ymdLocal(y) ? 'Yesterday' : new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+      return `<div class="mm-day tl-day"><span>${lbl}</span><span class="mm-day-total ${n >= 0 ? 'pos' : ''}">${n >= 0 ? '+' : '−'}${fmt(Math.round(Math.abs(n)))}</span></div>`; })()
+      : `<div class="mm-day"><span>${dayHeader(d)}</span><span class="mm-day-total">-${fmt(dayExp)}</span></div>`}
     ${byDay[d].sort(within).map(t => {
       const inc = t.type === 'income';
       const src = t.source ? _sourceLabel(t.source) : '';
@@ -429,12 +433,15 @@ function renderRecordsMyMoney() {
         </div>
         <div class="mm-row ${seld ? 'sel' : ''}" data-id="${t.id}" onclick="recRowTap('${t.id}')">
           ${_recSelectMode ? `<span class="mm-check ${seld ? 'on' : ''}">${seld ? '✓' : ''}</span>` : ''}
-          <div class="mm-ic" style="background:${catColor(t.category)}" onclick="event.stopPropagation();if(typeof openQuickCat==='function'&&!_recSelectMode)openQuickCat('${t.id}');else openCategoryDetail('${(t.category||'Other').replace(/'/g,"\\'")}')">${catIconHtml(t.category)}</div>
-          <div class="mm-mid">
+          <div class="mm-ic" style="background:${catColor(t.category)};--c:${catColor(t.category)}" onclick="event.stopPropagation();if(typeof openQuickCat==='function'&&!_recSelectMode)openQuickCat('${t.id}');else openCategoryDetail('${(t.category||'Other').replace(/'/g,"\\'")}')">${catIconHtml(t.category)}</div>
+          ${window.__IS_APP ? `<div class="mm-mid tl-mid">
+            <p class="mm-cat">${esc(t.description || t.category || '—')}${t.recurringId ? ' <i data-lucide="repeat" class="mm-recur-ic"></i>' : ''}</p>
+            <p class="tl-sub">${[esc(t.description ? (t.category || '') : ''), t.subcategory ? esc(t.subcategory) : '', esc(srcName), t.time ? _fmtTime(t.time) : ''].filter(Boolean).join(' · ')}${t.tag ? ` <span class="tl-tag" onclick="event.stopPropagation();openTagDetail('${esc(t.tag).replace(/'/g, "\\'")}')">#${esc(t.tag)}</span>` : ''}</p>
+          </div>` : `<div class="mm-mid">
             <p class="mm-cat">${esc(t.category || '—')}${t.recurringId ? ' <i data-lucide="repeat" class="mm-recur-ic"></i>' : ''}</p>
             <div class="mm-meta">${chip}${tm}${note}${sub}${tagChip}</div>
-          </div>
-          <div class="mm-amt ${inc ? 'pos' : 'neg'}">${inc ? '' : '-'}${fmt(t.amount)}</div>
+          </div>`}
+          <div class="mm-amt ${inc ? 'pos' : 'neg'}">${window.__IS_APP ? (inc ? '+' : '−') : (inc ? '' : '-')}${fmt(t.amount)}</div>
         </div>
       </div>`;
     }).join('')}

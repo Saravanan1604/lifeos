@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **706** (6 Nov 2026).*
+*Status as of build **707** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -256,6 +256,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 704 | **Desktop web uses the new design** (owner request): head script marks desktop browsers `is-app is-desk` (no viewport lock, AdSense still loads); new `js/desk.js` fits every page into a centred 640px column (dividing by each page's CSS zoom) with the new menu permanently on the left; bottom bar, + button, demo banner, sheets, add screen, voice and calculator fit the column. Settings → **Classic web layout** switches a computer back to the old pages (and the classic Settings has “Switch to the new design”). App size hidden on desktop. Demo-mode celebration popup removed |
 | 705 | **Calmer Home**: removed the AI “Your money, explained” card (insights, health score, Ask button) from Home — AI stays in the ✨ top button and Analytics. Hero shows whole rupees (no .64). “Spending vs last month” and “In accounts” chips sit on one quiet line. Today card no longer shows “/ ₹0” when the month budget is used up — it says so instead; budget card “Per day” shows “Used up”. 7-day bars clearly visible in both themes |
 | 706 | **Real desktop layout** (is-desk): full-height sidebar with **New transaction**, Home / Analytics / Assets and the money menu; no bottom bar; content up to 1240px wide; Home becomes a two-column dashboard (balance, quick actions, transactions | today, budget, spending chart — sticky); pop-ups are centred dialogs and the add screen / voice / calculator a centred panel. **New toasts** everywhere: slim card with coloured icon, timer line, max 2 on screen, tap to dismiss, emojis stripped; bottom-right on desktop |
+| 707 | **New transaction list** (app + desktop): one rounded card, day headers “Today / Yesterday / Wed, 4 Nov” with the day's net, rows show the note as title and “category · account · time” below (no clock emoji, no quotes, no account pill), tinted rounded-square category icons, +₹ green income / −₹ expense. Desktop: selected sidebar item readable in Day mode |
 
 ### Testing locally
 
