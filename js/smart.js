@@ -104,26 +104,74 @@ function _loanPayoffLine(l) {
   if (p.never) return `<p class="ia-payoff bad">⚠ EMI ${fmt(p.emi)} is below the interest — this never closes</p>`;
   if (!p.months) return '';
   const when = p.end.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
-  return `<p class="ia-payoff">Free by <b>${when}</b> · ${p.months} mo left · ${fmt(Math.round(p.interest))} interest</p>`;
+  const prin = +l.principal || 0, pct = prin > 0 ? Math.max(0, Math.min(100, Math.round((prin - p.out) / prin * 100))) : 0;
+  return `<p class="ia-payoff">Free by <b>${when}</b> · ${p.months} mo left · ${fmt(Math.round(p.interest))} interest</p>${prin > 0 ? `<div class="ia-prog"><i style="width:${pct}%"></i></div><p class="ia-prog-l">${pct}% repaid${l.emi ? ' · EMI ' + fmt(+l.emi) : ''}</p>` : ''}`;
+}
+// Liabilities dashboard (build 681): summary, debt-free countdown and an
+// extra-payment what-if. Only EMI-model loans take extra payments; bullet /
+// interest-only loans are listed but not accelerated.
+function _debtModel() {
+  return (STATE.loans || []).map(l => {
+    const out = typeof _loanOutstanding === 'function' ? _loanOutstanding(l) : (+l.outstanding || 0);
+    const annual = typeof _loanAnnualRate === 'function' ? _loanAnnualRate(l) : (+l.interestRate || 0);
+    const emi = typeof _workableEmi === 'function' ? _workableEmi(l, out, annual) : (+l.emi || 0);
+    const emiModel = (l.repayType || 'emi') === 'emi' && emi > out * annual / 1200 + 1;
+    return { id: l.id, name: l.name || l.type || 'Loan', type: l.type || '', out, r: annual / 1200, rate: annual, emi: emiModel ? emi : 0, emiModel };
+  }).filter(x => x.out > 0);
+}
+function _debtSim(extra) {
+  const loans = _debtModel().filter(l => l.emiModel).map(l => ({ ...l, bal: l.out, done: null }));
+  let interest = 0, m = 0;
+  while (loans.some(l => l.bal > 0.5) && m < 1200) {
+    loans.forEach(l => { if (l.bal <= 0.5) return; const i = l.bal * l.r; interest += i; l.bal = l.bal + i - l.emi; if (l.bal <= 0.5) { l.bal = 0; l.done = m + 1; } });
+    let ex = extra;
+    loans.filter(l => l.bal > 0.5).sort((a, b) => b.rate - a.rate).forEach(l => { if (ex <= 0) return; const p = Math.min(ex, l.bal); l.bal -= p; ex -= p; if (l.bal <= 0.5) { l.bal = 0; l.done = m + 1; } });
+    m++;
+  }
+  return { months: m, interest, loans };
+}
+function _dfDate(months) { const d = new Date(); d.setMonth(d.getMonth() + months); return d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }); }
+function debtWhatIf(v) {
+  const extra = Math.max(0, +v || 0);
+  const base = _debtSim(0), sim = _debtSim(extra);
+  const lbl = document.getElementById('df-extra-lbl'); if (lbl) lbl.textContent = fmt(extra);
+  const out = document.getElementById('df-wi-out'); if (!out) return;
+  if (!extra) { out.innerHTML = `<p class="df-wi-hint">Slide to see how an extra monthly payment changes your debt-free date.</p>`; return; }
+  const saved = base.interest - sim.interest, tm = base.months - sim.months;
+  out.innerHTML = `<div class="df-wi-grid">
+      <div><span>New debt-free</span><b>${_dfDate(sim.months)}</b></div>
+      <div><span>Interest saved</span><b class="ok">${fmt(Math.max(0, Math.round(saved)))}</b></div>
+      <div><span>Time saved</span><b class="ok">${tm >= 12 ? Math.floor(tm / 12) + 'y ' + (tm % 12) + 'm' : tm + ' mo'}</b></div>
+    </div><p class="df-wi-hint">Extra goes to the highest-interest loan first (${esc((_debtModel().filter(l => l.emiModel).sort((a, b) => b.rate - a.rate)[0] || {}).name || '')}). Estimate.</p>`;
 }
 function _debtFreeCardHtml() {
-  const loans = (STATE.loans || []);
-  if (!loans.length) return '';
-  let last = null, interest = 0, never = 0, monthly = 0;
-  loans.forEach(l => {
-    const p = _loanPayoff(l);
-    if (p.never) never++;
-    if (p.months) { interest += p.interest; monthly += p.emi; if (!last || p.end > last) last = p.end; }
-  });
-  if (!last && !never) return '';
+  const all = _debtModel();
+  if (!all.length) return '';
+  const base = _debtSim(0);
+  const totalOut = all.reduce((s, l) => s + l.out, 0);
+  const emi = all.reduce((s, l) => s + l.emi, 0) + (STATE.loans || []).filter(l => !(all.find(a => a.id === l.id) || {}).emiModel).reduce((s, l) => s + (+l.emi || 0), 0);
+  const assets = (STATE.investments || []).reduce((s, i) => s + (typeof _assetCur === 'function' ? _assetCur(i) : (+i.currentValue || +i.amount || 0)), 0)
+               + (STATE.bankAccounts || []).reduce((s, b) => s + (+b.balance || 0), 0) + (STATE.cashAccounts || []).reduce((s, b) => s + (+b.balance || 0), 0);
+  const dta = assets > 0 ? Math.round(totalOut / assets * 100) : null;
+  const nonEmi = all.filter(l => !l.emiModel);
+  const anyEmi = all.some(l => l.emiModel);
   return `<div class="ia-card debtfree-card">
-    <p class="df-lbl">Debt-free by</p>
-    <p class="df-val">${last ? last.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }) : '—'}</p>
-    <div class="df-row">
-      <div><span>Monthly EMIs</span><b>${fmt(Math.round(monthly))}</b></div>
-      <div><span>Interest still to pay</span><b>${fmt(Math.round(interest))}</b></div>
+    <div class="df-top"><div><p class="df-lbl">Debt-free by</p><p class="df-val">${anyEmi ? _dfDate(base.months) : '—'}</p></div>
+      ${anyEmi ? `<div class="df-count"><b>${base.months}</b><span>months<br/>to go</span></div>` : ''}</div>
+    <div class="df-sum">
+      <div><span>Outstanding</span><b>${fmt(Math.round(totalOut))}</b></div>
+      <div><span>Monthly EMI</span><b>${fmt(Math.round(emi))}</b></div>
+      <div><span>Interest left</span><b>${anyEmi ? fmt(Math.round(base.interest)) : '—'}</b></div>
+      <div><span>Active loans</span><b>${all.length}</b></div>
+      <div><span>Debt / assets</span><b>${dta == null ? '—' : dta + '%'}</b></div>
     </div>
-    ${never ? `<p class="df-warn">⚠ ${never} loan${never > 1 ? 's' : ''} won't close at the current EMI — open it and try the what-if.</p>` : `<p class="df-tip">Tap a loan → What-if to see how an extra payment brings this date closer.</p>`}
+    ${anyEmi ? `<div class="df-wi">
+      <div class="df-wi-h"><span>What if I pay extra every month?</span><b id="df-extra-lbl">₹0</b></div>
+      <input type="range" min="0" max="50000" step="1000" value="0" oninput="debtWhatIf(this.value)" onclick="event.stopPropagation()"/>
+      <div class="df-wi-chips">${[2000, 5000, 10000, 20000].map(v => `<button onclick="event.stopPropagation();const r=this.closest('.df-wi').querySelector('input');r.value=${v};debtWhatIf(${v})">+${_H ? _H.short(v) : v}</button>`).join('')}</div>
+      <div id="df-wi-out"><p class="df-wi-hint">Slide to see how an extra monthly payment changes your debt-free date.</p></div>
+    </div>` : ''}
+    ${nonEmi.length ? `<p class="df-warn">${nonEmi.map(l => esc(l.name)).join(', ')}: no EMI that clears the loan (bullet / interest-only, or EMI below interest) — not included in the date. Open the loan to set an EMI or plan.</p>` : ''}
   </div>`;
 }
 
