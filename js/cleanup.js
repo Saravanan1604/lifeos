@@ -118,9 +118,33 @@
         msg = msg.replace(/\s*[·!]?\s*\+\d+\s*XP\b\s*/g, ' ').replace(/\s+([!.])/g, '$1').trim();
         if (!msg) return;
       }
-      return t0.call(this, msg, type);
+      return _newToast(msg, type);
     };
   }
+
+  // ── New toast (build 706): slim card, coloured icon, timer line, max 2 on screen ─
+  const TI = {
+    success: '<path d="M20 6 9 17l-5-5"/>',
+    error: '<path d="M18 6 6 18M6 6l12 12"/>',
+    warning: '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',
+  };
+  function _newToast(msg, type) {
+    type = TI[type] ? type : 'info';
+    let c = document.getElementById('nt-wrap');
+    if (!c) { c = document.createElement('div'); c.id = 'nt-wrap'; document.body.appendChild(c); }
+    const clean = String(msg).replace(/^[\s\u2600-\u27BF\uFE0F\u200D]+|^(?:\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|\uD83E[\uDC00-\uDFFF])+\s*/g, '').replace(/\s*(?:[\u2600-\u27BF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|\uD83E[\uDC00-\uDFFF])\uFE0F?$/, '').trim() || String(msg);
+    const t = document.createElement('div');
+    t.className = 'nt nt-' + type;
+    t.innerHTML = `<span class="nt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${TI[type]}</svg></span><span class="nt-tx"></span><i class="nt-bar"></i>`;
+    t.querySelector('.nt-tx').innerHTML = clean;
+    const kill = () => { if (!t.isConnected) return; t.classList.add('out'); setTimeout(() => t.remove(), 260); };
+    t.onclick = kill;
+    c.appendChild(t);
+    while (c.children.length > 2) c.firstElementChild.remove();
+    setTimeout(kill, type === 'error' ? 4200 : 2800);
+  }
+  window._newToast = _newToast;
 
   // ── Moving background off (battery) ─────────────────────────
   try {
