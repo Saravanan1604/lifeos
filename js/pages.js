@@ -335,6 +335,7 @@ function renderAnalyticsHealthChart(data) {
 
 // ===== SETTINGS =====
 function renderSettings() {
+  if (window.__IS_APP && typeof renderSettingsApp === 'function') return renderSettingsApp();
   document.getElementById('page-container').innerHTML = `
     <div class="fade-in">
       <div class="page-header"><h1 class="page-title">⚙️ Settings</h1><p class="page-subtitle">Manage your atworth preferences</p></div>
