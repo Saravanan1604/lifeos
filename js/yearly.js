@@ -102,6 +102,7 @@ function reportNav(delta) {
 }
 
 function renderYearly() {
+  if (window.__IS_APP && typeof renderReportApp === 'function') return renderReportApp();
   const data = _reportData(_rptPeriod, _rptAnchor);
   const tabs = [['day', 'Day'], ['week', 'Week'], ['month', 'Month'], ['year', 'Year']];
 

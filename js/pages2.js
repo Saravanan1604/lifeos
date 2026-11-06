@@ -184,3 +184,96 @@ function renderSplitApp() {
   </div>`;
   _pk.done(c);
 }
+
+// ── Report (Day / Week / Month / Year) ──────────────────────
+function renderReportApp() {
+  const c = document.getElementById('page-container'); if (!c) return;
+  const data = _reportData(_rptPeriod, _rptAnchor);
+  const rows = data.rows;
+  const tInc = rows.reduce((s, r) => s + r.inc, 0), tExp = rows.reduce((s, r) => s + r.exp, 0), net = tInc - tExp;
+  const rate = tInc > 0 ? Math.round(net / tInc * 100) : null;
+  const sgn = v => (v >= 0 ? '+' : '−') + fmt(Math.round(Math.abs(v)));
+  const tabs = [['day', 'Day'], ['week', 'Week'], ['month', 'Month'], ['year', 'Year']];
+  const max = Math.max(1, ...rows.map(r => Math.max(r.inc, r.exp)));
+  const unitLbl = { year: 'month', month: 'day', week: 'day', day: 'category' }[_rptPeriod];
+  const active = rows.filter(r => r.inc || r.exp);
+  const best = _rptPeriod !== 'day' && active.length ? active.reduce((a, b) => (b.exp > a.exp ? b : a)) : null;
+
+  const chart = _rptPeriod === 'day' ? '' : `<div class="pk-card rp-chart">
+      <div class="rp-cap" id="rp-cap">${best ? `Highest spend: <b>${_pk.e(best.label)}</b> · ${fmt(Math.round(best.exp))}` : 'No entries in this period'}</div>
+      <div class="rp-bars ${rows.length > 14 ? 'dense' : ''}">${rows.map(r => `<button class="rp-col" onclick="rpTap(this)" data-cap="<b>${_pk.e(r.label)}</b> · in ${fmt(Math.round(r.inc))} · out ${fmt(Math.round(r.exp))}">
+        <span class="rp-pair"><i class="in" style="height:${r.inc / max * 100}%"></i><i class="out" style="height:${r.exp / max * 100}%"></i></span>
+        <small>${_pk.e(rows.length > 14 ? (+r.label % 5 === 0 || r.label === '1' ? r.label : '') : r.label)}</small></button>`).join('')}</div>
+      <div class="rp-leg"><span><i class="in"></i>Income</span><span><i class="out"></i>Expense</span></div>
+    </div>`;
+
+  const list = active.length ? `${_pk.sec(_rptPeriod === 'day' ? 'By category' : 'Breakdown', `<em>${active.length} ${unitLbl}${active.length === 1 ? '' : 's'}</em>`)}
+    <div class="pk-list">${active.map(r => {
+      const n = r.inc - r.exp;
+      return `<div class="pk-row rp-row">
+        <span class="rp-lbl">${_pk.e(_rptPeriod === 'month' ? r.label : r.label)}</span>
+        <div class="pk-mid"><small><span class="inc">in ${fmt(Math.round(r.inc))}</span> · <span class="exp">out ${fmt(Math.round(r.exp))}</span></small>
+          <span class="rp-mini"><i class="in" style="width:${r.inc / max * 100}%"></i><i class="out" style="width:${r.exp / max * 100}%"></i></span></div>
+        <div class="pk-r"><b class="${n >= 0 ? 'inc' : 'exp'}">${sgn(n)}</b>${data.useBal ? `<small>running ${sgn(r.bal)}</small>` : ''}</div>
+      </div>`; }).join('')}</div>`
+    : _pk.empty({ ic: 'file-bar-chart-2', t: 'No entries in this period', s: 'Use the arrows to move to another period, or add an entry.', btns: [['Add an entry', "openTxPad('expense')", 1]] });
+
+  c.innerHTML = `<div class="pk">
+    ${_pk.head({ title: 'Report', sub: 'Money in, money out and what was left', action: { label: 'PDF', ic: 'download', on: 'exportYearlyPDF()' } })}
+    <div class="rp-tabs">${tabs.map(([k, l]) => `<button class="${_rptPeriod === k ? 'on' : ''}" onclick="setReportPeriod('${k}')">${l}</button>`).join('')}</div>
+    <div class="rp-nav"><button onclick="reportNav(-1)" aria-label="Previous"><i data-lucide="chevron-left"></i></button><b>${_pk.e(data.title)}</b><button onclick="reportNav(1)" aria-label="Next"><i data-lucide="chevron-right"></i></button></div>
+    ${_pk.hero({ tone: net >= 0 ? 'inc' : 'exp', label: net >= 0 ? 'You saved' : 'You overspent', big: fmt(Math.round(Math.abs(net))),
+      sub: rate != null ? (net >= 0 ? `${rate}% of what came in` : `${Math.abs(rate)}% more than you earned`) : (tExp ? 'No income recorded in this period' : ''),
+      stats: [['Income', fmt(Math.round(tInc))], ['Expense', fmt(Math.round(tExp))], [_rptPeriod === 'day' ? 'Categories' : 'Active ' + unitLbl + 's', active.length]] })}
+    ${chart}${list}
+  </div>`;
+  _pk.done(c);
+}
+function rpTap(b) {
+  document.querySelectorAll('.rp-col.on').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  const cap = document.getElementById('rp-cap'); if (cap) cap.innerHTML = b.dataset.cap;
+  if (navigator.vibrate) { try { navigator.vibrate(6); } catch (_) {} }
+}
+
+// ── Dashboard: Health + 7 Income tabs (app) ────────────────
+const _STREAM_HINT = { Earned: 'Salary or wages', Profit: 'Business or side-hustle profit', Interest: 'FD, RD or savings interest', Dividends: 'Dividends from shares / MFs', Rental: 'Rent from a property', 'Capital Gains': 'Profit when you sell shares, MFs, gold', Royalties: 'Books, music, apps, patents' };
+const _STREAM_IC = { Earned: 'briefcase', Profit: 'store', Interest: 'piggy-bank', Dividends: 'trending-up', Rental: 'home', 'Capital Gains': 'line-chart', Royalties: 'music' };
+function _dashHealthApp(fh) {
+  const box = document.getElementById('dash-mr-health'); if (!box || !fh) return;
+  const o = fh.overall, col = o >= 70 ? 'var(--cx-inc)' : o >= 40 ? 'var(--cx-warn)' : 'var(--cx-exp)';
+  const R = 52, C = 2 * Math.PI * R;
+  const axes = (fh.axes || []).slice().sort((a, b) => a.v - b.v);
+  box.classList.add('dx-card');
+  box.innerHTML = `<div class="dx-h"><i data-lucide="activity"></i><b>Financial health</b><button onclick="mrPinChart('health','Financial Health')" aria-label="Pin"><i data-lucide="pin"></i></button></div>
+    <div class="dx-score"><div class="dx-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" class="hx-ring-bg"/><circle cx="60" cy="60" r="${R}" class="hx-ring-fg" stroke="${col}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" data-off="${(C * (1 - o / 100)).toFixed(1)}"/></svg><span><b>${o}</b><small>/ 100</small></span></div>
+      <div class="dx-score-t"><b style="color:${col}">${o >= 70 ? 'Strong' : o >= 40 ? 'Fair — room to grow' : 'Needs attention'}</b><p>Average of 7 checks below. Fix the weakest first — they’re at the top.</p></div></div>
+    <div class="dx-axes">${axes.map(a => { const c = a.v >= 70 ? 'var(--cx-inc)' : a.v >= 40 ? 'var(--cx-warn)' : 'var(--cx-exp)'; return `<div class="dx-ax">
+      <div class="dx-ax-t"><span>${a.k}</span><b style="color:${c}">${Math.round(a.v)}</b></div>
+      <span class="dx-track"><i style="width:${Math.max(2, a.v)}%;background:${c}"></i></span>
+      ${a.v < 50 ? `<small>${a.tip}</small>` : ''}</div>`; }).join('')}</div>`;
+  requestAnimationFrame(() => setTimeout(() => box.querySelectorAll('.hx-ring-fg[data-off]').forEach(c => { c.style.strokeDashoffset = c.dataset.off; }), 60));
+}
+function _dashStreamApp(strm) {
+  const box = document.getElementById('dash-mr-stream'); if (!box || !strm) return;
+  const sums = strm.sums || [], tot = sums.reduce((s, x) => s + x.total, 0);
+  const on = sums.filter(s => s.total > 0).sort((a, b) => b.total - a.total), off = sums.filter(s => !(s.total > 0));
+  box.classList.add('dx-card');
+  box.innerHTML = `<div class="dx-h"><i data-lucide="layers"></i><b>7 income streams</b><button onclick="mrPinChart('stream','7 Income Streams')" aria-label="Pin"><i data-lucide="pin"></i></button></div>
+    <div class="dx-streams-top"><div class="dx-dots">${sums.map(s => `<i class="${s.total > 0 ? 'on' : ''}"></i>`).join('')}</div><b>${strm.active} of 7 active</b>
+      <p>Many wealthy people have several sources of income. Every new stream makes you less dependent on one paycheque.</p></div>
+    ${on.length ? `<p class="dx-sub">Earning now</p><div class="dx-list">${on.map(s => `<div class="dx-st on"><span class="dx-st-ic"><i data-lucide="${_STREAM_IC[s.k] || 'circle'}"></i></span>
+      <div class="dx-st-m"><b>${s.k}</b><span class="dx-track"><i style="width:${tot ? Math.max(3, s.total / tot * 100) : 0}%"></i></span></div>
+      <div class="dx-st-r"><b>${fmt(Math.round(s.total))}</b><small>${tot ? Math.round(s.total / tot * 100) : 0}%</small></div></div>`).join('')}</div>` : ''}
+    ${off.length ? `<p class="dx-sub">Next streams to build</p><div class="dx-list">${off.map(s => `<div class="dx-st"><span class="dx-st-ic"><i data-lucide="${_STREAM_IC[s.k] || 'circle'}"></i></span>
+      <div class="dx-st-m"><b>${s.k}</b><small>${_STREAM_HINT[s.k] || ''}</small></div><i data-lucide="plus" class="dx-plus"></i></div>`).join('')}</div>` : ''}
+    <p class="dx-foot">Streams are detected from your income categories for the selected period.</p>`;
+}
+(function () {
+  const orig = typeof _mrDrawCharts === 'function' ? _mrDrawCharts : null;
+  if (!orig) return;
+  window._mrDrawCharts = function (fh, strm, flow) {
+    if (window.__IS_APP) { try { _dashHealthApp(fh); _dashStreamApp(strm); if (typeof _lucideRefresh === 'function') _lucideRefresh(); } catch (e) { console.log(e); } }
+    return orig.apply(this, arguments);
+  };
+})();
