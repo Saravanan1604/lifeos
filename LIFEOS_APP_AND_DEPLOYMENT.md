@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **695** (6 Nov 2026).*
+*Status as of build **696** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -245,6 +245,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 693 | Settings redesigned (app, new `js/settings2.js`): purple profile card with inline edit + stats strip; Appearance (compact theme swatches, number style, background); grouped icon rows for General, Security, Backup & data, Help, About; Danger zone. Demo-data row only shows when there are fewer than 20 entries so real data is never mixed with samples |
 | 694 | Tags, Recurring, Purchases, Renewals and Split redesigned (app, new `js/pages2.js`): shared header with action pill, gradient summary card with 3 stats, grouped icon-row lists, guided empty states. Tags uses the tappable ring; Recurring shows true per-month totals (weekly/yearly converted), next due, one-tap “post due”, and iOS-style toggles; Split separates Open vs Settled |
 | 695 | Report redesigned (app): Day/Week/Month/Year segmented tabs, saved/overspent summary card, tappable animated income-vs-expense bars, readable breakdown list with signed net and running balance (replaces the wide table; PDF export kept). Dashboard tabs: chip tab bar + token cards; Financial Health becomes a score ring + 7 sorted score bars with tips; 7 Income Streams becomes “earning now” vs “next streams to build” with hints |
+| 696 | **App size** (Settings → Appearance): Compact / Default / Large / Extra large. Changes the app's fixed layout width (450 / 412 / 372 / 340 px) so everything — text, icons, buttons, nav — scales together. Saved per phone (localStorage `lifeos_app_size`), applied before first paint in the `index.html` head script |
 
 ### Testing locally
 

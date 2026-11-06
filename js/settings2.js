@@ -24,6 +24,18 @@ function stSaveProfile() {
   _stEditOpen = false; navigate('settings', true);
 }
 
+const APP_SIZES = [['compact', 'Compact', 450], ['default', 'Default', 412], ['large', 'Large', 372], ['xl', 'Extra large', 340]];
+function getAppSize() { try { return localStorage.getItem('lifeos_app_size') || 'default'; } catch (_) { return 'default'; } }
+function setAppSize(level) {
+  const hit = APP_SIZES.find(x => x[0] === level); if (!hit) return;
+  try { localStorage.setItem('lifeos_app_size', level); } catch (_) {}
+  STATE.settings = STATE.settings || {}; STATE.settings.appSize = level; if (typeof saveState === 'function') saveState();
+  const vp = document.querySelector('meta[name="viewport"]');
+  if (vp) vp.setAttribute('content', 'width=' + hit[2] + ', viewport-fit=cover');
+  if (typeof toast === 'function') toast('App size: ' + hit[1], 'success');
+  setTimeout(() => navigate('settings', true), 60);
+}
+
 function renderSettingsApp() {
   const S = STATE.settings || {}, U = STATE.user || {};
   const name = S.name || U.name || 'You';
@@ -71,6 +83,9 @@ function renderSettingsApp() {
     <div class="st-themes">${themes.map(t => `<button class="st-th ${theme === t.m ? 'on' : ''}" onclick="setTheme('${t.m}')">
       <span class="st-th-p" style="background:${t.bg}"><i style="background:${t.c}"><em style="background:${t.a}"></em></i></span><small>${t.l}</small></button>`).join('')}</div>
     <p class="st-note">System follows your phone's light / dark setting.</p>
+    <p class="st-lbl">App size</p>
+    <div class="st-seg four">${APP_SIZES.map(([k, l], i) => `<button class="${getAppSize() === k ? 'on' : ''}" onclick="setAppSize('${k}')"><b style="font-size:${14 + i * 3}px">Aa</b><small>${l}</small></button>`).join('')}</div>
+    <p class="st-note">Text or buttons look too small or too big on this phone? Pick a size — it applies everywhere in the app.</p>
     <p class="st-lbl">Number style</p>
     <div class="st-seg">
       <button class="${nf === 'default' ? 'on' : ''}" onclick="setNumFont('default')"><b>${cur}84,250</b><small>Classic</small></button>

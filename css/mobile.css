@@ -20328,3 +20328,7 @@ html.is-app body:not(#_cx):not(#_cy) .dx-st-r b { display: block; font-size: 15p
 html.is-app body:not(#_cx):not(#_cy) .dx-st-r small { font-size: 11px; color: var(--cx-mute); font-weight: 700; }
 html.is-app body:not(#_cx):not(#_cy) .dx-plus { width: 18px; height: 18px; color: var(--cx-mute); }
 html.is-app body:not(#_cx):not(#_cy) .dx-foot { margin: 14px 0 0; font-size: 11.5px; color: var(--cx-mute); text-align: center; }
+/* 696: App size picker */
+html.is-app body:not(#_cx):not(#_cy) .st-seg.four { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .stx .st-seg.four button { padding: 10px 2px !important; }
+html.is-app body:not(#_cx):not(#_cy) .st-seg.four small { font-size: 11px !important; white-space: nowrap; }
