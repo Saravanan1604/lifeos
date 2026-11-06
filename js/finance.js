@@ -567,6 +567,7 @@ function renderRecordsMyMoney() {
         </div>`;
       })()}
       ${_homeDash && typeof homeQuickActionsHtml === 'function' ? homeQuickActionsHtml() : ''}
+      ${_homeDash && typeof quickAddHtml === 'function' ? quickAddHtml() : ''}
       ${_homeDash && typeof homeDashboardHtml === 'function' ? homeDashboardHtml() : ''}
       <div class="mm-subhead">
         <span class="mm-subhead-title">Recent Transactions</span>

@@ -20830,3 +20830,23 @@ html.is-app body:not(#_cx):not(#_cy) .rc-act button:first-child * { color: #4C1D
 html.is-app body:not(#_cx):not(#_cy) .rc-act svg { width: 16px; height: 16px; }
 html.is-app body:not(#_cx):not(#_cy) .rp-share { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100% !important; height: 46px !important; min-height: 0 !important; margin: 12px 0 0 !important; border-radius: 14px !important; border: 1px dashed color-mix(in srgb, var(--cx-pri) 45%, var(--cx-line)) !important; background: transparent !important; color: var(--cx-pri-tx, var(--cx-pri)) !important; font-size: 14px !important; font-weight: 800 !important; }
 html.is-app body:not(#_cx):not(#_cy) .rp-share svg { width: 16px; height: 16px; }
+
+/* ================= build 717 — quick add ================= */
+html.is-app body:not(#_cx):not(#_cy) .qa { margin: 2px 0 14px; padding: 10px; border-radius: 20px; background: var(--cx-card); border: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .qa-row { display: flex; align-items: center; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .qa-row > svg { width: 18px; height: 18px; color: var(--cx-pri-tx, var(--cx-pri)); flex-shrink: 0; margin-left: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .qa-row input { flex: 1; min-width: 0; height: 44px !important; padding: 0 4px !important; border: 0 !important; outline: 0; background: none !important; box-shadow: none !important; color: var(--cx-ink) !important; font-size: 16px !important; font-weight: 600; font-family: inherit; }
+html.is-app body:not(#_cx):not(#_cy) .qa-row input::placeholder { color: var(--cx-mute); font-weight: 500; }
+html.is-app body:not(#_cx):not(#_cy) .qa-row button { width: 42px !important; height: 42px !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; border-radius: 13px !important; display: grid; place-items: center; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .qa-edit { border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; }
+html.is-app body:not(#_cx):not(#_cy) .qa-edit svg { width: 17px; height: 17px; color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) .qa-go { border: 0 !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)) !important; box-shadow: 0 8px 18px -8px var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .qa-go svg { width: 19px; height: 19px; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .qa-prev { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 4px 2px; min-height: 30px; }
+html.is-app body:not(#_cx):not(#_cy) .qa-hint { font-size: 12.5px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .qa-amt { font-size: 15px; font-weight: 800; color: var(--cx-ink); margin-right: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .qa-amt.income { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .qa-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; background: var(--cx-chip); font-size: 12.5px; font-weight: 600; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .qa-chip i { width: 8px; height: 8px; border-radius: 50%; }
+html.is-app body:not(#_cx):not(#_cy) .qa-learn { font-size: 11.5px; font-weight: 700; color: var(--cx-inc); }
+html.is-desk .dk-main .qa { margin: 0; }
