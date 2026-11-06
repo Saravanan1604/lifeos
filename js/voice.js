@@ -1029,6 +1029,8 @@ function openVoicePage() {
     { ic: A, t: '“Dark mode” · “Light mode”' },
     { ic: A, t: '“Sync now”' },
   ];
+  if (window.__IS_APP) { el.className = 'vx'; el.innerHTML = _vxHtml(examples); el.style.display = 'flex'; if (window.lucide && lucide.createIcons) lucide.createIcons(); vpStartListen(); return; }
+  el.className = '';
   el.innerHTML = `
     <button class="vp-close" onclick="closeVoicePage()"><i data-lucide="x"></i></button>
     <div class="vp-orb" id="vp-orb" onclick="vpToggleListen()">
@@ -1046,6 +1048,47 @@ function openVoicePage() {
   el.style.display = 'flex';
   if (window.lucide && lucide.createIcons) lucide.createIcons();
   vpStartListen();
+}
+
+// App voice screen (build 692): orb + live wave, big transcript, grouped example chips
+let _vxTab = 0;
+function _vxHtml(examples) {
+  const groups = []; examples.forEach(e => { if (e.h) groups.push({ h: e.h, ic: '', items: [] }); else { const g = groups[groups.length - 1]; g.ic = g.ic || e.ic; g.items.push(e.t.replace(/[“”]/g, '')); } });
+  _vxGroups = groups;
+  return `
+    <div class="vx-top"><span class="vx-badge"><i data-lucide="sparkles"></i> Voice</span><button class="vx-x" onclick="closeVoicePage()" aria-label="Close"><i data-lucide="x"></i></button></div>
+    <div class="vx-stage">
+      <div class="vp-orb vx-orb" id="vp-orb" onclick="vpToggleListen()">
+        <span class="vx-halo"></span><span class="vx-halo"></span>
+        <span class="vx-core"><i data-lucide="mic"></i></span>
+      </div>
+      <div class="vx-wave" aria-hidden="true">${'<i></i>'.repeat(28)}</div>
+      <p class="vx-status" id="vp-status">Listening…</p>
+      <p class="vx-tr" id="vp-transcript">Say something like <b>“Spent 250 on food”</b></p>
+      <p class="vx-hint">Tap the orb to start or stop</p>
+    </div>
+    <div class="vx-sheet">
+      <p class="vx-sh-t">Try saying</p>
+      <div class="vx-tabs">${groups.map((g, i) => `<button class="${i === _vxTab ? 'on' : ''}" onclick="vxTab(${i})"><i data-lucide="${g.ic}"></i>${g.h}</button>`).join('')}</div>
+      <div class="vx-chips" id="vx-chips">${_vxChips(_vxTab)}</div>
+    </div>`;
+}
+let _vxGroups = [];
+function _vxChips(i) {
+  const g = _vxGroups[i]; if (!g) return '';
+  const safe = /navigate|banks|quick/i.test(g.h);         // these only open screens → tap runs them
+  return g.items.map(t => `<button class="vx-chip ${safe ? 'run' : ''}" ${safe ? `onclick="vxRun(this)"` : ''}>${t}${safe ? '<i data-lucide="corner-down-left"></i>' : ''}</button>`).join('')
+    + (safe ? '' : '<p class="vx-note">Say it with your own amount and category — it opens a pre-filled entry for you to check.</p>');
+}
+function vxTab(i) {
+  _vxTab = i;
+  document.querySelectorAll('#voice-page .vx-tabs button').forEach((b, k) => { b.classList.toggle('on', k === i); if (k === i && b.scrollIntoView) b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); });
+  const c = document.getElementById('vx-chips'); if (c) { c.innerHTML = _vxChips(i); c.classList.remove('in'); void c.offsetWidth; c.classList.add('in'); }
+  if (window.lucide && lucide.createIcons) lucide.createIcons();
+}
+function vxRun(b) {
+  const t = (b.textContent || '').split('·')[0].split('/')[0].trim();
+  vpStopListen(); handleVoiceTranscript(t); closeVoicePage();
 }
 
 function closeVoicePage() {

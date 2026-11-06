@@ -20036,3 +20036,51 @@ html.is-app body:not(#_cx):not(#_cy) .hx-rose.has-sel .hx-rose-seg.sel { transfo
 html.is-app body:not(#_cx):not(#_cy) .hx-rose .hx-donut-c { pointer-events: none; }
 html.is-app body:not(#_cx):not(#_cy) .hx-rose .hx-donut-c.pop { animation: mvPop .35s cubic-bezier(.2,1.6,.4,1); }
 html.is-app body:not(#_cx):not(#_cy) .hx-rose .hx-donut-c em { display: block; max-width: 118px; margin: 2px auto 0; font-style: normal; font-size: 10px; line-height: 1.25; color: var(--cx-mute); }
+
+/* ================= build 692 — Voice screen redesign (app) ================= */
+html.is-app body:not(#_cx):not(#_cy) #voice-page.vx { padding: calc(14px + env(safe-area-inset-top, 0px)) 0 0; align-items: stretch; background: radial-gradient(120% 60% at 50% 18%, rgba(139,92,246,.28), transparent 60%), radial-gradient(80% 40% at 80% 40%, rgba(34,211,238,.12), transparent 70%), var(--cx-bg, #090D18); color: var(--cx-ink, #F8FAFC) !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+html.is-app body.light:not(#_cx):not(#_cy) #voice-page.vx { background: radial-gradient(120% 60% at 50% 18%, rgba(109,59,234,.16), transparent 60%), radial-gradient(80% 40% at 80% 40%, rgba(8,145,178,.10), transparent 70%), var(--cx-bg, #F5F6FC); }
+html.is-app body:not(#_cx):not(#_cy) #voice-page.vx * { color: inherit; }
+html.is-app body:not(#_cx):not(#_cy) .vx-top { display: flex; align-items: center; justify-content: space-between; padding: 0 18px; }
+html.is-app body:not(#_cx):not(#_cy) .vx-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--cx-chip); border: 1px solid var(--cx-line); font-size: 12px; font-weight: 700; color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-badge svg, html.is-app body:not(#_cx):not(#_cy) .vx-badge i { width: 14px; height: 14px; color: var(--cx-pri) !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-x { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--cx-line); background: var(--cx-card); display: grid; place-items: center; padding: 0; }
+html.is-app body:not(#_cx):not(#_cy) .vx-x svg { width: 20px; height: 20px; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 24px; text-align: center; }
+html.is-app body:not(#_cx):not(#_cy) .vx-orb { position: relative; width: 132px; height: 132px; margin: 0 0 18px; display: grid; place-items: center; cursor: pointer; background: none; border: 0; box-shadow: none; animation: none; }
+html.is-app body:not(#_cx):not(#_cy) .vx-core { position: relative; z-index: 2; width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(from 200deg, #8B5CF6, #22D3EE, #8B5CF6); box-shadow: 0 0 0 6px rgba(139,92,246,.14), 0 18px 50px -12px rgba(139,92,246,.8), inset 0 0 22px rgba(255,255,255,.25); transition: transform .3s cubic-bezier(.2,1.4,.4,1); }
+html.is-app body:not(#_cx):not(#_cy) .vx-core svg { width: 40px; height: 40px; color: #fff !important; stroke-width: 2.2; }
+html.is-app body:not(#_cx):not(#_cy) .vx-orb:active .vx-core { transform: scale(.92); }
+html.is-app body:not(#_cx):not(#_cy) .vx-halo { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(139,92,246,.45); opacity: 0; }
+html.is-app body:not(#_cx):not(#_cy) .vx-orb.on .vx-halo { animation: vxHalo 2s ease-out infinite; }
+html.is-app body:not(#_cx):not(#_cy) .vx-orb.on .vx-halo + .vx-halo { animation-delay: 1s; border-color: rgba(34,211,238,.45); }
+html.is-app body:not(#_cx):not(#_cy) .vx-orb.on .vx-core { animation: vxSpin 6s linear infinite; }
+html.is-app body:not(#_cx):not(#_cy) .vx-orb.on .vx-core svg { animation: vxSpin 6s linear infinite reverse; }
+@keyframes vxHalo { 0% { transform: scale(.8); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
+@keyframes vxSpin { to { transform: rotate(360deg); } }
+html.is-app body:not(#_cx):not(#_cy) .vx-wave { display: flex; align-items: center; gap: 4px; height: 36px; margin-bottom: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .vx-wave i { width: 4px; height: 6px; border-radius: 4px; background: linear-gradient(180deg, var(--cx-acc, #22D3EE), var(--cx-pri, #8B5CF6)); opacity: .35; transition: height .3s, opacity .3s; }
+html.is-app body:not(#_cx):not(#_cy) #voice-page.vx:has(.vx-orb.on) .vx-wave i { opacity: 1; animation: vxBar 1s ease-in-out infinite; }
+html.is-app body:not(#_cx):not(#_cy) .vx-wave i:nth-child(3n) { animation-delay: -.3s !important; } html.is-app body:not(#_cx):not(#_cy) .vx-wave i:nth-child(3n+1) { animation-delay: -.65s !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-wave i:nth-child(4n) { animation-duration: .8s !important; } html.is-app body:not(#_cx):not(#_cy) .vx-wave i:nth-child(5n) { animation-duration: 1.3s !important; }
+@keyframes vxBar { 0%,100% { height: 6px; } 50% { height: 34px; } }
+html.is-app body:not(#_cx):not(#_cy) .vx-status { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--cx-acc) !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-tr { margin: 10px 0 0; font-size: 22px; line-height: 1.35; font-weight: 700; color: var(--cx-ink) !important; min-height: 60px; max-width: 340px; }
+html.is-app body:not(#_cx):not(#_cy) .vx-tr b { color: var(--cx-pri) !important; font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .vx-hint { margin: 6px 0 0; font-size: 12px; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-sheet { flex-shrink: 0; max-height: 42vh; display: flex; flex-direction: column; background: var(--cx-card); border-top: 1px solid var(--cx-line); border-radius: 26px 26px 0 0; padding: 16px 0 calc(16px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -20px 40px -20px rgba(0,0,0,.4); animation: mvUp .45s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .vx-sh-t { margin: 0 20px 10px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 12px; scrollbar-width: none; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .vx-tabs::-webkit-scrollbar { display: none; }
+html.is-app body:not(#_cx):not(#_cy) .vx-tabs button { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--cx-line); background: var(--cx-chip); font-size: 13px; font-weight: 700; color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-tabs button svg { width: 15px; height: 15px; }
+html.is-app body:not(#_cx):not(#_cy) .vx-tabs button.on { background: var(--cx-pri); border-color: transparent; color: #fff !important; box-shadow: 0 8px 18px -8px var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .vx-tabs button.on * { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px; overflow-y: auto; }
+html.is-app body:not(#_cx):not(#_cy) .vx-chips.in { animation: mvUp .3s ease-out; }
+html.is-app body:not(#_cx):not(#_cy) .vx-chip { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 14px; border: 1px solid var(--cx-line); background: var(--cx-bg2, var(--cx-chip)); font-size: 14px; font-weight: 600; color: var(--cx-ink) !important; text-align: left; }
+html.is-app body:not(#_cx):not(#_cy) .vx-chip::before { content: '“'; color: var(--cx-pri); font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .vx-chip.run svg { width: 14px; height: 14px; color: var(--cx-pri) !important; }
+html.is-app body:not(#_cx):not(#_cy) .vx-chip.run:active { transform: scale(.95); }
+html.is-app body:not(#_cx):not(#_cy) .vx-note { width: 100%; margin: 6px 0 0; font-size: 12px; color: var(--cx-mute) !important; }
+@media (prefers-reduced-motion: reduce) { html.is-app #voice-page.vx * { animation: none !important; } }
