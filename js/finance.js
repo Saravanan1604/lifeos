@@ -2995,10 +2995,10 @@ function openTxDetail(id) {
   openModal('', `
     <div class="txd">
       <div class="txd-head" style="background:${col}">
-        <button class="txd-x" onclick="closeModal()">✕</button>
+        <button class="txd-x" onclick="closeModal()" aria-label="Close">${window.__IS_APP ? '<i data-lucide="x"></i>' : '✕'}</button>
         <div class="txd-actions">
-          <button onclick="txdEdit('${id}')" title="Edit">✏️</button>
-          <button onclick="txdDelete('${id}')" title="Delete">🗑️</button>
+          <button onclick="txdEdit('${id}')" title="Edit">${window.__IS_APP ? '<i data-lucide="pencil"></i>' : '✏️'}</button>
+          <button onclick="txdDelete('${id}')" title="Delete">${window.__IS_APP ? '<i data-lucide="trash-2"></i>' : '🗑️'}</button>
         </div>
         <p class="txd-type">${isInc ? 'INCOME' : 'EXPENSE'}</p>
         <p class="txd-amt">${isInc ? '+' : '-'}${fmt(tx.amount)}</p>
@@ -3015,13 +3015,14 @@ function openTxDetail(id) {
   // the detail card has its own close/header — hide the generic modal header bar
   const _hd = document.querySelector('#modal-overlay .modal-header');
   if (_hd) _hd.style.display = 'none';
+  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
 }
 
 // Detail-card edit / delete (custom confirm — browser confirm() is unreliable in the TWA)
 function txdEdit(id) { closeModal(); openEditTxModal(id); }
 function txdDelete(id) {
   openModal('🗑️ Delete Transaction', `
-    <p style="font-size:1.3rem;text-align:center;margin:6px 0 20px">Delete this transaction permanently?</p>
+    <p class="cfm-q">Delete this transaction permanently?</p>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" style="background:#ef4444" onclick="_txdDoDelete('${id}')">Delete</button>

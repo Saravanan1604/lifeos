@@ -20648,3 +20648,68 @@ html.is-app body:not(#_cx):not(#_cy) .f2-dates label { font-size: 11.5px !import
 html.is-app body:not(#_cx):not(#_cy) .f2-jump { font-size: 13px !important; font-weight: 700 !important; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
 html.is-app body:not(#_cx):not(#_cy) .f2-cats button.on, html.is-app body:not(#_cx):not(#_cy) .f2-cats button.on * { color: #fff !important; }
 html.is-app body:not(#_cx):not(#_cy) .f2-cats button.on i { background: #fff !important; }
+
+/* ================= build 709 — ONE modern style for every popup =================
+   Applies to all 71 openModal() popups at once: labels, inputs, selects, textareas,
+   rows, info boxes and the action buttons. Popups with their own new design
+   (qb, f2, am, af, …) don't use these classes, so they are unaffected.           */
+html.is-app body:not(#_cx):not(#_cy) #modal-body { font-size: 14.5px; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .form-group { margin: 0 0 14px !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .form-label { display: block; margin: 0 0 6px !important; font-size: 13px !important; font-weight: 700 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body :is(input.form-input, select.form-input, input[type="text"], input[type="number"], input[type="date"], input[type="time"], input[type="email"], select):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not(.qb-note):not(#qb-balance) {
+  height: 48px !important; min-height: 48px !important; width: 100%; box-sizing: border-box; padding: 0 14px !important; border-radius: 14px !important;
+  border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important;
+  font-size: 15px !important; font-weight: 600 !important; font-family: inherit !important; line-height: normal !important; box-shadow: none !important; background-image: none;
+  color-scheme: dark; transition: border-color .15s, box-shadow .15s; }
+html.is-app body.light:not(#_cx):not(#_cy) #modal-body :is(input, select) { color-scheme: light; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body select { appearance: none; -webkit-appearance: none; padding-right: 36px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important; background-position: right 12px center !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body textarea:not(.af textarea) { min-height: 96px; width: 100%; box-sizing: border-box; padding: 12px 14px !important; border-radius: 14px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important; font-size: 14.5px !important; line-height: 1.45 !important; font-family: inherit !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body :is(input, select, textarea):focus { outline: none !important; border-color: var(--cx-pri) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--cx-pri) 22%, transparent) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body ::placeholder { color: var(--cx-mute) !important; font-weight: 500 !important; opacity: 1; font-size: 15px !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .input-row { display: grid !important; grid-template-columns: 1fr 1fr; gap: 10px !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .input-row > .form-group { margin: 0 0 14px !important; min-width: 0; }
+/* inputs that had an icon prefix */
+html.is-app body:not(#_cx):not(#_cy) #modal-body .input-icon-wrap svg, html.is-app body:not(#_cx):not(#_cy) #modal-body .form-icon { display: none !important; }
+/* action row: full-width, equal buttons */
+html.is-app body:not(#_cx):not(#_cy) #modal-body .modal-actions { display: flex !important; gap: 8px !important; margin: 18px 0 2px !important; padding: 0 !important; border: 0 !important; justify-content: stretch !important; flex-wrap: nowrap !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .modal-actions > button { flex: 1 1 0 !important; height: 50px !important; min-height: 50px !important; padding: 0 12px !important; margin: 0 !important; border-radius: 16px !important; font-size: 15px !important; font-weight: 800 !important; white-space: nowrap; width: auto !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .modal-actions > .btn-primary, html.is-app body:not(#_cx):not(#_cy) #modal-body .modal-actions > button[class*="primary"] { flex-grow: 2 !important; border: 0 !important; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)) !important; box-shadow: 0 12px 24px -12px var(--cx-pri) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .modal-actions > .btn-secondary { border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important; box-shadow: none !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .modal-actions > :is(.btn-danger, [style*="ef4444"], [style*="239,68,68"], [onclick*="delete" i]) { background: var(--cx-exp-bg) !important; border: 0 !important; color: var(--cx-exp) !important; flex-grow: 1 !important; }
+/* other buttons inside popups */
+html.is-app body:not(#_cx):not(#_cy) #modal-body :is(.btn-primary, .btn-secondary):not(.modal-actions > *) { border-radius: 14px !important; font-weight: 700 !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .btn-primary:not(.modal-actions > *) { background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)) !important; color: #fff !important; border: 0 !important; }
+/* helper text and info boxes */
+html.is-app body:not(#_cx):not(#_cy) #modal-body :is(p[style*="text3"], p[style*="0.5)"], p[style*="0.6)"], .form-group > p, small) { color: var(--cx-mute) !important; font-size: 12.5px !important; line-height: 1.5 !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body [style*="background:rgba(99,102,241"], html.is-app body:not(#_cx):not(#_cy) #modal-body [style*="background:rgba(0,201,167"] { background: color-mix(in srgb, var(--cx-pri) 10%, var(--cx-card)) !important; border: 1px solid color-mix(in srgb, var(--cx-pri) 25%, transparent) !important; border-radius: 14px !important; color: var(--cx-ink2) !important; }
+/* file pickers */
+html.is-app body:not(#_cx):not(#_cy) #modal-body input[type="file"] { width: 100%; padding: 14px !important; border-radius: 14px !important; border: 1.5px dashed color-mix(in srgb, var(--cx-pri) 40%, var(--cx-line)) !important; background: color-mix(in srgb, var(--cx-pri) 6%, transparent) !important; color: var(--cx-ink2) !important; font-size: 13px !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body input[type="file"]::file-selector-button { margin-right: 10px; padding: 8px 14px; border: 0; border-radius: 10px; background: var(--cx-pri); color: #fff; font-weight: 700; font-family: inherit; }
+/* transaction detail card */
+html.is-app body:not(#_cx):not(#_cy) .txd-head { position: relative; border-radius: 22px !important; padding: 18px 18px 20px !important; text-align: center; color: #fff; }
+html.is-app body:not(#_cx):not(#_cy) .txd-head * { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .txd-x, html.is-app body:not(#_cx):not(#_cy) .txd-actions button { width: 38px !important; height: 38px !important; min-height: 0 !important; padding: 0 !important; border-radius: 12px !important; border: 0 !important; background: rgba(255,255,255,.2) !important; display: grid !important; place-items: center !important; font-size: 16px !important; }
+html.is-app body:not(#_cx):not(#_cy) .txd-x svg, html.is-app body:not(#_cx):not(#_cy) .txd-actions svg { width: 18px; height: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .txd-x { position: absolute !important; left: 12px !important; top: 12px !important; }
+html.is-app body:not(#_cx):not(#_cy) .txd-actions { position: absolute !important; right: 12px !important; top: 12px !important; display: flex !important; gap: 6px !important; }
+html.is-app body:not(#_cx):not(#_cy) .txd-type { margin: 22px 0 2px !important; font-size: 12px !important; font-weight: 800 !important; letter-spacing: .12em !important; opacity: .85; }
+html.is-app body:not(#_cx):not(#_cy) .txd-amt { margin: 0 !important; font-size: 36px !important; font-weight: 800 !important; letter-spacing: -.02em; line-height: 1.1 !important; }
+html.is-app body:not(#_cx):not(#_cy) .txd-date { margin: 4px 0 0 !important; font-size: 13px !important; opacity: .9; }
+html.is-app body:not(#_cx):not(#_cy) .txd-body { margin-top: 12px !important; border: 1px solid var(--cx-line) !important; border-radius: 18px !important; background: var(--cx-card) !important; padding: 0 14px !important; }
+html.is-app body:not(#_cx):not(#_cy) .txd-row { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px; padding: 13px 0 !important; border-bottom: 1px solid var(--cx-line) !important; font-size: 14.5px !important; }
+html.is-app body:not(#_cx):not(#_cy) .txd-row > span { color: var(--cx-mute) !important; font-size: 13.5px !important; font-weight: 600 !important; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .txd-row > b { display: flex; align-items: center; gap: 8px; justify-content: flex-end; text-align: right; font-size: 14.5px !important; font-weight: 700 !important; color: var(--cx-ink) !important; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .txd-cat-ic { width: 26px !important; height: 26px !important; border-radius: 8px !important; display: grid !important; place-items: center !important; }
+html.is-app body:not(#_cx):not(#_cy) .txd-cat-ic svg { width: 14px !important; height: 14px !important; color: #fff !important; }
+/* confirmation question */
+html.is-app body:not(#_cx):not(#_cy) #modal-body .cfm-q { margin: 6px 0 18px !important; text-align: center; font-size: 16px !important; font-weight: 700; color: var(--cx-ink) !important; }
+.cfm-q { font-size: 1.3rem; text-align: center; margin: 6px 0 20px; }
+/* carry forward card */
+html.is-app body:not(#_cx):not(#_cy) .cf-hero { display: flex !important; align-items: center !important; gap: 12px !important; padding: 14px !important; border-radius: 18px !important; background: var(--cx-chip) !important; border: 1px solid var(--cx-line) !important; opacity: 1 !important; margin-bottom: 14px !important; }
+html.is-app body:not(#_cx):not(#_cy) .cf-hero * { opacity: 1 !important; }
+html.is-app body:not(#_cx):not(#_cy) .cf-hero-ic { width: 40px !important; height: 40px !important; border-radius: 12px !important; display: grid !important; place-items: center !important; flex-shrink: 0; background: color-mix(in srgb, var(--cx-pri) 16%, transparent) !important; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .cf-hero-title { margin: 0 !important; font-size: 15px !important; font-weight: 800 !important; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .cf-hero-sub { margin: 2px 0 0 !important; font-size: 12.5px !important; line-height: 1.4 !important; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .cf-chip { border-radius: 12px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-card) !important; color: var(--cx-ink2) !important; font-weight: 700 !important; }

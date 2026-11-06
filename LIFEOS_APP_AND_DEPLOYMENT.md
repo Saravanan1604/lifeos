@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **708** (6 Nov 2026).*
+*Status as of build **709** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -258,6 +258,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 706 | **Real desktop layout** (is-desk): full-height sidebar with **New transaction**, Home / Analytics / Assets and the money menu; no bottom bar; content up to 1240px wide; Home becomes a two-column dashboard (balance, quick actions, transactions | today, budget, spending chart — sticky); pop-ups are centred dialogs and the add screen / voice / calculator a centred panel. **New toasts** everywhere: slim card with coloured icon, timer line, max 2 on screen, tap to dismiss, emojis stripped; bottom-right on desktop |
 | 707 | **New transaction list** (app + desktop): one rounded card, day headers “Today / Yesterday / Wed, 4 Nov” with the day's net, rows show the note as title and “category · account · time” below (no clock emoji, no quotes, no account pill), tinted rounded-square category icons, +₹ green income / −₹ expense. Desktop: selected sidebar item readable in Day mode |
 | 708 | **Select mode**: floating bar above the bottom nav (✕ · “N selected” · Select all · Category · Delete as soft tinted buttons, lifted to `<body>` because the page container is transformed), rounded-square checkboxes, soft purple selected rows. **Filter popup** redesigned: search box first + quick chips, Type and Sort as segmented controls, categories as colour-dot chips, compact From/To, “Jump to a day” link, Clear all / Show results. Records hero rounds to whole rupees in every view |
+| 709 | **One modern style for all 71 popups** (app + desktop): shared rules in `#modal-body` for labels, 48px inputs/selects (custom chevron), textareas, focus ring, 2-column rows, info boxes, dashed file pickers and a full-width action row (secondary + wider gradient primary, soft red delete). Transaction detail card rebuilt (icon buttons, 36px amount, clean rows); Carry Forward card readable; delete confirmations use a clear question style |
 
 ### Testing locally
 
