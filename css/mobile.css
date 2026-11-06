@@ -19614,3 +19614,34 @@ html.is-app body:not(#_cx):not(#_cy) .ia-prog { height: 5px; border-radius: 3px;
 html.is-app body:not(#_cx):not(#_cy) .ia-prog i { display: block; height: 100%; background: var(--cx-inc); border-radius: 3px; }
 html.is-app body:not(#_cx):not(#_cy) .ia-prog-l { font-size: 11px; color: var(--cx-ink2); margin-top: 2px; }
 html.is-app body:not(#_cx):not(#_cy) .fin-upd { font-size: 0.95rem; color: rgba(255,255,255,0.55); margin-top: -0.3rem; }
+
+/* ── build 683: AI Financial Data Coach modules ── */
+html.is-app body:not(#_cx):not(#_cy) .co { margin: 4px 6px 12px; background: var(--cx-card); border: 1px solid var(--cx-line); border-radius: 20px; box-shadow: var(--cx-shadow); padding: 4px 14px 12px; }
+html.is-app body.light:not(#_cx):not(#_cy) .co { background: linear-gradient(160deg, #F3EEFF, #FFFFFF 55%); border-color: #E4DAFF; }
+html.is-app body:not(#_cx):not(#_cy) .co > summary { display: flex; align-items: center; gap: 10px; padding: 10px 0; cursor: pointer; list-style: none; }
+html.is-app body:not(#_cx):not(#_cy) .co > summary::-webkit-details-marker { display: none; }
+html.is-app body:not(#_cx):not(#_cy) .co > summary > span { width: 30px; height: 30px; border-radius: 10px; background: var(--cx-pri); color: #fff; display: flex; align-items: center; justify-content: center; }
+html.is-app body:not(#_cx):not(#_cy) .co > summary svg { width: 16px; height: 16px; }
+html.is-app body:not(#_cx):not(#_cy) .co > summary b { flex: 1; font-size: 15px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .co > summary em { font-style: normal; font-size: 11.5px; font-weight: 800; color: var(--cx-pri); background: color-mix(in srgb, var(--cx-pri) 12%, transparent); padding: 3px 8px; border-radius: 999px; }
+html.is-app body:not(#_cx):not(#_cy) .co-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .co-card { background: var(--cx-chip); border: 1px solid var(--cx-line); border-radius: 14px; padding: 10px 12px; min-width: 0; }
+html.is-app body.light:not(#_cx):not(#_cy) .co-card { background: #FFFFFF; }
+html.is-app body:not(#_cx):not(#_cy) .co-wide { grid-column: 1 / -1; }
+html.is-app body:not(#_cx):not(#_cy) .co-h { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .co-v { display: block; font-size: 21px; font-weight: 800; letter-spacing: -0.02em; margin: 2px 0; }
+html.is-app body:not(#_cx):not(#_cy) .co-v.inc, html.is-app body:not(#_cx):not(#_cy) .co-cf b.inc { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .co-v.exp, html.is-app body:not(#_cx):not(#_cy) .co-cf b.exp { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .co-l { margin: 2px 0 0; font-size: 11.5px; color: var(--cx-ink2); line-height: 1.35; }
+html.is-app body:not(#_cx):not(#_cy) .co-d { font-style: normal; font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .co-d.good { color: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .co-d.bad { color: var(--cx-exp); } html.is-app body:not(#_cx):not(#_cy) .co-d.none { color: var(--cx-mute); font-weight: 600; }
+html.is-app body:not(#_cx):not(#_cy) .co-spark { width: 100%; height: 26px; margin-top: 6px; display: block; }
+html.is-app body:not(#_cx):not(#_cy) .co-cf { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .co-cf span { display: block; font-size: 11px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .co-cf b { font-size: 17px; font-weight: 800; color: var(--cx-ink); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .co-rh { margin: 12px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .co-rec { border-left: 3px solid var(--cx-acc); padding: 6px 0 6px 10px; margin-bottom: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .co-rec.bad { border-left-color: var(--cx-exp); } html.is-app body:not(#_cx):not(#_cy) .co-rec.warn { border-left-color: var(--cx-warn); } html.is-app body:not(#_cx):not(#_cy) .co-rec.good { border-left-color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .co-rec > p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .co-rec details summary { font-size: 11.5px; color: var(--cx-pri); cursor: pointer; margin-top: 3px; font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .co-rec details p { margin: 4px 0 0; font-size: 12px; color: var(--cx-ink2); }

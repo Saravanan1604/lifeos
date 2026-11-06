@@ -24,6 +24,7 @@ function renderAssistantApp() {
         <h1>${hist.length ? 'Money assistant' : `Hi${name ? ' ' + esc(name) : ''}, ask me<br/>about <span>your money</span>`}</h1>
         <p>Answers come from your own data on this phone${hist.length ? '' : ' — nothing is sent anywhere'}.</p>
       </div>
+      ${typeof _coachHtml === 'function' ? _coachHtml(!hist.length) : ''}
       <div class="as-chat" id="as-chat">${hist.map(_asBubble).join('')}</div>
       <div class="as-chips" id="as-chips">${_AS_SUGGEST.map(s => `<button onclick="assistantAsk(this.textContent)">${s}</button>`).join('')}</div>
       ${hist.length ? `<button class="as-clear" onclick="assistantClear()">Clear conversation</button>` : ''}
@@ -243,7 +244,7 @@ function moneyAnswer(q) {
 
 function _asProjection(F) {
   if (!F || F.day < 2) return null;
-  const daily = F.spent / F.day;
+  const daily = typeof homeEverydayPace === 'function' ? homeEverydayPace(F) : F.spent / F.day;
   const remainingSpend = daily * (F.daysLeft - 1) + F.billsLeft;
   const spend = F.spent + remainingSpend;
   const net = F.income + F.incomeLeft - spend;
@@ -278,4 +279,65 @@ function assistantPrepareTx(amount, cat, note, yesterday) {
   if (yesterday) { const d = new Date(); d.setDate(d.getDate() - 1); _pad.date = _ymdLocal(d); }
   renderTxPad();
   toast('Check the details, then tap Save', 'info');
+}
+
+
+// ══════════════════════════════════════════════════════════
+// AI FINANCIAL DATA COACH modules (build 683) — income, expense,
+// cash-flow intelligence + recommendations, each with the "why".
+// ══════════════════════════════════════════════════════════
+function _coachMonth(off) {
+  const n = new Date(), d = new Date(n.getFullYear(), n.getMonth() + off, 1);
+  const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const tx = (STATE.transactions || []).filter(t => (t.date || '').startsWith(ym));
+  return { d, ym, inc: _asSum(tx.filter(t => t.type === 'income')), exp: _asSum(tx.filter(t => t.type !== 'income')), tx };
+}
+function _coachSpark(vals, col) {
+  const max = Math.max(1, ...vals), W = 90, H = 26;
+  const pts = vals.map((v, i) => `${(i / Math.max(1, vals.length - 1) * W).toFixed(1)},${(H - 2 - v / max * (H - 4)).toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 ${W} ${H}" class="co-spark"><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function _coachHtml(open) {
+  try {
+    const F = typeof _homeFacts === 'function' ? _homeFacts() : null;
+    const m0 = _coachMonth(0), m1 = _coachMonth(-1), y1 = _coachMonth(-12);
+    const six = [-5, -4, -3, -2, -1, 0].map(_coachMonth);
+    const pct = (a, b) => b > 0 ? Math.round((a / b - 1) * 100) : null;
+    const chg = (v, good) => v == null ? '<em class="co-d none">no data</em>' : `<em class="co-d ${(v >= 0) === good ? 'good' : 'bad'}">${v >= 0 ? '▲' : '▼'} ${Math.abs(v)}%</em>`;
+    const S = typeof _H !== 'undefined' ? _H.short.bind(_H) : (v => fmt(Math.round(v)));
+    const net = m0.inc - m0.exp, sr = m0.inc > 0 ? Math.round(net / m0.inc * 100) : null;
+    const proj = F && typeof _asProjection === 'function' ? _asProjection(F) : null;
+    const by = {}; m0.tx.filter(t => t.type !== 'income').forEach(t => { by[t.category || 'Other'] = (by[t.category || 'Other'] || 0) + (+t.amount || 0); });
+    const top3 = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const sameDay = F ? F.pSameDay : 0;
+
+    // recommendations — each with its calculation
+    const rec = [];
+    if (m0.exp > m0.inc && m0.inc > 0) rec.push({ c: 'bad', t: `Expenses exceed income by <b>${fmt(Math.round(m0.exp - m0.inc))}</b> this month.`, w: `${fmt(Math.round(m0.exp))} spent − ${fmt(Math.round(m0.inc))} income.` });
+    else if (m0.exp > 0 && !m0.inc) rec.push({ c: 'warn', t: `No income logged this month yet — ${fmt(Math.round(m0.exp))} spent so far.`, w: 'Income transactions dated this month: none.' });
+    const emi = (STATE.loans || []).reduce((s, l) => s + (+l.emi || 0), 0), incRef = m0.inc || m1.inc;
+    if (emi > 0 && incRef > 0 && emi / incRef > 0.3) rec.push({ c: emi / incRef > 0.5 ? 'bad' : 'warn', t: `EMIs take <b>${Math.round(emi / incRef * 100)}%</b> of your income (healthy: under 30–40%).`, w: `${fmt(Math.round(emi))} monthly EMIs ÷ ${fmt(Math.round(incRef))} income (${m0.inc ? 'this' : 'last'} month).` });
+    (STATE.budgets || []).forEach(b => { const lim = typeof _budgetLimitMonthly === 'function' ? _budgetLimitMonthly(b) : +b.amount || 0; const sp = by[b.category] || 0; if (lim > 0 && sp > lim * 1.02 && !/emi|loan|rent|insurance/i.test(b.category)) rec.push({ c: 'bad', t: `<b>${esc(b.category)}</b> is over budget by ${fmt(Math.round(sp - lim))}.`, w: `${fmt(Math.round(sp))} spent vs ${fmt(Math.round(lim))} monthly limit.` }); });
+    const subs = typeof detectSubscriptions === 'function' ? detectSubscriptions() : [];
+    const tracked = (STATE.recurring || []).filter(r => r.type !== 'income' && r.enabled !== false && /subscri|ott|netflix|prime|spotify|youtube|hotstar/i.test((r.category || '') + ' ' + (r.description || '')));
+    const subTot = subs.reduce((s, x) => s + x.monthly, 0) + tracked.reduce((s, r) => s + (+r.amount || 0), 0);
+    if (subTot > 0) rec.push({ c: 'info', t: `Subscriptions cost about <b>${fmt(Math.round(subTot))}/month</b> — review any you don't use.`, w: `${tracked.length} tracked + ${subs.length} detected repeating payments.` });
+    if (proj && proj.net < 0) rec.push({ c: 'bad', t: `Projected cash flow is negative: about <b>-${fmt(Math.round(-proj.net))}</b> by month end (estimate).`, w: `Income ${fmt(Math.round(F.income + F.incomeLeft))} − projected spend ${fmt(Math.round(proj.spend))} (current pace ${fmt(Math.round(proj.daily))}/day + bills due).` });
+    if (sr != null && sr >= 20) rec.push({ c: 'good', t: `You're saving <b>${sr}%</b> of income this month — above the 20% guideline.`, w: `(${fmt(Math.round(m0.inc))} − ${fmt(Math.round(m0.exp))}) ÷ ${fmt(Math.round(m0.inc))}.` });
+
+    return `<details class="co" ${open ? 'open' : ''}>
+      <summary><span><i data-lucide="brain"></i></span><b>AI Financial Data Coach</b><em>${rec.filter(r => r.c === 'bad').length ? rec.filter(r => r.c === 'bad').length + ' to fix' : 'summary'}</em></summary>
+      <div class="co-grid">
+        <div class="co-card"><p class="co-h">Income</p><b class="co-v inc">${S(m0.inc)}</b>
+          <p class="co-l">vs last month ${chg(pct(m0.inc, m1.inc), true)}</p><p class="co-l">vs ${y1.d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' })} ${chg(pct(m0.inc, y1.inc), true)}</p>${_coachSpark(six.map(x => x.inc), '#10B981')}</div>
+        <div class="co-card"><p class="co-h">Expenses</p><b class="co-v exp">${S(m0.exp)}</b>
+          <p class="co-l">vs same day last month ${chg(pct(m0.exp, sameDay), false)}</p>${top3.length ? `<p class="co-l">${top3.map(([c, v]) => `${esc(c)} ${S(v)}`).join(' · ')}</p>` : ''}${_coachSpark(six.map(x => x.exp), '#F05260')}</div>
+        <div class="co-card co-wide"><p class="co-h">Cash flow</p>
+          <div class="co-cf"><div><span>${net < 0 ? 'Deficit' : 'Surplus'}</span><b class="${net < 0 ? 'exp' : 'inc'}">${net < 0 ? '-' : '+'}${S(Math.abs(net))}</b></div>
+          <div><span>Savings rate</span><b>${sr == null ? '—' : Math.max(sr, -999) + '%'}</b></div>
+          <div><span>Month-end <em class="sm-est">est.</em></span><b>${proj ? (proj.net < 0 ? '-' : '+') + S(Math.abs(proj.net)) : '—'}</b></div></div></div>
+      </div>
+      ${rec.length ? `<p class="co-rh">Recommendations</p>${rec.map(r => `<div class="co-rec ${r.c}"><p>${r.t}</p><details><summary>How was this calculated?</summary><p>${r.w}</p></details></div>`).join('')}` : `<p class="hx-s">No recommendations right now — log a few more transactions for deeper insights.</p>`}
+    </details>`;
+  } catch (e) { console.log('coach', e); return ''; }
 }

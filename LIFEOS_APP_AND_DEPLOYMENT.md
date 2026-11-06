@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **679** (5 Nov 2026).*
+*Status as of build **683** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -229,6 +229,10 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 677 | 3.0 corrections: surplus/deficit, alert thresholds, inactive accounts, trend cliff, like-for-like comparisons |
 | 678 | **Day / Night / System themes** with 3.0 tokens; Alerts center |
 | 679 | Bank balance clipping fix; headings readable in both themes |
+| 680 | Reference pass: purple Day hero, quick actions, glowing variable-radius donut, bar value bubbles |
+| 681 | Liabilities dashboard: debt summary, countdown, extra-payment what-if, loan progress bars |
+| 682 | Confirmed deletes for bank/card/wallet; bank cards show "last updated" and inactive tag |
+| 683 | AI Financial Data Coach modules (income / expense / cash-flow + explained recommendations); forecasts use everyday pace (no one-off EMI extrapolation) |
 
 ### Testing locally
 
@@ -250,10 +254,8 @@ These require native Android code and a rebuilt APK:
 - Phone notifications from inside the Capacitor app. They already work in the browser/PWA.
 
 ### Not yet done from the 3.0 brief
-- Full bank-management redesign: logos, masked numbers, a balance-history chart.
-- The four-module AI Data Coach dashboard. The chat assistant is done.
-- An extra-₹5,000 loan what-if on the Liabilities page. It exists only inside each loan's own page.
-- Moving every calculation into one central engine.
+- Real bank logos (the cards show the bank name and a masked number).
+- Moving every calculation into one central engine. The calculations that were wrong have been fixed individually.
 - Dedicated desktop and tablet layouts.
 
 ### Backend

@@ -62,6 +62,19 @@ function _homeFacts() {
   return { now, ym, pym, prev, dim, day, daysLeft, spent, income, pSpent, pIncome, pSameDay, budget, byCat, billsLeft, incomeLeft, liquid, cardDue };
 }
 
+// Everyday spending pace for forecasts: this month's expenses EXCLUDING
+// fixed / one-off items (EMI, rent, insurance, recurring bills, unusual
+// spends), divided by days elapsed. Projecting a one-off EMI as if it
+// repeated daily made month-end forecasts wildly negative.
+function homeEverydayPace(F) {
+  const recKeys = new Set((STATE.recurring || []).map(r => ((r.description || r.category || '') + '').trim().toLowerCase()));
+  const isFixed = t => !!t.recurringId || /^(emi|rent|insurance|loan|investment|sip)$/i.test(t.category || '')
+    || recKeys.has(((t.description || '') + '').trim().toLowerCase())
+    || (typeof _isUnusual === 'function' && _isUnusual(t));
+  const ev = (STATE.transactions || []).filter(t => t.type !== 'income' && (t.date || '').startsWith(F.ym) && !isFixed(t));
+  return ev.reduce((s, t) => s + (+t.amount || 0), 0) / Math.max(1, F.day);
+}
+
 // ══════════════════════════════════════════════════════════
 // BUDGET RING
 // ══════════════════════════════════════════════════════════
@@ -180,7 +193,7 @@ function _homeInsights(F) {
   if (top && F.spent > 0) out.push({ ic: 'pie-chart', c: '#8B5CF6', t: `Your largest spend this month is <b>${esc(top[0])}</b> — ${fmt(Math.round(top[1]))} (${_H.pct(top[1], F.spent)}%).` });
   // month-end forecast (estimate)
   if (F.day >= 3 && F.spent > 0) {
-    const nonRecurringDaily = Math.max(0, F.spent) / F.day;
+    const nonRecurringDaily = homeEverydayPace(F);
     const projSpend = F.spent + nonRecurringDaily * (F.daysLeft - 1) + F.billsLeft;
     const projNet = F.income + F.incomeLeft - projSpend;
     out.push({ ic: 'line-chart', c: '#22D3EE', est: true,
