@@ -1618,6 +1618,16 @@ function renderCategoryDetail() {
     const remaining = limit - displayTotal;
     const statusColor = remaining >= 0 ? color : '#ef4444';
     const remainingText = remaining >= 0 ? `Within budget (₹${Math.round(remaining).toLocaleString('en-IN')} remaining)` : `Over budget by ₹${Math.round(Math.abs(remaining)).toLocaleString('en-IN')}!`;
+    if (window.__IS_APP) {
+      const rp = limit > 0 ? Math.round(displayTotal / limit * 100) : 0;
+      const st = remaining < 0 ? 'over' : rp >= 80 ? 'warn' : 'ok';
+      budgetHtml = `<div class="hx-card cd-bud cd-${st}">
+        <div class="cd-bud-h"><div><p class="cd-l">${_catDetYearly ? 'Yearly' : 'Monthly'} budget</p><b>${fmt(limit)}</b></div>
+          <button class="cd-edit" onclick="${_editBudgetFn}" title="Edit budget"><i data-lucide="pencil"></i></button></div>
+        <div class="cd-bar"><i style="width:${Math.min(100, rp)}%"></i></div>
+        <div class="cd-bud-f"><span>${rp}% used</span><span>${remaining >= 0 ? fmt(Math.round(remaining)) + ' left' : fmt(Math.round(-remaining)) + ' over'}</span></div>
+      </div>`;
+    } else
     budgetHtml = `
       <div class="glass-card catdet-budget-card" style="padding:18px;margin-bottom:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -1655,7 +1665,16 @@ function renderCategoryDetail() {
         </div>
       </div>
 
-      <div class="glass-card" style="padding:18px;margin-bottom:16px">
+      ${window.__IS_APP ? (() => {
+        const ai = chartItems.findIndex(m => m.isAnchor), prev = ai > 0 ? chartItems[ai - 1].total : 0;
+        const ch = prev > 0 ? Math.round((displayTotal / prev - 1) * 100) : null;
+        const good = isIncome ? ch >= 0 : ch <= 0;
+        return `<div class="hx-card cd-hero" style="--c:${color}">
+          <p class="cd-l">${spentPeriodText}</p>
+          <b class="cd-amt">${fmt(displayTotal)}</b>
+          <div class="cd-meta">${ch == null ? '' : `<span class="cd-chg ${good ? 'good' : 'bad'}">${ch >= 0 ? '▲' : '▼'} ${Math.abs(ch)}% vs ${_catDetYearly ? 'last year' : 'last month'}</span>`}<span>${displayTx.length} transaction${displayTx.length === 1 ? '' : 's'}</span></div>
+        </div>`; })() : ''}
+      <div class="glass-card cd-chart-card" style="padding:18px;margin-bottom:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <span style="font-size:18px;font-weight:700;color:var(--text2)">${histLabel}</span>
           <div class="period-tabs" style="margin:0;display:flex;gap:4px">
@@ -1664,7 +1683,7 @@ function renderCategoryDetail() {
           </div>
         </div>
         <div class="catdet-chart-scroll">
-          <div class="catdet-chart-inner" style="position:relative;height:420px;width:${containerWidth}">
+          <div class="catdet-chart-inner" style="position:relative;height:${window.__IS_APP ? 240 : 420}px;width:${containerWidth}">
             <canvas id="catdet-chart"></canvas>
           </div>
         </div>
@@ -1672,7 +1691,7 @@ function renderCategoryDetail() {
 
       ${budgetHtml}
 
-      <div class="catdet-total">
+      <div class="catdet-total"${window.__IS_APP ? ' style="display:none"' : ''}>
         <span>${spentPeriodText}</span>
         <b style="color:${color}">${fmt(displayTotal)}</b>
       </div>
@@ -1694,6 +1713,7 @@ function renderCategoryDetail() {
       <div class="glass-card" style="overflow:hidden">
         ${displayTx.length ? displayTx.map(t => `
           <div class="catdet-tx" onclick="openEditTxModal('${t.id}')">
+            ${window.__IS_APP ? `<span class="cd-tx-ic" style="--c:${color}">${isTag ? catIconHtml(t.category) : catIconHtml(cat)}</span>` : ''}
             <div class="catdet-tx-mid">
               <p class="catdet-tx-name">${esc(t.subcategory || t.description || cat)}</p>
               <p class="catdet-tx-meta">${t.source && typeof _sourceLabel === 'function' ? esc(_sourceLabel(t.source)) + ' · ' : ''}${fmtDate(t.date)}</p>
@@ -1716,7 +1736,7 @@ function renderCategoryDetail() {
         labels: chartItems.map(m => m.label),
         datasets: [{
           data: chartItems.map(m => m.total),
-          backgroundColor: chartItems.map(m => m.isAnchor ? color : 'rgba(99,102,241,0.6)'),
+          backgroundColor: chartItems.map(m => m.isAnchor ? color : (window.__IS_APP ? color + '40' : 'rgba(99,102,241,0.6)')),
           borderRadius: 10, maxBarThickness: 34
         }]
       },

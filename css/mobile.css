@@ -19722,3 +19722,40 @@ html.is-app body:not(#_cx):not(#_cy) .up-r em.soon { color: var(--cx-exp); }
 html.is-app body:not(#_cx):not(#_cy) .pad-pick-main { min-width: 0 !important; overflow: hidden !important; }
 html.is-app body:not(#_cx):not(#_cy) .pad-pick-main .ppm-l { flex: 1 1 auto; }
 html.is-app body:not(#_cx):not(#_cy) .pad-cat-manage { background: color-mix(in srgb, var(--cx-pri) 10%, var(--cx-card)) !important; color: var(--cx-pri) !important; border: 1px solid color-mix(in srgb, var(--cx-pri) 30%, var(--cx-line)) !important; }
+
+/* ============================================================
+   build 685 — category detail page on the 3.0 theme (app-only)
+   ============================================================ */
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-l { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-hero { margin: 0 0 12px !important; background: radial-gradient(90% 90% at 100% 0%, color-mix(in srgb, var(--c) 22%, transparent), transparent 60%), var(--cx-card) !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-amt { display: block; font-size: 34px; font-weight: 800; letter-spacing: -0.03em; color: var(--cx-ink); margin: 4px 0 6px; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-chg { font-weight: 800; padding: 3px 8px; border-radius: 999px; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-chg.good { color: var(--cx-inc); background: color-mix(in srgb, var(--cx-inc) 12%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-chg.bad { color: var(--cx-exp); background: color-mix(in srgb, var(--cx-exp) 12%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-bud { margin: 0 0 12px !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-bud-h { display: flex; justify-content: space-between; align-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-bud-h b { font-size: 22px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-edit { width: 38px; height: 38px; min-height: 0 !important; border-radius: 12px; border: 1px solid var(--cx-line); background: var(--cx-chip); color: var(--cx-pri); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-edit svg { width: 17px; height: 17px; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-bar { height: 10px; border-radius: 5px; background: var(--cx-chip); margin: 12px 0 8px; overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-bar i { display: block; height: 100%; border-radius: 5px; background: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-warn .cd-bar i { background: var(--cx-warn); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-over .cd-bar i { background: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-bud-f { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-over .cd-bud-f span:last-child { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-chart-card { border-radius: 20px !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-section { color: var(--cx-ink2) !important; font-size: 12px !important; letter-spacing: .07em !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-tx { display: flex !important; align-items: center !important; gap: 12px !important; border-bottom: 1px solid var(--cx-line) !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-tx-ic { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); }
+html.is-app body:not(#_cx):not(#_cy) .catdet .cd-tx-ic svg { width: 19px; height: 19px; color: var(--c) !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-tx-name { color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-tx-meta { color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-tx-amt { color: var(--cx-ink) !important; font-weight: 800 !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-sub-bar > div { opacity: .85; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-chart-inner { height: 240px !important; min-height: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-chart-scroll { max-height: 260px !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-back { width: 40px !important; height: 40px !important; border-radius: 12px !important; background: var(--cx-card) !important; border: 1px solid var(--cx-line) !important; color: var(--cx-ink) !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-back svg { color: var(--cx-ink) !important; stroke: var(--cx-ink) !important; width: 20px; height: 20px; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-name { color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-sub { color: var(--cx-ink2) !important; }
