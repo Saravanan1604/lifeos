@@ -520,7 +520,14 @@ function renderRecordsMyMoney() {
   const periodTabs = tabs.map(p =>
     `<button class="mm-ptab ${_recPeriod === p ? 'active' : ''}" onclick="recSetPeriod('${p}')">${tabLabels[p]}</button>`).join('');
 
-  const selBar = _recSelectMode ? `
+  const selBar = _recSelectMode && window.__IS_APP ? `
+      <div class="sb2">
+        <button class="sb2-x" onclick="recCancelSelect()" aria-label="Cancel"><i data-lucide="x"></i></button>
+        <span class="mm-selcount">${_recSel.size} selected</span>
+        <button class="sb2-all" onclick="recSelectAll()">Select all</button>
+        <button class="sb2-act" onclick="recBulkCategory()" aria-label="Change category"><i data-lucide="tag"></i><small>Category</small></button>
+        <button class="sb2-act del" onclick="recBulkDelete()" aria-label="Delete"><i data-lucide="trash-2"></i><small>Delete</small></button>
+      </div>` : _recSelectMode ? `
       <div class="mm-selbar">
         <button class="mm-selx" onclick="recCancelSelect()">✕</button>
         <span class="mm-selcount">${_recSel.size} selected</span>
@@ -550,11 +557,11 @@ function renderRecordsMyMoney() {
               <input type="checkbox" ${showTotal ? 'checked' : ''} onclick="event.stopPropagation();recToggleTotal()"/><span></span>
             </label>`}
           </div>
-          ${showTotal ? `<p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(_homeDash ? Math.round(Math.abs(total)) : total)}</p>` : ''}
+          ${showTotal ? `<p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(window.__IS_APP ? Math.round(Math.abs(total)) : total)}</p>` : ''}
           <div class="mm-hero-split ${showTotal ? '' : 'mm-split-big'}">
-            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''} <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val pos">+${fmt(_homeDash ? Math.round(income) : income)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''} <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val pos">+${fmt(window.__IS_APP ? Math.round(income) : income)}</span></div>
             <div class="mm-hs-div"></div>
-            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val neg">-${fmt(_homeDash ? Math.round(expense) : expense)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val neg">-${fmt(window.__IS_APP ? Math.round(expense) : expense)}</span></div>
           </div>
           ${_homeDash && typeof homeHeroExtra === 'function' ? homeHeroExtra() : ''}
         </div>`;
@@ -649,6 +656,10 @@ function recToggleSel(id) {
   }
   const cnt = document.querySelector('.mm-selcount');
   if (cnt) cnt.textContent = `${_recSel.size} selected`;
+}
+function recSelectAll() {
+  document.querySelectorAll('.mm-row[data-id]').forEach(r => { _recSel.add(r.dataset.id); r.classList.add('sel'); const c = r.querySelector('.mm-check'); if (c) { c.classList.add('on'); c.textContent = '✓'; } });
+  const cnt = document.querySelector('.mm-selcount'); if (cnt) cnt.textContent = `${_recSel.size} selected`;
 }
 function recEnterSelect(id) {
   _recSelectMode = true; _recSel = new Set([id]);
@@ -2889,6 +2900,27 @@ function openRecordsFilter() {
   const showTotal = !(STATE.settings && STATE.settings.showTotal === false);
   const carryForward = STATE.settings && STATE.settings.carryForward === true;
   const anchorYmd = (typeof _ymdLocal === 'function' && typeof _recAnchor !== 'undefined') ? _ymdLocal(_recAnchor) : today();
+  if (window.__IS_APP) {
+    const seg = (id, cur, opts) => `<input type="hidden" id="${id}" value="${cur}"/><div class="f2-seg">${opts.map(([v, l]) => `<button type="button" class="${v === cur ? 'on' : ''}" onclick="f2Pick(this,'${id}','${v}')">${l}</button>`).join('')}</div>`;
+    openModal('Filter', `
+      <div class="f2">
+        <div class="f2-search"><i data-lucide="search"></i><input type="text" id="rf-search" value="${esc(_recSearch)}" placeholder="Search notes, amounts, dates…" oninput="_recSearch=this.value; if(typeof renderRecordsMyMoney==='function')renderRecordsMyMoney();"/></div>
+        <div class="f2-chips">${['today', 'this week', 'last 7 days', 'last month', '> 1000', 'income'].map(c => `<button type="button" onclick="setRecSmartSearch('${c}')">${c}</button>`).join('')}</div>
+        <p class="f2-l">Type</p>
+        ${seg('rf-type', _finType, [['all', 'All'], ['expense', 'Expense'], ['income', 'Income']])}
+        <p class="f2-l">Category</p>
+        <input type="hidden" id="rf-cat" value="${esc(_finCategory)}"/>
+        <div class="f2-cats">${[['all', 'All', '']].concat(cats.map(c => [c, c, catColor(c)])).map(([v, l, col]) => `<button type="button" class="${v === _finCategory ? 'on' : ''}" onclick="f2Pick(this,'rf-cat','${esc(v).replace(/'/g, "\\'")}')">${col ? `<i style="background:${col}"></i>` : ''}${esc(l)}</button>`).join('')}</div>
+        <p class="f2-l">Date range <span>optional</span></p>
+        <div class="f2-dates"><label>From<input type="date" id="rf-from" value="${_recDateFrom}"/></label><label>To<input type="date" id="rf-to" value="${_recDateTo}"/></label></div>
+        <label class="f2-jump"><i data-lucide="calendar-search"></i> Jump to a day<input type="date" value="${anchorYmd}" onchange="closeModal();recPickDay(this.value)"/></label>
+        <p class="f2-l">Sort</p>
+        ${seg('rf-sort', _finSort, [['date-desc', 'Newest'], ['date-asc', 'Oldest'], ['amount-desc', 'Highest'], ['amount-asc', 'Lowest']])}
+        <div class="f2-foot"><button class="f2-clear" onclick="clearRecordsFilter()">Clear all</button><button class="f2-apply" onclick="applyRecordsFilter()">Show results</button></div>
+      </div>`);
+    if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+    return;
+  }
   openModal('🔍 Filter Records', `
     <div class="rf-modal">
     <div class="form-group"><label class="form-label">Jump to day</label>
@@ -2928,6 +2960,10 @@ function openRecordsFilter() {
     </div>`);
 }
 
+function f2Pick(btn, id, v) {
+  const inp = document.getElementById(id); if (inp) inp.value = v;
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+}
 function applyRecordsFilter() {
   _recSearch   = document.getElementById('rf-search')?.value || '';
   _finType     = document.getElementById('rf-type')?.value || 'all';

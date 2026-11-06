@@ -20597,3 +20597,54 @@ html.is-app body:not(#_cx):not(#_cy) .mm-list .mm-amt.pos { color: var(--cx-inc)
 html.is-app body:not(#_cx):not(#_cy) .mm-subhead-title { font-size: 18px !important; font-weight: 800 !important; }
 html.is-desk body:not(#_cx):not(#_cy) #sidebar .nav-item.active, html.is-desk body:not(#_cx):not(#_cy) #sidebar .nav-item.active .nav-text { color: var(--cx-ink) !important; }
 html.is-desk body.light:not(#_cx):not(#_cy) #sidebar .nav-item.active { background: color-mix(in srgb, var(--cx-pri) 12%, #fff) !important; }
+
+/* ================= build 708 — selection bar + filter popup ================= */
+/* floating selection bar above the bottom navigation */
+html.is-app body:not(#_cx):not(#_cy) .sb2 { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); z-index: 9000; display: flex; align-items: center; gap: 6px; width: min(392px, calc(100% - 20px)); padding: 6px 6px 6px 8px; border-radius: 20px; background: rgba(21,31,51,.94); border: 1px solid rgba(255,255,255,.08); box-shadow: 0 20px 44px -16px rgba(0,0,0,.7); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); animation: ntIn .3s cubic-bezier(.2,1.3,.4,1); }
+html.is-app body.light:not(#_cx):not(#_cy) .sb2 { background: rgba(255,255,255,.97); border-color: #E7E9F2; box-shadow: 0 20px 44px -18px rgba(24,34,56,.35); }
+html.is-desk body:not(#_cx):not(#_cy) .sb2 { left: calc(var(--dl) + var(--dw) / 2); bottom: 28px; }
+html.is-app body:not(#_cx):not(#_cy) .sb2 button { min-height: 0 !important; margin: 0 !important; font-family: inherit; }
+html.is-app body:not(#_cx):not(#_cy) .sb2-x { width: 38px !important; height: 38px !important; padding: 0 !important; border-radius: 12px !important; border: 0 !important; background: var(--cx-chip) !important; display: grid; place-items: center; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .sb2-x svg { width: 18px; height: 18px; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .sb2 .mm-selcount { flex: 1; min-width: 0; font-size: 14.5px !important; font-weight: 800 !important; color: var(--cx-ink) !important; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .sb2-all { padding: 8px 10px !important; border: 0 !important; background: none !important; font-size: 13px !important; font-weight: 700 !important; color: var(--cx-pri-tx, var(--cx-pri)) !important; white-space: nowrap; width: auto !important; height: auto !important; }
+html.is-app body:not(#_cx):not(#_cy) .sb2-act { display: flex; flex-direction: column; align-items: center; gap: 1px; width: 58px !important; height: auto !important; padding: 6px 0 !important; border-radius: 12px !important; border: 0 !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .sb2-act svg { width: 17px; height: 17px; color: inherit !important; }
+html.is-app body:not(#_cx):not(#_cy) .sb2-act small { font-size: 10.5px !important; font-weight: 700; color: inherit !important; }
+html.is-app body:not(#_cx):not(#_cy) .sb2-act.del { background: var(--cx-exp-bg) !important; color: var(--cx-exp) !important; }
+/* checkboxes in select mode */
+html.is-app body:not(#_cx):not(#_cy) .mm-list .mm-check { width: 22px !important; height: 22px !important; min-width: 22px !important; border-radius: 7px !important; border: 2px solid var(--cx-line) !important; background: transparent !important; font-size: 13px !important; font-weight: 900; color: #fff !important; display: grid !important; place-items: center !important; line-height: 1 !important; margin: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-list .mm-check.on { background: var(--cx-pri) !important; border-color: var(--cx-pri) !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-list .mm-row.sel { background: color-mix(in srgb, var(--cx-pri) 10%, var(--cx-card)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .selmode .mm-list { margin-bottom: 70px !important; }
+/* filter popup */
+html.is-app body:not(#_cx):not(#_cy) .f2 { display: flex; flex-direction: column; gap: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .f2 button { font-family: inherit; min-height: 0 !important; margin: 0 !important; width: auto !important; height: auto !important; }
+html.is-app body:not(#_cx):not(#_cy) .f2-search { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 14px; border-radius: 16px; background: var(--cx-chip); border: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .f2-search svg { width: 18px; height: 18px; color: var(--cx-mute); flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .f2-search input { flex: 1; min-width: 0; border: 0 !important; outline: 0; background: none !important; box-shadow: none !important; padding: 0 !important; height: auto !important; font-size: 15px !important; color: var(--cx-ink) !important; font-family: inherit; }
+html.is-app body:not(#_cx):not(#_cy) .f2-chips, html.is-app body:not(#_cx):not(#_cy) .f2-cats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+html.is-app body:not(#_cx):not(#_cy) :is(.f2-chips, .f2-cats)::-webkit-scrollbar { display: none; }
+html.is-app body:not(#_cx):not(#_cy) .f2-chips button, html.is-app body:not(#_cx):not(#_cy) .f2-cats button { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px !important; border-radius: 999px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-card) !important; font-size: 13px !important; font-weight: 600 !important; color: var(--cx-ink2) !important; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .f2-cats button i { width: 8px; height: 8px; border-radius: 50%; }
+html.is-app body:not(#_cx):not(#_cy) .f2-cats button.on { background: var(--cx-pri) !important; border-color: transparent !important; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .f2-l { margin: 6px 2px -2px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .f2-l span { text-transform: none; letter-spacing: 0; font-weight: 600; }
+html.is-app body:not(#_cx):not(#_cy) .f2-seg { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--cx-chip); border: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .f2-seg button { flex: 1; padding: 9px 0 !important; border-radius: 10px !important; border: 0 !important; background: none !important; font-size: 13.5px !important; font-weight: 700 !important; color: var(--cx-ink2) !important; width: 100% !important; }
+html.is-app body:not(#_cx):not(#_cy) .f2-seg button.on { background: var(--cx-card) !important; color: var(--cx-pri-tx, var(--cx-pri)) !important; box-shadow: 0 3px 10px -4px rgba(0,0,0,.3); }
+html.is-app body:not(#_cx):not(#_cy) .f2-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .f2-dates label { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .f2-dates input { height: 44px !important; padding: 0 12px !important; border-radius: 12px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important; font-size: 14px !important; font-family: inherit; color-scheme: dark; }
+html.is-app body.light:not(#_cx):not(#_cy) .f2-dates input { color-scheme: light; }
+html.is-app body:not(#_cx):not(#_cy) .f2-jump { position: relative; display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; font-size: 13px; font-weight: 700; color: var(--cx-pri-tx, var(--cx-pri)); cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .f2-jump svg { width: 15px; height: 15px; }
+html.is-app body:not(#_cx):not(#_cy) .f2-jump input { position: absolute; inset: 0; opacity: 0; }
+html.is-app body:not(#_cx):not(#_cy) .f2-foot { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .f2-clear { height: 50px !important; border-radius: 16px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; font-size: 15px !important; font-weight: 700 !important; color: var(--cx-ink) !important; width: 100% !important; }
+html.is-app body:not(#_cx):not(#_cy) .f2-apply { height: 50px !important; border-radius: 16px !important; border: 0 !important; font-size: 15px !important; font-weight: 800 !important; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)) !important; width: 100% !important; box-shadow: 0 12px 24px -12px var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .mm-list .mm-row.sel, html.is-app body:not(#_cx):not(#_cy) .mm-list .mm-row { border-left: 0 !important; box-shadow: none !important; }
+html.is-app body:not(#_cx):not(#_cy) .f2-dates label { font-size: 11.5px !important; font-weight: 700 !important; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .f2-jump { font-size: 13px !important; font-weight: 700 !important; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .f2-cats button.on, html.is-app body:not(#_cx):not(#_cy) .f2-cats button.on * { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .f2-cats button.on i { background: #fff !important; }

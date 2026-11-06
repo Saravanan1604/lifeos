@@ -146,6 +146,16 @@
   }
   window._newToast = _newToast;
 
+  // ── Floating selection bar lives on <body> (page container is transformed) ─
+  function liftSelBar() {
+    const sb = document.querySelector('#page-container .sb2');
+    const selOn = typeof _recSelectMode !== 'undefined' && _recSelectMode && document.querySelector('#page-container .mymoney-records');
+    if (sb || !selOn) document.querySelectorAll('body > .sb2').forEach(e => e.remove());
+    if (sb) { document.body.appendChild(sb); if (typeof _lucideRefresh === 'function') _lucideRefresh(); }
+  }
+  const _pcWatch = () => { const pc = document.getElementById('page-container'); if (pc) new MutationObserver(liftSelBar).observe(pc, { childList: true, subtree: true }); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _pcWatch); else _pcWatch();
+
   // ── Moving background off (battery) ─────────────────────────
   try {
     if (typeof _bgMode !== 'undefined') _bgMode = 'none';
