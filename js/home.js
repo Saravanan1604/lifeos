@@ -107,7 +107,7 @@ function _homeBudgetHtml(F) {
         <div><span>Spent</span><b>${fmt(Math.round(F.spent))}</b></div>
         <div><span>${left >= 0 ? 'Left' : 'Over by'}</span><b style="color:${left >= 0 ? 'inherit' : '#F05260'}">${fmt(Math.round(Math.abs(left)))}</b></div>
         <div><span>Budget</span><b>${fmt(Math.round(F.budget))}</b></div>
-        <div><span>Per day</span><b>${left > 0 ? fmt(Math.floor(daily)) : '—'}</b></div>
+        <div><span>Per day</span><b>${left > 0 ? fmt(Math.floor(daily)) : 'Used up'}</b></div>
       </div>
     </div>
   </div>`;
@@ -353,7 +353,7 @@ function _homeAfterRender() {
 function homeDashboardHtml() {
   try {
     const F = _homeFacts();
-    return (typeof homeTodayHtml === 'function' ? homeTodayHtml(F) : '') + _homeBudgetHtml(F) + _homeInsightsHtml(F) + _homeAnalyticsHtml(F);
+    return (typeof homeTodayHtml === 'function' ? homeTodayHtml(F) : '') + _homeBudgetHtml(F) + _homeAnalyticsHtml(F);
   } catch (e) { console.log('home dash', e); return ''; }
 }
 function homeHeroExtra() { try { return _homeHeroExtraHtml(_homeFacts()); } catch (_) { return ''; } }

@@ -543,11 +543,11 @@ function renderRecordsMyMoney() {
               <input type="checkbox" ${showTotal ? 'checked' : ''} onclick="event.stopPropagation();recToggleTotal()"/><span></span>
             </label>`}
           </div>
-          ${showTotal ? `<p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(total)}</p>` : ''}
+          ${showTotal ? `<p class="mm-hero-val ${total < 0 ? 'neg' : 'pos'}">${total < 0 ? '-' : ''}${fmt(_homeDash ? Math.round(Math.abs(total)) : total)}</p>` : ''}
           <div class="mm-hero-split ${showTotal ? '' : 'mm-split-big'}">
-            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''} <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val pos">+${fmt(income)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-down-left"></i> Income${incomeCarried ? ' (month)' : ''} <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val pos">+${fmt(_homeDash ? Math.round(income) : income)}</span></div>
             <div class="mm-hs-div"></div>
-            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val neg">-${fmt(expense)}</span></div>
+            <div class="mm-hs" onclick="event.stopPropagation();recCarrySettings()" title="Carry-forward options"><span class="mm-hs-lbl"><i data-lucide="arrow-up-right"></i> Expense <i data-lucide="chevron-right" style="opacity:.5"></i></span><span class="mm-hs-val neg">-${fmt(_homeDash ? Math.round(expense) : expense)}</span></div>
           </div>
           ${_homeDash && typeof homeHeroExtra === 'function' ? homeHeroExtra() : ''}
         </div>`;

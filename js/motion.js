@@ -23,6 +23,7 @@ function homeTodayHtml(F) {
   if (F && F.budget) { const leftBefore = F.budget - (F.spent - spent); allow = leftBefore > 0 ? leftBefore / F.daysLeft : 0; }
   const pct = allow ? Math.min(100, spent / allow * 100) : (spent ? 100 : 0);
   const over = allow != null && spent > allow;
+  const usedUp = allow === 0;
   const st = logStreak();
   const R = 26, C = 2 * Math.PI * R;
   const col = allow == null ? 'var(--cx-pri)' : over ? 'var(--cx-exp)' : pct >= 80 ? 'var(--cx-warn)' : 'var(--cx-inc)';
@@ -30,8 +31,8 @@ function homeTodayHtml(F) {
     <div class="td-ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="${R}" class="hx-ring-bg"/><circle cx="32" cy="32" r="${R}" class="hx-ring-fg" stroke="${col}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" data-off="${(C * (1 - pct / 100)).toFixed(1)}"/></svg><i data-lucide="${over ? 'alert-triangle' : 'sun'}"></i></div>
     <div class="td-m">
       <p class="td-l">Today</p>
-      <b>${fmt(Math.round(spent))}${allow != null ? ` <em>/ ${fmt(Math.floor(allow))}</em>` : ''}</b>
-      <span>${allow == null ? `${list.length} entr${list.length === 1 ? 'y' : 'ies'} today` : over ? `${fmt(Math.round(spent - allow))} over today's allowance` : `${fmt(Math.floor(allow - spent))} left to spend today`}</span>
+      <b>${fmt(Math.round(spent))}${allow ? ` <em>/ ${fmt(Math.floor(allow))}</em>` : ''}</b>
+      <span>${allow == null ? `${list.length} entr${list.length === 1 ? 'y' : 'ies'} today` : usedUp ? `Spent today · monthly budget is used up` : over ? `${fmt(Math.round(spent - allow))} over today's allowance` : `${fmt(Math.floor(allow - spent))} left to spend today`}</span>
     </div>
     <div class="td-st ${st.today ? 'on' : ''}" title="Days in a row with at least one entry"><b>🔥 ${st.n}</b><span>${st.n === 1 ? 'day' : 'days'}</span></div>
     ${st.today ? '' : `<button class="td-add" onclick="openTxPad('expense')">${st.n ? 'Keep streak' : 'Log today'}</button>`}

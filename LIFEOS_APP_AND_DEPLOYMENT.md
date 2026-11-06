@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **704** (6 Nov 2026).*
+*Status as of build **705** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -254,6 +254,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 702 | **Night readability pass** — WCAG contrast audit on 20 pages (demo data): Night caption grey `#64748B→#8B99B0`, secondary text `→#A9B5C7`, purple fill `#8B5CF6→#7C4DFF` (white text readable), new text-only purple token `--cx-pri-tx #B197FC` (65 rules switched to it), red `→#FF6B78`, legacy `--text2/--text3` and faded-white inline text remapped, blue tags brightened. Result: 0 low-contrast texts on all 20 pages in Night (was 47). Day caption grey `#94A3B8→#717E93`. “Achievement Unlocked” pop-ups hidden in the app |
 | 703 | **Update balance popup** redesigned (app): bank chips with colour strip and current balance, big centred amount, live “₹old → ₹new · +₹diff more/less”, Today / Yesterday / 2 days ago / Pick date as one row (local dates — the old version used UTC and could pick the wrong day early morning), compact note, full-width Save. Same save logic and fields |
 | 704 | **Desktop web uses the new design** (owner request): head script marks desktop browsers `is-app is-desk` (no viewport lock, AdSense still loads); new `js/desk.js` fits every page into a centred 640px column (dividing by each page's CSS zoom) with the new menu permanently on the left; bottom bar, + button, demo banner, sheets, add screen, voice and calculator fit the column. Settings → **Classic web layout** switches a computer back to the old pages (and the classic Settings has “Switch to the new design”). App size hidden on desktop. Demo-mode celebration popup removed |
+| 705 | **Calmer Home**: removed the AI “Your money, explained” card (insights, health score, Ask button) from Home — AI stays in the ✨ top button and Analytics. Hero shows whole rupees (no .64). “Spending vs last month” and “In accounts” chips sit on one quiet line. Today card no longer shows “/ ₹0” when the month budget is used up — it says so instead; budget card “Per day” shows “Used up”. 7-day bars clearly visible in both themes |
 
 ### Testing locally
 

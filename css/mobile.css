@@ -20526,3 +20526,13 @@ html.is-desk #sidebar .nav-item { cursor: pointer; }
 html.is-desk #sidebar .nav-item:hover { background: var(--cx-chip) !important; }
 html.is-desk :is(.pk-row, .st-row, .an-deep button, .ct-tools button, .hx-card[onclick]):hover { filter: brightness(1.06); }
 html.is-desk ::-webkit-scrollbar { width: 10px; } html.is-desk ::-webkit-scrollbar-thumb { background: var(--cx-line); border-radius: 10px; }
+
+/* ================= build 705 — calmer Home ================= */
+html.is-app body:not(#_cx):not(#_cy) .hx-hero-extra { flex-wrap: nowrap !important; justify-content: space-between !important; gap: 8px !important; margin-top: 12px !important; }
+html.is-app body:not(#_cx):not(#_cy) .hx-hero-extra :is(.hx-chg, .hx-accts) { font-size: 12.5px !important; padding: 5px 10px !important; height: auto !important; min-height: 0 !important; width: auto !important; white-space: nowrap; line-height: 1.2 !important; border-radius: 999px !important; }
+html.is-app body:not(#_cx):not(#_cy) .hx-hero-extra .hx-accts { border: 0 !important; background: rgba(255,255,255,.06) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .hx-hero-extra .hx-accts { background: rgba(24,34,56,.05) !important; }
+html.is-app body:not(#_cx):not(#_cy) .hx-hero-extra svg { width: 14px !important; height: 14px !important; }
+/* 7-day bars: inactive bars clearly visible */
+html.is-app body:not(.light):not(#_cx):not(#_cy) .hx-bub-bars .hx-bar:not(.on) i { background: color-mix(in srgb, var(--cx-pri) 55%, var(--cx-chip)) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .hx-bub-bars .hx-bar:not(.on) i { background: color-mix(in srgb, var(--cx-pri) 30%, #fff) !important; }
