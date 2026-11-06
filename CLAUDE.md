@@ -31,6 +31,11 @@ Jetpack Compose, or any other UI framework/library.
   never leaks into the web/desktop layout.
 - The installed app sets the `is-app` class (display-mode / referrer /
   localStorage detection in `index.html`'s inline head script).
+- Since build 704 (owner's request) **desktop browsers also get the modern app
+  design** by default: the head script adds `is-app` + `is-desk`, and
+  `js/desk.js` fits the pages into a centred column with the menu on the left.
+  Settings → "Classic web layout" (localStorage `lifeos_web_layout=classic`)
+  restores the old desktop pages, which must keep working.
 
 ## Deploy Workflow
 - Edit `css/mobile.css` (mobile styling) and/or `js/*.js` (structure).

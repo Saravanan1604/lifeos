@@ -83,9 +83,9 @@ function renderSettingsApp() {
     <div class="st-themes">${themes.map(t => `<button class="st-th ${theme === t.m ? 'on' : ''}" onclick="setTheme('${t.m}')">
       <span class="st-th-p" style="background:${t.bg}"><i style="background:${t.c}"><em style="background:${t.a}"></em></i></span><small>${t.l}</small></button>`).join('')}</div>
     <p class="st-note">System follows your phone's light / dark setting.</p>
-    <p class="st-lbl">App size</p>
+    ${document.documentElement.classList.contains('is-desk') ? '' : `<p class="st-lbl">App size</p>
     <div class="st-seg four">${APP_SIZES.map(([k, l], i) => `<button class="${getAppSize() === k ? 'on' : ''}" onclick="setAppSize('${k}')"><b style="font-size:${14 + i * 3}px">Aa</b><small>${l}</small></button>`).join('')}</div>
-    <p class="st-note">Text or buttons look too small or too big on this phone? Pick a size — it applies everywhere in the app.</p>
+    <p class="st-note">Text or buttons look too small or too big on this phone? Pick a size — it applies everywhere in the app.</p>`}
     <p class="st-lbl">Number style</p>
     <div class="st-seg">
       <button class="${nf === 'default' ? 'on' : ''}" onclick="setNumFont('default')"><b>${cur}84,250</b><small>Classic</small></button>
@@ -121,7 +121,9 @@ function renderSettingsApp() {
     _stRow({ ic: 'flask-conical', tone: 'warn', t: 'Demo mode', s: demoOn ? 'On — showing sample data. Tap to go back to your data' : 'Try the app with sample data. Your real data stays safe', right: `<span class="st-pill ${demoOn ? 'on' : ''}">${demoOn ? 'ON' : 'OFF'}</span>`, on: 'toggleDemoMode()' }),
     _stRow({ ic: 'book-open', tone: 'pri', t: 'How to use atworth', s: 'Guide, checklist and FAQ', on: "navigate('help')" }),
     _stRow({ ic: 'route', tone: 'acc', t: 'Replay the tour', s: '1-minute walk-through of the main buttons', on: 'startAppTour(true)' }),
-    _stRow({ ic: 'monitor', tone: 'mute', t: 'Open web version', s: 'Same account on a bigger screen', on: "window.open('https://lifeos-psi-roan.vercel.app','_blank')" }),
+    document.documentElement.classList.contains('is-desk')
+      ? _stRow({ ic: 'layout-template', tone: 'mute', t: 'Classic web layout', s: 'Switch this computer back to the old desktop pages', on: "if(confirm('Switch to the classic desktop layout? You can come back from Settings any time.'))setWebLayout('classic')" })
+      : _stRow({ ic: 'monitor', tone: 'mute', t: 'Open web version', s: 'Same account on a bigger screen', on: "window.open('https://lifeos-psi-roan.vercel.app','_blank')" }),
   ]);
 
   const legal = _stGroup('About', [

@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **703** (6 Nov 2026).*
+*Status as of build **704** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -253,6 +253,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 701 | **Demo mode** (Settings → Help → Demo mode, web Settings card, or old “Load demo data” buttons): sample data (3 months of daily entries + salary/rent/EMI/SIP, recurring, tags, purchases, splits, banks, cards, assets, loans) in a separate local copy `lifeos_demo_v1`; while on, `DB.KEY` points to it and all sync is off (`_canSync`, `pullFromCloud`, `_mergeCloudIntoState`, `tryAutoRestore` guarded) so real data in `lifeos_v1` and the cloud is never read, changed or merged. Orange banner with **Turn off**; turning off deletes the demo copy and reloads real data. Reset All Data in demo mode only exits demo |
 | 702 | **Night readability pass** — WCAG contrast audit on 20 pages (demo data): Night caption grey `#64748B→#8B99B0`, secondary text `→#A9B5C7`, purple fill `#8B5CF6→#7C4DFF` (white text readable), new text-only purple token `--cx-pri-tx #B197FC` (65 rules switched to it), red `→#FF6B78`, legacy `--text2/--text3` and faded-white inline text remapped, blue tags brightened. Result: 0 low-contrast texts on all 20 pages in Night (was 47). Day caption grey `#94A3B8→#717E93`. “Achievement Unlocked” pop-ups hidden in the app |
 | 703 | **Update balance popup** redesigned (app): bank chips with colour strip and current balance, big centred amount, live “₹old → ₹new · +₹diff more/less”, Today / Yesterday / 2 days ago / Pick date as one row (local dates — the old version used UTC and could pick the wrong day early morning), compact note, full-width Save. Same save logic and fields |
+| 704 | **Desktop web uses the new design** (owner request): head script marks desktop browsers `is-app is-desk` (no viewport lock, AdSense still loads); new `js/desk.js` fits every page into a centred 640px column (dividing by each page's CSS zoom) with the new menu permanently on the left; bottom bar, + button, demo banner, sheets, add screen, voice and calculator fit the column. Settings → **Classic web layout** switches a computer back to the old pages (and the classic Settings has “Switch to the new design”). App size hidden on desktop. Demo-mode celebration popup removed |
 
 ### Testing locally
 

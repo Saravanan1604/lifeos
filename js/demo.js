@@ -56,7 +56,7 @@ function enableDemoMode() {
   const c0 = window.confirm, n0 = window.navigate, cel = window.showCelebration;
   window.confirm = () => true; window.navigate = () => {}; window.showCelebration = () => {};
   try { seedDemoData(); } catch (e) { console.log(e); }
-  finally { window.confirm = c0; window.navigate = n0; window.showCelebration = cel; }
+  finally { window.confirm = c0; window.navigate = n0; setTimeout(() => { window.showCelebration = cel; }, 2000); }
   try {
     const x = _demoExtras();
     STATE.transactions = (STATE.transactions || []).concat(x.tx);

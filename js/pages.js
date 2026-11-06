@@ -345,6 +345,11 @@ function renderSettings() {
           <p style="font-size:14px;color:var(--text3);margin-bottom:12px">Step-by-step guide, quick-start checklist and a 1-minute tour of the main buttons.</p>
           <div style="display:flex;gap:10px"><button class="btn-primary" style="flex:1" onclick="navigate('help')">Open guide</button><button class="btn-secondary" style="flex:1" onclick="startAppTour(true)">Replay tour</button></div>
         </div>` : ''}
+        ${!window.__IS_APP ? `<div class="glass-card" style="padding:22px">
+          <p class="section-title" style="margin-bottom:8px">✨ New design</p>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Use the new atworth design (same as the phone app) on this computer.</p>
+          <button class="btn-primary" onclick="setWebLayout('modern')">Switch to the new design</button>
+        </div>` : ''}
         <div class="glass-card" style="padding:22px">
           <p class="section-title" style="margin-bottom:12px">🌐 Web Version</p>
           <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Open atworth in your browser — same account, bigger screen.</p>
