@@ -20713,3 +20713,34 @@ html.is-app body:not(#_cx):not(#_cy) .cf-hero-ic { width: 40px !important; heigh
 html.is-app body:not(#_cx):not(#_cy) .cf-hero-title { margin: 0 !important; font-size: 15px !important; font-weight: 800 !important; color: var(--cx-ink) !important; }
 html.is-app body:not(#_cx):not(#_cy) .cf-hero-sub { margin: 2px 0 0 !important; font-size: 12.5px !important; line-height: 1.4 !important; color: var(--cx-mute) !important; }
 html.is-app body:not(#_cx):not(#_cy) .cf-chip { border-radius: 12px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-card) !important; color: var(--cx-ink2) !important; font-weight: 700 !important; }
+
+/* ================= build 710 — Savings Goals, Notes, budget box ================= */
+html.is-app body:not(#_cx):not(#_cy) .gl-list { display: grid; grid-template-columns: 1fr; gap: 10px; }
+html.is-desk .gl-list, html.is-desk .nt2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .gl { padding: 14px; border-radius: 20px; background: var(--cx-card); border: 1px solid var(--cx-line); cursor: pointer; animation: mvUp .5s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .gl-top { display: flex; align-items: center; gap: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .gl-ring { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .gl-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+html.is-app body:not(#_cx):not(#_cy) .gl-ring .hx-ring-bg, html.is-app body:not(#_cx):not(#_cy) .gl-ring .hx-ring-fg { stroke-width: 7; }
+html.is-app body:not(#_cx):not(#_cy) .gl-ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 14px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .gl-m { flex: 1; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .gl-m > b { display: block; font-size: 16px; font-weight: 800; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .gl-m > small { display: block; font-size: 13px; color: var(--cx-ink2); margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .gl-pills { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+html.is-app body:not(#_cx):not(#_cy) .gl-add { display: flex; gap: 8px; margin-top: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .gl-add input { flex: 1; min-width: 0; height: 44px !important; padding: 0 14px !important; border-radius: 14px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important; font-size: 14.5px !important; font-family: inherit; box-shadow: none !important; }
+html.is-app body:not(#_cx):not(#_cy) .gl-add button { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; height: 44px !important; min-height: 0 !important; width: auto !important; padding: 0 16px !important; margin: 0 !important; border: 0 !important; border-radius: 14px !important; font-size: 14px !important; font-weight: 800 !important; color: #fff !important; background: var(--cx-pri) !important; }
+html.is-app body:not(#_cx):not(#_cy) .gl-add button svg { width: 16px; height: 16px; color: #fff !important; }
+/* notes grid */
+html.is-app body:not(#_cx):not(#_cy) .nt2 { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; columns: auto !important; }
+html.is-app body:not(#_cx):not(#_cy) .nt2 .note-card { margin: 0 !important; border-radius: 18px !important; padding: 14px !important; border: 1px solid var(--cx-line) !important; min-height: 90px; break-inside: avoid; }
+html.is-app body:not(#_cx):not(#_cy) .nt2 .note-default { background: var(--cx-card) !important; }
+html.is-app body:not(#_cx):not(#_cy) .nt2 .note-title { font-size: 15px !important; font-weight: 800 !important; color: var(--cx-ink) !important; margin-bottom: 4px !important; }
+html.is-app body:not(#_cx):not(#_cy) .nt2 .note-body { font-size: 13.5px !important; line-height: 1.45 !important; color: var(--cx-ink2) !important; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+/* Budget/Spending: total progress card (page runs at zoom .6 → sizes ×1.67) */
+html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card { background: var(--cx-card) !important; border: 1px solid var(--cx-line) !important; border-radius: 30px !important; padding: 26px 28px !important; box-shadow: none !important; }
+html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card > div:first-child { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card > div:first-child > span:first-child { font-size: 22px !important; font-weight: 800 !important; letter-spacing: .06em; text-transform: uppercase; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card > div:first-child > span:last-child { font-size: 34px !important; font-weight: 800 !important; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card .category-progress-bg { height: 16px !important; border-radius: 10px !important; background: var(--cx-chip) !important; margin-top: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card p { font-size: 23px !important; color: var(--cx-ink2) !important; }

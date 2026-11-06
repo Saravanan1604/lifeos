@@ -460,6 +460,7 @@ function autoSyncGoals() {
 }
 
 function renderGoals() {
+  if (window.__IS_APP && typeof renderGoalsApp === 'function') return renderGoalsApp();
   // Always auto-sync before rendering
   autoSyncGoals();
   const goals = STATE.goals || [];

@@ -9,6 +9,7 @@ function _noteEsc(s) {
 }
 
 function renderNotes() {
+  if (window.__IS_APP && typeof renderNotesApp === 'function') return renderNotesApp();
   const all = (STATE.notes || []).slice().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   const pinned = all.filter(n => n.pinned);
   const others = all.filter(n => !n.pinned);

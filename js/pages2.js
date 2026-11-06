@@ -340,3 +340,54 @@ function renderCategoriesApp() {
     if (typeof _lucideRefresh === 'function') _lucideRefresh();
   });
 })();
+
+// ── Savings Goals (build 710) ──────────────────────────────
+function renderGoalsApp() {
+  const c = document.getElementById('page-container'); if (!c) return;
+  if (typeof autoSyncGoals === 'function') { try { autoSyncGoals(); } catch (_) {} }
+  const goals = STATE.goals || [];
+  const sav = goals.filter(g => g.type === 'savings');
+  const saved = sav.reduce((s, g) => s + (+g.current || 0), 0), target = sav.reduce((s, g) => s + (+g.target || 0), 0);
+  const overall = target ? Math.round(saved / target * 100) : 0;
+  const R = 26, C = 2 * Math.PI * R;
+  const card = g => {
+    const pct = g.target > 0 ? Math.min(100, Math.max(0, Math.round((+g.current || 0) / g.target * 100))) : 0;
+    const done = pct >= 100, days = g.deadline ? Math.ceil((new Date(g.deadline) - new Date()) / 86400000) : null;
+    const col = done ? 'var(--cx-inc)' : pct >= 50 ? 'var(--cx-pri)' : 'var(--cx-warn)';
+    const pill = done ? _pk.pill('Complete', 'inc') : days == null ? '' : days < 0 ? _pk.pill(`${-days}d overdue`, 'exp') : _pk.pill(`${days} days left`, days < 30 ? 'warn' : 'mute');
+    return `<div class="gl" onclick="openEditGoalModal('${g.id}')">
+      <div class="gl-top">
+        <div class="gl-ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="${R}" class="hx-ring-bg"/><circle cx="32" cy="32" r="${R}" class="hx-ring-fg" stroke="${col}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" data-off="${(C * (1 - pct / 100)).toFixed(1)}"/></svg><b>${pct}%</b></div>
+        <div class="gl-m"><b>${_pk.e(g.name || g.title || 'Goal')}</b>
+          <small>${g.type === 'savings' ? `${fmt(+g.current || 0)} of ${fmt(+g.target || 0)}` : _pk.e(g.description || 'Milestone goal')}</small>
+          <div class="gl-pills">${pill}${g.autoSync ? _pk.pill('Auto-sync', 'inc') : ''}</div></div>
+      </div>
+      ${g.type === 'savings' && !g.autoSync && !done ? `<div class="gl-add" onclick="event.stopPropagation()">
+        <input type="number" inputmode="decimal" id="goal-upd-${g.id}" placeholder="Add money saved"/>
+        <button onclick="updateGoalProgress('${g.id}')"><i data-lucide="plus"></i>Add</button></div>` : ''}
+    </div>`;
+  };
+  c.innerHTML = `<div class="pk">
+    ${_pk.head({ title: 'Savings Goals', sub: 'Save towards a bike, a trip or an emergency fund', action: { label: 'New goal', on: 'openAddGoalModal()' } })}
+    ${sav.length ? _pk.hero({ tone: 'pri', label: 'Saved so far', big: fmt(Math.round(saved)), sub: `${overall}% of ${fmt(Math.round(target))} across ${sav.length} goal${sav.length === 1 ? '' : 's'}`,
+        stats: [['Goals', goals.length], ['Done', goals.filter(g => g.target > 0 && (+g.current || 0) >= g.target).length], ['Still to save', fmt(Math.max(0, Math.round(target - saved)))]] }) : ''}
+    ${goals.length ? _pk.sec('Your goals', `<em>${goals.length}</em>`) + `<div class="gl-list">${goals.map(card).join('')}</div>`
+      : _pk.empty({ ic: 'piggy-bank', t: 'No savings goals yet', s: 'Pick something you want — a bike, a trip, an emergency fund — set the amount and a date. Add money as you save and watch the ring fill up.', btns: [['Create a goal', 'openAddGoalModal()', 1]] })}
+  </div>`;
+  _pk.done(c);
+  requestAnimationFrame(() => setTimeout(() => c.querySelectorAll('.hx-ring-fg[data-off]').forEach(x => { x.style.strokeDashoffset = x.dataset.off; }), 60));
+}
+
+// ── Notes (build 710) ──────────────────────────────────────
+function renderNotesApp() {
+  const c = document.getElementById('page-container'); if (!c) return;
+  const all = (STATE.notes || []).slice().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  const pinned = all.filter(n => n.pinned), others = all.filter(n => !n.pinned);
+  const grid = list => `<div class="notes-grid nt2">${list.map(_noteCard).join('')}</div>`;
+  c.innerHTML = `<div class="pk">
+    ${_pk.head({ title: 'Notes', sub: 'Quick notes and reminders', action: { label: 'New note', on: 'openNoteEditor()' } })}
+    ${all.length ? (pinned.length ? _pk.sec('Pinned') + grid(pinned) : '') + (others.length ? _pk.sec(pinned.length ? 'Others' : 'All notes', `<em>${others.length}</em>`) + grid(others) : '')
+      : _pk.empty({ ic: 'sticky-note', t: 'No notes yet', s: 'Jot down account numbers, things to buy, who you owe — anything you want to remember.', btns: [['Write a note', 'openNoteEditor()', 1]] })}
+  </div>`;
+  _pk.done(c);
+}
