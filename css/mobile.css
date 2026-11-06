@@ -20882,3 +20882,31 @@ html.is-app body:not(#_cx):not(#_cy) .bk-due > div { flex: 1; min-width: 0; }
 html.is-app body:not(#_cx):not(#_cy) .bk-due b { display: block; font-size: 15px; font-weight: 800; color: var(--cx-ink); }
 html.is-app body:not(#_cx):not(#_cy) .bk-due small { font-size: 12px; color: var(--cx-ink2); }
 html.is-app body:not(#_cx):not(#_cy) .bk-due button { flex-shrink: 0; height: 38px !important; min-height: 0 !important; width: auto !important; margin: 0 !important; padding: 0 14px !important; border: 0 !important; border-radius: 12px !important; background: var(--cx-inc) !important; color: #fff !important; font-size: 13.5px !important; font-weight: 800 !important; }
+
+/* ================= build 720 — popup inputs with icons, switches, log boxes ================= */
+/* inputs that have an icon on the left: keep the icon, push the text past it */
+html.is-app body:not(#_cx):not(#_cy) #modal-body .form-field-icon-wrap { position: relative !important; display: block !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .form-field-icon { position: absolute !important; left: 14px !important; top: 50% !important; transform: translateY(-50%) !important; width: 18px !important; height: 18px !important; display: grid !important; place-items: center !important; pointer-events: none; z-index: 1; color: var(--cx-mute) !important; margin: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .form-field-icon svg { width: 18px !important; height: 18px !important; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .form-field-icon-wrap > :is(input, select) { padding-left: 44px !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .form-field-icon-wrap > input[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
+/* switches: hide the real checkbox */
+html.is-app body:not(#_cx):not(#_cy) #modal-overlay :is(.cf-switch, .rec-switch, .pk-sw) input { opacity: 0 !important; position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; min-height: 0 !important; margin: 0 !important; z-index: 2; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) #modal-overlay .cf-switch { width: 52px !important; height: 30px !important; border: 0 !important; background: none !important; padding: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-overlay .cf-switch span { background: var(--cx-elev, #24314A) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-overlay .cf-switch input:checked + span { background: var(--cx-inc) !important; }
+/* normal checkboxes in popups: small and tidy */
+html.is-app body:not(#_cx):not(#_cy) #modal-body input[type="checkbox"]:not(.cf-switch input) { width: 20px !important; height: 20px !important; min-width: 20px !important; min-height: 0 !important; padding: 0 !important; accent-color: var(--cx-pri); vertical-align: middle; }
+/* bank / cash / card log: entry icons were the account colour on dark (invisible) */
+html.is-app body:not(#_cx):not(#_cy) :is(.blog-ic, .tlog-ic) svg { color: color-mix(in srgb, currentColor 45%, #fff) !important; }
+/* the "Log … for any …" boxes at the bottom of each log: same size everywhere */
+html.is-app body:not(#_cx):not(#_cy) #page-container div[onclick^="openQuickCashModal"][style*="flex:1"],
+html.is-app body:not(#_cx):not(#_cy) #page-container div[onclick^="openUpdateCCModal"][style*="flex:1"],
+html.is-app body:not(#_cx):not(#_cy) #page-container div[onclick^="openQuickBalanceModal"][style*="flex:1"] {
+  font-size: 15px !important; line-height: 1.2 !important; padding: 12px 16px !important; border-radius: 14px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+  background: var(--cx-chip) !important; border: 1px solid var(--cx-line) !important; color: var(--cx-mute) !important; min-height: 0 !important; height: auto !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="bank-tracker"] :is(div[onclick^="openQuickCashModal"], div[onclick^="openUpdateCCModal"], div[onclick^="openQuickBalanceModal"])[style*="flex:1"] { font-size: 21px !important; padding: 16px 22px !important; border-radius: 20px !important; }
+html.is-app body:not(#_cx):not(#_cy):not(#_q1):not(#_q2) #modal-overlay #modal-body .form-field-icon-wrap > :is(input, select) { padding-left: 44px !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-overlay .cf-switch span { background: rgba(148,163,184,.35) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #modal-overlay .cf-switch span { background: #CBD5E1 !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-overlay .cf-switch input:checked + span { background: var(--cx-inc) !important; }
