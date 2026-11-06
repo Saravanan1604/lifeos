@@ -282,7 +282,7 @@ function _homeAnalyticsHtml(F) {
 
 // Variable-radius ("rose") donut: biggest share = thickest, outermost arc,
 // with a soft glow in Night. Pure SVG paths, no chart library.
-function _homeRoseSvg(ent, tot, cols) {
+function _homeRoseSvg(ent, tot, cols, subs) {
   const cx = 80, cy = 80, rIn = 44, gap = 2.2;
   let a0 = -90;
   const arc = (r1, r2, s, e) => {
@@ -296,7 +296,9 @@ function _homeRoseSvg(ent, tot, cols) {
     const rOut = 64 + Math.max(0, 14 - i * 3);            // rank → thickness
     const d = arc(rIn, rOut, a0, a0 + Math.min(359.9, sweep));
     a0 += v / tot * 360;
-    return `<path d="${d}" fill="${cols[i]}" class="hx-rose-seg" style="--c:${cols[i]}"/>`;
+    const q = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    const sub = subs && subs[c] ? subs[c] : `${Math.round(v / tot * 100)}% of total`;
+    return `<path d="${d}" fill="${cols[i]}" class="hx-rose-seg" style="--c:${cols[i]}" data-cat="${q(c)}" data-v="${Math.round(v)}" data-sub="${q(sub)}"/>`;
   }).join('');
   return `<svg viewBox="0 0 160 160">${paths}</svg>`;
 }

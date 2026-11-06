@@ -20028,3 +20028,11 @@ html.is-app .sb-burst > i:nth-of-type(9) { --a: 288deg; } html.is-app .sb-burst 
 @keyframes mvRose { from { transform: scale(.2) rotate(-40deg); opacity: 0; } }
 @keyframes mvPop { 0% { transform: scale(.7); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { html.is-app .sb-burst, html.is-app .sb-burst * , html.is-app .td-st.on { animation: none !important; } html.is-app .sb-burst-c path { stroke-dashoffset: 0; } }
+
+/* ================= build 691 — tap a ring segment to see its amount ================= */
+html.is-app body:not(#_cx):not(#_cy) .hx-rose-seg { cursor: pointer; transition: opacity .25s, transform .25s cubic-bezier(.2,1.4,.4,1), filter .25s; transform-origin: 80px 80px; -webkit-tap-highlight-color: transparent; }
+html.is-app body:not(#_cx):not(#_cy) .hx-rose.has-sel .hx-rose-seg:not(.sel) { opacity: .28; }
+html.is-app body:not(#_cx):not(#_cy) .hx-rose.has-sel .hx-rose-seg.sel { transform: scale(1.07); filter: drop-shadow(0 0 6px var(--c)); animation: none; }
+html.is-app body:not(#_cx):not(#_cy) .hx-rose .hx-donut-c { pointer-events: none; }
+html.is-app body:not(#_cx):not(#_cy) .hx-rose .hx-donut-c.pop { animation: mvPop .35s cubic-bezier(.2,1.6,.4,1); }
+html.is-app body:not(#_cx):not(#_cy) .hx-rose .hx-donut-c em { display: block; max-width: 118px; margin: 2px auto 0; font-style: normal; font-size: 10px; line-height: 1.25; color: var(--cx-mute); }

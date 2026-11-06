@@ -67,3 +67,26 @@ function successBurst(label) {
   setTimeout(() => el.classList.add('out'), 900);
   setTimeout(() => el.remove(), 1300);
 }
+
+// ── tap a ring segment → its name and amount appear in the centre (build 691)
+//    tap it again, or tap anywhere else, to go back to the total
+function _roseReset(rose) {
+  const c = rose && rose.querySelector('.hx-donut-c');
+  if (c && c.dataset.orig != null) { c.innerHTML = c.dataset.orig; delete c.dataset.orig; }
+  if (rose) { rose.classList.remove('has-sel'); rose.querySelectorAll('.hx-rose-seg.sel').forEach(p => p.classList.remove('sel')); }
+}
+document.addEventListener('click', e => {
+  const seg = e.target.closest && e.target.closest('.hx-rose-seg');
+  document.querySelectorAll('.hx-rose.has-sel').forEach(r => { if (!seg || !r.contains(seg)) _roseReset(r); });
+  if (!seg) return;
+  const rose = seg.closest('.hx-rose'), c = rose && rose.querySelector('.hx-donut-c');
+  if (!c) return;
+  e.stopPropagation();
+  if (seg.classList.contains('sel')) { _roseReset(rose); return; }
+  if (c.dataset.orig == null) c.dataset.orig = c.innerHTML;
+  rose.querySelectorAll('.hx-rose-seg.sel').forEach(p => p.classList.remove('sel'));
+  seg.classList.add('sel'); rose.classList.add('has-sel');
+  c.innerHTML = `<span style="color:${seg.getAttribute('fill')}">${_mEsc(seg.dataset.cat)}</span><b>${fmt(+seg.dataset.v)}</b><em>${_mEsc(seg.dataset.sub)}</em>`;
+  c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
+  if (navigator.vibrate) { try { navigator.vibrate(8); } catch (_) {} }
+}, true);

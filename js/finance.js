@@ -1172,7 +1172,8 @@ function renderCombinedSpendBudget(activeTab) {
         const cols = budgetRows.filter(r => r.limit > 0).map((r, i) => BUDGET_COLORS[budgetRows.indexOf(r) % BUDGET_COLORS.length]);
         const tot = ent.reduce((a, e) => a + e[1], 0), left = totalLimit - totalSpent, pu = totalLimit > 0 ? Math.round(totalSpent / totalLimit * 100) : 0;
         box.classList.add('sb-rose');
-        box.innerHTML = tot ? `<div class="hx-rose sbr">${_homeRoseSvg(ent.slice().sort((a, b) => b[1] - a[1]), tot, ent.map((e, i) => [e, cols[i]]).sort((a, b) => b[0][1] - a[0][1]).map(x => x[1]))}<div class="hx-donut-c"><span>${pu}% used</span><b class="${left < 0 ? 'neg' : ''}">${fmt(Math.round(Math.abs(left)))}</b><em>${left < 0 ? 'over budget' : 'left of ' + fmt(Math.round(totalLimit))}</em></div></div>`
+        const subs = {}; budgetRows.filter(r => r.limit > 0).forEach(r => { const p = Math.round(r.spent / r.limit * 100); subs[r.b.category] = r.spent > r.limit ? `budget · ${fmt(Math.round(r.spent))} spent, ${fmt(Math.round(r.spent - r.limit))} over` : `budget · ${fmt(Math.round(r.spent))} spent (${p}%)`; });
+        box.innerHTML = tot ? `<div class="hx-rose sbr">${_homeRoseSvg(ent.slice().sort((a, b) => b[1] - a[1]), tot, ent.map((e, i) => [e, cols[i]]).sort((a, b) => b[0][1] - a[0][1]).map(x => x[1]), subs)}<div class="hx-donut-c"><span>${pu}% used</span><b class="${left < 0 ? 'neg' : ''}">${fmt(Math.round(Math.abs(left)))}</b><em>${left < 0 ? 'over budget' : 'left of ' + fmt(Math.round(totalLimit))}</em></div></div>`
           : `<div class="sbr-empty">No budgets yet — tap + to add one</div>`;
       }
     }
