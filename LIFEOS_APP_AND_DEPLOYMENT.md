@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **699** (6 Nov 2026).*
+*Status as of build **700** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -249,6 +249,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 697 | Fix: phones in Chrome **“Desktop site”** mode (desktop user-agent, on by default on some large phones) got the tiny desktop layout. Detection now also uses hardware — touch-only pointer, no hover, screen short side ≤ 600px — and if Chrome ignores the viewport tag (lays out ~980px), the root is zoomed so the app renders at phone width. Real desktops and touch laptops are unaffected |
 | 698 | **Feature clean-up** (app; new `js/cleanup.js`, nothing deleted — hidden features keep their data): side menu 22 → 12 items (Money: Banks & Cards, Bills & Due, Reports, Tags, Purchases, Split, Savings Goals, Categories · More: Notes, Settings, Help). Dashboard is now **Deep dive**, opened from Analytics tiles (Heatmap, Money flow, Wealth flow, Health, 7 income); other links to it go Home. Upcoming / Recurring / Renewals merged as **Bills & Due** tabs. Finance → Banks & Cards, Yearly Report → Reports, Goals → Savings Goals. Health Hub, Habits, Journal, Achievements hidden. No XP / level-up pop-ups or level badge; Settings shows day streak. Moving-background setting removed. Voice examples trimmed. Web + menu: Check-in Habit / New Goal / Write Journal replaced by Transfer |
 | 699 | Banks & Cards fixes: bank-card balance was squashed into a small grey text on a white pill by a build-688 rule (`div[onclick*="openQuickBalanceModal"]`) — now excluded, balance is big and white again; smaller "Updated …" line. Bank / Cash / Card **options sheet** redesigned (account header card, one main “Update balance” button, grouped icon rows, delete separated). Trend cards restyled with pill 30 Days / 1 Year toggle |
+| 700 | **Categories redesigned** (app): Expense/Income tabs, rows sorted by this month's spend with entry counts, “Your categories” vs “Built-in”, edit pencil on custom ones (Delete moved into the Edit popup), AI banner when entries sit in “Other”, Merge / Asset types / Loan types tiles. Popups restyled: **AI Fix** is now a 2-step guide (Copy → Open Gemini → Paste → Apply, prompt tucked under “See what will be sent”), **Asset/Loan types** a tidy 2-column grid, **Add category** compact 8-column emoji grid |
 
 ### Testing locally
 

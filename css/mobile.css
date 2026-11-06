@@ -20392,3 +20392,60 @@ html.is-app body:not(#_cx):not(#_cy) .glass-card:has(canvas#bank-trend-chart, ca
 html.is-app body:not(#_cx):not(#_cy) .glass-card:has(canvas#bank-trend-chart, canvas#cc-trend-chart, canvas#cash-trend-chart) .section-title span { font-size: 13px !important; font-weight: 700 !important; color: var(--cx-pri) !important; background: color-mix(in srgb, var(--cx-pri) 12%, transparent); padding: 3px 10px; border-radius: 999px; }
 html.is-app body:not(#_cx):not(#_cy) button[onclick^="setTrendPeriod"] { padding: 7px 14px !important; border-radius: 999px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink2) !important; font-size: 13px !important; font-weight: 700 !important; }
 html.is-app body:not(#_cx):not(#_cy) button.tr-tg.on { background: var(--cx-pri) !important; border-color: transparent !important; color: #fff !important; }
+
+/* ================= build 700 — Categories + its popups ================= */
+html.is-app body:not(#_cx):not(#_cy) .pk-emo { font-size: 22px; line-height: 1; }
+html.is-app body:not(#_cx):not(#_cy) .ct-both { font-style: normal; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: var(--cx-chip); color: var(--cx-mute); margin-left: 4px; vertical-align: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .ct-ed { width: 34px !important; height: 34px; border-radius: 11px; border: 1px solid var(--cx-line); background: var(--cx-chip); display: grid; place-items: center; padding: 0 !important; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .ct-ed svg { width: 15px; height: 15px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .ct-ai { display: flex; align-items: center; gap: 12px; width: 100% !important; padding: 14px 16px !important; border: 0; border-radius: 20px; text-align: left; color: #fff; background: linear-gradient(135deg, #6D3BEA, #8B5CF6 55%, #22D3EE); box-shadow: 0 14px 30px -16px #6D3BEA; animation: mvUp .5s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .ct-ai * { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .ct-ai > span { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; background: rgba(255,255,255,.2); flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .ct-ai svg { width: 20px; height: 20px; }
+html.is-app body:not(#_cx):not(#_cy) .ct-ai > div { flex: 1; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .ct-ai b { display: block; font-size: 15.5px; font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .ct-ai small { font-size: 12.5px; opacity: .9; }
+html.is-app body:not(#_cx):not(#_cy) .ct-tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+html.is-app body:not(#_cx):not(#_cy) .ct-tools button { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100% !important; padding: 12px 4px !important; border-radius: 16px; border: 1px solid var(--cx-line); background: var(--cx-card); font-size: 12.5px; font-weight: 700; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .ct-tools svg { width: 20px; height: 20px; color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .ct-tools button:active { transform: scale(.95); }
+html.is-app body:not(#_cx):not(#_cy) .ct-tabs { grid-template-columns: 1fr 1fr; margin: 0; }
+/* Asset / Loan types popup */
+html.is-app #modal-body[data-kind="types"] > p:first-child { font-size: 13px !important; color: var(--cx-mute) !important; }
+html.is-app #modal-body[data-kind="types"] div[style*="flex-wrap:wrap"] { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px !important; }
+html.is-app #modal-body[data-kind="types"] div[style*="flex-wrap:wrap"] > span { display: flex !important; align-items: center; gap: 10px !important; padding: 10px 12px !important; border-radius: 14px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-card) !important; font-size: 13.5px !important; font-weight: 700 !important; color: var(--cx-ink) !important; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app #modal-body[data-kind="types"] .cat-lic { width: 30px; height: 30px; border-radius: 10px; display: grid !important; place-items: center; flex-shrink: 0; background: color-mix(in srgb, currentColor 14%, transparent); font-size: 15px !important; }
+html.is-app #modal-body[data-kind="types"] .cat-lic svg { width: 16px !important; height: 16px !important; }
+html.is-app #modal-body[data-kind="types"] #ctype-list > div { border: 1px solid var(--cx-line) !important; background: var(--cx-card) !important; padding: 10px 12px !important; border-radius: 14px !important; }
+/* Add / edit category popup */
+html.is-app #modal-body[data-kind="catform"] .emoji-grid { display: grid !important; grid-template-columns: repeat(8, 1fr) !important; gap: 6px !important; max-height: 168px !important; overflow-y: auto; padding: 8px !important; border-radius: 16px; background: var(--cx-chip); border: 1px solid var(--cx-line); }
+html.is-app #modal-body[data-kind="catform"] .emoji-pick-btn { width: 100% !important; height: auto !important; aspect-ratio: 1; font-size: 20px !important; border-radius: 10px !important; padding: 0 !important; background: var(--cx-card) !important; border: 1px solid transparent !important; }
+html.is-app #modal-body[data-kind="catform"] .emoji-pick-btn.active { border-color: var(--cx-pri) !important; box-shadow: 0 0 0 2px color-mix(in srgb, var(--cx-pri) 30%, transparent); }
+html.is-app #modal-body[data-kind="catform"] #cat-icon { text-align: center; font-size: 26px !important; }
+/* AI fix popup */
+html.is-app body:not(#_cx):not(#_cy) .af { display: flex; flex-direction: column; gap: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .af-hero { border-radius: 20px; padding: 16px; text-align: center; color: #fff; background: linear-gradient(135deg, #6D3BEA, #8B5CF6 55%, #22D3EE); }
+html.is-app body:not(#_cx):not(#_cy) .af-hero * { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .af-hero b { display: block; font-size: 34px; font-weight: 800; line-height: 1.1; }
+html.is-app body:not(#_cx):not(#_cy) .af-hero span { font-size: 14px; font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .af-hero small { display: block; margin-top: 4px; font-size: 12.5px; opacity: .9; }
+html.is-app body:not(#_cx):not(#_cy) .af-step { display: flex; gap: 12px; padding: 14px; border-radius: 18px; border: 1px solid var(--cx-line); background: var(--cx-card); }
+html.is-app body:not(#_cx):not(#_cy) .af-n { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; font-weight: 800; font-size: 14px; color: #fff; background: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .af-step > div { flex: 1; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .af-step b { display: block; font-size: 15px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .af-step small { display: block; font-size: 12.5px; color: var(--cx-mute); margin: 2px 0 10px; }
+html.is-app body:not(#_cx):not(#_cy) .af-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+html.is-app body:not(#_cx):not(#_cy) .af-btns button { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 12px; border: 1px solid var(--cx-line); background: var(--cx-chip); font-size: 13.5px; font-weight: 700; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .af-btns button.p { border: 0; background: var(--cx-pri); color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .af-btns svg { width: 15px; height: 15px; color: inherit !important; }
+html.is-app body:not(#_cx):not(#_cy) .af details { margin-top: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .af summary { font-size: 12.5px; font-weight: 700; color: var(--cx-pri); cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .af textarea { width: 100%; min-height: 96px; margin-top: 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--cx-line); background: var(--cx-chip); color: var(--cx-ink); font-size: 12.5px; line-height: 1.45; resize: vertical; box-sizing: border-box; }
+html.is-app body:not(#_cx):not(#_cy) .af #gem-answer { margin: 0 0 8px; }
+html.is-app body:not(#_cx):not(#_cy) .af-go { display: flex; align-items: center; justify-content: center; gap: 8px; height: 52px; border: 0; border-radius: 16px; font-size: 16px; font-weight: 800; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)); box-shadow: 0 12px 24px -12px var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .af-go svg { width: 18px; height: 18px; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .af-btns button { font-size: 13.5px !important; padding: 9px 14px !important; min-height: 0 !important; width: auto !important; height: auto !important; border-radius: 12px !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .af-go { width: 100% !important; font-size: 16px !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="catform"] .form-input, html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="types"] .form-input { font-size: 16px !important; height: 48px !important; padding: 0 14px !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="catform"] .form-label, html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="types"] label { font-size: 13px !important; font-weight: 700 !important; color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="types"] p[style*="text-transform:uppercase"] { font-size: 12px !important; color: var(--cx-mute) !important; }

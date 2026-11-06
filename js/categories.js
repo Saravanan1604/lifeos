@@ -43,6 +43,7 @@ function getCategoryOptions(filterType = 'both') {
 
 // ===== CATEGORIES PAGE =====
 function renderCategories() {
+  if (window.__IS_APP && typeof renderCategoriesApp === 'function') return renderCategoriesApp();
   const custom = STATE.customCategories || [];
   const all = getAllCategories();
   const incomeDefaults = all.filter(c => c.isDefault && (c.type === 'income' || c.type === 'both'));
@@ -436,6 +437,7 @@ function openEditCategoryModal(id) {
       </select>
     </div>
     <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal();deleteCategory('${id}')" style="color:#ef4444;margin-right:auto">Delete</button>
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="updateCategory('${id}')">Update</button>
     </div>`);

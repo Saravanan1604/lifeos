@@ -277,3 +277,66 @@ function _dashStreamApp(strm) {
     return orig.apply(this, arguments);
   };
 })();
+
+// ── Categories (build 700) ─────────────────────────────────
+let _catTab = 'expense';
+function setCatTab(t) { _catTab = t; navigate('categories', true); }
+function renderCategoriesApp() {
+  const c = document.getElementById('page-container'); if (!c) return;
+  const all = getAllCategories();
+  const tx = STATE.transactions || [];
+  const ym = (typeof _ymdLocal === 'function' ? _ymdLocal(new Date()) : new Date().toISOString()).slice(0, 7);
+  const st = {};
+  tx.forEach(t => { const k = t.category || 'Other'; const s = st[k] || (st[k] = { n: 0, m: 0 }); s.n++; if ((t.date || '').startsWith(ym)) s.m += +t.amount || 0; });
+  const weak = tx.filter(t => !t.category || t.category === 'Other').length;
+  const list = all.filter(x => x.type === _catTab || x.type === 'both').sort((a, b) => ((st[b.name] || {}).m || 0) - ((st[a.name] || {}).m || 0) || ((st[b.name] || {}).n || 0) - ((st[a.name] || {}).n || 0));
+  const yours = list.filter(x => !x.isDefault), built = list.filter(x => x.isDefault);
+  const ic = x => x.isDefault && typeof catIconHtml === 'function' ? catIconHtml(x.name) : `<span class="pk-emo">${_pk.e(x.icon || '🏷️')}</span>`;
+  const r = x => { const s = st[x.name] || { n: 0, m: 0 };
+    return _pk.row({ ic: ic(x), col: catColor(x.name), t: _pk.e(x.name) + (x.type === 'both' ? ' <em class="ct-both">both</em>' : ''),
+      s: s.n ? `${s.n} ${s.n === 1 ? 'entry' : 'entries'}` : 'Not used yet', r: s.m ? fmt(Math.round(s.m)) : '', rs: s.m ? 'this month' : '',
+      on: `openCategoryDetail('${_pk.q(x.name)}')`,
+      tail: x.isDefault ? '' : `<button class="ct-ed" onclick="event.stopPropagation();openEditCategoryModal('${x.id}')" aria-label="Edit"><i data-lucide="pencil"></i></button>` }); };
+  c.innerHTML = `<div class="pk">
+    ${_pk.head({ title: 'Categories', sub: 'Sort your money so reports and budgets make sense', action: { label: 'New', on: 'openAddCategoryModal()' } })}
+    ${weak ? `<button class="ct-ai" onclick="openGeminiCategorize()"><span><i data-lucide="sparkles"></i></span><div><b>${weak} entries are in “Other”</b><small>Sort them automatically with AI</small></div><i data-lucide="chevron-right"></i></button>` : ''}
+    <div class="ct-tools">
+      <button onclick="openMergeCategoriesModal()"><i data-lucide="git-merge"></i>Merge</button>
+      <button onclick="openManageTypesModal('asset')"><i data-lucide="trending-up"></i>Asset types</button>
+      <button onclick="openManageTypesModal('loan')"><i data-lucide="landmark"></i>Loan types</button>
+    </div>
+    <div class="rp-tabs ct-tabs"><button class="${_catTab === 'expense' ? 'on' : ''}" onclick="setCatTab('expense')">Expense</button><button class="${_catTab === 'income' ? 'on' : ''}" onclick="setCatTab('income')">Income</button></div>
+    ${yours.length ? _pk.sec('Your categories', `<em>${yours.length}</em>`) + `<div class="pk-list">${yours.map(r).join('')}</div>` : ''}
+    ${_pk.sec('Built-in', `<em>${built.length}</em>`)}<div class="pk-list">${built.map(r).join('')}</div>
+    <p class="pk-foot">Tap a category to see its entries and trend. Built-in categories can’t be deleted.</p>
+  </div>`;
+  _pk.done(c);
+}
+
+// Modal helpers: tag the modal body so app styles target only the right popup
+(function () {
+  if (typeof openModal !== 'function') return;
+  const om = openModal;
+  window.openModal = function () { const r = om.apply(this, arguments); const b = document.getElementById('modal-body'); if (b) b.dataset.kind = ''; return r; };
+  const tag = (fn, kind, after) => { const f = window[fn]; if (typeof f !== 'function') return;
+    window[fn] = function () { const r = f.apply(this, arguments); if (window.__IS_APP) { const b = document.getElementById('modal-body'); if (b) { b.dataset.kind = kind; if (after) after(b); } } return r; }; };
+  tag('openManageTypesModal', 'types');
+  tag('openAddCategoryModal', 'catform');
+  tag('openEditCategoryModal', 'catform');
+  tag('openGeminiCategorize', 'aifix', b => {
+    const pr = document.getElementById('gem-prompt'); const prompt = pr ? pr.value : '';
+    const n = ((b.querySelector('p b') || {}).textContent || '0');
+    b.innerHTML = `<div class="af">
+      <div class="af-hero"><b>${_pk.e(n)}</b><span>entries in “Other”</span><small>Let Gemini or ChatGPT sort them for you — free, 1 minute.</small></div>
+      <div class="af-step"><span class="af-n">1</span><div><b>Copy the request</b><small>It lists your entries and your categories.</small>
+        <div class="af-btns"><button class="p" onclick="navigator.clipboard.writeText(document.getElementById('gem-prompt').value).then(()=>toast('Copied — now open Gemini','success'))"><i data-lucide="copy"></i>Copy</button>
+        <button onclick="window.open('https://gemini.google.com/app','_blank')"><i data-lucide="external-link"></i>Open Gemini</button></div>
+        <details><summary>See what will be sent</summary><textarea id="gem-prompt" readonly>${_pk.e(prompt)}</textarea></details></div></div>
+      <div class="af-step"><span class="af-n">2</span><div><b>Paste its answer here</b><small>Copy the reply from the AI and paste it below.</small>
+        <textarea id="gem-answer" placeholder='{"Swiggy order":"Food", …}'></textarea>
+        <div class="af-btns"><button onclick="navigator.clipboard.readText().then(t=>{document.getElementById('gem-answer').value=t;toast('Pasted','success')}).catch(()=>toast('Long-press the box and choose Paste','info'))"><i data-lucide="clipboard-paste"></i>Paste</button></div></div></div>
+      <button class="af-go" onclick="applyGeminiCategories()"><i data-lucide="sparkles"></i>Apply categories</button>
+    </div>`;
+    if (typeof _lucideRefresh === 'function') _lucideRefresh();
+  });
+})();
