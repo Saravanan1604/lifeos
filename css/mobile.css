@@ -20766,3 +20766,33 @@ html.is-app body:not(#_cx):not(#_cy) .dc-btns { display: flex; flex-direction: c
 html.is-app body:not(#_cx):not(#_cy) .dc-btns button { min-height: 0 !important; height: auto !important; width: auto !important; margin: 0 !important; padding: 7px 12px !important; border-radius: 10px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; font-size: 12.5px !important; font-weight: 700 !important; color: var(--cx-ink2) !important; white-space: nowrap; }
 html.is-app body:not(#_cx):not(#_cy) .dc-btns button.p { border: 0 !important; background: var(--cx-pri) !important; color: #fff !important; }
 html.is-app body:not(#_cx):not(#_cy) .dc-all { height: 50px !important; min-height: 0 !important; margin: 4px 0 0 !important; width: 100% !important; border: 0 !important; border-radius: 16px !important; font-size: 15px !important; font-weight: 800 !important; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)) !important; }
+
+/* ================= build 712 — Day readability pass =================
+   Every text colour ≥ 4.5:1 on white, page background and chips (WCAG AA). */
+html.is-app body.light:not(#_cx):not(#_cy) {
+  --cx-ink2: #4F5D72; --cx-mute: #5E6A7E; --text2: #4F5D72; --text3: #5E6A7E;
+  --cx-inc: #047857; --cx-exp: #C12F3C; --cx-warn: #A1490A; --cx-acc: #0E7490;
+}
+/* older inline colours that were made for dark backgrounds */
+html.is-app body.light:not(#_cx):not(#_cy) #page-container :is([style*="color:#10B981"], [style*="color:#10b981"], [style*="color: #10b981"], [style*="color:#00c9a7"], [style*="color: #00c9a7"], [style*="color:#34d399"]) { color: var(--cx-inc) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #page-container :is([style*="color:#F05260"], [style*="color:#f05260"], [style*="color:#ef4444"], [style*="color: #ef4444"], [style*="color:#f87171"]) { color: var(--cx-exp) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #page-container :is([style*="color:#f59e0b"], [style*="color:#fbbf24"], [style*="color:#FBBF24"], [style*="color: #f59e0b"]) { color: var(--cx-warn) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #page-container :is([style*="rgba(26,31,46,0.5)"], [style*="rgba(15,23,42,0.5"], [style*="rgba(15, 23, 42, 0.5"]) { color: var(--cx-mute) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) :is(.ia-chg.pos, .an-d.good, .good, .co-d.good) { color: var(--cx-inc) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) :is(.an-d.bad, .bad, .co-d.bad) { color: var(--cx-exp) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .ia-sub { color: var(--cx-mute) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .hx-pill[style*="#F05260"] { color: var(--cx-exp) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .mm-day-total.pos, html.is-app body.light:not(#_cx):not(#_cy) .up-row em.week { color: var(--cx-inc) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .up-row em.week { color: var(--cx-warn) !important; }
+/* Budget / Spending / Income tabs: the selected tab was white on white */
+html.is-app body.light:not(#_cx):not(#_cy) .sb-segmented-btn.active { background: var(--cx-pri) !important; color: #fff !important; }
+html.is-app body.light:not(#_cx):not(#_cy) button[onclick*="openAddBudgetModal"]:not(.category-row) { color: var(--cx-pri-tx, #6D3BEA) !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #page-container button.tr-tg.on { color: #fff !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #page-container :is([style*="#22D3EE"], [style*="#22d3ee"]) { color: var(--cx-acc) !important; }
+/* purple balance cards in Day: light tints readable on the purple */
+html.is-app body.light:not(#_cx):not(#_cy) .mm-hero .mm-hs-val, html.is-app body.light:not(#_cx):not(#_cy) .mm-hero [style*="color"] { color: #FFFFFF !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .mm-hero .mm-hs-val.pos { color: #C7F9DF !important; }
+html.is-app body.light:not(#_cx):not(#_cy) .mm-hero .mm-hs-val.neg { color: #FFD6DB !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #page-container .mm-hero .mm-hs-val[style] { color: #FFFFFF !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #page-container .mm-hero .mm-hs-val[style*="f59e0b"] { color: #FFE7B3 !important; }
+html.is-app body.light:not(#_cx):not(#_cy) #page-container .mm-hero .mm-hs-val[style*="ef4444"] { color: #FFD6DB !important; }
