@@ -20477,3 +20477,31 @@ html.is-app body:not(.light):not(#_cx):not(#_cy) .hx-pill.bad, html.is-app body:
 html.is-app body:not(.light):not(#_cx):not(#_cy) { --text2: #A9B5C7; --text3: #8B99B0; }
 html.is-app body:not(.light):not(#_cx):not(#_cy) .mm-note { color: var(--cx-ink2) !important; }
 html.is-app body:not(.light):not(#_cx):not(#_cy) .hx-pill[style*="#F05260"] { color: #FF8A95 !important; }
+
+/* ================= build 703 — Update balance popup ================= */
+html.is-app body:not(#_cx):not(#_cy) .qb { display: flex; flex-direction: column; gap: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .qb button { font-family: inherit; min-height: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) .qb-banks { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .qb-banks::-webkit-scrollbar { display: none; }
+html.is-app body:not(#_cx):not(#_cy) .qb-bank { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-width: 104px; padding: 10px 12px !important; border-radius: 14px !important; border: 1.5px solid var(--cx-line) !important; background: var(--cx-chip) !important; position: relative; text-align: left; width: auto !important; height: auto !important; }
+html.is-app body:not(#_cx):not(#_cy) .qb-bank i { position: absolute; left: 12px; right: 12px; top: 0; height: 3px; border-radius: 0 0 3px 3px; background: var(--c1); }
+html.is-app body:not(#_cx):not(#_cy) .qb-bank b { font-size: 14px !important; font-weight: 800; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .qb-bank small { font-size: 12px !important; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .qb-bank.on { border-color: var(--cx-pri) !important; background: color-mix(in srgb, var(--cx-pri) 14%, var(--cx-card)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .qb-amt { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 14px 10px 4px; }
+html.is-app body:not(#_cx):not(#_cy) .qb-amt span { font-size: 30px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .qb-amt input { width: 70%; max-width: 260px; border: 0 !important; outline: 0; background: none !important; box-shadow: none !important; padding: 0 !important; height: auto !important; font-size: 44px !important; font-weight: 800; letter-spacing: -.02em; color: var(--cx-ink) !important; text-align: center; font-family: inherit; }
+html.is-app body:not(#_cx):not(#_cy) .qb-amt input::placeholder { color: var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .qb-diff { margin: 0; text-align: center; font-size: 13px; color: var(--cx-ink2); min-height: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .qb-diff b { color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .qb-diff.up b { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .qb-diff.down b { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .qb-lbl { margin: 6px 2px -4px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .qb-dates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .qb-dates button, html.is-app body:not(#_cx):not(#_cy) .qb-pick { display: flex; align-items: center; justify-content: center; padding: 10px 4px !important; border-radius: 12px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; font-size: 13px !important; font-weight: 700; color: var(--cx-ink2) !important; white-space: nowrap; width: 100% !important; height: auto !important; position: relative; overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .qb-dates button.on, html.is-app body:not(#_cx):not(#_cy) .qb-pick.on { background: var(--cx-pri) !important; border-color: transparent !important; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .qb-pick input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; }
+html.is-app body:not(#_cx):not(#_cy) .qb-note { height: 46px !important; padding: 0 14px !important; border-radius: 14px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important; font-size: 14.5px !important; font-family: inherit; }
+html.is-app body:not(#_cx):not(#_cy) .qb-save { height: 52px !important; width: 100% !important; border: 0; border-radius: 16px !important; font-size: 16px !important; font-weight: 800; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)) !important; box-shadow: 0 12px 24px -12px var(--cx-pri); margin-top: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .qb-save:active { transform: scale(.98); }
+html.is-app body:not(#_cx):not(#_cy) .qb-amt input { field-sizing: content; width: auto; min-width: 2ch; max-width: 80%; }

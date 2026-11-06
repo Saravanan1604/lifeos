@@ -522,6 +522,7 @@ function openQuickBalanceModal(preSelectedId) {
   const yday  = (() => { const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); })();
   const y2day = (() => { const d=new Date(); d.setDate(d.getDate()-2); return d.toISOString().slice(0,10); })();
 
+  if (window.__IS_APP) return _qbAppModal(accounts, preSelectedId);
   openModal('💰 Log Bank Balance', `
     <div class="form-group">
       <label class="form-label">Account</label>
@@ -553,6 +554,54 @@ function openQuickBalanceModal(preSelectedId) {
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="saveQuickBalance()" style="background:linear-gradient(135deg,#00c9a7,#0acf83)">💾 Save Balance</button>
     </div>`);
+}
+
+// App version (build 703): bank chips, big amount with live change, compact date chips
+function _qbAppModal(accounts, preId) {
+  const sel = accounts.find(a => a.id === preId) || accounts[0];
+  const d = n => { const x = new Date(); x.setDate(x.getDate() - n); return _ymdLocal(x); };
+  const cur = (STATE.settings && STATE.settings.currency) || '₹';
+  openModal('Update balance', `
+    <div class="qb">
+      <input type="hidden" id="qb-account" value="${sel.id}"/>
+      <div class="qb-banks">${accounts.map(a => `<button type="button" class="qb-bank ${a.id === sel.id ? 'on' : ''}" data-id="${a.id}" data-bal="${+a.balance || 0}" style="--c1:${a.color || '#4338ca'}" onclick="qbPickBank(this)">
+        <i></i><b>${esc(a.bankName)}</b><small>${fmt(+a.balance || 0)}</small></button>`).join('')}</div>
+      <div class="qb-amt">
+        <span>${cur}</span><input type="number" inputmode="decimal" id="qb-balance" placeholder="0" step="0.01" min="0" oninput="qbDiff()"/>
+      </div>
+      <p class="qb-diff" id="qb-diff">Was <b>${fmt(+sel.balance || 0)}</b> — type the balance your bank app shows now</p>
+      <p class="qb-lbl">Balance on</p>
+      <div class="qb-dates">
+        <button type="button" class="on" data-d="${d(0)}" onclick="qbPickDate(this)">Today</button>
+        <button type="button" data-d="${d(1)}" onclick="qbPickDate(this)">Yesterday</button>
+        <button type="button" data-d="${d(2)}" onclick="qbPickDate(this)">2 days ago</button>
+        <label class="qb-pick"><span id="qb-pick-l">Pick date</span><input type="date" id="qb-date" value="${d(0)}" max="${d(0)}" onchange="qbPickDate(null, this.value)"/></label>
+      </div>
+      <input type="text" id="qb-note" class="qb-note" placeholder="Note (optional) — e.g. after salary credit"/>
+      <button class="qb-save" onclick="saveQuickBalance()">Save balance</button>
+    </div>`);
+  setTimeout(() => { const i = document.getElementById('qb-balance'); if (i) i.focus(); }, 250);
+}
+function qbPickBank(btn) {
+  document.querySelectorAll('.qb-bank').forEach(b => b.classList.toggle('on', b === btn));
+  document.getElementById('qb-account').value = btn.dataset.id; qbDiff();
+}
+function qbDiff() {
+  const on = document.querySelector('.qb-bank.on'); const el = document.getElementById('qb-diff'); if (!on || !el) return;
+  const was = +on.dataset.bal || 0, v = parseFloat(document.getElementById('qb-balance').value);
+  if (isNaN(v)) { el.innerHTML = `Was <b>${fmt(was)}</b> — type the balance your bank app shows now`; el.className = 'qb-diff'; return; }
+  const df = v - was;
+  el.className = 'qb-diff ' + (df > 0 ? 'up' : df < 0 ? 'down' : '');
+  el.innerHTML = df === 0 ? `Same as before (${fmt(was)})` : `${fmt(was)} → ${fmt(v)} · <b>${df > 0 ? '+' : '−'}${fmt(Math.abs(df))}</b> ${df > 0 ? 'more' : 'less'}`;
+}
+function qbPickDate(btn, val) {
+  const inp = document.getElementById('qb-date'); if (!inp) return;
+  if (btn) inp.value = btn.dataset.d; else if (val) inp.value = val;
+  let hit = false;
+  document.querySelectorAll('.qb-dates button').forEach(b => { const m = b.dataset.d === inp.value; b.classList.toggle('on', m); if (m) hit = true; });
+  const pk = document.querySelector('.qb-pick'), l = document.getElementById('qb-pick-l');
+  if (pk) pk.classList.toggle('on', !hit);
+  if (l) l.textContent = hit ? 'Pick date' : fmtDate(inp.value);
 }
 
 function setQbDate(dateStr, key) {
