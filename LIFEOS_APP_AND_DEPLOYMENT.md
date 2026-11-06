@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **713** (6 Nov 2026).*
+*Status as of build **714** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -263,6 +263,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 711 | **One money engine** (`js/money.js`): `Money.amt / isIncome / isSpend / totals / monthTotals / byCategory`; 30 hand-rolled sums across 9 files now go through it (text amounts can no longer concatenate, entries without a type count as spending everywhere, budget spend ignores income). Verified Home = Report = Analytics for the same month. **Data check**: `Money.mismatches()` finds entries whose type disagrees with their category (e.g. Interest saved as expense) → Home card + Settings → “Check my entries” to fix or keep per category. Same-name category rules and the notes rule can no longer put an income category on a spend (or the reverse) |
 | 712 | **Day readability pass** — WCAG audit on 20 pages in Day: secondary `#4F5D72`, captions `#5E6A7E`, green `#047857`, red `#C12F3C`, amber `#A1490A`, cyan `#0E7490` (all ≥4.5:1 on white and chips); old dark-theme inline colours remapped in Day; selected Budget/Spending/Income tab was white-on-white (now purple); “+ Budget” readable; purple balance cards use light tints. Result: 0 low-contrast texts on all 20 pages in Day and in Night |
 | 713 | **Faster start**: PDF.js (~300 KB) and SheetJS (~900 KB) no longer load on every launch — `window.loadLib('pdf'|'xlsx')` in the `index.html` head loads them on demand (prefetched when an import screen opens; imports wait for them). Lucide icons pinned to 1.70.0 (was `@latest`, which could change without warning). Measured: no import libraries at start; Excel/PDF import still work |
+| 714 | **Protect your data** (new `js/secure.js` + `applock.js`): backups (Export and Back up to Drive) can be **password-protected** — AES-256-GCM with a PBKDF2-SHA256 (250k) key; restore detects protected files and asks for the password; plain JSON still works. App-lock PIN now stored as salted SHA-256 (old weak hash upgraded on first unlock) with a 30 s wait after 5 wrong PINs (doubling). Amounts are blurred while the app is in the background so the recent-apps preview doesn't show them. Not done: encrypting the live data inside the app (would risk data loss and the cloud copy is the main store) |
 
 ### Testing locally
 

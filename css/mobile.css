@@ -20796,3 +20796,9 @@ html.is-app body.light:not(#_cx):not(#_cy) .mm-hero .mm-hs-val.neg { color: #FFD
 html.is-app body.light:not(#_cx):not(#_cy) #page-container .mm-hero .mm-hs-val[style] { color: #FFFFFF !important; }
 html.is-app body.light:not(#_cx):not(#_cy) #page-container .mm-hero .mm-hs-val[style*="f59e0b"] { color: #FFE7B3 !important; }
 html.is-app body.light:not(#_cx):not(#_cy) #page-container .mm-hero .mm-hs-val[style*="ef4444"] { color: #FFD6DB !important; }
+
+/* ================= build 714 — security ================= */
+html.is-app body:not(#_cx):not(#_cy) #modal-body .bk-lead { margin: 0 0 14px !important; font-size: 14px !important; line-height: 1.5 !important; color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .bk-warn { margin: 0 !important; padding: 10px 12px; border-radius: 12px; background: var(--cx-warn-bg); color: var(--cx-warn) !important; font-size: 12.5px !important; line-height: 1.45 !important; }
+/* recent-apps preview: hide amounts while the app is in the background */
+html.is-app.app-hidden #page-container, html.is-app.app-hidden #modal-overlay, html.is-app.app-hidden #txpad { filter: blur(18px) !important; }

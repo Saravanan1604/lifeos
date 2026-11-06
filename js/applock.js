@@ -145,20 +145,52 @@ function _lockShake() {
   if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
 }
 
-function _lockSubmit() {
+// PIN storage (build 714): salted SHA-256 ("v2:<salt>:<hash>"). Old builds
+// stored a weak 32-bit hash — still accepted once, then upgraded in place.
+// Five wrong PINs → 30 s wait, doubling each time.
+async function _pinHashV2(pin, salt) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pin + ':atworth'));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function _pinStore(pin) {
+  const salt = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2, '0')).join('');
+  localStorage.setItem(LOCK_PIN_KEY, 'v2:' + salt + ':' + await _pinHashV2(pin, salt));
+}
+async function _pinCheck(pin) {
+  const st = localStorage.getItem(LOCK_PIN_KEY) || '';
+  if (st.startsWith('v2:')) { const [, salt, h] = st.split(':'); return (await _pinHashV2(pin, salt)) === h; }
+  if (_hashPin(pin) === st) { try { await _pinStore(pin); } catch (_) {} return true; }   // upgrade old PIN
+  return false;
+}
+function _pinFails() { try { return JSON.parse(localStorage.getItem('lifeos_pin_fails') || '{"n":0,"until":0}'); } catch (_) { return { n: 0, until: 0 }; } }
+async function _lockSubmit() {
   if (_lockMode === 'verify') {
-    if (_hashPin(_lockBuffer) === localStorage.getItem(LOCK_PIN_KEY)) {
+    const f = _pinFails();
+    if (f.until > Date.now()) {
+      _lockBuffer = ''; _renderLockDots();
+      _showLockScreen(`Too many tries — wait ${Math.ceil((f.until - Date.now()) / 1000)} s`); return;
+    }
+    let ok = false;
+    try { ok = await _pinCheck(_lockBuffer); } catch (_) { ok = _hashPin(_lockBuffer) === localStorage.getItem(LOCK_PIN_KEY); }
+    if (ok) {
+      localStorage.removeItem('lifeos_pin_fails');
       _lockBuffer = ''; _markUnlocked(); _hideLockScreen();
       if (navigator.vibrate) navigator.vibrate(12);
-    } else { _lockShake(); _lockBuffer = ''; _renderLockDots(); }
+    } else {
+      f.n++; if (f.n >= 5) { f.until = Date.now() + 30000 * Math.pow(2, Math.floor(f.n / 5) - 1); }
+      localStorage.setItem('lifeos_pin_fails', JSON.stringify(f));
+      _lockShake(); _lockBuffer = ''; _renderLockDots();
+      if (f.until > Date.now()) _showLockScreen(`Too many tries — wait ${Math.ceil((f.until - Date.now()) / 1000)} s`);
+    }
   } else if (_lockMode === 'set') {
     _lockTempPin = _lockBuffer; _lockBuffer = ''; _lockMode = 'confirm';
     _showLockScreen('Confirm your PIN');
   } else if (_lockMode === 'confirm') {
     if (_lockBuffer === _lockTempPin) {
-      localStorage.setItem(LOCK_PIN_KEY, _hashPin(_lockBuffer));
+      try { await _pinStore(_lockBuffer); } catch (_) { localStorage.setItem(LOCK_PIN_KEY, _hashPin(_lockBuffer)); }
       localStorage.setItem(LOCK_ON_KEY, '1');
       localStorage.setItem(LOCK_TYPE_KEY, 'pin');
+      localStorage.removeItem('lifeos_pin_fails');
       _lockBuffer = ''; _hideLockScreen();
       if (typeof toast === 'function') toast('🔒 App Lock enabled', 'success');
       if (typeof navigate === 'function') navigate('settings', true);
@@ -192,6 +224,7 @@ window.addEventListener('DOMContentLoaded', () => setTimeout(maybeShowAppLock, 5
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
     _hiddenAt = Date.now();
+    if (window.__IS_APP) document.documentElement.classList.add('app-hidden');
   } else {
     // Returned to foreground — only re-lock if it was backgrounded long enough
     if (_hiddenAt && (Date.now() - _hiddenAt) > RELOCK_AFTER_MS) {
@@ -199,5 +232,6 @@ document.addEventListener('visibilitychange', () => {
       maybeShowAppLock();
     }
     _hiddenAt = 0;
+    setTimeout(() => document.documentElement.classList.remove('app-hidden'), 60);
   }
 });
