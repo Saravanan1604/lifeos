@@ -114,7 +114,7 @@
     const t0 = toast;
     window.toast = function (msg, type) {
       if (typeof msg === 'string') {
-        if (/Level Up|^\+\d+ XP/.test(msg)) return;
+        if (/Level Up|^\+\d+ XP|Achievement Unlocked/.test(msg)) return;
         msg = msg.replace(/\s*[·!]?\s*\+\d+\s*XP\b\s*/g, ' ').replace(/\s+([!.])/g, '$1').trim();
         if (!msg) return;
       }
