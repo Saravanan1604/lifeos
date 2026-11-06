@@ -198,6 +198,8 @@ function mergeById(local, cloud) {
 
 // Try to restore session from cloud using existing token
 async function tryAutoRestore(token) {
+  // Demo mode: stay on the local sample copy, never touch the cloud
+  if (typeof isDemoMode === 'function' && isDemoMode() && STATE.user) { showApp(); if (typeof renderCalcBody === 'function') renderCalcBody(); return; }
   // Always load local data first — it is the source of truth
   const localState = DB.load();
 

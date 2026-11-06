@@ -20449,3 +20449,9 @@ html.is-app body:not(#_cx):not(#_cy) #modal-body .af-go { width: 100% !important
 html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="catform"] .form-input, html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="types"] .form-input { font-size: 16px !important; height: 48px !important; padding: 0 14px !important; }
 html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="catform"] .form-label, html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="types"] label { font-size: 13px !important; font-weight: 700 !important; color: var(--cx-ink2) !important; }
 html.is-app body:not(#_cx):not(#_cy) #modal-body[data-kind="types"] p[style*="text-transform:uppercase"] { font-size: 12px !important; color: var(--cx-mute) !important; }
+
+/* ================= build 701 — Demo mode banner ================= */
+#demo-banner { position: fixed; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 70px); z-index: 9500; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 24px); padding: 7px 8px 7px 14px; border-radius: 999px; font-size: 12.5px; color: #fff; background: linear-gradient(135deg, #B45309, #F59E0B); box-shadow: 0 10px 24px -10px rgba(245,158,11,.8); white-space: nowrap; }
+#demo-banner span { overflow: hidden; text-overflow: ellipsis; }
+#demo-banner button { flex-shrink: 0; border: 0; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 800; color: #B45309; background: #fff; cursor: pointer; }
+html:not(.is-app) #demo-banner { top: 12px; }

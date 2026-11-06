@@ -1,10 +1,17 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 700;
+const APP_BUILD = 701;
 
 // ===== STORAGE UTILITIES =====
+// ===== DEMO MODE =====
+// When on, the app reads/writes a separate local copy ('lifeos_demo_v1')
+// filled with sample data, and ALL cloud sync is off — the real data in
+// 'lifeos_v1' and in the cloud is never touched. Turning it off deletes the
+// demo copy and reloads the real data.
+function isDemoMode() { try { return localStorage.getItem('lifeos_demo_on') === '1'; } catch (_) { return false; } }
+
 const DB = {
-  KEY: 'lifeos_v1',
+  get KEY() { return isDemoMode() ? 'lifeos_demo_v1' : 'lifeos_v1'; },
   defaults() {
     return {
       user: null,
@@ -287,6 +294,7 @@ async function _syncBtnTap() {
 
 // ── Sync helpers ────────────────────────────────────────────────────────────
 function _canSync() {
+  if (isDemoMode()) return false;
   return !!(localStorage.getItem('lifeos_token') && STATE.user && !STATE.user.offline);
 }
 function _markDirty()  { try { localStorage.setItem('lifeos_dirty', '1'); } catch (_) {} }
@@ -332,6 +340,7 @@ function _mergeById(local, cloud, delMap) {
 
 // Merge a cloud state object into STATE. Returns { changed, needPush }.
 function _mergeCloudIntoState(cloudState) {
+  if (isDemoMode()) return { changed: false, needPush: false };
   const delMap = new Map();
   [...(STATE.deletedIds || []), ...(cloudState.deletedIds || [])].forEach(d => {
     if (d && d.id) delMap.set(d.id, Math.max(delMap.get(d.id) || 0, d.at || 0));
@@ -386,6 +395,7 @@ function _onAuthExpired() {
 
 // Pull latest state from cloud and merge into local STATE
 async function pullFromCloud() {
+  if (isDemoMode()) { setSyncDot('offline'); return 'offline'; }
   if (_syncBusy) return 'busy';
   const token = localStorage.getItem('lifeos_token');
   if (!token || !STATE.user || STATE.user.offline) { setSyncDot('offline'); return 'offline'; }

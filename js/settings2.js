@@ -114,10 +114,11 @@ function renderSettingsApp() {
     _stRow({ ic: 'download', tone: 'pri', t: 'Export backup (JSON)', s: 'Download everything to this phone', on: 'exportData()' }),
     _stRow({ ic: 'upload', tone: 'pri', t: 'Restore from backup', s: 'Import a JSON backup file', on: "document.getElementById('import-file').click()" }),
     _stRow({ ic: 'sheet', tone: 'inc', t: 'Export transactions (CSV)', s: 'Open in Excel / Google Sheets', on: 'exportCSV()' }),
-    ...(tx < 20 ? [_stRow({ ic: 'wand-sparkles', tone: 'warn', t: 'Load demo data', s: 'Fill the app with sample data to explore', on: 'seedDemoData()' })] : []),
   ]) + '<input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"/>';
 
+  const demoOn = typeof isDemoMode === 'function' && isDemoMode();
   const help = _stGroup('Help', [
+    _stRow({ ic: 'flask-conical', tone: 'warn', t: 'Demo mode', s: demoOn ? 'On — showing sample data. Tap to go back to your data' : 'Try the app with sample data. Your real data stays safe', right: `<span class="st-pill ${demoOn ? 'on' : ''}">${demoOn ? 'ON' : 'OFF'}</span>`, on: 'toggleDemoMode()' }),
     _stRow({ ic: 'book-open', tone: 'pri', t: 'How to use atworth', s: 'Guide, checklist and FAQ', on: "navigate('help')" }),
     _stRow({ ic: 'route', tone: 'acc', t: 'Replay the tour', s: '1-minute walk-through of the main buttons', on: 'startAppTour(true)' }),
     _stRow({ ic: 'monitor', tone: 'mute', t: 'Open web version', s: 'Same account on a bigger screen', on: "window.open('https://lifeos-psi-roan.vercel.app','_blank')" }),

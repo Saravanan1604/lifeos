@@ -446,9 +446,9 @@ function renderSettings() {
         </div>
 
         <div class="glass-card" style="padding:22px">
-          <p class="section-title" style="margin-bottom:8px">🤖 AI Demo Data</p>
-          <p style="font-size:13px;color:rgba(241,245,249,0.6);margin-bottom:14px">Fill all modules with realistic sample data to explore every feature instantly.</p>
-          <button class="btn-primary" onclick="seedDemoData()" style="background:linear-gradient(135deg,#10b981,#059669)">🚀 Load AI Demo Data</button>
+          <p class="section-title" style="margin-bottom:8px">🧪 Demo mode</p>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:14px">${typeof isDemoMode === 'function' && isDemoMode() ? 'Demo mode is ON — you are looking at sample data. Turn it off to see your real data again.' : 'Explore every feature with sample data. Your real data is kept safe and is not changed or synced.'}</p>
+          <button class="btn-primary" onclick="toggleDemoMode()" style="background:linear-gradient(135deg,#10b981,#059669)">${typeof isDemoMode === 'function' && isDemoMode() ? 'Turn off Demo mode' : 'Turn on Demo mode'}</button>
         </div>
 
         <div class="glass-card" style="padding:22px">
