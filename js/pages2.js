@@ -360,7 +360,7 @@ function renderGoalsApp() {
         <div class="gl-ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="${R}" class="hx-ring-bg"/><circle cx="32" cy="32" r="${R}" class="hx-ring-fg" stroke="${col}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" data-off="${(C * (1 - pct / 100)).toFixed(1)}"/></svg><b>${pct}%</b></div>
         <div class="gl-m"><b>${_pk.e(g.name || g.title || 'Goal')}</b>
           <small>${g.type === 'savings' ? `${fmt(+g.current || 0)} of ${fmt(+g.target || 0)}` : _pk.e(g.description || 'Milestone goal')}</small>
-          <div class="gl-pills">${pill}${g.autoSync ? _pk.pill('Auto-sync', 'inc') : ''}</div></div>
+          <div class="gl-pills">${pill}${g.autoSync ? _pk.pill('Fills from ' + (typeof _goalSyncSourceLabel === 'function' ? (_goalSyncSourceLabel(g).replace(/^Auto-synced$/, 'net savings').replace(/^Synced: /, '') || 'your money') : 'your money'), 'inc') : (g.type === 'savings' && !done ? `<button class="gl-link" onclick="event.stopPropagation();openEditGoalModal('${g.id}')">Link to SIP / account</button>` : '')}</div></div>
       </div>
       ${g.type === 'savings' && !g.autoSync && !done ? `<div class="gl-add" onclick="event.stopPropagation()">
         <input type="number" inputmode="decimal" id="goal-upd-${g.id}" placeholder="Add money saved"/>

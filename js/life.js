@@ -397,7 +397,9 @@ function _goalSyncSourceLabel(g) {
     else if (src.startsWith('bank:')) {
       const id = src.slice(5);
       const acct = (STATE.bankAccounts || []).find(b => b.id === id);
-      if (acct) resolved.push(acct.name);
+      if (acct) resolved.push(acct.bankName || acct.name);
+    } else if (src.startsWith('cat:')) { resolved.push(src.slice(4));
+    } else if (src.startsWith('tag:')) { resolved.push('#' + src.slice(4));
     } else if (src.startsWith('invest:')) {
       const id = src.slice(7);
       const inv = (STATE.investments || []).find(i => i.id === id);
@@ -411,9 +413,6 @@ function _goalSyncSourceLabel(g) {
 // Auto-sync savings goals with transaction data & custom sources (bank/investments/etc)
 function autoSyncGoals() {
   const txns = STATE.transactions || [];
-  const income  = txns.filter(t => t.type === 'income').reduce((s, t) => s + Money.amt(t), 0);
-  const expense = txns.filter(t => t.type !== 'income').reduce((s, t) => s + Money.amt(t), 0);
-  const netSavings = Math.max(0, income - expense);
   
   const bankAccounts = STATE.bankAccounts || [];
   const cashAccounts = STATE.cashAccounts || [];
@@ -424,10 +423,18 @@ function autoSyncGoals() {
     if (g.autoSync && g.type === 'savings') {
       let sum = 0;
       const sources = g.syncSources || ['net-savings'];
+      const since = String(g.createdAt || '').slice(0, 10);
+      const fromStart = txns.filter(t => !since || Money.day(t) >= since);
       
       sources.forEach(src => {
         if (src === 'net-savings') {
-          sum += netSavings;
+          sum += Math.max(0, Money.totals(fromStart).net);
+        } else if (src.startsWith('cat:')) {
+          const c = src.slice(4).toLowerCase();
+          sum += fromStart.filter(t => (t.category || '').toLowerCase() === c).reduce((a, t) => a + Money.amt(t), 0);
+        } else if (src.startsWith('tag:')) {
+          const tg = src.slice(4).toLowerCase();
+          sum += fromStart.filter(t => (t.tag || '').toLowerCase() === tg).reduce((a, t) => a + Money.amt(t), 0);
         } else if (src === 'bank-cash') {
           const bankTot = bankAccounts.reduce((s,b)=>s+(b.balance||0),0);
           const cashTot = cashAccounts.reduce((s,c)=>s+(c.balance||0),0);
@@ -452,8 +459,8 @@ function autoSyncGoals() {
         }
       });
       
-      g.current = Math.min(g.target, sum);
-      changed = true;
+      const nv = Math.round(Math.min(g.target, sum) * 100) / 100;
+      if (nv !== g.current) { g.current = nv; changed = true; }
     }
   });
   if (changed) saveState();
@@ -536,12 +543,27 @@ function _goalSourcesHTML(checked) {
   const banks = STATE.bankAccounts || [];
   if (banks.length) {
     html += `<p class="gl-src-head" style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin:6px 0 0">BANK ACCOUNTS</p>`;
-    banks.forEach(b => { html += row('bank:' + b.id, '🏦', esc(b.name), fmt(b.balance)); });
+    banks.forEach(b => { html += row('bank:' + b.id, '🏦', esc(b.bankName || b.name || 'Bank'), fmt(b.balance)); });
   }
   const invs = STATE.investments || [];
   if (invs.length) {
     html += `<p class="gl-src-head" style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin:6px 0 0">INVESTMENTS</p>`;
     invs.forEach(i => { const v = +i.currentValue || +i.amount || +i.value || 0; html += row('invest:' + i.id, '📈', esc(i.name), fmt(v)); });
+  }
+  // money you put aside in a category (e.g. SIP, Savings, RD) or under a tag, counted from the goal's start
+  const tx = STATE.transactions || [];
+  const cats = [...new Set(tx.filter(t => t.type !== 'income').map(t => t.category).filter(Boolean))]
+    .map(c => [c, tx.filter(t => t.category === c && t.type !== 'income').length]).sort((a, b) => b[1] - a[1]);
+  const pref = cats.filter(([c]) => /sip|saving|invest|rd|fd|ppf|nps|gold|emergency/i.test(c));
+  const rest = cats.filter(x => !pref.includes(x)).slice(0, 8);
+  if (pref.length || rest.length) {
+    html += `<p class="gl-src-head" style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin:6px 0 0">MONEY PUT INTO A CATEGORY (FROM GOAL START)</p>`;
+    [...pref, ...rest].forEach(([c]) => { html += row('cat:' + c, '🗂️', esc(c), null); });
+  }
+  const tags = [...new Set(tx.map(t => t.tag).filter(Boolean))];
+  if (tags.length) {
+    html += `<p class="gl-src-head" style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;margin:6px 0 0">TAGS</p>`;
+    tags.slice(0, 8).forEach(tg => { html += row('tag:' + tg, '#', esc(tg), null); });
   }
   return html + `</div>`;
 }

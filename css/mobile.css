@@ -20802,3 +20802,8 @@ html.is-app body:not(#_cx):not(#_cy) #modal-body .bk-lead { margin: 0 0 14px !im
 html.is-app body:not(#_cx):not(#_cy) #modal-body .bk-warn { margin: 0 !important; padding: 10px 12px; border-radius: 12px; background: var(--cx-warn-bg); color: var(--cx-warn) !important; font-size: 12.5px !important; line-height: 1.45 !important; }
 /* recent-apps preview: hide amounts while the app is in the background */
 html.is-app.app-hidden #page-container, html.is-app.app-hidden #modal-overlay, html.is-app.app-hidden #txpad { filter: blur(18px) !important; }
+/* build 715 — goal link button */
+html.is-app body:not(#_cx):not(#_cy) .gl-link { min-height: 0 !important; height: auto !important; width: auto !important; margin: 0 !important; padding: 3px 10px !important; border-radius: 999px !important; border: 1px dashed color-mix(in srgb, var(--cx-pri) 45%, var(--cx-line)) !important; background: transparent !important; font-size: 11.5px !important; font-weight: 700 !important; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+/* Night: popup body text was forced to slate #475569 by an old rule */
+html.is-app body:not(.light):not(#_cx):not(#_cy) #modal-body p:not([class]) { color: var(--cx-ink2) !important; }
+html.is-app body:not(.light):not(#_cx):not(#_cy) #modal-body :is([style*="color:#ef4444"], [style*="color: #ef4444"]) { color: var(--cx-exp) !important; }
