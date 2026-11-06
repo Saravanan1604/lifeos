@@ -1004,6 +1004,7 @@ function renderCombinedSpendBudget(activeTab) {
                 </div>
               </div>
 
+              ${window.__IS_APP && typeof budgetSuggestBanner === 'function' ? budgetSuggestBanner() : ''}
               <div class="section-heading-row">
                 <span class="section-heading">Budget Categories</span>
                 <button class="section-filter-btn" onclick="openBudgetPeriodSheet()">

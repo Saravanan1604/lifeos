@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **717** (6 Nov 2026).*
+*Status as of build **718** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -267,6 +267,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 715 | **Savings goals fill themselves**: new sources “money put into a category” (e.g. SIP, Savings, RD) and tags, counted from the goal's start; “Net savings” now counts only since the goal started (was all-time, so goals looked done too early); bank names in the source list fixed (showed “undefined”); goal sync only saves when a value actually changes; goal cards show “Fills from SIP” or a “Link to SIP / account” button. Night: popup body text no longer forced to dark slate |
 | 716 | **Monthly recap** (new `js/recap.js`): on days 1–7 Home shows last month — saved/overspent, spent with change vs the month before, income and saving rate, top category, no-spend days, biggest spend — with **Share** (1080×1350 image via share sheet or download) and Full report; ✕ hides it until next month. Reports → Month view has “Share <month> recap image” |
 | 717 | **Smart quick add** (new `js/quickadd.js`): one line on Home under the quick actions — “swiggy 250”, “petrol 500 icici yesterday”, “salary 52,000”, “+2k refund”, “1.2k groceries”. Reads amount (k/lakh/commas), income words or “+”, yesterday, account name; category/type/account learned from the last entry with the same name, then category rules, then category names, then your most-used. Live preview chips; Enter saves through the normal add screen (`padSave`) so balances, budgets and alerts update; the sliders button opens the full add screen pre-filled |
+| 718 | **Suggested budgets** (new `js/budgetsuggest.js`): from the last 3 complete months, for spend categories used in ≥2 months, avg ≥ ₹300, without a budget and not fixed bills (EMI, rent, insurance, SIP…) — limit = average +5% rounded to a tidy number. Banner on Budget and Analytics → popup with tick boxes and editable amounts → adds monthly budgets |
 
 ### Testing locally
 

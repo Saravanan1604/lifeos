@@ -160,6 +160,7 @@ function renderAnalyticsApp() {
       <div class="hx-card">
         <div class="hx-an-head"><p class="hx-t">Budget vs actual</p><button class="hx-link" onclick="navigate('budget')">Edit <i data-lucide="chevron-right"></i></button></div>
         ${budHtml}
+        ${typeof budgetSuggestBanner === 'function' ? budgetSuggestBanner() : ''}
       </div>
 
       <div class="hx-card">
