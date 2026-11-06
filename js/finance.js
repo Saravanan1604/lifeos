@@ -2381,14 +2381,17 @@ function padKey(k) {
 }
 function padPickAccount() {
   const list = [{ v: '', l: '🚫 No account' }];
-  (STATE.cashAccounts || []).forEach(c => list.push({ v: `cash:${c.id}`, l: `💵 ${c.name}` }));
-  (STATE.bankAccounts || []).forEach(b => list.push({ v: `bank:${b.id}`, l: `🏦 ${b.bankName}` }));
-  (STATE.creditCards || []).forEach(c => list.push({ v: `card:${c.id}`, l: `💳 ${c.bankName}` }));
+  const l4 = x => x && x.lastFour ? ` •••• ${x.lastFour}` : '';
+  (STATE.cashAccounts || []).forEach(c => list.push({ v: `cash:${c.id}`, g: 'Cash', l: `💵 ${esc(c.name)}`, sub: fmt(+c.balance || 0) }));
+  (STATE.bankAccounts || []).forEach(b => list.push({ v: `bank:${b.id}`, g: 'Bank accounts', l: `🏦 ${esc(b.bankName)}${l4(b)}`, sub: fmt(+b.balance || 0) + (b.inactive ? ' · inactive' : '') }));
+  (STATE.creditCards || []).forEach(c => list.push({ v: `card:${c.id}`, g: 'Credit cards', l: `💳 ${esc(c.name || c.bankName)}${c.name && c.bankName && c.name !== c.bankName ? ' · ' + esc(c.bankName) : ''}${l4(c)}`, sub: 'Due ' + fmt(+c.outstanding || 0) }));
   const def = STATE.settings?.defaultAccount || '';
+  let _lastG = null;
   openModal('Choose Account', `<div class="pad-pick">${list.map(o => {
     const isDef = o.v && o.v === def;
-    return `<div class="pad-pick-row">
-      <button class="pad-pick-main" onclick="_pad.source='${o.v}';closeModal();renderTxPad()">${o.l}${isDef ? ' <span style="opacity:.7;font-size:.8em">· default</span>' : ''}</button>
+    const head = o.g && o.g !== _lastG ? `<p class="pad-pick-g">${o.g}</p>` : ''; if (o.g) _lastG = o.g;
+    return `${head}<div class="pad-pick-row ${_pad.source === o.v ? 'cur' : ''}">
+      <button class="pad-pick-main" onclick="_pad.source='${o.v}';closeModal();renderTxPad()"><span class="ppm-l">${o.l}${isDef ? ' <em>default</em>' : ''}</span>${o.sub ? `<span class="ppm-s">${o.sub}</span>` : ''}</button>
       ${o.v ? `<button class="pad-pick-star ${isDef ? 'on' : ''}" title="Set as default account" onclick="event.stopPropagation();padSetDefaultAccount('${o.v}')">★</button>` : ''}
     </div>`;
   }).join('')}

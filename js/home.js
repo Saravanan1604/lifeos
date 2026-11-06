@@ -251,7 +251,7 @@ function _homeAnalyticsHtml(F) {
     for (let i = 6; i >= 0; i--) { const d = new Date(F.now); d.setDate(d.getDate() - i); const k = _ymdLocal(d); days.push({ k, l: d.toLocaleDateString('en-IN', { weekday: 'short' }).slice(0, 2), v: _H.sum(_H.tx().filter(t => _H.exp(t) && (t.date || '').slice(0, 10) === k)) }); }
     const max = Math.max(1, ...days.map(d => d.v)), tot = _H.sum(days.map(d => ({ amount: d.v })));
     cap = `<b>${fmt(Math.round(tot))}</b> spent in the last 7 days · avg ${fmt(Math.round(tot / 7))}/day`;
-    body = `<div class="hx-chart hx-bars hx-bub-bars">${days.map((d, i) => `<button class="hx-bar ${i === 6 ? 'today on' : ''}" onclick="_homeBarTap(this)" data-cap="<b>${fmt(Math.round(d.v))}</b> on ${fmtDate(d.k)}"><i style="height:${Math.max(3, d.v / max * 100)}%"><em class="hx-bub">${_H.short(d.v)}</em></i><span>${d.l}</span></button>`).join('')}</div>`;
+    body = `<div class="hx-chart hx-bars hx-bub-bars">${days.map((d, i) => `<button class="hx-bar ${i === 6 ? 'today on' : ''}" onclick="_homeBarTap(this)" data-cap="<b>${fmt(Math.round(d.v))}</b> on ${fmtDate(d.k)}"><div class="hx-trk"><i style="height:${Math.max(3, d.v / max * 100)}%"><em class="hx-bub">${_H.short(d.v)}</em></i></div><span>${d.l}</span></button>`).join('')}</div>`;
   } else if (_homeTab === '6m') {
     const ms = [];
     for (let i = 5; i >= 0; i--) { const d = new Date(F.now.getFullYear(), F.now.getMonth() - i, 1); const mt = _H.monthTx(_H.ym(d)); ms.push({ l: d.toLocaleDateString('en-IN', { month: 'short' }), inc: _H.sum(mt.filter(t => t.type === 'income')), exp: _H.sum(mt.filter(_H.exp)) }); }

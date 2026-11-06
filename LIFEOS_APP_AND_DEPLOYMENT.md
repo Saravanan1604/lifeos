@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **683** (6 Nov 2026).*
+*Status as of build **684** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -233,6 +233,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 681 | Liabilities dashboard: debt summary, countdown, extra-payment what-if, loan progress bars |
 | 682 | Confirmed deletes for bank/card/wallet; bank cards show "last updated" and inactive tag |
 | 683 | AI Financial Data Coach modules (income / expense / cash-flow + explained recommendations); forecasts use everyday pace (no one-off EMI extrapolation) |
+| 684 | Popups/pickers/Upcoming/Analytics tabs on the 3.0 theme; 7-day bars anchored; EMI no longer double-counted on Upcoming; grouped account picker with balances |
 
 ### Testing locally
 

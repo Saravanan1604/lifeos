@@ -48,8 +48,12 @@ function _upcomingItems(days) {
   });
 
   // Loan EMIs — show only the next EMI due date (not every month in the window).
+  // A loan EMI that is ALSO set up as a recurring payment (same amount within
+  // 5%, e.g. "Axis EMI" 38,895 vs loan EMI 39,000) must not be listed twice.
+  const _recExp = (STATE.recurring || []).filter(r => r.type !== 'income' && r.enabled !== false);
   (STATE.loans || []).forEach(l => {
     const emi = +l.emi || 0; if (emi <= 0) return;
+    if (_recExp.some(r => Math.abs((+r.amount || 0) - emi) <= emi * 0.05)) return;
     const start = l.startDate ? new Date(l.startDate + 'T00:00:00') : null;
     const dom = (start && !isNaN(start)) ? Math.min(start.getDate(), 28) : 1;
     let probe = new Date(t.getFullYear(), t.getMonth(), dom);
@@ -66,6 +70,7 @@ function _upcomingItems(days) {
 function renderUpcoming() {
   const container = document.getElementById('page-container');
   if (!container) return;
+  if (window.__IS_APP) { try { return _renderUpcomingApp(container); } catch (e) { console.log(e); } }
   const items = _upcomingItems(60);
   const todayS = _ymdLocal(new Date());
   const in7 = _ymdLocal((() => { const d = new Date(); d.setDate(d.getDate() + 7); return d; })());
@@ -108,6 +113,45 @@ function renderUpcoming() {
         <p style="margin:0 0 8px;color:var(--text2)">No upcoming spendings.</p>
         <p style="margin:0;font-size:13px;color:var(--text3)">Set a transaction to <b>Repeat</b> (or add a loan EMI) and it'll show here as an upcoming bill.</p>
       </div>`}
+    </div>`;
+  if (typeof _lucideRefresh === 'function') _lucideRefresh();
+}
+
+
+// App (2.0/3.0) version: grouped by This week / This month / Later,
+// neutral amounts, Paid now / Skip on recurring items.
+function _renderUpcomingApp(container) {
+  const items = _upcomingItems(60);
+  const d = n => { const x = new Date(); x.setDate(x.getDate() + n); return _ymdLocal(x); };
+  const in7 = d(7), in30 = d(30);
+  const sum = to => items.filter(i => i.date <= to).reduce((s, i) => s + i.amount, 0);
+  const recBy = {}; (STATE.recurring || []).forEach(r => { recBy[(r.description || r.category) + '|' + r.nextDate] = r.id; });
+  const row = i => {
+    const col = typeof catColor === 'function' ? catColor(i.category) : '#8B5CF6';
+    const days = _upDays(i.date), rid = recBy[i.name + '|' + i.date];
+    const when = days <= 0 ? 'Today' : days === 1 ? 'Tomorrow' : `in ${days} days`;
+    return `<div class="up-row">
+      <span class="up-ic" style="--c:${col}">${typeof catIconHtml === 'function' ? catIconHtml(i.category) : '🔁'}</span>
+      <div class="up-m"><b>${esc(i.name)}</b><span>${esc(i.sub || i.category)} · ${fmtDate(i.date)}</span>
+        ${rid && days <= 7 ? `<div class="up-act"><button onclick="billPayNow('${rid}');navigate('upcoming',true)">✓ Paid now</button><button onclick="billSkip('${rid}');navigate('upcoming',true)">Skip</button></div>` : ''}</div>
+      <div class="up-r"><b>${fmt(i.amount)}</b><em class="${days <= 1 ? 'soon' : days <= 7 ? 'week' : ''}">${when}</em></div>
+    </div>`;
+  };
+  const grp = (t, list) => list.length ? `<p class="up-g">${t} <span>${fmt(list.reduce((s, i) => s + i.amount, 0))}</span></p><div class="hx-card up-card">${list.map(row).join('')}</div>` : '';
+  container.innerHTML = `
+    <div class="fade-in an-page">
+      <div class="an-top"><h1 class="an-title">Upcoming</h1><button class="an-more" onclick="navigate('recurring')"><i data-lucide="repeat"></i> Manage</button></div>
+      <p class="up-sub">Bills, subscriptions and EMIs about to go out.</p>
+      ${items.length ? `
+      <div class="an-kpis">
+        <div class="an-kpi"><span>Next 7 days</span><b>${fmt(sum(in7))}</b><span class="an-d none">${items.filter(i => i.date <= in7).length} items</span></div>
+        <div class="an-kpi"><span>Next 30 days</span><b>${fmt(sum(in30))}</b><span class="an-d none">${items.filter(i => i.date <= in30).length} items</span></div>
+      </div>
+      ${grp('This week', items.filter(i => i.date <= in7))}
+      ${grp('This month', items.filter(i => i.date > in7 && i.date <= in30))}
+      ${grp('Later', items.filter(i => i.date > in30))}
+      <p class="sm-how" style="text-align:center;margin:10px 16px 20px">From your recurring payments and loan EMIs (an EMI already set up as recurring is counted once). Recurring items post automatically on their date.</p>`
+      : `<div class="hx-card" style="text-align:center;padding:36px 16px"><p class="hx-t">Nothing upcoming</p><p class="hx-s">Set a transaction to Repeat, or add a loan EMI, and it shows here.</p></div>`}
     </div>`;
   if (typeof _lucideRefresh === 'function') _lucideRefresh();
 }

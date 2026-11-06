@@ -19645,3 +19645,80 @@ html.is-app body:not(#_cx):not(#_cy) .co-rec.bad { border-left-color: var(--cx-e
 html.is-app body:not(#_cx):not(#_cy) .co-rec > p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--cx-ink); }
 html.is-app body:not(#_cx):not(#_cy) .co-rec details summary { font-size: 11.5px; color: var(--cx-pri); cursor: pointer; margin-top: 3px; font-weight: 700; }
 html.is-app body:not(#_cx):not(#_cy) .co-rec details p { margin: 4px 0 0; font-size: 12px; color: var(--cx-ink2); }
+
+/* ============================================================
+   build 684 — popups, pickers, Upcoming, Analytics tabs and select
+   bar on the 3.0 theme (from user screenshots). App-only.
+   ============================================================ */
+/* 7-day bars stand on a baseline (they were floating: the global button
+   rules centred the bar inside its column) */
+html.is-app body:not(#_cx):not(#_cy) .hx-bub-bars .hx-bar { display: flex !important; flex-direction: column !important; justify-content: flex-end !important; align-items: center !important; height: 100% !important; gap: 6px !important; }
+html.is-app body:not(#_cx):not(#_cy) .hx-bub-bars .hx-trk { position: relative; flex: 1 1 auto; width: 100%; display: flex; align-items: flex-end; justify-content: center; min-height: 0; }
+html.is-app body:not(#_cx):not(#_cy) .hx-bub-bars .hx-trk i { width: 100%; max-width: 30px; display: block; }
+html.is-app body:not(#_cx):not(#_cy) .hx-bub-bars .hx-bar span { flex: 0 0 auto; line-height: 1; }
+
+/* popup header icon: theme purple instead of teal */
+html.is-app body:not(#_cx):not(#_cy) .modal-title-icon { background: color-mix(in srgb, var(--cx-pri) 12%, transparent) !important; border-color: color-mix(in srgb, var(--cx-pri) 25%, transparent) !important; color: var(--cx-pri) !important; box-shadow: none !important; }
+html.is-app body:not(#_cx):not(#_cy) .modal-close { background: var(--cx-chip) !important; color: var(--cx-ink2) !important; }
+
+/* category picker grid */
+html.is-app body:not(#_cx):not(#_cy) .pad-cats button { background: var(--cx-card2, var(--cx-chip)) !important; border: 1px solid var(--cx-line) !important; border-radius: 16px !important; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .pad-cats button svg, html.is-app body:not(#_cx):not(#_cy) .pad-cats .pad-cat-lucide { color: var(--cx-pri) !important; stroke: var(--cx-pri) !important; }
+html.is-app body:not(#_cx):not(#_cy) .pad-cats button:active { background: color-mix(in srgb, var(--cx-pri) 10%, var(--cx-card)) !important; }
+
+/* account picker: grouped list with balances */
+html.is-app body:not(#_cx):not(#_cy) .pad-pick-g { margin: 12px 2px 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .pad-pick-row { display: flex; gap: 8px; margin-bottom: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .pad-pick-main { flex: 1; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px; text-align: left !important; padding: 0 14px !important; min-height: 52px !important; border-radius: 14px !important; background: var(--cx-card2, var(--cx-chip)) !important; border: 1px solid var(--cx-line) !important; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .pad-pick-row.cur .pad-pick-main { border-color: var(--cx-pri) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--cx-pri) 15%, transparent) !important; }
+html.is-app body:not(#_cx):not(#_cy) .ppm-l { font-weight: 700; font-size: 15px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .ppm-l em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--cx-pri); background: color-mix(in srgb, var(--cx-pri) 12%, transparent); padding: 2px 6px; border-radius: 6px; margin-left: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .ppm-s { font-size: 12.5px; color: var(--cx-ink2); white-space: nowrap; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .pad-pick-star { width: 52px !important; min-height: 52px !important; border-radius: 14px !important; background: var(--cx-card2, var(--cx-chip)) !important; border: 1px solid var(--cx-line) !important; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .pad-pick-star.on { background: #FFF2D8 !important; border-color: #F5C26B !important; color: #D97706 !important; }
+
+/* tag popup chips */
+html.is-app body:not(#_cx):not(#_cy) .subcat-modal button[type="button"] { background: color-mix(in srgb, var(--cx-pri) 8%, var(--cx-card)) !important; border: 1px solid color-mix(in srgb, var(--cx-pri) 25%, var(--cx-line)) !important; color: var(--cx-pri) !important; font-weight: 700 !important; }
+
+/* file picker (PDF / CSV import) */
+html.is-app body:not(#_cx):not(#_cy) .modal-box input[type="file"] { width: 100%; padding: 14px !important; border: 2px dashed color-mix(in srgb, var(--cx-pri) 35%, var(--cx-line)) !important; border-radius: 16px !important; background: color-mix(in srgb, var(--cx-pri) 5%, var(--cx-card)) !important; color: var(--cx-ink2) !important; font-size: 14px !important; }
+html.is-app body:not(#_cx):not(#_cy) .modal-box input[type="file"]::file-selector-button { margin-right: 12px; padding: 10px 16px; border: none; border-radius: 12px; background: var(--cx-pri); color: #fff; font-weight: 700; font-size: 14px; }
+/* AI Fix / any info panel with the old lavender/teal box */
+html.is-app body:not(#_cx):not(#_cy) .modal-box textarea.form-input { background: var(--cx-card2, var(--cx-chip)) !important; }
+
+/* Analytics → Budget/Spending/Income: no beige wash, purple + button */
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="spending"], html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="budget"] { background: transparent !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="spending"] > *, html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="budget"] > * { background-color: transparent !important; }
+html.is-app body:not(#_cx):not(#_cy) #sb-header-add-btn { background: var(--cx-pri) !important; box-shadow: 0 6px 14px -6px var(--cx-pri) !important; }
+html.is-app body:not(#_cx):not(#_cy) .sb-segmented-control { background: var(--cx-chip) !important; }
+
+/* selection bar: one line, theme colours */
+html.is-app body:not(#_cx):not(#_cy) .mm-selbar { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: nowrap !important; background: var(--cx-card) !important; border: 1px solid var(--cx-line) !important; border-radius: 16px !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-selcount { white-space: nowrap !important; flex: 1 1 auto; font-weight: 800 !important; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-selbar .mm-selact { background: var(--cx-chip) !important; color: var(--cx-ink) !important; white-space: nowrap !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-selbar .mm-selact.del { background: var(--cx-exp) !important; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .mm-subhead-filter.on { background: var(--cx-pri) !important; color: #fff !important; border-color: var(--cx-pri) !important; }
+
+/* Upcoming (app) */
+html.is-app body:not(#_cx):not(#_cy) .up-sub { font-size: 13.5px; color: var(--cx-ink2); margin: -6px 12px 12px; }
+html.is-app body:not(#_cx):not(#_cy) .up-g { display: flex; justify-content: space-between; margin: 14px 16px 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .up-g span { color: var(--cx-ink); letter-spacing: 0; }
+html.is-app body:not(#_cx):not(#_cy) .up-card { padding: 4px 14px !important; }
+html.is-app body:not(#_cx):not(#_cy) .up-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .up-row:first-child { border-top: none; }
+html.is-app body:not(#_cx):not(#_cy) .up-ic { width: 42px; height: 42px; border-radius: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: color-mix(in srgb, var(--c) 14%, transparent); color: var(--c); font-size: 20px; }
+html.is-app body:not(#_cx):not(#_cy) .up-ic svg { width: 20px; height: 20px; color: var(--c) !important; }
+html.is-app body:not(#_cx):not(#_cy) .up-m { flex: 1; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .up-m b { display: block; font-size: 15px; font-weight: 700; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .up-m > span { font-size: 12.5px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .up-act { display: flex; gap: 6px; margin-top: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .up-act button { min-height: 30px !important; padding: 0 10px; border-radius: 9px; border: 1px solid var(--cx-line); background: var(--cx-chip); color: var(--cx-ink); font-size: 12px; font-weight: 700; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .up-act button:first-child { background: var(--cx-pri); border-color: var(--cx-pri); color: #fff; }
+html.is-app body:not(#_cx):not(#_cy) .up-r { text-align: right; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .up-r b { display: block; font-size: 15px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .up-r em { font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .up-r em.week { color: var(--cx-warn); }
+html.is-app body:not(#_cx):not(#_cy) .up-r em.soon { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .pad-pick-main { min-width: 0 !important; overflow: hidden !important; }
+html.is-app body:not(#_cx):not(#_cy) .pad-pick-main .ppm-l { flex: 1 1 auto; }
+html.is-app body:not(#_cx):not(#_cy) .pad-cat-manage { background: color-mix(in srgb, var(--cx-pri) 10%, var(--cx-card)) !important; color: var(--cx-pri) !important; border: 1px solid color-mix(in srgb, var(--cx-pri) 30%, var(--cx-line)) !important; }
