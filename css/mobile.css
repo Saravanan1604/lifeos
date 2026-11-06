@@ -18324,7 +18324,7 @@ html.is-app #page-container[data-page="bank-tracker"] .tlog-title {
 html.is-app #page-container[data-page="bank-tracker"] .tlog-meta { font-size: 13px !important; }
 html.is-app #page-container[data-page="bank-tracker"] .tlog-amt  { font-size: 17px !important; }
 /* bottom quick-log input bar placeholder — single line, compact */
-html.is-app #page-container[data-page="bank-tracker"] div[onclick*="openQuickBalanceModal"]:not(button) {
+html.is-app #page-container[data-page="bank-tracker"] div[onclick*="openQuickBalanceModal"]:not(button):not(.fin-bal-tap) {
   font-size: 17px !important;
   white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
 }
@@ -18808,8 +18808,8 @@ html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .tlog-
 html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .tlog-title { font-size: 17px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
 html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .tlog-meta { font-size: 13px !important; white-space: nowrap !important; }
 html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] .tlog-amt  { font-size: 17px !important; }
-html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] div[onclick*="openQuickBalanceModal"]:not(button),
-html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="bank-tracker"] div[onclick*="openQuickBalanceModal"]:not(button) {
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="finance"] div[onclick*="openQuickBalanceModal"]:not(button):not(.fin-bal-tap),
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="bank-tracker"] div[onclick*="openQuickBalanceModal"]:not(button):not(.fin-bal-tap) {
   font-size: 15px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
   background: var(--cx-chip) !important; border: 1px solid var(--cx-line) !important; color: var(--cx-ink2) !important;
   border-radius: 14px !important;
@@ -20356,3 +20356,39 @@ html.is-app body:not(#_cx):not(#_cy) .pk-head.due-sub { padding-top: 0; }
 html.is-app #sidebar #sidebar-level { display: none !important; }
 html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="dashboard"] .pd-home { display: none !important; }
 html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="upcoming"] .an-top { display: none !important; }
+
+/* ================= build 699 — Banks & Cards fixes ================= */
+html.is-app body:not(#_cx):not(#_cy) .fin-dark-card .fin-bal-tap { background: none !important; border: 0 !important; padding: 0 !important; color: #fff !important; font-size: 2.6rem !important; text-decoration: none !important; display: inline-block; }
+html.is-app body:not(#_cx):not(#_cy) .fin-dark-card .fin-upd { font-size: 0.85rem !important; color: rgba(255,255,255,.6) !important; margin-top: 0 !important; }
+/* account options sheet */
+html.is-app body:not(#_cx):not(#_cy) .am { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 6px; }
+html.is-app body:not(#_cx):not(#_cy) .am-head { border-radius: 20px; padding: 16px 18px; color: #fff; background: linear-gradient(135deg, var(--c1), var(--c2)); box-shadow: 0 14px 30px -16px var(--c1); }
+html.is-app body:not(#_cx):not(#_cy) .am-head * { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .am-head span { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .8; }
+html.is-app body:not(#_cx):not(#_cy) .am-head b { display: block; font-size: 30px; font-weight: 800; margin: 4px 0 2px; }
+html.is-app body:not(#_cx):not(#_cy) .am-head small { font-size: 12.5px; opacity: .8; }
+html.is-app body:not(#_cx):not(#_cy) .am-main { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 52px; border: 0; border-radius: 16px; font-size: 16px; font-weight: 800; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)); box-shadow: 0 12px 24px -12px var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .am-main svg { width: 19px; height: 19px; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .am-main:active, html.is-app body:not(#_cx):not(#_cy) .am-row:active { transform: scale(.98); }
+html.is-app body:not(#_cx):not(#_cy) .am-group { border: 1px solid var(--cx-line); border-radius: 18px; overflow: hidden; background: var(--cx-card); }
+html.is-app body:not(#_cx):not(#_cy) .am-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 0; border-bottom: 1px solid var(--cx-line); background: none; text-align: left; }
+html.is-app body:not(#_cx):not(#_cy) .am-row:last-child { border-bottom: 0; }
+html.is-app body:not(#_cx):not(#_cy) .am-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .am-ic svg { width: 18px; height: 18px; color: inherit !important; }
+html.is-app body:not(#_cx):not(#_cy) .am-ic.t-pri { background: color-mix(in srgb, var(--cx-pri) 15%, transparent); color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .am-ic.t-acc { background: color-mix(in srgb, var(--cx-acc) 15%, transparent); color: var(--cx-acc); }
+html.is-app body:not(#_cx):not(#_cy) .am-ic.t-inc { background: var(--cx-inc-bg); color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .am-ic.t-exp { background: var(--cx-exp-bg); color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .am-ic.t-warn { background: var(--cx-warn-bg); color: var(--cx-warn); }
+html.is-app body:not(#_cx):not(#_cy) .am-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html.is-app body:not(#_cx):not(#_cy) .am-tx b { font-size: 15px; font-weight: 700; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .am-tx small { font-size: 12px; color: var(--cx-mute); margin-top: 1px; }
+html.is-app body:not(#_cx):not(#_cy) .am-row:has(.t-exp) .am-tx b { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .am-chev { width: 17px; height: 17px; color: var(--cx-mute); }
+/* trend cards (bank / card / cash) */
+html.is-app body:not(#_cx):not(#_cy) .glass-card:has(> div canvas#bank-trend-chart, > div canvas#cc-trend-chart, > div canvas#cash-trend-chart) { background: var(--cx-card) !important; border: 1px solid var(--cx-line) !important; border-radius: 24px !important; box-shadow: var(--cx-shadow, none) !important; }
+html.is-app body:not(#_cx):not(#_cy) .glass-card:has(canvas#bank-trend-chart, canvas#cc-trend-chart, canvas#cash-trend-chart) > div { background: transparent !important; }
+html.is-app body:not(#_cx):not(#_cy) .glass-card:has(canvas#bank-trend-chart, canvas#cc-trend-chart, canvas#cash-trend-chart) .section-title { font-size: 18px !important; font-weight: 800 !important; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .glass-card:has(canvas#bank-trend-chart, canvas#cc-trend-chart, canvas#cash-trend-chart) .section-title span { font-size: 13px !important; font-weight: 700 !important; color: var(--cx-pri) !important; background: color-mix(in srgb, var(--cx-pri) 12%, transparent); padding: 3px 10px; border-radius: 999px; }
+html.is-app body:not(#_cx):not(#_cy) button[onclick^="setTrendPeriod"] { padding: 7px 14px !important; border-radius: 999px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink2) !important; font-size: 13px !important; font-weight: 700 !important; }
+html.is-app body:not(#_cx):not(#_cy) button.tr-tg.on { background: var(--cx-pri) !important; border-color: transparent !important; color: #fff !important; }

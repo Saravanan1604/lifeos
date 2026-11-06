@@ -3219,6 +3219,29 @@ function openAccountMenu(type, i) {
   if (!cfg) return;
   const acct = (cfg.list || [])[i];
   if (!acct) return;
+  if (window.__IS_APP) {
+    const nm = acct.bankName || acct.name || 'Account';
+    const bal = type === 'card' ? (+acct.outstanding || 0) : (+acct.balance || 0);
+    const row = (ic, tone, t, s, on) => `<button class="am-row" onclick="closeModal(); ${on}"><span class="am-ic t-${tone}"><i data-lucide="${ic}"></i></span><span class="am-tx"><b>${t}</b>${s ? `<small>${s}</small>` : ''}</span><i data-lucide="chevron-right" class="am-chev"></i></button>`;
+    openModal(cfg.title.replace(/^\S+\s/, ''), `
+      <div class="am">
+        <div class="am-head" style="--c1:${acct.color || '#4338ca'};--c2:${acct.color2 || '#312e81'}">
+          <span>${esc(nm)}${acct.lastFour ? ` •••• ${esc(acct.lastFour)}` : ''}</span>
+          <b>${fmt(bal)}</b><small>${type === 'card' ? 'Outstanding' : 'Current balance'}${type === 'bank' && typeof _bankUpdatedLabel === 'function' ? ' · ' + _bankUpdatedLabel(acct.id) : ''}</small>
+        </div>
+        <button class="am-main" onclick="closeModal(); ${cfg.log(acct)}"><i data-lucide="${cfg.logIcon}"></i>${cfg.logLabel}</button>
+        <div class="am-group">
+          ${row('pencil', 'pri', 'Edit details', 'Name, type, last 4 digits, colour', cfg.edit)}
+          ${type === 'bank' ? row(acct.inactive ? 'play-circle' : 'pause-circle', 'warn', acct.inactive ? 'Mark as active' : 'Mark as inactive', acct.inactive ? 'Turn alerts back on' : 'Keeps history, stops alerts', `toggleBankInactive(${i})`) : ''}
+          ${row('upload', 'acc', 'Import statement', 'Add balances from a file', `openBalanceImport('${cfg.importMode}')`)}
+          ${row('download', 'acc', 'Export (CSV)', 'Download your transactions', "if(typeof exportTransactionsCSV==='function')exportTransactionsCSV()")}
+          ${row('plus', 'inc', cfg.addLabel, '', cfg.add)}
+        </div>
+        <div class="am-group">${row('trash-2', 'exp', cfg.delLabel, 'Removes this account', cfg.del)}</div>
+      </div>`);
+    if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
+    return;
+  }
   openModal(cfg.title, `
     <div class="account-options-menu" style="display:flex;flex-direction:column;gap:12px;padding:10px 0">
       <button class="btn-action" onclick="closeModal(); ${cfg.log(acct)}" style="padding:16px;font-size:1.2rem;background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--brand-teal)"><i data-lucide="${cfg.logIcon}" style="margin-right:8px"></i> ${cfg.logLabel}</button>

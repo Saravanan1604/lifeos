@@ -99,7 +99,7 @@ function buildTrendSeries(period, items, history, idField, valField) {
 }
 
 function _trendToggleHtml(accent) {
-  const mk = (p, txt) => `<button onclick="setTrendPeriod('${p}')" style="padding:4px 12px;border-radius:14px;border:1px solid ${trendPeriod===p?accent:'rgba(255,255,255,0.12)'};background:${trendPeriod===p?accent+'22':'transparent'};color:${trendPeriod===p?accent:'var(--text3)'};font-size:11px;font-weight:700;cursor:pointer;transition:.15s">${txt}</button>`;
+  const mk = (p, txt) => `<button class="tr-tg ${trendPeriod===p?'on':''}" onclick="setTrendPeriod('${p}')" style="padding:4px 12px;border-radius:14px;border:1px solid ${trendPeriod===p?accent:'rgba(255,255,255,0.12)'};background:${trendPeriod===p?accent+'22':'transparent'};color:${trendPeriod===p?accent:'var(--text3)'};font-size:11px;font-weight:700;cursor:pointer;transition:.15s">${txt}</button>`;
   return `<div style="display:flex;gap:6px">${mk('30d','30 Days')}${mk('1y','1 Year')}</div>`;
 }
 
