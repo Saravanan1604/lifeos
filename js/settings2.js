@@ -72,8 +72,8 @@ function renderSettingsApp() {
       </div>` : ''}
       <div class="st-stats">
         <div><b>${tx.toLocaleString('en-IN')}</b><small>Entries</small></div>
-        <div><b>${(STATE.xp || 0).toLocaleString('en-IN')}</b><small>XP</small></div>
-        <div><b>${ach}/${achT}</b><small>Badges</small></div>
+        <div><b>🔥 ${typeof logStreak === 'function' ? logStreak().n : 0}</b><small>Day streak</small></div>
+        <div><b>${(STATE.goals || []).length}</b><small>Savings goals</small></div>
         <div><b>${joined}</b><small>Member since</small></div>
       </div>
     </div>`;
@@ -91,9 +91,6 @@ function renderSettingsApp() {
       <button class="${nf === 'default' ? 'on' : ''}" onclick="setNumFont('default')"><b>${cur}84,250</b><small>Classic</small></button>
       <button class="${nf === 'grotesk' ? 'on' : ''}" onclick="setNumFont('grotesk')"><b style="font-family:'Space Grotesk','Inter',sans-serif">${cur}84,250</b><small>Futuristic</small></button>
     </div>
-    <p class="st-lbl">Moving background</p>
-    <div class="st-seg three">${[['network', 'share-2', 'Network'], ['aurora', 'waves', 'Aurora'], ['none', 'square', 'Plain']].map(([m, ic, l]) => `<button class="${bg === m ? 'on' : ''}" onclick="setBgAnim('${m}')"><i data-lucide="${ic}"></i><small>${l}</small></button>`).join('')}</div>
-    <p class="st-note">Plain turns the animation off and saves battery.</p>
   </div>`;
 
   const general = _stGroup('General', [

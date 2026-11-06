@@ -20332,3 +20332,27 @@ html.is-app body:not(#_cx):not(#_cy) .dx-foot { margin: 14px 0 0; font-size: 11.
 html.is-app body:not(#_cx):not(#_cy) .st-seg.four { grid-template-columns: repeat(4, 1fr); gap: 6px; }
 html.is-app body:not(#_cx):not(#_cy) .stx .st-seg.four button { padding: 10px 2px !important; }
 html.is-app body:not(#_cx):not(#_cy) .st-seg.four small { font-size: 11px !important; white-space: nowrap; }
+
+/* ================= build 698 — feature clean-up ================= */
+html.is-app #sidebar .sidebar-xp { display: none !important; }
+html.is-app #sidebar .sidebar-nav .nav-icon svg { width: 18px; height: 18px; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="dashboard"] > .fade-in > .page-header,
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="dashboard"] .app-search { display: none !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="dashboard"] .dx-head { zoom: 1.1765; padding: 6px 2px 10px; }
+html.is-app body:not(#_cx):not(#_cy) .an-deep { margin: 0 0 14px; }
+html.is-app body:not(#_cx):not(#_cy) .an-deep > p { margin: 0 4px 8px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .an-deep > div { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .an-deep button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 2px; border-radius: 16px; border: 1px solid var(--cx-line); background: var(--cx-card); font-size: 11px; font-weight: 700; color: var(--cx-ink2); min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .an-deep button span { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--cx-pri) 14%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .an-deep button svg { width: 18px; height: 18px; color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .an-deep button:active { transform: scale(.94); }
+html.is-app body:not(#_cx):not(#_cy) .due-wrap { padding: 6px 2px 4px; }
+html.is-app body:not(#_cx):not(#_cy) .due-h { margin: 0 0 10px; font-size: 26px; font-weight: 800; letter-spacing: -.02em; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .due-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 16px; background: var(--cx-chip); border: 1px solid var(--cx-line); margin-bottom: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .due-tabs button { width: 100% !important; padding: 10px 0 !important; border: 0; border-radius: 12px; background: none; font-size: 14px; font-weight: 700; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .due-tabs button.on { background: var(--cx-card); color: var(--cx-pri); box-shadow: 0 4px 12px -4px rgba(0,0,0,.25); }
+html.is-app body:not(#_cx):not(#_cy) .due-sub .pk-ht h1, html.is-app body:not(#_cx):not(#_cy) .due-sub .page-title { display: none !important; }
+html.is-app body:not(#_cx):not(#_cy) .pk-head.due-sub { padding-top: 0; }
+html.is-app #sidebar #sidebar-level { display: none !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="dashboard"] .pd-home { display: none !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="upcoming"] .an-top { display: none !important; }

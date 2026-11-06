@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **697** (6 Nov 2026).*
+*Status as of build **698** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -247,6 +247,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 695 | Report redesigned (app): Day/Week/Month/Year segmented tabs, saved/overspent summary card, tappable animated income-vs-expense bars, readable breakdown list with signed net and running balance (replaces the wide table; PDF export kept). Dashboard tabs: chip tab bar + token cards; Financial Health becomes a score ring + 7 sorted score bars with tips; 7 Income Streams becomes “earning now” vs “next streams to build” with hints |
 | 696 | **App size** (Settings → Appearance): Compact / Default / Large / Extra large. Changes the app's fixed layout width (450 / 412 / 372 / 340 px) so everything — text, icons, buttons, nav — scales together. Saved per phone (localStorage `lifeos_app_size`), applied before first paint in the `index.html` head script |
 | 697 | Fix: phones in Chrome **“Desktop site”** mode (desktop user-agent, on by default on some large phones) got the tiny desktop layout. Detection now also uses hardware — touch-only pointer, no hover, screen short side ≤ 600px — and if Chrome ignores the viewport tag (lays out ~980px), the root is zoomed so the app renders at phone width. Real desktops and touch laptops are unaffected |
+| 698 | **Feature clean-up** (app; new `js/cleanup.js`, nothing deleted — hidden features keep their data): side menu 22 → 12 items (Money: Banks & Cards, Bills & Due, Reports, Tags, Purchases, Split, Savings Goals, Categories · More: Notes, Settings, Help). Dashboard is now **Deep dive**, opened from Analytics tiles (Heatmap, Money flow, Wealth flow, Health, 7 income); other links to it go Home. Upcoming / Recurring / Renewals merged as **Bills & Due** tabs. Finance → Banks & Cards, Yearly Report → Reports, Goals → Savings Goals. Health Hub, Habits, Journal, Achievements hidden. No XP / level-up pop-ups or level badge; Settings shows day streak. Moving-background setting removed. Voice examples trimmed. Web + menu: Check-in Habit / New Goal / Write Journal replaced by Transfer |
 
 ### Testing locally
 
