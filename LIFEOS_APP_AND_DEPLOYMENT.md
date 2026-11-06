@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **687** (6 Nov 2026).*
+*Status as of build **688** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -237,6 +237,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 685 | Category detail page redesigned: hero total with change vs last period, status-coloured budget card, compact chart, icon-chip transaction rows |
 | 686 | Add/edit transaction screen redesigned: big centred amount, red/green type toggle, settings-style rows, notes with calculator/mic, import chips, sticky Save |
 | 687 | Assets page overview rebuilt around "You own vs You owe": plain-language net worth, tappable own/owe tiles, ₹-per-₹100 ratio, EMI as % of income, debt-free date, trend with an explanation |
+| 688 | In-app Guide ("How to use"): quick-start checklist, how-to topics with Show me, gestures, FAQ, search; 1-minute spotlight tour; variable-radius ring on Spending/Income |
 
 ### Testing locally
 
@@ -245,6 +246,43 @@ cd lifeos && python3 -m http.server 3333      # then open http://localhost:3333
 ```
 
 To see the **app** layout in a desktop browser, run `localStorage.setItem('_isApp','1')` in the console and reload. Remove that key to return to the website layout.
+
+---
+
+## How to use atworth (quick guide)
+
+The app has the same guide built in: **Menu → How to use · Help**, or **Settings → How to use atworth**. A 1-minute tour that points out each button on Home runs once after this update, and you can replay it from either place.
+
+1. **Start**
+   - Add a bank account or cash wallet: Home → *In accounts*, or Menu → Finance.
+   - Log your salary as **Income**.
+2. **Add entries**
+   - Tap the purple **+**, choose Expense or Income, then type the amount.
+   - Pick a category and an account, and add a note.
+   - Use **Repeat** for monthly bills.
+3. **Edit an entry**
+   - Tap it to edit, or swipe it to edit or delete. Long-press to select several at once.
+   - Tap the coloured circle to change its category. All entries with the **same name** move too, and new ones are remembered.
+4. **Search** with plain words, for example `food > 500 last month` or `swiggy under 300`.
+5. **Budgets**
+   - Set them in Analytics → Budget & categories.
+   - You're warned once at 80% and once at 100%.
+   - The budget ring on Home shows how much you can spend per day.
+6. **Bills**
+   - Bills appear in **Upcoming** and in the 🔔 bell 3 days before they're due. Use *Paid now* or *Skip*.
+   - *Forecast & automation* finds subscriptions you haven't set up yet.
+7. **Analytics**
+   - Switch between Week, Month, Quarter and Year.
+   - See cash flow, budget vs actual, and a 30/90-day balance forecast.
+8. **Assets**
+   - Net worth = what you **own** − what you **owe**.
+   - On *You owe*, try "What if I pay extra?" to see your new debt-free date.
+9. **Ask ✨**
+   - Questions like "Where is my money going?" or "Can I save ₹10,000?".
+   - You can also add a transaction by saying "I spent 250 on petrol".
+10. **Theme and sync**
+    - Settings → Theme: Day, Night or System.
+    - Pull down on Home to sync.
 
 ---
 

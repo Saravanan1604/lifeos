@@ -38,6 +38,7 @@ function sendFeedback() {
 }
 
 function renderHelp() {
+  if (window.__IS_APP && typeof renderGuideApp === 'function') { try { return renderGuideApp(); } catch (e) { console.log(e); } }
   const STEPS = [
     { n:1, icon:'💰', title:'Add Your Income',    desc:'Go to Finance → tap + Add Transaction → select Income. Log your salary, business income, or any earnings.',      page:'finance'      },
     { n:2, icon:'💸', title:'Track Expenses',      desc:'Log every expense to Finance. Use categories like Food, Rent, EMI. The app auto-tracks your spending patterns.',   page:'finance'      },

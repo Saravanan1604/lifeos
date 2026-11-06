@@ -1226,6 +1226,39 @@ function renderCombinedSpendBudget(activeTab) {
       });
     }
 
+    // App: replace the flat Chart.js donuts with the glowing variable-radius
+    // ring (build 688) — biggest category = thickest arc, colours match the
+    // category list underneath.
+    if (window.__IS_APP && typeof _homeRoseSvg === 'function') {
+      const mk = (id, rs, isInc) => {
+        const cv = document.getElementById(id); if (!cv) return;
+        const box = cv.closest('.ring-container'); if (!box) return;
+        let ent = rs.map(r => [r.cat, r.total]).filter(e => e[1] > 0);
+        if (ent.length > 6) { const rest = ent.slice(6).reduce((s, e) => s + e[1], 0); ent = ent.slice(0, 6).concat([['Others', rest]]); }
+        const tot = ent.reduce((s, e) => s + e[1], 0);
+        // distinct colours: category colour unless already used, then a vivid palette
+        const pal = ['#EC4899', '#22D3EE', '#FBBF24', '#34D399', '#F97316', '#8B5CF6', '#60A5FA'], used = new Set();
+        const cols = ent.map(([c]) => {
+          if (c === 'Others') return '#64748B';
+          let col = (catColor(c) || '').toLowerCase();
+          if (!col || used.has(col)) col = pal.find(x => !used.has(x.toLowerCase())) || col;
+          used.add(col.toLowerCase()); return col;
+        });
+        // recolour the matching list rows so ring and list agree
+        const panel = box.closest('.sb-panel');
+        if (panel) panel.querySelectorAll('.category-row').forEach(row => {
+          const nm = (row.querySelector('.category-name')?.textContent || '').trim();
+          const k = ent.findIndex(([c]) => c === nm);
+          if (k >= 0) { const f = row.querySelector('.category-progress-fill'); if (f) f.style.background = cols[k]; const ic = row.querySelector('.category-icon-wrap'); if (ic) { ic.style.background = cols[k] + '22'; ic.style.color = cols[k]; } }
+        });
+        box.classList.add('sb-rose');
+        box.innerHTML = tot ? `<div class="hx-rose sbr">${_homeRoseSvg(ent, tot, cols)}<div class="hx-donut-c"><span>${esc(lbl)}</span><b class="${isInc ? 'inc' : ''}">${fmt(Math.round(tot))}</b><em>${ent.length} ${isInc ? 'source' : 'categor'}${ent.length === 1 ? (isInc ? '' : 'y') : (isInc ? 's' : 'ies')}</em></div></div>`
+          : `<div class="sbr-empty">No ${isInc ? 'income' : 'spending'} in ${esc(lbl)}</div>`;
+      };
+      mk('spov-chart', rows, false);
+      mk('incov-chart', incRows, true);
+    }
+
     // 3) Spending Donut Chart
     const spendCanvas = document.getElementById('spov-chart');
     if (spendCanvas && typeof Chart !== 'undefined') {
