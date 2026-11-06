@@ -324,3 +324,17 @@ These require native Android code and a rebuilt APK:
 
 ### Backend
 - Render's free tier sleeps when idle. The first sync after a pause can take about 30 seconds; the app retries automatically.
+
+## Updating the Android wrapper (target SDK)
+
+Google Play requires a recent target API level (from 31 Aug 2026: **Android 16 / API 36**). The `android/` folder is only on the owner's PC (it is gitignored so Vercel never serves it), so these steps are done there:
+
+1. `android/variables.gradle` → `compileSdkVersion = 36` and `targetSdkVersion = 36` (Capacitor 8 already defaults to 36; older projects may still say 35).
+2. Android Studio → **SDK Manager** → install **Android 16 (API 36) SDK Platform**; accept any Android Gradle Plugin upgrade it suggests.
+3. `android/app/build.gradle` → raise `versionCode` by 1 and update `versionName`.
+4. In the project folder: `npx cap sync android`.
+5. Android Studio → **Build → Generate Signed App Bundle** → use the **same keystore** as before → `app-release.aab`.
+6. Play Console → Internal testing (optional) → **Production → Create release** → upload the `.aab` → roll out.
+
+Android 16 always draws apps edge-to-edge. The web layer already pads with `env(safe-area-inset-*)`, but check that the header is not under the status bar after the update.
+If the app was built with PWABuilder (TWA) instead, regenerate the package there with the same package ID and signing key and a higher version code.
