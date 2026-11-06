@@ -2700,6 +2700,8 @@ function renderTxPad() {
   const catIc = catIcon(_pad.category), catCol = catColor(_pad.category);
   const dateLabel = new Date(_pad.date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   const isIncome = _pad.type === 'income';
+  if (window.__IS_APP) { el.className = 'px'; el.innerHTML = _padAppHtml(acctLabel, dateLabel, isIncome); if (window.lucide && lucide.createIcons) lucide.createIcons(); setTimeout(() => { const inp = document.getElementById('pad-amount-input'); if (inp && !_pad.expr) inp.focus(); }, 80); return; }
+  el.className = '';
   el.innerHTML = `
     <div class="pad-type-pills">
       <button class="pad-pill${isIncome ? ' pad-pill-on pad-pill-inc' : ''}" onclick="padSetType('income')"><i data-lucide="arrow-down-left"></i> Income</button>
@@ -2766,6 +2768,58 @@ ${_pad.mode === 'add' ? `
   `;
   if (window.lucide && lucide.createIcons) lucide.createIcons();
   setTimeout(() => { const inp = document.getElementById('pad-amount-input'); if (inp) inp.focus(); }, 80);
+}
+
+// Build 686 — app add/edit screen (3.0 design). Same state (_pad) and
+// handlers as before; only the layout changed: big amount first,
+// settings-style rows, sticky save.
+function _padAppHtml(acctLabel, dateLabel, isIncome) {
+  const cur = (STATE.settings && STATE.settings.currency) || '₹';
+  const tops = _padTopAmounts(_pad.category, _pad.type);
+  const rep = typeof recurFreqLabel === 'function' ? recurFreqLabel(_pad.repeat) : (_pad.repeat || 'One-time');
+  const row = (ic, label, val, js, extra) => `<button class="px-row" onclick="${js}"><span class="px-ic"><i data-lucide="${ic}"></i></span><span class="px-l">${label}</span><span class="px-v">${val}</span>${extra || ''}<i data-lucide="chevron-right" class="px-chev"></i></button>`;
+  return `
+    <div class="px-top">
+      <button class="px-x" onclick="padClose()" title="Close"><i data-lucide="x"></i></button>
+      <b>${_pad.mode === 'edit' ? 'Edit' : 'New'} ${isIncome ? 'income' : 'expense'}</b>
+      <span class="px-sp"></span>
+    </div>
+    <div class="px-seg">
+      <button class="${!isIncome ? 'on exp' : ''}" onclick="padSetType('expense')"><i data-lucide="arrow-up-right"></i> Expense</button>
+      <button class="${isIncome ? 'on inc' : ''}" onclick="padSetType('income')"><i data-lucide="arrow-down-left"></i> Income</button>
+    </div>
+    <div class="px-amt ${isIncome ? 'inc' : 'exp'}">
+      <span class="px-cur">${cur}</span>
+      <input type="number" inputmode="decimal" step="0.01" min="0" id="pad-amount-input" placeholder="0" value="${esc(_pad.expr)}" oninput="_pad.expr=this.value"/>
+    </div>
+    ${tops.length ? `<div class="px-chips">${tops.map(a => `<button type="button" onclick="padChipAmt(${a})">${cur}${a.toLocaleString('en-IN')}</button>`).join('')}</div>` : '<div class="px-chips-sp"></div>'}
+    <div class="px-card">
+      ${row('shapes', 'Category', `<span class="px-cat" style="--c:${catColor(_pad.category)}">${catIconHtml(_pad.category)}</span>${esc(_pad.category)}`, 'padPickCategory()')}
+      ${row('wallet', 'Account', esc(acctLabel), 'padPickAccount()')}
+      <div class="px-row px-dt"><span class="px-ic"><i data-lucide="calendar-clock"></i></span><span class="px-l">When</span>
+        <label class="px-pill">${dateLabel}<input type="date" value="${_pad.date}" onchange="padSetDate(this.value)"/></label>
+        <label class="px-pill">${_fmtTime(_pad.time)}<input type="time" value="${_pad.time}" onchange="padSetTime(this.value)"/></label></div>
+    </div>
+    <div class="px-card">
+      ${row('tag', 'Subcategory', _pad.subcategory ? esc(_pad.subcategory) : '<em>None</em>', 'padPickSubcat()')}
+      ${row('hash', 'Tag', _pad.tag ? '#' + esc(_pad.tag) : '<em>None</em>', 'padPickTag()')}
+      ${row('repeat', 'Repeat', esc(rep), 'padPickRepeat()')}
+    </div>
+    <div class="px-notes">
+      <textarea placeholder="Add a note (e.g. Swiggy, Priya's gift)…" oninput="_pad.notes=this.value" onblur="_padNotesRule()">${esc(_pad.notes)}</textarea>
+      <div class="px-na">
+        <button onclick="event.stopPropagation();openCalcPage()" title="Calculator"><i data-lucide="calculator"></i></button>
+        <button class="mic" onclick="event.stopPropagation();openVoicePage()" title="Speak to add"><i data-lucide="mic"></i></button>
+      </div>
+    </div>
+    ${_pad.mode === 'add' ? `<div class="px-imp"><span>Import</span>
+      <button onclick="openSmsParser()"><i data-lucide="message-square-text"></i> SMS</button>
+      <button onclick="openCsvImport()"><i data-lucide="file-spreadsheet"></i> CSV</button>
+      <button onclick="openPdfImport()"><i data-lucide="file-text"></i> PDF</button>
+      <button onclick="openBulkEntry()"><i data-lucide="calendar-days"></i> Bulk</button>
+      <button onclick="padClose();if(typeof openTransferModal==='function')openTransferModal()"><i data-lucide="arrow-left-right"></i> Transfer</button>
+    </div>` : ''}
+    <div class="px-foot"><button class="px-save ${isIncome ? 'inc' : 'exp'}" onclick="padSave()"><i data-lucide="check"></i> Save ${isIncome ? 'income' : 'expense'}</button></div>`;
 }
 
 // Records filter modal — reuses the existing _finType / _finCategory / _finSort + search

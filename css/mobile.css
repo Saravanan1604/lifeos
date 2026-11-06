@@ -19759,3 +19759,74 @@ html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-back { width: 40px !importa
 html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-back svg { color: var(--cx-ink) !important; stroke: var(--cx-ink) !important; width: 20px; height: 20px; }
 html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-name { color: var(--cx-ink) !important; }
 html.is-app body:not(#_cx):not(#_cy) .catdet .catdet-sub { color: var(--cx-ink2) !important; }
+
+/* ============================================================
+   build 686 — add / edit transaction screen, 3.0 design (app-only)
+   ============================================================ */
+html.is-app body:not(#_cx):not(#_cy) #txpad.px {
+  background: var(--cx-bg) !important; color: var(--cx-ink) !important;
+  display: block !important; overflow-y: auto !important; max-height: none !important;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+  -webkit-user-select: auto; user-select: auto;
+}
+html.is-app body.light:not(#_cx):not(#_cy) #txpad.px { background: radial-gradient(100% 35% at 50% -5%, #ECE7FF, transparent 70%), #F5F6FC !important; }
+html.is-app body:not(#_cx):not(#_cy) #txpad.px button { -webkit-tap-highlight-color: transparent; }
+html.is-app body:not(#_cx):not(#_cy) .px-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .px-top b { font-size: 17px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .px-x, html.is-app body:not(#_cx):not(#_cy) .px-sp { width: 40px; height: 40px; }
+html.is-app body:not(#_cx):not(#_cy) .px-x { min-height: 0 !important; border-radius: 12px; border: 1px solid var(--cx-line); background: var(--cx-card); color: var(--cx-ink); display: flex; align-items: center; justify-content: center; }
+html.is-app body:not(#_cx):not(#_cy) .px-x svg { width: 20px; height: 20px; }
+html.is-app body:not(#_cx):not(#_cy) .px-seg { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--cx-chip); border: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .px-seg button { flex: 1; min-height: 40px !important; border: none; border-radius: 11px; background: transparent; color: var(--cx-ink2); font-size: 14.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .px-seg svg { width: 17px; height: 17px; }
+html.is-app body:not(#_cx):not(#_cy) .px-seg button.on.exp { background: var(--cx-exp); color: #fff; box-shadow: 0 6px 14px -8px var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .px-seg button.on.inc { background: var(--cx-inc); color: #fff; box-shadow: 0 6px 14px -8px var(--cx-inc); }
+/* the amount is the hero */
+html.is-app body:not(#_cx):not(#_cy) .px-amt { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 22px 0 6px; }
+html.is-app body:not(#_cx):not(#_cy) .px-cur { font-size: 34px; font-weight: 700; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .px-amt input {
+  width: auto; min-width: 2ch; max-width: 80%; field-sizing: content; text-align: center;
+  font-size: 52px !important; font-weight: 800 !important; letter-spacing: -0.03em; line-height: 1.1;
+  background: transparent !important; border: none !important; outline: none !important; box-shadow: none !important; padding: 0 !important;
+  color: var(--cx-ink) !important; caret-color: var(--cx-pri);
+}
+html.is-app body:not(#_cx):not(#_cy) .px-amt input::placeholder { color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .px-amt.exp input { color: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .px-amt.inc input { color: var(--cx-inc) !important; }
+html.is-app body:not(#_cx):not(#_cy) .px-amt input::-webkit-outer-spin-button, html.is-app body:not(#_cx):not(#_cy) .px-amt input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+html.is-app body:not(#_cx):not(#_cy) .px-chips { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .px-chips-sp { height: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .px-chips button { min-height: 32px !important; padding: 0 14px; border-radius: 999px; border: 1px solid var(--cx-line); background: var(--cx-card); color: var(--cx-ink); font-size: 13px; font-weight: 700; }
+/* settings-style rows */
+html.is-app body:not(#_cx):not(#_cy) .px-card { background: var(--cx-card); border: 1px solid var(--cx-line); border-radius: 18px; box-shadow: var(--cx-shadow); margin-bottom: 12px; overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .px-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px !important; padding: 0 14px; background: transparent; border: none; border-top: 1px solid var(--cx-line); color: var(--cx-ink); text-align: left; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .px-card > :first-child { border-top: none; }
+html.is-app body:not(#_cx):not(#_cy) .px-ic { width: 32px; height: 32px; border-radius: 10px; background: color-mix(in srgb, var(--cx-pri) 12%, transparent); color: var(--cx-pri); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .px-ic svg { width: 17px; height: 17px; }
+html.is-app body:not(#_cx):not(#_cy) .px-l { font-size: 14.5px; font-weight: 600; color: var(--cx-ink2); flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .px-v { flex: 1; min-width: 0; text-align: right; font-size: 15px; font-weight: 700; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .px-v em { font-style: normal; font-weight: 500; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .px-chev { width: 17px; height: 17px; color: var(--cx-mute); flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .px-cat { width: 26px; height: 26px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; background: var(--c); color: #fff; font-size: 13px; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .px-cat svg { width: 15px; height: 15px; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .px-dt { cursor: default; }
+html.is-app body:not(#_cx):not(#_cy) .px-dt .px-l { flex: 1; }
+html.is-app body:not(#_cx):not(#_cy) .px-pill { position: relative; padding: 7px 11px; border-radius: 10px; background: var(--cx-chip); border: 1px solid var(--cx-line); font-size: 13.5px; font-weight: 700; color: var(--cx-ink); white-space: nowrap; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .px-pill input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+/* notes */
+html.is-app body:not(#_cx):not(#_cy) .px-notes { position: relative; background: var(--cx-card); border: 1px solid var(--cx-line); border-radius: 18px; box-shadow: var(--cx-shadow); padding: 12px 14px 54px; margin-bottom: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .px-notes textarea { width: 100%; min-height: 54px; border: none !important; outline: none; background: transparent !important; resize: none; color: var(--cx-ink); font-size: 15px; box-shadow: none !important; padding: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) .px-na { position: absolute; right: 10px; bottom: 10px; display: flex; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .px-na button { width: 38px; height: 38px; min-height: 0 !important; border-radius: 12px; border: 1px solid var(--cx-line); background: var(--cx-chip); color: var(--cx-pri); display: flex; align-items: center; justify-content: center; }
+html.is-app body:not(#_cx):not(#_cy) .px-na button.mic { background: var(--cx-pri); border-color: var(--cx-pri); color: #fff; }
+html.is-app body:not(#_cx):not(#_cy) .px-na svg { width: 18px; height: 18px; }
+/* import chips */
+html.is-app body:not(#_cx):not(#_cy) .px-imp { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 4px -16px 0; padding: 4px 16px; }
+html.is-app body:not(#_cx):not(#_cy) .px-imp::-webkit-scrollbar { display: none; }
+html.is-app body:not(#_cx):not(#_cy) .px-imp span { font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--cx-ink2); flex-shrink: 0; margin-right: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .px-imp button { flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; min-height: 32px !important; padding: 0 12px; border-radius: 999px; border: 1px solid var(--cx-line); background: var(--cx-card); color: var(--cx-ink); font-size: 12.5px; font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .px-imp svg { width: 14px; height: 14px; color: var(--cx-pri); }
+/* sticky save */
+html.is-app body:not(#_cx):not(#_cy) .px-foot { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(transparent, var(--cx-bg) 35%); z-index: 2; }
+html.is-app body:not(#_cx):not(#_cy) .px-save { width: 100%; min-height: 54px !important; border: none; border-radius: 16px; color: #fff; font-size: 16.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--cx-pri); box-shadow: 0 12px 26px -12px var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .px-save svg { width: 20px; height: 20px; }
