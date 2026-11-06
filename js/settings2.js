@@ -113,6 +113,9 @@ function renderSettingsApp() {
 
   const data = _stGroup('Backup &amp; data', [
     _stRow({ ic: 'cloud-upload', tone: 'acc', t: 'Back up to Google Drive', s: 'Save a copy of all your data', on: 'backupToDrive()' }),
+    (() => { const ev = typeof backupEvery === 'function' ? backupEvery() : 7; const last = +(localStorage.getItem('lifeos_last_backup') || 0);
+      return `<label class="st-row"><span class="st-ic t-inc"><i data-lucide="calendar-check"></i></span><span class="st-tx"><b>Backup reminder</b><small>${last ? 'Last backup ' + Math.floor((Date.now() - last) / 864e5) + ' days ago' : 'No backup yet'}</small></span>
+        <select class="st-sel" onchange="setBackupEvery(+this.value)">${[[7, 'Every week'], [14, 'Every 2 weeks'], [30, 'Every month'], [0, 'Off']].map(([v, l]) => `<option value="${v}" ${ev === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`; })(),
     _stRow({ ic: 'download', tone: 'pri', t: 'Export backup (JSON)', s: 'Download everything to this phone', on: 'exportData()' }),
     _stRow({ ic: 'upload', tone: 'pri', t: 'Restore from backup', s: 'Import a JSON backup file', on: "document.getElementById('import-file').click()" }),
     _stRow({ ic: 'sheet', tone: 'inc', t: 'Export transactions (CSV)', s: 'Open in Excel / Google Sheets', on: 'exportCSV()' }),

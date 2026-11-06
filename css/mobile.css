@@ -20873,3 +20873,12 @@ html.is-app body:not(#_cx):not(#_cy) .bs-amt { display: flex; align-items: cente
 html.is-app body:not(#_cx):not(#_cy) #modal-body .bs-amt input { width: 84px !important; height: 38px !important; min-height: 0 !important; padding: 0 8px !important; text-align: right; font-size: 15px !important; font-weight: 800 !important; }
 html.is-app body:not(#_cx):not(#_cy) .bs-tot { margin: 4px 2px 0; font-size: 13px; color: var(--cx-ink2); }
 html.is-app body:not(#_cx):not(#_cy) .bs-tot b { color: var(--cx-ink); }
+
+/* ================= build 719 — backup reminder ================= */
+html.is-app body:not(#_cx):not(#_cy) .bk-due { display: flex !important; align-items: center; gap: 12px; padding: 12px 14px !important; border: 1px solid color-mix(in srgb, var(--cx-inc) 35%, var(--cx-line)) !important; background: var(--cx-inc-bg) !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-due > span { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0; background: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .bk-due > span svg { width: 19px; height: 19px; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-due > div { flex: 1; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .bk-due b { display: block; font-size: 15px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .bk-due small { font-size: 12px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .bk-due button { flex-shrink: 0; height: 38px !important; min-height: 0 !important; width: auto !important; margin: 0 !important; padding: 0 14px !important; border: 0 !important; border-radius: 12px !important; background: var(--cx-inc) !important; color: #fff !important; font-size: 13.5px !important; font-weight: 800 !important; }

@@ -1,5 +1,5 @@
 // atworth Service Worker - v689.0
-const CACHE = 'lifeos-v718';
+const CACHE = 'lifeos-v719';
 
 // Allow the page to tell a waiting SW to activate immediately
 self.addEventListener('message', e => {
@@ -94,7 +94,7 @@ self.addEventListener('fetch', e => {
   // Never cache the sync API: a stale cached /api/me made the app think it was
   // "synced" with old data whenever the network blipped.
   const u = new URL(e.request.url);
-  if (u.pathname.startsWith('/api/') || /onrender\.com$/.test(u.hostname)) return;
+  if (u.pathname.startsWith('/api/') || /onrender\.com$/.test(u.hostname) || u.hostname === 'www.googleapis.com' || u.hostname.endsWith('.google.com')) return;
   e.respondWith(
     fetch(e.request)
       .then(res => {
