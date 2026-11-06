@@ -19946,3 +19946,7 @@ body:not(.light) #tour-ov .tour-tip { background: #1C2940; color: #F8FAFC; }
 #tour-ov .tour-a button { min-height: 38px; padding: 0 14px; border-radius: 11px; border: 1px solid rgba(139,92,246,.3); background: transparent; color: inherit; font-weight: 700; font-size: 14px; }
 #tour-ov .tour-a button.nx { background: #6D3BEA; border-color: #6D3BEA; color: #fff; }
 html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="spending"] .ring-container.sb-rose, html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="budget"] .ring-container.sb-rose { zoom: 1.6667; }
+html.is-app body:not(#_cx):not(#_cy) .hx-rose.sbr .hx-donut-c b.neg { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card span, html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card p { color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card span:last-child { color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) .total-budget-progress-card p { color: var(--cx-ink2) !important; }

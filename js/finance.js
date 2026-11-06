@@ -1016,7 +1016,7 @@ function renderCombinedSpendBudget(activeTab) {
                         </div>
                         <div class="category-name">${b.category}</div>
                         <div class="category-values">
-                          ${spentFormatted}<span>${Math.round(pct)}% · ${limitFormatted}</span>
+                          ${spentFormatted}<span>${over ? `<b style="color:#ef4444">${Math.round(spent / limit * 100)}% · ${fmt(Math.round(spent - limit))} over</b> · ${limitFormatted}` : `${Math.round(pct)}% · ${limitFormatted}`}</span>
                         </div>
                       </div>
                       <div class="category-progress-bg">
@@ -1162,6 +1162,21 @@ function renderCombinedSpendBudget(activeTab) {
 
   // Render Charts
   setTimeout(() => {
+    // App: budget ring in the same style as Spending (build 689) —
+    // segment per budget (share of total budget, biggest = thickest),
+    // centre shows % used and amount left / over.
+    if (window.__IS_APP && typeof _homeRoseSvg === 'function') {
+      const cv = document.getElementById('budget-donut-chart'), box = cv && cv.closest('.ring-container');
+      if (box) {
+        const ent = budgetRows.filter(r => r.limit > 0).map(r => [r.b.category, r.limit]);
+        const cols = budgetRows.filter(r => r.limit > 0).map((r, i) => BUDGET_COLORS[budgetRows.indexOf(r) % BUDGET_COLORS.length]);
+        const tot = ent.reduce((a, e) => a + e[1], 0), left = totalLimit - totalSpent, pu = totalLimit > 0 ? Math.round(totalSpent / totalLimit * 100) : 0;
+        box.classList.add('sb-rose');
+        box.innerHTML = tot ? `<div class="hx-rose sbr">${_homeRoseSvg(ent.slice().sort((a, b) => b[1] - a[1]), tot, ent.map((e, i) => [e, cols[i]]).sort((a, b) => b[0][1] - a[0][1]).map(x => x[1]))}<div class="hx-donut-c"><span>${pu}% used</span><b class="${left < 0 ? 'neg' : ''}">${fmt(Math.round(Math.abs(left)))}</b><em>${left < 0 ? 'over budget' : 'left of ' + fmt(Math.round(totalLimit))}</em></div></div>`
+          : `<div class="sbr-empty">No budgets yet — tap + to add one</div>`;
+      }
+    }
+
     // 1) Budget Donut Chart
     const budgetCanvas = document.getElementById('budget-donut-chart');
     if (budgetCanvas && typeof Chart !== 'undefined') {
