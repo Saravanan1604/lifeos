@@ -225,6 +225,7 @@ function renderReportApp() {
     ${_pk.hero({ tone: net >= 0 ? 'inc' : 'exp', label: net >= 0 ? 'You saved' : 'You overspent', big: fmt(Math.round(Math.abs(net))),
       sub: rate != null ? (net >= 0 ? `${rate}% of what came in` : `${Math.abs(rate)}% more than you earned`) : (tExp ? 'No income recorded in this period' : ''),
       stats: [['Income', fmt(Math.round(tInc))], ['Expense', fmt(Math.round(tExp))], [_rptPeriod === 'day' ? 'Categories' : 'Active ' + unitLbl + 's', active.length]] })}
+    ${_rptPeriod === 'month' && active.length ? `<button class="rp-share" onclick="recapShare('${Money.ym(_rptAnchor)}')"><i data-lucide="share-2"></i> Share ${_pk.e(data.title)} recap image</button>` : ''}
     ${chart}${list}
   </div>`;
   _pk.done(c);
