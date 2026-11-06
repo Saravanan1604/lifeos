@@ -225,6 +225,7 @@ let _homeTab = 'week';
 function setHomeTab(t) { _homeTab = t; const el = document.getElementById('hx-analytics'); if (el) { el.outerHTML = _homeAnalyticsHtml(_homeFacts()); _homeAfterRender(); } }
 function _homeBarTap(el) {
   const box = el.closest('.hx-chart'); if (!box) return;
+  if (navigator.vibrate) { try { navigator.vibrate(8); } catch (_) {} }
   box.querySelectorAll('.on').forEach(x => x.classList.remove('on'));
   el.classList.add('on');
   const cap = box.parentElement.querySelector('.hx-cap'); if (cap) cap.innerHTML = el.dataset.cap;
@@ -237,7 +238,7 @@ function _homeAnalyticsHtml(F) {
     for (let i = 6; i >= 0; i--) { const d = new Date(F.now); d.setDate(d.getDate() - i); const k = _ymdLocal(d); days.push({ k, l: d.toLocaleDateString('en-IN', { weekday: 'short' }).slice(0, 2), v: _H.sum(_H.tx().filter(t => _H.exp(t) && (t.date || '').slice(0, 10) === k)) }); }
     const max = Math.max(1, ...days.map(d => d.v)), tot = _H.sum(days.map(d => ({ amount: d.v })));
     cap = `<b>${fmt(Math.round(tot))}</b> spent in the last 7 days · avg ${fmt(Math.round(tot / 7))}/day`;
-    body = `<div class="hx-chart hx-bars">${days.map((d, i) => `<button class="hx-bar ${i === 6 ? 'today' : ''}" onclick="_homeBarTap(this)" data-cap="<b>${fmt(Math.round(d.v))}</b> on ${fmtDate(d.k)}"><i style="height:${Math.max(3, d.v / max * 100)}%"></i><span>${d.l}</span></button>`).join('')}</div>`;
+    body = `<div class="hx-chart hx-bars hx-bub-bars">${days.map((d, i) => `<button class="hx-bar ${i === 6 ? 'today on' : ''}" onclick="_homeBarTap(this)" data-cap="<b>${fmt(Math.round(d.v))}</b> on ${fmtDate(d.k)}"><i style="height:${Math.max(3, d.v / max * 100)}%"><em class="hx-bub">${_H.short(d.v)}</em></i><span>${d.l}</span></button>`).join('')}</div>`;
   } else if (_homeTab === '6m') {
     const ms = [];
     for (let i = 5; i >= 0; i--) { const d = new Date(F.now.getFullYear(), F.now.getMonth() - i, 1); const mt = _H.monthTx(_H.ym(d)); ms.push({ l: d.toLocaleDateString('en-IN', { month: 'short' }), inc: _H.sum(mt.filter(t => t.type === 'income')), exp: _H.sum(mt.filter(_H.exp)) }); }
@@ -247,16 +248,14 @@ function _homeAnalyticsHtml(F) {
     body = `<div class="hx-chart hx-bars hx-pairs">${ms.map(m => `<button class="hx-pair" onclick="_homeBarTap(this)" data-cap="${m.l}: income <b style='color:#10B981'>${fmt(Math.round(m.inc))}</b> · spent <b style='color:#F05260'>${fmt(Math.round(m.exp))}</b>"><div><i class="inc" style="height:${Math.max(2, m.inc / max * 100)}%"></i><i class="exp" style="height:${Math.max(2, m.exp / max * 100)}%"></i></div><span>${m.l}</span></button>`).join('')}</div>
       <div class="hx-legend"><span><i style="background:#10B981"></i>Income</span><span><i style="background:#F05260"></i>Expense</span></div>`;
   } else {
-    const cols = ['#8B5CF6', '#22D3EE', '#10B981', '#FBBF24', '#F05260', '#64748B'];
+    const cols = ['#EC4899', '#8B5CF6', '#22D3EE', '#34D399', '#FBBF24', '#64748B'];
     let ent = Object.entries(F.byCat).sort((a, b) => b[1] - a[1]);
     if (ent.length > 5) { const rest = ent.slice(5).reduce((s, e) => s + e[1], 0); ent = ent.slice(0, 5).concat([['Others', rest]]); }
     const tot = ent.reduce((s, e) => s + e[1], 0);
     if (!tot) body = `<p class="hx-s" style="padding:24px 0;text-align:center">No spending this month yet.</p>`;
     else {
-      const R = 40, C = 2 * Math.PI * R; let acc = 0;
-      const segs = ent.map(([c, v], i) => { const len = v / tot * C; const s = `<circle cx="55" cy="55" r="${R}" fill="none" stroke="${cols[i]}" stroke-width="16" stroke-dasharray="${Math.max(0, len - 1.5).toFixed(2)} ${C.toFixed(2)}" stroke-dashoffset="${(-acc).toFixed(2)}" transform="rotate(-90 55 55)"/>`; acc += len; return s; }).join('');
-      body = `<div class="hx-donut-wrap"><div class="hx-donut"><svg viewBox="0 0 110 110">${segs}</svg><div class="hx-donut-c"><span>Spent</span><b>${_H.short(tot)}</b></div></div>
-        <div class="hx-dleg">${ent.map(([c, v], i) => `<button onclick="${c === 'Others' ? "navigate('spending')" : `openCategoryDetail('${c.replace(/'/g, "\\'")}')`}"><i style="background:${cols[i]}"></i><span>${esc(c)}</span><b>${_H.pct(v, tot)}%</b></button>`).join('')}</div></div>`;
+      body = `<div class="hx-rose-wrap"><div class="hx-rose">${_homeRoseSvg(ent, tot, cols)}<div class="hx-donut-c"><span>${F.now.toLocaleDateString('en-IN', { month: 'long' })}</span><b>${_H.short(tot)}</b></div></div></div>
+        <div class="hx-crows">${ent.map(([c, v], i) => `<button class="hx-crow" style="--c:${cols[i]}" onclick="${c === 'Others' ? "navigate('spending')" : `openCategoryDetail('${c.replace(/'/g, "\\'")}')`}"><span class="hx-crow-ic">${c === 'Others' ? '<i data-lucide="layers"></i>' : (typeof catIconHtml === 'function' ? catIconHtml(c) : '')}</span><span class="hx-crow-m"><b>${esc(c)}</b><em>${_H.pct(v, tot)}%</em></span><b class="hx-crow-v">${fmt(Math.round(v))}</b></button>`).join('')}</div>`;
       cap = `This month by category · tap one to drill in`;
     }
   }
@@ -266,6 +265,40 @@ function _homeAnalyticsHtml(F) {
     ${body}
     <p class="hx-cap">${cap}</p>
   </div>`;
+}
+
+// Variable-radius ("rose") donut: biggest share = thickest, outermost arc,
+// with a soft glow in Night. Pure SVG paths, no chart library.
+function _homeRoseSvg(ent, tot, cols) {
+  const cx = 80, cy = 80, rIn = 44, gap = 2.2;
+  let a0 = -90;
+  const arc = (r1, r2, s, e) => {
+    const p = (r, a) => [cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)];
+    const large = e - s > 180 ? 1 : 0;
+    const [x1, y1] = p(r2, s), [x2, y2] = p(r2, e), [x3, y3] = p(r1, e), [x4, y4] = p(r1, s);
+    return `M${x1.toFixed(2)} ${y1.toFixed(2)} A${r2} ${r2} 0 ${large} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} L${x3.toFixed(2)} ${y3.toFixed(2)} A${r1} ${r1} 0 ${large} 0 ${x4.toFixed(2)} ${y4.toFixed(2)}Z`;
+  };
+  const paths = ent.map(([c, v], i) => {
+    const sweep = Math.max(0.5, v / tot * 360 - (ent.length > 1 ? gap : 0));
+    const rOut = 64 + Math.max(0, 14 - i * 3);            // rank → thickness
+    const d = arc(rIn, rOut, a0, a0 + Math.min(359.9, sweep));
+    a0 += v / tot * 360;
+    return `<path d="${d}" fill="${cols[i]}" class="hx-rose-seg" style="--c:${cols[i]}"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 160 160">${paths}</svg>`;
+}
+
+// Quick actions under the balance (reference: Add · Send · Receive · Pay bill)
+function homeQuickActionsHtml() {
+  const due = typeof _billsDue === 'function' ? _billsDue(7).length : 0;
+  const a = [
+    ['plus', 'Expense', "openTxPad('expense')"],
+    ['arrow-down-left', 'Income', "openTxPad('income')"],
+    ['arrow-left-right', 'Transfer', "typeof openTransferModal==='function'?openTransferModal():navigate('finance')"],
+    ['message-square-text', 'Scan SMS', "typeof openSmsParser==='function'&&openSmsParser()"],
+    ['receipt', 'Bills', "navigate('upcoming')", due],
+  ];
+  return `<div class="hx-qa">${a.map(([ic, l, js, n]) => `<button onclick="${js}"><span><i data-lucide="${ic}"></i>${n ? `<em>${n}</em>` : ''}</span><b>${l}</b></button>`).join('')}</div>`;
 }
 
 // ══════════════════════════════════════════════════════════
