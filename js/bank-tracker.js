@@ -1517,6 +1517,7 @@ function deleteCashHistoryEntry(id, date, idx) {
 let _balImport = { mode: 'bank', targetId: null, results: [] };
 
 function openBalanceImport(mode) {
+  if (window.loadLib) { loadLib('xlsx').catch(() => {}); loadLib('pdf').catch(() => {}); }
   const isBank = mode === 'bank';
   const items  = isBank ? (STATE.bankAccounts || []) : (STATE.creditCards || []);
   if (!items.length) {
@@ -1621,7 +1622,7 @@ function _biNormDate(v) {
 }
 
 async function _parseBalanceExcel(file) {
-  if (typeof XLSX === 'undefined') throw new Error('Excel library not loaded yet — wait a moment and retry');
+  await loadLib('xlsx');
   const buf   = await file.arrayBuffer();
   const wb    = XLSX.read(buf, { type: 'array', cellDates: true });
   const sheet = wb.Sheets[wb.SheetNames[0]];
@@ -1666,7 +1667,7 @@ function _extractBalancePairs(aoa) {
 }
 
 async function _parseBalancePdf(file) {
-  if (typeof pdfjsLib === 'undefined') throw new Error('PDF library not loaded yet — wait a moment and retry');
+  await loadLib('pdf');
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   const lines = [];

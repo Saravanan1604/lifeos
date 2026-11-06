@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **712** (6 Nov 2026).*
+*Status as of build **713** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -262,6 +262,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 710 | Full-app sweep (no screenshot needed): **Savings Goals** rebuilt (saved-so-far summary, goal cards with progress ring, days-left / auto-sync pills, tidy “Add money saved” row; 2 columns on desktop). **Notes** rebuilt (header, guided empty state, 2-column card grid). Budget/Spending “Total budget progress” box restyled. Audit covered 20 pages + 18 popups in Night and Day |
 | 711 | **One money engine** (`js/money.js`): `Money.amt / isIncome / isSpend / totals / monthTotals / byCategory`; 30 hand-rolled sums across 9 files now go through it (text amounts can no longer concatenate, entries without a type count as spending everywhere, budget spend ignores income). Verified Home = Report = Analytics for the same month. **Data check**: `Money.mismatches()` finds entries whose type disagrees with their category (e.g. Interest saved as expense) → Home card + Settings → “Check my entries” to fix or keep per category. Same-name category rules and the notes rule can no longer put an income category on a spend (or the reverse) |
 | 712 | **Day readability pass** — WCAG audit on 20 pages in Day: secondary `#4F5D72`, captions `#5E6A7E`, green `#047857`, red `#C12F3C`, amber `#A1490A`, cyan `#0E7490` (all ≥4.5:1 on white and chips); old dark-theme inline colours remapped in Day; selected Budget/Spending/Income tab was white-on-white (now purple); “+ Budget” readable; purple balance cards use light tints. Result: 0 low-contrast texts on all 20 pages in Day and in Night |
+| 713 | **Faster start**: PDF.js (~300 KB) and SheetJS (~900 KB) no longer load on every launch — `window.loadLib('pdf'|'xlsx')` in the `index.html` head loads them on demand (prefetched when an import screen opens; imports wait for them). Lucide icons pinned to 1.70.0 (was `@latest`, which could change without warning). Measured: no import libraries at start; Excel/PDF import still work |
 
 ### Testing locally
 

@@ -8260,6 +8260,7 @@ function saveCCUpdate(cardId) {
 let _csvResults = [];
 
 function openCsvImport() {
+  if (window.loadLib) loadLib('xlsx').catch(() => {});
   _csvResults = [];
   openModal('📊 Import CSV / Excel', `
     <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
@@ -8299,12 +8300,12 @@ function handleCsvFileSelect(input) {
     /spreadsheet|ms-excel/.test(file.type || '');
   const reader = new FileReader();
 
-  reader.onload = e => {
+  reader.onload = async e => {
     try {
       if (isExcel) {
         if (typeof XLSX === 'undefined') {
-          _showImportStatus('csv', 'Excel support is still loading — try again in a moment.', 'warn');
-          return;
+          _showImportStatus('csv', 'Loading Excel reader…', 'warn');
+          try { await loadLib('xlsx'); } catch (err) { _showImportStatus('csv', err.message, 'warn'); return; }
         }
         const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
         // Prefer a sheet named "Transactions", else the first non-empty sheet
@@ -8962,6 +8963,7 @@ function saveAllStmtTx() {
 let _pdfResults = [];
 
 function openPdfImport() {
+  if (window.loadLib) loadLib('pdf').catch(() => {});
   _pdfResults = [];
   openModal('📑 Import PDF Statement', `
     <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
@@ -9002,8 +9004,8 @@ async function handlePdfFileSelect(input) {
   if (!file) return;
 
   if (typeof pdfjsLib === 'undefined') {
-    _showImportStatus('pdf', 'PDF library not loaded yet — please wait a moment and try again.', 'warn');
-    return;
+    _showImportStatus('pdf', 'Loading PDF reader…', 'warn');
+    try { await loadLib('pdf'); } catch (err) { _showImportStatus('pdf', err.message, 'warn'); return; }
   }
 
   // Show progress
