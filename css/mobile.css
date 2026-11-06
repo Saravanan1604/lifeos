@@ -19613,3 +19613,4 @@ html.is-app body:not(#_cx):not(#_cy) #page-container[data-page="investments"] .d
 html.is-app body:not(#_cx):not(#_cy) .ia-prog { height: 5px; border-radius: 3px; background: var(--cx-chip); margin-top: 5px; overflow: hidden; max-width: 220px; }
 html.is-app body:not(#_cx):not(#_cy) .ia-prog i { display: block; height: 100%; background: var(--cx-inc); border-radius: 3px; }
 html.is-app body:not(#_cx):not(#_cy) .ia-prog-l { font-size: 11px; color: var(--cx-ink2); margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .fin-upd { font-size: 0.95rem; color: rgba(255,255,255,0.55); margin-top: -0.3rem; }

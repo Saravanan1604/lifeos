@@ -2898,7 +2898,8 @@ function acctSection(type) {
                 </div>
               </div>
               <div class="fin-bal-tap" onclick="event.stopPropagation();openQuickBalanceModal('${b.id}')" title="Tap to update balance" style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(b.balance)}</div>
-              <div style="font-size:1.05rem;color:rgba(255,255,255,0.6);letter-spacing:0.3px">${b.type||'Savings'}${b.lastFour ? ` •••• ${b.lastFour}` : ''}</div>
+              <div style="font-size:1.05rem;color:rgba(255,255,255,0.6);letter-spacing:0.3px">${b.type||'Savings'}${b.lastFour ? ` •••• ${b.lastFour}` : ''}${b.inactive ? ' · inactive' : ''}</div>
+              ${typeof _bankUpdatedLabel === 'function' ? `<div class="fin-upd">${_bankUpdatedLabel(b.id)}</div>` : ''}
             </div>`;
           } else {
             return `
@@ -4370,7 +4371,11 @@ function saveCashAccount(editIndex) {
 function deleteCashAccount(i) {
   const ca = (STATE.cashAccounts || [])[i];
   if (!ca) return;
-  if (!confirm(`Delete "${ca.name}" cash wallet?`)) return;
+  _confirmDanger('Delete wallet', `Delete the <b>${esc(ca.name)}</b> cash wallet (${fmt(ca.balance || 0)})?`, 'Delete wallet', `_doDeleteCashAccount(${i})`);
+}
+function _doDeleteCashAccount(i) {
+  const ca = (STATE.cashAccounts || [])[i];
+  if (!ca) return;
   STATE.cashAccounts = (STATE.cashAccounts || []).filter((_, idx) => idx !== i);
   saveState();
   toast('Cash wallet removed', 'info');
@@ -4599,7 +4604,30 @@ function saveBankAccount(editIndex) {
   renderFinance();
 }
 
+// In-app confirmation for destructive actions (browser confirm() is
+// unreliable inside the Android wrapper).
+function _bankUpdatedLabel(id) {
+  const h = (STATE.bankBalanceHistory || []).filter(x => x.accountId === id)
+    .sort((a, b) => ((b.createdAt || b.date || '') + '').localeCompare((a.createdAt || a.date || '') + ''))[0];
+  if (!h) return 'No balance logged yet';
+  const t = new Date(h.createdAt || (h.date + 'T12:00:00'));
+  const days = Math.floor((Date.now() - t) / 864e5);
+  return 'Updated ' + (days <= 0 ? 'today' : days === 1 ? 'yesterday' : days < 30 ? days + ' days ago' : fmtDate(h.date || t));
+}
+function _confirmDanger(title, msg, btn, js) {
+  openModal('🗑️ ' + title, `
+    <p style="font-size:15px;line-height:1.5;margin:4px 0 18px;color:var(--cx-ink, inherit)">${msg}</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" style="background:#DC4653 !important" onclick="closeModal();${js}">${btn}</button>
+    </div>`);
+}
 function deleteBankAccount(i) {
+  const b = (STATE.bankAccounts || [])[i]; if (!b) return;
+  const logs = (STATE.bankBalanceHistory || []).filter(h => h.accountId === b.id).length;
+  _confirmDanger('Delete account', `Delete <b>${esc(b.bankName)}</b> (${fmt(b.balance || 0)})?${logs ? ` Its ${logs} balance log entr${logs > 1 ? 'ies stay' : 'y stays'} in history.` : ''} Tip: use <b>Mark as inactive</b> instead if the account is just unused.`, 'Delete account', `_doDeleteBankAccount(${i})`);
+}
+function _doDeleteBankAccount(i) {
   STATE.bankAccounts = (STATE.bankAccounts||[]).filter((_,idx)=>idx!==i);
   saveState();
   toast('Bank account removed', 'info');
@@ -7995,6 +8023,10 @@ function saveCreditCard(editIndex) {
 }
 
 function deleteCreditCard(i) {
+  const c = (STATE.creditCards || [])[i]; if (!c) return;
+  _confirmDanger('Delete card', `Delete <b>${esc(c.name || c.bankName || 'this card')}</b>${c.outstanding ? ` (outstanding ${fmt(c.outstanding)})` : ''}?`, 'Delete card', `_doDeleteCreditCard(${i})`);
+}
+function _doDeleteCreditCard(i) {
   STATE.creditCards = (STATE.creditCards||[]).filter((_,idx)=>idx!==i);
   saveState(); toast('Card removed', 'info'); renderFinance();
 }
