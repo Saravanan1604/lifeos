@@ -44,62 +44,6 @@ function catIcon(name)  {
 }
 function catColor(name) { return CAT_COLORS[name] || '#6366f1'; }
 
-// Drawing segmented donut ring on canvas with rounded cap segments & gap spacing
-function _drawSegmentedRing(canvas, items, colors) {
-  if (!canvas) return [];
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-  
-  const cx = rect.width / 2;
-  const cy = rect.height / 2;
-  const RING_W = 56;                  // bold clean band (category icons removed)
-  const radius = rect.width / 2 - (RING_W / 2 + 6); // small margin, nothing outside the band
-  
-  ctx.clearRect(0, 0, rect.width, rect.height);
-  
-  const totalVal = items.reduce((s, r) => s + r.value, 0);
-  const N = items.length;
-  
-  if (totalVal === 0 || N === 0) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-    const isLight = document.body.classList.contains('light');
-    ctx.lineWidth = RING_W;
-    ctx.strokeStyle = isLight ? 'rgba(18, 20, 32, 0.06)' : 'rgba(255, 255, 255, 0.08)';
-    ctx.stroke();
-    return [];
-  }
-  
-  const gapRad = (6 * Math.PI) / 180; // 6 degree gaps
-  const totalGapsRad = N * gapRad;
-  const availableRad = (2 * Math.PI) - totalGapsRad;
-  
-  let currentAngle = -Math.PI / 2;
-
-  // Category icons removed from the ring — just draw the coloured arcs.
-  items.forEach((item, idx) => {
-    const share = item.value / totalVal;
-    const sweep = share * availableRad;
-    const startAngle = currentAngle;
-    const endAngle = currentAngle + sweep;
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, startAngle, endAngle);
-    ctx.lineWidth = RING_W;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = colors[idx % colors.length];
-    ctx.stroke();
-
-    currentAngle = endAngle + gapRad;
-  });
-
-  return [];
-}
 
 // ===== Lucide line-icon mapping (display only — stored data stays as emoji) =====
 // Maps a category NAME to a Lucide icon. Falls back to an emoji→icon table,
@@ -264,11 +208,6 @@ function _recPeriodEndYmd() {
 function recToggleTotal() {
   STATE.settings = STATE.settings || {};
   STATE.settings.showTotal = STATE.settings.showTotal === false ? true : false;
-  saveState(); renderRecordsMyMoney();
-}
-function recToggleCarry() {
-  STATE.settings = STATE.settings || {};
-  STATE.settings.carryForward = !STATE.settings.carryForward;
   saveState(); renderRecordsMyMoney();
 }
 function recCarrySettings() {
@@ -661,11 +600,6 @@ function recToggleSel(id) {
 function recSelectAll() {
   document.querySelectorAll('.mm-row[data-id]').forEach(r => { _recSel.add(r.dataset.id); r.classList.add('sel'); const c = r.querySelector('.mm-check'); if (c) { c.classList.add('on'); c.textContent = '✓'; } });
   const cnt = document.querySelector('.mm-selcount'); if (cnt) cnt.textContent = `${_recSel.size} selected`;
-}
-function recEnterSelect(id) {
-  _recSelectMode = true; _recSel = new Set([id]);
-  if (navigator.vibrate) try { navigator.vibrate(25); } catch (e) {}
-  renderRecordsMyMoney();
 }
 // ── Category detail page: tap a row's category icon to drill in ──
 // Shows a 7-month spending bar chart for that category (current month
@@ -2091,90 +2025,7 @@ function recPickDate(v) {
   renderRecordsMyMoney();
 }
 
-// Budget & category-spend sheet — opened by the ring icon in the month bar.
-// Budgets compare against the anchor month; category spend mirrors the
-// period currently shown in the records list.
-function openRecBudgetSheet() {
-  const anchor = (_recAnchor instanceof Date && !isNaN(_recAnchor)) ? _recAnchor : new Date();
-  const anchorYmd = _ymdLocal(anchor);
-  const txAll = STATE.transactions || [];
 
-  // Spend by category for the CURRENT view period
-  const periodTx = filterTxByAnchor([...txAll], _recPeriod, anchorYmd).filter(t => t.type !== 'income');
-  const byCat = {};
-  periodTx.forEach(t => { const c = t.category || 'Other'; byCat[c] = (byCat[c] || 0) + (+t.amount || 0); });
-  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
-  const totalSpend = cats.reduce((s, c) => s + c[1], 0);
-
-  // Budgets vs the anchor month's spend (budgets are monthly-style limits)
-  const monthTx = filterTxByAnchor([...txAll], 'month', anchorYmd).filter(t => t.type !== 'income');
-  const mByCat = {};
-  monthTx.forEach(t => { const c = t.category || 'Other'; mByCat[c] = (mByCat[c] || 0) + (+t.amount || 0); });
-  const monthFactor = { day: 30.44, week: 4.345, month: 1, year: 1 / 12 };
-  const budgets = (STATE.budgets || []).map(b => ({
-    cat: b.category,
-    limit: Math.round((+b.amount || 0) * (monthFactor[b.period || 'month'] || 1)),
-    spent: Math.round(mByCat[b.category] || 0)
-  })).sort((a, b) => (b.limit ? b.spent / b.limit : 0) - (a.limit ? a.spent / a.limit : 0));
-  const totLimit = budgets.reduce((s, b) => s + b.limit, 0);
-  const totSpent = budgets.reduce((s, b) => s + b.spent, 0);
-  const monthLbl = anchor.toLocaleString('default', { month: 'long', year: 'numeric' });
-
-  const bar = (pct, color) => `<div style="height:8px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden;margin-top:6px"><div style="height:100%;width:${Math.min(100, Math.max(0, pct))}%;border-radius:4px;background:${color}"></div></div>`;
-  const pctColor = p => p >= 100 ? '#ef4444' : p >= 75 ? '#f59e0b' : '#10b981';
-  const totPct = totLimit ? totSpent / totLimit * 100 : 0;
-
-  const budgetHtml = budgets.length ? `
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
-      <span style="font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)">Budget · ${monthLbl}</span>
-      <span style="font-size:13px;font-weight:700;color:${pctColor(totPct)}">${fmt(totSpent)} <span style="color:var(--text3);font-weight:500">/ ${fmt(totLimit)}</span></span>
-    </div>
-    ${bar(totPct, pctColor(totPct))}
-    <div style="display:flex;flex-direction:column;gap:12px;margin:16px 0 22px">
-      ${budgets.map(b => { const p = b.limit ? b.spent / b.limit * 100 : 0; return `
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:14px;gap:8px">
-            <span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.cat)}</span>
-            <span style="color:${pctColor(p)};font-weight:700;white-space:nowrap">${fmt(b.spent)} <span style="color:var(--text3);font-weight:500">/ ${fmt(b.limit)}</span></span>
-          </div>
-          ${bar(p, pctColor(p))}
-        </div>`; }).join('')}
-    </div>` : `<p style="color:var(--text3);font-size:14px;margin-bottom:18px">No budgets set yet — create them in the Budget page.</p>`;
-
-  const catHtml = cats.length ? cats.map(([c, v]) => { const p = totalSpend ? v / totalSpend * 100 : 0; return `
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="width:34px;height:34px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:${catColor(c)};color:#fff">${catIconHtml(c)}</span>
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;justify-content:space-between;font-size:14px;gap:8px"><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c)}</span><span style="font-weight:700;white-space:nowrap">${fmt(v)}</span></div>
-          ${bar(p, catColor(c))}
-        </div>
-        <span style="font-size:12px;color:var(--text3);width:40px;text-align:right;flex-shrink:0">${p.toFixed(0)}%</span>
-      </div>`; }).join('')
-    : `<p style="color:var(--text3);font-size:14px">No spending in this period.</p>`;
-
-  openModal('◔ Budget & Spending', `
-    ${budgetHtml}
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-      <span style="font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)">Category spend · ${_recPeriodLabel()}</span>
-      <span style="font-size:13px;font-weight:700">${fmt(totalSpend)}</span>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px;max-height:45vh;overflow-y:auto;padding-right:4px">${catHtml}</div>
-  `);
-  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
-}
-
-// (10) Account balance chips
-function _recAccountChips() {
-  const bank = (STATE.bankAccounts || []).reduce((s, b) => s + (b.balance || 0), 0);
-  const cash = (STATE.cashAccounts || []).reduce((s, c) => s + (c.balance || 0), 0);
-  const card = (STATE.creditCards || []).reduce((s, c) => s + (c.outstanding || 0), 0);
-  if (!(STATE.bankAccounts || []).length && !(STATE.cashAccounts || []).length && !(STATE.creditCards || []).length) return '';
-  return `<div class="mm-acct-chips">
-    <div class="mm-acct" onclick="navigate('bank-tracker')"><span>🏦 Bank</span><b>${fmt(bank)}</b></div>
-    <div class="mm-acct" onclick="navigate('bank-tracker')"><span>💵 Cash</span><b>${fmt(cash)}</b></div>
-    <div class="mm-acct" onclick="navigate('bank-tracker')"><span>💳 Card</span><b style="color:#ef4444">${fmt(card)}</b></div>
-  </div>`;
-}
 
 // (9) Recurring reminders due soon
 function _recReminders() {
@@ -2188,75 +2039,8 @@ function _recReminders() {
   </div>`;
 }
 
-// (11) Auto insights (month view)
-function _recInsights() {
-  if (_recPeriod !== 'month') return '';
-  const a = _recAnchor;
-  const ymThis = `${a.getFullYear()}-${String(a.getMonth() + 1).padStart(2, '0')}`;
-  const prev = new Date(a.getFullYear(), a.getMonth() - 1, 1);
-  const ymPrev = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
-  const txns = STATE.transactions || [];
-  const expThis = txns.filter(t => t.type !== 'income' && (t.date || '').startsWith(ymThis));
-  const expPrev = txns.filter(t => t.type !== 'income' && (t.date || '').startsWith(ymPrev)).reduce((s, t) => s + (+t.amount || 0), 0);
-  const sumThis = expThis.reduce((s, t) => s + (+t.amount || 0), 0);
-  if (!expThis.length) return '';
-  // top category
-  const byCat = {}; expThis.forEach(t => byCat[t.category] = (byCat[t.category] || 0) + (+t.amount || 0));
-  const top = Object.entries(byCat).sort((x, y) => y[1] - x[1])[0];
-  let trend = '';
-  if (expPrev > 0) {
-    const pct = Math.round(((sumThis - expPrev) / expPrev) * 100);
-    trend = pct === 0 ? 'same spend as last month'
-      : `${Math.abs(pct)}% ${pct > 0 ? 'more' : 'less'} than last month`;
-  }
-  return `<div class="mm-insight">
-    <span class="mm-insight-ic">💡</span>
-    <span>Top: <b>${catIcon(top[0])} ${esc(top[0])}</b> (${fmt(top[1])})${trend ? ' · ' + trend : ''}</span>
-  </div>`;
-}
 
-// (8) Budget progress bars
-function _recBudgetBars() {
-  const budgets = STATE.budgets || []; if (!budgets.length) return '';
-  const txns = filterTxByAnchor([...(STATE.transactions || [])], _recPeriod, _ymdLocal(_recAnchor)).filter(t => t.type === 'expense');
-  const rows = budgets.map(b => {
-    const limit = getBudgetLimit(b, _recPeriod === 'all' ? 'year' : _recPeriod) || 1;
-    const spent = txns.filter(t => Money.isSpend(t) && (t.category || '').trim().toLowerCase() === (b.category || '').trim().toLowerCase()).reduce((s, t) => s + Money.amt(t), 0);
-    if (spent <= 0) return '';
-    const pct = Math.min(100, Math.round((spent / limit) * 100));
-    const col = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f59e0b' : '#10b981';
-    return `<div class="mm-bud">
-      <div class="mm-bud-top"><span>${catIcon(b.category)} ${esc(b.category)}</span><span>${fmt(spent)} / ${fmt(limit)}</span></div>
-      <div class="mm-bud-bar"><div style="width:${pct}%;background:${col}"></div></div>
-    </div>`;
-  }).filter(Boolean).join('');
-  if (!rows) return '';
-  return `<details class="mm-budgets"><summary>📊 Budgets this ${_recPeriod === 'all' ? 'year' : _recPeriod}</summary>${rows}</details>`;
-}
 
-// (14) Calendar heatmap (month view)
-function _recHeatmap() {
-  if (_recPeriod !== 'month') return '';
-  const a = _recAnchor, y = a.getFullYear(), m = a.getMonth();
-  const ym = `${y}-${String(m + 1).padStart(2, '0')}`;
-  const daysIn = new Date(y, m + 1, 0).getDate();
-  const firstDow = (new Date(y, m, 1).getDay() + 6) % 7; // Mon=0
-  const perDay = {};
-  (STATE.transactions || []).filter(t => t.type !== 'income' && (t.date || '').startsWith(ym))
-    .forEach(t => { const d = +(t.date || '').slice(8, 10); perDay[d] = (perDay[d] || 0) + (+t.amount || 0); });
-  const max = Math.max(1, ...Object.values(perDay));
-  let cells = '';
-  for (let i = 0; i < firstDow; i++) cells += `<span class="mm-hm-cell empty"></span>`;
-  for (let d = 1; d <= daysIn; d++) {
-    const v = perDay[d] || 0;
-    const inten = v ? (0.18 + 0.82 * (v / max)) : 0;
-    const bg = v ? `rgba(239,68,68,${inten.toFixed(2)})` : 'var(--glass)';
-    const ymd = `${ym}-${String(d).padStart(2, '0')}`;
-    cells += `<span class="mm-hm-cell" style="background:${bg}" onclick="recPickDay('${ymd}')">${d}</span>`;
-  }
-  return `<details class="mm-heat"><summary>📅 Spending heatmap</summary>
-    <div class="mm-hm-grid">${['M','T','W','T','F','S','S'].map(w => `<span class="mm-hm-dow">${w}</span>`).join('')}${cells}</div></details>`;
-}
 
 // (6) Quick-add presets — most-used amount+category+source combos
 function _txPresets() {
@@ -2406,12 +2190,6 @@ function openTxPad(type, editId) {
   renderTxPad();
 }
 function padClose() { const el = document.getElementById('txpad'); if (el) el.remove(); document.documentElement.classList.remove('txpad-open'); _pad = null; }
-// Toggle between the number keypad (amount) and the device keyboard (notes)
-function padNotesMode(on) {
-  const el = document.getElementById('txpad'); if (!el) return;
-  if (on) el.classList.add('typing');
-  else { el.classList.remove('typing'); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }
-}
 function padSetType(t) {
   _pad.type = t;
   const cats = getAllCategories().filter(c => c.type === t || c.type === 'both');
@@ -2454,19 +2232,6 @@ function _padUpdateDisplay() {
   const d = document.getElementById('pad-amount'); if (d) d.textContent = _pad.expr || '0';
   const r = document.getElementById('pad-result');
   if (r) { const v = _padEval(_pad.expr); r.textContent = (_pad.expr && !isNaN(v)) ? '= ' + _padFmtNum(v) : ''; }
-}
-function padKey(k) {
-  const ops = '+-×÷%';
-  if (k === 'C') _pad.expr = '';
-  else if (k === 'back') _pad.expr = _pad.expr.slice(0, -1);
-  else if (k === '=') { const r = _padEval(_pad.expr); if (!isNaN(r)) _pad.expr = String(+(+r).toFixed(2)); }
-  else {
-    const last = _pad.expr.slice(-1);
-    if (ops.includes(k)) { if (!_pad.expr && k !== '-') return; if (ops.includes(last)) _pad.expr = _pad.expr.slice(0, -1); }
-    if (_pad.expr.replace(/[^0-9]/g, '').length >= 14) return;
-    _pad.expr += k;
-  }
-  _padUpdateDisplay();
 }
 function padPickAccount() {
   const list = [{ v: '', l: '🚫 No account' }];
@@ -2685,14 +2450,6 @@ function padPickRepeat() {
     : [['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'], ['yearly', 'Yearly']]);
   openModal('🔁 Repeat', `<div class="pad-pick">${opts.map(([v, l]) =>
     `<button onclick="_pad.repeat='${v}';closeModal();renderTxPad()">${_pad.repeat === v ? '✓ ' : ''}${l}</button>`).join('')}</div>`);
-}
-function padParen() {
-  const open = (_pad.expr.match(/\(/g) || []).length, close = (_pad.expr.match(/\)/g) || []).length;
-  const last = _pad.expr.slice(-1);
-  if (!_pad.expr || '+-×÷('.includes(last)) _pad.expr += '(';
-  else if (open > close) _pad.expr += ')';
-  else _pad.expr += '×(';
-  _padUpdateDisplay();
 }
 function padSetDate(v) { if (v) _pad.date = v; renderTxPad(); }
 function padSetTime(v) { if (v) _pad.time = v; renderTxPad(); }
@@ -3312,26 +3069,8 @@ function toggleBankInactive(i) {
   if (typeof navigate === 'function') navigate(currentPage, true);
 }
 
-// Back-compat aliases (in case any older handler still references these).
-function openCardQuickMenu(type, id) {
-  const list = type === 'bank' ? STATE.bankAccounts : type === 'card' ? STATE.creditCards : STATE.cashAccounts;
-  openAccountMenu(type, (list || []).findIndex(a => a.id === id));
-}
-function openAccountOptions(type, i) { openAccountMenu(type, i); }
 
 let _finView = 'overview'; // 'overview' (cards/charts/tx) | 'history' (bank-tracker trends)
-// Inject the Overview / History toggle at the top of the merged Finance page
-function _injectFinTabs() {
-  const pc = document.getElementById('page-container'); if (!pc) return;
-  if (pc.querySelector('.fin-viewtabs')) return;
-  const bar = document.createElement('div');
-  bar.className = 'fin-viewtabs';
-  bar.innerHTML =
-    `<button class="${_finView === 'overview' ? 'on' : ''}" onclick="_finView='overview';navigate('finance',true)"><i data-lucide="wallet"></i> Overview</button>
-     <button class="${_finView === 'history' ? 'on' : ''}" onclick="_finView='history';navigate('finance',true)"><i data-lucide="trending-up"></i> History &amp; Trends</button>`;
-  pc.insertBefore(bar, pc.firstChild);
-  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
-}
 
 function renderFinance() {
   if (typeof reconcileCurrentBalances === 'function') reconcileCurrentBalances();
@@ -4844,26 +4583,6 @@ function updateBankBalance(i) {
   openQuickBalanceModal(b.id);
 }
 
-function saveBalanceUpdate(i) {
-  const newBal = parseFloat(document.getElementById('upd-balance')?.value);
-  const note   = document.getElementById('upd-note')?.value.trim() || 'Manual update';
-  const date   = document.getElementById('upd-date')?.value || today();
-  if (isNaN(newBal) || newBal < 0) { toast('Enter a valid balance', 'error'); return; }
-
-  const b = (STATE.bankAccounts||[])[i];
-  if (!b) return;
-  const oldBal = b.balance;
-  b.balance = newBal;
-
-  // Log history
-  STATE.bankBalanceHistory = STATE.bankBalanceHistory || [];
-  STATE.bankBalanceHistory.push({ accountId: b.id, balance: newBal, prevBalance: oldBal, date, note, createdAt: new Date().toISOString() });
-
-  saveState();
-  closeModal();
-  toast(`${b.bankName} balance updated to ${fmt(newBal)} ✅`, 'success');
-  renderFinance();
-}
 
 // ===== SMS PARSER (multi-SMS) =====
 
@@ -5956,25 +5675,6 @@ function renderInvestments() {
   }, 40);
 }
 
-// ── Move helpers ────────────────────────────────────────────────────────────
-function moveInv(id, dir) {
-  const arr = STATE.investments || [];
-  const i = arr.findIndex(x => x.id === id);
-  const j = dir === 'up' ? i - 1 : i + 1;
-  if (j < 0 || j >= arr.length) return;
-  [arr[i], arr[j]] = [arr[j], arr[i]];
-  STATE.investments = arr;
-  saveState(); renderInvestments();
-}
-function moveLoan(id, dir) {
-  const arr = STATE.loans || [];
-  const i = arr.findIndex(x => x.id === id);
-  const j = dir === 'up' ? i - 1 : i + 1;
-  if (j < 0 || j >= arr.length) return;
-  [arr[i], arr[j]] = [arr[j], arr[i]];
-  STATE.loans = arr;
-  saveState(); renderInvestments();
-}
 
 // ── Smooth drag-and-drop reordering for asset & loan tables ──────────────────
 // Rows reorder live in the DOM while dragging (no full page re-render), so it
@@ -6141,13 +5841,6 @@ function _assetCur(inv) {
     const accrued = _accruedValue(inv.amount, inv.interestRate, inv.interestMode, inv.date);
     return Math.max(0, accrued - (+inv.received || 0));   // still-pending = total accrued − received
   }
-  return inv.currentValue ?? inv.amount ?? 0;
-}
-// Total accrued (principal + interest to now) for a lent asset, before
-// subtracting what's been received — i.e. "from start to now".
-function _assetAccruedTotal(inv) {
-  if (inv && inv.type === 'Money Lent')
-    return _accruedValue(inv.amount, inv.interestRate, inv.interestMode, inv.date);
   return inv.currentValue ?? inv.amount ?? 0;
 }
 // Whole months elapsed between a start date and now.
@@ -6775,81 +6468,6 @@ function _loanBalanceAt(l, months) {
 function _loanBalanceAfterMonths(l, months) { return _loanBalanceAt(l, months); }
 
 let _payoffChartInst = null;
-function openLoanPayoffModal(id) {
-  const loan = (STATE.loans || []).find(l => l.id === id);
-  if (!loan) { toast('Loan not found', 'error'); return; }
-  const annual = _loanAnnualRate(loan);
-  const principal = +loan.principal || +loan.outstanding || 0;
-  const defEmi = _workableEmi(loan, principal, annual);
-  openModal('📉 Payoff Plan', `
-    <p style="font-size:12px;color:var(--text3);margin-bottom:12px">${esc(loan.name)} · ${fmt(principal)} @ ${loan.interestRate || 0}%/${loan.interestPeriod === 'month' ? 'mo' : 'yr'}. Edit any field to see how soon it clears and the interest you save.</p>
-    <div class="input-row">
-      <div class="form-group"><label class="form-label">EMI / month (₹)</label>
-        <input type="number" id="pf-emi" class="form-input" value="${defEmi}" oninput="_renderPayoff('${id}')"/></div>
-      <div class="form-group"><label class="form-label">Extra / month (₹)</label>
-        <input type="number" id="pf-extra" class="form-input" value="0" placeholder="0" oninput="_renderPayoff('${id}')"/></div>
-    </div>
-    <div class="form-group"><label class="form-label">One-time lump sum now (₹)</label>
-      <input type="number" id="pf-lump" class="form-input" value="0" placeholder="0" oninput="_renderPayoff('${id}')"/></div>
-    <div id="pf-summary" style="margin:6px 0 12px"></div>
-    <div style="height:240px;position:relative"><canvas id="pf-chart"></canvas></div>
-    <div class="modal-actions" style="margin-top:14px">
-      <button class="btn-primary" onclick="closeModal()">Done</button>
-    </div>`);
-  setTimeout(() => _renderPayoff(id), 60);
-}
-function _renderPayoff(id) {
-  const loan = (STATE.loans || []).find(l => l.id === id); if (!loan) return;
-  const annual = _loanAnnualRate(loan);
-  const principal = +loan.principal || +loan.outstanding || 0;
-  const emi   = parseFloat(document.getElementById('pf-emi')?.value) || 0;
-  const extra = parseFloat(document.getElementById('pf-extra')?.value) || 0;
-  const lump  = parseFloat(document.getElementById('pf-lump')?.value) || 0;
-  const base = _amortizeSchedule(principal, annual, emi, 0, 0);
-  const plan = _amortizeSchedule(principal, annual, emi, extra, lump);
-  const sumEl = document.getElementById('pf-summary'); if (!sumEl) return;
-  if (plan.neverCloses) {
-    sumEl.innerHTML = `<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;font-size:13px;color:#ef4444">⚠️ This EMI is too low to ever clear the loan — it doesn't cover the monthly interest. Raise the EMI.</div>`;
-    if (_payoffChartInst) { _payoffChartInst.destroy(); _payoffChartInst = null; }
-    return;
-  }
-  const monthsSaved   = base.neverCloses ? 0 : base.months - plan.months;
-  const interestSaved = base.neverCloses ? 0 : base.totalInterest - plan.totalInterest;
-  sumEl.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:12px">
-        <p style="font-size:11px;color:var(--text3);margin:0 0 4px">CLOSES IN</p>
-        <p style="font-size:18px;font-weight:800;margin:0">${_fmtMonths(plan.months)}</p></div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:12px">
-        <p style="font-size:11px;color:var(--text3);margin:0 0 4px">TOTAL INTEREST</p>
-        <p style="font-size:18px;font-weight:800;margin:0;color:#f0a868">${fmt(Math.round(plan.totalInterest))}</p></div>
-    </div>
-    ${(extra > 0 || lump > 0) && monthsSaved > 0 ? `<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:12px;margin-top:10px;font-size:13px;color:#22c55e;font-weight:600">✅ Closes <b>${_fmtMonths(monthsSaved)}</b> sooner · saves <b>${fmt(Math.round(interestSaved))}</b> in interest.</div>` : ''}`;
-  const yearly = _amortYearly(plan.rows, loan.startDate);
-  const labels = yearly.map(y => y.year);
-  const princ  = yearly.map(y => Math.round(y.principal));
-  const intr   = yearly.map(y => Math.round(y.interest));
-  const bal    = yearly.map(y => Math.round(y.endBal));
-  const ctx = document.getElementById('pf-chart'); if (!ctx || typeof Chart === 'undefined') return;
-  if (_payoffChartInst) _payoffChartInst.destroy();
-  const kAmt = v => '₹' + (Math.abs(v) >= 1e5 ? (v / 1e5).toFixed(1) + 'L' : Math.abs(v) >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : v);
-  _payoffChartInst = new Chart(ctx, {
-    type: 'bar',
-    data: { labels, datasets: [
-      { label: 'Principal', data: princ, backgroundColor: '#86c06c', stack: 's', yAxisID: 'y' },
-      { label: 'Interest',  data: intr,  backgroundColor: '#f0a868', stack: 's', yAxisID: 'y' },
-      { type: 'line', label: 'Balance', data: bal, borderColor: '#b45309', backgroundColor: 'rgba(180,83,9,0.18)', tension: .35, pointRadius: 2, yAxisID: 'y1', fill: true }
-    ]},
-    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { labels: { boxWidth: 10, font: { size: 10 }, color: '#94a3b8' } },
-        tooltip: { callbacks: { footer: items => { const i = items[0].dataIndex; const paid = principal > 0 ? Math.round((1 - bal[i] / principal) * 100) : 0; return 'Paid to date: ' + paid + '%'; } } } },
-      scales: {
-        x:  { stacked: true, ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
-        y:  { stacked: true, position: 'left',  ticks: { color: '#94a3b8', font: { size: 9 }, callback: kAmt }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        y1: { position: 'right', ticks: { color: '#b45309', font: { size: 9 }, callback: kAmt }, grid: { display: false } }
-      } }
-  });
-}
 
 let _nwProjChartInst = null;
 function openNetWorthProjModal() {
@@ -7438,16 +7056,6 @@ let _budgetPeriod = 'month';
 let _budgetAnchor = new Date();   // app month-bar anchor (mirrors Records)
 function setBudgetPeriod(p) { _budgetPeriod = p; renderBudget(); }
 
-function budgetNav(delta) {
-  const d = new Date(_budgetAnchor);
-  if (_budgetPeriod === 'day')   d.setDate(d.getDate() + delta);
-  if (_budgetPeriod === 'week')  d.setDate(d.getDate() + 7 * delta);
-  if (_budgetPeriod === 'month') d.setMonth(d.getMonth() + delta);
-  if (_budgetPeriod === 'year')  d.setFullYear(d.getFullYear() + delta);
-  _budgetAnchor = d;
-  renderBudget();
-}
-function budgetToday() { _budgetAnchor = new Date(); renderBudget(); }
 function budgetPickDate(v) {
   if (!v) return;
   const d = new Date(v + 'T00:00:00');
@@ -8742,44 +8350,7 @@ function saveBulkEntries() {
 // ===== SMART STATEMENT PASTE (GPay / PhonePe) =====
 let _stmtResults = [];
 
-function openStatementPaste() {
-  _stmtResults = [];
-  openModal('📄 Paste Statement', `
-    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
-      Copy text from your <strong>GPay</strong> or <strong>PhonePe</strong> transaction history page and paste it below.<br>
-      Works with both app copy-paste and browser page text.
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <label class="form-label">Paste transaction history</label>
-      <textarea id="stmt-raw" class="form-input" rows="6"
-        placeholder="Paste copied text from GPay or PhonePe transaction history..."
-        style="font-size:12px;line-height:1.6;resize:vertical"></textarea>
-    </div>
-    <div id="stmt-status" style="display:none;font-size:12px;font-weight:600;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
-    <div class="modal-actions" style="margin-bottom:14px">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="parseStatement()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🔍 Parse</button>
-    </div>
-    <div id="stmt-results-wrap" style="display:none">
-      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
-      <p style="font-size:11px;font-weight:700;color:#00c9a7;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Detected transactions — edit if needed</p>
-      <div id="stmt-results-list" style="max-height:45vh;overflow-y:auto;padding-right:2px"></div>
-      <div id="stmt-summary" style="margin:12px 0;padding:10px 14px;border-radius:10px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);font-size:13px;font-weight:600"></div>
-      <button class="btn-primary" onclick="saveAllStmtTx()" style="width:100%;background:linear-gradient(135deg,#00c9a7,#0acf83);padding:12px">💾 Save All Transactions</button>
-    </div>`);
-}
 
-function parseStatement() {
-  const raw = document.getElementById('stmt-raw')?.value?.trim();
-  if (!raw) { toast('Paste some text first', 'error'); return; }
-  _stmtResults = _parseStatementText(raw);
-  if (!_stmtResults.length) {
-    _showImportStatus('stmt', 'Could not detect any transactions. Make sure you pasted from GPay or PhonePe transaction history.', 'warn');
-    return;
-  }
-  renderStmtResults();
-  _showImportStatus('stmt', `✅ Found ${_stmtResults.length} transaction${_stmtResults.length > 1 ? 's' : ''}`, 'ok');
-}
 
 function _parseStatementText(text) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
@@ -8884,82 +8455,9 @@ function _parseStatementText(text) {
   });
 }
 
-function renderStmtResults() {
-  const list = document.getElementById('stmt-results-list');
-  const wrap = document.getElementById('stmt-results-wrap');
-  if (!list || !wrap) return;
-  list.innerHTML = _stmtResults.map((r, i) => `
-    <div id="st-card-${i}" style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:10px;position:relative">
-      <button onclick="removeStmtResult(${i})" title="Remove" style="position:absolute;top:8px;right:10px;background:rgba(239,68,68,0.12);border:none;color:#ef4444;border-radius:6px;cursor:pointer;padding:2px 9px;font-size:13px;line-height:1.6">✕</button>
-      <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-bottom:8px;padding-right:36px">
-        <select class="form-input" id="st-type-${i}" onchange="updateStmtSummary()" style="font-size:12px;padding:4px 8px">
-          <option value="expense" ${r.type === 'expense' ? 'selected' : ''}>❤️ Expense</option>
-          <option value="income"  ${r.type === 'income'  ? 'selected' : ''}>💚 Income</option>
-        </select>
-        <input type="number" class="form-input" id="st-amount-${i}" value="${r.amount}" step="0.01" min="0"
-          oninput="updateStmtSummary()" style="font-size:13px;font-weight:700;padding:4px 8px"/>
-        <input type="date" class="form-input" id="st-date-${i}" value="${r.date}" style="font-size:12px;padding:4px 8px"/>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <select class="form-input" id="st-cat-${i}" style="font-size:12px;padding:4px 8px">${_makeSrCatOptions(r.category)}</select>
-        <input type="text" class="form-input" id="st-desc-${i}" value="${(r.description||'').replace(/"/g,'&quot;')}" placeholder="Description" style="font-size:12px;padding:4px 8px"/>
-      </div>
-    </div>`).join('');
-  wrap.style.display = '';
-  updateStmtSummary();
-}
 
-function removeStmtResult(i) {
-  const card = document.getElementById(`st-card-${i}`);
-  if (card) card.style.display = 'none';
-  updateStmtSummary();
-}
 
-function updateStmtSummary() {
-  let totalExpense = 0, totalIncome = 0, count = 0;
-  _stmtResults.forEach((_, i) => {
-    const card = document.getElementById(`st-card-${i}`);
-    if (!card || card.style.display === 'none') return;
-    const type   = document.getElementById(`st-type-${i}`)?.value;
-    const amount = parseFloat(document.getElementById(`st-amount-${i}`)?.value) || 0;
-    if (type === 'expense') totalExpense += amount; else totalIncome += amount;
-    count++;
-  });
-  const el = document.getElementById('stmt-summary');
-  if (!el) return;
-  if (!count) { el.innerHTML = '<span style="color:var(--text3)">No transactions selected</span>'; return; }
-  const parts = [];
-  if (totalExpense > 0) parts.push(`<span style="color:#ef4444">💸 Expense: ${fmt(totalExpense)}</span>`);
-  if (totalIncome  > 0) parts.push(`<span style="color:#10b981">💰 Income: ${fmt(totalIncome)}</span>`);
-  el.innerHTML = `${parts.join(' &nbsp;·&nbsp; ')} &nbsp;·&nbsp; <span style="color:var(--text2)">${count} transaction${count>1?'s':''}</span>`;
-}
 
-function saveAllStmtTx() {
-  const allCats = typeof getAllCategories === 'function' ? getAllCategories() : CATEGORIES;
-  const toSave  = [];
-  _stmtResults.forEach((_, i) => {
-    const card = document.getElementById(`st-card-${i}`);
-    if (!card || card.style.display === 'none') return;
-    const type     = document.getElementById(`st-type-${i}`)?.value;
-    const amount   = parseFloat(document.getElementById(`st-amount-${i}`)?.value);
-    const date     = document.getElementById(`st-date-${i}`)?.value || today();
-    const category = document.getElementById(`st-cat-${i}`)?.value;
-    const desc     = document.getElementById(`st-desc-${i}`)?.value?.trim() || '';
-    if (!amount || amount <= 0) return;
-    const icon = allCats.find(c => c.name === category)?.icon || '💳';
-    toSave.push({ id: genId(), type, amount, date, category, icon, description: desc, createdAt: new Date().toISOString() });
-  });
-  if (!toSave.length) { toast('No valid transactions to save', 'error'); return; }
-  STATE.transactions = STATE.transactions || [];
-  [...toSave].reverse().forEach(tx => STATE.transactions.unshift(tx));
-  saveState();
-  if (typeof addXP === 'function') addXP(10 * toSave.length, `${toSave.length} statement transaction${toSave.length>1?'s':''} imported`);
-  if (typeof autoSyncGoals === 'function') autoSyncGoals();
-  closeModal();
-  if (typeof padClose === 'function') padClose();
-  toast(`${toSave.length} transaction${toSave.length>1?'s':''} imported! 🎉`, 'success');
-  if (window.__IS_APP && typeof navigate === 'function') navigate(currentPage || 'transactions', true); else refreshFinancePage();
-}
 
 // ===== PDF IMPORT =====
 let _pdfResults = [];
@@ -9100,268 +8598,14 @@ async function handlePdfFileSelect(input) {
   }
 }
 
-// ── Scan a GPay / PhonePe screenshot (OCR) → import transactions ──
-// Reuses the PDF-import review UI (same pdf-* element ids + _pdfResults +
-// renderPdfResults + saveAllPdfTx) so the user can edit before saving.
-function openShotImport() {
-  if (typeof padClose === 'function') padClose();
-  openModal('📸 Scan Screenshot', `
-    <div style="padding:10px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);margin-bottom:14px;font-size:12px;color:var(--text2);line-height:1.6">
-      Take a screenshot of your <strong>GPay</strong> or <strong>PhonePe</strong> payment history, then pick it below.
-      The text is read on-device (OCR) and auto-parsed into transactions you can edit before saving.
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <label class="form-label">Select screenshot(s)</label>
-      <input type="file" id="pdf-file-input" accept="image/*" multiple class="form-input"
-        onchange="handleShotFileSelect(this)" style="padding:10px;cursor:pointer"/>
-    </div>
-    <div id="pdf-status" style="display:none;font-size:12px;font-weight:600;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
-    <div id="pdf-progress" style="display:none;margin-bottom:12px">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:6px" id="pdf-progress-label">Reading image…</div>
-      <div style="background:var(--glass-border);border-radius:4px;height:6px;overflow:hidden">
-        <div id="pdf-progress-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6);height:100%;width:0%;transition:width 0.3s"></div>
-      </div>
-    </div>
-    <div class="modal-actions" style="margin-bottom:14px">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-    </div>
-    <div id="pdf-results-wrap" style="display:none">
-      <div style="height:1px;background:var(--glass-border);margin-bottom:14px"></div>
-      <p style="font-size:11px;font-weight:700;color:#00c9a7;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Detected transactions — edit if needed</p>
-      <div id="pdf-results-list" style="max-height:45vh;overflow-y:auto;padding-right:2px"></div>
-      <div id="pdf-summary" style="margin:12px 0;padding:10px 14px;border-radius:10px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);font-size:13px;font-weight:600"></div>
-      <button class="btn-primary" onclick="saveAllPdfTx()" style="width:100%;background:linear-gradient(135deg,#00c9a7,#0acf83);padding:12px">💾 Save All Transactions</button>
-    </div>`);
-}
 
-// Lazy-load Tesseract.js (OCR) from CDN the first time it's needed.
-function _ensureTesseract() {
-  return new Promise((resolve, reject) => {
-    if (window.Tesseract) return resolve(window.Tesseract);
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-    s.onload = () => window.Tesseract ? resolve(window.Tesseract) : reject(new Error('OCR library failed to load.'));
-    s.onerror = () => reject(new Error('Could not load the OCR library — check your internet connection.'));
-    document.head.appendChild(s);
-  });
-}
 
-async function handleShotFileSelect(input) {
-  const files = Array.from(input.files || []);
-  if (!files.length) return;
-  const prog = document.getElementById('pdf-progress');
-  const progBar = document.getElementById('pdf-progress-bar');
-  const progLabel = document.getElementById('pdf-progress-label');
-  if (prog) prog.style.display = '';
-  try {
-    if (progLabel) progLabel.textContent = 'Loading OCR engine…';
-    const T = await _ensureTesseract();
-    let fullText = '';
-    for (let i = 0; i < files.length; i++) {
-      if (progLabel) progLabel.textContent = `Reading image ${i + 1} of ${files.length}…`;
-      const src = await _shotToCanvas(files[i]);     // upscale + (invert dark) for sharper OCR
-      const { data } = await T.recognize(src, 'eng', {
-        // Keep existing spaces between glyphs so a misread ₹ (often read as "2")
-        // stays a separate token from the amount instead of gluing onto it.
-        preserve_interword_spaces: '1',
-        logger: m => { if (m.status === 'recognizing text' && progBar) progBar.style.width = `${Math.round(((i + (m.progress || 0)) / files.length) * 100)}%`; }
-      });
-      fullText += (data && data.text ? data.text : '') + '\n';
-    }
-    if (prog) prog.style.display = 'none';
-    console.log('[Shot Import] OCR text:\n' + fullText);   // logged so misreads can be diagnosed
 
-    _pdfResults = _parseUpiScreenshot(fullText);
-    if (!_pdfResults.length) _pdfResults = _parseUpiStatementPdf(fullText);
 
-    if (!_pdfResults.length) {
-      console.log('[Shot Import] OCR text:\n', (fullText || '').slice(0, 2000));
-      _showImportStatus('pdf', "Couldn't find transactions in this screenshot. Make sure it shows the payment list (Paid to / Received from + amount), or try a clearer crop.", 'warn');
-      return;
-    }
-    renderPdfResults();
-    _showImportStatus('pdf', `✅ Found ${_pdfResults.length} transaction${_pdfResults.length > 1 ? 's' : ''} — review and save.`, 'ok');
-  } catch (e) {
-    if (prog) prog.style.display = 'none';
-    _showImportStatus('pdf', (e && e.message) || 'OCR failed. Please try another screenshot.', 'warn');
-  }
-}
 
-// Convert "13 mins ago" / "1 day ago" / "yesterday" / "today" → YYYY-MM-DD (local).
-function _relAgoToDate(s) {
-  const str = String(s);
-  const d = new Date();
-  const m = str.match(/(\d+)\s*(min|minute|hour|hr|day|week|month|year)/i);
-  if (m) {
-    const n = +m[1], u = m[2].toLowerCase();
-    if (u.startsWith('day')) d.setDate(d.getDate() - n);
-    else if (u.startsWith('week')) d.setDate(d.getDate() - n * 7);
-    else if (u.startsWith('month')) d.setMonth(d.getMonth() - n);
-    else if (u.startsWith('year')) d.setFullYear(d.getFullYear() - n);
-    // minutes / hours → still today
-  } else if (/yesterday/i.test(str)) {
-    d.setDate(d.getDate() - 1);
-  } else if (!/today/i.test(str)) {
-    return null;
-  }
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
 
-// Load an image File into an <img>.
-function _loadImage(file) {
-  return new Promise((res, rej) => {
-    const img = new Image();
-    img.onload = () => res(img);
-    img.onerror = () => rej(new Error('Could not read the image.'));
-    img.src = URL.createObjectURL(file);
-  });
-}
 
-// Pre-process a screenshot for OCR: upscale small images, convert to
-// grayscale, and INVERT dark-mode screenshots (white-on-black → black-on-white)
-// since Tesseract reads dark-text-on-light far more reliably. Returns a canvas,
-// or the original file if anything fails.
-async function _shotToCanvas(file) {
-  try {
-    const img = await _loadImage(file);
-    const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
-    if (!w || !h) return file;
-    const scale = Math.min(3, Math.max(1, 1700 / w));   // upscale narrow screenshots — extra px helps thin glyphs like ₹ read correctly
-    const c = document.createElement('canvas');
-    c.width = Math.round(w * scale);
-    c.height = Math.round(h * scale);
-    const ctx = c.getContext('2d');
-    ctx.drawImage(img, 0, 0, c.width, c.height);
-    try {
-      const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
-      let sum = 0;
-      for (let p = 0; p < d.length; p += 4) sum += 0.299 * d[p] + 0.587 * d[p + 1] + 0.114 * d[p + 2];
-      const avg = sum / (d.length / 4);
-      const invert = avg < 110;                            // dark background
-      for (let p = 0; p < d.length; p += 4) {
-        let g = 0.299 * d[p] + 0.587 * d[p + 1] + 0.114 * d[p + 2];
-        if (invert) g = 255 - g;
-        g = g < 128 ? g * 0.75 : Math.min(255, g * 1.12 + 12);  // light contrast bump
-        d[p] = d[p + 1] = d[p + 2] = g;
-      }
-      ctx.putImageData(id, 0, 0);
-    } catch (_) {}
-    try { URL.revokeObjectURL(img.src); } catch (_) {}
-    return c;
-  } catch (_) { return file; }
-}
 
-// Extract a rupee amount from a line. Prefers a number right after a ₹
-// (or a common ₹-misread symbol like %, ®), otherwise the rightmost FULL
-// number on the line (commas kept intact), skipping times and years.
-// Returns { v, sym }: `sym` is true when a real currency symbol anchored the
-// match (trustworthy). When false, the amount came from a bare-number fallback,
-// which is where the "₹ read as a leading digit" misread sneaks in.
-function _amountFromText(s) {
-  if (!s) return null;
-  let m = String(s).match(/(?:₹|rs\.?|inr|[%®©=¥€])\s*(\d[\d,]*(?:\.\d{1,2})?)/i);
-  if (m) { const v = parseFloat(m[1].replace(/,/g, '')); if (v > 0) return { v, sym: true }; }
-  const re = /\d[\d,]*(?:\.\d{1,2})?/g;   // greedy → captures whole "2,317" not "317"
-  let best = null, tok;
-  while ((tok = re.exec(s))) {
-    const raw = tok[0];
-    const after = s.slice(re.lastIndex, re.lastIndex + 14);
-    if (/^\s*(?:min|minute|hour|hr|day|week|month|year)s?\b/i.test(after)) continue; // a time
-    if (/^(?:19|20)\d{2}$/.test(raw)) continue;                                       // a year
-    const v = parseFloat(raw.replace(/,/g, ''));
-    if (v > 0) best = v;                  // keep the last (right-most) number
-  }
-  return best != null ? { v: best, sym: false } : null;
-}
-
-// Clean a merchant/name line: drop the action phrase, trailing amount, ellipses
-// and the leading junk the payment-list arrow icon adds (e.g. "/", "1", "A ").
-function _cleanMerchant(s) {
-  let m = String(s)
-    .replace(/\b(paid to|sent to|money sent to|money sent|received from|money received from|money received|paid by)\b/ig, ' ')
-    .replace(/[.…]{2,}/g, ' ')
-    .replace(/\s*(?:₹|rs\.?|inr|[%®©=¥€])\s*[\d,]+(?:\.\d{1,2})?\s*$/i, ' ') // trailing ₹amount
-    .replace(/\s+[\d,]+(?:\.\d{1,2})?\s*$/, '')                              // trailing bare number
-    .replace(/^[^A-Za-z]+/, '')                                             // leading non-letters
-    .replace(/^[A-Za-z]\s+(?=[A-Za-z])/, '')                                // leading stray single letter
-    .replace(/\s+/g, ' ')
-    .trim();
-  return m;
-}
-
-// Parse the OCR text of a GPay / PhonePe history screen into transactions.
-// Layout per row (order/words vary with OCR): an action ("Paid to" / "Received
-// from"), the MERCHANT, a "13 mins ago / 1 day ago" time, the ₹amount, and a
-// "Debited from / Credited to" line.
-function _parseUpiScreenshot(text) {
-  const lines = String(text).split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
-  const actionRe = /\b(paid to|sent to|money sent to|money sent|received from|money received from|money received|paid by)\b/i;
-  const dropRe = /^(search|history|alerts|home|notifications|payments?)$/i;
-  const timeRe = /\b\d+\s*(?:min|minute|hour|hr|day|week|month|year)s?\s*ago\b|\byesterday\b|\btoday\b/i;
-  const dirRe = /\b(debited from|credited to|debited|credited|paid by|transaction id|utr)\b/i;
-  const hasName = s => /[A-Za-z]{2,}/.test(s);
-
-  const idxs = [];
-  for (let i = 0; i < lines.length; i++) if (actionRe.test(lines[i])) idxs.push(i);
-  const results = [];
-
-  for (let k = 0; k < idxs.length; k++) {
-    const i = idxs[k];
-    const end = (k + 1 < idxs.length) ? Math.min(idxs[k + 1], i + 7) : Math.min(lines.length, i + 6);
-    const block = lines.slice(i, end);
-    const blockText = block.join(' ');
-
-    let type = /\b(received|credited)\b/i.test(blockText) ? 'income' : 'expense';
-    if (/\bdebited\b/i.test(blockText)) type = 'expense';
-
-    // Date from a relative-time line, else today
-    let date = today();
-    for (const L of block) { const d = _relAgoToDate(L); if (d) { date = d; break; } }
-
-    // Merchant/name line: trailing text on the action line, else the first
-    // following line that has a real name and isn't a time/direction line.
-    const tail = block[0].replace(actionRe, '').replace(/^[\s:·.\-]+/, '').trim();
-    let nameLine = hasName(tail) ? tail : '';
-    if (!nameLine) {
-      for (let j = 1; j < block.length; j++) {
-        const L = block[j];
-        if (dropRe.test(L) || timeRe.test(L) || dirRe.test(L)) continue;
-        if (hasName(L)) { nameLine = L; break; }
-      }
-    }
-
-    // Amount: from the name line first, then any non-time block line
-    let a = _amountFromText(nameLine);
-    if (!a) {
-      for (const L of block) { if (timeRe.test(L)) continue; const v = _amountFromText(L); if (v) { a = v; break; } }
-    }
-    if (!a || a.v <= 0) continue;
-    const amount = a.v;
-
-    // ₹-misread guard: when no real ₹ anchored the amount and the number starts
-    // with a 2 or 3 (the digits Tesseract turns the ₹ glyph into), the leading
-    // digit is very likely the misread rupee sign. Flag it (non-destructively)
-    // with a suggested fix the user can apply with one tap in the review list.
-    let suspect = false, altAmount = null;
-    if (!a.sym) {
-      const intStr = String(Math.trunc(amount));
-      if (intStr.length > 1 && /^[23]/.test(intStr)) {
-        const alt = parseInt(intStr.slice(1), 10);
-        if (alt > 0) { suspect = true; altAmount = alt; }
-      }
-    }
-
-    let merchant = _cleanMerchant(nameLine);
-    if (!merchant || merchant.length < 2) merchant = type === 'income' ? 'Received' : 'Paid';
-
-    const lo = merchant.toLowerCase();
-    const category = (typeof smsCategoryGuess === 'function') ? smsCategoryGuess(lo, lo, type) : (type === 'income' ? 'Other Income' : 'Other');
-    results.push({ type, amount, date, description: merchant, category, suspect, altAmount });
-  }
-
-  const seen = new Set();
-  return results.filter(r => { const key = `${r.amount}|${r.date}|${r.description}`; if (seen.has(key)) return false; seen.add(key); return true; });
-}
 
 function _parsePdfAsTable(text) {
   // Many bank statement PDFs have tabular rows like:

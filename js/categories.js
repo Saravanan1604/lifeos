@@ -34,12 +34,6 @@ function getAllCategories() {
   return [...defaults, ...custom];
 }
 
-function getCategoryOptions(filterType = 'both') {
-  return getAllCategories()
-    .filter(c => filterType === 'both' || c.type === filterType || c.type === 'both')
-    .map(c => `<option value="${c.name}" data-icon="${c.icon}">${c.icon} ${c.name}</option>`)
-    .join('');
-}
 
 // ===== CATEGORIES PAGE =====
 function renderCategories() {
@@ -123,31 +117,6 @@ function renderCategories() {
     </div>`;
 }
 
-// Recurring transactions list (shown on the Categories page)
-function _renderRecurringSection() {
-  const rec = STATE.recurring || [];
-  if (!rec.length) return '';
-  return `
-    <div class="glass-card" style="padding:20px;margin-bottom:20px">
-      <div class="section-header">
-        <p class="section-title">🔁 Recurring Transactions</p>
-        <span style="font-size:12px;color:rgba(241,245,249,0.5)">${rec.length} active</span>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
-        ${rec.map(r => `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px">
-            <div style="display:flex;align-items:center;gap:10px;min-width:0">
-              <span style="font-size:22px">${r.icon || '🔁'}</span>
-              <div style="min-width:0">
-                <p style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description || r.category}</p>
-                <span style="font-size:11px;color:var(--text3)">${r.frequency} · ${r.type === 'income' ? '+' : '-'}${fmt(r.amount)} · next ${fmtDate(r.nextDate)}</span>
-              </div>
-            </div>
-            <button class="btn-icon btn-sm" onclick="deleteRecurring('${r.id}')" style="color:#ef4444;border-color:rgba(239,68,68,0.3);font-size:13px;flex-shrink:0" title="Stop recurring">✕</button>
-          </div>`).join('')}
-      </div>
-    </div>`;
-}
 
 // ===== Recurring frequency options (shared: Recurring page, edit modal,
 // and the + Add "Repeat" picker) =====

@@ -216,30 +216,7 @@ function showCelebration(title, msg) {
   el.addEventListener('click', e => { if (e.target === el) el.remove(); });
 }
 
-// ===== XP CELEBRATION =====
-function showXPPop(amount, x, y) {
-  const el = document.createElement('div');
-  el.textContent = `+${amount} XP`;
-  el.style.cssText = `position:fixed;left:${x}px;top:${y}px;font-size:16px;font-weight:800;color:#fbbf24;pointer-events:none;z-index:9999;animation:xpFloat 1.2s ease-out forwards;text-shadow:0 0 10px rgba(251,191,36,0.8)`;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 1200);
-}
 
-// ===== ANIMATED COUNTER =====
-function animateCounter(el, target, duration = 1200, prefix = '', suffix = '') {
-  if (!el) return;
-  const start = 0;
-  const startTime = performance.now();
-  const update = (time) => {
-    const elapsed = time - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-    const current = Math.round(start + (target - start) * ease);
-    el.textContent = prefix + current.toLocaleString('en-IN') + suffix;
-    if (progress < 1) requestAnimationFrame(update);
-  };
-  requestAnimationFrame(update);
-}
 
 // ===== MOUSE GLOW EFFECT =====
 function initMouseGlow() {
@@ -289,53 +266,3 @@ function applyTimeTheme() {
   }
 }
 
-// ===== SPARKLINE HELPER =====
-function renderSparkline(canvasId, data, color = '#6366f1') {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas || !data || data.length < 2) return;
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width = canvas.offsetWidth;
-  const h = canvas.height = canvas.offsetHeight;
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const step = w / (data.length - 1);
-
-  // Gradient fill
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, color.replace(')', ', 0.3)').replace('rgb', 'rgba'));
-  grad.addColorStop(1, color.replace(')', ', 0)').replace('rgb', 'rgba'));
-
-  ctx.clearRect(0, 0, w, h);
-  ctx.beginPath();
-  data.forEach((v, i) => {
-    const x = i * step;
-    const y = h - ((v - min) / range) * (h - 4) - 2;
-    if (i === 0) ctx.moveTo(x, y);
-    else {
-      const cx = (i - 0.5) * step;
-      ctx.bezierCurveTo(cx, y + 5, cx, y, x, y);
-    }
-  });
-  const lastX = (data.length - 1) * step;
-  const lastY = h - ((data[data.length - 1] - min) / range) * (h - 4) - 2;
-  ctx.lineTo(lastX, h);
-  ctx.lineTo(0, h);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  ctx.beginPath();
-  data.forEach((v, i) => {
-    const x = i * step;
-    const y = h - ((v - min) / range) * (h - 4) - 2;
-    if (i === 0) ctx.moveTo(x, y);
-    else {
-      const cx = (i - 0.5) * step;
-      ctx.bezierCurveTo(cx, y + 5, cx, y, x, y);
-    }
-  });
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}

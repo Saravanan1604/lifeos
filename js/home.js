@@ -161,75 +161,6 @@ function openHealthScore() {
     <p class="hs-note">Calculated on this device from your own transactions, budgets, loans and account balances.</p>`);
 }
 
-// ══════════════════════════════════════════════════════════
-// INSIGHTS
-// ══════════════════════════════════════════════════════════
-function _homeInsights(F) {
-  const out = [];
-  // budget
-  if (F.budget) {
-    const left = F.budget - F.spent;
-    if (left < 0) out.push({ ic: 'alert-triangle', c: '#F05260', t: `You've gone over your monthly budget by <b>${fmt(Math.round(-left))}</b>.` });
-    else out.push({ ic: 'wallet', c: '#10B981', t: `You can spend <b>${fmt(Math.floor(left / F.daysLeft))}/day</b> for the next ${F.daysLeft} day${F.daysLeft > 1 ? 's' : ''} and stay on budget.` });
-  }
-  // category spike vs usual pace (avg of previous 3 months, prorated to today)
-  const hist = {};
-  for (let i = 1; i <= 3; i++) {
-    const d = new Date(F.now.getFullYear(), F.now.getMonth() - i, 1);
-    _H.monthTx(_H.ym(d)).filter(_H.exp).forEach(t => { const c = t.category || 'Other'; hist[c] = (hist[c] || 0) + (+t.amount || 0) / 3; });
-  }
-  const frac = F.day / F.dim;
-  let spike = null;
-  Object.entries(F.byCat).forEach(([c, v]) => {
-    const usual = (hist[c] || 0) * frac;
-    if (usual > 200 && v > usual * 1.3 && v - usual > 500) {
-      const up = Math.round((v / usual - 1) * 100);
-      if (!spike || up > spike.up) spike = { c, up, v };
-    }
-  });
-  if (spike) out.push({ ic: 'trending-up', c: '#FBBF24', t: `<b>${esc(spike.c)}</b> spending is ${spike.up}% above your usual pace (${fmt(Math.round(spike.v))} so far).` });
-  // top category
-  const top = Object.entries(F.byCat).sort((a, b) => b[1] - a[1])[0];
-  if (top && F.spent > 0) out.push({ ic: 'pie-chart', c: '#8B5CF6', t: `Your largest spend this month is <b>${esc(top[0])}</b> — ${fmt(Math.round(top[1]))} (${_H.pct(top[1], F.spent)}%).` });
-  // month-end forecast (estimate)
-  if (F.day >= 3 && F.spent > 0) {
-    const nonRecurringDaily = homeEverydayPace(F);
-    const projSpend = F.spent + nonRecurringDaily * (F.daysLeft - 1) + F.billsLeft;
-    const projNet = F.income + F.incomeLeft - projSpend;
-    out.push({ ic: 'line-chart', c: '#22D3EE', est: true,
-      t: `At this pace you'll spend about <b>${_H.short(projSpend)}</b> this month${F.income + F.incomeLeft > 0 ? ` and ${projNet >= 0 ? 'save' : 'overspend by'} about <b>${_H.short(Math.abs(projNet))}</b>` : ''}.` });
-  }
-  // unusual spend this month
-  if (typeof unusualThisMonth === 'function') {
-    const u = unusualThisMonth()[0];
-    if (u) out.push({ ic: 'scan-eye', c: '#F05260', t: `Unusual: <b>${fmt(u.t.amount)}</b> on ${esc(u.t.category)} is ${u.u.x.toFixed(1)}× your typical ${fmt(Math.round(u.u.typical))}.` });
-  }
-  // untracked subscriptions → potential savings
-  if (typeof detectSubscriptions === 'function') {
-    const subs = detectSubscriptions();
-    if (subs.length) out.push({ ic: 'repeat', c: '#22D3EE', t: `Found <b>${subs.length}</b> repeating payment${subs.length > 1 ? 's' : ''} (~${fmt(Math.round(subs.reduce((s, x) => s + x.monthly, 0)))}/mo) you aren't tracking. <a onclick="navigate('smart')" class="hx-inl">Review</a>` });
-  }
-  // bills
-  if (F.billsLeft > 0) out.push({ ic: 'calendar-clock', c: '#8B5CF6', t: `<b>${fmt(Math.round(F.billsLeft))}</b> in recurring bills/EMIs still due before month end.` });
-  return out.slice(0, 5);
-}
-function _homeInsightsHtml(F) {
-  const ins = _homeInsights(F), h = _homeHealth(F);
-  const R = 20, C = 2 * Math.PI * R;
-  return `<div class="hx-card hx-ai">
-    <div class="hx-ai-head">
-      <span class="hx-ai-badge"><i data-lucide="sparkles"></i></span>
-      <p class="hx-t">Your money, explained</p>
-      <button class="hx-health" onclick="openHealthScore()" title="Financial health score">
-        <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="${R}" class="hx-ring-bg"/><circle cx="24" cy="24" r="${R}" class="hx-ring-fg" stroke="${h.color}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" data-off="${(C * (1 - h.score / 100)).toFixed(1)}"/></svg>
-        <b>${h.score}</b><span>Health</span>
-      </button>
-    </div>
-    ${ins.length ? `<ul class="hx-ins">${ins.map(i => `<li><span class="hx-ins-ic" style="color:${i.c};background:${i.c}1a"><i data-lucide="${i.ic}"></i></span><p>${i.t}${i.est ? ' <em>estimate</em>' : ''}</p></li>`).join('')}</ul>`
-      : `<p class="hx-s" style="padding:6px 2px 2px">Add a few transactions this month and insights will appear here.</p>`}
-    <button class="hx-ask" onclick="navigate('ai-coach')"><i data-lucide="message-circle"></i> Ask about your money</button>
-  </div>`;
-}
 
 // ══════════════════════════════════════════════════════════
 // ANALYTICS (inline SVG — instant, no chart library needed)
@@ -328,20 +259,6 @@ function _homeHeroExtraHtml(F) {
   </div>`;
 }
 let _homeLastHero = null;
-function _homeCountUp() {
-  const el = document.querySelector('.mymoney-records .mm-hero-val'); if (!el) return;
-  const txt = el.textContent, target = parseFloat(txt.replace(/[^0-9.]/g, '')) || 0, neg = txt.trim().startsWith('-');
-  const from = _homeLastHero == null ? target * 0.6 : _homeLastHero;
-  _homeLastHero = target;
-  if (Math.abs(from - target) < 1) return;
-  const t0 = performance.now(), dur = 650;
-  const step = now => {
-    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
-    el.textContent = (neg ? '-' : '') + fmt(from + (target - from) * e);
-    if (k < 1) requestAnimationFrame(step); else el.textContent = txt;
-  };
-  requestAnimationFrame(step);
-}
 function _homeAfterRender() {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     document.querySelectorAll('.hx-ring-fg[data-off]').forEach(c => { c.style.strokeDashoffset = c.dataset.off; });

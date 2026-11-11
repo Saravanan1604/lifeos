@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **721** (6 Nov 2026).*
+*Status as of build **722** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -271,6 +271,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 719 | **Backup reminder + Drive upload**: Home card when a backup is due (default every 7 days; Settings → Backup reminder: 7/14/30 days/Off). On the website “Back up” uploads straight to Google Drive › “atworth backups” (Google Identity Services token, `drive.file` scope — only files atworth creates; works with password protection); inside the phone app Google blocks its sign-in screen, so it uses the share sheet. Silent background backup isn't possible because Google requires a tap to approve. Service worker no longer caches googleapis.com. Note: the **Drive API must be enabled** for the Google Cloud project of the sign-in client and `drive.file` added to the OAuth consent screen |
 | 720 | Fixes from screenshots: popup inputs that have a left icon (`.form-field-icon-wrap`, e.g. Edit Asset name/type, date fields) — text started under the icon after the 709 padding change; icon now positioned at 14px and text padded to 44px. Carry-forward switch showed its raw checkbox as a big box; hidden, with a visible track. Small checkboxes in popups. Bank/cash/card log entry icons were the account colour on dark (invisible) → lightened. “Log … for any …” boxes at the bottom of each log were huge on Cash/Cards → same compact size on all three |
 | 721 | **Data safety + new history screens** (new `js/logs2.js`). Saves: `DB.save` no longer swallows errors — a red banner appears if a save fails (storage full) and Settings → **Storage on this phone** shows % used, a breakdown, “Tidy old log entries” and “Remove receipt photos older than 1 year”. Sync: log entries created without an id were dropped by the merge (a typed balance could vanish) — `_ensureLogIds` gives old entries a content-based id that is the same on every device; `cashAccounts` and `cashBalanceHistory` now sync. Logs: after 60 days entries are tidied to one per account per day (closing value kept, so balances and trends don't change; runs once a day). Bank / Cash / Card history redesigned in the app: newest first, one row per account per day, tap to see each change with its reason and time, signed ▲/▼ changes, 30 days at a time. Card usage shows the real % (e.g. 259% · over by ₹63,448) on logs and card faces |
+| 722 | **Unused code removed**: 86 top-level functions that nothing references (found by name search to a fixpoint across all JS/HTML; ~1,850 lines, 115 KB) deleted from 16 files — biggest: finance.js 37, features.js 16, dashboard.js 7. `growth.js` (Journal/Skills) and `custom-pages.js` now load only in the classic web layout (`document.write` guarded by `!__IS_APP` in `index.html`); the `journal` route falls back to Home when its code isn't loaded. App JS: 1,745 KB → 1,575 KB. Classic layout verified on 12 pages |
 
 ### Testing locally
 

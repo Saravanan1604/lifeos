@@ -365,16 +365,6 @@ function _applySmartQuery(base, sq) {
   }
   return list;
 }
-function _smartQueryLabel(sq) {
-  const bits = [];
-  if (sq.cats.length) bits.push(sq.cats.join(', '));
-  if (sq.text) bits.push(`"${sq.text}"`);
-  if (sq.type) bits.push(sq.type === 'income' ? 'income' : 'expenses');
-  if (sq.min != null) bits.push('≥ ' + fmt(sq.min));
-  if (sq.max != null) bits.push('≤ ' + fmt(sq.max));
-  if (sq.from) bits.push(sq.from === sq.to ? fmtDate(sq.from) : `${fmtDate(sq.from)} – ${fmtDate(sq.to)}`);
-  return bits.join(' · ');
-}
 function setRecSmartSearch(q) {
   _recSearch = q;
   const el = document.getElementById('rf-search'); if (el) el.value = q;

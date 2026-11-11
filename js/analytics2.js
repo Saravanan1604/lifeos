@@ -205,19 +205,6 @@ function nwTrendHtml() {
     <div class="nw-axis"><span>${fmtDate(pts[0].date)}</span><span>Today</span></div>
   </div>`;
 }
-function nwRatioHtml(assets, liab) {
-  const tot = assets + liab;
-  if (!(tot > 0)) return '';
-  const ap = Math.round(assets / tot * 100);
-  let df = '';
-  if ((STATE.loans || []).length && typeof _loanPayoff === 'function') {
-    let last = null;
-    (STATE.loans || []).forEach(l => { const p = _loanPayoff(l); if (p.months && (!last || p.end > last)) last = p.end; });
-    if (last) df = `<button class="nw-df" onclick="invSetView('liabilities')"><i data-lucide="flag"></i> Debt-free by <b>${last.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</b><i data-lucide="chevron-right"></i></button>`;
-  }
-  return `<div class="nw-ratio"><div class="nw-ratio-bar"><i class="a" style="width:${ap}%"></i><i class="l" style="width:${100 - ap}%"></i></div>
-    <div class="nw-ratio-l"><span><i class="a"></i>Assets ${ap}%</span><span><i class="l"></i>Liabilities ${100 - ap}%</span></div></div>${df}`;
-}
 
 // ══════════════════════════════════════════════════════════
 // build 687 — clearer net-worth overview for the Assets page.

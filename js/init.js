@@ -185,16 +185,6 @@ function loadLocalData() {
   renderCalcBody();
 }
 
-// Merge two arrays by id — keeps all unique items from both sides
-function mergeById(local, cloud) {
-  const localArr = Array.isArray(local) ? local : [];
-  const cloudArr = Array.isArray(cloud) ? cloud : [];
-  if (!cloudArr.length) return localArr;
-  if (!localArr.length) return cloudArr;
-  const seen = new Set(localArr.map(x => x.id).filter(Boolean));
-  // Start with local (device wins), then append any cloud items not already present
-  return [...localArr, ...cloudArr.filter(x => x.id && !seen.has(x.id))];
-}
 
 // Try to restore session from cloud using existing token
 async function tryAutoRestore(token) {

@@ -8,19 +8,6 @@ function getHomeWidgets() { try { return JSON.parse(localStorage.getItem(HOME_WI
 function setHomeWidgets(a) { try { localStorage.setItem(HOME_WIDGETS_KEY, JSON.stringify(a)); } catch {} }
 
 /* ---------- data helpers ---------- */
-function _hwMonths(n) {
-  const arr = []; const now = new Date();
-  for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    let inc = 0, exp = 0;
-    (STATE.transactions || []).forEach(t => {
-      if ((t.date || '').startsWith(ym)) { if (t.type === 'income') inc += Money.amt(t); else exp += Money.amt(t); }
-    });
-    arr.push({ ym, inc, exp, sav: inc - exp, label: d.toLocaleString('default', { month: 'short' }) });
-  }
-  return arr;
-}
 function _hwCatSpend(ym) {
   const m = {};
   (STATE.transactions || []).forEach(t => {

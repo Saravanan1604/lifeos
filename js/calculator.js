@@ -101,22 +101,6 @@ function calcPageUse() {
 
 // (legacy floating calculator hook — kept for other entry points)
 let _calcReturnToPad = false;
-function openCalcForPad() {
-  _calcReturnToPad = true;
-  if (!calcOpen) toggleCalculator();
-  const b = document.getElementById('calc-use-btn');
-  if (b) b.style.display = '';
-}
-function calcUseValue() {
-  const v = parseFloat(String(calcDisplay).replace(/,/g, ''));
-  if (!isNaN(v) && typeof _pad !== 'undefined' && _pad) {
-    _pad.expr = String(+(+v).toFixed(2));
-    if (typeof renderTxPad === 'function') renderTxPad();
-  }
-  _calcReturnToPad = false;
-  const b = document.getElementById('calc-use-btn'); if (b) b.style.display = 'none';
-  if (calcOpen) toggleCalculator();
-}
 
 function toggleCalculator() {
   // Old floating calculator removed — always open the new full-screen page.
@@ -238,11 +222,6 @@ function makeDraggable(win) {
 }
 
 
-function switchCalcMode(mode) {
-  calcMode = mode;
-  document.querySelectorAll('.calc-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  renderCalcBody();
-}
 
 function calcInput(val) {
   if (calcJustCalc && !isNaN(val) && val !== '.') { calcDisplay = '0'; calcExpression = ''; calcJustCalc = false; }

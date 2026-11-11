@@ -737,7 +737,6 @@ function _findEntity(list, text) {
   }) || null;
 }
 
-function _isAdd(text)    { return /(add|create|new|set|make|log|சேர்|புதிய|जोड़|बनाओ|नया|सेट)/i.test(text); }
 function _isRemove(text) { return /(remove|delete|cancel|நீக்கு|हटा|रद्द)/i.test(text); }
 function _isEdit(text)   { return /(edit|update|change|modify|மாற்று|புதுப்|बदल|अपडेट|संशोधित)/i.test(text); }
 

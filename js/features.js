@@ -189,20 +189,6 @@ function showMilestoneCelebration(title, sub) {
   setTimeout(() => { el.style.opacity='0'; setTimeout(()=>{el.style.display='none';el.style.opacity='1';},500); }, 3500);
 }
 
-function showLevelUpBanner(level) {
-  launchConfetti();
-  const el = document.getElementById('levelup-banner');
-  if (!el) return;
-  el.innerHTML = `
-    <div style="text-align:center">
-      <div style="font-size:56px;margin-bottom:6px">⚡</div>
-      <p style="font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px">LEVEL UP</p>
-      <p style="font-size:48px;font-weight:900;color:#fff;line-height:1">Level ${level}</p>
-      <p style="font-size:14px;color:rgba(255,255,255,0.7);margin-top:6px">You're on a roll! Keep going 🚀</p>
-    </div>`;
-  el.style.display = 'flex';
-  setTimeout(() => { el.style.opacity='0'; setTimeout(()=>{el.style.display='none';el.style.opacity='1';},500); }, 3000);
-}
 
 function checkGoalMilestones() {
   const goals = STATE.goals || [];
@@ -487,18 +473,6 @@ function useTemplate(i) {
   }, 80);
 }
 
-function saveCurrentAsTxTemplate() {
-  const type = document.getElementById('tx-type')?.value;
-  const amount = parseFloat(document.getElementById('tx-amount')?.value);
-  const cat = document.getElementById('tx-cat')?.value;
-  const desc = document.getElementById('tx-desc')?.value.trim();
-  if (!amount) { toast('Enter amount first', 'error'); return; }
-  const icons = {Food:'🍔',Shopping:'🛍️',Transport:'🚗',Rent:'🏠',Salary:'💰',Freelance:'💻',Entertainment:'🎬',Utilities:'💡',Health:'💊',EMI:'🏦',Insurance:'🛡️',Other:'💳'};
-  STATE.txTemplates = STATE.txTemplates || [];
-  STATE.txTemplates.push({ name:desc||cat, type, amount, category:cat, description:desc, icon:icons[cat]||'💳' });
-  saveState();
-  toast('✅ Saved as template!', 'success');
-}
 
 
 // ═══════════════════════════════════════════════════════════
@@ -735,150 +709,10 @@ function calcDebtPayoff() {
 }
 
 
-// ═══════════════════════════════════════════════════════════
-// 8. SPENDING HEATMAP
-// ═══════════════════════════════════════════════════════════
-function renderSpendingHeatmap(containerId) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-
-  const txns = (STATE.transactions||[]).filter(t=>t.type==='expense');
-  const dayMap = {};
-  txns.forEach(t => { dayMap[t.date] = (dayMap[t.date]||0) + t.amount; });
-  const max = Math.max(...Object.values(dayMap), 1);
-
-  // Build last 365 days
-  const days = [];
-  for (let i=364; i>=0; i--) {
-    const d = new Date(); d.setDate(d.getDate()-i);
-    const k = d.toISOString().slice(0,10);
-    days.push({ date:k, amount:dayMap[k]||0, day:d.getDay(), label:d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) });
-  }
-
-  const months = []; let lastMonth = -1;
-  days.forEach((d,i) => {
-    const m = new Date(d.date).getMonth();
-    if (m !== lastMonth) { months.push({label:new Date(d.date).toLocaleString('default',{month:'short'}), col:Math.floor(i/7)}); lastMonth=m; }
-  });
-
-  const getColor = (amt) => {
-    if (!amt) return 'rgba(255,255,255,0.05)';
-    const ratio = Math.min(amt/max, 1);
-    if (ratio < 0.25) return 'rgba(239,68,68,0.3)';
-    if (ratio < 0.5)  return 'rgba(239,68,68,0.55)';
-    if (ratio < 0.75) return 'rgba(239,68,68,0.8)';
-    return '#ef4444';
-  };
-
-  // Group into weeks
-  const weeks = [];
-  for (let i=0; i<days.length; i+=7) weeks.push(days.slice(i,i+7));
-
-  el.innerHTML = `
-    <div style="overflow-x:auto;padding-bottom:4px">
-      <div style="position:relative;min-width:660px">
-        <div style="display:flex;gap:2px;margin-bottom:6px;padding-left:28px">
-          ${months.map(m=>`<div style="position:absolute;left:${28+m.col*13}px;font-size:9px;color:var(--text3);white-space:nowrap">${m.label}</div>`).join('')}
-        </div>
-        <div style="display:flex;gap:2px;margin-top:18px">
-          <div style="display:flex;flex-direction:column;gap:2px;margin-right:4px">
-            ${['','M','','W','','F',''].map(d=>`<div style="height:11px;font-size:8px;color:var(--text3);line-height:11px">${d}</div>`).join('')}
-          </div>
-          ${weeks.map(week=>`
-            <div style="display:flex;flex-direction:column;gap:2px">
-              ${week.map(d=>`
-                <div title="${d.label}: ${d.amount?fmt(d.amount):'No spending'}"
-                  style="width:11px;height:11px;border-radius:2px;background:${getColor(d.amount)};cursor:pointer;transition:.1s"
-                  onmouseover="showHeatmapTip(this,'${d.label}: ${d.amount?'₹'+Math.round(d.amount).toLocaleString('en-IN'):'No spending'}')"
-                  onmouseout="hideHeatmapTip()"></div>`).join('')}
-            </div>`).join('')}
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:flex-end">
-          <span style="font-size:10px;color:var(--text3)">Less</span>
-          ${['rgba(255,255,255,0.05)','rgba(239,68,68,0.3)','rgba(239,68,68,0.55)','rgba(239,68,68,0.8)','#ef4444'].map(c=>`<div style="width:11px;height:11px;border-radius:2px;background:${c}"></div>`).join('')}
-          <span style="font-size:10px;color:var(--text3)">More</span>
-        </div>
-      </div>
-    </div>
-    <div id="heatmap-tip" style="position:fixed;background:rgba(10,14,30,0.95);border:1px solid rgba(0,201,167,0.3);color:#e2e8f0;font-size:11px;padding:6px 10px;border-radius:7px;pointer-events:none;display:none;z-index:9999;white-space:nowrap"></div>`;
-}
-
-function showHeatmapTip(el, text) {
-  const tip = document.getElementById('heatmap-tip');
-  if (!tip) return;
-  const r = el.getBoundingClientRect();
-  tip.textContent = text;
-  tip.style.left = (r.left + 16) + 'px';
-  tip.style.top = (r.top - 32) + 'px';
-  tip.style.display = 'block';
-}
-
-function hideHeatmapTip() {
-  const tip = document.getElementById('heatmap-tip');
-  if (tip) tip.style.display = 'none';
-}
 
 
-// ═══════════════════════════════════════════════════════════
-// 9. WEEKLY SUMMARY CARD HTML
-// ═══════════════════════════════════════════════════════════
-function buildWeeklySummaryHTML() {
-  const txns = STATE.transactions || [];
-  const now = new Date();
-  const dow = (now.getDay()+6)%7; // Mon=0
-  const weekStart = new Date(now); weekStart.setDate(now.getDate()-dow); weekStart.setHours(0,0,0,0);
-  const prevStart = new Date(weekStart); prevStart.setDate(weekStart.getDate()-7);
 
-  const inRange = (t, from, to) => { const d=new Date(t.date+'T00:00:00'); return d>=from && d<to; };
-  const thisWeek = txns.filter(t=>inRange(t,weekStart,now));
-  const lastWeek = txns.filter(t=>inRange(t,prevStart,weekStart));
 
-  const inc  = arr => arr.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const exp  = arr => arr.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const tInc=inc(thisWeek),tExp=exp(thisWeek),lInc=inc(lastWeek),lExp=exp(lastWeek);
-  const delta=(a,b)=>b>0?((a-b)/b*100).toFixed(1):null;
-  const expDelta=delta(tExp,lExp), incDelta=delta(tInc,lInc);
-  const badge=(v,invert=false)=>{ if(!v) return ''; const pos=(parseFloat(v)>0)!==invert; return `<span style="font-size:10px;font-weight:700;color:${pos?'#10b981':'#ef4444'}">${parseFloat(v)>0?'↑':'↓'}${Math.abs(v)}%</span>`; };
-
-  // Top category this week
-  const catMap={};
-  thisWeek.filter(t=>t.type==='expense').forEach(t=>{catMap[t.category]=(catMap[t.category]||0)+t.amount;});
-  const topCat=Object.entries(catMap).sort(([,a],[,b])=>b-a)[0];
-
-  return `
-  <div class="glass-card" style="padding:18px;margin-bottom:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:16px">📅</span>
-        <p style="font-size:14px;font-weight:800;color:var(--text)">This Week</p>
-        <span style="font-size:11px;color:var(--text3)">${weekStart.toLocaleDateString('en-IN',{day:'numeric',month:'short'})} – Today</span>
-      </div>
-      <span style="font-size:11px;color:var(--text3)">${thisWeek.length} transactions</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-      <div style="padding:12px;border-radius:12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2)">
-        <p style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Income</p>
-        <p style="font-size:18px;font-weight:900;color:#10b981">${fmt(tInc)}</p>
-        ${badge(incDelta)}
-      </div>
-      <div style="padding:12px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2)">
-        <p style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Spent</p>
-        <p style="font-size:18px;font-weight:900;color:#ef4444">${fmt(tExp)}</p>
-        ${badge(expDelta,true)}
-      </div>
-      <div style="padding:12px;border-radius:12px;background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2)">
-        <p style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Saved</p>
-        <p style="font-size:18px;font-weight:900;color:${tInc-tExp>=0?'#00c9a7':'#ef4444'}">${fmt(Math.abs(tInc-tExp))}</p>
-        <span style="font-size:10px;color:${tInc-tExp>=0?'#00c9a7':'#ef4444'};font-weight:700">${tInc-tExp>=0?'Surplus':'Deficit'}</span>
-      </div>
-    </div>
-    ${topCat?`<div style="margin-top:10px;padding:8px 12px;border-radius:9px;background:rgba(255,255,255,0.04);display:flex;align-items:center;gap:8px">
-      <span style="font-size:11px;color:var(--text3)">Top spend:</span>
-      <span style="font-size:12px;font-weight:700;color:var(--text)">${topCat[0]}</span>
-      <span style="font-size:12px;font-weight:700;color:#ef4444;margin-left:auto">${fmt(topCat[1])}</span>
-    </div>`:''}
-  </div>`;
-}
 
 
 // ═══════════════════════════════════════════════════════════
@@ -902,85 +736,9 @@ const DAILY_CHALLENGES = [
   {icon:'✅',title:'Habit Warrior',text:'Complete all your habits today for maximum XP.',target:'habits',limit:0},
 ];
 
-function buildDailyChallengeHTML() {
-  const todayStr = today();
-  const seed = todayStr.replace(/-/g,'').split('').reduce((a,c)=>a*31+c.charCodeAt(0),0);
-  const ch = DAILY_CHALLENGES[seed % DAILY_CHALLENGES.length];
-  const completed = (STATE.challengeLog || {})[todayStr];
-
-  return `
-  <div class="glass-card" style="padding:16px 18px;margin-bottom:20px;border:1px solid ${completed?'rgba(16,185,129,0.3)':'rgba(245,158,11,0.25)'};background:${completed?'rgba(16,185,129,0.06)':'rgba(245,158,11,0.05)'}">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="width:42px;height:42px;border-radius:12px;background:${completed?'rgba(16,185,129,0.2)':'rgba(245,158,11,0.2)'};display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0">${completed?'✅':ch.icon}</div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-          <p style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${completed?'#10b981':'#f59e0b'}">Daily Challenge</p>
-          ${completed?'<span style="font-size:10px;background:rgba(16,185,129,0.2);color:#10b981;padding:1px 7px;border-radius:10px;font-weight:700">Completed +25 XP</span>':''}
-        </div>
-        <p style="font-size:13px;font-weight:700;color:var(--text)">${ch.title}</p>
-        <p style="font-size:11px;color:var(--text3)">${ch.text}</p>
-      </div>
-      ${completed?'':`<button onclick="completeChallenge('${todayStr}')" style="padding:7px 14px;border-radius:20px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#f59e0b;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Mark Done ✓</button>`}
-    </div>
-  </div>`;
-}
-
-function completeChallenge(dateStr) {
-  STATE.challengeLog = STATE.challengeLog || {};
-  STATE.challengeLog[dateStr] = true;
-  addXP(25, 'Daily challenge completed');
-  saveState();
-  navigate('dashboard', true);
-  toast('🏆 Daily challenge completed! +25 XP', 'success');
-}
 
 
-// ═══════════════════════════════════════════════════════════
-// 11. SAVINGS PROJECTION
-// ═══════════════════════════════════════════════════════════
-function buildSavingsProjectionHTML() {
-  const txns = STATE.transactions || [];
-  const now = new Date();
-  // Last 3 months avg savings
-  let totalSavings = 0, months = 0;
-  for (let i = 0; i < 3; i++) {
-    const yr = now.getFullYear(), mn = now.getMonth() - i;
-    const d = new Date(yr, mn, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    const mTxns = txns.filter(t => t.date.startsWith(key));
-    const inc = mTxns.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-    const exp = mTxns.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-    if (inc > 0 || exp > 0) { totalSavings += (inc-exp); months++; }
-  }
-  const avgMonthlySavings = months > 0 ? totalSavings/months : 0;
-  if (avgMonthlySavings <= 0) return '';
 
-  const proj = [3,6,12].map(m => ({ months:m, amount: avgMonthlySavings*m }));
-  const maxP = Math.max(...proj.map(p=>p.amount));
-  const fmt2 = v => v>=100000?`₹${(v/100000).toFixed(1)}L`:v>=1000?`₹${(v/1000).toFixed(0)}k`:`₹${Math.round(v).toLocaleString('en-IN')}`;
-
-  return `
-  <div class="glass-card" style="padding:18px;margin-bottom:20px">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-      <span style="font-size:16px">🔮</span>
-      <p style="font-size:14px;font-weight:800;color:var(--text)">Savings Projection</p>
-      <span style="font-size:11px;color:var(--text3)">at ${fmt2(avgMonthlySavings)}/month avg</span>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      ${proj.map(p=>`
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-size:11px;color:var(--text3);width:50px;flex-shrink:0">${p.months} months</span>
-          <div style="flex:1;height:8px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden">
-            <div style="height:8px;border-radius:6px;width:${(p.amount/maxP*100).toFixed(1)}%;background:linear-gradient(90deg,#00c9a7,#6366f1);transition:.5s;box-shadow:0 0 8px rgba(0,201,167,0.4)"></div>
-          </div>
-          <span style="font-size:13px;font-weight:900;color:#00c9a7;width:62px;text-align:right;flex-shrink:0">${fmt2(p.amount)}</span>
-        </div>`).join('')}
-    </div>
-    <p style="font-size:10px;color:var(--text3);margin-top:10px">* Based on last ${months} month${months!==1?'s':''} avg savings. Invest it for higher returns →
-      <span onclick="navigate('investments')" style="color:#00c9a7;cursor:pointer;text-decoration:underline">View Investments</span>
-    </p>
-  </div>`;
-}
 
 
 // ═══════════════════════════════════════════════════════════
@@ -1003,162 +761,14 @@ function getBudgetWarnings() {
   }).filter(b => b.warn || b.over);
 }
 
-function buildBudgetWarningHTML() {
-  const warnings = getBudgetWarnings();
-  if (!warnings.length) return '';
-  return `
-  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">
-    ${warnings.map(w=>`
-      <div onclick="navigate('budget')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:${w.over?'rgba(239,68,68,0.1)':'rgba(245,158,11,0.08)'};border:1px solid ${w.over?'rgba(239,68,68,0.3)':'rgba(245,158,11,0.25)'};cursor:pointer">
-        <span style="font-size:16px">${w.over?'🚨':'⚠️'}</span>
-        <div style="flex:1">
-          <span style="font-size:12px;font-weight:700;color:${w.over?'#ef4444':'#f59e0b'}">${w.category} budget ${w.over?'exceeded!':'is almost full!'}</span>
-          <span style="font-size:11px;color:var(--text3);margin-left:8px">₹${Math.round(w.used).toLocaleString('en-IN')} of ₹${Math.round(w.limit).toLocaleString('en-IN')} (${w.pct}%)</span>
-        </div>
-        <div style="font-size:12px;color:${w.over?'#ef4444':'#f59e0b'};font-weight:700">${w.over?`Over by ₹${Math.round(w.used-w.limit).toLocaleString('en-IN')}`:`₹${Math.round(w.limit-w.used).toLocaleString('en-IN')} left`}</div>
-      </div>`).join('')}
-  </div>`;
-}
 
 
-// ═══════════════════════════════════════════════════════════
-// 13. SUBSCRIPTION TRACKER
-// ═══════════════════════════════════════════════════════════
-function buildSubscriptionHTML() {
-  const recs = STATE.recurringTx || [];
-  const subs = recs.filter(r => r.type==='expense' && r.frequency==='monthly');
-  if (!subs.length) return `
-    <div style="text-align:center;padding:24px;color:var(--text3)">
-      <p style="font-size:13px;margin-bottom:12px">No subscriptions tracked yet.</p>
-      <button onclick="openRecurringManager()" class="btn-primary" style="font-size:12px">+ Add Subscription</button>
-    </div>`;
-
-  const total = subs.reduce((s,r)=>s+r.amount,0);
-  const ICONS = {Netflix:'🎬',Spotify:'🎵',Prime:'📦',Hotstar:'📺',YouTube:'▶️',Gym:'🏋️',Jio:'📱',Airtel:'📡'};
-
-  return `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <p style="font-size:14px;font-weight:800;color:var(--text)">Monthly Total</p>
-      <p style="font-size:22px;font-weight:900;color:#ef4444">${fmt(total)}</p>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      ${subs.map(s=>{
-        const name = s.description || s.category;
-        const icon = Object.entries(ICONS).find(([k])=>name.toLowerCase().includes(k.toLowerCase()))?.[1] || s.icon || '📱';
-        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--glass);border:1px solid var(--glass-border)">
-          <span style="font-size:20px">${icon}</span>
-          <div style="flex:1"><p style="font-size:13px;font-weight:600;color:var(--text)">${name}</p><p style="font-size:11px;color:var(--text3)">Monthly · next: ${s.nextDate}</p></div>
-          <span style="font-size:13px;font-weight:700;color:#ef4444">${fmt(s.amount)}</span>
-        </div>`;
-      }).join('')}
-    </div>
-    <div style="margin-top:14px;padding:10px;border-radius:10px;background:rgba(239,68,68,0.07);text-align:center">
-      <p style="font-size:11px;color:var(--text3)">Annual subscription cost: <b style="color:#ef4444">${fmt(total*12)}</b></p>
-    </div>
-    <button onclick="openRecurringManager()" class="btn-secondary" style="width:100%;margin-top:10px;font-size:12px">+ Add Subscription</button>`;
-}
 
 
-// ═══════════════════════════════════════════════════════════
-// 14. MONTH-OVER-MONTH TABLE
-// ═══════════════════════════════════════════════════════════
-function buildMoMTableHTML() {
-  const txns = STATE.transactions || [];
-  const now = new Date();
-  const getMonth = off => {
-    const d = new Date(now.getFullYear(), now.getMonth()+off, 1);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  };
-  const thisM = getMonth(0), lastM = getMonth(-1);
-  const filter = (m, type) => txns.filter(t=>t.date.startsWith(m)&&t.type===type);
-
-  const cats = [...new Set(txns.filter(t=>t.type==='expense').map(t=>t.category))];
-  if (!cats.length) return '';
-
-  const spent = (m, cat) => filter(m,'expense').filter(t=>t.category===cat).reduce((s,t)=>s+t.amount,0);
-  const rows = cats.map(cat => {
-    const t = spent(thisM,cat), l = spent(lastM,cat);
-    const delta = l>0 ? ((t-l)/l*100).toFixed(0) : null;
-    return { cat, this:t, last:l, delta };
-  }).filter(r=>r.this>0||r.last>0).sort((a,b)=>b.this-a.this).slice(0,8);
-
-  return `
-  <div style="overflow-x:auto;margin-bottom:20px">
-    <table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead>
-        <tr style="border-bottom:1px solid var(--glass-border)">
-          <th style="padding:8px 12px;text-align:left;color:var(--text3);font-weight:700">Category</th>
-          <th style="padding:8px 12px;text-align:right;color:var(--text3);font-weight:700">${new Date(now.getFullYear(),now.getMonth()-1,1).toLocaleString('default',{month:'short'})}</th>
-          <th style="padding:8px 12px;text-align:right;color:var(--text3);font-weight:700">${new Date().toLocaleString('default',{month:'short'})}</th>
-          <th style="padding:8px 12px;text-align:right;color:var(--text3);font-weight:700">Change</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map(r=>`<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-          <td style="padding:8px 12px;color:var(--text);font-weight:600">${r.cat}</td>
-          <td style="padding:8px 12px;text-align:right;color:var(--text3)">${r.last?fmt(r.last):'—'}</td>
-          <td style="padding:8px 12px;text-align:right;font-weight:700;color:var(--text)">${r.this?fmt(r.this):'—'}</td>
-          <td style="padding:8px 12px;text-align:right;font-weight:700;color:${!r.delta?'var(--text3)':parseFloat(r.delta)>0?'#ef4444':'#10b981'}">${r.delta?`${parseFloat(r.delta)>0?'↑':'↓'}${Math.abs(r.delta)}%`:'—'}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-  </div>`;
-}
 
 
-// ═══════════════════════════════════════════════════════════
-// 15. SMART AUTOCOMPLETE FOR DESCRIPTION INPUT
-// ═══════════════════════════════════════════════════════════
-function attachTxAutocomplete() {
-  const descEl = document.getElementById('tx-desc');
-  const catEl  = document.getElementById('tx-cat');
-  if (!descEl) return;
 
-  // Build lookup from past transactions
-  const past = STATE.transactions || [];
-  const lookup = {};
-  past.forEach(t => {
-    const key = (t.description||'').toLowerCase().trim();
-    if (key) lookup[key] = { category:t.category, amount:t.amount };
-  });
 
-  descEl.addEventListener('input', () => {
-    const q = descEl.value.toLowerCase().trim();
-    if (!q || q.length < 2) { _removeTxSuggestions(); return; }
-    const matches = Object.entries(lookup).filter(([k])=>k.includes(q)).slice(0,5);
-    if (!matches.length) { _removeTxSuggestions(); return; }
-
-    let box = document.getElementById('tx-autocomplete');
-    if (!box) {
-      box = document.createElement('div');
-      box.id = 'tx-autocomplete';
-      box.style.cssText = 'position:absolute;background:var(--card-bg);border:1px solid var(--glass-border);border-radius:10px;z-index:1000;width:100%;max-height:160px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.4);margin-top:2px';
-      descEl.parentElement.style.position = 'relative';
-      descEl.insertAdjacentElement('afterend', box);
-    }
-    box.innerHTML = matches.map(([k,v])=>`
-      <div onclick="applyTxSuggestion('${k}','${v.category}',${v.amount})"
-        style="padding:9px 12px;cursor:pointer;font-size:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04)"
-        onmouseover="this.style.background='rgba(0,201,167,0.1)'" onmouseout="this.style.background=''">
-        <span style="color:var(--text)">${k}</span>
-        <span style="color:var(--text3);font-size:11px">${v.category} · ${fmt(v.amount)}</span>
-      </div>`).join('');
-  });
-
-  descEl.addEventListener('blur', () => setTimeout(_removeTxSuggestions, 200));
-}
-
-function applyTxSuggestion(desc, cat, amount) {
-  const d = document.getElementById('tx-desc'); if(d) d.value = desc;
-  const c = document.getElementById('tx-cat');  if(c) c.value = cat;
-  const a = document.getElementById('tx-amount'); if(a && !a.value) a.value = amount;
-  _removeTxSuggestions();
-}
-
-function _removeTxSuggestions() {
-  const box = document.getElementById('tx-autocomplete');
-  if (box) box.remove();
-}
 
 
 // ═══════════════════════════════════════════════════════════
@@ -1307,10 +917,6 @@ function buildNotifications() {
   return notifs;
 }
 
-function _calcNextRecurringDate(r) {
-  if (!r.nextDate) return r.startDate || null;
-  return r.nextDate;
-}
 
 function openNotifPanel() {
   const panel   = document.getElementById('notif-panel');

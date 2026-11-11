@@ -355,14 +355,6 @@ function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
 }
 
-// Big / Small view toggle — scales the page content (text + elements) up ~2×
-function toggleBigMode() {
-  const on = !document.documentElement.classList.contains('big-mode');
-  document.documentElement.classList.toggle('big-mode', on);
-  try { localStorage.setItem('lifeos_big', on ? '1' : '0'); } catch (_) {}
-  const b = document.getElementById('bigmode-btn'); if (b) b.classList.toggle('on', on);
-  if (typeof toast === 'function') toast(on ? '🔎 Big view on' : 'Normal view', 'success');
-}
 function applyBigMode() {
   // Big-mode feature removed — ensure it's off
   document.documentElement.classList.remove('big-mode');
@@ -406,40 +398,7 @@ function countUpHeroes() {
   document.querySelectorAll('.mm-hero-val, .metric-value, .ia-hero-val, .nw-hero-val').forEach(el => countUpEl(el));
 }
 
-function setAppScale(level) {
-  STATE.settings = STATE.settings || {};
-  STATE.settings.appScale = level;
-  if (typeof saveState === 'function') saveState();
-  applyAppScale();
-  if (typeof toast === 'function') toast('Text size: ' + (level === 'xl' ? 'Extra Large' : level === 'large' ? 'Large' : 'Default'), 'success');
-}
 
-// Quick App Settings panel — consolidates Theme + Language (and link to full Settings)
-function openAppSettings() {
-  const isLight = document.body.classList.contains('light');
-  const lang = (typeof getLang === 'function') ? getLang() : 'en';
-  const on = (b) => b ? ' on' : '';
-  openModal('App Settings', `
-    <div class="aps">
-      <div class="aps-row">
-        <span class="aps-label"><i data-lucide="sun-moon"></i> Theme</span>
-        <div class="aps-seg">
-          <button class="${on(!isLight)}" onclick="if(document.body.classList.contains('light'))toggleTheme();openAppSettings()">Dark</button>
-          <button class="${on(isLight)}" onclick="if(!document.body.classList.contains('light'))toggleTheme();openAppSettings()">Light</button>
-        </div>
-      </div>
-      <div class="aps-row">
-        <span class="aps-label"><i data-lucide="globe"></i> Language</span>
-        <div class="aps-seg">
-          <button class="${on(lang==='en')}" onclick="if(typeof setLanguage==='function')setLanguage('en');openAppSettings()">EN</button>
-          <button class="${on(lang==='ta')}" onclick="if(typeof setLanguage==='function')setLanguage('ta');openAppSettings()">தமிழ்</button>
-          <button class="${on(lang==='hi')}" onclick="if(typeof setLanguage==='function')setLanguage('hi');openAppSettings()">हिं</button>
-        </div>
-      </div>
-      <button class="btn-primary" style="width:100%;margin-top:6px" onclick="closeModal();navigate('settings')">Open full Settings</button>
-    </div>`);
-  if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (_) {} }
-}
 
 // ===== AUTH =====
 function switchAuthTab(tab) {
@@ -931,7 +890,7 @@ function _renderPage(page) {
     case 'health':       renderHealth();        break;
     case 'habits':       renderHabits();        break;
     case 'goals':        renderGoals();         break;
-    case 'journal':      renderJournal();       break;
+    case 'journal':      if (typeof renderJournal === 'function') renderJournal(); else { navigate('transactions'); return; } break;
     case 'achievements': renderAchievements();  break;
     case 'ai-coach':     renderAICoach();       break;
 

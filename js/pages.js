@@ -295,43 +295,7 @@ function renderCrossAllocChart(income, expense, savings) {
 }
 
 
-function renderAnalyticsFinanceChart(txns) {
-  const canvas = document.getElementById('analytics-finance-chart');
-  if (!canvas) return;
-  const monthMap = {};
-  txns.forEach(t => {
-    const d = new Date(t.date);
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    const label = d.toLocaleString('default',{month:'short',year:'2-digit'});
-    if (!monthMap[key]) monthMap[key] = {label,income:0,expense:0};
-    if (t.type==='income') monthMap[key].income+=Money.amt(t); else monthMap[key].expense+=Money.amt(t);
-  });
-  const gridCol = document.body.classList.contains('light') ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
-  const sorted = Object.entries(monthMap).sort(([a],[b])=>a.localeCompare(b)).slice(-12);
-  chartInstances['afinance'] = new Chart(canvas, {
-    type: 'line',
-    data: { labels: sorted.map(([,v])=>v.label), datasets: [
-      { label:'Income', data:sorted.map(([,v])=>v.income), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', tension:0.4, fill:true },
-      { label:'Expense', data:sorted.map(([,v])=>v.expense), borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.08)', tension:0.4, fill:true }
-    ]},
-    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color: isLight?'#374151':'#94a3b8'}}}, scales:{x:{ticks:{color: isLight?'#374151':'#64748b'},grid:{color:gridCol}},y:{ticks:{color: isLight?'#374151':'#64748b',callback:v=>`₹${(v/1000).toFixed(0)}k`},grid:{color:gridCol}}} }
-  });
-}
 
-function renderAnalyticsHealthChart(data) {
-  const canvas = document.getElementById('analytics-health-chart');
-  if (!canvas) return;
-  const gridCol = document.body.classList.contains('light') ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
-  chartInstances['ahealth'] = new Chart(canvas, {
-    type:'line',
-    data:{ labels:data.map(e=>fmtDate(e.date).split(' ').slice(0,2).join(' ')), datasets:[
-      {label:'Sleep (hrs)', data:data.map(e=>e.sleep||0), borderColor:'#f97316', backgroundColor:'rgba(249,115,22,0.12)',  tension:0.4, fill:true, borderWidth:2.5, pointRadius:3},
-      {label:'Mood (/10)',   data:data.map(e=>e.mood||0),  borderColor:'#ec4899', backgroundColor:'rgba(236,72,153,0.12)', tension:0.4, fill:true, borderWidth:2.5, pointRadius:3},
-      {label:'Water (glasses)', data:data.map(e=>e.water||0), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.12)', tension:0.4, fill:true, borderWidth:2.5, pointRadius:3}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#64748b'},grid:{color:gridCol}},y:{ticks:{color:'#64748b'},grid:{color:gridCol}}}}
-  });
-}
 
 // ===== SETTINGS =====
 function renderSettings() {
@@ -654,26 +618,6 @@ async function confirmReset() {
   toast('Data reset. Fresh start! 🌱', 'info');
 }
 
-// ===================================================================
-//  MONEY RULES — 9 personal-finance rules of thumb, each with a live
-//  calculator pre-filled from the user's own data where possible.
-// ===================================================================
-function _mrMonthly() {
-  // Average monthly income & expense from the user's transactions.
-  const txs = STATE.transactions || [];
-  if (!txs.length) return { income: 0, expense: 0 };
-  const byMonth = {};
-  txs.forEach(t => {
-    const k = (t.date || '').slice(0, 7); if (!k) return;
-    byMonth[k] = byMonth[k] || { income: 0, expense: 0 };
-    if (t.type === 'income') byMonth[k].income += +t.amount || 0;
-    else byMonth[k].expense += +t.amount || 0;
-  });
-  const months = Object.values(byMonth);
-  if (!months.length) return { income: 0, expense: 0 };
-  const sum = months.reduce((a, m) => ({ income: a.income + m.income, expense: a.expense + m.expense }), { income: 0, expense: 0 });
-  return { income: sum.income / months.length, expense: sum.expense / months.length };
-}
 
 // Selected period for the Money Rules page (week | month | year | all).
 let _mrPeriod = 'month';

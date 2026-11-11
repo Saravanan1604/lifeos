@@ -160,11 +160,6 @@ function loMove(k, dir) {
   _loReindex(page);
   if (navigator.vibrate) navigator.vibrate(8);
 }
-function loSize(k) {
-  const page = currentPage; const lo = _loGet(page); lo[k] = lo[k] || {};
-  lo[k].size = lo[k].size === 'small' ? 'normal' : 'small';
-  _loSet(page, lo); navigate(page, true);
-}
 function loHide(k) {
   const page = currentPage; const lo = _loGet(page); lo[k] = lo[k] || {};
   lo[k].hidden = !lo[k].hidden;

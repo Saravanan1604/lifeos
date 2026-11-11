@@ -6,24 +6,10 @@ let _heatmapAnchorDate = new Date();
 let _heatmapMode = 'expense'; // 'expense' | 'income' | 'net'
 let _heatmapSelectedDateYmd = today();
 
-function shiftHeatmapPeriod(val) {
-  _heatmapAnchorDate.setMonth(_heatmapAnchorDate.getMonth() + val);
-  renderHeatmap();
-}
 
-function resetHeatmapAnchor() {
-  _heatmapAnchorDate = new Date();
-  _heatmapSelectedDateYmd = today();
-  renderHeatmap();
-}
 
 // ── Month/Year picker (tap the "June 2026" label on the heatmap) ──
 let _hmPickerYear = null;
-function _openHeatmapMonthPicker() {
-  if (typeof openModal !== 'function') return;
-  _hmPickerYear = _heatmapAnchorDate.getFullYear();
-  openModal('📅 Jump to month', _hmPickerBody());
-}
 function _hmPickerBody() {
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const curY = _heatmapAnchorDate.getFullYear(), curM = _heatmapAnchorDate.getMonth();
