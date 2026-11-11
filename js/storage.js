@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 720;
+const APP_BUILD = 721;
 
 // ===== STORAGE UTILITIES =====
 // ===== DEMO MODE =====
@@ -51,7 +51,10 @@ const DB = {
     } catch { return this.defaults(); }
   },
   save(data) {
-    try { localStorage.setItem(this.KEY, JSON.stringify(data)); } catch {}
+    // A failed save used to be ignored. Now it is remembered and reported
+    // (storage full is the usual cause) — see storageSaveFailed() in logs2.js.
+    try { localStorage.setItem(this.KEY, JSON.stringify(data)); this.lastSaveOk = true; return true; }
+    catch (e) { this.lastSaveOk = false; this.lastSaveError = e; if (typeof storageSaveFailed === 'function') { try { storageSaveFailed(e); } catch (_) {} } return false; }
   }
 };
 
@@ -62,9 +65,25 @@ const stateHistory = []; // Keeps last 5 states for undo
 
 let _skipHistory = false;   // set by undo/redo so they don't re-push onto the undo stack
 
+// Old log entries were saved without an id. Give them one that is the SAME on
+// every device (built from their content), so the cloud copy and the local
+// copy of the same entry merge into one instead of duplicating.
+function _ensureLogIds(arr) {
+  if (!Array.isArray(arr)) return;
+  arr.forEach(x => {
+    if (!x || typeof x !== 'object' || x.id) return;
+    if (!x.date || !(x.accountId || x.cardId || x.fromId) || (x.balance == null && x.outstanding == null && x.amount == null)) return;   // log-shaped only
+    const key = [x.accountId || x.cardId || x.fromId || '', x.toId || '', x.date || '', x.createdAt || '', x.balance != null ? x.balance : (x.outstanding != null ? x.outstanding : x.amount), x.note || ''].join('|');
+    let h = 5381; for (let i = 0; i < key.length; i++) h = ((h << 5) + h + key.charCodeAt(i)) >>> 0;
+    x.id = 'lg' + h.toString(36) + key.length.toString(36);
+  });
+}
 function saveState() {
   const lastSavedStr = localStorage.getItem(DB.KEY);
   const now = Date.now();
+  // Every log entry needs an id: the sync merge drops local items without one,
+  // which silently lost some balance updates (and then the balance itself).
+  ['bankBalanceHistory', 'creditCardHistory', 'cashBalanceHistory', 'bankTransfers'].forEach(k => _ensureLogIds(STATE[k]));
 
   if (lastSavedStr) {
     try {
@@ -226,7 +245,7 @@ function getGreeting(name) {
 // ===== LIVE SYNC ENGINE =====
 const LIVE_SYNC_KEYS = [
   'investments', 'loans', 'transactions', 'accounts', 'bankAccounts',
-  'bankBalanceHistory', 'bankTransfers', 'creditCards', 'creditCardHistory', 'goals', 'habits',
+  'bankBalanceHistory', 'bankTransfers', 'creditCards', 'creditCardHistory', 'cashAccounts', 'cashBalanceHistory', 'goals', 'habits',
   'habitCompletions', 'healthEntries', 'tasks', 'budgets',
   'jobApplications', 'emotionEntries', 'skills', 'chatHistory',
   'customAssetTypes', 'customLoanTypes', 'xp', 'level', 'streak',
@@ -322,6 +341,7 @@ function _isDeleted(x, delMap) {
 // delMap: Map/obj of tombstoned id → deletedAt (or a Set, legacy).
 function _mergeById(local, cloud, delMap) {
   if (delMap instanceof Set) { const m = new Map(); delMap.forEach(id => m.set(id, Infinity)); delMap = m; }
+  _ensureLogIds(local); _ensureLogIds(cloud);   // only touches id-less log-shaped entries
   const l = (Array.isArray(local) ? local : []).filter(x => !_isDeleted(x, delMap));
   const c = (Array.isArray(cloud) ? cloud : []).filter(x => !_isDeleted(x, delMap));
   if (!c.length) return l;

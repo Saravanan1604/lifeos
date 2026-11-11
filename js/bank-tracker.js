@@ -204,6 +204,8 @@ function renderBankTracker() {
         <p style="color:var(--text3);font-size:13px">Tap "+ Log Balance" to start tracking.<br>You can add entries for past dates too!</p>
         <button class="btn-primary btn-sm" onclick="openQuickBalanceModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#00c9a7,#0acf83)">+ Log Balance</button>
       </div>`;
+  } else if (window.__IS_APP && typeof logCardApp === 'function') {
+    chatHTML = '';   // app: the log card is drawn by logs2.js after render
   } else {
     sortedDates.forEach(date => {
       // Date separator
@@ -783,6 +785,8 @@ function renderCCTracker() {
         <p style="font-weight:700;font-size:16px">No payment history yet</p>
         <p style="color:var(--text3);font-size:13px">Tap "↑ Pay" on any credit card to start tracking.<br>Log payments, purchases, and statements!</p>
       </div>`;
+  } else if (window.__IS_APP && typeof logCardApp === 'function') {
+    chatHTML = '';   // app: the log card is drawn by logs2.js after render
   } else {
     sortedDates.forEach(date => {
       chatHTML += `
@@ -798,7 +802,7 @@ function renderCCTracker() {
         const same  = delta === 0;
         const dc    = same ? '#94a3b8' : up ? '#ef4444' : '#10b981';
         const di    = same ? '→' : up ? '↑ More debt' : '↓ Paid off';
-        const pct   = card ? Math.min(100, Math.round((h.outstanding/(card.limit||1))*100)) : 0;
+        const pct   = card ? Math.round((h.outstanding/(card.limit||1))*100) : 0;
         const uc    = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#10b981';
         if (window.__IS_APP) {
           const accent = card ? (card.color || '#ef4444') : '#ef4444';
@@ -813,7 +817,7 @@ function renderCCTracker() {
                 </div>
                 <div class="blog-amt">${fmt(h.outstanding)}</div>
                 ${delta !== null ? `<div class="blog-delta" style="color:${dc}"><i data-lucide="${same ? 'minus' : up ? 'arrow-up' : 'arrow-down'}"></i> ${same ? 'No change' : (up ? 'More debt +' : 'Paid off ') + fmt(Math.abs(delta))}${h.prevOutstanding !== undefined ? `<span class="blog-from">from ${fmt(h.prevOutstanding)}</span>` : ''}</div>` : ''}
-                ${card ? `<div class="blog-util"><div class="blog-util-bar"><div style="width:${pct}%;background:${uc}"></div></div><span>${pct}% of ${fmt(card.limit||0)} limit</span></div>` : ''}
+                ${card ? `<div class="blog-util"><div class="blog-util-bar"><div style="width:${Math.min(100,pct)}%;background:${uc}"></div></div><span>${pct}% of ${fmt(card.limit||0)} limit</span></div>` : ''}
               </div>
             </div>`;
         } else {
@@ -831,7 +835,7 @@ function renderCCTracker() {
                   </div>` : ''}
                 ${card ? `
                   <div style="margin-top:8px">
-                    <div style="height:4px;border-radius:4px;background:${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.1)'}"><div style="height:4px;border-radius:4px;width:${pct}%;background:${uc}"></div></div>
+                    <div style="height:4px;border-radius:4px;background:${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.1)'}"><div style="height:4px;border-radius:4px;width:${Math.min(100,pct)}%;background:${uc}"></div></div>
                     <span style="font-size:10px;color:var(--text3);margin-top:3px;display:block">${pct}% of ${fmt(card.limit||0)} limit</span>
                   </div>` : ''}
                 ${h.note && h.note !== 'Balance update' ? `<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:7px;border-top:1px solid ${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.07)'}">${h.note}</div>` : ''}
@@ -927,7 +931,7 @@ function renderCCTracker() {
               const isActive = selId === c.id;
               const lastSnap = [...history].filter(h=>h.cardId===c.id).sort((x,y)=>y.date.localeCompare(x.date))[0];
               const lastDate = lastSnap ? formatRelativeDate(lastSnap.date) : 'No entries';
-              const pct = Math.min(100, Math.round(((c.outstanding||0)/(c.limit||1))*100));
+              const pct = Math.round(((c.outstanding||0)/(c.limit||1))*100);
               const uc  = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#10b981';
               return `
               <div onclick="bankTrackerCard='${c.id}';renderBankTracker()" style="flex-shrink:0;padding:10px 16px;border-radius:14px;background:${isActive?'rgba(239,68,68,0.15)':'rgba(255,255,255,0.06)'};border:1px solid ${isActive?'rgba(239,68,68,0.4)':'rgba(255,255,255,0.08)'};cursor:pointer;min-width:130px">
@@ -936,7 +940,7 @@ function renderCCTracker() {
                   <p style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5)">${c.bankName}</p>
                 </div>
                 <p style="font-size:16px;font-weight:900;color:#ef4444">${fmt(c.outstanding||0)}</p>
-                <div style="height:3px;border-radius:3px;background:rgba(255,255,255,0.1);margin-top:5px"><div style="height:3px;border-radius:3px;width:${pct}%;background:${uc}"></div></div>
+                <div style="height:3px;border-radius:3px;background:rgba(255,255,255,0.1);margin-top:5px"><div style="height:3px;border-radius:3px;width:${Math.min(100,pct)}%;background:${uc}"></div></div>
                 <p style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px">${pct}% · Updated ${lastDate}</p>
               </div>`;
             }).join('')}
@@ -1133,6 +1137,8 @@ function renderCashTracker() {
         <p style="color:var(--text3);font-size:13px">Tap "+ Log Cash" to start tracking your physical cash.</p>
         <button class="btn-primary btn-sm" onclick="openQuickCashModal(${selId?`'${selId}'`:''})" style="background:linear-gradient(135deg,#f59e0b,#d97706)">+ Log Cash</button>
       </div>`;
+  } else if (window.__IS_APP && typeof logCardApp === 'function') {
+    chatHTML = '';   // app: the log card is drawn by logs2.js after render
   } else {
     sortedDates.forEach(date => {
       chatHTML += `
@@ -1761,7 +1767,7 @@ function saveBalanceImport() {
       STATE.bankBalanceHistory.push({
         id: genId(), accountId: targetId,
         balance: e.val, prevBalance: prev ? prev.balance : e.val,
-        date: e.date, note: e.note, createdAt: new Date().toISOString()
+        date: e.date, note: e.note, via: 'import', createdAt: new Date().toISOString()
       });
     });
     acc.balance = toSave[toSave.length - 1].val; // latest imported date = current balance
@@ -1776,7 +1782,7 @@ function saveBalanceImport() {
       STATE.creditCardHistory.push({
         id: genId(), cardId: targetId,
         outstanding: e.val, prevOutstanding: prev ? prev.outstanding : e.val,
-        date: e.date, note: e.note, createdAt: new Date().toISOString()
+        date: e.date, note: e.note, via: 'import', createdAt: new Date().toISOString()
       });
     });
     card.outstanding = toSave[toSave.length - 1].val;

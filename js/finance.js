@@ -3119,7 +3119,7 @@ function acctSection(type) {
     const innerHTML = list.length === 0
       ? `<div class="empty-state" style="padding:28px 0"><span class="empty-state-icon"><i data-lucide="credit-card"></i></span><p>No credit cards yet. Add your first one!</p></div>`
       : `<div style="display:flex;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;gap:14px;padding:4px 4px 16px 16px;margin:0 0 16px 0" class="fin-card-grid">
-        ${list.map((c,i) => { const used=c.outstanding||0, limit=c.limit||1, pct=Math.min(100,Math.round((used/limit)*100)), utilColor=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
+        ${list.map((c,i) => { const used=c.outstanding||0, limit=c.limit||1, pct=Math.round((used/limit)*100), utilColor=pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
           if (window.__IS_APP) {
             return `
             <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('.card-icon-trigger')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};flex:0 0 calc(100vw - 80px);width:calc(100vw - 80px);max-width:400px;min-width:240px;height:auto;min-height:185px;padding:1.2rem 1.3rem;box-sizing:border-box;border-radius:22px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:space-between;gap:0.8rem;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});cursor:pointer;flex-shrink:0">
@@ -3134,7 +3134,7 @@ function acctSection(type) {
               </div>
               <div style="font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1">${fmt(used)}</div>
               <div style="width:100%">
-                <div style="height:6px;border-radius:4px;background:rgba(255,255,255,0.15);margin-bottom:0.5rem"><div style="height:6px;border-radius:4px;width:${pct}%;background:${utilColor};transition:.3s"></div></div>
+                <div style="height:6px;border-radius:4px;background:rgba(255,255,255,0.15);margin-bottom:0.5rem"><div style="height:6px;border-radius:4px;width:${Math.min(100,pct)}%;background:${utilColor};transition:.3s"></div></div>
                 <div style="display:flex;justify-content:space-between;align-items:center;font-size:1.05rem;color:rgba(255,255,255,0.6)">
                   <span>•••• ${c.lastFour || '0000'} · ${pct}%</span>
                   <span>Limit: ${fmt(limit)}</span>
@@ -3157,7 +3157,7 @@ function acctSection(type) {
               <div style="margin-top:10px">
                 <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:5px"><span>Outstanding</span><span>Limit</span></div>
                 <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;color:#fff;margin-bottom:8px"><span style="color:${pct>80?'#fca5a5':'#fff'}">${fmt(used)}</span><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.6)">${fmt(limit)}</span></div>
-                <div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.15)"><div style="height:5px;border-radius:4px;width:${pct}%;background:${utilColor};transition:.3s"></div></div>
+                <div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.15)"><div style="height:5px;border-radius:4px;width:${Math.min(100,pct)}%;background:${utilColor};transition:.3s"></div></div>
                 <div style="display:flex;justify-content:space-between;margin-top:5px"><span style="font-size:10px;color:rgba(255,255,255,0.45)">${pct}% utilised</span>${c.dueDate?`<span style="font-size:10px;color:rgba(255,255,255,0.45)">Due: ${c.dueDate}</span>`:''}</div>
               </div>
             </div>`;
@@ -3466,7 +3466,7 @@ function renderFinance() {
             ${(STATE.creditCards||[]).map((c,i) => {
               const used = c.outstanding || 0;
               const limit = c.limit || 1;
-              const pct = Math.min(100, Math.round((used/limit)*100));
+              const pct = Math.round((used/limit)*100);
               const utilColor = pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981';
               return `
             <div class="fin-dark-card" data-cid="${c.id}" onclick="if(!event.target.closest('button')){bankTrackerTab='cards';bankTrackerCard=this.dataset.cid;navigate('bank-tracker')}" style="--c1:${c.color||'#1e293b'};--c2:${c.color2||'#0f172a'};padding:18px;border-radius:16px;background:linear-gradient(135deg,${c.color||'#1e293b'},${c.color2||'#0f172a'});position:relative;overflow:hidden;cursor:pointer">
@@ -3492,7 +3492,7 @@ function renderFinance() {
                   <span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.6)">${fmt(limit)}</span>
                 </div>
                 <div style="height:5px;border-radius:4px;background:rgba(255,255,255,0.15)">
-                  <div style="height:5px;border-radius:4px;width:${pct}%;background:${utilColor};transition:.3s"></div>
+                  <div style="height:5px;border-radius:4px;width:${Math.min(100,pct)}%;background:${utilColor};transition:.3s"></div>
                 </div>
                 <div style="display:flex;justify-content:space-between;margin-top:5px">
                   <span style="font-size:10px;color:rgba(255,255,255,0.45)">${pct}% utilised</span>

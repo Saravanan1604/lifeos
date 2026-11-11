@@ -20910,3 +20910,60 @@ html.is-app body:not(#_cx):not(#_cy):not(#_q1):not(#_q2) #modal-overlay #modal-b
 html.is-app body:not(#_cx):not(#_cy) #modal-overlay .cf-switch span { background: rgba(148,163,184,.35) !important; }
 html.is-app body.light:not(#_cx):not(#_cy) #modal-overlay .cf-switch span { background: #CBD5E1 !important; }
 html.is-app body:not(#_cx):not(#_cy) #modal-overlay .cf-switch input:checked + span { background: var(--cx-inc) !important; }
+
+/* ================= build 721 — history cards, storage ================= */
+html.is-app body:not(#_cx):not(#_cy) .lg-host { background: var(--cx-card) !important; border: 1px solid var(--cx-line) !important; border-radius: 22px !important; padding: 0 !important; overflow: hidden; margin-bottom: 16px; box-shadow: none !important; }
+html.is-app body:not(#_cx):not(#_cy) .lgx button { font-family: inherit; min-height: 0 !important; margin: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) .lg-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 10px; }
+html.is-app body:not(#_cx):not(#_cy) .lg-head b { display: block; font-size: 17px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .lg-head small { font-size: 12px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .lg-head button { display: inline-flex; align-items: center; gap: 5px; height: 38px !important; width: auto !important; padding: 0 14px !important; border: 0 !important; border-radius: 999px !important; font-size: 13.5px !important; font-weight: 800 !important; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)) !important; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .lg-head button svg { width: 15px; height: 15px; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .lg-day { margin: 0; padding: 10px 16px 4px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--cx-mute); border-top: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .lg-row > summary { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; list-style: none; }
+html.is-app body:not(#_cx):not(#_cy) .lg-row > summary::-webkit-details-marker { display: none; }
+html.is-app body:not(#_cx):not(#_cy) .lg-ic { width: 40px; height: 40px; border-radius: 13px; flex-shrink: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 22%, var(--cx-chip)); color: color-mix(in srgb, var(--c) 45%, var(--cx-ink)); }
+html.is-app body:not(#_cx):not(#_cy) .lg-ic svg { width: 19px; height: 19px; color: inherit !important; }
+html.is-app body:not(#_cx):not(#_cy) .lg-m { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html.is-app body:not(#_cx):not(#_cy) .lg-m b { font-size: 15px; font-weight: 700; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .lg-m small { font-size: 12.5px; color: var(--cx-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .lg-r { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
+html.is-app body:not(#_cx):not(#_cy) .lg-r b { font-size: 15.5px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .lgx em { font-style: normal; font-size: 12px; font-weight: 700; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .lgx em.good { color: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .lgx em.bad { color: var(--cx-exp); } html.is-app body:not(#_cx):not(#_cy) .lgx em.same { color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .lg-use { display: block; height: 5px; border-radius: 4px; background: var(--cx-chip); margin-top: 6px; overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .lg-use i { display: block; height: 100%; border-radius: 4px; background: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .lg-use.high i { background: var(--cx-warn); } html.is-app body:not(#_cx):not(#_cy) .lg-use.over i { background: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .lg-m small.lg-use-t { font-size: 11.5px; margin-top: 3px; } html.is-app body:not(#_cx):not(#_cy) .lg-m small.lg-use-t.over { color: var(--cx-exp); font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .lg-sub { margin: 0 16px 8px 68px; border-left: 2px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .lg-e { display: flex; align-items: center; gap: 8px; padding: 6px 0 6px 10px; font-size: 12.5px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .lg-e-t { width: 58px; flex-shrink: 0; color: var(--cx-mute); font-size: 11.5px; }
+html.is-app body:not(#_cx):not(#_cy) .lg-e-w { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .lg-e-v { display: flex; flex-direction: column; align-items: flex-end; font-weight: 700; color: var(--cx-ink); flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .lg-e button { width: 28px !important; height: 28px !important; padding: 0 !important; border: 0 !important; border-radius: 9px !important; background: var(--cx-chip) !important; display: grid; place-items: center; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .lg-e button svg { width: 13px; height: 13px; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .lg-empty { margin: 0; padding: 26px 20px 30px; text-align: center; font-size: 14px; color: var(--cx-ink2); border-top: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .lg-more { display: block; width: calc(100% - 32px) !important; margin: 8px 16px 14px !important; height: 42px !important; border-radius: 13px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink2) !important; font-size: 13.5px !important; font-weight: 700 !important; }
+/* storage */
+html.is-app body:not(#_cx):not(#_cy) .sg { display: flex; flex-direction: column; gap: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .sg-top b { font-size: 34px; font-weight: 800; color: var(--cx-ink); margin-right: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .sg-top span { font-size: 13px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .sg-bar { display: block; height: 10px; border-radius: 6px; background: var(--cx-chip); overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .sg-bar i { display: block; height: 100%; border-radius: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .sg-bar i.t-inc { background: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .sg-bar i.t-warn { background: var(--cx-warn); } html.is-app body:not(#_cx):not(#_cy) .sg-bar i.t-exp { background: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .sg-list { border: 1px solid var(--cx-line); border-radius: 16px; padding: 0 14px; }
+html.is-app body:not(#_cx):not(#_cy) .sg-list div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--cx-line); font-size: 14px; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .sg-list div:last-child { border: 0; } html.is-app body:not(#_cx):not(#_cy) .sg-list b { color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .sg-note { margin: 0 !important; font-size: 12.5px !important; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .sg-warn { margin: 0 !important; padding: 10px 12px; border-radius: 12px; background: var(--cx-exp-bg); color: var(--cx-exp) !important; font-size: 13px !important; font-weight: 600; }
+html.is-app body:not(#_cx):not(#_cy) .sg-btn { display: flex !important; align-items: center; gap: 12px; width: 100% !important; height: auto !important; min-height: 0 !important; margin: 0 !important; padding: 12px 14px !important; text-align: left; border-radius: 16px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-card) !important; }
+html.is-app body:not(#_cx):not(#_cy) .sg-btn > svg { width: 20px; height: 20px; color: var(--cx-pri-tx, var(--cx-pri)) !important; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .sg-btn b { display: block; font-size: 14.5px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .sg-btn small { display: block; font-size: 12px; color: var(--cx-mute); line-height: 1.4; }
+#save-fail { position: fixed; left: 12px; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 12px); z-index: 2147483600; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #B42335; color: #fff; font-size: 13.5px; line-height: 1.4; box-shadow: 0 18px 40px -14px rgba(0,0,0,.6); }
+#save-fail button { flex-shrink: 0; border: 0; border-radius: 10px; padding: 8px 12px; font-weight: 800; background: #fff; color: #B42335; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .sg-btn { justify-content: flex-start !important; white-space: normal !important; overflow: visible !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .sg-btn > span { flex: 1; min-width: 0; white-space: normal !important; text-align: left; }
+html.is-app body:not(#_cx):not(#_cy) .lg-e-w { white-space: normal !important; line-height: 1.3; }
+html.is-app body:not(#_cx):not(#_cy) .lg-e-t { width: 52px; }
+html.is-app body:not(#_cx):not(#_cy) .lg-m small.lg-use-t { white-space: normal !important; }
