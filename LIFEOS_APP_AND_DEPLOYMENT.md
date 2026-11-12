@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **726** (13 Nov 2026).*
+*Status as of build **727** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -276,6 +276,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 724 | Fix: after saving from some screens the app jumped to the **old Finance page** or to **Home while the bottom bar still showed Assets**. About 20 save handlers called `renderFinance()` or `renderRecordsMyMoney()` directly; in the app both now re-render the page you are on (`cleanup.js`), and a smart search from another page opens Home first. Classic web layout unchanged |
 | 725 | New **Assets** page in the app (`js/assets2.js`): colourful net-worth card with count-up and an animated Own vs Owe bar, quick buttons (Add Asset, Add Loan, Projection, Banks), 4 tiles (assets growth, cash & bank, monthly EMIs with % of income, debt-free date), a What you own / What you owe switch, tappable ring with animated legend bars, coloured rows with gain pills, loan rows with a paid-progress bar and payoff date. Same data, detail and add screens; classic web layout unchanged |
 | 726 | New **loan and asset detail screens** in the app (`js/detail2.js`). Loan: hero with what is left + animated % paid ring, warning when the loan amount and outstanding do not match, plan counted from today's balance (not the original amount), tiles (EMI, debt-free in, interest still to pay, paid so far), tappable yearly bar chart, "Finish sooner" with extra-per-month chips and one-time payment, schedule from this month (12 rows + show all), Mark as paid / Delete. Asset: hero with value + gain, tiles (put in, gain, per month, per year / received, expected back for money lent), value chart, Update value / Delete. Saving an edit now stays on the detail screen. Classic web keeps the old screens |
+| 727 | New **Analytics** page in the app (`js/analytics3.js`): green/rose hero with the period's net and a plain sentence plus an In vs Out bar, 4 tiles whose changes say what they compare with ("▼ 3% vs ₹1L same day last month"), saving rate can now go negative (was stuck at 0%), running-balance line with ₹0 line and last-period value, animated in/out bars, budgets with "₹X over / ₹X left" (top 5 + show all), spending ring + category rows with change, habits, and Forecast + Deep dive moved to "More insights" (fixes the cut-off text and the "7 income" label → "Income streams"). Sums use the shared money engine |
 
 ### Testing locally
 

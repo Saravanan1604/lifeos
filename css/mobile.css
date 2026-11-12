@@ -21154,3 +21154,76 @@ html.is-app body:not(#_cx):not(#_cy) .adx-dot { fill: var(--cx-card); stroke: va
 html.is-app body:not(#_cx):not(#_cy) .adx-svg.down .adx-dot { stroke: var(--cx-exp); }
 html.is-app body:not(#_cx):not(#_cy) .ldx .up { color: var(--cx-inc) !important; } html.is-app body:not(#_cx):not(#_cy) .ldx .down { color: var(--cx-exp) !important; }
 html.is-app body:not(#_cx):not(#_cy) .ldx-btn.hide { display: none !important; }
+
+/* ================= build 727 — new Analytics page ================= */
+html.is-app body:not(#_cx):not(#_cy) .anx-top { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 12px; }
+html.is-app body:not(#_cx):not(#_cy) .anx-top h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -.02em; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .anx-top button { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px !important; border-radius: 999px; border: 1px solid var(--cx-line); background: var(--cx-card); font-size: 13px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .anx-top button svg { width: 16px; height: 16px; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .anx-seg { grid-template-columns: repeat(4, 1fr); margin: 0 0 10px; }
+html.is-app body:not(#_cx):not(#_cy) .anx-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .anx-nav span { font-size: 16px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .anx-nav button { width: 40px !important; height: 40px; padding: 0 !important; border-radius: 13px; border: 1px solid var(--cx-line); background: var(--cx-card); display: grid; place-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .anx-nav button svg { width: 18px; height: 18px; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .anx-nav button:disabled { opacity: .35; }
+html.is-app body:not(#_cx):not(#_cy) .anx-hero.pos { background: linear-gradient(135deg, #047857 0%, #10B981 50%, #0EA5B7 120%); box-shadow: 0 22px 44px -22px #10B981; }
+html.is-app body:not(#_cx):not(#_cy) .anx-rate { font-style: normal; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.2); }
+html.is-app body:not(#_cx):not(#_cy) .anx-hero .as-split-l span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+html.is-app body:not(#_cx):not(#_cy) .anx-tiles .as-tile em { margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .anx .as-tile em.good { color: var(--cx-inc); font-weight: 800; } html.is-app body:not(#_cx):not(#_cy) .anx .as-tile em.bad { color: var(--cx-exp); font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .anx .as-tile em span { display: block; font-weight: 600; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .ldx-leg i.gh { height: 0; border-top: 2px dashed var(--cx-mute); border-radius: 0; background: none; }
+html.is-app body:not(#_cx):not(#_cy) .ldx-leg i.x { background: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow { width: 100%; height: auto; display: block; overflow: visible; }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow text { font-size: 10px; font-weight: 700; fill: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow .z { stroke: var(--cx-line); stroke-width: 1.5; }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow .g { fill: none; stroke: var(--cx-mute); stroke-width: 1.8; stroke-dasharray: 4 4; opacity: .7; }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow .c { fill: none; stroke: var(--cx-inc); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1400; animation: ldvDraw 1.4s .2s ease-out both; }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow .s0 { stop-color: var(--cx-inc); stop-opacity: .3; } html.is-app body:not(#_cx):not(#_cy) .anx-flow .s1 { stop-color: var(--cx-inc); stop-opacity: 0; }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow.neg .c { stroke: var(--cx-exp); } html.is-app body:not(#_cx):not(#_cy) .anx-flow.neg :is(.s0, .s1) { stop-color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow .a { animation: mvUp .8s .3s both; }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow .d { fill: var(--cx-card); stroke: var(--cx-inc); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: mvPop .5s 1.3s both; }
+html.is-app body:not(#_cx):not(#_cy) .anx-flow.neg .d { stroke: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .anx-cap { margin: 10px 2px 0; font-size: 13px; text-align: center; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .anx-cap b { font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bars .hx-pair { animation: mvUp .5s var(--d) both; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bars .hx-pair i { transform-origin: bottom; animation: ldvUp .7s .2s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bars i.inc { background: var(--cx-inc) !important; } html.is-app body:not(#_cx):not(#_cy) .anx-bars i.exp { background: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud { display: flex; flex-direction: column; gap: 7px; width: 100% !important; padding: 13px 14px !important; border: 0; border-bottom: 1px solid var(--cx-line); background: none; text-align: left; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud:active { background: var(--cx-chip); }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud-h b { font-size: 15px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud-h small { font-size: 12.5px; font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .anx .warn { color: var(--cx-warn) !important; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud-bar { display: block; height: 8px; border-radius: 6px; background: var(--cx-chip); overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud-bar i { display: block; height: 100%; border-radius: 6px; transform-origin: left; animation: pkBar .9s .15s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud-bar i.inc { background: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .anx-bud-bar i.warn { background: var(--cx-warn); } html.is-app body:not(#_cx):not(#_cy) .anx-bud-bar i.exp { background: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud-bar i:is(.inc, .warn, .exp) { color: inherit !important; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud-f { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .anx-nobud b { font-size: 16px; color: var(--cx-ink); } html.is-app body:not(#_cx):not(#_cy) .anx-nobud p { margin: 4px 0 4px; font-size: 13px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .anx-cats { margin-top: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .anx-cat { display: flex; align-items: center; gap: 12px; width: 100% !important; padding: 12px 14px !important; border: 0; border-bottom: 1px solid var(--cx-line); background: none; text-align: left; }
+html.is-app body:not(#_cx):not(#_cy) .anx-cat:last-child { border-bottom: 0; }
+html.is-app body:not(#_cx):not(#_cy) .anx-dot { width: 12px; height: 12px; border-radius: 4px; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .anx-cm { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html.is-app body:not(#_cx):not(#_cy) .anx-cm b { font-size: 15px; font-weight: 800; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .anx-cm small { font-size: 12px; color: var(--cx-mute); margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .anx-cat > b { font-size: 15px; font-weight: 900; color: var(--cx-ink); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .anx-smart { display: flex; align-items: center; gap: 12px; width: 100% !important; padding: 14px !important; border-radius: 20px; border: 1px solid color-mix(in srgb, var(--cx-pri) 35%, transparent); background: linear-gradient(135deg, color-mix(in srgb, var(--cx-pri) 14%, var(--cx-card)), var(--cx-card)); text-align: left; }
+html.is-app body:not(#_cx):not(#_cy) .anx-smart > span:first-child { width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0; display: grid; place-items: center; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)); }
+html.is-app body:not(#_cx):not(#_cy) .anx-smart > span:first-child svg { width: 22px; height: 22px; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .anx-smart .m { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html.is-app body:not(#_cx):not(#_cy) .anx-smart .m b { font-size: 15px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .anx-smart .m small { font-size: 12.5px; line-height: 1.35; color: var(--cx-mute); margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .anx-smart > svg { width: 18px; height: 18px; color: var(--cx-mute) !important; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .anx-deep { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .anx-deep button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 2px !important; border-radius: 16px; border: 1px solid var(--cx-line); background: var(--cx-card); font-size: 11px; font-weight: 700; line-height: 1.2; color: var(--cx-ink2); text-align: center; }
+html.is-app body:not(#_cx):not(#_cy) .anx-deep span { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--cx-pri) 14%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .anx-deep svg { width: 18px; height: 18px; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .anx-hab { margin-top: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud { display: flex !important; align-items: stretch !important; justify-content: flex-start !important; height: auto !important; white-space: normal !important; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud > span { display: flex; width: 100%; }
+html.is-app body:not(#_cx):not(#_cy) .anx-bud > .anx-bud-bar { display: block; }
+html.is-app body:not(#_cx):not(#_cy) :is(.anx-smart, .anx-cat, .anx-deep button) { white-space: normal !important; height: auto !important; }
+html.is-app body:not(#_cx):not(#_cy) .anx-deep { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+html.is-app body:not(#_cx):not(#_cy) .anx-deep button { min-width: 0; overflow-wrap: anywhere; }
