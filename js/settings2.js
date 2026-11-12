@@ -116,6 +116,9 @@ function renderSettingsApp() {
     (() => { const ev = typeof backupEvery === 'function' ? backupEvery() : 7; const last = +(localStorage.getItem('lifeos_last_backup') || 0);
       return `<label class="st-row"><span class="st-ic t-inc"><i data-lucide="calendar-check"></i></span><span class="st-tx"><b>Backup reminder</b><small>${last ? 'Last backup ' + Math.floor((Date.now() - last) / 864e5) + ' days ago' : 'No backup yet'}</small></span>
         <select class="st-sel" onchange="setBackupEvery(+this.value)">${[[7, 'Every week'], [14, 'Every 2 weeks'], [30, 'Every month'], [0, 'Off']].map(([v, l]) => `<option value="${v}" ${ev === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`; })(),
+    (() => { const md = typeof syncMode === 'function' ? syncMode() : 'on', L = typeof SYNC_LOG !== 'undefined' ? SYNC_LOG : {}, bad = md === 'on' && ((L.push && !L.push.ok) || (L.pull && !L.pull.ok));
+      const t = md === 'on' ? (bad ? 'Sync is failing — tap to see why' : 'Syncing · last ' + _syAgo(+(localStorage.getItem('lifeos_lastSyncOk') || 0))) : md === 'demo' ? 'Off while Demo mode is on' : 'Not signed in — data is only on this device';
+      return _stRow({ ic: md === 'on' && !bad ? 'cloud' : 'cloud-off', tone: md === 'on' && !bad ? 'inc' : 'exp', t: 'Sync status', s: t, right: `<span class="st-pill ${md === 'on' && !bad ? 'on' : ''}">${md === 'on' && !bad ? 'OK' : '!'}</span>`, on: 'openSyncStatus()' }); })(),
     (() => { const p = typeof storageInfo === 'function' ? storageInfo().pct : 0;
       return _stRow({ ic: 'hard-drive', tone: p >= 90 ? 'exp' : p >= 70 ? 'warn' : 'inc', t: 'Storage on this phone', s: `${p}% used · tidy logs and receipt photos`, right: `<span class="st-pill ${p < 70 ? 'on' : ''}">${p}%</span>`, on: 'openStorage()' }); })(),
     _stRow({ ic: 'download', tone: 'pri', t: 'Export backup (JSON)', s: 'Download everything to this phone', on: 'exportData()' }),

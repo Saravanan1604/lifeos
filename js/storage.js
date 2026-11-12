@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 722;
+const APP_BUILD = 723;
 
 // ===== STORAGE UTILITIES =====
 // ===== DEMO MODE =====
@@ -396,11 +396,29 @@ function _mergeCloudIntoState(cloudState) {
   return { changed, needPush };
 }
 
+// Every sync request has a time limit. Without one, a request that hangs on a
+// weak connection kept the "busy" flag set and blocked ALL later syncs until
+// the app was restarted. 75 s allows for the server waking from sleep.
+async function _syncFetch(url, opts, ms) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms || 75000);
+  try { return await fetch(url, { ...(opts || {}), signal: ctl.signal }); }
+  finally { clearTimeout(t); }
+}
+// Last result of each sync step, shown in Settings → Sync status.
+const SYNC_LOG = { pull: null, push: null };
+function _syncNote(step, ok, code, msg) {
+  SYNC_LOG[step] = { at: Date.now(), ok, code: code || 0, msg: String(msg || '').slice(0, 200) };
+  try { localStorage.setItem('lifeos_sync_log', JSON.stringify(SYNC_LOG)); } catch (_) {}
+}
+try { const sl = JSON.parse(localStorage.getItem('lifeos_sync_log') || 'null'); if (sl) Object.assign(SYNC_LOG, sl); } catch (_) {}
 async function _fetchCloud(token) {
-  const res = await fetch(`${API_URL}/me`, { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' });
-  if (res.status === 401 || res.status === 403) { _onAuthExpired(); return { status: 'auth' }; }
-  if (!res.ok) return { status: 'error' };
+  let res;
+  try { res = await _syncFetch(`${API_URL}/me`, { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' }); }
+  catch (e) { _syncNote('pull', false, 0, e && e.name === 'AbortError' ? 'timeout' : 'network'); throw e; }
+  if (res.status === 401 || res.status === 403) { _syncNote('pull', false, res.status, 'login expired'); _onAuthExpired(); return { status: 'auth' }; }
+  if (!res.ok) { let m = ''; try { m = await res.text(); } catch (_) {} _syncNote('pull', false, res.status, m); return { status: 'error' }; }
   const data = await res.json();
+  _syncNote('pull', true, 200, '');
   return { status: 'ok', state: (data && data.state) || {} };
 }
 
@@ -491,18 +509,23 @@ async function _pushToCloud() {
         }
       }
     }
-    const res = await fetch(`${API_URL}/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ state: STATE })
-    });
-    if (res.status === 401 || res.status === 403) { _onAuthExpired(); return; }
+    let res;
+    try {
+      res = await _syncFetch(`${API_URL}/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ state: STATE })
+      });
+    } catch (e) { _syncNote('push', false, 0, e && e.name === 'AbortError' ? 'timeout' : 'network'); throw e; }
+    if (res.status === 401 || res.status === 403) { _syncNote('push', false, res.status, 'login expired'); _onAuthExpired(); return; }
     if (res.status === 413) {
+      _syncNote('push', false, 413, 'too large');
       setSyncDot('error');
       if (typeof toast === 'function') toast('Sync failed: data too large for the server. Remove big receipts/photos and try again.', 'error');
       return;
     }
-    if (!res.ok) throw new Error('push ' + res.status);
+    if (!res.ok) { let m = ''; try { m = await res.text(); } catch (_) {} _syncNote('push', false, res.status, m); throw new Error('push ' + res.status); }
+    _syncNote('push', true, 200, '');
     _clearDirty();
     _pushRetry = 0;
     _lastCloudHash = '';     // force the next pull to re-read

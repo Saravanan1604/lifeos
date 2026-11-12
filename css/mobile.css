@@ -20967,3 +20967,20 @@ html.is-app body:not(#_cx):not(#_cy) #modal-body .sg-btn > span { flex: 1; min-w
 html.is-app body:not(#_cx):not(#_cy) .lg-e-w { white-space: normal !important; line-height: 1.3; }
 html.is-app body:not(#_cx):not(#_cy) .lg-e-t { width: 52px; }
 html.is-app body:not(#_cx):not(#_cy) .lg-m small.lg-use-t { white-space: normal !important; }
+
+/* ================= build 723 — sync status ================= */
+html.is-app body:not(#_cx):not(#_cy) .sy { display: flex; flex-direction: column; gap: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .sy-top { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .sy-top.t-inc { background: var(--cx-inc-bg); } html.is-app body:not(#_cx):not(#_cy) .sy-top.t-warn { background: var(--cx-warn-bg); } html.is-app body:not(#_cx):not(#_cy) .sy-top.t-exp { background: var(--cx-exp-bg); }
+html.is-app body:not(#_cx):not(#_cy) .sy-top > span { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; flex-shrink: 0; color: #fff; }
+html.is-app body:not(#_cx):not(#_cy) .sy-top.t-inc > span { background: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .sy-top.t-warn > span { background: var(--cx-warn); } html.is-app body:not(#_cx):not(#_cy) .sy-top.t-exp > span { background: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .sy-top svg { width: 22px; height: 22px; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .sy-top b { display: block; font-size: 16px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .sy-top small { display: block; font-size: 13px; line-height: 1.4; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .sy-fix { margin: 0 !important; padding: 12px; border-radius: 14px; border: 1px solid var(--cx-line); font-size: 13px !important; line-height: 1.5 !important; color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body .sy-fix b { color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) #modal-body #sy-test p { margin: 2px 0 !important; font-size: 13.5px !important; color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) #modal-body #sy-test p.ok { color: var(--cx-inc) !important; } html.is-app body:not(#_cx):not(#_cy) #modal-body #sy-test p.no { color: var(--cx-exp) !important; font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .sy-btn { display: flex !important; align-items: center; justify-content: center; gap: 8px; width: 100% !important; height: 50px !important; min-height: 0 !important; margin: 0 !important; border-radius: 16px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important; font-size: 15px !important; font-weight: 800 !important; }
+html.is-app body:not(#_cx):not(#_cy) .sy-btn.p { border: 0 !important; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .sy-btn svg { width: 18px; height: 18px; color: inherit !important; }
