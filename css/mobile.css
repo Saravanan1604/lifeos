@@ -20984,3 +20984,85 @@ html.is-app body:not(#_cx):not(#_cy) #modal-body #sy-test p.ok { color: var(--cx
 html.is-app body:not(#_cx):not(#_cy) .sy-btn { display: flex !important; align-items: center; justify-content: center; gap: 8px; width: 100% !important; height: 50px !important; min-height: 0 !important; margin: 0 !important; border-radius: 16px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important; font-size: 15px !important; font-weight: 800 !important; }
 html.is-app body:not(#_cx):not(#_cy) .sy-btn.p { border: 0 !important; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)) !important; }
 html.is-app body:not(#_cx):not(#_cy) .sy-btn svg { width: 18px; height: 18px; color: inherit !important; }
+
+/* ================= build 725 — new Assets page ================= */
+html.is-app body:not(#_cx):not(#_cy) .asx { gap: 0; }
+html.is-app body:not(#_cx):not(#_cy) .asx .debtfree-card, html.is-app body:not(#_cx):not(#_cy) .asx .nw-df, html.is-app body:not(#_cx):not(#_cy) .asx .nw-trend { zoom: 1 !important; }
+html.is-app body:not(#_cx):not(#_cy) .as-hero { position: relative; overflow: hidden; border-radius: 26px; padding: 18px 18px 16px; color: #fff; background: linear-gradient(135deg, #5B2BD9 0%, #7C4DFF 45%, #0EA5B7 120%); box-shadow: 0 22px 44px -22px #6D3BEA; animation: mvUp .5s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .as-hero.neg { background: linear-gradient(135deg, #9F1D3A 0%, #E0475D 50%, #7C4DFF 130%); box-shadow: 0 22px 44px -22px #E0475D; }
+html.is-app body:not(#_cx):not(#_cy) .as-hero::before { content: ''; position: absolute; right: -50px; top: -70px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.28), transparent 65%); animation: asFloat 6s ease-in-out infinite alternate; pointer-events: none; }
+html.is-app body:not(#_cx):not(#_cy) .as-hero::after { content: ''; position: absolute; left: -60px; bottom: -80px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.14), transparent 65%); animation: asFloat 7s ease-in-out infinite alternate-reverse; pointer-events: none; }
+@keyframes asFloat { to { transform: translate(-18px, 14px) scale(1.08); } }
+html.is-app body:not(#_cx):not(#_cy) .as-hero * { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .as-hero-top { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+html.is-app body:not(#_cx):not(#_cy) .as-hero-top > span { font-size: 12.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; opacity: .9; }
+html.is-app body:not(#_cx):not(#_cy) .as-hero-top button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px !important; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.16); font-size: 12px; font-weight: 800; backdrop-filter: blur(6px); }
+html.is-app body:not(#_cx):not(#_cy) .as-hero-top button svg { width: 14px; height: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .as-nw { position: relative; z-index: 1; display: block; font-size: 38px; font-weight: 900; letter-spacing: -.03em; margin: 8px 0 2px; font-variant-numeric: tabular-nums; }
+html.is-app body:not(#_cx):not(#_cy) .as-say { position: relative; z-index: 1; margin: 0; font-size: 14px; opacity: .95; }
+html.is-app body:not(#_cx):not(#_cy) .as-chg { position: relative; z-index: 1; display: inline-block; margin-top: 10px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; background: rgba(255,255,255,.2); }
+html.is-app body:not(#_cx):not(#_cy) .as-split { position: relative; z-index: 1; display: flex; gap: 3px; height: 10px; margin-top: 16px; border-radius: 6px; overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .as-split i { display: block; height: 100%; border-radius: 6px; transform-origin: left; animation: pkBar .9s .2s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .as-split i.own, html.is-app body:not(#_cx):not(#_cy) .as-split-l .d.own { background: #5EEAD4; }
+html.is-app body:not(#_cx):not(#_cy) .as-split i.owe, html.is-app body:not(#_cx):not(#_cy) .as-split-l .d.owe { background: #FDA4AF; }
+html.is-app body:not(#_cx):not(#_cy) .as-split i.owe { animation-delay: .45s; }
+html.is-app body:not(#_cx):not(#_cy) .as-split-l { position: relative; z-index: 1; display: flex; justify-content: space-between; margin-top: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .as-split-l button { display: inline-flex; align-items: center; gap: 6px; padding: 2px 0 !important; border: 0; background: none; font-size: 13px; font-weight: 600; }
+html.is-app body:not(#_cx):not(#_cy) .as-split-l b { font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .as-split-l .d { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+html.is-app body:not(#_cx):not(#_cy) .as-acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 16px 0 4px; }
+html.is-app body:not(#_cx):not(#_cy) .as-acts button { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 4px 0 !important; border: 0; background: none; font-size: 12px; font-weight: 700; color: var(--cx-ink2); animation: mvPop .45s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .as-acts button:nth-child(2) { animation-delay: .05s; } html.is-app body:not(#_cx):not(#_cy) .as-acts button:nth-child(3) { animation-delay: .1s; } html.is-app body:not(#_cx):not(#_cy) .as-acts button:nth-child(4) { animation-delay: .15s; }
+html.is-app body:not(#_cx):not(#_cy) .as-acts span, html.is-app body:not(#_cx):not(#_cy) .as-tile .ti { display: grid; place-items: center; border-radius: 18px; --c: var(--cx-pri); color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .as-acts span { width: 54px; height: 54px; transition: transform .15s; }
+html.is-app body:not(#_cx):not(#_cy) .as-acts button:active span { transform: scale(.9); }
+html.is-app body:not(#_cx):not(#_cy) .as-acts span svg { width: 23px; height: 23px; color: var(--c) !important; }
+html.is-app body:not(#_cx):not(#_cy) :is(.as-acts, .as-tile) .xg { --c: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) :is(.as-acts, .as-tile) .xr { --c: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) :is(.as-acts, .as-tile) .xp { --c: var(--cx-pri-tx, var(--cx-pri)); } html.is-app body:not(#_cx):not(#_cy) :is(.as-acts, .as-tile) .xc { --c: var(--cx-acc); }
+html.is-app body:not(#_cx):not(#_cy) .as-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .as-tile { position: relative; background: var(--cx-card); border: 1px solid var(--cx-line); border-radius: 20px; padding: 13px 14px; min-width: 0; animation: mvUp .5s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .as-tile:nth-child(2) { animation-delay: .05s; } html.is-app body:not(#_cx):not(#_cy) .as-tile:nth-child(3) { animation-delay: .1s; } html.is-app body:not(#_cx):not(#_cy) .as-tile:nth-child(4) { animation-delay: .15s; cursor: pointer; }
+html.is-app body:not(#_cx):not(#_cy) .as-tile .ti { width: 34px; height: 34px; border-radius: 11px; margin-bottom: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .as-tile .ti svg { width: 17px; height: 17px; color: var(--c) !important; }
+html.is-app body:not(#_cx):not(#_cy) .as-tile small { display: block; font-size: 12px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .as-tile b { display: block; font-size: 20px; font-weight: 900; letter-spacing: -.02em; color: var(--cx-ink); margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .as-tile em { display: block; font-style: normal; font-size: 11.5px; line-height: 1.3; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .asx .up { color: var(--cx-inc) !important; } html.is-app body:not(#_cx):not(#_cy) .asx .down, html.is-app body:not(#_cx):not(#_cy) .asx .neg { color: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .as-tile em.warn { color: var(--cx-warn); font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .as-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 18px 0 12px; border-radius: 18px; background: var(--cx-chip); }
+html.is-app body:not(#_cx):not(#_cy) .as-seg button { padding: 9px 6px !important; border: 0; border-radius: 14px; background: none; font-size: 14px; font-weight: 800; color: var(--cx-mute); transition: background .2s, color .2s, box-shadow .2s; }
+html.is-app body:not(#_cx):not(#_cy) .as-seg button small { display: block; font-size: 11.5px; font-weight: 700; margin-top: 2px; opacity: .85; }
+html.is-app body:not(#_cx):not(#_cy) .as-seg button.on { background: var(--cx-card); color: var(--cx-ink); box-shadow: 0 6px 16px -10px rgba(0,0,0,.45); }
+html.is-app body:not(#_cx):not(#_cy) .as-seg button.on:first-child small { color: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .as-seg button.on:last-child small { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .as-alloc .pk-ring .hx-rose { width: 220px; height: 220px; }
+html.is-app body:not(#_cx):not(#_cy) .as-leg { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .as-leg > div { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 4px 10px; }
+html.is-app body:not(#_cx):not(#_cy) .as-leg > div > i { width: 10px; height: 10px; border-radius: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .as-leg > div > span { font-size: 13.5px; font-weight: 700; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .as-leg > div > b { font-size: 13.5px; font-weight: 900; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .as-leg .as-leg-bar { grid-column: 2 / 4; height: 6px; border-radius: 4px; background: var(--cx-chip); overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .as-leg .as-leg-bar i, html.is-app body:not(#_cx):not(#_cy) .as-prog i { display: block; height: 100%; border-radius: 4px; transform-origin: left; animation: pkBar .9s .2s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .as-row { display: flex; align-items: center; gap: 12px; width: 100% !important; padding: 13px 14px !important; border: 0; border-bottom: 1px solid var(--cx-line); background: none; text-align: left; transition: background .15s; animation: mvUp .45s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .as-row:last-child { border-bottom: 0; }
+html.is-app body:not(#_cx):not(#_cy) .as-row:active { background: var(--cx-chip); }
+html.is-app body:not(#_cx):not(#_cy) .as-ic { width: 46px; height: 46px; border-radius: 15px; flex-shrink: 0; display: grid; place-items: center; background: linear-gradient(135deg, color-mix(in srgb, var(--c) 26%, transparent), color-mix(in srgb, var(--c) 10%, transparent)); }
+html.is-app body:not(#_cx):not(#_cy) .as-ic svg { width: 22px; height: 22px; color: var(--c) !important; }
+html.is-app body:not(#_cx):not(#_cy) .as-m { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html.is-app body:not(#_cx):not(#_cy) .as-m > b { font-size: 15.5px; font-weight: 800; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .as-m > small { font-size: 12.5px; color: var(--cx-mute); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .as-prog { display: block; height: 6px; border-radius: 4px; margin-top: 8px; background: var(--cx-chip); overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .as-prog i { background: linear-gradient(90deg, var(--cx-inc), #34D399); }
+html.is-app body:not(#_cx):not(#_cy) .as-m small.as-prog-t { margin-top: 5px; font-size: 11.5px; font-weight: 700; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .as-r { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .as-r > b { font-size: 15.5px; font-weight: 900; color: var(--cx-ink); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .as-r em { font-style: normal; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .as-r em.up { background: var(--cx-inc-bg); } html.is-app body:not(#_cx):not(#_cy) .as-r em.down { background: var(--cx-exp-bg); }
+html.is-app body:not(#_cx):not(#_cy) .as-r em.flat { color: var(--cx-mute); padding: 0; }
+html.is-app body:not(#_cx):not(#_cy) .asx .debtfree-card { margin-top: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .as-trend { margin-top: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .as-hint { margin: 10px 2px 0; font-size: 12px; line-height: 1.4; color: var(--cx-mute); }
+@media (prefers-reduced-motion: reduce) { html.is-app .as-hero::before, html.is-app .as-hero::after { animation: none !important; } }
+html.is-app body:not(#_cx):not(#_cy) .as-hero .as-chg { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .as-seg button { display: flex !important; flex-direction: column; align-items: center; justify-content: center; }
+html.is-app body:not(#_cx):not(#_cy) .as-acts button { justify-content: flex-start; }
+html.is-app body:not(#_cx):not(#_cy) .as-acts button[onclick*="openNetWorthProjModal"] { margin-bottom: 0 !important; }
