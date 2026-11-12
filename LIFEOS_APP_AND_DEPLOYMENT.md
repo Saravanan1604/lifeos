@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **725** (12 Nov 2026).*
+*Status as of build **726** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -275,6 +275,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 723 | **Sync diagnosis** (new `js/syncstatus.js`): Settings → **Sync status** shows whether this device is syncing, signed out (local only), in Demo mode, or failing — with the failing step, HTTP code, the server's message, a plain reason and what to do (login expired, server asleep/down, MongoDB unreachable, data too large). “Test sync now” contacts the server, compares cloud vs device counts and uploads. Sync requests now time out after 75 s (`_syncFetch`): a hung request used to leave the busy flag set and block every later sync until restart. Results recorded in `SYNC_LOG` / `lifeos_sync_log`. Verified with a simulated server: two devices merge, new entries and deletes travel both ways, no upload loop when idle |
 | 724 | Fix: after saving from some screens the app jumped to the **old Finance page** or to **Home while the bottom bar still showed Assets**. About 20 save handlers called `renderFinance()` or `renderRecordsMyMoney()` directly; in the app both now re-render the page you are on (`cleanup.js`), and a smart search from another page opens Home first. Classic web layout unchanged |
 | 725 | New **Assets** page in the app (`js/assets2.js`): colourful net-worth card with count-up and an animated Own vs Owe bar, quick buttons (Add Asset, Add Loan, Projection, Banks), 4 tiles (assets growth, cash & bank, monthly EMIs with % of income, debt-free date), a What you own / What you owe switch, tappable ring with animated legend bars, coloured rows with gain pills, loan rows with a paid-progress bar and payoff date. Same data, detail and add screens; classic web layout unchanged |
+| 726 | New **loan and asset detail screens** in the app (`js/detail2.js`). Loan: hero with what is left + animated % paid ring, warning when the loan amount and outstanding do not match, plan counted from today's balance (not the original amount), tiles (EMI, debt-free in, interest still to pay, paid so far), tappable yearly bar chart, "Finish sooner" with extra-per-month chips and one-time payment, schedule from this month (12 rows + show all), Mark as paid / Delete. Asset: hero with value + gain, tiles (put in, gain, per month, per year / received, expected back for money lent), value chart, Update value / Delete. Saving an edit now stays on the detail screen. Classic web keeps the old screens |
 
 ### Testing locally
 
