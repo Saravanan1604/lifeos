@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **723** (6 Nov 2026).*
+*Status as of build **724** (6 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -273,6 +273,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 721 | **Data safety + new history screens** (new `js/logs2.js`). Saves: `DB.save` no longer swallows errors — a red banner appears if a save fails (storage full) and Settings → **Storage on this phone** shows % used, a breakdown, “Tidy old log entries” and “Remove receipt photos older than 1 year”. Sync: log entries created without an id were dropped by the merge (a typed balance could vanish) — `_ensureLogIds` gives old entries a content-based id that is the same on every device; `cashAccounts` and `cashBalanceHistory` now sync. Logs: after 60 days entries are tidied to one per account per day (closing value kept, so balances and trends don't change; runs once a day). Bank / Cash / Card history redesigned in the app: newest first, one row per account per day, tap to see each change with its reason and time, signed ▲/▼ changes, 30 days at a time. Card usage shows the real % (e.g. 259% · over by ₹63,448) on logs and card faces |
 | 722 | **Unused code removed**: 86 top-level functions that nothing references (found by name search to a fixpoint across all JS/HTML; ~1,850 lines, 115 KB) deleted from 16 files — biggest: finance.js 37, features.js 16, dashboard.js 7. `growth.js` (Journal/Skills) and `custom-pages.js` now load only in the classic web layout (`document.write` guarded by `!__IS_APP` in `index.html`); the `journal` route falls back to Home when its code isn't loaded. App JS: 1,745 KB → 1,575 KB. Classic layout verified on 12 pages |
 | 723 | **Sync diagnosis** (new `js/syncstatus.js`): Settings → **Sync status** shows whether this device is syncing, signed out (local only), in Demo mode, or failing — with the failing step, HTTP code, the server's message, a plain reason and what to do (login expired, server asleep/down, MongoDB unreachable, data too large). “Test sync now” contacts the server, compares cloud vs device counts and uploads. Sync requests now time out after 75 s (`_syncFetch`): a hung request used to leave the busy flag set and block every later sync until restart. Results recorded in `SYNC_LOG` / `lifeos_sync_log`. Verified with a simulated server: two devices merge, new entries and deletes travel both ways, no upload loop when idle |
+| 724 | Fix: after saving from some screens the app jumped to the **old Finance page** or to **Home while the bottom bar still showed Assets**. About 20 save handlers called `renderFinance()` or `renderRecordsMyMoney()` directly; in the app both now re-render the page you are on (`cleanup.js`), and a smart search from another page opens Home first. Classic web layout unchanged |
 
 ### Testing locally
 

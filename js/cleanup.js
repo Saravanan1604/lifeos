@@ -156,6 +156,28 @@
   const _pcWatch = () => { const pc = document.getElementById('page-container'); if (pc) new MutationObserver(liftSelBar).observe(pc, { childList: true, subtree: true }); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _pcWatch); else _pcWatch();
 
+  // ── Redraw the page you are ON after a save (build 724) ──────
+  // ~20 save handlers call renderFinance() (the old Finance page) or
+  // renderRecordsMyMoney() (Home) directly. On any other page that swapped
+  // the screen to the wrong page while the bottom bar stayed on yours.
+  let _redraw = false;
+  const _here = () => (typeof currentPage !== 'undefined' && currentPage) || 'transactions';
+  const _stay = () => { if (_redraw) return; _redraw = true; try { navigate(_here(), true); } finally { _redraw = false; } };
+  if (typeof renderFinance === 'function') {
+    window.renderFinance = function () { _stay(); };
+  }
+  if (typeof renderRecordsMyMoney === 'function') {
+    const rr = renderRecordsMyMoney;
+    window.renderRecordsMyMoney = function () {
+      if (_here() !== 'transactions' && !_redraw) return _stay();
+      return rr.apply(this, arguments);
+    };
+  }
+  if (typeof setRecSmartSearch === 'function') {
+    const ss = setRecSmartSearch;
+    window.setRecSmartSearch = function () { if (_here() !== 'transactions') navigate('transactions'); return ss.apply(this, arguments); };
+  }
+
   // ── Moving background off (battery) ─────────────────────────
   try {
     if (typeof _bgMode !== 'undefined') _bgMode = 'none';
