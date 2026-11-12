@@ -21227,3 +21227,40 @@ html.is-app body:not(#_cx):not(#_cy) .anx-bud > .anx-bud-bar { display: block; }
 html.is-app body:not(#_cx):not(#_cy) :is(.anx-smart, .anx-cat, .anx-deep button) { white-space: normal !important; height: auto !important; }
 html.is-app body:not(#_cx):not(#_cy) .anx-deep { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 html.is-app body:not(#_cx):not(#_cy) .anx-deep button { min-width: 0; overflow-wrap: anywhere; }
+
+/* ================= build 728 — new Banks & Cards page ================= */
+html.is-app body:not(#_cx):not(#_cy) .bk-hero:not(.neg) { background: linear-gradient(135deg, #3730A3 0%, #6D3BEA 50%, #0EA5B7 130%); }
+html.is-app body:not(#_cx):not(#_cy) .bk-chips { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 14px; padding: 5px; border-radius: 18px; background: rgba(255,255,255,.14); }
+html.is-app body:not(#_cx):not(#_cy) .bk-chips button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px !important; border: 0; border-radius: 14px; background: none; transition: background .2s; }
+html.is-app body:not(#_cx):not(#_cy) .bk-chips button.on { background: rgba(255,255,255,.24); }
+html.is-app body:not(#_cx):not(#_cy) .bk-chips small { font-size: 11.5px; font-weight: 700; opacity: .9; }
+html.is-app body:not(#_cx):not(#_cy) .bk-chips b { font-size: 15.5px; font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .bk-seg { grid-template-columns: repeat(3, 1fr); }
+html.is-app body:not(#_cx):not(#_cy) .bk-seg button { display: flex !important; flex-direction: row !important; gap: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .bk-seg button small { display: inline-grid !important; place-items: center; min-width: 20px; height: 20px; margin: 0 !important; padding: 0 5px; border-radius: 999px; background: color-mix(in srgb, var(--cx-ink) 10%, transparent); font-size: 11px !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-row { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-bottom: 1px solid var(--cx-line); cursor: pointer; transition: background .15s; animation: mvUp .45s both; }
+html.is-app body:not(#_cx):not(#_cy) .bk-row:last-child { border-bottom: 0; }
+html.is-app body:not(#_cx):not(#_cy) .bk-row.on { background: color-mix(in srgb, var(--cx-pri) 10%, transparent); box-shadow: inset 3px 0 0 var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .bk-row .as-m small.old { color: var(--cx-warn); font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .bk-off { font-style: normal; font-size: 10.5px; font-weight: 800; color: var(--cx-mute); background: var(--cx-chip); padding: 1px 6px; border-radius: 999px; }
+html.is-app body:not(#_cx):not(#_cy) .bk-r { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+html.is-app body:not(#_cx):not(#_cy) .bk-r > b { font-size: 16px; font-weight: 900; color: var(--cx-ink); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .bk-r > span { display: flex; gap: 6px; align-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .bk-up { padding: 6px 12px !important; border-radius: 999px; border: 0; font-size: 12px; font-weight: 800; color: var(--cx-pri-tx, var(--cx-pri)) !important; background: color-mix(in srgb, var(--cx-pri) 14%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .bk-up.old { color: #fff !important; background: var(--cx-warn); animation: bkPulse 2s ease-in-out 3; }
+@keyframes bkPulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--cx-warn) 25%, transparent); } }
+html.is-app body:not(#_cx):not(#_cy) .bk-more { width: 30px !important; height: 30px; padding: 0 !important; border-radius: 10px; border: 1px solid var(--cx-line); background: var(--cx-card); display: grid; place-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .bk-more svg { width: 16px; height: 16px; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-use i { background: linear-gradient(90deg, var(--cx-acc), var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-use.hi i { background: linear-gradient(90deg, var(--cx-warn), var(--cx-exp)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-tip { margin: 8px 4px 0; font-size: 12px; color: var(--cx-mute); text-align: center; }
+html.is-app body:not(#_cx):not(#_cy) .bk-all { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100% !important; margin-top: 10px !important; padding: 10px !important; border-radius: 14px; border: 1px dashed color-mix(in srgb, var(--cx-pri) 50%, transparent); background: color-mix(in srgb, var(--cx-pri) 8%, transparent); font-size: 13px; font-weight: 800; color: var(--cx-pri-tx, var(--cx-pri)); }
+html.is-app body:not(#_cx):not(#_cy) .bk-all svg { width: 15px; height: 15px; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-per { display: flex; gap: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .bk-per button { padding: 5px 10px !important; border-radius: 999px; border: 1px solid var(--cx-line); background: var(--cx-chip); font-size: 11.5px; font-weight: 800; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .bk-per button.on { background: var(--cx-pri); border-color: var(--cx-pri); color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-log { margin-top: 14px; zoom: 1 !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-ago { display: inline-flex !important; align-items: center; gap: 4px; font-size: 11.5px !important; color: var(--cx-inc) !important; font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .bk-ago.old { color: var(--cx-warn) !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-ago svg { width: 13px; height: 13px; color: currentColor !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-row .as-m small.as-prog-t { white-space: normal; }
