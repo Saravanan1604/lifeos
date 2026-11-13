@@ -77,7 +77,10 @@ js/
 
 ---
 
-## 3. Features (current)
+## 3. Features
+
+> ⚠️ Parts of this section describe older designs. For the **current** page → file map and
+> what each page looks like now, see **`HANDOFF.md`** (sections 3 and 10).
 
 ### Home (app)
 - **Header:** menu, time-of-day greeting and date, AI button, Search, and a bell with an unread count.

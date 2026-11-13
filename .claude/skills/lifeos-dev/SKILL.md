@@ -21,6 +21,9 @@ The single most important rule: **mobile/app changes must never affect the web/d
 
 ## Before you start: read the project map
 
+First read **`HANDOFF.md`** in the repo root — current page → file map (which newer `*2.js` / `*3.js` file renders each app page), deploy + check steps, open items and the designs the owner already rejected.
+
+
 Read [references/architecture.md](references/architecture.md) for the file-by-file map, the `__IS_APP` detection chain, and the established UI patterns (per-page render functions, `data-page` scoping, the 2x type-scale recipe, modals/sheets, charts). Read it whenever you're touching an unfamiliar page — it will save you from re-deriving how the app is wired.
 
 ## The golden rule: app-only scoping

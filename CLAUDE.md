@@ -1,5 +1,9 @@
 # 🛑 AI Assistant System Instructions — LifeOS
 
+> **New session? Read `HANDOFF.md` first.** It has where everything is deployed, the
+> page → file map, how to deploy and check a change, open items, and what the owner
+> has already rejected. Build history: `LIFEOS_APP_AND_DEPLOYMENT.md`.
+
 ## Tech Stack Overview
 **LifeOS** is a strict **Vanilla JavaScript** application.
 **DO NOT** generate or suggest code using React, Vue, Svelte, Angular, Flutter,
@@ -15,7 +19,8 @@ Jetpack Compose, or any other UI framework/library.
 - **Libraries (CDN ONLY):** Chart.js, SheetJS (XLSX), PDF.js, Lucide icons.
   Do not suggest `npm install`.
 - **APIs:** Browser-native Web Speech API.
-- **Platform:** PWA wrapped as a TWA via PWABuilder (Google Play).
+- **Platform:** PWA + Android app = Capacitor wrapper (`com.saravanan.lifeos`) that
+  loads the live Vercel URL, so a web deploy updates the phone app (no new APK).
 - **Backend:** Node.js + MongoDB on Render. Frontend on Vercel
   (`lifeos-psi-roan.vercel.app`).
 
@@ -56,3 +61,10 @@ Jetpack Compose, or any other UI framework/library.
 - `js/dashboard.js`, `js/finance.js`, etc. — per-page render functions.
 - `sw.js` — service worker (`CACHE` name, precache list).
 - `deploy.bat` / `deploy.ps1` — one-click version bump + push.
+
+## Checks (since build 745)
+- `tools/smoke-test.js` opens every page in phone Day/Night, desktop and classic web;
+  GitHub runs it on every push (`.github/workflows/smoke-test.yml`). Keep it green.
+- New JS files must be added to BOTH `index.html` and the `sw.js` precache list.
+- Money maths goes through `js/money.js` (`Money.*`), not hand-written sums.
+
