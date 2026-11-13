@@ -98,15 +98,7 @@ function _loanPayoff(l) {
     return { months: s.months, end, interest: s.totalInterest, out, emi };
   } catch (_) { return {}; }
 }
-function _loanPayoffLine(l) {
-  const p = _loanPayoff(l);
-  if (p.done) return `<p class="ia-payoff ok">✓ Fully paid</p>`;
-  if (p.never) return `<p class="ia-payoff bad">⚠ EMI ${fmt(p.emi)} is below the interest — this never closes</p>`;
-  if (!p.months) return '';
-  const when = p.end.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
-  const prin = +l.principal || 0, pct = prin > 0 ? Math.max(0, Math.min(100, Math.round((prin - p.out) / prin * 100))) : 0;
-  return `<p class="ia-payoff">Free by <b>${when}</b> · ${p.months} mo left · ${fmt(Math.round(p.interest))} interest</p>${prin > 0 ? `<div class="ia-prog"><i style="width:${pct}%"></i></div><p class="ia-prog-l">${pct}% repaid${l.emi ? ' · EMI ' + fmt(+l.emi) : ''}</p>` : ''}`;
-}
+
 // Liabilities dashboard (build 681): summary, debt-free countdown and an
 // extra-payment what-if. Only EMI-model loans take extra payments; bullet /
 // interest-only loans are listed but not accelerated.

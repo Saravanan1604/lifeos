@@ -529,50 +529,6 @@ function applyThemeClass(mode) {
   // 'dark' → no class
 }
 
-function exportData() {
-  const blob = new Blob([JSON.stringify(STATE, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `atworth_Backup_${today()}.json`; a.click();
-  URL.revokeObjectURL(url);
-  toast('✅ Full backup downloaded!', 'success');
-}
-
-// Share the JSON backup via the OS share sheet (on Android, lets you pick
-// "Save to Drive"). Full Drive-API/OAuth sync is a bigger future task; the
-// share sheet gets the file safely into Drive without extra permissions.
-async function backupToDrive() {
-  const fileName = `atworth_Backup_${today()}.json`;
-  const blob = new Blob([JSON.stringify(STATE, null, 2)], { type: 'application/json' });
-  try {
-    const file = new File([blob], fileName, { type: 'application/json' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'atworth backup', text: 'atworth data backup — save to Google Drive' });
-      return;
-    }
-  } catch (e) {
-    if (e && e.name === 'AbortError') return;   // user dismissed the sheet
-  }
-  exportData();   // fallback when the share API / files aren't supported
-  toast('Sharing not available — backup downloaded instead', 'info');
-}
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if (!imported || typeof imported !== 'object') throw new Error();
-      STATE = Object.assign(DB.defaults(), imported);
-      saveState(); updateSidebar(); navigate('dashboard');
-      toast('✅ Data imported!', 'success');
-      setTimeout(() => showCelebration('Data Restored! 🎉', 'Your atworth backup has been successfully restored!'), 500);
-    } catch { toast('❌ Invalid backup file', 'error'); }
-  };
-  reader.readAsText(file);
-}
 
 function exportCSV() {
   const txns = STATE.transactions || [];

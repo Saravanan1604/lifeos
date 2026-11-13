@@ -532,12 +532,6 @@ function saveRecurring() {
   openRecurringManager();
 }
 
-function deleteRecurring(i) {
-  STATE.recurringTx = STATE.recurringTx || [];
-  STATE.recurringTx.splice(i, 1);
-  saveState();
-  openRecurringManager();
-}
 
 function processRecurringTransactions() {
   const recs = STATE.recurringTx || [];
@@ -918,48 +912,12 @@ function buildNotifications() {
 }
 
 
-function openNotifPanel() {
-  const panel   = document.getElementById('notif-panel');
-  const backdrop= document.getElementById('notif-backdrop');
-  const body    = document.getElementById('notif-panel-body');
-  if (!panel) return;
-
-  const notifs = buildNotifications();
-  body.innerHTML = notifs.map(n => `
-    <div class="notif-item notif-${n.type}" ${n.action?`onclick="${n.action};closeNotifPanel()" style="cursor:pointer"`:''}>
-      <div style="font-size:22px;flex-shrink:0;line-height:1.2">${n.icon}</div>
-      <div style="flex:1;min-width:0">
-        <p style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">${n.title}</p>
-        <p style="font-size:11px;color:var(--text3)">${n.sub}</p>
-        ${n.bill ? `<div class="notif-bill-acts"><button onclick="event.stopPropagation();billPayNow('${n.bill}')">✓ Paid now</button><button onclick="event.stopPropagation();billSkip('${n.bill}')">Skip once</button></div>` : ''}
-      </div>
-    </div>`).join('');
-
-  panel.classList.add('notif-open');
-  if (backdrop) backdrop.style.display = 'block';
-  _updateNotifBadge();
-}
 
 function closeNotifPanel() {
   const panel   = document.getElementById('notif-panel');
   const backdrop= document.getElementById('notif-backdrop');
   if (panel)    panel.classList.remove('notif-open');
   if (backdrop) backdrop.style.display = 'none';
-}
-
-function _updateNotifBadge() {
-  const notifs = buildNotifications();
-  if (typeof _mobileBellBadge === 'function') _mobileBellBadge(notifs.filter(n => n.type === 'danger' || n.type === 'warning').length);
-  const badge = document.getElementById('notif-badge');
-  if (!badge) return;
-  const alerts = notifs.filter(n => n.type === 'danger' || n.type === 'warning');
-  if (alerts.length > 0) {
-    badge.style.cssText = badge.style.cssText.replace('display:none','');
-    badge.style.display = 'flex';
-    badge.textContent = alerts.length > 9 ? '9+' : String(alerts.length);
-  } else {
-    badge.style.display = 'none';
-  }
 }
 
 

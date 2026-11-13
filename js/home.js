@@ -75,43 +75,7 @@ function homeEverydayPace(F) {
   return ev.reduce((s, t) => s + (+t.amount || 0), 0) / Math.max(1, F.day);
 }
 
-// ══════════════════════════════════════════════════════════
-// BUDGET RING
-// ══════════════════════════════════════════════════════════
-function _homeBudgetHtml(F) {
-  if (!F.budget) {
-    return `<div class="hx-card hx-budget-empty" onclick="navigate('budget')">
-      <span class="hx-ic"><i data-lucide="target"></i></span>
-      <div><p class="hx-t">Set a monthly budget</p><p class="hx-s">Get a daily spending allowance and alerts before you overspend.</p></div>
-      <i data-lucide="chevron-right" class="hx-chev"></i></div>`;
-  }
-  const pct = F.spent / F.budget * 100;
-  const left = F.budget - F.spent;
-  // projected position vs where you "should" be by today
-  const pace = F.day / F.dim * 100;
-  const st = pct >= 100 ? { k: 'over', l: 'Over budget', c: '#F05260' }
-           : (pct >= 80 || pct > pace + 10) ? { k: 'warn', l: pct >= 80 ? 'Near limit' : 'Spending fast', c: '#FBBF24' }
-           : { k: 'ok', l: 'On track', c: '#10B981' };
-  const R = 46, C = 2 * Math.PI * R, shown = Math.min(100, pct);
-  const daily = left > 0 ? left / F.daysLeft : 0;
-  return `<div class="hx-card hx-budget hx-${st.k}" onclick="navigate('budget')">
-    <div class="hx-ring">
-      <svg viewBox="0 0 110 110"><circle class="hx-ring-bg" cx="55" cy="55" r="${R}"/>
-        <circle class="hx-ring-fg" cx="55" cy="55" r="${R}" stroke="${st.c}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" data-off="${(C * (1 - shown / 100)).toFixed(1)}"/>
-        <line class="hx-ring-pace" x1="55" y1="4" x2="55" y2="14" transform="rotate(${(pace * 3.6).toFixed(1)} 55 55)"/></svg>
-      <div class="hx-ring-c"><b>${Math.round(pct)}%</b><span>spent</span></div>
-    </div>
-    <div class="hx-bud-info">
-      <div class="hx-bud-top"><p class="hx-t">Monthly budget</p><span class="hx-pill" style="color:${st.c};background:${st.c}1f">${st.l}</span></div>
-      <div class="hx-bud-grid">
-        <div><span>Spent</span><b>${fmt(Math.round(F.spent))}</b></div>
-        <div><span>${left >= 0 ? 'Left' : 'Over by'}</span><b style="color:${left >= 0 ? 'inherit' : '#F05260'}">${fmt(Math.round(Math.abs(left)))}</b></div>
-        <div><span>Budget</span><b>${fmt(Math.round(F.budget))}</b></div>
-        <div><span>Per day</span><b>${left > 0 ? fmt(Math.floor(daily)) : 'Used up'}</b></div>
-      </div>
-    </div>
-  </div>`;
-}
+
 
 // ══════════════════════════════════════════════════════════
 // FINANCIAL HEALTH SCORE (0-100)

@@ -80,4 +80,4 @@ function renderDataCheck() {
   </div>`;
   _pk.done(c);
 }
-function dataCheckCount() { try { return dataCheckItems().filter(i => i.sev !== 'low').length; } catch (_) { return 0; } }
+

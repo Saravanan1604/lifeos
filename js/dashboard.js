@@ -171,47 +171,6 @@ function calcLifeScore() {
   return { overall, wealthScore, healthScore, prodScore, careerScore, emotionalScore };
 }
 
-// ===== AI INSIGHTS ENGINE =====
-function generateInsights() {
-  const txns = STATE.transactions || [];
-  const now = new Date();
-  const monthTxns = txns.filter(t => { const d = new Date(t.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
-  const income = monthTxns.filter(t => t.type === 'income').reduce((s, t) => s + Money.amt(t), 0);
-  const expense = monthTxns.filter(t => t.type !== 'income').reduce((s, t) => s + Money.amt(t), 0);
-  const savRate = income > 0 ? ((income - expense) / income) * 100 : 0;
-  const insights = [];
-
-  if (income === 0 && txns.length === 0) {
-    insights.push({ emoji: '👋', title: 'Welcome to atworth!', msg: 'Start by adding your income and expenses to unlock AI insights.' });
-  } else {
-    if (savRate >= 30) insights.push({ emoji: '🚀', title: 'Excellent Savings!', msg: `You're saving ${savRate.toFixed(1)}% of income this month. Outstanding!` });
-    else if (savRate >= 10) insights.push({ emoji: '👍', title: 'Good Progress', msg: `${savRate.toFixed(1)}% savings rate. Push it above 30% for financial freedom.` });
-    else if (income > 0) insights.push({ emoji: '⚠️', title: 'Low Savings Alert', msg: `Only ${savRate.toFixed(1)}% saved this month. Review discretionary expenses.` });
-
-    const catMap = {};
-    monthTxns.filter(t => t.type !== 'income').forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + Money.amt(t); });
-    const topCat = Object.entries(catMap).sort(([, a], [, b]) => b - a)[0];
-    if (topCat) insights.push({ emoji: '📊', title: `Top Spend: ${topCat[0]}`, msg: `₹${topCat[1].toLocaleString('en-IN')} on ${topCat[0]} this month.` });
-
-    if (income - expense > 0) {
-      const yearly = (income - expense) * 12;
-      insights.push({ emoji: '🔮', title: 'Yearly Forecast', msg: `At this rate, you'll save ₹${yearly.toLocaleString('en-IN')} by year end.` });
-    }
-  }
-
-  const streak = STATE.streak || 0;
-  if (streak >= 7) insights.push({ emoji: '🔥', title: `${streak}-Day Streak!`, msg: 'Incredible consistency. You\'re building life-changing habits.' });
-
-  const recentHealth = (STATE.healthEntries || []).slice(-3);
-  if (recentHealth.length > 0) {
-    const avgSleep = recentHealth.reduce((s, e) => s + (e.sleep || 7), 0) / recentHealth.length;
-    if (avgSleep < 6) insights.push({ emoji: '😴', title: 'Sleep Deficit', msg: `Averaging ${avgSleep.toFixed(1)} hrs. Aim for 7-9 hours.` });
-    else if (avgSleep >= 8) insights.push({ emoji: '✨', title: 'Excellent Sleep!', msg: `${avgSleep.toFixed(1)} hrs average — your recovery is optimal!` });
-  }
-
-  return insights.slice(0, 4);
-}
-
 
 // ── Insight Bar ──
 function _buildInsightBar() {
