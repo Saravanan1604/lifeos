@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **733** (13 Nov 2026).*
+*Status as of build **734** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -283,6 +283,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 731 | Clearer **Home money card** (`js/home2.js`, current month only): "Left this month" (or "Overspent") with a plain sentence, a bar of how much of income (or budget) is used + "₹X to go / over by", Earned / Spent tiles, and three tappable facts (spend vs last month, money in accounts, bills to pay). Eye button still hides amounts; other months keep the old card. **Today card** redone as a tidy grid: spent today, limit, plain message, streak, and a full-width "Log today to keep your N-day streak" button (no more overlap) |
 | 732 | Each page gets its own layout (owner: "all pages look the same"). **Home** leads with adding: slim one-line summary (left / days to go, bar, In / Out / Accounts / Bills), then Quick add (highlighted), action buttons, and a "Just added" card with the latest 4 entries. **Bills & Due** leads with a month calendar (dots + amount on bill days, today ringed, tap a day, this / next month), then a compact summary strip and the list |
 | 733 | **Analytics** leads with its chart: "Spent this month" + Earned / Saved, six bars for the last 6 weeks / months / quarters / years (tap a bar to open it), then "What stands out" — plain sentences (biggest category, biggest rise, biggest drop, vs your usual, saving rate, budgets over). The gradient card and 4 tiles are gone |
+| 734 | **Assets** leads like a stock app: Net worth in large text, change over the range, a tall net-worth line you can drag along (number and date follow your finger), 1M / 3M / 6M / All, Own vs Owe bar, then + Asset / + Loan / Projection buttons and a swipeable row of facts (assets grew, cash & bank, EMIs, debt-free by). The gradient card, 4 tiles and bottom trend card are gone |
 
 ### Testing locally
 

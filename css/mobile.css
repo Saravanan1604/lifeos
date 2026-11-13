@@ -21557,3 +21557,47 @@ html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-inc { background: var(--cx-inc-
 html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-warn { background: var(--cx-warn-bg); } html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-warn svg { color: var(--cx-warn) !important; }
 html.is-app body:not(#_cx):not(#_cy) .anl-ins p { margin: 0; font-size: 13.5px; line-height: 1.4; color: var(--cx-ink2); }
 html.is-app body:not(#_cx):not(#_cy) .anl-ins p b { color: var(--cx-ink); }
+
+/* ================= build 734 — Assets: stock-style net-worth chart ================= */
+html.is-app body:not(#_cx):not(#_cy) .asl { padding: 4px 2px 0; animation: mvUp .45s both; }
+html.is-app body:not(#_cx):not(#_cy) .asl-top { display: flex; justify-content: space-between; align-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .asl-top > span { font-size: 14px; font-weight: 800; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .asl-top button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px !important; border-radius: 999px; border: 1px solid var(--cx-line); background: var(--cx-card); font-size: 12px; font-weight: 800; color: var(--cx-pri-tx, var(--cx-pri)); }
+html.is-app body:not(#_cx):not(#_cy) .asl-top button svg { width: 14px; height: 14px; color: currentColor !important; }
+html.is-app body:not(#_cx):not(#_cy) .asl-big { display: block; margin-top: 4px; font-size: 40px; font-weight: 900; letter-spacing: -.035em; color: var(--cx-ink); font-variant-numeric: tabular-nums; line-height: 1.1; }
+html.is-app body:not(#_cx):not(#_cy) .asl-big.neg { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .asl-chg { margin: 4px 0 0; font-size: 13.5px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .asl-chg span { font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .asx .asl-chg .up { color: var(--cx-inc) !important; } html.is-app body:not(#_cx):not(#_cy) .asx .asl-chg .down { color: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .asl-chart { position: relative; height: 170px; margin: 14px -2px 0; touch-action: pan-y; cursor: crosshair; }
+html.is-app body:not(#_cx):not(#_cy) .asl-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+html.is-app body:not(#_cx):not(#_cy) .asl-svg .l { fill: none; stroke: var(--cx-inc); stroke-width: 2.5; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-dasharray: 1600; animation: ldvDraw 1.6s .1s ease-out both; }
+html.is-app body:not(#_cx):not(#_cy) .asl-svg .s0 { stop-color: var(--cx-inc); stop-opacity: .28; } html.is-app body:not(#_cx):not(#_cy) .asl-svg .s1 { stop-color: var(--cx-inc); stop-opacity: 0; }
+html.is-app body:not(#_cx):not(#_cy) .asl-svg.down .l { stroke: var(--cx-exp); } html.is-app body:not(#_cx):not(#_cy) .asl-svg.down :is(.s0, .s1) { stop-color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .asl-svg .a { animation: mvUp .9s .3s both; }
+html.is-app body:not(#_cx):not(#_cy) .asl-dot { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--cx-card); border: 3px solid var(--cx-pri); box-shadow: 0 0 0 6px color-mix(in srgb, var(--cx-pri) 20%, transparent); pointer-events: none; transition: left .08s, top .08s; }
+html.is-app body:not(#_cx):not(#_cy) .asl-tip { position: absolute; top: -6px; transform: translateX(-50%); padding: 3px 9px; border-radius: 999px; background: var(--cx-ink); color: var(--cx-bg, #fff) !important; font-size: 11px; font-weight: 800; white-space: nowrap; opacity: 0; transition: opacity .15s; pointer-events: none; }
+html.is-app body:not(#_cx):not(#_cy) .asl-tip.on { opacity: 1; }
+html.is-app body:not(#_cx):not(#_cy) .asl-rng { display: flex; justify-content: space-around; margin-top: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .asl-rng button { padding: 6px 16px !important; border: 0; border-radius: 999px; background: none; font-size: 13px; font-weight: 800; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .asl-rng button.on { background: color-mix(in srgb, var(--cx-pri) 14%, transparent); color: var(--cx-pri-tx, var(--cx-pri)); }
+html.is-app body:not(#_cx):not(#_cy) .asl-split { margin-top: 16px; height: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .asl-split i.own { background: var(--cx-inc) !important; } html.is-app body:not(#_cx):not(#_cy) .asl-split i.owe { background: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .asl-sl { display: flex; justify-content: space-between; margin-top: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .asl-sl button { display: inline-flex; align-items: center; gap: 6px; padding: 2px 0 !important; border: 0; background: none; font-size: 13px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .asl-sl b { color: var(--cx-ink); font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .asl-sl .d { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+html.is-app body:not(#_cx):not(#_cy) .asl-sl .d.own { background: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .asl-sl .d.owe { background: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .asl-acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+html.is-app body:not(#_cx):not(#_cy) .asl-acts button { display: flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 14px; border: 1px solid var(--cx-line); background: var(--cx-card); font-size: 13.5px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .asl-acts button svg { width: 16px; height: 16px; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .asl-acts button.p { border: 0; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)); }
+html.is-app body:not(#_cx):not(#_cy) .asl-acts button.p svg { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .asl-facts { display: flex; gap: 8px; margin: 12px -16px 0; padding: 0 16px 4px; overflow-x: auto; scrollbar-width: none; }
+html.is-app body:not(#_cx):not(#_cy) .asl-facts::-webkit-scrollbar { display: none; }
+html.is-app body:not(#_cx):not(#_cy) .asl-facts > div { flex: 0 0 auto; min-width: 128px; padding: 11px 13px; border-radius: 16px; background: var(--cx-card); border: 1px solid var(--cx-line); animation: mvUp .45s both; }
+html.is-app body:not(#_cx):not(#_cy) .asl-facts small { display: block; font-size: 11.5px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .asl-facts b { display: block; font-size: 17px; font-weight: 900; color: var(--cx-ink); margin: 2px 0; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .asl-facts em { font-style: normal; font-size: 11px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .asl-facts em.warn { color: var(--cx-warn); font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .asl-hint { margin-top: 14px; text-align: center; }
