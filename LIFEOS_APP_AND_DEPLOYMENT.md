@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **748** (13 Nov 2026).*
+*Status as of build **749** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -301,6 +301,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 746 | **Clean-up**: removed 583 unused style rules from `css/mobile.css` (1.01 MB → 0.93 MB, 21.7k → 17.8k lines) — rules for old screens no code produces any more — and the unused `js/home2.js`. Checked with before/after screenshots of all 29 pages in phone Day / Night, desktop and classic web (0 of 116 changed) and the page check |
 | 747 | **Code clean-up, round 2**: removed ~1,670 lines — functions no code calls any more (e.g. `generateInsights`, old net-worth card `nwOverviewHtml` / `nwTrendHtml`), old versions that a newer file always replaces (old Assets page `renderInvestmentsApp`, old Analytics `renderAnalyticsApp` + its cleanup.js add-on, old Bills list `_renderUpcomingApp`, old Home budget card, older copies of `processRecurring`, `_advanceDate`, `openNotifPanel`, `exportData`, `importData`, `backupToDrive` …), and ~480 unused / duplicate style rules across mobile, styles, premium and calc CSS. Found with a JS parser (only functions not used while the app loads are removed). Checked with before/after screenshots of 29 pages × 4 views and the page check. Total CSS+JS 2.74 MB → 2.63 MB |
 | 748 | **Add from screenshot** (`js/shotimport.js`): Home "Scan SMS" button is now **Scan** → Payment screenshot / SMS text. Works like AI Fix categories: copy a request (today's date, your categories and accounts) → open Gemini → attach Google Pay / PhonePe / bank screenshots → paste the answer → review list (tick, tap amount to switch expense/income, category, account, duplicates left unticked) → Add. Your own name → category rules win; chosen categories are remembered; an account updates its balance like a normal entry |
+| 749 | **Scan** button inside the **+** add screen (top right, new entries only): closes the add screen and opens Scan → Payment screenshot / SMS text |
 
 ### Testing locally
 

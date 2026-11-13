@@ -2561,7 +2561,7 @@ function _padAppHtml(acctLabel, dateLabel, isIncome) {
     <div class="px-top">
       <button class="px-x" onclick="padClose()" title="Close"><i data-lucide="x"></i></button>
       <b>${_pad.mode === 'edit' ? 'Edit' : 'New'} ${isIncome ? 'income' : 'expense'}</b>
-      <span class="px-sp"></span>
+      ${_pad.mode === 'add' && typeof openScanChooser === 'function' ? `<button class="px-scan" onclick="padClose();setTimeout(openScanChooser,220)" title="Add from a screenshot or SMS"><i data-lucide="scan-line"></i>Scan</button>` : '<span class="px-sp"></span>'}
     </div>
     <div class="px-seg">
       <button class="${!isIncome ? 'on exp' : ''}" onclick="padSetType('expense')"><i data-lucide="arrow-up-right"></i> Expense</button>

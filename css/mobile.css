@@ -17104,3 +17104,7 @@ html.is-app body:not(#_cx):not(#_cy) .si-foot { display: grid !important; grid-t
 html.is-app body:not(#_cx):not(#_cy) .si-foot button { width: 100% !important; justify-content: center; }
 html.is-app body:not(#_cx):not(#_cy) .si-foot button:disabled { opacity: .5; }
 html.is-app body:not(#_cx):not(#_cy) .si .af-hero small, html.is-app body:not(#_cx):not(#_cy) .si .af-hero span { color: #fff !important; opacity: .92; }
+
+/* ================= build 749 — Scan button inside the + add screen ================= */
+html.is-app body:not(#_cx):not(#_cy) .px-scan { display: inline-flex !important; align-items: center; gap: 5px; width: auto !important; height: 36px !important; min-height: 0 !important; padding: 0 12px !important; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--cx-pri) 40%, transparent); background: color-mix(in srgb, var(--cx-pri) 12%, transparent); font-size: 13px; font-weight: 800; color: var(--cx-pri-tx, var(--cx-pri)) !important; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .px-scan svg { width: 16px; height: 16px; color: currentColor !important; }
