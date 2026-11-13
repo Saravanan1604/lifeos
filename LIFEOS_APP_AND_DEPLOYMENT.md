@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **745** (13 Nov 2026).*
+*Status as of build **746** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -295,6 +295,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 743 | New **Check my data** page (`js/datacheck.js`, route `data-check`, Settings row + Home card when something important is found): loan amount vs what is left, EMI bigger than what is left, card over limit, balance below zero, balance not updated for 14+ days, one-off spikes in balance history (remove the entry), very large one-off expenses, the same entry saved twice (delete the copy), future dates, wrong income/expense type. Each has a one-tap fix and "Looks right" to hide it |
 | 744 | **Everyday vs Fixed** spending: one shared rule `Money.isFixed` (Rent, EMI, Loan, Insurance, Investment, SIP, Mutual fund, and anything set to repeat). Analytics shows a split bar under "Spent this month" and a "What stands out" line comparing everyday spending with last month; the Home budget card notes how much fixed cost is outside the budget |
 | 745 | **Server kept awake**: `.github/workflows/keep-server-awake.yml` pings the Render backend about every 10 minutes, and the app pings it the moment it opens (`storage.js`), so sync no longer waits ~1 minute for a sleeping server. **Automatic checks**: `tools/smoke-test.js` opens all 29 pages in phone Day / Night, desktop and classic web with demo data and fails on any script error, blank page or sideways scroll; `.github/workflows/smoke-test.yml` runs it after every push (red ✗ on GitHub if something breaks). Local run: `python -m http.server 3333` then `node tools/smoke-test.js` |
+| 746 | **Clean-up**: removed 583 unused style rules from `css/mobile.css` (1.01 MB → 0.93 MB, 21.7k → 17.8k lines) — rules for old screens no code produces any more — and the unused `js/home2.js`. Checked with before/after screenshots of all 29 pages in phone Day / Night, desktop and classic web (0 of 116 changed) and the page check |
 
 ### Testing locally
 
