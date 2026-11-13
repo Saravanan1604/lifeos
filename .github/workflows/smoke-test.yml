@@ -1,0 +1,24 @@
+# After every push: open every page of the app in phone Day / Night,
+# desktop and classic web, and fail (red ✗ on GitHub) if any page errors,
+# is blank or scrolls sideways. See tools/smoke-test.js.
+name: Check every page
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install the test browser (only for this check — not part of the app)
+        run: |
+          npm install --no-save playwright@1.47.2
+          npx playwright install --with-deps chromium
+      - name: Serve the app
+        run: python3 -m http.server 3333 &
+      - name: Open every page
+        run: node tools/smoke-test.js

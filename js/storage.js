@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 744;
+const APP_BUILD = 745;
 
 // ===== STORAGE UTILITIES =====
 // ===== DEMO MODE =====
@@ -60,6 +60,11 @@ const DB = {
 
 let STATE = DB.load();
 const API_URL = 'https://lifeos-backend-mangodb.onrender.com/api';
+// Build 745: wake the free Render server as soon as the app opens, so it is
+// ready by the time the first sync runs (a sleeping server takes ~30–60 s).
+(function _wakeServer() {
+  try { if (localStorage.getItem('lifeos_demo_on') === '1') return; fetch(API_URL + '/me', { method: 'GET', cache: 'no-store', mode: 'cors' }).catch(() => {}); } catch (_) {}
+})();
 
 const stateHistory = []; // Keeps last 5 states for undo
 
