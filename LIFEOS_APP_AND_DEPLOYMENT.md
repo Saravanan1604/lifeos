@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **729** (13 Nov 2026).*
+*Status as of build **730** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -279,6 +279,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 727 | New **Analytics** page in the app (`js/analytics3.js`): green/rose hero with the period's net and a plain sentence plus an In vs Out bar, 4 tiles whose changes say what they compare with ("▼ 3% vs ₹1L same day last month"), saving rate can now go negative (was stuck at 0%), running-balance line with ₹0 line and last-period value, animated in/out bars, budgets with "₹X over / ₹X left" (top 5 + show all), spending ring + category rows with change, habits, and Forecast + Deep dive moved to "More insights" (fixes the cut-off text and the "7 income" label → "Income streams"). Sums use the shared money engine |
 | 728 | New **Banks & Cards** page in the app (`js/banks2.js`) replacing the Banks / Cash / Cards trackers: hero "Money you really have" (bank + cash − card dues) with tappable Banks/Cash/Cards totals and a count of accounts that need an update, quick actions (Update / Pay card, Move money, Import, Add), one tab per kind, rows with a one-tap Update button, "updated X ago" (amber after 7 days), card limit bar + due-in days, tap a row to filter, trend line (30 days / 1 year) with high/low/change, then the history card |
 | 729 | **Banks & Cards** restyled after the owner's Dribbble reference: wave card "Money you really have" (30-day bank+cash line, Today marker, change chip, Banks/Cash/Card-dues switch), Money in / Money out rows with 14-day sparklines and % chips, "Your accounts" card with round logo pills, last change ↗/↘ per account, Update/Pay + ⋯, Move money pill, weekly **Cash flow** chart (income/outgoing totals, striped bars, today highlighted, dotted daily average, tap a day, previous weeks), account trend only when one account is picked, black "Update balance" pill. Desktop: two columns (accounts + cash flow left, wave card + mini rows right) |
+| 730 | New **Upcoming** (Bills & Due) page in the app (`js/bills2.js`): hero "Going out · next 30 days" with the next bill, This week / Bank + cash / Left after bills, a warning with "Add them now" when repeating bills were due but not added, a tappable 30-day strip (bars per day), rows grouped This week / Rest of 30 days / Later with countdown chips, Paid / Skip within 7 days, tap a bill to edit it (or open its loan) |
 
 ### Testing locally
 
