@@ -21,6 +21,7 @@
     const d = Math.floor((Date.now() - new Date(h.createdAt || h.date + 'T12:00:00')) / 864e5);
     return { t: d <= 0 ? 'updated today' : d === 1 ? 'updated yesterday' : `updated ${d} days ago`, old: d >= 7 };
   };
+  window.bkDots = el => { const w = el.firstElementChild ? el.firstElementChild.offsetWidth + 12 : 1, i = Math.round(el.scrollLeft / w); el.nextElementSibling && [...el.nextElementSibling.children].forEach((d, k) => d.classList.toggle('on', k === i)); };
   window.bkTab = t => { bankTrackerTab = t; renderBankTracker(); };
   window.bkPick = (t, id) => { const K = KIND[t]; K.set(K.sel() === id ? null : id); renderBankTracker(); };
 
@@ -87,6 +88,20 @@
         <span class="bk-pr"><b class="${tab === 'cards' && val > 0 ? 'neg' : ''}">${fmt(Math.round(val))}</b>${dl ? `<em class="${good ? 'up' : 'down'}">${dl > 0 ? '↗' : '↘'} ${S(Math.abs(dl))}</em>` : ''}
           <span><button class="bk-up ${u.old ? 'old' : ''}" onclick="event.stopPropagation();${K.upd(a)}">${tab === 'cards' ? 'Pay' : 'Update'}</button><button class="bk-more" onclick="event.stopPropagation();openAccountMenu('${K.menu}',${i})" aria-label="Options"><i data-lucide="more-horizontal"></i></button></span></span></div>`;
     };
+    const GR = [['#4C1D95', '#7C4DFF'], ['#0E7490', '#22D3EE'], ['#9F1239', '#F43F5E'], ['#065F46', '#10B981'], ['#92400E', '#F59E0B'], ['#1E3A8A', '#3B82F6'], ['#701A75', '#D946EF']];
+    const card = (a, i) => {
+      const g = GR[(i + ['banks', 'cash', 'cards'].indexOf(tab) * 2) % GR.length], u = ago(K, a.id), on = sel === a.id, nm = K.nm(a);
+      const val = tab === 'cards' ? +a.outstanding || 0 : +a.balance || 0, dl = lastD(a);
+      let foot = `<span class="bk-cago ${u.old ? 'old' : ''}">${u.old ? '⚠ ' : ''}${u.t}</span>${dl ? `<span class="bk-cdl">${dl > 0 ? '↗ +' : '↘ −'}${S(Math.abs(dl))}</span>` : ''}`;
+      if (tab === 'cards') { const lim = +a.limit || 0, pct = lim > 0 ? Math.round(val / lim * 100) : null, due = a.dueDate ? new Date(a.dueDate + 'T00:00:00') : null, dd = due ? Math.ceil((due - new Date().setHours(0, 0, 0, 0)) / 864e5) : null;
+        foot = (pct != null ? `<span class="bk-climit"><i style="width:${Math.min(100, pct)}%"></i></span><span class="bk-cago">${pct}% of ${S(lim)} limit${dd != null && val > 0 ? ' · ' + (dd < 0 ? 'due date passed' : dd === 0 ? 'due today' : 'due in ' + dd + 'd') : ''}</span>` : '') + `<span class="bk-cago ${u.old ? 'old' : ''}">${u.t}</span>`; }
+      return `<div class="bk-card ${on ? 'on' : ''}" style="--g1:${g[0]};--g2:${g[1]}" onclick="bkPick('${tab}','${a.id}')">
+        <div class="bk-ct"><span class="bk-cn">${E(nm)}${a.inactive ? ' · inactive' : ''}</span><button onclick="event.stopPropagation();openAccountMenu('${K.menu}',${i})" aria-label="Options"><i data-lucide="more-horizontal"></i></button></div>
+        <small class="bk-ck">${tab === 'cards' ? 'Due now' : 'Balance'}</small><b class="bk-cv">${fmt(Math.round(val))}</b>
+        <span class="bk-cm">${E(a.type || (tab === 'cash' ? 'Cash' : tab === 'cards' ? 'Credit card' : 'Bank account'))}${a.lastFour ? ' •••• ' + E(a.lastFour) : ''}</span>
+        <div class="bk-cf"><div>${foot}</div><button class="bk-cup ${u.old ? 'old' : ''}" onclick="event.stopPropagation();${K.upd(a)}">${tab === 'cards' ? 'Pay' : 'Update'}</button></div>
+      </div>`;
+    };
     // cash-flow week
     const now = new Date(); now.setHours(0, 0, 0, 0);
     const mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay() + 6) % 7) + _bkWk * 7);
@@ -119,8 +134,8 @@
       <div class="pk-card bk-acc" style="grid-area:acc">
         <div class="bk-ah"><span>Your accounts</span><button class="bk-more" onclick="${K.add}" aria-label="Add"><i data-lucide="plus"></i></button></div>
         <div class="bk-tabs">${tabs.map(([k, l, n]) => `<button class="${tab === k ? 'on' : ''}" onclick="bkTab('${k}')">${l}<small>${n}</small></button>`).join('')}</div>
-        ${list.length ? `<div class="bk-pills">${list.map(row).join('')}</div>
-          <div class="bk-af"><span>${sel ? `Showing <b>${E(K.nm(list.find(a => a.id === sel) || {}))}</b> only` : 'Tap an account to see only its history'}</span>${sel ? `<button class="bk-ghost" onclick="bkPick('${tab}','${sel}')">Show all</button>` : banks.length >= 2 && tab === 'banks' ? `<button class="bk-purple" onclick="openTransferModal()"><i data-lucide="arrow-left-right"></i>Move money</button>` : `<button class="bk-ghost" onclick="openBalanceImport('${tab === 'cards' ? 'card' : 'bank'}')">Import</button>`}</div>`
+        ${list.length ? `<div class="bk-cards" onscroll="bkDots(this)">${list.map(card).join('')}<button class="bk-cadd" onclick="${K.add}"><i data-lucide="plus"></i>Add ${K.word.toLowerCase()}</button></div><div class="bk-dots">${list.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}<i></i></div>
+          <div class="bk-af"><span>${sel ? `Showing <b>${E(K.nm(list.find(a => a.id === sel) || {}))}</b> only` : 'Swipe your cards · tap one to see only its history'}</span>${sel ? `<button class="bk-ghost" onclick="bkPick('${tab}','${sel}')">Show all</button>` : banks.length >= 2 && tab === 'banks' ? `<button class="bk-purple" onclick="openTransferModal()"><i data-lucide="arrow-left-right"></i>Move money</button>` : `<button class="bk-ghost" onclick="openBalanceImport('${tab === 'cards' ? 'card' : 'bank'}')">Import</button>`}</div>`
         : _pk.empty({ ic: K.ic, t: `No ${tab === 'cards' ? 'cards' : tab === 'cash' ? 'wallets' : 'bank accounts'} yet`, s: tab === 'cards' ? 'Add a credit card to track what you owe and when it is due.' : tab === 'cash' ? 'Add a wallet to keep track of the cash you carry.' : 'Add your bank account and update its balance from your bank app now and then.', btns: [[`Add ${K.word.toLowerCase()}`, K.add, 1]] })}
       </div>
       <div class="pk-card bk-flow" style="grid-area:flow">

@@ -21601,3 +21601,37 @@ html.is-app body:not(#_cx):not(#_cy) .asl-facts b { display: block; font-size: 1
 html.is-app body:not(#_cx):not(#_cy) .asl-facts em { font-style: normal; font-size: 11px; color: var(--cx-mute); }
 html.is-app body:not(#_cx):not(#_cy) .asl-facts em.warn { color: var(--cx-warn); font-weight: 800; }
 html.is-app body:not(#_cx):not(#_cy) .asl-hint { margin-top: 14px; text-align: center; }
+
+/* ================= build 735 — Banks: swipeable account cards ================= */
+html.is-app body:not(#_cx):not(#_cy) .bk-cards { display: flex; gap: 12px; margin: 0 -16px; padding: 4px 16px 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cards::-webkit-scrollbar { display: none; }
+html.is-app body:not(#_cx):not(#_cy) .bk-card { position: relative; flex: 0 0 82%; max-width: 330px; min-height: 178px; display: flex; flex-direction: column; padding: 16px 16px 14px; border-radius: 22px; overflow: hidden; color: #fff; background: linear-gradient(135deg, var(--g1), var(--g2)); box-shadow: 0 18px 32px -18px var(--g1); scroll-snap-align: start; cursor: pointer; transition: transform .2s; animation: mvUp .5s both; }
+html.is-app body:not(#_cx):not(#_cy) .bk-card::before { content: ''; position: absolute; right: -40px; top: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.25), transparent 65%); pointer-events: none; }
+html.is-app body:not(#_cx):not(#_cy) .bk-card::after { content: ''; position: absolute; left: -30px; bottom: -70px; width: 160px; height: 160px; border-radius: 50%; border: 22px solid rgba(255,255,255,.07); pointer-events: none; }
+html.is-app body:not(#_cx):not(#_cy) .bk-card.on { outline: 3px solid var(--cx-pri); outline-offset: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .bk-card * { color: #fff !important; position: relative; z-index: 1; }
+html.is-app body:not(#_cx):not(#_cy) .bk-ct { display: flex; justify-content: space-between; align-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cn { font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .bk-ct button { width: 32px !important; height: 32px; padding: 0 !important; border-radius: 50%; border: 0; background: rgba(255,255,255,.2); display: grid; place-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .bk-ct button svg { width: 16px; height: 16px; }
+html.is-app body:not(#_cx):not(#_cy) .bk-ck { margin-top: 10px; font-size: 11px; font-weight: 700; opacity: .8; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cv { font-size: 30px; font-weight: 900; letter-spacing: -.03em; line-height: 1.1; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cm { font-size: 12px; opacity: .8; letter-spacing: .04em; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cf { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cf > div { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cago { font-size: 11.5px; font-weight: 700; opacity: .9; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cago.old { color: #FDE68A !important; opacity: 1; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cdl { font-size: 11.5px; font-weight: 800; }
+html.is-app body:not(#_cx):not(#_cy) .bk-climit { display: block; width: 140px; height: 5px; border-radius: 4px; background: rgba(255,255,255,.25); overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .bk-climit i { display: block; height: 100%; background: #fff; transform-origin: left; animation: pkBar .9s .2s both; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cup { flex-shrink: 0; padding: 8px 16px !important; border-radius: 999px; border: 0; background: #fff !important; color: var(--g1) !important; font-size: 13px; font-weight: 900; box-shadow: 0 6px 14px -6px rgba(0,0,0,.4); }
+html.is-app body:not(#_cx):not(#_cy) .bk-cup.old { background: #FDE68A !important; color: #78350F !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cadd { flex: 0 0 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border-radius: 22px; border: 2px dashed var(--cx-line); background: none; font-size: 13px; font-weight: 800; color: var(--cx-mute); scroll-snap-align: start; }
+html.is-app body:not(#_cx):not(#_cy) .bk-cadd svg { width: 22px; height: 22px; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .bk-dots { display: flex; justify-content: center; gap: 6px; margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .bk-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--cx-line); transition: width .25s, background .25s; }
+html.is-app body:not(#_cx):not(#_cy) .bk-dots i.on { width: 18px; background: var(--cx-pri); }
+html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-acc { order: 1; } html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-wcard { order: 2; }
+html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-minis { order: 3; } html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-flow { order: 4; }
+html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-tr { order: 5; } html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-log { order: 6; }
+html.is-app body:not(#_cx):not(#_cy) .bk-acc { overflow: hidden; }
