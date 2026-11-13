@@ -21667,3 +21667,38 @@ html.is-app body:not(#_cx):not(#_cy) .ldm-t small { font-size: 12px; color: var(
 html.is-app body:not(#_cx):not(#_cy) .ldm-r.done .ldm-t small { color: var(--cx-inc); font-weight: 700; }
 html.is-app body:not(#_cx):not(#_cy) .ldm-r em { font-style: normal; font-size: 13px; font-weight: 800; color: var(--cx-mute); }
 html.is-app body:not(#_cx):not(#_cy) .ldr-chips small { text-transform: none !important; letter-spacing: 0 !important; }
+
+/* ================= build 737 — Budget battery grid ================= */
+html.is-app body:not(#_cx):not(#_cy) .bgx { margin-bottom: 16px; }
+html.is-app body:not(#_cx):not(#_cy) .bg-sum { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 4px 2px 10px; }
+html.is-app body:not(#_cx):not(#_cy) .bg-sum small { font-size: 12px; font-weight: 800; color: var(--cx-mute); text-transform: uppercase; letter-spacing: .05em; }
+html.is-app body:not(#_cx):not(#_cy) .bg-sum b { display: block; font-size: 28px; font-weight: 900; letter-spacing: -.02em; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .bg-sum span { font-size: 13px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .bg-sum em { font-style: normal; font-weight: 800; color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .bg-per { flex-shrink: 0; padding: 7px 12px !important; border-radius: 999px; border: 1px solid var(--cx-line); background: var(--cx-card); font-size: 12px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .bg-tot { height: 10px; border-radius: 6px; background: var(--cx-chip); overflow: hidden; margin-bottom: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .bg-tot i { display: block; height: 100%; border-radius: 6px; transform-origin: left; animation: pkBar 1s .1s both; }
+html.is-app body:not(#_cx):not(#_cy) .bg-tot i.inc { background: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .bg-tot i.warn { background: var(--cx-warn); } html.is-app body:not(#_cx):not(#_cy) .bg-tot i.exp { background: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .bg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .bg-t { display: flex; gap: 12px; align-items: stretch; padding: 12px !important; border-radius: 20px; border: 1px solid var(--cx-line); background: var(--cx-card); text-align: left; animation: mvPop .45s var(--d) both; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .bg-bat { position: relative; width: 34px; flex-shrink: 0; border-radius: 9px; border: 2px solid var(--cx-line); background: var(--cx-chip); overflow: hidden; display: flex; align-items: flex-end; }
+html.is-app body:not(#_cx):not(#_cy) .bg-bat::before { content: ''; position: absolute; top: -2px; left: 50%; width: 12px; height: 4px; margin-left: -6px; border-radius: 0 0 3px 3px; background: var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .bg-bat i { display: block; width: 100%; height: var(--f); transform-origin: bottom; animation: ldvUp 1s calc(var(--d) + .15s) cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .t-inc .bg-bat i { background: linear-gradient(0deg, var(--cx-inc), color-mix(in srgb, var(--cx-inc) 60%, #fff)); }
+html.is-app body:not(#_cx):not(#_cy) .t-warn .bg-bat i { background: linear-gradient(0deg, var(--cx-warn), #FCD34D); }
+html.is-app body:not(#_cx):not(#_cy) .t-exp .bg-bat i { background: linear-gradient(0deg, var(--cx-exp), #FDA4AF); animation: ldvUp 1s calc(var(--d) + .15s) both, bgBlink 1.6s 1.2s ease-in-out 3; }
+@keyframes bgBlink { 50% { opacity: .55; } }
+html.is-app body:not(#_cx):not(#_cy) .bg-bat em { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-style: normal; font-size: 9.5px; font-weight: 900; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .bg-m { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+html.is-app body:not(#_cx):not(#_cy) .bg-ic { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; font-size: 15px; color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent); margin-bottom: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .bg-ic svg { width: 15px; height: 15px; color: var(--c) !important; }
+html.is-app body:not(#_cx):not(#_cy) .bg-m b { font-size: 13.5px; font-weight: 800; color: var(--cx-ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .bg-m strong { font-size: 16px; font-weight: 900; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .t-inc .bg-m strong { color: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .t-warn .bg-m strong { color: var(--cx-warn); } html.is-app body:not(#_cx):not(#_cy) .t-exp .bg-m strong { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .bg-m small { font-size: 11px; color: var(--cx-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .bg-add { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 108px; border-radius: 20px; border: 2px dashed var(--cx-line); background: none; font-size: 13px; font-weight: 800; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .bg-add svg { width: 22px; height: 22px; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) #budget-page .bg-hide { display: none !important; }
+html.is-app body:not(#_cx):not(#_cy) #budget-page .bg-t { display: flex !important; flex-direction: row !important; align-items: stretch !important; justify-content: flex-start !important; height: auto !important; min-height: 112px; white-space: normal !important; }
+html.is-app body:not(#_cx):not(#_cy) #budget-page .bg-bat { align-self: stretch; height: auto !important; min-height: 86px; }
+html.is-app body:not(#_cx):not(#_cy) #budget-page .bg-m { align-items: flex-start !important; text-align: left !important; flex: 1; }
