@@ -17064,3 +17064,43 @@ html.is-app body:not(#_cx):not(#_cy) .anl-spl i.e { background: var(--cx-pri); }
 html.is-app body:not(#_cx):not(#_cy) .anl-spl i.f { background: color-mix(in srgb, var(--cx-ink) 25%, transparent); }
 html.is-app body:not(#_cx):not(#_cy) .hb-fx { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 12px; color: var(--cx-mute); }
 html.is-app body:not(#_cx):not(#_cy) .hb-fx svg { width: 13px; height: 13px; color: var(--cx-mute) !important; }
+
+/* ================= build 748 — add from screenshot ================= */
+html.is-app body:not(#_cx):not(#_cy) .si-pick { display: flex; flex-direction: column; gap: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .si-pick > button { display: flex !important; align-items: center; gap: 12px; width: 100% !important; height: auto !important; padding: 14px !important; border-radius: 18px; border: 1px solid var(--cx-line); background: var(--cx-card); text-align: left; }
+html.is-app body:not(#_cx):not(#_cy) .si-pick > button > span { width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0; display: grid; place-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .si-pick > button > span.p { background: color-mix(in srgb, var(--cx-pri) 15%, transparent); } html.is-app body:not(#_cx):not(#_cy) .si-pick > button > span.c { background: color-mix(in srgb, var(--cx-acc) 15%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .si-pick > button > span svg { width: 22px; height: 22px; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .si-pick > button > span.c svg { color: var(--cx-acc) !important; }
+html.is-app body:not(#_cx):not(#_cy) .si-pick > button > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html.is-app body:not(#_cx):not(#_cy) .si-pick b { font-size: 15.5px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .si-pick small { font-size: 12.5px; line-height: 1.35; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .si-pick > button > svg { width: 18px; height: 18px; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .si .af-hero b svg { width: 34px; height: 34px; color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .si-sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; border-radius: 16px; background: var(--cx-chip); }
+html.is-app body:not(#_cx):not(#_cy) .si-sum small { display: block; font-size: 11.5px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .si-sum b { font-size: 16px; font-weight: 900; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .si .inc { color: var(--cx-inc) !important; } html.is-app body:not(#_cx):not(#_cy) .si .exp { color: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .si-note { display: flex; align-items: center; gap: 6px; margin: 8px 2px 0; font-size: 12.5px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .si-note svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .si-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; max-height: 52vh; overflow-y: auto; }
+html.is-app body:not(#_cx):not(#_cy) .si-r { display: flex; gap: 10px; padding: 11px 12px; border-radius: 16px; border: 1px solid var(--cx-line); background: var(--cx-card); transition: opacity .2s; }
+html.is-app body:not(#_cx):not(#_cy) .si-r.off { opacity: .5; }
+html.is-app body:not(#_cx):not(#_cy) .si-r.dup { border-style: dashed; }
+html.is-app body:not(#_cx):not(#_cy) .si-ck { position: relative; flex-shrink: 0; width: 24px; height: 24px; margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .si-ck input { position: absolute; opacity: 0; inset: 0; margin: 0; }
+html.is-app body:not(#_cx):not(#_cy) .si-ck span { display: block; width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--cx-line); background: var(--cx-chip); }
+html.is-app body:not(#_cx):not(#_cy) .si-ck input:checked + span { border-color: var(--cx-pri); background: var(--cx-pri) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center / 15px no-repeat; }
+html.is-app body:not(#_cx):not(#_cy) .si-m { flex: 1; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .si-t { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .si-t b { font-size: 14.5px; font-weight: 800; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .si-amt { flex-shrink: 0; width: auto !important; height: auto !important; padding: 4px 10px !important; border-radius: 999px; border: 0; font-size: 14px; font-weight: 900; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .si-amt.expense { background: var(--cx-exp-bg); color: var(--cx-exp) !important; } html.is-app body:not(#_cx):not(#_cy) .si-amt.income { background: var(--cx-inc-bg); color: var(--cx-inc) !important; }
+html.is-app body:not(#_cx):not(#_cy) .si-m > small { display: block; margin-top: 2px; font-size: 12px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .si-m > small em { font-style: normal; font-weight: 800; color: var(--cx-warn); }
+html.is-app body:not(#_cx):not(#_cy) .si-sel { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .si-sel select { width: 100% !important; height: 36px !important; padding: 0 8px !important; border-radius: 10px !important; border: 1px solid var(--cx-line) !important; background: var(--cx-chip) !important; color: var(--cx-ink) !important; font-size: 13px !important; font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .si-foot { display: grid !important; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 12px; }
+html.is-app body:not(#_cx):not(#_cy) .si-foot button { width: 100% !important; justify-content: center; }
+html.is-app body:not(#_cx):not(#_cy) .si-foot button:disabled { opacity: .5; }
+html.is-app body:not(#_cx):not(#_cy) .si .af-hero small, html.is-app body:not(#_cx):not(#_cy) .si .af-hero span { color: #fff !important; opacity: .92; }

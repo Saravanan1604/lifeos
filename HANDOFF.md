@@ -3,7 +3,7 @@
 **Read this first in every new session.** It explains what the app is, where it
 runs, how to change it safely, how to check a change, and what is still open.
 
-*Last updated: build **747** · 13 Nov 2026.*
+*Last updated: build **748** · 13 Nov 2026.*
 
 Other docs:
 - `LIFEOS_APP_AND_DEPLOYMENT.md` — deploy details and the **build-by-build history table** (one row per build).
@@ -77,6 +77,7 @@ Other docs:
 | Budget / Spending / Income (`budget`, `spending`) | `finance.js` `renderCombinedSpendBudget` + `budgets2.js` (battery grid on top) | |
 | Settings (`settings`) | `settings2.js` | Rows use the `_stRow` helper |
 | Sync status | `syncstatus.js` | Settings → Sync |
+| Add from screenshot (Home → Scan) | `shotimport.js` | Gemini copy/paste flow like AI Fix categories → review → add |
 | Check my data (`data-check`) | `datacheck.js` | Settings row + a Home card when something important is found |
 | Tags, Purchases, Split, Report, Recurring, Renewals | `pages2.js` (`_pk` kit) | |
 | Deep dive (`dashboard`) | `dashboard.js`, opened from Analytics via `openDeepDive(n)` | |

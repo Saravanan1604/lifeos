@@ -205,7 +205,7 @@ function homeQuickActionsHtml() {
     ['plus', 'Expense', "openTxPad('expense')"],
     ['arrow-down-left', 'Income', "openTxPad('income')"],
     ['arrow-left-right', 'Transfer', "typeof openTransferModal==='function'?openTransferModal():navigate('finance')"],
-    ['message-square-text', 'Scan SMS', "typeof openSmsParser==='function'&&openSmsParser()"],
+    ['scan-line', 'Scan', "typeof openScanChooser==='function'?openScanChooser():openSmsParser()"],
     ['receipt', 'Bills', "navigate('upcoming')", due],
   ];
   return `<div class="hx-qa">${a.map(([ic, l, js, n]) => `<button onclick="${js}"><span><i data-lucide="${ic}"></i>${n ? `<em>${n}</em>` : ''}</span><b>${l}</b></button>`).join('')}</div>`;
