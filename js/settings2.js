@@ -119,6 +119,8 @@ function renderSettingsApp() {
     (() => { const md = typeof syncMode === 'function' ? syncMode() : 'on', L = typeof SYNC_LOG !== 'undefined' ? SYNC_LOG : {}, bad = md === 'on' && ((L.push && !L.push.ok) || (L.pull && !L.pull.ok));
       const t = md === 'on' ? (bad ? 'Sync is failing — tap to see why' : 'Syncing · last ' + _syAgo(+(localStorage.getItem('lifeos_lastSyncOk') || 0))) : md === 'demo' ? 'Off while Demo mode is on' : 'Not signed in — data is only on this device';
       return _stRow({ ic: md === 'on' && !bad ? 'cloud' : 'cloud-off', tone: md === 'on' && !bad ? 'inc' : 'exp', t: 'Sync status', s: t, right: `<span class="st-pill ${md === 'on' && !bad ? 'on' : ''}">${md === 'on' && !bad ? 'OK' : '!'}</span>`, on: 'openSyncStatus()' }); })(),
+    (() => { const n = typeof dataCheckItems === 'function' ? dataCheckItems().length : 0;
+      return _stRow({ ic: 'search-check', tone: n ? 'warn' : 'inc', t: 'Check my data', s: n ? `${n} thing${n === 1 ? '' : 's'} to check — odd amounts, old balances, duplicates` : 'Everything looks right', right: n ? `<span class="st-pill">${n}</span>` : '', on: "navigate('data-check')" }); })(),
     (() => { const p = typeof storageInfo === 'function' ? storageInfo().pct : 0;
       return _stRow({ ic: 'hard-drive', tone: p >= 90 ? 'exp' : p >= 70 ? 'warn' : 'inc', t: 'Storage on this phone', s: `${p}% used · tidy logs and receipt photos`, right: `<span class="st-pill ${p < 70 ? 'on' : ''}">${p}%</span>`, on: 'openStorage()' }); })(),
     _stRow({ ic: 'download', tone: 'pri', t: 'Export backup (JSON)', s: 'Download everything to this phone', on: 'exportData()' }),

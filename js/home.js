@@ -271,7 +271,9 @@ function homeDashboardHtml() {
   try {
     const F = _homeFacts();
     let chk = '';
-    try { const gs = Money.mismatches(); if (gs.length) { const n = gs.reduce((a, g) => a + g.ids.length, 0);
+    try { if (typeof dataCheckItems === 'function') { const it = dataCheckItems().filter(i => i.sev !== 'low');
+      if (it.length) chk = `<button class="hx-card dc-home" onclick="navigate('data-check')"><span><i data-lucide="search-check"></i></span><div><b>${it.length} thing${it.length === 1 ? '' : 's'} to check in your data</b><small>${it[0].t}${it.length > 1 ? ` + ${it.length - 1} more` : ''} · tap to review</small></div><i data-lucide="chevron-right"></i></button>`; } } catch (_) {}
+    if (!chk) try { const gs = Money.mismatches(); if (gs.length) { const n = gs.reduce((a, g) => a + g.ids.length, 0);
       chk = `<button class="hx-card dc-home" onclick="openDataCheck()"><span><i data-lucide="shield-alert"></i></span><div><b>${n} ${n === 1 ? 'entry looks' : 'entries look'} wrong</b><small>${gs[0].category} saved as ${gs[0].have}${gs.length > 1 ? ` + ${gs.length - 1} more` : ''} · tap to review</small></div><i data-lucide="chevron-right"></i></button>`; } } catch (_) {}
     return chk + (typeof homeRecapHtml === 'function' ? homeRecapHtml() : '') + (typeof homeBackupHtml === 'function' ? homeBackupHtml() : '') + (typeof homeTodayHtml === 'function' ? homeTodayHtml(F) : '') + _homeBudgetHtml(F) + _homeAnalyticsHtml(F);
   } catch (e) { console.log('home dash', e); return ''; }

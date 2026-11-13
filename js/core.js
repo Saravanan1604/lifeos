@@ -907,6 +907,7 @@ function _renderPage(page) {
     case 'split':        renderSplit();         break;
     case 'settings':     renderSettings();      break;
     case 'help':         renderHelp();          break;
+    case 'data-check':   renderDataCheck();     break;
     default:
       if (typeof isCustomPage === 'function' && isCustomPage(page) && typeof renderCustomPage === 'function') {
         renderCustomPage(page);

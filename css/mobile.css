@@ -21754,3 +21754,26 @@ html.is-app body:not(#_cx):not(#_cy) .hb-ic svg { width: 20px; height: 20px; col
 html.is-app body:not(#_cx):not(#_cy) .hb-empty > div { flex: 1; display: flex; flex-direction: column; }
 html.is-app body:not(#_cx):not(#_cy) .hb-empty b { font-size: 15px; color: var(--cx-ink); } html.is-app body:not(#_cx):not(#_cy) .hb-empty small { font-size: 12.5px; color: var(--cx-mute); }
 html.is-app body:not(#_cx):not(#_cy) .hb-empty > svg { width: 18px; height: 18px; color: var(--cx-mute) !important; }
+
+/* ================= build 743 — Check my data ================= */
+html.is-app body:not(#_cx):not(#_cy) .dc-hero { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 22px; margin-bottom: 14px; border: 1px solid var(--cx-line); background: var(--cx-card); animation: mvUp .45s both; }
+html.is-app body:not(#_cx):not(#_cy) .dc-hero > span { width: 48px; height: 48px; border-radius: 15px; flex-shrink: 0; display: grid; place-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .dc-hero > span svg { width: 24px; height: 24px; }
+html.is-app body:not(#_cx):not(#_cy) .dc-hero.ok > span { background: var(--cx-inc-bg); } html.is-app body:not(#_cx):not(#_cy) .dc-hero.ok svg { color: var(--cx-inc) !important; }
+html.is-app body:not(#_cx):not(#_cy) .dc-hero.warn > span { background: var(--cx-warn-bg); } html.is-app body:not(#_cx):not(#_cy) .dc-hero.warn svg { color: var(--cx-warn) !important; }
+html.is-app body:not(#_cx):not(#_cy) .dc-hero.bad > span { background: var(--cx-exp-bg); } html.is-app body:not(#_cx):not(#_cy) .dc-hero.bad svg { color: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .dc-hero b { display: block; font-size: 18px; font-weight: 900; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .dc-hero small { font-size: 13px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .dc-item { display: flex; gap: 12px; padding: 14px; margin-bottom: 10px; border-radius: 20px; border: 1px solid var(--cx-line); border-left: 4px solid var(--cx-line); background: var(--cx-card); animation: mvUp .45s var(--d) both; }
+html.is-app body:not(#_cx):not(#_cy) .dc-item.s-high { border-left-color: var(--cx-exp); } html.is-app body:not(#_cx):not(#_cy) .dc-item.s-mid { border-left-color: var(--cx-warn); } html.is-app body:not(#_cx):not(#_cy) .dc-item.s-low { border-left-color: var(--cx-acc); }
+html.is-app body:not(#_cx):not(#_cy) .dc-ic { width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center; background: var(--cx-chip); }
+html.is-app body:not(#_cx):not(#_cy) .dc-ic svg { width: 18px; height: 18px; color: var(--cx-ink2) !important; }
+html.is-app body:not(#_cx):not(#_cy) .dc-b { flex: 1; min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .dc-b b { display: block; font-size: 15px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .dc-b p { margin: 4px 0 10px; font-size: 13px; line-height: 1.45; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .dc-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .dc-btns button { padding: 7px 13px !important; border-radius: 999px; border: 1px solid var(--cx-line); background: var(--cx-card); font-size: 12.5px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .dc-btns button.p { border: 0; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)); }
+html.is-app body:not(#_cx):not(#_cy) .dc-btns button.ok { color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .dc-btns button { width: auto !important; flex: 0 0 auto !important; height: auto !important; min-height: 0 !important; margin: 0 !important; }
+html.is-app body:not(#_cx):not(#_cy) #page-container .dcx .dc-btns { display: flex !important; flex-direction: row !important; flex-wrap: wrap; } html.is-app body:not(#_cx):not(#_cy) #page-container .dcx .dc-btns > button { width: auto !important; max-width: none !important; flex: 0 0 auto !important; display: inline-flex !important; height: auto !important; min-height: 0 !important; margin: 0 !important; padding: 7px 14px !important; border-radius: 999px !important; font-size: 12.5px !important; }

@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **742** (13 Nov 2026).*
+*Status as of build **743** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -292,6 +292,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 740 | Calmer, simpler **Home money card**: one dark indigo card for every case (only the number turns rose when overspent or mint when money is left), "Left / Overspent this month", the big number, Earned and Spent with their own bars, and one footer line (days left · bills due →). Removed the month pill, the repeat sentence, the "% used / over by" line and the three fact boxes |
 | 741 | Owner's choice: **Home** back to the original card ("Deficit / Surplus this month", Income / Expense, Spending vs last month, In accounts) and the original Today card — `js/home2.js` is no longer loaded (file kept) |
 | 742 | Simpler **Home "Monthly budget" card**: status pill, "₹X left of ₹Y" (or "₹X over your ₹Y"), one bar with a marker for where you should be today, how much you can spend per day, and chips for categories that are over. Fix: it now counts only spending in categories that have a budget (it compared all spending — rent, EMI — with the budget total, e.g. 144%) |
+| 743 | New **Check my data** page (`js/datacheck.js`, route `data-check`, Settings row + Home card when something important is found): loan amount vs what is left, EMI bigger than what is left, card over limit, balance below zero, balance not updated for 14+ days, one-off spikes in balance history (remove the entry), very large one-off expenses, the same entry saved twice (delete the copy), future dates, wrong income/expense type. Each has a one-tap fix and "Looks right" to hide it |
 
 ### Testing locally
 
