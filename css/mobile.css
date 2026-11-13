@@ -21408,3 +21408,54 @@ html.is-app body:not(#_cx):not(#_cy) .ub-r em.soon { background: var(--cx-exp-bg
 html.is-app body:not(#_cx):not(#_cy) .ub-r em.week { background: var(--cx-warn-bg); color: var(--cx-warn); }
 html.is-app body:not(#_cx):not(#_cy) .ub-r em.far { background: var(--cx-chip); color: var(--cx-ink2); }
 html.is-app body:not(#_cx):not(#_cy) .ubx .pk-foot { margin: 14px 6px 10px; font-size: 12px; line-height: 1.45; color: var(--cx-mute); text-align: center; }
+
+/* ================= build 731 — clearer Home money card + Today ================= */
+html.is-app body:not(#_cx):not(#_cy) .hm-hero { position: relative; overflow: hidden; margin: 6px 0 14px; padding: 18px 18px 14px; border-radius: 26px; color: #fff; animation: mvUp .5s both; }
+html.is-app body:not(#_cx):not(#_cy) .hm-hero.pos { background: linear-gradient(140deg, #4C1D95 0%, #6D3BEA 45%, #0EA5B7 135%); box-shadow: 0 22px 44px -22px #6D3BEA; }
+html.is-app body:not(#_cx):not(#_cy) .hm-hero.neg { background: linear-gradient(140deg, #881337 0%, #E0475D 50%, #7C4DFF 140%); box-shadow: 0 22px 44px -22px #E0475D; }
+html.is-app body:not(#_cx):not(#_cy) .hm-hero::before { content: ''; position: absolute; right: -60px; top: -80px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.22), transparent 65%); animation: asFloat 6s ease-in-out infinite alternate; pointer-events: none; }
+html.is-app body:not(#_cx):not(#_cy) .hm-hero * { color: #fff !important; position: relative; }
+html.is-app body:not(#_cx):not(#_cy) .hm-top { display: flex; justify-content: space-between; align-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .hm-top > span { font-size: 13px; font-weight: 700; padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.16); }
+html.is-app body:not(#_cx):not(#_cy) .hm-eye { width: 38px !important; height: 38px; padding: 0 !important; border-radius: 12px; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.14); display: grid; place-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .hm-eye svg { width: 18px; height: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .hm-l { display: block; margin-top: 14px; font-size: 12.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; opacity: .9; }
+html.is-app body:not(#_cx):not(#_cy) .hm-big { display: block; margin: 4px 0 4px; font-size: 40px; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+html.is-app body:not(#_cx):not(#_cy) .hm-say { margin: 0; font-size: 14px; line-height: 1.4; opacity: .95; }
+html.is-app body:not(#_cx):not(#_cy) .hm-bar { height: 10px; margin-top: 14px; border-radius: 6px; background: rgba(255,255,255,.22); overflow: visible; }
+html.is-app body:not(#_cx):not(#_cy) .hm-bar i { display: block; height: 100%; border-radius: 6px; background: #fff; transform-origin: left; animation: pkBar 1s .2s cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .hm-hero.neg .hm-bar i { background: linear-gradient(90deg, #fff 0 70%, #FECDD3); }
+html.is-app body:not(#_cx):not(#_cy) .hm-bar s { position: absolute; top: -4px; bottom: -4px; width: 3px; border-radius: 2px; background: #FDE68A; }
+html.is-app body:not(#_cx):not(#_cy) .hm-bl { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; font-size: 12px; font-weight: 700; opacity: .9; }
+html.is-app body:not(#_cx):not(#_cy) .hm-io { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .hm-io button { display: flex; align-items: center; gap: 10px; padding: 10px 12px !important; border-radius: 16px; border: 0; background: rgba(255,255,255,.16); text-align: left; }
+html.is-app body:not(#_cx):not(#_cy) .hm-io .i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .hm-io .i.in { background: rgba(94,234,212,.35); } html.is-app body:not(#_cx):not(#_cy) .hm-io .i.out { background: rgba(253,164,175,.35); }
+html.is-app body:not(#_cx):not(#_cy) .hm-io svg { width: 17px; height: 17px; }
+html.is-app body:not(#_cx):not(#_cy) .hm-io small { display: block; font-size: 11.5px; font-weight: 700; opacity: .85; }
+html.is-app body:not(#_cx):not(#_cy) .hm-io b { font-size: 17px; font-weight: 900; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts { display: flex; gap: 8px; margin-top: 8px; overflow-x: auto; scrollbar-width: none; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts::-webkit-scrollbar { display: none; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts button { flex: 1 0 auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px !important; border-radius: 14px; border: 1px solid rgba(255,255,255,.22); background: rgba(11,11,20,.16); text-align: left; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts svg { width: 16px; height: 16px; flex-shrink: 0; opacity: .9; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts b { display: block; font-size: 14px; font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts b.good { color: #A7F3D0 !important; } html.is-app body:not(#_cx):not(#_cy) .hm-facts b.bad { color: #FECDD3 !important; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts small { display: block; font-size: 10.5px; font-weight: 700; opacity: .85; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .hx-card.td2 { display: grid; grid-template-columns: 58px 1fr auto; align-items: center; gap: 12px 14px; padding: 14px 16px; }
+html.is-app body:not(#_cx):not(#_cy) .td2-m { min-width: 0; display: flex; flex-direction: column; }
+html.is-app body:not(#_cx):not(#_cy) .td2-m small { font-size: 12px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .td2-m > b { font-size: 24px; font-weight: 900; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .td2-m > b em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .td2-m > span { font-size: 13px; line-height: 1.35; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .td2-m > span b { color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .td2-st { display: flex; flex-direction: column; align-items: center; padding: 8px 10px; border-radius: 14px; background: var(--cx-chip); }
+html.is-app body:not(#_cx):not(#_cy) .td2-st.on { background: var(--cx-warn-bg); }
+html.is-app body:not(#_cx):not(#_cy) .td2-st b { font-size: 16px; font-weight: 900; color: var(--cx-ink); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .td2-st small { font-size: 10.5px; font-weight: 700; color: var(--cx-mute); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .td2-add { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100% !important; height: 44px; border: 0; border-radius: 14px; font-size: 14px; font-weight: 800; color: #fff !important; background: linear-gradient(135deg, var(--cx-pri), var(--cx-pri2, #9B6CFA)); }
+html.is-app body:not(#_cx):not(#_cy) .td2-add svg { width: 17px; height: 17px; color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); overflow: visible; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts button { min-width: 0; padding: 8px 8px !important; gap: 6px; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts button > span { min-width: 0; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts b { font-size: 13.5px; white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .hm-facts small { overflow: hidden; text-overflow: ellipsis; }

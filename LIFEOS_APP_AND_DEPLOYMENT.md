@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **730** (13 Nov 2026).*
+*Status as of build **731** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -280,6 +280,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 728 | New **Banks & Cards** page in the app (`js/banks2.js`) replacing the Banks / Cash / Cards trackers: hero "Money you really have" (bank + cash − card dues) with tappable Banks/Cash/Cards totals and a count of accounts that need an update, quick actions (Update / Pay card, Move money, Import, Add), one tab per kind, rows with a one-tap Update button, "updated X ago" (amber after 7 days), card limit bar + due-in days, tap a row to filter, trend line (30 days / 1 year) with high/low/change, then the history card |
 | 729 | **Banks & Cards** restyled after the owner's Dribbble reference: wave card "Money you really have" (30-day bank+cash line, Today marker, change chip, Banks/Cash/Card-dues switch), Money in / Money out rows with 14-day sparklines and % chips, "Your accounts" card with round logo pills, last change ↗/↘ per account, Update/Pay + ⋯, Move money pill, weekly **Cash flow** chart (income/outgoing totals, striped bars, today highlighted, dotted daily average, tap a day, previous weeks), account trend only when one account is picked, black "Update balance" pill. Desktop: two columns (accounts + cash flow left, wave card + mini rows right) |
 | 730 | New **Upcoming** (Bills & Due) page in the app (`js/bills2.js`): hero "Going out · next 30 days" with the next bill, This week / Bank + cash / Left after bills, a warning with "Add them now" when repeating bills were due but not added, a tappable 30-day strip (bars per day), rows grouped This week / Rest of 30 days / Later with countdown chips, Paid / Skip within 7 days, tap a bill to edit it (or open its loan) |
+| 731 | Clearer **Home money card** (`js/home2.js`, current month only): "Left this month" (or "Overspent") with a plain sentence, a bar of how much of income (or budget) is used + "₹X to go / over by", Earned / Spent tiles, and three tappable facts (spend vs last month, money in accounts, bills to pay). Eye button still hides amounts; other months keep the old card. **Today card** redone as a tidy grid: spent today, limit, plain message, streak, and a full-width "Log today to keep your N-day streak" button (no more overlap) |
 
 ### Testing locally
 
