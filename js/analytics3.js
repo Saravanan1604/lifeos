@@ -80,23 +80,33 @@ function renderAnalyticsApp() {
   const ip = inc + exp > 0 ? Math.round(inc / (inc + exp) * 100) : 50;
   const deep = [[1, 'calendar-days', 'Heatmap'], [2, 'arrow-left-right', 'Money flow'], [3, 'landmark', 'Wealth'], [4, 'activity', 'Health'], [5, 'layers', 'Income streams']];
 
+  // last 6 periods for the lead chart
+  const hist = [...Array(6)].map((_, k) => { const off = _anOffset - 5 + k, rr = _anRange(P, off), l = _anTx(rr), t2 = Money.totals(l);
+    const lab = P === 'month' ? rr.a.toLocaleDateString('en-IN', { month: 'short' }) : P === 'year' ? String(rr.a.getFullYear()) : P === 'quarter' ? 'Q' + (Math.floor(rr.a.getMonth() / 3) + 1) : rr.a.getDate() + ' ' + rr.a.toLocaleDateString('en-IN', { month: 'short' });
+    return { off, lab, i: t2.income, o: t2.spend }; });
+  const hm = Math.max(1, ...hist.map(h => Math.max(h.i, h.o)));
+  const avgO = hist.slice(0, 5).reduce((s2, h) => s2 + h.o, 0) / 5;
+  const lead = `<div class="anl-chart">${hist.map((h, k) => `<button class="anl-col ${h.off === _anOffset ? 'on' : ''}" style="--d:${k * 70}ms" onclick="_anOffset=${h.off};renderAnalyticsApp()"><span class="anl-v">${S(h.o)}</span><span class="anl-bars"><i class="o" style="height:${Math.max(2, h.o / hm * 100)}%"></i><i class="i" style="height:${Math.max(2, h.i / hm * 100)}%"></i></span><small>${h.lab}</small></button>`).join('')}</div>`;
+  // plain-language insights
+  const ins = [];
+  if (ent[0] && exp > 0) ins.push(['pie-chart', 'pri', `<b>${E(ent[0][0])}</b> took the biggest share — ${fmt(Math.round(ent[0][1]))} (${Math.round(ent[0][1] / exp * 100)}% of spending).`]);
+  const mv = Object.keys({ ...byCat, ...pByCat }).map(cn => ({ cn, d: (byCat[cn] || 0) - (pByCat[cn] || 0) })).sort((a, b) => b.d - a.d);
+  if (mv[0] && mv[0].d > 0 && pexp > 0) ins.push(['trending-up', 'exp', `<b>${E(mv[0].cn)}</b> is up ${S(mv[0].d)} vs ${vsWord}.`]);
+  const dn = mv[mv.length - 1]; if (dn && dn.d < 0 && pexp > 0) ins.push(['trending-down', 'inc', `You spent ${S(-dn.d)} less on <b>${E(dn.cn)}</b> than ${vsWord}.`]);
+  if (avgO > 0 && exp > 0 && _anOffset === 0 && !partial) ins.push(['activity', exp > avgO ? 'warn' : 'inc', `This ${P} is ${exp > avgO ? 'above' : 'below'} your usual ${P} (${S(avgO)} on average).`]);
+  if (sr != null) ins.push(['piggy-bank', sr < 0 ? 'exp' : 'inc', sr < 0 ? `You spent more than you earned — ${S(-net)} over.` : `You saved <b>${sr}%</b> of your income${psr != null ? ` (${psr}% ${vsWord})` : ''}.`]);
+  if (over) ins.push(['alert-triangle', 'warn', `${over} budget${over === 1 ? ' is' : 's are'} over the limit.`]);
+  const insHtml = ins.length ? `<div class="anl-ins">${ins.slice(0, 5).map(([ic, t, x], k) => `<div style="--d:${k * 60}ms"><span class="t-${t}"><i data-lucide="${ic}"></i></span><p>${x}</p></div>`).join('')}</div>` : '';
   c.innerHTML = `<div class="pk asx anx">
     <div class="anx-top"><h1>Analytics</h1><button onclick="navigate('spending')"><i data-lucide="layout-grid"></i>Budgets</button></div>
     <div class="as-seg anx-seg">${tabs.map(([k, l]) => `<button class="${P === k ? 'on' : ''}" onclick="setAnPeriod('${k}')">${l}</button>`).join('')}</div>
     <div class="anx-nav"><button onclick="anNav(-1)" aria-label="Previous"><i data-lucide="chevron-left"></i></button><span>${_anLabel(P, r)}</span><button onclick="anNav(1)" ${_anOffset >= 0 ? 'disabled' : ''} aria-label="Next"><i data-lucide="chevron-right"></i></button></div>
-    <div class="as-hero ${net < 0 ? 'neg' : 'pos'} anx-hero">
-      <div class="as-hero-top"><span>${net < 0 ? 'Overspent' : 'Saved'} ${_anOffset === 0 ? per : _anLabel(P, r)}</span>${sr != null ? `<em class="anx-rate">${sr}% of income</em>` : ''}</div>
-      <b class="as-nw">${net < 0 ? '−' : '+'}${fmt(Math.abs(Math.round(net)))}</b>
-      <p class="as-say">${say}</p>
-      ${inc + exp > 0 ? `<div class="as-split"><i class="own" style="width:${ip}%"></i><i class="owe" style="width:${100 - ip}%"></i></div>
-      <div class="as-split-l"><span><i class="d own"></i>In <b>${S(inc)}</b></span><span><i class="d owe"></i>Out <b>${S(exp)}</b></span></div>` : ''}
+    <div class="anl-lead">
+      <div class="anl-top"><div><small>Spent ${when}</small><b>${fmt(Math.round(exp))}</b></div><div class="r"><span><i class="i"></i>Earned <b>${S(inc)}</b></span><span><i class="s"></i>${sr == null ? 'Saved —' : sr < 0 ? `Over <b class="down">${S(-net)}</b>` : `Saved <b class="up">${sr}%</b>`}</span></div></div>
+      ${lead}
+      <p class="anl-tip">Tap a bar to open that ${P} · ${delta(exp, pexp, false).replace(/<\/?em[^>]*>/g, '').replace(/<\/?span>/g, '')}</p>
     </div>
-    <div class="as-tiles anx-tiles">
-      <div class="as-tile"><span class="ti xg"><i data-lucide="arrow-down-left"></i></span><small>Income</small><b class="up">${S(inc)}</b>${delta(inc, pinc, true)}</div>
-      <div class="as-tile"><span class="ti xr"><i data-lucide="arrow-up-right"></i></span><small>Spent</small><b class="down">${S(exp)}</b>${delta(exp, pexp, false)}</div>
-      <div class="as-tile"><span class="ti xp"><i data-lucide="piggy-bank"></i></span><small>Saving rate</small><b class="${sr == null ? '' : sr < 0 ? 'down' : 'up'}">${sr == null ? '—' : sr + '%'}</b><em class="flat">${sr == null ? 'no income logged' : psr != null ? `was ${psr}% ${vsWord}` : 'of your income'}</em></div>
-      <div class="as-tile"><span class="ti xc"><i data-lucide="calendar"></i></span><small>Spent per day</small><b>${S(exp / elapsed)}</b><em class="flat">over ${elapsed} day${elapsed > 1 ? 's' : ''}</em></div>
-    </div>
+    ${insHtml ? _pk.sec('What stands out', '') + insHtml : ''}
     <div class="pk-card ldx-card"><div class="ldx-ct"><span>Running balance</span><span class="ldx-leg"><i class="l"></i>${_anOffset === 0 ? 'Now' : 'This'} <i class="gh"></i>Last ${P}</span></div>${flow}
       <p class="anx-cap">${lastIdx >= 0 ? `<b class="${up ? 'up' : 'down'}">${up ? '+' : '−'}${S(Math.abs(endVal))}</b> so far${prvAt != null ? ` · last ${P} at this point <b class="${prvAt >= 0 ? 'up' : 'down'}">${prvAt >= 0 ? '+' : '−'}${S(Math.abs(prvAt))}</b>` : ''}` : 'Nothing logged in this period yet'}</p></div>
     <div class="pk-card ldx-card"><div class="ldx-ct"><span>Money in vs out</span><span class="ldx-leg"><i class="p"></i>In <i class="x"></i>Out</span></div>${pairs}<p class="hx-cap anx-cap">Tap a bar for exact amounts</p></div>

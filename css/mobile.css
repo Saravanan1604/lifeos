@@ -21523,3 +21523,37 @@ html.is-app body:not(#_cx):not(#_cy) .ub-s1 small { display: block; font-size: 1
 html.is-app body:not(#_cx):not(#_cy) .ub-s1 b { font-size: 17px; font-weight: 900; color: var(--cx-ink); white-space: nowrap; }
 html.is-app body:not(#_cx):not(#_cy) .ubx .ub-s1 b.up { color: var(--cx-inc) !important; } html.is-app body:not(#_cx):not(#_cy) .ubx .ub-s1 b.down { color: var(--cx-exp) !important; }
 html.is-app body:not(#_cx):not(#_cy) .ub-sum p { margin: 10px 0 0; padding-top: 10px; border-top: 1px dashed var(--cx-line); font-size: 13px; color: var(--cx-ink2); }
+
+/* ================= build 733 — Analytics leads with a chart ================= */
+html.is-app body:not(#_cx):not(#_cy) .anl-lead { padding: 16px 14px 12px; border-radius: 24px; background: var(--cx-card); border: 1px solid var(--cx-line); animation: mvUp .45s both; }
+html.is-app body:not(#_cx):not(#_cy) .anl-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; padding: 0 4px 12px; }
+html.is-app body:not(#_cx):not(#_cy) .anl-top small { font-size: 12px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .anl-top > div > b { display: block; font-size: 30px; font-weight: 900; letter-spacing: -.03em; color: var(--cx-ink); line-height: 1.1; }
+html.is-app body:not(#_cx):not(#_cy) .anl-top .r { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; font-size: 12px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .anl-top .r b { color: var(--cx-ink); font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .anl-top .r i { display: inline-block; width: 8px; height: 8px; border-radius: 3px; margin-right: 5px; }
+html.is-app body:not(#_cx):not(#_cy) .anl-top .r i.i { background: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .anl-top .r i.s { background: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .anl-chart { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; height: 200px; }
+html.is-app body:not(#_cx):not(#_cy) .anl-col { display: grid !important; grid-template-rows: 16px 1fr 18px; gap: 4px; justify-items: center; height: 100% !important; padding: 6px 0 4px !important; border: 0; border-radius: 16px; background: none; transition: background .2s; animation: mvUp .45s var(--d) both; }
+html.is-app body:not(#_cx):not(#_cy) .anl-col.on { background: color-mix(in srgb, var(--cx-pri) 10%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .anl-v { font-size: 10px; font-weight: 800; color: var(--cx-mute); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .anl-col.on .anl-v { color: var(--cx-pri-tx, var(--cx-pri)); }
+html.is-app body:not(#_cx):not(#_cy) .anl-bars { display: flex; align-items: flex-end; gap: 3px; height: 100%; }
+html.is-app body:not(#_cx):not(#_cy) .anl-bars i { display: block; width: 13px; border-radius: 6px 6px 3px 3px; transform-origin: bottom; animation: ldvUp .8s calc(var(--d) + .1s) cubic-bezier(.2,.8,.2,1) both; }
+html.is-app body:not(#_cx):not(#_cy) .anl-bars i.o { background: color-mix(in srgb, var(--cx-ink) 18%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .anl-bars i.i { width: 6px; background: color-mix(in srgb, var(--cx-inc) 45%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .anl-col.on .anl-bars i.o { background: linear-gradient(180deg, var(--cx-pri2, #9B6CFA), var(--cx-pri)); box-shadow: 0 8px 18px -8px var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .anl-col.on .anl-bars i.i { background: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .anl-col small { font-size: 11px; font-weight: 800; color: var(--cx-mute); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .anl-col.on small { color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .anl-tip { margin: 8px 4px 0; font-size: 12px; text-align: center; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins { display: flex; flex-direction: column; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins > div { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: var(--cx-card); border: 1px solid var(--cx-line); animation: mvUp .45s var(--d) both; }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins span { width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins span svg { width: 18px; height: 18px; }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-pri { background: color-mix(in srgb, var(--cx-pri) 15%, transparent); } html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-pri svg { color: var(--cx-pri-tx, var(--cx-pri)) !important; }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-exp { background: var(--cx-exp-bg); } html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-exp svg { color: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-inc { background: var(--cx-inc-bg); } html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-inc svg { color: var(--cx-inc) !important; }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-warn { background: var(--cx-warn-bg); } html.is-app body:not(#_cx):not(#_cy) .anl-ins .t-warn svg { color: var(--cx-warn) !important; }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins p { margin: 0; font-size: 13.5px; line-height: 1.4; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .anl-ins p b { color: var(--cx-ink); }
