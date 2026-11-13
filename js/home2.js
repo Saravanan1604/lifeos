@@ -8,34 +8,24 @@
 (function () {
   if (!window.__IS_APP) return;
   const S = v => (typeof _asShort === 'function' ? _asShort(v) : fmt(v));
+  // Build 740: calm, simple money card — one number, two bars, one line
   function heroHtml() {
     const F = _homeFacts(), hide = STATE.settings && STATE.settings.showTotal === false;
     const H = v => hide ? '••••' : v;
     const net = F.income - F.spent, neg = net < 0;
-    const base = F.income > 0 ? F.income : F.budget;
-    const pct = base > 0 ? F.spent / base * 100 : null;
-    const mName = F.now.toLocaleDateString('en-IN', { month: 'long' });
-    const chg = F.pSameDay > 0 ? Math.round((F.spent / F.pSameDay - 1) * 100) : null;
-    const have = F.liquid - F.cardDue;
-    const say = !F.income && !F.spent ? `Nothing logged in ${mName} yet.`
-      : !F.income ? `You've spent <b>${H(S(F.spent))}</b> — add your income to see what's left.`
-      : neg ? `You've spent <b>${H(S(-net))}</b> more than you earned.` : `You still have <b>${H(S(net))}</b> of this month's income.`;
-    return `<div class="hm-hero ${neg ? 'neg' : 'pos'}">
-      <div class="hm-top"><span>${mName} · ${F.daysLeft} day${F.daysLeft === 1 ? '' : 's'} left</span><button class="hm-eye" onclick="event.stopPropagation();recToggleTotal()" aria-label="${hide ? 'Show' : 'Hide'} amounts"><i data-lucide="${hide ? 'eye-off' : 'eye'}"></i></button></div>
-      <small class="hm-l">${neg ? 'Overspent this month' : 'Left this month'}</small>
-      <b class="hm-big">${hide ? '••••••' : (neg ? '−' : '') + fmt(Math.round(Math.abs(net)))}</b>
-      <p class="hm-say">${say}</p>
-      ${pct != null ? `<div class="hm-bar"><i style="width:${Math.min(100, pct)}%"></i>${pct > 100 ? `<s style="left:${(100 / pct * 100).toFixed(1)}%"></s>` : ''}</div>
-      <div class="hm-bl"><span>${Math.round(pct)}% of your ${F.income > 0 ? 'income' : 'budget'} used</span><span>${pct > 100 ? 'over by ' + H(S(F.spent - base)) : H(S(base - F.spent)) + ' to go'}</span></div>` : ''}
-      <div class="hm-io">
-        <button onclick="event.stopPropagation();navigate('insights')"><span class="i in"><i data-lucide="arrow-down-left"></i></span><span><small>Earned</small><b>${H('+' + S(F.income))}</b></span></button>
-        <button onclick="event.stopPropagation();navigate('insights')"><span class="i out"><i data-lucide="arrow-up-right"></i></span><span><small>Spent</small><b>${H('−' + S(F.spent))}</b></span></button>
+    const mx = Math.max(F.income, F.spent, 1);
+    const wi = F.income / mx * 100, wo = F.spent / mx * 100;
+    const foot = [`${F.daysLeft} day${F.daysLeft === 1 ? '' : 's'} left`];
+    if (F.billsLeft) foot.push(`<button onclick="event.stopPropagation();navigate('upcoming')">${H(S(F.billsLeft))} bills due <i data-lucide="chevron-right"></i></button>`);
+    return `<div class="hc ${neg ? 'neg' : 'pos'}" onclick="navigate('insights')">
+      <div class="hc-top"><span>${!F.income && !F.spent ? 'Nothing logged yet' : neg ? 'Overspent this month' : 'Left this month'}</span>
+        <button class="hc-eye" onclick="event.stopPropagation();recToggleTotal()" aria-label="${hide ? 'Show' : 'Hide'} amounts"><i data-lucide="${hide ? 'eye-off' : 'eye'}"></i></button></div>
+      <b class="hc-big">${hide ? '••••••' : (neg ? '−' : '') + fmt(Math.round(Math.abs(net)))}</b>
+      <div class="hc-rows">
+        <div class="hc-r"><span><i class="in"></i>Earned</span><b>${H(fmt(Math.round(F.income)))}</b><span class="hc-bar"><i class="in" style="width:${wi.toFixed(1)}%"></i></span></div>
+        <div class="hc-r"><span><i class="out"></i>Spent</span><b>${H(fmt(Math.round(F.spent)))}</b><span class="hc-bar"><i class="out" style="width:${wo.toFixed(1)}%"></i></span></div>
       </div>
-      <div class="hm-facts">
-        ${chg != null ? `<button onclick="event.stopPropagation();navigate('insights')"><i data-lucide="${chg > 0 ? 'trending-up' : 'trending-down'}"></i><span><b style="color:${chg > 0 ? '#FECDD3' : '#A7F3D0'} !important">${chg > 0 ? '+' : '−'}${Math.abs(chg)}%</b><small>spend vs ${F.prev.toLocaleDateString('en-IN', { month: 'short' })}</small></span></button>` : ''}
-        ${(STATE.bankAccounts || []).length || (STATE.cashAccounts || []).length ? `<button onclick="event.stopPropagation();navigate('bank-tracker')"><i data-lucide="landmark"></i><span><b>${H((have < 0 ? '−' : '') + S(Math.abs(have)))}</b><small>in accounts</small></span></button>` : ''}
-        ${F.billsLeft ? `<button onclick="event.stopPropagation();navigate('upcoming')"><i data-lucide="receipt"></i><span><b>${H(S(F.billsLeft))}</b><small>bills to pay</small></span></button>` : ''}
-      </div>
+      <div class="hc-foot">${foot.join('<span class="hc-sep">·</span>')}</div>
     </div>`;
   }
   const orig = window.renderRecordsMyMoney;
