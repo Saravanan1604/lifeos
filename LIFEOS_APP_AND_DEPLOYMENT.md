@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **743** (13 Nov 2026).*
+*Status as of build **744** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -293,6 +293,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 741 | Owner's choice: **Home** back to the original card ("Deficit / Surplus this month", Income / Expense, Spending vs last month, In accounts) and the original Today card — `js/home2.js` is no longer loaded (file kept) |
 | 742 | Simpler **Home "Monthly budget" card**: status pill, "₹X left of ₹Y" (or "₹X over your ₹Y"), one bar with a marker for where you should be today, how much you can spend per day, and chips for categories that are over. Fix: it now counts only spending in categories that have a budget (it compared all spending — rent, EMI — with the budget total, e.g. 144%) |
 | 743 | New **Check my data** page (`js/datacheck.js`, route `data-check`, Settings row + Home card when something important is found): loan amount vs what is left, EMI bigger than what is left, card over limit, balance below zero, balance not updated for 14+ days, one-off spikes in balance history (remove the entry), very large one-off expenses, the same entry saved twice (delete the copy), future dates, wrong income/expense type. Each has a one-tap fix and "Looks right" to hide it |
+| 744 | **Everyday vs Fixed** spending: one shared rule `Money.isFixed` (Rent, EMI, Loan, Insurance, Investment, SIP, Mutual fund, and anything set to repeat). Analytics shows a split bar under "Spent this month" and a "What stands out" line comparing everyday spending with last month; the Home budget card notes how much fixed cost is outside the budget |
 
 ### Testing locally
 

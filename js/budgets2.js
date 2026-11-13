@@ -67,6 +67,8 @@ window._homeBudgetHtml = function (F) {
     <div class="hb-bar"><i style="width:${Math.min(100, pct).toFixed(1)}%"></i><s style="left:${Math.min(100, pace).toFixed(1)}%" title="Where you should be today"></s></div>
     <div class="hb-lbl"><span>${S(sp)} spent · ${pct < 100 ? Math.floor(pct) : Math.round(pct)}%</span><span>│ = where you should be today</span></div>
     <p class="hb-tip">${tip}</p>
+    ${(() => { const fx = Object.entries(F.byCat || {}).filter(([c]) => !rows.some(r => r.c.trim().toLowerCase() === c.trim().toLowerCase())).reduce((s2, [c, v]) => s2 + (Money.isFixed({ type: 'expense', category: c }) ? v : 0), 0);
+      return fx > 0 ? `<p class="hb-fx"><i data-lucide="lock"></i>${S(fx)} of fixed costs (rent, EMI…) is outside this budget</p>` : ''; })()}
     ${over.length ? `<div class="hb-over">${over.slice(0, 3).map(r => `<span>${E(r.c)} <b>+${S(r.sp - r.lim)}</b></span>`).join('')}${over.length > 3 ? `<span>+${over.length - 3} more</span>` : ''}</div>` : ''}
   </div>`;
 };

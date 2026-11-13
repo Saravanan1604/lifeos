@@ -1,6 +1,6 @@
 // ===== APP VERSION =====
 const APP_VERSION = '1.0.0';
-const APP_BUILD = 743;
+const APP_BUILD = 744;
 
 // ===== STORAGE UTILITIES =====
 // ===== DEMO MODE =====

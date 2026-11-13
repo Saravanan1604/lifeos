@@ -80,6 +80,7 @@ function renderAnalyticsApp() {
   const ip = inc + exp > 0 ? Math.round(inc / (inc + exp) * 100) : 50;
   const deep = [[1, 'calendar-days', 'Heatmap'], [2, 'arrow-left-right', 'Money flow'], [3, 'landmark', 'Wealth'], [4, 'activity', 'Health'], [5, 'layers', 'Income streams']];
 
+  const SPL = Money.split(tx), PSPL = Money.split(ptx);
   // last 6 periods for the lead chart
   const hist = [...Array(6)].map((_, k) => { const off = _anOffset - 5 + k, rr = _anRange(P, off), l = _anTx(rr), t2 = Money.totals(l);
     const lab = P === 'month' ? rr.a.toLocaleDateString('en-IN', { month: 'short' }) : P === 'year' ? String(rr.a.getFullYear()) : P === 'quarter' ? 'Q' + (Math.floor(rr.a.getMonth() / 3) + 1) : rr.a.getDate() + ' ' + rr.a.toLocaleDateString('en-IN', { month: 'short' });
@@ -94,6 +95,7 @@ function renderAnalyticsApp() {
   if (mv[0] && mv[0].d > 0 && pexp > 0) ins.push(['trending-up', 'exp', `<b>${E(mv[0].cn)}</b> is up ${S(mv[0].d)} vs ${vsWord}.`]);
   const dn = mv[mv.length - 1]; if (dn && dn.d < 0 && pexp > 0) ins.push(['trending-down', 'inc', `You spent ${S(-dn.d)} less on <b>${E(dn.cn)}</b> than ${vsWord}.`]);
   if (avgO > 0 && exp > 0 && _anOffset === 0 && !partial) ins.push(['activity', exp > avgO ? 'warn' : 'inc', `This ${P} is ${exp > avgO ? 'above' : 'below'} your usual ${P} (${S(avgO)} on average).`]);
+  if (SPL.fixed > 0 && PSPL.everyday > 0) { const de = SPL.everyday - PSPL.everyday; ins.push(['shopping-cart', de > 0 ? 'warn' : 'inc', `Everyday spending (without rent, EMI and other fixed costs) is <b>${S(SPL.everyday)}</b> — ${de > 0 ? S(de) + ' more' : S(-de) + ' less'} than ${vsWord}.`]); }
   if (sr != null) ins.push(['piggy-bank', sr < 0 ? 'exp' : 'inc', sr < 0 ? `You spent more than you earned — ${S(-net)} over.` : `You saved <b>${sr}%</b> of your income${psr != null ? ` (${psr}% ${vsWord})` : ''}.`]);
   if (over) ins.push(['alert-triangle', 'warn', `${over} budget${over === 1 ? ' is' : 's are'} over the limit.`]);
   const insHtml = ins.length ? `<div class="anl-ins">${ins.slice(0, 5).map(([ic, t, x], k) => `<div style="--d:${k * 60}ms"><span class="t-${t}"><i data-lucide="${ic}"></i></span><p>${x}</p></div>`).join('')}</div>` : '';
@@ -102,7 +104,7 @@ function renderAnalyticsApp() {
     <div class="as-seg anx-seg">${tabs.map(([k, l]) => `<button class="${P === k ? 'on' : ''}" onclick="setAnPeriod('${k}')">${l}</button>`).join('')}</div>
     <div class="anx-nav"><button onclick="anNav(-1)" aria-label="Previous"><i data-lucide="chevron-left"></i></button><span>${_anLabel(P, r)}</span><button onclick="anNav(1)" ${_anOffset >= 0 ? 'disabled' : ''} aria-label="Next"><i data-lucide="chevron-right"></i></button></div>
     <div class="anl-lead">
-      <div class="anl-top"><div><small>Spent ${when}</small><b>${fmt(Math.round(exp))}</b></div><div class="r"><span><i class="i"></i>Earned <b>${S(inc)}</b></span><span><i class="s"></i>${sr == null ? 'Saved —' : sr < 0 ? `Over <b class="down">${S(-net)}</b>` : `Saved <b class="up">${sr}%</b>`}</span></div></div>
+      <div class="anl-top"><div><small>Spent ${when}</small><b>${fmt(Math.round(exp))}</b>${SPL.fixed > 0 ? `<span class="anl-split"><i style="width:${(SPL.everyday / Math.max(exp, 1) * 100).toFixed(1)}%"></i></span><span class="anl-spl"><span><i class="e"></i>Everyday <b>${S(SPL.everyday)}</b></span><span><i class="f"></i>Fixed <b>${S(SPL.fixed)}</b></span></span>` : ""}</div><div class="r"><span><i class="i"></i>Earned <b>${S(inc)}</b></span><span><i class="s"></i>${sr == null ? 'Saved —' : sr < 0 ? `Over <b class="down">${S(-net)}</b>` : `Saved <b class="up">${sr}%</b>`}</span></div></div>
       ${lead}
       <p class="anl-tip">Tap a bar to open that ${P} · ${delta(exp, pexp, false).replace(/<\/?em[^>]*>/g, '').replace(/<\/?span>/g, '')}</p>
     </div>

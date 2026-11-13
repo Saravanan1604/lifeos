@@ -24,6 +24,15 @@ const Money = {
     return { income, spend, net: income - spend, count: (list || []).length };
   },
   monthTotals(ym) { return this.totals(this.inMonth(ym)); },
+  // Fixed costs: rent, EMI, loans, insurance, investments, SIP and anything set to repeat.
+  // Everything else is everyday spending.
+  isFixed(t) {
+    if (!t || t.type === 'income') return false;
+    if (t.recurringId || /^(emi|rent|insurance|loan|loans|investment|investments|sip|mutual fund)$/i.test((t.category || '').trim())) return true;
+    if (!this._rk || this._rkN !== (STATE.recurring || []).length) { this._rk = new Set((STATE.recurring || []).filter(r => r.type !== 'income').map(r => ((r.description || r.category || '') + '').trim().toLowerCase())); this._rkN = (STATE.recurring || []).length; }
+    return this._rk.has(((t.description || '') + '').trim().toLowerCase());
+  },
+  split(list) { let fixed = 0, everyday = 0; (list || []).forEach(t => { if (!this.isSpend(t)) return; if (this.isFixed(t)) fixed += this.amt(t); else everyday += this.amt(t); }); return { fixed, everyday }; },
   byCategory(list, kind) {
     const m = {};
     (list || []).forEach(t => { if (kind === 'income' ? !this.isIncome(t) : kind === 'spend' ? !this.isSpend(t) : false) return; const c = t.category || 'Other'; m[c] = (m[c] || 0) + this.amt(t); });
