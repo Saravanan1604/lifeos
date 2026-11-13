@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **735** (13 Nov 2026).*
+*Status as of build **736** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -285,6 +285,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 733 | **Analytics** leads with its chart: "Spent this month" + Earned / Saved, six bars for the last 6 weeks / months / quarters / years (tap a bar to open it), then "What stands out" — plain sentences (biggest category, biggest rise, biggest drop, vs your usual, saving rate, budgets over). The gradient card and 4 tiles are gone |
 | 734 | **Assets** leads like a stock app: Net worth in large text, change over the range, a tall net-worth line you can drag along (number and date follow your finger), 1M / 3M / 6M / All, Own vs Owe bar, then + Asset / + Loan / Projection buttons and a swipeable row of facts (assets grew, cash & bank, EMIs, debt-free by). The gradient card, 4 tiles and bottom trend card are gone |
 | 735 | **Banks & Cards** leads with swipeable account cards (own gradient per account, balance or card due, updated X ago, last change, card limit bar + due, white Update / Pay button, ⋯ options, dots, "Add" card at the end); wave card, Money in/out and cash flow follow |
+| 736 | **Loan screen** leads with a big animated progress ring (% paid, ₹ left, 25/50/75% ticks) and Rate / Type / Started chips; new **Milestones** timeline (25%, 50%, 75%, fully paid — reached, or the month it will happen at the current EMI) |
 
 ### Testing locally
 

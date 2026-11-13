@@ -21635,3 +21635,35 @@ html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-acc { order: 1; } 
 html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-minis { order: 3; } html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-flow { order: 4; }
 html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-tr { order: 5; } html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-log { order: 6; }
 html.is-app body:not(#_cx):not(#_cy) .bk-acc { overflow: hidden; }
+
+/* ================= build 736 — Loan: big ring + milestones ================= */
+html.is-app body:not(#_cx):not(#_cy) .ldr { display: flex; flex-direction: column; align-items: center; padding: 6px 0 4px; animation: mvUp .45s both; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-ring { position: relative; width: 220px; height: 220px; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-ring svg { width: 100%; height: 100%; transform: rotate(0deg); overflow: visible; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-ring circle.bg { fill: none; stroke: var(--cx-chip); stroke-width: 18; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-ring circle.fg { fill: none; stroke: url(#ldrg); stroke-width: 18; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 100px 100px; stroke-dasharray: var(--len) 540.4; animation: ldrFill 1.4s .2s cubic-bezier(.2,.8,.2,1) both; filter: drop-shadow(0 6px 12px color-mix(in srgb, var(--cx-pri) 45%, transparent)); }
+@keyframes ldrFill { from { stroke-dasharray: 0 540.4; } }
+html.is-app body:not(#_cx):not(#_cy) .ldr-ring circle.tick { fill: var(--cx-card); stroke: var(--cx-line); stroke-width: 2; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-ring circle.tick.on { fill: #fff; stroke: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .ldr-c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-c b { font-size: 46px; font-weight: 900; letter-spacing: -.03em; color: var(--cx-ink); line-height: 1; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-c span { font-size: 13px; font-weight: 800; color: var(--cx-mute); margin-top: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-c em { font-style: normal; margin-top: 8px; padding: 4px 10px; border-radius: 999px; background: var(--cx-exp-bg); color: var(--cx-exp); font-size: 12.5px; font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .ldr.done .ldr-c em { background: var(--cx-inc-bg); color: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .ldr-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-top: 14px; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-chips span { padding: 10px 8px; border-radius: 16px; background: var(--cx-card); border: 1px solid var(--cx-line); text-align: center; }
+html.is-app body:not(#_cx):not(#_cy) .ldr-chips small { display: block; font-size: 11px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .ldr-chips b { font-size: 14px; font-weight: 900; color: var(--cx-ink); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .ldm-r { position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 0; animation: mvUp .45s var(--d) both; }
+html.is-app body:not(#_cx):not(#_cy) .ldm-r:not(:last-child)::after { content: ''; position: absolute; left: 13px; top: 38px; bottom: -10px; width: 2px; background: var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .ldm-r.done:not(:last-child)::after { background: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .ldm-dot { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; border: 2px solid var(--cx-line); background: var(--cx-card); z-index: 1; }
+html.is-app body:not(#_cx):not(#_cy) .ldm-r.done .ldm-dot { border-color: var(--cx-inc); background: var(--cx-inc); }
+html.is-app body:not(#_cx):not(#_cy) .ldm-dot svg { width: 14px; height: 14px; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .ldm-r.done .ldm-dot svg { color: #fff !important; }
+html.is-app body:not(#_cx):not(#_cy) .ldm-t { flex: 1; display: flex; flex-direction: column; }
+html.is-app body:not(#_cx):not(#_cy) .ldm-t b { font-size: 14.5px; font-weight: 800; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .ldm-t small { font-size: 12px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .ldm-r.done .ldm-t small { color: var(--cx-inc); font-weight: 700; }
+html.is-app body:not(#_cx):not(#_cy) .ldm-r em { font-style: normal; font-size: 13px; font-weight: 800; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .ldr-chips small { text-transform: none !important; letter-spacing: 0 !important; }
