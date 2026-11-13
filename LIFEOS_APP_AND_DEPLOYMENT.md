@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **737** (13 Nov 2026).*
+*Status as of build **738** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -287,6 +287,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 735 | **Banks & Cards** leads with swipeable account cards (own gradient per account, balance or card due, updated X ago, last change, card limit bar + due, white Update / Pay button, ⋯ options, dots, "Add" card at the end); wave card, Money in/out and cash flow follow |
 | 736 | **Loan screen** leads with a big animated progress ring (% paid, ₹ left, 25/50/75% ticks) and Rate / Type / Started chips; new **Milestones** timeline (25%, 50%, 75%, fully paid — reached, or the month it will happen at the current EMI) |
 | 737 | **Budget** tab leads with a "battery" grid (`js/budgets2.js`): summary (₹ left / over, spent of total, how many over limit, period picker), total bar, then one tile per category with a battery that fills as you spend (green → amber → red, blinks when over), "₹X left / over" in words, tap to edit, and an "Add budget" tile. The old ring, total card and bar list are hidden; suggestions, unbudgeted and compare stay |
+| 738 | Fix: left/right page swipe now follows the bottom bar — Home ↔ Analytics ↔ Assets (swipe left past Assets opens More). It still used the old order (Home → old Finance page → Assets) and did nothing on Analytics. Swipes that start on the new bank cards, charts, calendar, fact rows or rings no longer change page |
 
 ### Testing locally
 

@@ -1077,8 +1077,8 @@ function _doExitApp() {
 
 // ===== SWIPE TO CHANGE TABS (installed app, Instagram-style) =====
 (function initSwipeNav() {
-  // Bottom-nav order: Records · Finance · Assets · (then More drawer)
-  const ORDER = ['transactions', 'finance', 'investments'];
+  // Bottom-nav order: Home · Analytics · Assets · (then More drawer)
+  const ORDER = ['transactions', 'insights', 'investments'];
   let x0 = null, y0 = null, fromScroller = false;
   document.addEventListener('touchstart', e => {
     if (!document.documentElement.classList.contains('is-app')) return;
@@ -1086,7 +1086,7 @@ function _doExitApp() {
     // If the touch starts inside a horizontal carousel/scroller, let it scroll
     // — don't hijack it for page navigation.
     fromScroller = !!(e.target.closest &&
-      e.target.closest('.fin-bank-grid, .fin-card-grid, .fin-cash-grid, .mm-hero-carousel, .mm-acct-chips, .swipe-dots, [style*="overflow-x"]'));
+      e.target.closest('.fin-bank-grid, .fin-card-grid, .fin-cash-grid, .mm-hero-carousel, .mm-acct-chips, .swipe-dots, [style*="overflow-x"], .bk-cards, .asl-chart, .asl-facts, .hm-facts, .ub-strip, .anl-chart, .anx-bars, .ldv-svg, .bk-chart, .uc-grid, .hx-rose, .nw-chips, .bk-chips'));
   }, { passive: true });
   document.addEventListener('touchend', e => {
     if (x0 === null) return;
