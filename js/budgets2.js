@@ -46,3 +46,27 @@
     return r;
   };
 })();
+
+// ── Build 742: simpler Home "Monthly budget" card ──────────────────────
+// Counts only spending in categories that HAVE a budget (the old card
+// compared all spending, rent / EMI included, with the budget total).
+window._homeBudgetHtml = function (F) {
+  const S = v => (typeof _asShort === 'function' ? _asShort(v) : fmt(v));
+  const E = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  if (!F.budget) return `<div class="hx-card hb-empty" onclick="navigate('budget')"><span class="hb-ic"><i data-lucide="target"></i></span><div><b>Set a monthly budget</b><small>Get a daily allowance and a warning before you overspend.</small></div><i data-lucide="chevron-right"></i></div>`;
+  const rows = (STATE.budgets || []).map(b => { const lim = typeof _budgetLimitMonthly === 'function' ? _budgetLimitMonthly(b) : +b.amount || 0, k = (b.category || '').trim().toLowerCase();
+    const sp = Object.entries(F.byCat || {}).filter(([c]) => c.trim().toLowerCase() === k).reduce((s, [, v]) => s + v, 0); return { c: b.category, lim, sp }; }).filter(r => r.lim > 0);
+  const lim = rows.reduce((s, r) => s + r.lim, 0), sp = rows.reduce((s, r) => s + r.sp, 0), left = lim - sp;
+  const pct = lim > 0 ? sp / lim * 100 : 0, pace = F.day / F.dim * 100;
+  const st = pct >= 100 ? ['exp', 'Over budget'] : (pct >= 85 || pct > pace + 12) ? ['warn', pct >= 85 ? 'Almost used' : 'Spending fast'] : ['inc', 'On track'];
+  const over = rows.filter(r => r.sp > r.lim).sort((a, b) => (b.sp - b.lim) - (a.sp - a.lim));
+  const tip = left <= 0 ? 'Try to keep the rest of the month to essentials.' : `You can spend about <b>${fmt(Math.floor(left / F.daysLeft))}</b> a day for the next ${F.daysLeft} days.`;
+  return `<div class="hx-card hb t-${st[0]}" onclick="navigate('budget')">
+    <div class="hb-top"><span>Monthly budget</span><em>${st[1]}</em></div>
+    <b class="hb-big">${left >= 0 ? `${fmt(Math.round(left))} <small>left of ${S(lim)}</small>` : `${fmt(Math.round(-left))} <small>over your ${S(lim)}</small>`}</b>
+    <div class="hb-bar"><i style="width:${Math.min(100, pct).toFixed(1)}%"></i><s style="left:${Math.min(100, pace).toFixed(1)}%" title="Where you should be today"></s></div>
+    <div class="hb-lbl"><span>${S(sp)} spent · ${pct < 100 ? Math.floor(pct) : Math.round(pct)}%</span><span>│ = where you should be today</span></div>
+    <p class="hb-tip">${tip}</p>
+    ${over.length ? `<div class="hb-over">${over.slice(0, 3).map(r => `<span>${E(r.c)} <b>+${S(r.sp - r.lim)}</b></span>`).join('')}${over.length > 3 ? `<span>+${over.length - 3} more</span>` : ''}</div>` : ''}
+  </div>`;
+};

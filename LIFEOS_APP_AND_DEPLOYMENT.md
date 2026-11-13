@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **741** (13 Nov 2026).*
+*Status as of build **742** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -291,6 +291,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 739 | Owner's choice: **Home**, **Banks & Cards** and **Bills & Due** go back to their earlier layouts — Home money card + Today card (731), Banks wave card + account list (729), Bills hero + 30-day strip (730). Analytics, Assets, Loan, Budget and the swipe fix stay |
 | 740 | Calmer, simpler **Home money card**: one dark indigo card for every case (only the number turns rose when overspent or mint when money is left), "Left / Overspent this month", the big number, Earned and Spent with their own bars, and one footer line (days left · bills due →). Removed the month pill, the repeat sentence, the "% used / over by" line and the three fact boxes |
 | 741 | Owner's choice: **Home** back to the original card ("Deficit / Surplus this month", Income / Expense, Spending vs last month, In accounts) and the original Today card — `js/home2.js` is no longer loaded (file kept) |
+| 742 | Simpler **Home "Monthly budget" card**: status pill, "₹X left of ₹Y" (or "₹X over your ₹Y"), one bar with a marker for where you should be today, how much you can spend per day, and chips for categories that are over. Fix: it now counts only spending in categories that have a budget (it compared all spending — rent, EMI — with the budget total, e.g. 144%) |
 
 ### Testing locally
 
