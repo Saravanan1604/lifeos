@@ -21459,3 +21459,67 @@ html.is-app body:not(#_cx):not(#_cy) .hm-facts button { min-width: 0; padding: 8
 html.is-app body:not(#_cx):not(#_cy) .hm-facts button > span { min-width: 0; }
 html.is-app body:not(#_cx):not(#_cy) .hm-facts b { font-size: 13.5px; white-space: nowrap; }
 html.is-app body:not(#_cx):not(#_cy) .hm-facts small { overflow: hidden; text-overflow: ellipsis; }
+
+/* ================= build 732 — Home: slim summary, add first ================= */
+html.is-app body:not(#_cx):not(#_cy) .hm-slim { margin: 4px 0 12px; padding: 12px 14px; border-radius: 20px; background: var(--cx-card); border: 1px solid var(--cx-line); cursor: pointer; animation: mvUp .45s both; }
+html.is-app body:not(#_cx):not(#_cy) .hm-s1 { display: flex; align-items: center; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .hm-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cx-inc); box-shadow: 0 0 0 4px var(--cx-inc-bg); flex-shrink: 0; }
+html.is-app body:not(#_cx):not(#_cy) .hm-slim.neg .hm-dot { background: var(--cx-exp); box-shadow: 0 0 0 4px var(--cx-exp-bg); }
+html.is-app body:not(#_cx):not(#_cy) .hm-s1 > b { font-size: 22px; font-weight: 900; letter-spacing: -.02em; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .hm-slim.neg .hm-s1 > b { color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .hm-s1 > span:not(.hm-dot) { flex: 1; font-size: 13px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .hm-eye2 { width: 34px !important; height: 34px; padding: 0 !important; border-radius: 11px; border: 1px solid var(--cx-line); background: var(--cx-chip); display: grid; place-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .hm-eye2 svg { width: 16px; height: 16px; color: var(--cx-mute) !important; }
+html.is-app body:not(#_cx):not(#_cy) .hm-sbar { height: 6px; margin: 10px 0 8px; border-radius: 4px; background: var(--cx-chip); overflow: hidden; }
+html.is-app body:not(#_cx):not(#_cy) .hm-sbar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--cx-inc), var(--cx-acc)); transform-origin: left; animation: pkBar .9s .15s both; }
+html.is-app body:not(#_cx):not(#_cy) .hm-slim.neg .hm-sbar i { background: linear-gradient(90deg, var(--cx-warn), var(--cx-exp)); }
+html.is-app body:not(#_cx):not(#_cy) .hm-s2 { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .hm-s2 b { color: var(--cx-ink); font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .hm-s2 b.in { color: var(--cx-inc); } html.is-app body:not(#_cx):not(#_cy) .hm-s2 b.out { color: var(--cx-exp); } html.is-app body:not(#_cx):not(#_cy) .hm-s2 b.warn { color: var(--cx-warn); }
+html.is-app body:not(#_cx):not(#_cy) .qa.hm-qa-top { border: 2px solid color-mix(in srgb, var(--cx-pri) 45%, transparent) !important; box-shadow: 0 16px 34px -20px var(--cx-pri) !important; }
+html.is-app body:not(#_cx):not(#_cy) .hm-latest { margin: 4px 0 14px; padding: 6px 0; border-radius: 22px; background: var(--cx-card); border: 1px solid var(--cx-line); }
+html.is-app body:not(#_cx):not(#_cy) .hm-lh { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px 4px; }
+html.is-app body:not(#_cx):not(#_cy) .hm-lh span { font-size: 15px; font-weight: 900; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .hm-lh button { display: inline-flex; align-items: center; gap: 3px; padding: 4px 8px !important; border: 0; background: none; font-size: 12.5px; font-weight: 800; color: var(--cx-pri-tx, var(--cx-pri)); }
+html.is-app body:not(#_cx):not(#_cy) .hm-lh svg { width: 14px; height: 14px; color: currentColor !important; }
+html.is-app body:not(#_cx):not(#_cy) .hm-tx { display: flex; align-items: center; gap: 12px; width: 100% !important; padding: 10px 14px !important; border: 0; background: none; text-align: left; animation: mvUp .4s var(--d) both; }
+html.is-app body:not(#_cx):not(#_cy) .hm-tx:active { background: var(--cx-chip); }
+html.is-app body:not(#_cx):not(#_cy) .hm-tic { width: 40px; height: 40px; border-radius: 13px; flex-shrink: 0; display: grid; place-items: center; font-size: 19px; color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent); }
+html.is-app body:not(#_cx):not(#_cy) .hm-tic svg { width: 19px; height: 19px; color: var(--c) !important; }
+html.is-app body:not(#_cx):not(#_cy) .hm-tm { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html.is-app body:not(#_cx):not(#_cy) .hm-tm b { font-size: 14.5px; font-weight: 800; color: var(--cx-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.is-app body:not(#_cx):not(#_cy) .hm-tm small { font-size: 12px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .hm-tx > b { font-size: 15px; font-weight: 900; color: var(--cx-ink); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .hm-tx > b.in { color: var(--cx-inc); }
+
+/* ================= build 732 — Bills & Due calendar ================= */
+html.is-app body:not(#_cx):not(#_cy) .uc-card { margin-top: 14px; padding: 14px 12px 10px; }
+html.is-app body:not(#_cx):not(#_cy) .uc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+html.is-app body:not(#_cx):not(#_cy) .uc-head > span { text-align: center; }
+html.is-app body:not(#_cx):not(#_cy) .uc-head b { display: block; font-size: 17px; font-weight: 900; color: var(--cx-ink); }
+html.is-app body:not(#_cx):not(#_cy) .uc-head small { font-size: 12px; font-weight: 700; color: var(--cx-warn); }
+html.is-app body:not(#_cx):not(#_cy) .uc-head button { width: 36px !important; height: 36px; padding: 0 !important; border-radius: 12px; border: 1px solid var(--cx-line); background: var(--cx-chip); display: grid; place-items: center; }
+html.is-app body:not(#_cx):not(#_cy) .uc-head button svg { width: 17px; height: 17px; color: var(--cx-ink) !important; }
+html.is-app body:not(#_cx):not(#_cy) .uc-head button:disabled { opacity: .3; }
+html.is-app body:not(#_cx):not(#_cy) .uc-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .uc-wd { text-align: center; font-size: 11px; font-weight: 800; color: var(--cx-mute); padding-bottom: 4px; }
+html.is-app body:not(#_cx):not(#_cy) .uc-d { position: relative; aspect-ratio: 1 / 1.12; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; padding: 6px 0 0 !important; border-radius: 12px; border: 1px solid transparent; background: none; animation: mvPop .4s var(--d) both; }
+html.is-app body:not(#_cx):not(#_cy) .uc-d b { font-size: 14px; font-weight: 800; color: var(--cx-ink2); }
+html.is-app body:not(#_cx):not(#_cy) .uc-d.past b { color: var(--cx-mute); opacity: .55; }
+html.is-app body:not(#_cx):not(#_cy) .uc-d i { display: flex; gap: 2px; }
+html.is-app body:not(#_cx):not(#_cy) .uc-d i s { width: 5px; height: 5px; border-radius: 50%; background: var(--cx-warn); }
+html.is-app body:not(#_cx):not(#_cy) .uc-d em { font-style: normal; font-size: 9px; font-weight: 800; color: var(--cx-warn); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .uc-d.has { background: var(--cx-warn-bg); }
+html.is-app body:not(#_cx):not(#_cy) .uc-d.today { border-color: var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .uc-d.today b { color: var(--cx-pri-tx, var(--cx-pri)); font-weight: 900; }
+html.is-app body:not(#_cx):not(#_cy) .uc-d.on { background: var(--cx-pri); transform: scale(1.06); box-shadow: 0 10px 20px -10px var(--cx-pri); }
+html.is-app body:not(#_cx):not(#_cy) .uc-d.on :is(b, em) { color: #fff !important; } html.is-app body:not(#_cx):not(#_cy) .uc-d.on i s { background: #fff; }
+html.is-app body:not(#_cx):not(#_cy) .uc-tip { margin: 10px 0 2px; text-align: center; font-size: 12px; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .ubx .uc-card { margin-top: 0; }
+html.is-app body:not(#_cx):not(#_cy) .ub-sum { margin-top: 12px; padding: 14px; border-radius: 20px; background: var(--cx-card); border: 1px solid var(--cx-line); border-left: 4px solid var(--cx-warn); animation: mvUp .45s .1s both; }
+html.is-app body:not(#_cx):not(#_cy) .ub-sum.neg { border-left-color: var(--cx-exp); }
+html.is-app body:not(#_cx):not(#_cy) .ub-s1 { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 8px; }
+html.is-app body:not(#_cx):not(#_cy) .ub-s1 small { display: block; font-size: 11px; font-weight: 700; color: var(--cx-mute); }
+html.is-app body:not(#_cx):not(#_cy) .ub-s1 b { font-size: 17px; font-weight: 900; color: var(--cx-ink); white-space: nowrap; }
+html.is-app body:not(#_cx):not(#_cy) .ubx .ub-s1 b.up { color: var(--cx-inc) !important; } html.is-app body:not(#_cx):not(#_cy) .ubx .ub-s1 b.down { color: var(--cx-exp) !important; }
+html.is-app body:not(#_cx):not(#_cy) .ub-sum p { margin: 10px 0 0; padding-top: 10px; border-top: 1px dashed var(--cx-line); font-size: 13px; color: var(--cx-ink2); }

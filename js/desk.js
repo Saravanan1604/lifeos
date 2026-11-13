@@ -36,7 +36,7 @@ function setWebLayout(mode) {
     const main = document.createElement('div'); main.className = 'dk-main';
     const side = document.createElement('div'); side.className = 'dk-side';
     const pick = sel => rec.querySelector(':scope > ' + sel);
-    ['.mm-hero', '.hx-qa', '.qa', '.mm-subhead', '.mm-list'].forEach(s => { const e = pick(s); if (e) main.appendChild(e); });
+    ['.mm-hero', '.hm-slim', '.qa', '.hx-qa', '.hm-latest', '.mm-subhead', '.mm-list'].forEach(s => { const e = pick(s); if (e) main.appendChild(e); });
     ['.hx-card.td', '.hx-budget', '#hx-analytics', '.hx-card'].forEach(s => { const e = pick(s); if (e) side.appendChild(e); });
     const bar = pick('.mm-monthbar');
     const grid = document.createElement('div'); grid.className = 'dk-grid'; grid.append(main, side);

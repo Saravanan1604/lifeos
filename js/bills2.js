@@ -5,7 +5,8 @@
 //  coloured rows with countdown chips and Paid / Skip.
 // ============================================================
 (function () {
-  let _upPick = null;
+  let _upPick = null, _upMon = 0;
+  window.upMonth = d => { _upMon = Math.max(0, Math.min(1, _upMon + d)); _upPick = null; renderUpcoming(); };
   window.upPickDay = d => { _upPick = _upPick === d ? null : d; renderUpcoming(); };
   window._renderUpcomingApp = function (c) {
     const S = v => (typeof _asShort === 'function' ? _asShort(v) : fmt(v));
@@ -35,29 +36,29 @@
         <span class="ub-r"><b>${fmt(Math.round(i.amount))}</b><em class="${tone}">${when}</em></span></div>`;
     };
     const grp = (t, list, k0) => list.length ? `<div class="pk-sec"><span>${t}</span><b>${fmt(Math.round(sum(list)))}</b></div><div class="pk-list ub-list">${list.map((i, k) => row(i, k0 + k)).join('')}</div>` : '';
-    // 30-day strip
-    const byDay = {}; items.forEach(i => { if (i.date <= in30) (byDay[i.date] = byDay[i.date] || []).push(i); });
-    const mx = Math.max(1, ...Object.values(byDay).map(sum));
-    const strip = [...Array(31)].map((_, n) => { const k = ds(n), d = new Date(t0); d.setDate(d.getDate() + n); const l = byDay[k], v = l ? sum(l) : 0;
-      return `<button class="ub-day ${l ? 'has' : ''} ${_upPick === k ? 'on' : ''} ${n === 0 ? 'today' : ''}" ${l ? `onclick="upPickDay('${k}')"` : 'disabled'}><small>${d.toLocaleDateString('en-IN', { weekday: 'narrow' })}</small><b>${d.getDate()}</b><span class="ub-bar"><i style="height:${l ? Math.max(18, v / mx * 100) : 0}%"></i></span>${l ? `<em>${S(v)}</em>` : '<em>&nbsp;</em>'}</button>`; }).join('');
+    // month calendar (this month / next month)
+    const byDay = {}; items.forEach(i => { (byDay[i.date] = byDay[i.date] || []).push(i); });
+    const m0 = new Date(t0.getFullYear(), t0.getMonth() + _upMon, 1), dim = new Date(m0.getFullYear(), m0.getMonth() + 1, 0).getDate();
+    const lead = (m0.getDay() + 6) % 7;
+    const mTot = Object.entries(byDay).filter(([k]) => k.startsWith(_ymdLocal(m0).slice(0, 7)) && k >= todayS).reduce((s2, [, l]) => s2 + sum(l), 0);
+    let cells = '<span class="uc-wd">M</span><span class="uc-wd">T</span><span class="uc-wd">W</span><span class="uc-wd">T</span><span class="uc-wd">F</span><span class="uc-wd">S</span><span class="uc-wd">S</span>' + '<span></span>'.repeat(lead);
+    for (let n = 1; n <= dim; n++) { const d = new Date(m0.getFullYear(), m0.getMonth(), n), k = _ymdLocal(d), l = byDay[k], past = k < todayS;
+      cells += `<button class="uc-d ${l ? 'has' : ''} ${k === todayS ? 'today' : ''} ${_upPick === k ? 'on' : ''} ${past ? 'past' : ''}" ${l ? `onclick="upPickDay('${k}')"` : 'disabled'} style="--d:${n * 12}ms"><b>${n}</b>${l ? `<i>${l.slice(0, 3).map((_, z) => '<s></s>').join('')}</i><em>${S(sum(l))}</em>` : ''}</button>`; }
+    const strip = `<div class="uc-head"><button onclick="upMonth(-1)" ${_upMon <= 0 ? 'disabled' : ''} aria-label="Previous month"><i data-lucide="chevron-left"></i></button><span><b>${m0.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</b><small>${mTot ? S(mTot) + ' still to pay' : 'nothing left to pay'}</small></span><button onclick="upMonth(1)" ${_upMon >= 1 ? 'disabled' : ''} aria-label="Next month"><i data-lucide="chevron-right"></i></button></div><div class="uc-grid">${cells}</div>`;
     const pickL = _upPick ? items.filter(i => i.date === _upPick) : null;
     const nx = items[0];
     const thisW = w7, next30 = w30.filter(i => i.date > in7);
+    const sumHtml = `<div class="ub-sum ${after < 0 ? 'neg' : ''}"><div class="ub-s1"><span><small>Going out · 30 days</small><b>${fmt(Math.round(sum(w30)))}</b></span><span><small>This week</small><b>${S(sum(w7))}</b></span><span><small>Left after bills</small><b class="${after < 0 ? 'down' : 'up'}">${after < 0 ? '−' : ''}${S(Math.abs(after))}</b></span></div>
+        ${nx ? `<p>Next: <b>${E(nx.name)}</b> · ${fmt(Math.round(nx.amount))} · ${_upDays(nx.date) <= 0 ? 'today' : _upDays(nx.date) === 1 ? 'tomorrow' : 'in ' + _upDays(nx.date) + ' days'}</p>` : ''}</div>`;
     c.innerHTML = `<div class="pk ubx">
-      <div class="as-hero ub-hero ${after < 0 ? 'neg' : ''}">
-        <div class="as-hero-top"><span>Going out · next 30 days</span><em class="anx-rate">${w30.length} bill${w30.length === 1 ? '' : 's'}</em></div>
-        <b class="as-nw">${fmt(Math.round(sum(w30)))}</b>
-        <p class="as-say">${nx ? `Next: <b>${E(nx.name)}</b> ${fmt(Math.round(nx.amount))} ${_upDays(nx.date) <= 0 ? 'today' : _upDays(nx.date) === 1 ? 'tomorrow' : 'in ' + _upDays(nx.date) + ' days'}` : 'Nothing due in the next 30 days.'}</p>
-        <div class="bk-chips"><div><small>This week</small><b>${S(sum(w7))}</b></div><div><small>Bank + cash</small><b>${S(have)}</b></div><div><small>Left after bills</small><b>${after < 0 ? '−' : ''}${S(Math.abs(after))}</b></div></div>
-      </div>
       ${overdue.length ? `<div class="ldx-warn"><i data-lucide="alarm-clock"></i><div><b>${overdue.length} bill${overdue.length === 1 ? ' was' : 's were'} due and not added yet</b><p>${overdue.slice(0, 3).map(r => E(r.description || r.category)).join(', ')}${overdue.length > 3 ? '…' : ''}. Add them to your records so balances stay right.</p><button onclick="if(typeof processRecurring==='function')processRecurring();navigate('upcoming',true)">Add ${overdue.length === 1 ? 'it' : 'them'} now</button></div></div>` : ''}
-      ${items.length ? `<div class="pk-card ub-strip-card"><div class="ldx-ct"><span>Next 30 days</span><span class="ldx-leg">${_upPick ? `<button class="ub-clr" onclick="upPickDay('${_upPick}')">Show all</button>` : 'tap a day'}</span></div><div class="ub-strip">${strip}</div></div>
+      ${items.length ? `<div class="pk-card uc-card">${strip}<p class="uc-tip">${_upPick ? `<button class="ub-clr" onclick="upPickDay('${_upPick}')">Show all bills</button>` : 'Tap a day with a dot to see its bills'}</p></div>${sumHtml}
       ${pickL ? `<div class="pk-sec"><span>${new Date(_upPick + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}</span><b>${fmt(Math.round(sum(pickL)))}</b></div><div class="pk-list ub-list">${pickL.map(row).join('')}</div>`
         : grp('This week', thisW, 0) + grp('Rest of the 30 days', next30, thisW.length) + grp('Later', later, w30.length)}
       <p class="pk-foot">From your repeating payments and loan EMIs (an EMI already set up as repeating is counted once). Tap a bill to change it.</p>`
       : _pk.empty({ ic: 'calendar-clock', t: 'No bills coming up', s: 'Add an expense and set <b>Repeat</b> (rent, phone, subscriptions), or add a loan with an EMI — they show up here before they are due.', btns: [['Add a repeating bill', "openAddTxModal('expense')", 1]] })}
     </div>`;
     _pk.done(c);
-    const on = c.querySelector('.ub-day.on') || c.querySelector('.ub-day.today'); if (on && on.scrollIntoView) { const s = c.querySelector('.ub-strip'); if (s) s.scrollLeft = Math.max(0, on.offsetLeft - 40); }
+    
   };
 })();

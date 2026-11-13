@@ -1,6 +1,6 @@
 # Life OS (atworth) — App Overview & Deployment Guide
 
-*Status as of build **731** (13 Nov 2026).*
+*Status as of build **732** (13 Nov 2026).*
 
 Life OS (brand name **atworth**) is a personal finance and "life operating system" app. It tracks:
 
@@ -281,6 +281,7 @@ There is **no build step**. Vercel serves the repo files as they are; `vercel.js
 | 729 | **Banks & Cards** restyled after the owner's Dribbble reference: wave card "Money you really have" (30-day bank+cash line, Today marker, change chip, Banks/Cash/Card-dues switch), Money in / Money out rows with 14-day sparklines and % chips, "Your accounts" card with round logo pills, last change ↗/↘ per account, Update/Pay + ⋯, Move money pill, weekly **Cash flow** chart (income/outgoing totals, striped bars, today highlighted, dotted daily average, tap a day, previous weeks), account trend only when one account is picked, black "Update balance" pill. Desktop: two columns (accounts + cash flow left, wave card + mini rows right) |
 | 730 | New **Upcoming** (Bills & Due) page in the app (`js/bills2.js`): hero "Going out · next 30 days" with the next bill, This week / Bank + cash / Left after bills, a warning with "Add them now" when repeating bills were due but not added, a tappable 30-day strip (bars per day), rows grouped This week / Rest of 30 days / Later with countdown chips, Paid / Skip within 7 days, tap a bill to edit it (or open its loan) |
 | 731 | Clearer **Home money card** (`js/home2.js`, current month only): "Left this month" (or "Overspent") with a plain sentence, a bar of how much of income (or budget) is used + "₹X to go / over by", Earned / Spent tiles, and three tappable facts (spend vs last month, money in accounts, bills to pay). Eye button still hides amounts; other months keep the old card. **Today card** redone as a tidy grid: spent today, limit, plain message, streak, and a full-width "Log today to keep your N-day streak" button (no more overlap) |
+| 732 | Each page gets its own layout (owner: "all pages look the same"). **Home** leads with adding: slim one-line summary (left / days to go, bar, In / Out / Accounts / Bills), then Quick add (highlighted), action buttons, and a "Just added" card with the latest 4 entries. **Bills & Due** leads with a month calendar (dots + amount on bill days, today ringed, tap a day, this / next month), then a compact summary strip and the list |
 
 ### Testing locally
 

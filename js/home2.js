@@ -8,42 +8,43 @@
 (function () {
   if (!window.__IS_APP) return;
   const S = v => (typeof _asShort === 'function' ? _asShort(v) : fmt(v));
+  // Build 732: Home leads with ADDING — a slim one-line summary instead of a big card
   function heroHtml() {
     const F = _homeFacts(), hide = STATE.settings && STATE.settings.showTotal === false;
     const H = v => hide ? '••••' : v;
     const net = F.income - F.spent, neg = net < 0;
     const base = F.income > 0 ? F.income : F.budget;
-    const pct = base > 0 ? F.spent / base * 100 : null;
-    const mName = F.now.toLocaleDateString('en-IN', { month: 'long' });
-    const chg = F.pSameDay > 0 ? Math.round((F.spent / F.pSameDay - 1) * 100) : null;
+    const pct = base > 0 ? Math.round(F.spent / base * 100) : null;
     const have = F.liquid - F.cardDue;
-    const say = !F.income && !F.spent ? `Nothing logged in ${mName} yet.`
-      : !F.income ? `You've spent <b>${H(S(F.spent))}</b> — add your income to see what's left.`
-      : neg ? `You've spent <b>${H(S(-net))}</b> more than you earned.` : `You still have <b>${H(S(net))}</b> of this month's income.`;
-    return `<div class="hm-hero ${neg ? 'neg' : 'pos'}">
-      <div class="hm-top"><span>${mName} · ${F.daysLeft} day${F.daysLeft === 1 ? '' : 's'} left</span><button class="hm-eye" onclick="event.stopPropagation();recToggleTotal()" aria-label="${hide ? 'Show' : 'Hide'} amounts"><i data-lucide="${hide ? 'eye-off' : 'eye'}"></i></button></div>
-      <small class="hm-l">${neg ? 'Overspent this month' : 'Left this month'}</small>
-      <b class="hm-big">${hide ? '••••••' : (neg ? '−' : '') + fmt(Math.round(Math.abs(net)))}</b>
-      <p class="hm-say">${say}</p>
-      ${pct != null ? `<div class="hm-bar"><i style="width:${Math.min(100, pct)}%"></i>${pct > 100 ? `<s style="left:${(100 / pct * 100).toFixed(1)}%"></s>` : ''}</div>
-      <div class="hm-bl"><span>${Math.round(pct)}% of your ${F.income > 0 ? 'income' : 'budget'} used</span><span>${pct > 100 ? 'over by ' + H(S(F.spent - base)) : H(S(base - F.spent)) + ' to go'}</span></div>` : ''}
-      <div class="hm-io">
-        <button onclick="event.stopPropagation();navigate('insights')"><span class="i in"><i data-lucide="arrow-down-left"></i></span><span><small>Earned</small><b>${H('+' + S(F.income))}</b></span></button>
-        <button onclick="event.stopPropagation();navigate('insights')"><span class="i out"><i data-lucide="arrow-up-right"></i></span><span><small>Spent</small><b>${H('−' + S(F.spent))}</b></span></button>
-      </div>
-      <div class="hm-facts">
-        ${chg != null ? `<button onclick="event.stopPropagation();navigate('insights')"><i data-lucide="${chg > 0 ? 'trending-up' : 'trending-down'}"></i><span><b style="color:${chg > 0 ? '#FECDD3' : '#A7F3D0'} !important">${chg > 0 ? '+' : '−'}${Math.abs(chg)}%</b><small>spend vs ${F.prev.toLocaleDateString('en-IN', { month: 'short' })}</small></span></button>` : ''}
-        ${(STATE.bankAccounts || []).length || (STATE.cashAccounts || []).length ? `<button onclick="event.stopPropagation();navigate('bank-tracker')"><i data-lucide="landmark"></i><span><b>${H((have < 0 ? '−' : '') + S(Math.abs(have)))}</b><small>in accounts</small></span></button>` : ''}
-        ${F.billsLeft ? `<button onclick="event.stopPropagation();navigate('upcoming')"><i data-lucide="receipt"></i><span><b>${H(S(F.billsLeft))}</b><small>bills to pay</small></span></button>` : ''}
-      </div>
+    return `<div class="hm-slim ${neg ? 'neg' : ''}" onclick="navigate('insights')">
+      <div class="hm-s1"><span class="hm-dot"></span><b>${hide ? '••••' : (neg ? '−' : '') + S(Math.abs(net))}</b><span>${neg ? 'over' : 'left'} · ${F.daysLeft} day${F.daysLeft === 1 ? '' : 's'} to go</span>
+        <button class="hm-eye2" onclick="event.stopPropagation();recToggleTotal()" aria-label="${hide ? 'Show' : 'Hide'} amounts"><i data-lucide="${hide ? 'eye-off' : 'eye'}"></i></button></div>
+      ${pct != null ? `<div class="hm-sbar"><i style="width:${Math.min(100, pct)}%"></i></div>` : ''}
+      <div class="hm-s2"><span>In <b class="in">${H(S(F.income))}</b></span><span>Out <b class="out">${H(S(F.spent))}</b></span>${(STATE.bankAccounts || []).length ? `<span onclick="event.stopPropagation();navigate('bank-tracker')">Accounts <b>${H(S(have))}</b></span>` : ''}${F.billsLeft ? `<span onclick="event.stopPropagation();navigate('upcoming')">Bills <b class="warn">${H(S(F.billsLeft))}</b></span>` : ''}</div>
     </div>`;
+  }
+  function latestHtml() {
+    const all = (STATE.transactions || []).slice().sort((a, b) => ((b.date || '') + (b.time || '') + (b.createdAt || '')).localeCompare((a.date || '') + (a.time || '') + (a.createdAt || ''))).slice(0, 4);
+    if (!all.length) return '';
+    const td = _ymdLocal(new Date()), y = new Date(); y.setDate(y.getDate() - 1); const yd = _ymdLocal(y);
+    const when = d => d === td ? 'Today' : d === yd ? 'Yesterday' : fmtDate(d);
+    const E = x => String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    return `<div class="hm-latest"><div class="hm-lh"><span>Just added</span><button onclick="document.querySelector('.mm-subhead')?.scrollIntoView({behavior:'smooth',block:'start'})">See all <i data-lucide="chevron-down"></i></button></div>
+      ${all.map((t, k) => { const inc = t.type === 'income'; return `<button class="hm-tx" style="--d:${k * 50}ms" onclick="openTxDetail('${t.id}')"><span class="hm-tic" style="--c:${typeof catColor === 'function' ? catColor(t.category) : '#8B5CF6'}">${typeof catIconHtml === 'function' ? catIconHtml(t.category) : ''}</span><span class="hm-tm"><b>${E(t.description || t.category)}</b><small>${E(t.category || '')} · ${when((t.date || '').slice(0, 10))}</small></span><b class="${inc ? 'in' : ''}">${inc ? '+' : '−'}${fmt(Money.amt(t))}</b></button>`; }).join('')}</div>`;
   }
   const orig = window.renderRecordsMyMoney;
   window.renderRecordsMyMoney = function () {
     const r = orig.apply(this, arguments);
     try {
       const old = document.querySelector('#page-container .mm-hero');
-      if (old && old.querySelector('.hx-hero-extra')) { old.outerHTML = heroHtml(); if (typeof _lucideRefresh === 'function') _lucideRefresh(); }
+      if (old && old.querySelector('.hx-hero-extra')) {
+        old.outerHTML = heroHtml();
+        const qa = document.querySelector('#page-container .qa'), acts = document.querySelector('#page-container .hx-qa'), slim = document.querySelector('#page-container .hm-slim');
+        if (qa && slim) { slim.after(qa); qa.classList.add('hm-qa-top'); }
+        if (acts && qa) qa.after(acts);
+        const lt = latestHtml(); if (lt && acts) acts.insertAdjacentHTML('afterend', lt);
+        if (typeof _lucideRefresh === 'function') _lucideRefresh();
+      }
     } catch (e) { console.log('home hero', e); }
     return r;
   };
