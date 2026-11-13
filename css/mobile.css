@@ -21631,10 +21631,6 @@ html.is-app body:not(#_cx):not(#_cy) .bk-cadd svg { width: 22px; height: 22px; c
 html.is-app body:not(#_cx):not(#_cy) .bk-dots { display: flex; justify-content: center; gap: 6px; margin-top: 2px; }
 html.is-app body:not(#_cx):not(#_cy) .bk-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--cx-line); transition: width .25s, background .25s; }
 html.is-app body:not(#_cx):not(#_cy) .bk-dots i.on { width: 18px; background: var(--cx-pri); }
-html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-acc { order: 1; } html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-wcard { order: 2; }
-html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-minis { order: 3; } html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-flow { order: 4; }
-html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-tr { order: 5; } html.is-app:not(.is-desk) body:not(#_cx):not(#_cy) .bkx > .bk-log { order: 6; }
-html.is-app body:not(#_cx):not(#_cy) .bk-acc { overflow: hidden; }
 
 /* ================= build 736 — Loan: big ring + milestones ================= */
 html.is-app body:not(#_cx):not(#_cy) .ldr { display: flex; flex-direction: column; align-items: center; padding: 6px 0 4px; animation: mvUp .45s both; }
